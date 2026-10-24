@@ -29,6 +29,7 @@
     "@diagrist/core": "workspace:*",
     "@diagrist/export-png": "workspace:*",
     "@diagrist/lang": "workspace:*",
+    "@diagrist/plugin-architecture": "workspace:*",
     "@diagrist/plugin-uml": "workspace:*"
   },
   "devDependencies": {

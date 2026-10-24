@@ -16,6 +16,9 @@ Each kind has its own page with every statement, its parts, examples and the cod
 |---|---|---|
 | [`sequence`](sequence.md) | `uml` | A UML sequence diagram (UML 2.5.1, chapter 17): lifelines from left to right in source order, messages and fragments from top to bottom. |
 | [`usecase`](usecase.md) | `uml` | A UML use case diagram (UML 2.5.1, chapter 18): actors outside, use cases inside their subject, relations as straight lines. |
+| [`context`](context.md) | `architecture` | A C4 system context diagram (level 1): the system as one box, the people who use it and the systems around it, placed in a named grid. |
+| [`container`](container.md) | `architecture` | A C4 container diagram (level 2): the applications and data stores of a system, grouped by responsibility, placed in a named grid. |
+| [`component`](component.md) | `architecture` | A C4 component diagram (level 3): the components inside a container and what they depend on, placed in a named grid. |
 
 ## The grammar as data
 

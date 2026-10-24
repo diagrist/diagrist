@@ -44,6 +44,9 @@ importers:
       '@diagrist/lang':
         specifier: workspace:*
         version: link:../lang
+      '@diagrist/plugin-architecture':
+        specifier: workspace:*
+        version: link:../../plugins/plugin-architecture
       '@diagrist/plugin-uml':
         specifier: workspace:*
         version: link:../../plugins/plugin-uml
