@@ -19,7 +19,7 @@ function picture(name: string) {
   return { svg: result.svg ?? '', node, frame, edge, nodes: a?.nodes ?? [] };
 }
 
-describe('state machine layout', { timeout: 30_000 }, () => {
+describe('state machine layout', () => {
   it('layers states from the initial pseudostate down, the final state last', () => {
     const p = picture('fahrgastraum');
     const ys = ['start', 'leer', 'niedrig', 'normal', 'hoch', 'ende'].map((id) => p.node(id).y);

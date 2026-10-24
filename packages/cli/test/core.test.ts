@@ -10,7 +10,7 @@ const engine = coreEngine([umlPlugin]);
 const example = (name: string): string =>
   readFileSync(new URL(`../../../plugins/plugin-uml/examples/sequence/${name}.dgr`, import.meta.url), 'utf8');
 const golden = (name: string): string =>
-  readFileSync(new URL(`../../../plugins/plugin-uml/test/__golden__/${name}.svg`, import.meta.url), 'utf8');
+  readFileSync(new URL(`../../../plugins/plugin-uml/test/__golden__/sequence-${name}.svg`, import.meta.url), 'utf8');
 
 describe('the CLI with the real kernel and the UML plugin', () => {
   it('builds a sequence diagram into the same SVG as the plugin golden', async () => {

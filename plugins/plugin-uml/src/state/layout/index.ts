@@ -10,8 +10,8 @@ import {
   type Route,
 } from '@diagrist/layout-grid';
 import { decisionStrip, HEADER, type Header, MARGIN, type Strip, stripWidth, type Words } from '@diagrist/parts';
-import { homed } from '../../class/layout/homed.js';
-import { type NoteArt, noteArts } from '../../class/layout/notes.js';
+import { homed } from '../../shared/homed.js';
+import { type NoteArt, noteArts } from '../../shared/notes.js';
 import type { StateModel } from '../model.js';
 import { stretchBars } from './bars.js';
 import { stateCells } from './cells.js';

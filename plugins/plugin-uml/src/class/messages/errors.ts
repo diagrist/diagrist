@@ -1,5 +1,4 @@
-import type { Catalogue } from '@diagrist/core';
-import { pick } from './pick.js';
+import { type Catalogue, pick } from '@diagrist/core';
 
 const MEMBER_EN: Readonly<Record<string, string>> = {
   noName: 'the name is missing',

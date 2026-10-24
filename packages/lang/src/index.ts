@@ -14,7 +14,7 @@ export { arg, attr, kind, lines, optionalArg, statement } from './grammar/spec.j
 export { nearest } from './grammar/suggest.js';
 export type { Value, ValueResult } from './grammar/value.js';
 export { arrow, id, number, oneOf, ref, text, word } from './grammar/value.js';
-export { didYouMean, list } from './list.js';
+export { article, didYouMean, either, list } from './list.js';
 export type { Locale } from './messages.js';
 export { formatDiagnostic, LANG_CODES, LOCALES } from './messages.js';
 export { print } from './printer.js';

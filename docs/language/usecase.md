@@ -43,7 +43,7 @@ Each statement is one line that starts with its keyword. Statements inside block
 ### `actor`
 
 ```text
-actor <id> <label> [kind=<person|system>] [side=<left|right>] [tone=<oneOf>] [mark=<ref>] [emph]
+actor <id> <label> [kind=<person|system>] [side=<left|right>] [tone=<choice>] [mark=<ref>] [emph]
 ```
 
 An actor: a role outside every subject, drawn as a stick figure with the role below it or, with `kind=system`, as a box with `«actor»` for another system. It has no `in`: actors stand outside the subject. Diagrist puts it left or right of its use cases. UML 2.5.1: 18.1.3.1 Actor.
@@ -57,7 +57,7 @@ Written at the top level.
 | `kind=` | attribute | one of `person`, `system` | `person` (default) draws a stick figure, `system` a box with `«actor»`. UML 2.5.1: `system` 18.1.4 Actor as a rectangle with the keyword «actor». |
 | `side=` | attribute | one of `left`, `right` | Side of the subject the actor stands on; without it Diagrist chooses. |
 | `tone=` | attribute | one of `blue`, `indigo`, `purple`, `maroon`, `green`, `teal`, `slate`, `red`, `orange`, `peach`, `sky` | Colour of the figure or box in `look=cards`; without it slate. |
-| `mark=` | attribute | the id of a `adr` declared in this diagram | Id of a decision of the decision bar, such as `E1`; the mark is drawn beside it. |
+| `mark=` | attribute | the id of an `adr` declared in this diagram | Id of a decision of the decision bar, such as `E1`; the mark is drawn beside it. |
 | `emph` | flag |  | Highlights it in the accent colour. |
 
 Examples:
@@ -70,7 +70,7 @@ actor psp "Payment provider" kind=system side=right
 ### `subject`
 
 ```text
-subject <id> <label> [tone=<oneOf>]
+subject <id> <label> [tone=<choice>]
 ```
 
 A subject: the system the use cases belong to, drawn as a rectangle with its name at the top left around the use cases `in` it. UML 2.5.1: 18.1.3.1 Subject a use case applies to.
@@ -92,7 +92,7 @@ subject shop "Online shop"
 ### `usecase`
 
 ```text
-usecase <id> <label> [in <ref>] [points=<text>] [form=<ellipse|classifier>] [stereotype=<text>] [tone=<oneOf>] [mark=<ref>] [emph]
+usecase <id> <label> [in <ref>] [points=<text>] [form=<ellipse|classifier>] [stereotype=<text>] [tone=<choice>] [mark=<ref>] [emph]
 ```
 
 A use case: an ellipse as large as its name inside the subject `in`; names over 18 characters wrap. `points=` lists extension points in a compartment, which `extend` names with `at=`. `form=classifier` draws a rectangle with a small ellipse instead. Diagrist places use cases in columns: included and extending cases right of their base, a special case below its general one. UML 2.5.1: 18.1.3.1 Use case.
@@ -103,12 +103,12 @@ Written at the top level.
 |---|---|---|---|
 | `<id>` | argument | an identifier like `api` (letters, digits, `_` and `-`, starting with a letter) | Id that `rel` and `note` use for this use case. |
 | `<label>` | argument | a text in double quotes like `"Order service"` | Name of the goal, as a verb phrase. |
-| `in <ref>` | clause | the id of a `subject` declared in this diagram | The subject the use case belongs to; without it it stands outside. UML 2.5.1: 18.1.3.1 Subject a use case applies to. |
+| `in <ref>` | clause | the id of a `subject` declared in this diagram | The subject the use case belongs to; without it, the use case stands outside every subject. UML 2.5.1: 18.1.3.1 Subject a use case applies to. |
 | `points=` | attribute | a text in double quotes like `"Order service"` | Extension points separated by commas, like `"before checkout, after payment"`. UML 2.5.1: 18.1.3.2 Extension point, 18.1.4 Compartment listing the extension points. |
 | `form=` | attribute | one of `ellipse`, `classifier` | `ellipse` (default), or `classifier`: a rectangle with an ellipse. UML 2.5.1: `classifier` 18.1.4 Use case as a rectangle with an ellipse icon. |
 | `stereotype=` | attribute | a text in double quotes like `"Order service"` | Stereotype above the name, written without guillemets: `batch` shows `«batch»`. UML 2.5.1: 18.1.4 Keyword or stereotype above a use case. |
 | `tone=` | attribute | one of `blue`, `indigo`, `purple`, `maroon`, `green`, `teal`, `slate`, `red`, `orange`, `peach`, `sky` | Colour of the outline in `look=cards`; without it slate. |
-| `mark=` | attribute | the id of a `adr` declared in this diagram | Id of a decision of the decision bar, such as `E1`; the mark is drawn beside it. |
+| `mark=` | attribute | the id of an `adr` declared in this diagram | Id of a decision of the decision bar, such as `E1`; the mark is drawn beside it. |
 | `emph` | flag |  | Highlights it in the accent colour. |
 
 Example:
@@ -129,9 +129,9 @@ Written at the top level.
 
 | Part | Kind | Value | Meaning |
 |---|---|---|---|
-| `<from>` | argument | the id of a `actor` or `usecase` declared in this diagram | Actor or use case the relation starts at. |
+| `<from>` | argument | the id of an `actor` or `usecase` declared in this diagram | Actor or use case the relation starts at. |
 | `<arrow>` | argument | one of the arrows `--` association between an actor and a use case, `-\|>` generalization from the special to the general actor or use case, hollow triangle at the general one, `-->` include or extend between two use cases, dashed with an open head; needs the flag `include` or `extend` | What kind of relation it is. UML 2.5.1: `--` 18.1.3.1 Association of an actor with a use case; `-\|>` 9.2.3.2 Generalization between actors or between use cases. |
-| `<to>` | argument | the id of a `actor` or `usecase` declared in this diagram | Actor or use case the relation points to. |
+| `<to>` | argument | the id of an `actor` or `usecase` declared in this diagram | Actor or use case the relation points to. |
 | `[label]` | optional argument | a text in double quotes like `"Order service"` | Name of the relation, shown at the middle of the line. |
 | `source=` | attribute | a UML multiplicity like `1`, `0..1`, `1..*` or `*`, the lower bound not above the upper one | Multiplicity at `from`, on an association only. UML 2.5.1: 18.1.3.1 Multiplicity at an end of that association. |
 | `card=` | attribute | a UML multiplicity like `1`, `0..1`, `1..*` or `*`, the lower bound not above the upper one | Multiplicity at `to`, on an association only. UML 2.5.1: 18.1.3.1 Multiplicity at an end of that association. |
@@ -171,7 +171,7 @@ Written at the top level.
 | Part | Kind | Value | Meaning |
 |---|---|---|---|
 | `<text>` | argument | a text in double quotes like `"Order service"` | What the note says; long texts wrap at word boundaries. |
-| `on <ref>` | clause | the id of a `actor` or `usecase` or `subject` declared in this diagram | The element the note belongs to. Required. |
+| `on <ref>` | clause | the id of an `actor`, `usecase` or `subject` declared in this diagram | The element the note belongs to. Required. |
 
 Example:
 

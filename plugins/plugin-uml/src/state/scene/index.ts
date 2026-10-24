@@ -1,6 +1,6 @@
 import { type Anchors, domId, type Point, type Scene, type Shape } from '@diagrist/core';
 import { headerShapes, markShapes, stripShapes, type Words } from '@diagrist/parts';
-import { noteShapes } from '../../class/scene/notes.js';
+import { noteShapes } from '../../shared/note-shapes.js';
 import type { PictureTexts, StateLayout } from '../layout/index.js';
 import { borderOf, hostOf } from '../layout/points/geometry.js';
 import type { StateModel } from '../model.js';

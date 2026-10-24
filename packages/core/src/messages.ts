@@ -54,6 +54,14 @@ const KERNEL: Catalogue = {
   },
 };
 
+/**
+ * The text a message template writes for the case a finding names in `values.case`, so the finding carries its case
+ * as data, not as prose; an unknown case is written as it is.
+ */
+export function pick(values: Readonly<Record<string, string>>, cases: Readonly<Record<string, string>>): string {
+  return cases[values.case ?? ''] ?? values.case ?? '';
+}
+
 /** Renders any diagnostic as text: kernel and plugin codes from their catalogues, the rest through `lang`. */
 export function formatMessage(found: Diagnostic, plugins: readonly Plugin[], locale: Locale = 'en'): string {
   const template = [KERNEL, ...plugins.map((p) => p.messages)].find((catalogue) => found.code in catalogue)?.[

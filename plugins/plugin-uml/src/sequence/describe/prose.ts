@@ -10,7 +10,7 @@ export type GatePlace =
  * The sentences of a sequence description in one locale. `n` is the message number, `text` the label
  * already formatted as `: label` or empty.
  */
-export interface Prose {
+export interface SequenceProse {
   readonly summary: (title: string, kind: string, participants: number, messages: number) => string;
   readonly lineup: (list: string) => string;
   readonly noun: Readonly<Record<ParticipantKind, string>>;
@@ -38,6 +38,3 @@ export interface Prose {
   readonly duration: (from: string, to: string, text: string) => string;
   readonly time: (at: string, text: string) => string;
 }
-
-/** `n` with the singular or plural noun. */
-export const plural = (n: number, one: string, many: string): string => `${n} ${n === 1 ? one : many}`;

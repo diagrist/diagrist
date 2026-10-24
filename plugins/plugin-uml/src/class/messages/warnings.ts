@@ -1,5 +1,4 @@
-import type { Catalogue } from '@diagrist/core';
-import { pick } from './pick.js';
+import { type Catalogue, pick } from '@diagrist/core';
 
 /** Messages of the class warnings U910 to U918 (the predecessor's W410 to W418), in English and German. */
 export const CLASS_WARNINGS: Catalogue = {

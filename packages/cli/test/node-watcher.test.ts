@@ -9,8 +9,11 @@ import { nodeWatcher } from '../src/node-watcher.js';
 import { fakeEngine, LOGIN } from './support/fake-engine.js';
 import { fakeRaster } from './support/fake-raster.js';
 
-/** Waits until `ready` holds, checking often, and fails with `what` when it does not within the time limit. */
-async function until(what: string, ready: () => boolean, limit = 8000): Promise<void> {
+/**
+ * Waits until `ready` holds, checking often, and fails with `what` when it does not within a second. A build after a
+ * save takes some 50 ms, and the three waits of a test stay well within the test's own limit of five seconds.
+ */
+async function until(what: string, ready: () => boolean, limit = 1000): Promise<void> {
   for (let waited = 0; !ready(); waited += 10) {
     if (waited >= limit) throw new Error(`gave up waiting for ${what}`);
     await sleep(10);
@@ -51,7 +54,7 @@ describe('the Node watcher', () => {
       stop.abort();
     }
     expect(await running).toBe(0);
-  }, 20_000);
+  });
 
   it('ends at once when it is stopped before anything changed', async () => {
     const dir = mkdtempSync(join(tmpdir(), 'diagrist-watch-'));

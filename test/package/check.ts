@@ -15,7 +15,7 @@ const EXAMPLE = 'plugins/plugin-uml/examples/sequence/oauth-pkce.dgr';
 const EXAMPLES = readdirSync('plugins', { recursive: true, encoding: 'utf8' })
   .filter((path) => path.includes('examples/') && path.endsWith('.dgr'))
   .map((path) => join('plugins', path));
-const GOLDEN = 'plugins/plugin-uml/test/__golden__/oauth-pkce.svg';
+const GOLDEN = 'plugins/plugin-uml/test/__golden__/sequence-oauth-pkce.svg';
 
 const packages = ['packages', 'plugins'].flatMap((group) =>
   readdirSync(group, { withFileTypes: true })

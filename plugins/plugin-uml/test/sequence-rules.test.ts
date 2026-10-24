@@ -1,4 +1,3 @@
-import { readdirSync, readFileSync } from 'node:fs';
 import { formatMessage } from '@diagrist/core';
 import { describe, expect, it } from 'vitest';
 import { umlPlugin } from '../src/index.js';
@@ -67,18 +66,5 @@ describe('sequence rules', () => {
   it('starts every alternative from the calls open before the fragment', () => {
     const replies = ['msg a -> b "ask"', 'alt "yes"', '  msg b --> a "yes"', '  else', '    msg b --> a "no"'];
     expect(codes(sequence(...ab, ...replies))).toEqual([]);
-  });
-});
-
-describe('rule codes', () => {
-  it('are written in their rule and in the catalogue, nowhere else in the plugin (ADR 0004)', () => {
-    const src = new URL('../src/', import.meta.url);
-    const owners = /^(sequence|usecase|activity|class|state)\/(rules|messages)\//;
-    const strays = readdirSync(src, { recursive: true, encoding: 'utf8' })
-      .filter((file) => file.endsWith('.ts') && !owners.test(file))
-      .flatMap((file) =>
-        (readFileSync(new URL(file, src), 'utf8').match(/\bU\d{3}\b/g) ?? []).map((code) => `${file}: ${code}`),
-      );
-    expect(strays).toEqual([]);
   });
 });

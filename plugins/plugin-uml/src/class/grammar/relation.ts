@@ -1,7 +1,7 @@
 import { arg, arrow, attr, oneOf, optionalArg, ref, statement, text } from '@diagrist/lang';
+import { multiplicity } from '../../shared/values.js';
 import { implementing, type SpecElement } from '../../spec/catalog.js';
 import { CLASSES } from '../../spec/classes.js';
-import { multiplicity } from '../../usecase/grammar/values.js';
 
 /**
  * The arrows of `rel` in a class diagram, what each one means and the elements of UML it implements. Grammar,

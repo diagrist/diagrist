@@ -1,7 +1,7 @@
 import type { Catalogue } from '@diagrist/core';
 
 /** Messages of the sequence warnings U900 to U951 (the predecessor's W400 to W451), in English and German. */
-export const WARNINGS: Catalogue = {
+export const SEQUENCE_WARNINGS: Catalogue = {
   U900: {
     en: (v) =>
       `\`${v.operator}\` has one operand only. ${v.operator === 'alt' ? 'Use `opt` for a conditional part, or add `else`.' : 'Separate parallel operands with `and`.'}`,

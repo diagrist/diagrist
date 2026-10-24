@@ -1,4 +1,4 @@
-import { plural } from '../sequence/describe/prose.js';
+import { plural } from '../shared/words.js';
 import type { Doings, StateProse } from '../state/describe/prose.js';
 
 const NOUN = {

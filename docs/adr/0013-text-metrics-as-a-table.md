@@ -14,7 +14,9 @@ The advance widths of JetBrains Mono (Regular, Bold; SIL Open Font License) are 
 in `packages/core/fonts` into `packages/core/src/font-metrics.ts`: the default advance and the code points that
 differ. A test regenerates the table and fails on any difference; `UPDATE_GOLDEN=1` writes it (ADR 0004). The sum
 follows the floating point steps of opentype.js 2.0, so widths match the predecessor. The font files ship with the
-kernel as assets, for exporters that rasterize, such as PNG.
+kernel as assets, for exporters that rasterize, such as PNG. So do the italic faces (Italic, Bold Italic, same
+release and license), which set `font-style: italic` in the PNG; their advances equal those of the upright faces,
+which the same test checks, so they need no table of their own.
 
 ## Consequences
 

@@ -7,7 +7,7 @@ const parent = implementing(
   { uml: [S.compositeState] },
   attr(
     ref('state', 'region'),
-    'The composite state or the region the vertex lies in; without it it stands at the top level.',
+    'The composite state or the region the vertex lies in; without it, the vertex stands at the top level.',
   ),
 );
 

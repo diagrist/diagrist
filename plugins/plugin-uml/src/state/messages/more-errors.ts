@@ -1,5 +1,4 @@
-import type { Catalogue } from '@diagrist/core';
-import { pick } from '../../class/messages/pick.js';
+import { type Catalogue, pick } from '@diagrist/core';
 import { capital, deName, enName } from './nouns.js';
 
 /** Messages of the state errors U460 to U465, in English and German; the 44x range is full. */

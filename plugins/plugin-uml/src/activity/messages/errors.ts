@@ -1,5 +1,5 @@
-import type { Catalogue } from '@diagrist/core';
-import { noun, pick } from './nouns.js';
+import { type Catalogue, pick } from '@diagrist/core';
+import { noun } from './nouns.js';
 
 /** Messages of the activity errors U430 to U458, in English and German. */
 export const ACTIVITY_ERRORS: Catalogue = {

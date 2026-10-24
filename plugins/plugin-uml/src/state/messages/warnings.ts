@@ -1,5 +1,4 @@
-import type { Catalogue } from '@diagrist/core';
-import { pick } from '../../class/messages/pick.js';
+import { type Catalogue, pick } from '@diagrist/core';
 import { capital, deName, enName } from './nouns.js';
 
 /** Messages of the state warnings U940 to U949, U960 and U961 (the predecessor's W440 to W461), in English and German. */

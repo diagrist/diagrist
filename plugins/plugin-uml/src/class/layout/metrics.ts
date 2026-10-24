@@ -1,12 +1,9 @@
-import { type Font, STANDARD_FONTS, textWidth } from '@diagrist/core';
+import { STANDARD_FONTS, textWidth } from '@diagrist/core';
 import type { GridMetrics } from '@diagrist/layout-grid';
+import { UML_BOX_FONTS } from '../../shared/box-styles.js';
 
-/** Font roles of class diagrams: layout measures with them, the style table sets them. */
-export const CLASS_FONTS = {
-  ...STANDARD_FONTS,
-  stereo: STANDARD_FONTS.note,
-  member: { size: 11 },
-} as const satisfies Record<string, Font>;
+/** Font roles of class diagrams: those of every UML box. Layout measures with them, the style table sets them. */
+export const CLASS_FONTS = UML_BOX_FONTS;
 
 /**
  * Measures of class diagrams in pixels, as the predecessor drew them after the learning platform: the box, its head

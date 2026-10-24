@@ -1,5 +1,5 @@
 import { type RoleStyle, type Styles, standardStyles } from '@diagrist/core';
-import { MARKER_SIZE, UML_BOX_ROLES, UML_BOX_RULES, UML_MARKERS } from '../class/styles.js';
+import { MARKER_SIZE, UML_BOX_ROLES, UML_BOX_RULES, UML_MARKERS } from '../shared/box-styles.js';
 import { STATE_FONTS as F } from './layout/metrics.js';
 
 const one = (...classes: string[]): RoleStyle => ({ classes });

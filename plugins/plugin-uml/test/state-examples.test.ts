@@ -6,7 +6,7 @@ import { golden, stateNames, stateSource } from './compile.js';
 
 const plugins = [umlPlugin];
 
-describe('state machine examples', { timeout: 30_000 }, () => {
+describe('state machine examples', () => {
   it.each(stateNames)('%s compiles without findings, twice to the same bytes', (name) => {
     const first = compile(stateSource(name), { plugins });
     expect(first.diagnostics).toEqual([]);

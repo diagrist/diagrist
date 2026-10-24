@@ -13,3 +13,16 @@ export function didYouMean(suggestion: string | undefined, locale: Locale): stri
   if (!suggestion) return '.';
   return locale === 'de' ? `; gemeint ist wohl \`${suggestion}\`?` : `; did you mean \`${suggestion}\`?`;
 }
+
+/**
+ * The indefinite article for a word as it is read aloud: `an` before a vowel sound (`an actor`, `an adr`, `an
+ * update`), `a` before a consonant and before a `u` read as "you" (`a state`, `a usecase`, `a unit`).
+ */
+export function article(word: string): 'a' | 'an' {
+  return /^(?:[aeio]|u(?![b-df-hj-np-tv-z][aeiou]))/i.test(word) ? 'an' : 'a';
+}
+
+/** Alternatives as English writes them: `` `a` ``, `` `a` or `b` ``, `` `a`, `b` or `c` ``. */
+export function either(items: readonly string[]): string {
+  return items.length > 1 ? `${items.slice(0, -1).join(', ')} or ${items.at(-1)}` : (items[0] ?? '');
+}

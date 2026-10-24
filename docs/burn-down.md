@@ -1,192 +1,108 @@
 # Burn-down
 
 Debt we accept on purpose. Each entry gives the reason and what removes it. An entry is deleted in the change that
-settles it, and that change says so in its description.
+settles it, and that change says so in its description. The entries are sorted by the package that holds the debt;
+the crutches that keep the predecessor's bytes are numbered, since they go together in one clean-up.
 
-## Byte-identical sequence diagrams (ADR 0008 Nr. 5)
+## Language and kernel (`lang`, `core`)
 
-`plugin-uml` renders the predecessor's 15 sequence examples byte for byte. These crutches keep it so; they go
-in one clean-up with a second baseline.
+| Debt | Clean-up |
+|---|---|
+| **Operators are fixed in `lang`.** `OPERATORS` in `packages/lang/src/scanner.ts` knows the UML diamond ends; BPMN gateways or ER crow's feet would need a change there. | Plugins declare their operators, when the first one needs its own. |
+| **`Infer` stops at recursion, and `readKind` casts.** Children of fragments are typed by hand in `plugins/plugin-uml/src/sequence/source.ts`, and `readKind` asserts its result type. | Carry the child tables in the type when a second recursive kind arrives. |
+| **No list of arguments.** A statement cannot take a variable number of arguments, so C4 writes grid names with commas (`grid cols a,b,c`). | A variadic last argument in `lang`; then the predecessor's spaces read again. |
+| **Value descriptions are English in every locale.** The `expected` text of a value type (`a text in double quotes like ...`) is not translated in German messages. | Phrase value descriptions through the catalogue (ADR 0004). |
+| **No JSON schema of a kind's statements as data.** No command reads or writes statements as JSON, so a schema of the typed values (`Infer`) would have no user. | Derive it from the tables when such a command arrives (ADR 0004). |
+| **Spec references are plugin-internal** (ADR 0017). `implementing` in `plugins/plugin-uml/src/spec` keeps its marks as extra properties of the tables, which `lang` passes along without knowing them; the grammar JSON has no field for them. | When a second plugin cites a standard (BPMN, ArchiMate): a typed field in `lang`, emitted by `grammarOf`, with the walker of `src/spec/coverage.ts`. |
+| **Classes of markers count as unused.** The kernel writes a rule only when a shape uses its class, and a marker in `<defs>` is no shape, so marker rules (`uml-hollow`, the symbols of class diagrams) are marked `always` and written into every picture of their kind. | The kernel counts the classes of referenced markers. |
+| **One marker size per style table.** The kernel's markers share `markerSize`; class diagrams set 18 for the diamond of 16 pixels and draw each symbol in pixels of that size, while use case diagrams draw the triangle 10 long where the predecessor drew 14. | A size per marker. |
+| **The placement check knows rectangles only.** Ellipses of use cases are reported as their inscribed rectangle, entry and exit points and the names beside pseudostates not at all; lanes, edges, pins and region frames of activity diagrams are not reported, so a region frame around a foreign node is a G400 warning where the predecessor reported E439 as an error. | An outline on `Placed`, and a kind of `Placed` for frames whose overlap is an error. |
+| **Ligatures of JetBrains Mono.** Browsers join texts such as `->` in labels, while the layout measured single glyphs. Fixing it changes the bytes of every picture. | `font-variant-ligatures: none` on the root rule, with the second baseline of sequence diagrams. |
 
-1. **Base stylesheet always written.** 24 rules marked `always` in `packages/core/src/standard/styles.ts`,
-   also in pictures that use none of them. Clean-up: drop `always`, the kernel writes only used rules.
+## Layout library (`layout-grid`)
+
+Pieces stay in their plugin until a second kind needs them (ADR 0015); each comes into the library as data on the
+spec and is compared number for number, as the path finding of state machines was.
+
+| Debt | Clean-up |
+|---|---|
+| **Paths of one predecessor kind only.** The tile flow of C4 without a grid (fixed columns, bands, row gaps), the FigJam `elbow` profile and relations docking at attribute rows are not in the library. | Each comes back with its plugin. |
+| **The layered layout of activity diagrams stays in the plugin.** Lanes, bars of fork and join, diamonds branching at their corners, loop channels, tracks for parallel jogs, pins and region names live in `src/activity/layout`; state machines, the second layered kind, brought their own rails, steps and loops. | Move what a second kind would draw alike, probably loop channels and tracks. |
+| **Labels along straight lines stay in the plugin.** Use case labels look along a slanted line, at both ends and inside the frame of the use case; notes search a field around their anchor. | Move the search for spots along a line into the library when a second kind draws straight lines. |
+| **Disconnected parts of a scope are layered side by side.** `layerGraph` lays out each connected part on its own, where the predecessor ordered all vertices of a state's scope at once. All examples are connected. | An option to layer a graph as one part, if a machine needs it. |
+
+## UML (`plugin-uml`)
+
+### Sequence diagrams keep the predecessor's bytes (ADR 0008 Nr. 5)
+
+The 15 examples render the predecessor's SVG byte for byte. These crutches keep it so; they go in one clean-up
+with a second baseline.
+
+1. **Base stylesheet always written.** 24 rules marked `always` in `packages/core/src/standard/styles.ts`, also
+   in pictures that use none of them. Clean-up: drop `always`, the kernel writes only used rules.
 2. **All four arrowheads in every `<defs>`** (`MARKERS`). Clean-up: write only referenced markers.
-3. **Root class `dia`** (`standardStyles`). The target is `diagrist` (and `--dgr-` for CSS variables).
-4. **Unrounded path numbers and circle radii** (`r="5.151515151515151"`), while rectangles, lines and texts
-   are rounded to one decimal in `packages/core/src/svg.ts`. Clean-up: one rounding for all numbers.
-5. **Arithmetic order of the layout.** `plugins/plugin-uml/src/sequence/layout` keeps the predecessor's order of
-   floating point steps (e.g. the right edge of notes is passed on, not recomputed as `x + w`). Refactors there
-   must keep the bytes until the clean-up.
-6. **Measuring by size, not by font role.** The sequence layout measures with token sizes (`messageSize`)
-   instead of the font roles of its style table. Clean-up: measure with `FONTS`.
+3. **Root class `dia`** (`standardStyles`). The target is `diagrist`, and `--dgr-` for CSS variables.
+4. **Unrounded path numbers and circle radii** (`r="5.151515151515151"`), while rectangles, lines and texts are
+   rounded to one decimal in `packages/core/src/svg.ts`. Clean-up: one rounding for all numbers.
+5. **Arithmetic order of the layout.** `src/sequence/layout` keeps the predecessor's order of floating point steps
+   (the right edge of a note is passed on, not recomputed as `x + w`). Refactors there must keep the bytes.
+6. **Measuring by size, not by font role.** The layout measures with token sizes (`messageSize`) instead of the
+   font roles of its style table. Clean-up: measure with `FONTS`.
 7. **Card look in code.** `look=cards` changes shapes in `scene/cards.ts`, not only the style table.
 
-## Byte-identical C4 diagrams (ADR 0016)
+Waiting for the same clean-up, because they change the bytes: `label-<i>` is never written, although the SVG
+contract names it and `EdgeAnchor.labelId` exists (message labels need a group with the id); and heads, notes,
+frames and labels are not handed to the placement check, which would report what the examples overlap.
 
-`plugin-architecture` renders the predecessor's eight C4 examples, and `look=cards` variants of five, byte for
-byte. These crutches keep it so; they go in the clean-up with a second baseline.
+| Debt | Clean-up |
+|---|---|
+| **U400 points at the statement, not the token.** `msg a -> b` reports column 1 instead of the `b`. | Carry the span of the offending end through the model. |
+| **Completion knows no lifelines in `msg`.** Message ends are no `ref`, since they may also be `found`, `lost`, `gate` or a frame (`messageEnd` in `src/sequence/grammar/values.ts`), and the same holds for `over=`. | Let a value name the declarations it accepts besides its own forms, without `lang` checking them. |
+
+### Activity, class and state machine diagrams
+
+| Kind | Debt | Clean-up |
+|---|---|---|
+| activity | **No notes.** The predecessor allowed `note "..." on id`; no example used it, and its placement belonged to the generic note layout that use case diagrams replaced. | A `note` statement with a free spot beside its node, as in use case diagrams. |
+| class | **Symbols at the start of a line sit on a stub.** resvg ignores `orient="auto-start-reverse"` and draws no marker on a path without stroke, so a diamond at the whole, the second head of `<->` and the shared triangle of a bundle are the end marker of a short transparent path. | `marker-start` once the renderer turns markers there. |
+| class | **No search for an arrangement of many packages.** From four packages on one level the predecessor tried four layouts (`class-package-arrange.ts`, `package-fit.ts`); without it `pakete-quer` has labels in foreign packages (G400) and is left out. | Port the search and bring the example back. |
+| class | **No grid placed by hand.** `grid` and `at` are gone, as in use case diagrams, so `pakete-raster` and the warning W415 are not carried over. | Only if a diagram needs it. |
+| class | **Packages align per level only.** A parent is not grown again around children that moved. No example nests packages. | Enclose parents after aligning. |
+| class | **Lines on toned packages keep the canvas halo**, a faint light seam on the 7 % tint, where the predecessor tinted it (`halo-<tone>`). | A halo role per surface, shared with C4 and use case cards. |
+| class | **The dashed note exists twice**, in `src/shared/notes.ts` and in `plugins/plugin-architecture/src/layout/notes.ts`. | Move it into `parts`. |
+| class | **Coverage does not see line forms.** The walker in `src/spec/coverage.ts` reads statements, so the static and abstract flags of members count as not covered. | Walk `lines` too. |
+| state | **Cross references are not checked.** `file=` on a submachine state is only named in the description; the predecessor loaded the file and compared points and kind (E480 to E484). | A port for the files a source names, handed in by the CLI, and the checks as rules over two models. |
+| state | **No room for long region names.** The predecessor moved the columns of a right neighbour for a wide region name (`region-room.ts`); here only the last region grows its frame. No example needs it. | A column offset per region, compared with an example. |
+
+## C4 (`plugin-architecture`)
+
+### C4 diagrams keep the predecessor's bytes (ADR 0016)
+
+The eight examples, and `look=cards` variants of five, render the predecessor's SVG byte for byte. These crutches
+keep it so; they go in the clean-up with a second baseline.
 
 1. **Inline paint on a role** (`RoleStyle.paint` in `packages/core/src/styles.ts`). The predecessor painted the
-   legend separator inline (class `line` with `stroke="#e4e4e7" stroke-width="1"`), so role `legendRule` carries
-   that paint. Clean-up: role `legendRule` gets the class `legend-rule` (thin, grey), which the predecessor already
-   used for own legends, and `paint` goes.
-2. **Icons in the predecessor's form** (`Icon.markup`). The kernel draws icons as a nested `<svg>` styled by class;
-   the predecessor wrote `<g transform>` with the markup of Lucide or Simple Icons and inline paint
-   (`icon-<stroke>-<colour>` roles). The icons have no `paths` yet. Clean-up: derive `paths` from the markup, draw
-   the clean form, colour by class, drop `markup`.
-3. **`abgeloest` in German boxes** (`statusInBox` in `plugins/plugin-architecture/src/texts`). Legend and
-   description already write `abgelöst`. Clean-up: one word.
-4. **Blocks restate base rules** (`blockBase` in `plugins/plugin-architecture/src/styles/index.ts`). The standard
-   look has one set of measures; the blocks variant repeats 13 base rules with larger fonts and strokes. Clean-up:
-   the kernel builds the standard look from measures.
+   legend separator inline, so role `legendRule` carries that paint. Clean-up: class `legend-rule`, and `paint`
+   goes.
+2. **Icons in the predecessor's form** (`Icon.markup`): `<g transform>` with the markup of Lucide or Simple Icons
+   and inline paint (`icon-<stroke>-<colour>` roles), where the kernel draws a nested `<svg>` styled by class.
+   Clean-up: derive `paths` from the markup, colour by class, drop `markup`.
+3. **`abgeloest` in German boxes** (`statusInBox` in `src/texts`), while legend and description write `abgelöst`.
+   Clean-up: one word.
+4. **Blocks restate base rules** (`blockBase` in `src/styles/index.ts`): 13 base rules again with larger fonts and
+   strokes. Clean-up: the kernel builds the standard look from measures.
 5. **The predecessor's arithmetic.** Measures, heads, flow numbers, marks, layers and the legend follow its order of
-   floating point steps, as `layout-grid` does (ADR 0015).
+   floating point steps, as `layout-grid` does.
 
-## C4: left out, or found while porting
+| Debt | Clean-up |
+|---|---|
+| **Not ported yet:** the tile flow (`flow=` on groups and in the header), framed groups (`style=`, `line=`, `icon=` on `group`), accents and chips, an own `legend`, end marks of edges (`from-box=` and the like; the scene has no rotated text), and `form=ellipse`. No example uses them. | Each with its tables, a predecessor example and its bytes. |
+| **No layout checks on routes.** The predecessor reported edges through nodes (E204), unroutable edges (E206), crossings (W203), overlapping edges (W206), labels on edges (W207) and lines through heads (W492). | Report routes as placed lines. |
+| **Labels reach into foreign frames.** `radverleih/komponenten`, `soll` and `variante-a` warn (G400, G402) where an edge label reaches into a frame it does not belong to; the pictures show it. | Fixing it changes their bytes. |
+| **Edges to a group in a fixed grid run slanted** when the group's middle lies in another row, and their label can cover the start node, as with the predecessor. | Dock at the frame like at a node. |
 
-- **Not ported yet.** The tile flow (`flow=` on groups and in the header), framed groups (`style=`, `line=`, `icon=`
-  on `group`, with heads inside that move aside for lines and grow the frame through `grow` when they cannot), accents
-  and chips, an own `legend`, end marks of edges (`from-box=` and the like: the scene has no rotated text), and
-  `form=ellipse`. No example of the eight uses them. Each comes with its tables, a predecessor example and its bytes.
-- **Layout checks on routes are gone.** The predecessor reported edges through nodes (E204), unroutable edges
-  (E206), crossings (W203), overlapping edges (W206), labels on edges (W207) and lines through heads (W492). The
-  kernel's placement check knows boxes and texts. Clean-up: report routes as placed lines.
-- **The placement check finds labels in foreign frames.** `radverleih/komponenten`, `soll` and `variante-a` warn
-  (G400, G402) where an edge label reaches into a frame it does not belong to; the pictures show it. Fixing it
-  changes their bytes.
-- **Edges to a group in a fixed grid run slanted** when the group's middle lies in another row, and their label can
-  cover the start node. The predecessor did the same. Clean-up: dock at the frame like at a node.
-- **Grid names are comma-separated** (`grid cols a,b,c`), because a statement cannot take a list of arguments.
-  Clean-up: a variadic last argument in `lang`, then the predecessor's spaces read again.
-- **Two generators of README code tables**, `plugins/plugin-uml/test/codes.ts` and
-  `plugins/plugin-architecture/test/codes.ts`. Clean-up: one in `tools/docs`.
+## Tools
 
-## Changes that need new bytes (found in the review of 24.10.2026)
-
-They change the SVG of the 15 examples, so they wait for the clean-up with a second baseline.
-
-- **Ligatures of JetBrains Mono.** Browsers apply the font's ligatures to texts such as `->` in labels, while the
-  layout measured single glyphs. Clean-up: `font-variant-ligatures: none` on the root rule.
-- **`label-<i>` is never written.** The SVG contract names `label-<index>` for the text of an edge, and
-  `EdgeAnchor.labelId` exists, but the sequence scene sets neither (`scene/index.ts`). Clean-up: give message
-  labels their own group with the id and set `labelId`.
-- **Sequence diagrams report no placed rectangles** (ADR 0010). Reporting them changes no bytes, but fixing what
-  the check finds in the examples does. Clean-up: hand heads, notes, frames and labels to the placement check.
-
-## Not derived yet (ADR 0004)
-
-ADR 0004 asks that a derivative which cannot be generated yet is listed here, with what it waits for.
-
-- **JSON schema of a kind's statements as data.** No command reads or writes statements as JSON yet, so a schema
-  of the typed values (`Infer`) would have no user. Clean-up: derive it from the tables when such a command arrives.
-- **Completion knows no lifelines in `msg`.** Message ends are no `ref`, because they may also be `found`, `lost`,
-  `gate` or a frame (`messageEnd` in `plugins/plugin-uml/src/sequence/grammar/values.ts`), and the same holds for
-  `over=` lists. `complete` therefore proposes no ids there. Clean-up: let a value name the declarations it accepts
-  besides its own forms, without `lang` checking them.
-
-## Waiting for a plugin that needs it
-
-- **Operators are fixed in `lang`.** `OPERATORS` in `packages/lang/src/scanner.ts` knows the UML diamond ends;
-  BPMN gateways or ER crow's feet would need a change there. Clean-up: plugins declare their operators.
-- **`Infer` stops at recursion and `readKind` casts.** Children of fragments are typed by hand in
-  `plugins/plugin-uml/src/sequence/source.ts`, and `readKind` asserts its result type. Clean-up when a second
-  recursive kind arrives: carry the child tables in the type.
-- **Spec references are plugin-internal** (ADR 0017). `implementing` in `plugins/plugin-uml/src/spec` keeps the
-  marks on the tables as extra properties that `lang` passes along without knowing them, and reaches agents only
-  as a sentence in the docs. The grammar JSON has no field for them, and the language spec cannot link them.
-  Clean-up when a second plugin cites a standard (BPMN, ArchiMate): a typed, generic field in `lang` for the
-  sections a part implements, emitted by `grammarOf`, and the walker of `src/spec/coverage.ts` moved with it.
-
-## Found while joining the CLI with the kernel
-
-- **U400 points at the statement, not the token.** `msg a -> b` reports column 1 instead of the `b`. Clean-up:
-  carry the span of the offending end through the model.
-- **German messages keep English value descriptions.** `expected` texts of value types (`a text in double quotes
-  like ...`) are English in every locale. Clean-up: phrase value descriptions through the catalogue (ADR 0004).
-
-## Left out of `layout-grid` until a plugin needs it (ADR 0015)
-
-- **Predecessor paths for one kind only.** The tile flow of C4 without a grid (fixed columns, bands, row gaps),
-  the FigJam `elbow` profile and domain relations docking at attribute rows are not in the library. Each comes back
-  as data on the spec when its plugin arrives, compared number for number like the rest. State machines came back
-  this way: the sides a kind chooses per attempt, rectangles to avoid and routes it lays itself on `GridEdge`,
-  `rowMin` on the metrics, `last` on the layering and `placeLabels`; their rails, steps, loop corners and border
-  points, and the row gaps, legs at vertices and tabs of class packages, stay in `plugin-uml`, which no other kind
-  draws.
-- **Use case gets new numbers.** The predecessor reserved room for stacked frame heads above the first row only in
-  C4, measured actors with their name and started lines at the figure. `layout-grid` reserves in every adaptive grid
-  and expects a figure as the node with its name as `caption`, so the use case baseline is new.
-
-## Use case diagrams (`plugin-uml/src/usecase`)
-
-- **Classes of markers count as unused.** The kernel writes a rule only when a shape uses its class, and the class
-  of a marker in `<defs>` is no shape's. The hollow triangle of a generalization (`uml-hollow`) is therefore marked
-  `always` and written into every use case picture, and the same holds for the hollow and filled symbols of class
-  diagrams (`UML_BOX_RULES`). Clean-up: the kernel counts the classes of referenced markers.
-- **One marker size per style table.** The predecessor drew the hollow triangle 14 pixels long and the open head 10;
-  the kernel's markers share `markerSize` 12 in a 12-unit grid, so the triangle is 10 long. Class diagrams need the
-  diamond of 16 pixels, so their table sets `markerSize` 18 and gives each symbol its outline in pixels of that size;
-  the four standard heads, which class diagrams write but never use, grow with it. Clean-up: a size per marker.
-- **Labels of straight lines stay in the plugin.** `labelEdges` puts names on the longest segment of orthogonal
-  routes; the use case labels look along a slanted line, at both ends and inside the frame of the use case, and
-  notes search a field around their anchor. They use `occupancy` and `cheapest` of the library. Clean-up when a
-  second kind draws straight lines: move the search for spots along a line into `layout-grid`.
-- **Ellipses are reported as their inscribed rectangle.** The placement check knows boxes and texts only, and a
-  label near the curve of an ellipse lies inside its bounding box without touching it. Clean-up: an outline on
-  `Placed`.
-
-## Activity diagrams (`plugin-uml/src/activity`)
-
-- **The layered layout stays in the plugin.** Lanes, bars of fork and join, diamonds that branch at their corners,
-  loop channels on the right, tracks for parallel jogs, pins and the names of regions live in
-  `src/activity/layout`; only the layering steps (`acyclic`, `assignLayers`, `layerCost`, `positions`) come from
-  `layout-grid`. Clean-up when the state plugin arrives: move what it shares, probably the loop channels and tracks,
-  into the library as data on a spec, compared number for number.
-- **Notes are not carried over.** The predecessor allowed `note "..." on id` in activity diagrams; no example used
-  it, and its placement belonged to the generic note layout that use case diagrams replaced. Clean-up: a `note`
-  statement with a free spot beside its node, as in use case diagrams.
-- **The placement check sees nodes, frames and texts only.** Lanes, edges, pins and expansion nodes on a frame are
-  not reported, because lines cross lanes and frames by design. A region frame around a foreign node is therefore a
-  G400 warning, where the predecessor reported E439 as an error. Clean-up: a kind of `Placed` for frames whose
-  overlap is an error.
-
-## Class diagrams (`plugin-uml/src/class`)
-
-- **Italics are upright in PNG.** Abstract names and operations carry `font-style: italic`; browsers slant the font,
-  the PNG renderer has no italic face of JetBrains Mono and draws them upright. The predecessor slanted the text with a
-  `skewX` transform, which the scene has no field for. Clean-up: bundle the italic face in `export-png`.
-- **Symbols at the start of a line sit on a stub.** resvg ignores `orient="auto-start-reverse"` and draws no marker
-  on a path without stroke, so a diamond at the whole, the second head of `<->` and the shared triangle of a bundle
-  drawn from its hub are the end marker of a short path with `stroke-opacity: 0`. Clean-up: `marker-start` once the
-  renderer turns markers there.
-- **No search for an arrangement of many packages.** From four packages on one level the predecessor swapped and
-  shifted package blocks and kept the best of four trial layouts (`class-package-arrange.ts`, `package-fit.ts`).
-  Without it `pakete-quer` lays out readably but with labels reaching into foreign packages (G400), so the example is
-  not carried over. Clean-up: port the search with its trial layouts and bring the example back.
-- **No grid placed by hand.** `grid` and `at` are gone, as in use case diagrams, so `pakete-raster` and the warning
-  W415 (a package frame around a foreign class) are not carried over.
-- **Packages align per level only.** Packages of one depth share top and bottom edges by their layers; a parent is
-  not grown again around children that moved. No example nests packages. Clean-up: enclose parents after aligning.
-- **Lines on toned packages keep the canvas halo.** The predecessor tinted the halo of lines and labels on a toned
-  area (`halo-<tone>`); here it is the canvas colour, a faint light seam on the 7 % tint. Clean-up: a halo role per
-  surface, shared with C4 and use case cards.
-- **The dashed note exists twice.** `src/class/layout/notes.ts` and `plugins/plugin-architecture/src/layout/notes.ts`
-  place the same note above a node. Clean-up: move it into `parts`.
-- **Coverage does not see line forms.** The walker in `src/spec/coverage.ts` reads statements, not their line forms,
-  so the static and abstract flags of members cite their elements in the docs but count as not covered (static
-  feature). Clean-up: walk `lines` too.
-
-## State machine diagrams (`plugin-uml/src/state`)
-
-- **Cross references are not checked.** `file=` on a submachine state is named in the description; the
-  predecessor's `dgr check` loaded the file and compared its points and kind (E480 to E484). Clean-up: a port for
-  the files a source names, handed in by the CLI, and the checks as rules over two models.
-- **Entry and exit points are not in the placement check.** They sit on the border of their state by design, so
-  their box overlaps the frame line; the names beside points and pseudostates are not reported either. Clean-up: an
-  outline on `Placed`, as for ellipses.
-- **No room for long region names.** The predecessor moved the columns of a right neighbour when the name of a region
-  side by side was wider than half the gap (`region-room.ts`). No example needs it; the frame still grows for the
-  name of the last region. Clean-up: a column offset per region, compared with an example.
-- **Disconnected parts of one scope are layered side by side.** `layerGraph` lays out each connected part on its
-  own, where the predecessor ordered all vertices of a scope in one go. All examples are connected. Clean-up, if a
-  machine needs it: an option to layer a graph as one part.
+| Debt | Clean-up |
+|---|---|
+| **Two generators of README code tables**, `plugins/plugin-uml/test/codes.ts` and `plugins/plugin-architecture/test/codes.ts`, each with the plugin's table of predecessor codes. | One generator in `tools/docs`, with the predecessor tables as data of their plugins. |

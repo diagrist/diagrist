@@ -1,6 +1,6 @@
 import type { ClassProse, RelationDetails } from '../class/describe/prose.js';
 import type { RelationKind } from '../class/diagram.js';
-import { plural } from '../sequence/describe/prose.js';
+import { plural } from '../shared/words.js';
 
 const list = (items: readonly string[]) =>
   items.length < 2 ? (items[0] ?? 'no class') : `${items.slice(0, -1).join(', ')} and ${items.at(-1)}`;

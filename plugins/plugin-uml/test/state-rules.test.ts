@@ -109,7 +109,7 @@ function machine(...lines: string[]) {
 const protocol = (...lines: string[]) =>
   compile(['diagram state "API {protocol}"', ...lines].join('\n'), { plugins: [umlPlugin] });
 
-describe('state rules', { timeout: 30_000 }, () => {
+describe('state rules', () => {
   it.each(CASES)('%s reports the wrong line, not the corrected one', (code, wrong, right) => {
     expect(codes(machine(...BASE, ...wrong.split('\n')))).toContain(code);
     expect(codes(machine(...BASE, ...right.split('\n')))).not.toContain(code);

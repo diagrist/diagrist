@@ -1,9 +1,4 @@
-import type { Catalogue } from '@diagrist/core';
-
-type Values = Readonly<Record<string, string>>;
-
-/** Picks the text for `v.case` from a table, so a finding names its case as data, not as prose. */
-const pick = (v: Values, cases: Readonly<Record<string, string>>): string => cases[v.case ?? ''] ?? v.case ?? '';
+import { type Catalogue, pick } from '@diagrist/core';
 
 const HINT_EN: Readonly<Record<string, string>> = {
   include: 'draw the relation with `rel a --> b include`',

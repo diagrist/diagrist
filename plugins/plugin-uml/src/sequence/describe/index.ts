@@ -3,13 +3,13 @@ import { WORDS } from '@diagrist/parts';
 import { TEXTS } from '../../texts/index.js';
 import { FOUND, LOST, type MessageEvent } from '../diagram.js';
 import type { SeqFragment, SeqItem, SequenceModel, TimelineEvent } from '../model/types.js';
-import type { GatePlace, Prose } from './prose.js';
+import type { GatePlace, SequenceProse } from './prose.js';
 
 /** `ignore` and `consider` name messages as their guard; they stand in `{...}`. */
 const LISTS: readonly string[] = ['ignore', 'consider'];
 
 interface Writer {
-  readonly p: Prose;
+  readonly p: SequenceProse;
   readonly m: SequenceModel;
   readonly lines: string[];
   readonly name: (id: string) => string;

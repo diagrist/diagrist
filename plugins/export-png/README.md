@@ -2,8 +2,9 @@
 
 Turns the SVG of the kernel into a PNG, without a browser. Rendering runs in
 [resvg](https://github.com/linebender/resvg) compiled to WebAssembly (`@resvg/resvg-wasm`), with the fonts the
-kernel measures text with (JetBrains Mono, SIL Open Font License 1.1). No system fonts, no network: the same SVG
-gives the same bytes on every machine.
+kernel measures text with: JetBrains Mono 2.305 in Regular, Bold, Italic and Bold Italic, SIL Open Font License 1.1,
+in `packages/core/fonts`. Italic text, such as abstract names in class diagrams, is set in the italic faces. No system
+fonts, no network: the same SVG gives the same bytes on every machine.
 
 ```ts
 import { loadBundledFonts, loadPngRenderer } from '@diagrist/export-png/node';
@@ -20,9 +21,9 @@ else console.error(result.problem, result.detail);
 | `@diagrist/export-png` | `pngRenderer(wasmBytes)` returns `toPng(svg, { scale, fonts })`. Fonts and the module come in as data. | Node, browsers, edge runtimes |
 | `@diagrist/export-png/node` | `loadPngRenderer()` and `loadBundledFonts()` read the module and the kernel's fonts from disk. | Node |
 
-- **Scale** multiplies width and height (`2` for sharp pictures on high-density screens), default `1`.
-- **Background** is whatever the SVG draws: the canvas colour of the style table, transparent with `inline`.
-- **Errors are data:** `{ problem: 'invalid-svg' | 'invalid-scale', detail }` instead of an exception.
+`scale` multiplies width and height, default `1`; `2` gives sharp pictures on high-density screens. The background
+is whatever the SVG draws: the canvas colour of the style table, or transparent with `inline`. Errors are data,
+`{ problem: 'invalid-svg' | 'invalid-scale', detail }`, not exceptions.
 
 ## Compared with the predecessor
 

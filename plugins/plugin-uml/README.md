@@ -84,6 +84,17 @@ internal open on="change item" do="recalculate"
 
 The statement tables in `src/<kind>/grammar` are the reference; `grammarOf` returns them as data and every statement has a doc and an example.
 
+## How the code is laid out
+
+Every kind is built the same way, in `src/<kind>`: `kind.ts` ties the tables to the model, `grammar` holds the
+statement tables, `source.ts` and `model` turn the read statements into the diagram of `diagram.ts`, `rules` check
+it, `messages` phrase their codes, `layout` measures and places, `scene` turns the placed parts into shapes with the
+roles of `styles.ts`, and `describe` writes the text description. The words of picture and description are in
+`src/texts/<kind>-<locale>.ts`, the UML catalogs in `src/spec`. Pieces that two kinds share, such as the notes, cards
+and style rules of the boxes of class and state diagrams, live in `src/shared`; a kind imports nothing from another
+kind's folder. Examples are in `examples/<kind>`, and tests and golden files carry the kind as prefix
+(`test/state-layout.test.ts`, `test/__golden__/state-freigabe-unterautomat.svg`).
+
 ## UML 2.5.1 coverage
 
 Each kind has a catalog of the UML 2.5.1 elements its diagrams can show, in `src/spec`, with the section of the
@@ -102,8 +113,8 @@ them by `pnpm docs:generate`, with the share per kind and the examples that use 
 | texts added to the picture in German | `locale=de` in the header for German, default `en` | ADR 0008 Nr. 3 |
 
 Everything else reads as before. The 15 examples under `examples/sequence` were converted by these rules only
-and render byte-identical to the predecessor with `locale=de`; `test/__golden__/examples.sha256` holds the
-predecessor's SHA-256 of each picture, and a test compares every example with it.
+and render byte-identical to the predecessor with `locale=de`; `test/__golden__/sequence-examples.sha256` holds
+the predecessor's SHA-256 of each picture, and a test compares every example with it.
 
 ## Use case diagrams: changes from the predecessor's syntax
 
@@ -174,7 +185,7 @@ lines of association classes, package tabs and the second run that widens a pack
 for packages; their descriptions are the predecessor's word for word. The end symbols are the kernel's markers in
 the predecessor's sizes, and a symbol at the start of a line sits on a transparent stub, because the PNG renderer
 turns no marker with `auto-start-reverse`. Italic names and operations are written with `font-style: italic`, which
-browsers slant and the PNG renderer, lacking an italic face, does not (`docs/burn-down.md`). Two examples are left
+the PNG sets in the bundled italic faces of JetBrains Mono. Two examples are left
 out: `pakete-raster` placed its classes by hand, and `pakete-quer` needs the search for an arrangement of four and
 more packages, which is not ported yet. Two examples are golden files (`test/__golden__/class-*.svg`), and geometric
 tests check superclasses above and between their subclasses, shared triangles, the diamond at the whole, association

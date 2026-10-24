@@ -4,7 +4,7 @@
 
 A UML activity diagram (UML 2.5.1, chapters 15 and 16): nodes and edges in layers from top to bottom, one vertical swimlane per `partition`. Diagrist lays it out by itself: layers by the longest path, alternatives symmetric below their decision, parallel branches side by side below their fork, a hand-over into another lane level and horizontal when its line is free, loops back up on the right.
 
-This page lists everything a `activity` diagram may contain. The same grammar is available as data with `dgr grammar activity --json`, and [the overview](README.md) explains how lines, texts and attributes are written and lists the codes every kind shares.
+This page lists everything an `activity` diagram may contain. The same grammar is available as data with `dgr grammar activity --json`, and [the overview](README.md) explains how lines, texts and attributes are written and lists the codes every kind shares.
 
 ## The first line
 
@@ -56,7 +56,7 @@ Each statement is one line that starts with its keyword. Statements inside block
 ### `partition`
 
 ```text
-partition <id> <label> [tone=<oneOf>]
+partition <id> <label> [tone=<choice>]
 ```
 
 A partition, drawn as a vertical swimlane with its name in a head. Lanes stand from left to right in source order; nodes join one with `in`. Without any partition the activity has one invisible lane. UML 2.5.1: 15.6.3.1 Activity partition (swimlane).
@@ -136,8 +136,8 @@ Written at the top level.
 |---|---|---|---|
 | `<id>` | argument | an identifier like `api` (letters, digits, `_` and `-`, starting with a letter) | Id that `go`, `handler` and `in` use for this node. |
 | `in <ref>` | clause | the id of a `partition` declared in this diagram | The partition (swimlane) the node stands in. Without it, Diagrist puts the node into the lane of its first predecessor that has one, else of its first successor, else into the first lane. UML 2.5.1: 15.6.3.1 Activity partition (swimlane). |
-| `interruptible=` | attribute | the id of a `interruptible` declared in this diagram | The interruptible region the node belongs to; its dashed frame is drawn around all members. UML 2.5.1: 15.6.3.2 Interruptible activity region. |
-| `expansion=` | attribute | the id of a `expansion` declared in this diagram | The expansion region the node belongs to, run once per element. UML 2.5.1: 16.12.3 Expansion region. |
+| `interruptible=` | attribute | the id of an `interruptible` declared in this diagram | The interruptible region the node belongs to; its dashed frame is drawn around all members. UML 2.5.1: 15.6.3.2 Interruptible activity region. |
+| `expansion=` | attribute | the id of an `expansion` declared in this diagram | The expansion region the node belongs to, run once per element. UML 2.5.1: 16.12.3 Expansion region. |
 
 Example:
 
@@ -159,8 +159,8 @@ Written at the top level.
 |---|---|---|---|
 | `<id>` | argument | an identifier like `api` (letters, digits, `_` and `-`, starting with a letter) | Id that `go`, `handler` and `in` use for this node. |
 | `in <ref>` | clause | the id of a `partition` declared in this diagram | The partition (swimlane) the node stands in. Without it, Diagrist puts the node into the lane of its first predecessor that has one, else of its first successor, else into the first lane. UML 2.5.1: 15.6.3.1 Activity partition (swimlane). |
-| `interruptible=` | attribute | the id of a `interruptible` declared in this diagram | The interruptible region the node belongs to; its dashed frame is drawn around all members. UML 2.5.1: 15.6.3.2 Interruptible activity region. |
-| `expansion=` | attribute | the id of a `expansion` declared in this diagram | The expansion region the node belongs to, run once per element. UML 2.5.1: 16.12.3 Expansion region. |
+| `interruptible=` | attribute | the id of an `interruptible` declared in this diagram | The interruptible region the node belongs to; its dashed frame is drawn around all members. UML 2.5.1: 15.6.3.2 Interruptible activity region. |
+| `expansion=` | attribute | the id of an `expansion` declared in this diagram | The expansion region the node belongs to, run once per element. UML 2.5.1: 16.12.3 Expansion region. |
 
 Example:
 
@@ -182,8 +182,8 @@ Written at the top level.
 |---|---|---|---|
 | `<id>` | argument | an identifier like `api` (letters, digits, `_` and `-`, starting with a letter) | Id that `go`, `handler` and `in` use for this node. |
 | `in <ref>` | clause | the id of a `partition` declared in this diagram | The partition (swimlane) the node stands in. Without it, Diagrist puts the node into the lane of its first predecessor that has one, else of its first successor, else into the first lane. UML 2.5.1: 15.6.3.1 Activity partition (swimlane). |
-| `interruptible=` | attribute | the id of a `interruptible` declared in this diagram | The interruptible region the node belongs to; its dashed frame is drawn around all members. UML 2.5.1: 15.6.3.2 Interruptible activity region. |
-| `expansion=` | attribute | the id of a `expansion` declared in this diagram | The expansion region the node belongs to, run once per element. UML 2.5.1: 16.12.3 Expansion region. |
+| `interruptible=` | attribute | the id of an `interruptible` declared in this diagram | The interruptible region the node belongs to; its dashed frame is drawn around all members. UML 2.5.1: 15.6.3.2 Interruptible activity region. |
+| `expansion=` | attribute | the id of an `expansion` declared in this diagram | The expansion region the node belongs to, run once per element. UML 2.5.1: 16.12.3 Expansion region. |
 
 Example:
 
@@ -194,7 +194,7 @@ flowfinal mailed
 ### `action`
 
 ```text
-action <id> <label> [in <ref>] [interruptible=<ref>] [expansion=<ref>] [tone=<oneOf>] [mark=<ref>] [input=<text>] [output=<text>] [call]
+action <id> <label> [in <ref>] [interruptible=<ref>] [expansion=<ref>] [tone=<choice>] [mark=<ref>] [input=<text>] [output=<text>] [call]
 ```
 
 An action: a rounded box with its text; texts wider than 208 pixels wrap into two lines. `input=` and `output=` put pins on its edges, `call` marks a call behavior action with a rake at the bottom right. An action with several incoming or outgoing edges waits for all of them or starts all of them; a `merge` or `decision` usually says what is meant. UML 2.5.1: 16.2.3.1 Action.
@@ -206,10 +206,10 @@ Written at the top level.
 | `<id>` | argument | an identifier like `api` (letters, digits, `_` and `-`, starting with a letter) | Id that `go`, `handler` and `in` use for this node. |
 | `<label>` | argument | a text in double quotes like `"Order service"` | What is done, as a verb phrase. |
 | `in <ref>` | clause | the id of a `partition` declared in this diagram | The partition (swimlane) the node stands in. Without it, Diagrist puts the node into the lane of its first predecessor that has one, else of its first successor, else into the first lane. UML 2.5.1: 15.6.3.1 Activity partition (swimlane). |
-| `interruptible=` | attribute | the id of a `interruptible` declared in this diagram | The interruptible region the node belongs to; its dashed frame is drawn around all members. UML 2.5.1: 15.6.3.2 Interruptible activity region. |
-| `expansion=` | attribute | the id of a `expansion` declared in this diagram | The expansion region the node belongs to, run once per element. UML 2.5.1: 16.12.3 Expansion region. |
+| `interruptible=` | attribute | the id of an `interruptible` declared in this diagram | The interruptible region the node belongs to; its dashed frame is drawn around all members. UML 2.5.1: 15.6.3.2 Interruptible activity region. |
+| `expansion=` | attribute | the id of an `expansion` declared in this diagram | The expansion region the node belongs to, run once per element. UML 2.5.1: 16.12.3 Expansion region. |
 | `tone=` | attribute | one of `blue`, `indigo`, `purple`, `maroon`, `green`, `teal`, `slate`, `red`, `orange`, `peach`, `sky` | Colour of the card outline in `look=cards`; without it the card is white with a grey outline. The plain look ignores it. |
-| `mark=` | attribute | the id of a `adr` declared in this diagram | Id of a decision of the decision bar, such as `E1`; the mark is drawn at the top right of the node. |
+| `mark=` | attribute | the id of an `adr` declared in this diagram | Id of a decision of the decision bar, such as `E1`; the mark is drawn at the top right of the node. |
 | `input=` | attribute | a text in double quotes like `"Order service"` | Input pins by object type, separated by commas like `"Order, Amount"`; small squares on the top edge, the type beside each. UML 2.5.1: 16.2.3.3 Input and output pin of an action. |
 | `output=` | attribute | a text in double quotes like `"Order service"` | Output pins by object type, separated by commas like `"Order, Amount"`; small squares on the bottom edge, the type beside each. UML 2.5.1: 16.2.3.3 Input and output pin of an action. |
 | `call` | flag |  | Calls an activity of its own (call behavior action): a rake at the bottom right of the box. UML 2.5.1: 16.3.4.1 Call behavior action with the rake symbol. |
@@ -236,8 +236,8 @@ Written at the top level.
 | `<id>` | argument | an identifier like `api` (letters, digits, `_` and `-`, starting with a letter) | Id that `go`, `handler` and `in` use for this node. |
 | `[question]` | optional argument | a text in double quotes like `"Order service"` | Question the guards answer, shown beside the diamond. |
 | `in <ref>` | clause | the id of a `partition` declared in this diagram | The partition (swimlane) the node stands in. Without it, Diagrist puts the node into the lane of its first predecessor that has one, else of its first successor, else into the first lane. UML 2.5.1: 15.6.3.1 Activity partition (swimlane). |
-| `interruptible=` | attribute | the id of a `interruptible` declared in this diagram | The interruptible region the node belongs to; its dashed frame is drawn around all members. UML 2.5.1: 15.6.3.2 Interruptible activity region. |
-| `expansion=` | attribute | the id of a `expansion` declared in this diagram | The expansion region the node belongs to, run once per element. UML 2.5.1: 16.12.3 Expansion region. |
+| `interruptible=` | attribute | the id of an `interruptible` declared in this diagram | The interruptible region the node belongs to; its dashed frame is drawn around all members. UML 2.5.1: 15.6.3.2 Interruptible activity region. |
+| `expansion=` | attribute | the id of an `expansion` declared in this diagram | The expansion region the node belongs to, run once per element. UML 2.5.1: 16.12.3 Expansion region. |
 
 Examples:
 
@@ -261,8 +261,8 @@ Written at the top level.
 | `<id>` | argument | an identifier like `api` (letters, digits, `_` and `-`, starting with a letter) | Id that `go`, `handler` and `in` use for this node. |
 | `[label]` | optional argument | a text in double quotes like `"Order service"` | Text beside the diamond. |
 | `in <ref>` | clause | the id of a `partition` declared in this diagram | The partition (swimlane) the node stands in. Without it, Diagrist puts the node into the lane of its first predecessor that has one, else of its first successor, else into the first lane. UML 2.5.1: 15.6.3.1 Activity partition (swimlane). |
-| `interruptible=` | attribute | the id of a `interruptible` declared in this diagram | The interruptible region the node belongs to; its dashed frame is drawn around all members. UML 2.5.1: 15.6.3.2 Interruptible activity region. |
-| `expansion=` | attribute | the id of a `expansion` declared in this diagram | The expansion region the node belongs to, run once per element. UML 2.5.1: 16.12.3 Expansion region. |
+| `interruptible=` | attribute | the id of an `interruptible` declared in this diagram | The interruptible region the node belongs to; its dashed frame is drawn around all members. UML 2.5.1: 15.6.3.2 Interruptible activity region. |
+| `expansion=` | attribute | the id of an `expansion` declared in this diagram | The expansion region the node belongs to, run once per element. UML 2.5.1: 16.12.3 Expansion region. |
 
 Example:
 
@@ -284,8 +284,8 @@ Written at the top level.
 |---|---|---|---|
 | `<id>` | argument | an identifier like `api` (letters, digits, `_` and `-`, starting with a letter) | Id that `go`, `handler` and `in` use for this node. |
 | `in <ref>` | clause | the id of a `partition` declared in this diagram | The partition (swimlane) the node stands in. Without it, Diagrist puts the node into the lane of its first predecessor that has one, else of its first successor, else into the first lane. UML 2.5.1: 15.6.3.1 Activity partition (swimlane). |
-| `interruptible=` | attribute | the id of a `interruptible` declared in this diagram | The interruptible region the node belongs to; its dashed frame is drawn around all members. UML 2.5.1: 15.6.3.2 Interruptible activity region. |
-| `expansion=` | attribute | the id of a `expansion` declared in this diagram | The expansion region the node belongs to, run once per element. UML 2.5.1: 16.12.3 Expansion region. |
+| `interruptible=` | attribute | the id of an `interruptible` declared in this diagram | The interruptible region the node belongs to; its dashed frame is drawn around all members. UML 2.5.1: 15.6.3.2 Interruptible activity region. |
+| `expansion=` | attribute | the id of an `expansion` declared in this diagram | The expansion region the node belongs to, run once per element. UML 2.5.1: 16.12.3 Expansion region. |
 
 Example:
 
@@ -307,8 +307,8 @@ Written at the top level.
 |---|---|---|---|
 | `<id>` | argument | an identifier like `api` (letters, digits, `_` and `-`, starting with a letter) | Id that `go`, `handler` and `in` use for this node. |
 | `in <ref>` | clause | the id of a `partition` declared in this diagram | The partition (swimlane) the node stands in. Without it, Diagrist puts the node into the lane of its first predecessor that has one, else of its first successor, else into the first lane. UML 2.5.1: 15.6.3.1 Activity partition (swimlane). |
-| `interruptible=` | attribute | the id of a `interruptible` declared in this diagram | The interruptible region the node belongs to; its dashed frame is drawn around all members. UML 2.5.1: 15.6.3.2 Interruptible activity region. |
-| `expansion=` | attribute | the id of a `expansion` declared in this diagram | The expansion region the node belongs to, run once per element. UML 2.5.1: 16.12.3 Expansion region. |
+| `interruptible=` | attribute | the id of an `interruptible` declared in this diagram | The interruptible region the node belongs to; its dashed frame is drawn around all members. UML 2.5.1: 15.6.3.2 Interruptible activity region. |
+| `expansion=` | attribute | the id of an `expansion` declared in this diagram | The expansion region the node belongs to, run once per element. UML 2.5.1: 16.12.3 Expansion region. |
 
 Example:
 
@@ -319,7 +319,7 @@ join done in service
 ### `object`
 
 ```text
-object <id> <label> [in <ref>] [interruptible=<ref>] [expansion=<ref>] [tone=<oneOf>] [mark=<ref>] [state=<text>]
+object <id> <label> [in <ref>] [interruptible=<ref>] [expansion=<ref>] [tone=<choice>] [mark=<ref>] [state=<text>]
 ```
 
 An object node: a rectangle with the object type, its state below in brackets. Only object flows `=>` touch it. UML 2.5.1: 15.4.3.1 Object node.
@@ -331,10 +331,10 @@ Written at the top level.
 | `<id>` | argument | an identifier like `api` (letters, digits, `_` and `-`, starting with a letter) | Id that `go`, `handler` and `in` use for this node. |
 | `<label>` | argument | a text in double quotes like `"Order service"` | Type of the object. |
 | `in <ref>` | clause | the id of a `partition` declared in this diagram | The partition (swimlane) the node stands in. Without it, Diagrist puts the node into the lane of its first predecessor that has one, else of its first successor, else into the first lane. UML 2.5.1: 15.6.3.1 Activity partition (swimlane). |
-| `interruptible=` | attribute | the id of a `interruptible` declared in this diagram | The interruptible region the node belongs to; its dashed frame is drawn around all members. UML 2.5.1: 15.6.3.2 Interruptible activity region. |
-| `expansion=` | attribute | the id of a `expansion` declared in this diagram | The expansion region the node belongs to, run once per element. UML 2.5.1: 16.12.3 Expansion region. |
+| `interruptible=` | attribute | the id of an `interruptible` declared in this diagram | The interruptible region the node belongs to; its dashed frame is drawn around all members. UML 2.5.1: 15.6.3.2 Interruptible activity region. |
+| `expansion=` | attribute | the id of an `expansion` declared in this diagram | The expansion region the node belongs to, run once per element. UML 2.5.1: 16.12.3 Expansion region. |
 | `tone=` | attribute | one of `blue`, `indigo`, `purple`, `maroon`, `green`, `teal`, `slate`, `red`, `orange`, `peach`, `sky` | Colour of the card outline in `look=cards`; without it the card is white with a grey outline. The plain look ignores it. |
-| `mark=` | attribute | the id of a `adr` declared in this diagram | Id of a decision of the decision bar, such as `E1`; the mark is drawn at the top right of the node. |
+| `mark=` | attribute | the id of an `adr` declared in this diagram | Id of a decision of the decision bar, such as `E1`; the mark is drawn at the top right of the node. |
 | `state=` | attribute | a text in double quotes like `"Order service"` | State of the object, drawn as `[state]` below the type. UML 2.5.1: 15.4.4.1 States of an object node in brackets below its name. |
 
 Example:
@@ -346,7 +346,7 @@ object invoice "Invoice" state="open" in billing
 ### `datastore`
 
 ```text
-datastore <id> <label> [in <ref>] [interruptible=<ref>] [expansion=<ref>] [tone=<oneOf>] [mark=<ref>]
+datastore <id> <label> [in <ref>] [interruptible=<ref>] [expansion=<ref>] [tone=<choice>] [mark=<ref>]
 ```
 
 A data store: an object node with `«datastore»` above its name, whose data outlive the activity. A data store without incoming edge counts as a start. UML 2.5.1: 15.4.3.4 Data store node.
@@ -358,10 +358,10 @@ Written at the top level.
 | `<id>` | argument | an identifier like `api` (letters, digits, `_` and `-`, starting with a letter) | Id that `go`, `handler` and `in` use for this node. |
 | `<label>` | argument | a text in double quotes like `"Order service"` | Name of the store. |
 | `in <ref>` | clause | the id of a `partition` declared in this diagram | The partition (swimlane) the node stands in. Without it, Diagrist puts the node into the lane of its first predecessor that has one, else of its first successor, else into the first lane. UML 2.5.1: 15.6.3.1 Activity partition (swimlane). |
-| `interruptible=` | attribute | the id of a `interruptible` declared in this diagram | The interruptible region the node belongs to; its dashed frame is drawn around all members. UML 2.5.1: 15.6.3.2 Interruptible activity region. |
-| `expansion=` | attribute | the id of a `expansion` declared in this diagram | The expansion region the node belongs to, run once per element. UML 2.5.1: 16.12.3 Expansion region. |
+| `interruptible=` | attribute | the id of an `interruptible` declared in this diagram | The interruptible region the node belongs to; its dashed frame is drawn around all members. UML 2.5.1: 15.6.3.2 Interruptible activity region. |
+| `expansion=` | attribute | the id of an `expansion` declared in this diagram | The expansion region the node belongs to, run once per element. UML 2.5.1: 16.12.3 Expansion region. |
 | `tone=` | attribute | one of `blue`, `indigo`, `purple`, `maroon`, `green`, `teal`, `slate`, `red`, `orange`, `peach`, `sky` | Colour of the card outline in `look=cards`; without it the card is white with a grey outline. The plain look ignores it. |
-| `mark=` | attribute | the id of a `adr` declared in this diagram | Id of a decision of the decision bar, such as `E1`; the mark is drawn at the top right of the node. |
+| `mark=` | attribute | the id of an `adr` declared in this diagram | Id of a decision of the decision bar, such as `E1`; the mark is drawn at the top right of the node. |
 
 Example:
 
@@ -372,7 +372,7 @@ datastore accounts "Customer accounts" in payment
 ### `buffer`
 
 ```text
-buffer <id> <label> [in <ref>] [interruptible=<ref>] [expansion=<ref>] [tone=<oneOf>] [mark=<ref>]
+buffer <id> <label> [in <ref>] [interruptible=<ref>] [expansion=<ref>] [tone=<choice>] [mark=<ref>]
 ```
 
 A central buffer: an object node with `«centralBuffer»` above its name that collects objects from several flows. UML 2.5.1: 15.4.3.3 Central buffer node.
@@ -384,10 +384,10 @@ Written at the top level.
 | `<id>` | argument | an identifier like `api` (letters, digits, `_` and `-`, starting with a letter) | Id that `go`, `handler` and `in` use for this node. |
 | `<label>` | argument | a text in double quotes like `"Order service"` | Name of what is buffered. |
 | `in <ref>` | clause | the id of a `partition` declared in this diagram | The partition (swimlane) the node stands in. Without it, Diagrist puts the node into the lane of its first predecessor that has one, else of its first successor, else into the first lane. UML 2.5.1: 15.6.3.1 Activity partition (swimlane). |
-| `interruptible=` | attribute | the id of a `interruptible` declared in this diagram | The interruptible region the node belongs to; its dashed frame is drawn around all members. UML 2.5.1: 15.6.3.2 Interruptible activity region. |
-| `expansion=` | attribute | the id of a `expansion` declared in this diagram | The expansion region the node belongs to, run once per element. UML 2.5.1: 16.12.3 Expansion region. |
+| `interruptible=` | attribute | the id of an `interruptible` declared in this diagram | The interruptible region the node belongs to; its dashed frame is drawn around all members. UML 2.5.1: 15.6.3.2 Interruptible activity region. |
+| `expansion=` | attribute | the id of an `expansion` declared in this diagram | The expansion region the node belongs to, run once per element. UML 2.5.1: 16.12.3 Expansion region. |
 | `tone=` | attribute | one of `blue`, `indigo`, `purple`, `maroon`, `green`, `teal`, `slate`, `red`, `orange`, `peach`, `sky` | Colour of the card outline in `look=cards`; without it the card is white with a grey outline. The plain look ignores it. |
-| `mark=` | attribute | the id of a `adr` declared in this diagram | Id of a decision of the decision bar, such as `E1`; the mark is drawn at the top right of the node. |
+| `mark=` | attribute | the id of an `adr` declared in this diagram | Id of a decision of the decision bar, such as `E1`; the mark is drawn at the top right of the node. |
 
 Example:
 
@@ -398,7 +398,7 @@ buffer receipts "Receipts" in accounting
 ### `send`
 
 ```text
-send <id> <label> [in <ref>] [interruptible=<ref>] [expansion=<ref>] [tone=<oneOf>] [mark=<ref>] [input=<text>]
+send <id> <label> [in <ref>] [interruptible=<ref>] [expansion=<ref>] [tone=<choice>] [mark=<ref>] [input=<text>]
 ```
 
 A send signal action: a pentagon pointing right with the signal. It may take input pins, never output pins. UML 2.5.1: 16.3.3.2 Send signal action.
@@ -410,10 +410,10 @@ Written at the top level.
 | `<id>` | argument | an identifier like `api` (letters, digits, `_` and `-`, starting with a letter) | Id that `go`, `handler` and `in` use for this node. |
 | `<label>` | argument | a text in double quotes like `"Order service"` | The signal that is sent. |
 | `in <ref>` | clause | the id of a `partition` declared in this diagram | The partition (swimlane) the node stands in. Without it, Diagrist puts the node into the lane of its first predecessor that has one, else of its first successor, else into the first lane. UML 2.5.1: 15.6.3.1 Activity partition (swimlane). |
-| `interruptible=` | attribute | the id of a `interruptible` declared in this diagram | The interruptible region the node belongs to; its dashed frame is drawn around all members. UML 2.5.1: 15.6.3.2 Interruptible activity region. |
-| `expansion=` | attribute | the id of a `expansion` declared in this diagram | The expansion region the node belongs to, run once per element. UML 2.5.1: 16.12.3 Expansion region. |
+| `interruptible=` | attribute | the id of an `interruptible` declared in this diagram | The interruptible region the node belongs to; its dashed frame is drawn around all members. UML 2.5.1: 15.6.3.2 Interruptible activity region. |
+| `expansion=` | attribute | the id of an `expansion` declared in this diagram | The expansion region the node belongs to, run once per element. UML 2.5.1: 16.12.3 Expansion region. |
 | `tone=` | attribute | one of `blue`, `indigo`, `purple`, `maroon`, `green`, `teal`, `slate`, `red`, `orange`, `peach`, `sky` | Colour of the card outline in `look=cards`; without it the card is white with a grey outline. The plain look ignores it. |
-| `mark=` | attribute | the id of a `adr` declared in this diagram | Id of a decision of the decision bar, such as `E1`; the mark is drawn at the top right of the node. |
+| `mark=` | attribute | the id of an `adr` declared in this diagram | Id of a decision of the decision bar, such as `E1`; the mark is drawn at the top right of the node. |
 | `input=` | attribute | a text in double quotes like `"Order service"` | Input pins by object type, separated by commas like `"Order, Amount"`; small squares on the top edge, the type beside each. UML 2.5.1: 16.2.3.3 Input and output pin of an action. |
 
 Example:
@@ -425,7 +425,7 @@ send refusal "Refusal" in service
 ### `accept`
 
 ```text
-accept <id> <label> [in <ref>] [interruptible=<ref>] [expansion=<ref>] [tone=<oneOf>] [mark=<ref>] [output=<text>]
+accept <id> <label> [in <ref>] [interruptible=<ref>] [expansion=<ref>] [tone=<choice>] [mark=<ref>] [output=<text>]
 ```
 
 An accept event action: a box with a notch on the left that waits for a signal. It may give output pins, never input pins. Without an incoming edge it starts a flow of its own, such as the trigger of an interruptible region. UML 2.5.1: 16.10.3.1 Accept event action.
@@ -437,10 +437,10 @@ Written at the top level.
 | `<id>` | argument | an identifier like `api` (letters, digits, `_` and `-`, starting with a letter) | Id that `go`, `handler` and `in` use for this node. |
 | `<label>` | argument | a text in double quotes like `"Order service"` | The signal it waits for. |
 | `in <ref>` | clause | the id of a `partition` declared in this diagram | The partition (swimlane) the node stands in. Without it, Diagrist puts the node into the lane of its first predecessor that has one, else of its first successor, else into the first lane. UML 2.5.1: 15.6.3.1 Activity partition (swimlane). |
-| `interruptible=` | attribute | the id of a `interruptible` declared in this diagram | The interruptible region the node belongs to; its dashed frame is drawn around all members. UML 2.5.1: 15.6.3.2 Interruptible activity region. |
-| `expansion=` | attribute | the id of a `expansion` declared in this diagram | The expansion region the node belongs to, run once per element. UML 2.5.1: 16.12.3 Expansion region. |
+| `interruptible=` | attribute | the id of an `interruptible` declared in this diagram | The interruptible region the node belongs to; its dashed frame is drawn around all members. UML 2.5.1: 15.6.3.2 Interruptible activity region. |
+| `expansion=` | attribute | the id of an `expansion` declared in this diagram | The expansion region the node belongs to, run once per element. UML 2.5.1: 16.12.3 Expansion region. |
 | `tone=` | attribute | one of `blue`, `indigo`, `purple`, `maroon`, `green`, `teal`, `slate`, `red`, `orange`, `peach`, `sky` | Colour of the card outline in `look=cards`; without it the card is white with a grey outline. The plain look ignores it. |
-| `mark=` | attribute | the id of a `adr` declared in this diagram | Id of a decision of the decision bar, such as `E1`; the mark is drawn at the top right of the node. |
+| `mark=` | attribute | the id of an `adr` declared in this diagram | Id of a decision of the decision bar, such as `E1`; the mark is drawn at the top right of the node. |
 | `output=` | attribute | a text in double quotes like `"Order service"` | Output pins by object type, separated by commas like `"Order, Amount"`; small squares on the bottom edge, the type beside each. UML 2.5.1: 16.2.3.3 Input and output pin of an action. |
 
 Example:
@@ -464,8 +464,8 @@ Written at the top level.
 | `<id>` | argument | an identifier like `api` (letters, digits, `_` and `-`, starting with a letter) | Id that `go`, `handler` and `in` use for this node. |
 | `<label>` | argument | a text in double quotes like `"Order service"` | The time or period, such as `"14 days"` or `"every Monday"`. |
 | `in <ref>` | clause | the id of a `partition` declared in this diagram | The partition (swimlane) the node stands in. Without it, Diagrist puts the node into the lane of its first predecessor that has one, else of its first successor, else into the first lane. UML 2.5.1: 15.6.3.1 Activity partition (swimlane). |
-| `interruptible=` | attribute | the id of a `interruptible` declared in this diagram | The interruptible region the node belongs to; its dashed frame is drawn around all members. UML 2.5.1: 15.6.3.2 Interruptible activity region. |
-| `expansion=` | attribute | the id of a `expansion` declared in this diagram | The expansion region the node belongs to, run once per element. UML 2.5.1: 16.12.3 Expansion region. |
+| `interruptible=` | attribute | the id of an `interruptible` declared in this diagram | The interruptible region the node belongs to; its dashed frame is drawn around all members. UML 2.5.1: 15.6.3.2 Interruptible activity region. |
+| `expansion=` | attribute | the id of an `expansion` declared in this diagram | The expansion region the node belongs to, run once per element. UML 2.5.1: 16.12.3 Expansion region. |
 
 Example:
 
@@ -485,9 +485,9 @@ Written at the top level.
 
 | Part | Kind | Value | Meaning |
 |---|---|---|---|
-| `<from>` | argument | the id of a `initial` or `final` or `flowfinal` or `action` or `decision` or `merge` or `fork` or `join` or `object` or `datastore` or `buffer` or `send` or `accept` or `wait` or `expansion` declared in this diagram | Node or expansion region the edge starts at. |
+| `<from>` | argument | the id of an `initial`, `final`, `flowfinal`, `action`, `decision`, `merge`, `fork`, `join`, `object`, `datastore`, `buffer`, `send`, `accept`, `wait` or `expansion` declared in this diagram | Node or expansion region the edge starts at. |
 | `<arrow>` | argument | one of the arrows `->` control flow, `=>` object flow, with an object node or pin at one end at least, `~>` interrupting edge out of an interruptible region, drawn with a lightning bolt | What kind of edge it is. UML 2.5.1: `->` 15.2.3.3 Control flow; `=>` 15.2.3.4 Object flow; `~>` 15.6.3.2 Edge that interrupts its region. |
-| `<to>` | argument | the id of a `initial` or `final` or `flowfinal` or `action` or `decision` or `merge` or `fork` or `join` or `object` or `datastore` or `buffer` or `send` or `accept` or `wait` or `expansion` declared in this diagram | Node or expansion region the edge ends at. |
+| `<to>` | argument | the id of an `initial`, `final`, `flowfinal`, `action`, `decision`, `merge`, `fork`, `join`, `object`, `datastore`, `buffer`, `send`, `accept`, `wait` or `expansion` declared in this diagram | Node or expansion region the edge ends at. |
 | `[guard]` | optional argument | a text in double quotes like `"Order service"` | Guard on an edge out of a decision, without brackets. UML 2.5.1: 15.2.3.3 Guard on an activity edge. |
 | `pin=` | attribute | a text in double quotes like `"Order service"` | Pin the object flow starts or ends at, when an action or expansion region has several. Without it Diagrist takes the pin of the same name at the other end, else the next free one. UML 2.5.1: 16.2.3.3 Input and output pin of an action. |
 | `weight=` | attribute | a number like `12` or `2.5`, at least 1 | Tokens per traversal, drawn as `{weight=n}`. UML 2.5.1: 15.2.3.3 Weight of an activity edge. |
@@ -522,9 +522,9 @@ Written at the top level.
 
 | Part | Kind | Value | Meaning |
 |---|---|---|---|
-| `<protected>` | argument | the id of a `action` declared in this diagram | The action whose exception is handled. |
+| `<protected>` | argument | the id of an `action` declared in this diagram | The action whose exception is handled. |
 | `<arrow>` | argument | one of the arrows `->` | Points from the protected action to the handler. |
-| `<handler>` | argument | the id of a `action` declared in this diagram | The action that handles the exception. |
+| `<handler>` | argument | the id of an `action` declared in this diagram | The action that handles the exception. |
 | `<exception>` | argument | a text in double quotes like `"Order service"` | Type of the exception. |
 
 Example:

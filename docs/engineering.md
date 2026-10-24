@@ -36,10 +36,11 @@ Code has no comments, only TSDoc. Names and structure explain the code; when a d
 TSDoc block (`/** ... */`). Code, TSDoc, commits and public docs are in English. Files stay at 200 lines or
 less, because a longer file usually does two things.
 
-Most of these rules are tests in `test/architecture`: TSDoc only, and saying more than the name; documented
-public APIs listed name by name; purity of the kernel, the plugins, the tools and the CLI outside its host
-adapters; package boundaries derived from `package.json`; imports that never reach from `src` into `test` and
-form no cycle; file size; no parked tests. knip rejects dead code. `AGENTS.md` lists them all.
+Most of these rules are tests in `test/architecture`: TSDoc only, and saying more than the name; documented public
+APIs listed name by name; purity of the kernel, the plugins, the tools and the CLI outside its host adapters; package
+boundaries derived from `package.json`; imports that never reach from `src` into `test` and form no cycle; kinds that
+import nothing from each other; diagnostic codes only in rules and catalogues; file size; no parked tests and no
+raised time limits. knip rejects dead code. `AGENTS.md` lists them all.
 
 ## Tests
 

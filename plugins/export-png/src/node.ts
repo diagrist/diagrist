@@ -3,11 +3,17 @@ import { type PngFonts, pngRenderer, type ToPng } from './index.js';
 
 /**
  * The fonts the kernel measures text with (`@diagrist/core/fonts`, SIL Open Font License 1.1), so the PNG sets
- * text in the same widths the layout was computed for.
+ * text in the same widths the layout was computed for. The italic faces set `font-style: italic`; without them
+ * resvg would draw such text upright.
  */
 const BUNDLED = {
   family: 'JetBrains Mono',
-  files: ['JetBrainsMono-Regular.ttf', 'JetBrainsMono-Bold.ttf'],
+  files: [
+    'JetBrainsMono-Regular.ttf',
+    'JetBrainsMono-Bold.ttf',
+    'JetBrainsMono-Italic.ttf',
+    'JetBrainsMono-BoldItalic.ttf',
+  ],
 } as const;
 
 /** Node host for the PNG exporter: reads resvg's WebAssembly module from disk and sets it up. */

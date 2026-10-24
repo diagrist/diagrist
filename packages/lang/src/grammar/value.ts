@@ -1,3 +1,4 @@
+import { article, either } from '../list.js';
 import type { Argument } from '../tree.js';
 
 export type TokenKind = Argument['kind'];
@@ -45,7 +46,7 @@ export function id(): Value<string> {
 export function ref(...targets: string[]): Value<string> {
   return {
     type: 'ref',
-    expected: `the id of a ${targets.map((t) => `\`${t}\``).join(' or ')} declared in this diagram`,
+    expected: `the id of ${article(targets[0] ?? '')} ${either(targets.map((t) => `\`${t}\``))} declared in this diagram`,
     tokens: ['word'],
     refersTo: targets,
     read: (raw) => (IDENTIFIER.test(raw) ? ok(raw) : fail),

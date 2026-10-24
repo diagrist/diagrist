@@ -62,7 +62,10 @@ export const usecase = statement(
       clauses: {
         in: implementing(
           { uml: [USE_CASES.subject] },
-          attr(ref('subject'), 'The subject the use case belongs to; without it it stands outside.'),
+          attr(
+            ref('subject'),
+            'The subject the use case belongs to; without it, the use case stands outside every subject.',
+          ),
         ),
       },
       attributes: {

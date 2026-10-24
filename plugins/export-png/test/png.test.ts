@@ -1,7 +1,7 @@
 import { beforeAll, describe, expect, it } from 'vitest';
 import type { PngFonts, PngResult, ToPng } from '../src/index.js';
 import { loadBundledFonts, loadPngRenderer } from '../src/node.js';
-import { decodePng, inkInRows, kernelSvg, pixel } from './picture.js';
+import { decodePng, differing, inkInRows, kernelSvg, pixel } from './picture.js';
 
 let toPng: ToPng;
 let fonts: PngFonts;
@@ -44,6 +44,20 @@ describe('toPng', () => {
     expect(inkInRows(withoutFiles, 0, 60)).toBe(0);
     const regularOnly = decodePng(png(toPng(kernelSvg(), { fonts: { ...fonts, files: fonts.files.slice(0, 1) } })));
     expect(inkInRows(regularOnly, 30, 60)).toBe(regular);
+  });
+
+  it('sets italic text in the italic faces, regular and bold, which resvg would otherwise draw upright', () => {
+    const upright = decodePng(png(toPng(kernelSvg(), { fonts })));
+    const italic = decodePng(png(toPng(kernelSvg({ italic: true }), { fonts })));
+    const rows = [
+      [0, 30],
+      [30, 60],
+    ] as const;
+    for (const [from, to] of rows) expect(differing(italic, upright, from, to)).toBeGreaterThan(100);
+
+    const uprightOnly = { ...fonts, files: fonts.files.slice(0, 2) };
+    const withoutItalics = decodePng(png(toPng(kernelSvg({ italic: true }), { fonts: uprightOnly })));
+    expect(differing(withoutItalics, upright, 0, 60)).toBe(0);
   });
 
   it('keeps the background of the SVG: the canvas colour, or transparent when the SVG has none', () => {

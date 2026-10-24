@@ -1,6 +1,6 @@
 import { type Command, commandLine, headerLine, signatureOf, summaryOf } from '@diagrist/cli/tables';
 import type { Kind, Plugin } from '@diagrist/core';
-import { type GrammarField, grammarOf } from '@diagrist/lang';
+import { either, type GrammarField, grammarOf } from '@diagrist/lang';
 import { LANGUAGE_BASICS } from './basics.js';
 import { kernelCodes, languageCodes, ruleCodes } from './codes.js';
 import { code, generatedFrom, table } from './markdown.js';
@@ -17,7 +17,7 @@ export const SKILL_PATH = 'skills/diagrist/SKILL.md';
  */
 export function agentSkill(plugins: readonly Plugin[], commands: readonly Command[]): string {
   const kinds = plugins.flatMap((plugin) => plugin.kinds);
-  const names = kinds.map((kind) => kind.spec.name).join(' or ');
+  const names = either(kinds.map((kind) => kind.spec.name));
   return [
     '---',
     'name: diagrist',

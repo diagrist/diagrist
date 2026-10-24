@@ -1,12 +1,7 @@
-import type { Catalogue } from '@diagrist/core';
-
-type Values = Readonly<Record<string, string>>;
-
-/** Picks the text for `v.case` from a table, so a finding names its case as data, not as prose. */
-const pick = (v: Values, cases: Readonly<Record<string, string>>): string => cases[v.case ?? ''] ?? v.case ?? '';
+import { type Catalogue, pick } from '@diagrist/core';
 
 /** Messages of the sequence errors U400 to U454, in English and German. */
-export const ERRORS: Catalogue = {
+export const SEQUENCE_ERRORS: Catalogue = {
   U400: {
     en: (v) =>
       `\`${v.found}\` is no declared lifeline. Declared: ${v.known}. Declare it first, e.g. \`participant ${v.found} "..."\`.`,

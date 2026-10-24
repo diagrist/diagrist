@@ -1,6 +1,6 @@
 import { headerLine, signatureOf, summaryOf } from '@diagrist/cli/tables';
 import type { Kind } from '@diagrist/core';
-import { type GrammarField, type GrammarLine, grammarOf } from '@diagrist/lang';
+import { article, either, type GrammarField, type GrammarLine, grammarOf } from '@diagrist/lang';
 import { ruleCodes } from './codes.js';
 import { code, generatedFrom, table } from './markdown.js';
 import { type PlacedStatement, placedStatements, whereOf } from './statements.js';
@@ -24,7 +24,7 @@ export function languageSpec(kind: Kind, plugin: string): string {
     '',
     grammar.doc,
     '',
-    `This page lists everything a \`${grammar.kind}\` diagram may contain. The same grammar is available as data with \`dgr grammar ${grammar.kind} --json\`, and [the overview](README.md) explains how lines, texts and attributes are written and lists the codes every kind shares.`,
+    `This page lists everything ${article(grammar.kind)} \`${grammar.kind}\` diagram may contain. The same grammar is available as data with \`dgr grammar ${grammar.kind} --json\`, and [the overview](README.md) explains how lines, texts and attributes are written and lists the codes every kind shares.`,
     '',
     '## The first line',
     '',
@@ -50,7 +50,7 @@ export function languageSpec(kind: Kind, plugin: string): string {
 
 /** Where a statement may stand, as a sentence that names every block. */
 function placement(placed: PlacedStatement): string {
-  const blocks = placed.parents.map(code).join(', ');
+  const blocks = either(placed.parents.map(code));
   if (!placed.topLevel) return `Written only inside ${blocks}.`;
   return placed.parents.length > 0 ? `Written at the top level and inside ${blocks}.` : 'Written at the top level.';
 }

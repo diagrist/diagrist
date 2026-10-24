@@ -1,7 +1,8 @@
 /**
  * Advance widths of JetBrains Mono 2.305 (SIL Open Font License 1.1, see `fonts/OFL.txt`) in font units.
  * Generated from `fonts/JetBrainsMono-Regular.ttf` and `fonts/JetBrainsMono-Bold.ttf` by
- * `test/font-metrics.test.ts`; run it with `UPDATE_GOLDEN=1` instead of editing this file.
+ * `test/font-metrics.test.ts`; run it with `UPDATE_GOLDEN=1` instead of editing this file. The italic faces
+ * have the advances of their upright ones, which the same test checks, so italic text is measured with these.
  */
 export interface FaceMetrics {
   /** Advance of every code point not listed, including those the font does not map. */

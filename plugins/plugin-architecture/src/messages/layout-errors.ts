@@ -1,5 +1,4 @@
-import type { Catalogue } from '@diagrist/core';
-import { pick } from './errors.js';
+import { type Catalogue, pick } from '@diagrist/core';
 
 type Values = Readonly<Record<string, string>>;
 

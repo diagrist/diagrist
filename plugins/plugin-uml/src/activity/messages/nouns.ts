@@ -47,6 +47,3 @@ export function noun(v: Values, locale: Locale, prefix = ''): string {
   const word = (NOUNS[locale] as Readonly<Record<string, string>>)[kind] ?? kind;
   return locale === 'de' ? `${word} „${name}“` : `${word} "${name}"`;
 }
-
-/** Picks the text for `v.case` from a table, so a finding names its case as data, not as prose. */
-export const pick = (v: Values, cases: Readonly<Record<string, string>>): string => cases[v.case ?? ''] ?? v.case ?? '';

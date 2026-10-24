@@ -28,6 +28,28 @@ describe('imports inside a package', () => {
   });
 });
 
+/**
+ * Kinds of one plugin are built side by side and stay apart: a folder that holds a `kind.ts` is a kind, and nothing in
+ * it imports from another kind's folder. A piece two kinds draw alike lives beside them, in a folder of its own such as
+ * `src/shared`, so a change for one kind cannot break another unseen.
+ */
+describe('kinds of a plugin', () => {
+  const files = sourceFiles().filter((file) => file.startsWith('plugins/') && isIn('src', file));
+  const kinds = files.filter((file) => file.endsWith('/kind.ts')).map((file) => file.slice(0, -'kind.ts'.length));
+  const kindOf = (file: string) => kinds.find((folder) => file.startsWith(folder));
+
+  it('import nothing from each other', () => {
+    const offending = files.flatMap((file) => {
+      const own = kindOf(file);
+      if (own === undefined) return [];
+      return relativeImports(file)
+        .filter(({ target }) => ![undefined, own].includes(kindOf(target)))
+        .map(({ target, line }) => `${file}:${line}  ${target}`);
+    });
+    expect(offending).toEqual([]);
+  });
+});
+
 /** Whether a file lies in the `src` or `test` folder of its package. */
 function isIn(folder: 'src' | 'test', file: string): boolean {
   return file.startsWith(`${packageOf(file)}/${folder}/`);

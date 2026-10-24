@@ -1,4 +1,4 @@
-import { plural } from '../sequence/describe/prose.js';
+import { plural } from '../shared/words.js';
 import type { UseCaseProse } from '../usecase/describe/prose.js';
 
 const list = (items: readonly string[]) =>

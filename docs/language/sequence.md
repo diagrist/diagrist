@@ -72,7 +72,7 @@ Each statement is one line that starts with its keyword. Statements inside block
 ### `participant`
 
 ```text
-participant <id> <label> [stereotype=<text>] [tone=<oneOf>] [external]
+participant <id> <label> [stereotype=<text>] [tone=<choice>] [external]
 ```
 
 A lifeline drawn as a box, from left to right in source order. Messages, notes and references name it by its id. UML 2.5.1: 17.3.3.1 Lifeline.
@@ -96,7 +96,7 @@ participant api "api-service" stereotype="service"
 ### `actor`
 
 ```text
-actor <id> <label> [stereotype=<text>] [tone=<oneOf>] [external]
+actor <id> <label> [stereotype=<text>] [tone=<choice>] [external]
 ```
 
 A lifeline drawn as a stick figure, from left to right in source order. Messages, notes and references name it by its id. UML 2.5.1: 17.3.3.1 Lifeline.
@@ -120,7 +120,7 @@ actor customer "Customer"
 ### `database`
 
 ```text
-database <id> <label> [stereotype=<text>] [tone=<oneOf>] [external]
+database <id> <label> [stereotype=<text>] [tone=<choice>] [external]
 ```
 
 A lifeline drawn as a cylinder, from left to right in source order. Messages, notes and references name it by its id. UML 2.5.1: 17.3.3.1 Lifeline.
@@ -144,7 +144,7 @@ database db "Orders DB"
 ### `queue`
 
 ```text
-queue <id> <label> [stereotype=<text>] [tone=<oneOf>] [external]
+queue <id> <label> [stereotype=<text>] [tone=<choice>] [external]
 ```
 
 A lifeline drawn as a horizontal tube, from left to right in source order. Messages, notes and references name it by its id. UML 2.5.1: 17.3.3.1 Lifeline.
@@ -168,7 +168,7 @@ queue broker "Kafka"
 ### `boundary`
 
 ```text
-boundary <id> <label> [stereotype=<text>] [tone=<oneOf>] [external]
+boundary <id> <label> [stereotype=<text>] [tone=<choice>] [external]
 ```
 
 A lifeline drawn as the boundary symbol of robustness analysis, from left to right in source order. Messages, notes and references name it by its id. UML 2.5.1: 17.3.3.1 Lifeline.
@@ -192,7 +192,7 @@ boundary form "Order form"
 ### `control`
 
 ```text
-control <id> <label> [stereotype=<text>] [tone=<oneOf>] [external]
+control <id> <label> [stereotype=<text>] [tone=<choice>] [external]
 ```
 
 A lifeline drawn as the control symbol of robustness analysis, from left to right in source order. Messages, notes and references name it by its id. UML 2.5.1: 17.3.3.1 Lifeline.
@@ -216,7 +216,7 @@ control checkout "Checkout"
 ### `entity`
 
 ```text
-entity <id> <label> [stereotype=<text>] [tone=<oneOf>] [external]
+entity <id> <label> [stereotype=<text>] [tone=<choice>] [external]
 ```
 
 A lifeline drawn as the entity symbol of robustness analysis, from left to right in source order. Messages, notes and references name it by its id. UML 2.5.1: 17.3.3.1 Lifeline.
@@ -281,7 +281,7 @@ msg <from> <arrow> <to> [label] [id=<id>] [mark=<ref>] [duration=<text>] [emph]
 
 A message in source order; its arrow says what kind. Sender equal to receiver is a self call. Calls and replies activate the receiver by themselves. `found` as sender and `lost` as receiver are found and lost messages; `gate` is a gate on the frame of the interaction (`gate -> a` comes in from the left, `a --> gate` replies to the left, `a -> gate` leaves to the right), `gate.name` names it. The `id=` of a `ref` or fragment as an end leads the message to its edge. UML 2.5.1: 17.4.3.1 Message.
 
-Written at the top level and inside `coregion`, `alt`, `else`, `opt`, `loop`, `par`, `and`, `break`, `critical`, `seq`, `strict`, `neg`, `assert`, `ignore`, `consider`.
+Written at the top level and inside `coregion`, `alt`, `else`, `opt`, `loop`, `par`, `and`, `break`, `critical`, `seq`, `strict`, `neg`, `assert`, `ignore` or `consider`.
 
 | Part | Kind | Value | Meaning |
 |---|---|---|---|
@@ -290,7 +290,7 @@ Written at the top level and inside `coregion`, `alt`, `else`, `opt`, `loop`, `p
 | `<to>` | argument | a lifeline id like `api`, `found`, `lost`, `gate`, `gate.name`, or the `id=` of a `ref` or fragment, optionally with `.name` | Receiver: a lifeline, `lost`, `gate`, or a frame with `id=`. UML 2.5.1: `lost` 17.4.3.1 Lost message, without receiver; `gate` 17.4.3.5 Gate on the frame of the interaction. |
 | `[label]` | optional argument | a text in double quotes like `"Order service"` | What is sent; without it the arrow has no label. |
 | `id=` | attribute | an identifier like `api` (letters, digits, `_` and `-`, starting with a letter) | Name of the message that `duration` and `time` refer to. |
-| `mark=` | attribute | the id of a `adr` declared in this diagram | Id of a decision of the decision bar, such as `E1`; the mark is drawn after the label. |
+| `mark=` | attribute | the id of an `adr` declared in this diagram | Id of a decision of the decision bar, such as `E1`; the mark is drawn after the label. |
 | `duration=` | attribute | a text in double quotes like `"Order service"` | Duration of the transmission: the arrow slopes down and shows the text in `{...}`. UML 2.5.1: 8.5.3.2 Duration constraint. |
 | `emph` | flag |  | Highlights the message in the accent colour. |
 
@@ -318,16 +318,16 @@ create <from> <arrow> <to> [label] [id=<id>] [mark=<ref>] [duration=<text>] [emp
 
 A creation message: dashed with an open head, and the head of the receiver stands at its height. Before it the lifeline does not exist. UML 2.5.1: 17.4.3.1 Message that creates a lifeline.
 
-Written at the top level and inside `alt`, `else`, `opt`, `loop`, `par`, `and`, `break`, `critical`, `seq`, `strict`, `neg`, `assert`, `ignore`, `consider`.
+Written at the top level and inside `alt`, `else`, `opt`, `loop`, `par`, `and`, `break`, `critical`, `seq`, `strict`, `neg`, `assert`, `ignore` or `consider`.
 
 | Part | Kind | Value | Meaning |
 |---|---|---|---|
-| `<from>` | argument | the id of a `participant` or `actor` or `database` or `queue` or `boundary` or `control` or `entity` declared in this diagram | The lifeline that creates. |
+| `<from>` | argument | the id of a `participant`, `actor`, `database`, `queue`, `boundary`, `control` or `entity` declared in this diagram | The lifeline that creates. |
 | `<arrow>` | argument | one of the arrows `->` | Always `->`. |
-| `<to>` | argument | the id of a `participant` or `actor` or `database` or `queue` or `boundary` or `control` or `entity` declared in this diagram | The lifeline that is created. |
+| `<to>` | argument | the id of a `participant`, `actor`, `database`, `queue`, `boundary`, `control` or `entity` declared in this diagram | The lifeline that is created. |
 | `[label]` | optional argument | a text in double quotes like `"Order service"` | The constructor call; without it the arrow has no label. |
 | `id=` | attribute | an identifier like `api` (letters, digits, `_` and `-`, starting with a letter) | Name of the message that `duration` and `time` refer to. |
-| `mark=` | attribute | the id of a `adr` declared in this diagram | Id of a decision of the decision bar, such as `E1`; the mark is drawn after the label. |
+| `mark=` | attribute | the id of an `adr` declared in this diagram | Id of a decision of the decision bar, such as `E1`; the mark is drawn after the label. |
 | `duration=` | attribute | a text in double quotes like `"Order service"` | Duration of the transmission: the arrow slopes down and shows the text in `{...}`. UML 2.5.1: 8.5.3.2 Duration constraint. |
 | `emph` | flag |  | Highlights the message in the accent colour. |
 
@@ -345,11 +345,11 @@ destroy <target>
 
 Destruction: the lifeline ends here with an X. No message reaches it afterwards. UML 2.5.1: 17.4.3.4 End of a lifeline (destruction).
 
-Written at the top level and inside `alt`, `else`, `opt`, `loop`, `par`, `and`, `break`, `critical`, `seq`, `strict`, `neg`, `assert`, `ignore`, `consider`.
+Written at the top level and inside `alt`, `else`, `opt`, `loop`, `par`, `and`, `break`, `critical`, `seq`, `strict`, `neg`, `assert`, `ignore` or `consider`.
 
 | Part | Kind | Value | Meaning |
 |---|---|---|---|
-| `<target>` | argument | the id of a `participant` or `actor` or `database` or `queue` or `boundary` or `control` or `entity` declared in this diagram | The lifeline that ends. |
+| `<target>` | argument | the id of a `participant`, `actor`, `database`, `queue`, `boundary`, `control` or `entity` declared in this diagram | The lifeline that ends. |
 
 Example:
 
@@ -365,11 +365,11 @@ activate <target>
 
 Starts an activation bar by hand, for processing after an asynchronous message. Calls and replies need none, their bars appear by themselves. Ends with `deactivate`. UML 2.5.1: 17.2.3.4 Execution on a lifeline (activation bar).
 
-Written at the top level and inside `coregion`, `alt`, `else`, `opt`, `loop`, `par`, `and`, `break`, `critical`, `seq`, `strict`, `neg`, `assert`, `ignore`, `consider`.
+Written at the top level and inside `coregion`, `alt`, `else`, `opt`, `loop`, `par`, `and`, `break`, `critical`, `seq`, `strict`, `neg`, `assert`, `ignore` or `consider`.
 
 | Part | Kind | Value | Meaning |
 |---|---|---|---|
-| `<target>` | argument | the id of a `participant` or `actor` or `database` or `queue` or `boundary` or `control` or `entity` declared in this diagram | The lifeline whose bar starts at the last message. |
+| `<target>` | argument | the id of a `participant`, `actor`, `database`, `queue`, `boundary`, `control` or `entity` declared in this diagram | The lifeline whose bar starts at the last message. |
 
 Example:
 
@@ -385,11 +385,11 @@ deactivate <target>
 
 Ends the bar the last `activate` of this lifeline started. UML 2.5.1: 17.2.3.4 Execution on a lifeline (activation bar).
 
-Written at the top level and inside `coregion`, `alt`, `else`, `opt`, `loop`, `par`, `and`, `break`, `critical`, `seq`, `strict`, `neg`, `assert`, `ignore`, `consider`.
+Written at the top level and inside `coregion`, `alt`, `else`, `opt`, `loop`, `par`, `and`, `break`, `critical`, `seq`, `strict`, `neg`, `assert`, `ignore` or `consider`.
 
 | Part | Kind | Value | Meaning |
 |---|---|---|---|
-| `<target>` | argument | the id of a `participant` or `actor` or `database` or `queue` or `boundary` or `control` or `entity` declared in this diagram | The lifeline whose bar ends at the last message. |
+| `<target>` | argument | the id of a `participant`, `actor`, `database`, `queue`, `boundary`, `control` or `entity` declared in this diagram | The lifeline whose bar ends at the last message. |
 
 Example:
 
@@ -405,7 +405,7 @@ note <text> [over=<lifelines>]
 
 A note at this point of the time axis, over the lifelines of `over=`. Long texts wrap. UML 2.5.1: 7.2.3.2 Comment (note).
 
-Written at the top level and inside `coregion`, `alt`, `else`, `opt`, `loop`, `par`, `and`, `break`, `critical`, `seq`, `strict`, `neg`, `assert`, `ignore`, `consider`.
+Written at the top level and inside `coregion`, `alt`, `else`, `opt`, `loop`, `par`, `and`, `break`, `critical`, `seq`, `strict`, `neg`, `assert`, `ignore` or `consider`.
 
 | Part | Kind | Value | Meaning |
 |---|---|---|---|
@@ -426,7 +426,7 @@ ref <label> [over=<lifelines>] [id=<id>] [file=<text>]
 
 A reference to another interaction (interaction use): a frame tagged `ref` over the lifelines of `over=`. With `id=r` the messages right after it that name `r` as an end run to its edge (actual gates, `r.name` names them), and the frame grows to hold them. UML 2.5.1: 17.7.3.1 Use of another interaction (`ref`).
 
-Written at the top level and inside `alt`, `else`, `opt`, `loop`, `par`, `and`, `break`, `critical`, `seq`, `strict`, `neg`, `assert`, `ignore`, `consider`.
+Written at the top level and inside `alt`, `else`, `opt`, `loop`, `par`, `and`, `break`, `critical`, `seq`, `strict`, `neg`, `assert`, `ignore` or `consider`.
 
 | Part | Kind | Value | Meaning |
 |---|---|---|---|
@@ -449,12 +449,12 @@ invariant <text> [on=<ref>] [state]
 
 A state invariant at this point on the lifeline `on=`: a condition in `{...}`, or with `state` a state in a rounded box. UML 2.5.1: 17.2.3.5 State invariant.
 
-Written at the top level and inside `alt`, `else`, `opt`, `loop`, `par`, `and`, `break`, `critical`, `seq`, `strict`, `neg`, `assert`, `ignore`, `consider`.
+Written at the top level and inside `alt`, `else`, `opt`, `loop`, `par`, `and`, `break`, `critical`, `seq`, `strict`, `neg`, `assert`, `ignore` or `consider`.
 
 | Part | Kind | Value | Meaning |
 |---|---|---|---|
 | `<text>` | argument | a text in double quotes like `"Order service"` | The condition or state, without braces. |
-| `on=` | attribute | the id of a `participant` or `actor` or `database` or `queue` or `boundary` or `control` or `entity` declared in this diagram | The lifeline the invariant holds on. Required. |
+| `on=` | attribute | the id of a `participant`, `actor`, `database`, `queue`, `boundary`, `control` or `entity` declared in this diagram | The lifeline the invariant holds on. Required. |
 | `state` | flag |  | Draws a state in a rounded box instead of a condition in braces. |
 
 Example:
@@ -491,11 +491,11 @@ coregion <on>
 
 A coregion on the lifeline: the order of the indented events is arbitrary, drawn as square brackets on the lifeline. Only messages from or to it, `activate`, `deactivate` and `note` may stand in it. UML 2.5.1: 17.6.4.10 Coregion, unordered events on one lifeline.
 
-Written at the top level and inside `alt`, `else`, `opt`, `loop`, `par`, `and`, `break`, `critical`, `seq`, `strict`, `neg`, `assert`, `ignore`, `consider`. Indented below it: `msg`, `activate`, `deactivate`, `note`.
+Written at the top level and inside `alt`, `else`, `opt`, `loop`, `par`, `and`, `break`, `critical`, `seq`, `strict`, `neg`, `assert`, `ignore` or `consider`. Indented below it: `msg`, `activate`, `deactivate`, `note`.
 
 | Part | Kind | Value | Meaning |
 |---|---|---|---|
-| `<on>` | argument | the id of a `participant` or `actor` or `database` or `queue` or `boundary` or `control` or `entity` declared in this diagram | The lifeline whose events are unordered. |
+| `<on>` | argument | the id of a `participant`, `actor`, `database`, `queue`, `boundary`, `control` or `entity` declared in this diagram | The lifeline whose events are unordered. |
 
 Example:
 
@@ -511,7 +511,7 @@ alt [guard] [id=<id>]
 
 Alternatives: the first operand whose guard holds is taken; further operands start with `else`. The statements indented below it belong to the fragment; fragments nest. UML 2.5.1: 17.6.3.3 Combined fragment, 17.6.3.7 Alternatives (`alt`), 17.6.3.1 Operand of a combined fragment.
 
-Written at the top level and inside `alt`, `else`, `opt`, `loop`, `par`, `and`, `break`, `critical`, `seq`, `strict`, `neg`, `assert`, `ignore`, `consider`. Indented below it: `msg`, `create`, `destroy`, `activate`, `deactivate`, `note`, `ref`, `invariant`, `coregion`, `alt`, `opt`, `loop`, `par`, `break`, `critical`, `seq`, `strict`, `neg`, `assert`, `ignore`, `consider`, `else`.
+Written at the top level and inside `alt`, `else`, `opt`, `loop`, `par`, `and`, `break`, `critical`, `seq`, `strict`, `neg`, `assert`, `ignore` or `consider`. Indented below it: `msg`, `create`, `destroy`, `activate`, `deactivate`, `note`, `ref`, `invariant`, `coregion`, `alt`, `opt`, `loop`, `par`, `break`, `critical`, `seq`, `strict`, `neg`, `assert`, `ignore`, `consider`, `else`.
 
 | Part | Kind | Value | Meaning |
 |---|---|---|---|
@@ -552,7 +552,7 @@ opt [guard] [id=<id>]
 
 An optional part, taken when its guard holds. The statements indented below it belong to the fragment; fragments nest. UML 2.5.1: 17.6.3.3 Combined fragment, 17.6.3.8 Option (`opt`), 17.6.3.1 Operand of a combined fragment.
 
-Written at the top level and inside `alt`, `else`, `opt`, `loop`, `par`, `and`, `break`, `critical`, `seq`, `strict`, `neg`, `assert`, `ignore`, `consider`. Indented below it: `msg`, `create`, `destroy`, `activate`, `deactivate`, `note`, `ref`, `invariant`, `coregion`, `alt`, `opt`, `loop`, `par`, `break`, `critical`, `seq`, `strict`, `neg`, `assert`, `ignore`, `consider`.
+Written at the top level and inside `alt`, `else`, `opt`, `loop`, `par`, `and`, `break`, `critical`, `seq`, `strict`, `neg`, `assert`, `ignore` or `consider`. Indented below it: `msg`, `create`, `destroy`, `activate`, `deactivate`, `note`, `ref`, `invariant`, `coregion`, `alt`, `opt`, `loop`, `par`, `break`, `critical`, `seq`, `strict`, `neg`, `assert`, `ignore`, `consider`.
 
 | Part | Kind | Value | Meaning |
 |---|---|---|---|
@@ -573,7 +573,7 @@ loop [guard] [id=<id>]
 
 A repetition while the guard holds. The statements indented below it belong to the fragment; fragments nest. UML 2.5.1: 17.6.3.3 Combined fragment, 17.6.3.17 Loop (`loop`), 17.6.3.1 Operand of a combined fragment.
 
-Written at the top level and inside `alt`, `else`, `opt`, `loop`, `par`, `and`, `break`, `critical`, `seq`, `strict`, `neg`, `assert`, `ignore`, `consider`. Indented below it: `msg`, `create`, `destroy`, `activate`, `deactivate`, `note`, `ref`, `invariant`, `coregion`, `alt`, `opt`, `loop`, `par`, `break`, `critical`, `seq`, `strict`, `neg`, `assert`, `ignore`, `consider`.
+Written at the top level and inside `alt`, `else`, `opt`, `loop`, `par`, `and`, `break`, `critical`, `seq`, `strict`, `neg`, `assert`, `ignore` or `consider`. Indented below it: `msg`, `create`, `destroy`, `activate`, `deactivate`, `note`, `ref`, `invariant`, `coregion`, `alt`, `opt`, `loop`, `par`, `break`, `critical`, `seq`, `strict`, `neg`, `assert`, `ignore`, `consider`.
 
 | Part | Kind | Value | Meaning |
 |---|---|---|---|
@@ -594,7 +594,7 @@ par [guard] [id=<id>]
 
 Parallel operands, separated by `and`; their events interleave freely. The statements indented below it belong to the fragment; fragments nest. UML 2.5.1: 17.6.3.3 Combined fragment, 17.6.3.10 Parallel (`par`), 17.6.3.1 Operand of a combined fragment.
 
-Written at the top level and inside `alt`, `else`, `opt`, `loop`, `par`, `and`, `break`, `critical`, `seq`, `strict`, `neg`, `assert`, `ignore`, `consider`. Indented below it: `msg`, `create`, `destroy`, `activate`, `deactivate`, `note`, `ref`, `invariant`, `coregion`, `alt`, `opt`, `loop`, `par`, `break`, `critical`, `seq`, `strict`, `neg`, `assert`, `ignore`, `consider`, `and`.
+Written at the top level and inside `alt`, `else`, `opt`, `loop`, `par`, `and`, `break`, `critical`, `seq`, `strict`, `neg`, `assert`, `ignore` or `consider`. Indented below it: `msg`, `create`, `destroy`, `activate`, `deactivate`, `note`, `ref`, `invariant`, `coregion`, `alt`, `opt`, `loop`, `par`, `break`, `critical`, `seq`, `strict`, `neg`, `assert`, `ignore`, `consider`, `and`.
 
 | Part | Kind | Value | Meaning |
 |---|---|---|---|
@@ -615,7 +615,7 @@ and [guard]
 
 The next operand of `par`, `seq` or `strict`, written inside the fragment with its statements indented below it. UML 2.5.1: 17.6.3.1 Operand of a combined fragment.
 
-Written only inside `par`, `seq`, `strict`. Indented below it: `msg`, `create`, `destroy`, `activate`, `deactivate`, `note`, `ref`, `invariant`, `coregion`, `alt`, `opt`, `loop`, `par`, `break`, `critical`, `seq`, `strict`, `neg`, `assert`, `ignore`, `consider`.
+Written only inside `par`, `seq` or `strict`. Indented below it: `msg`, `create`, `destroy`, `activate`, `deactivate`, `note`, `ref`, `invariant`, `coregion`, `alt`, `opt`, `loop`, `par`, `break`, `critical`, `seq`, `strict`, `neg`, `assert`, `ignore`, `consider`.
 
 | Part | Kind | Value | Meaning |
 |---|---|---|---|
@@ -635,7 +635,7 @@ break [guard] [id=<id>]
 
 Ends the enclosing interaction when the guard holds. The statements indented below it belong to the fragment; fragments nest. UML 2.5.1: 17.6.3.3 Combined fragment, 17.6.3.9 Break (`break`), 17.6.3.1 Operand of a combined fragment.
 
-Written at the top level and inside `alt`, `else`, `opt`, `loop`, `par`, `and`, `break`, `critical`, `seq`, `strict`, `neg`, `assert`, `ignore`, `consider`. Indented below it: `msg`, `create`, `destroy`, `activate`, `deactivate`, `note`, `ref`, `invariant`, `coregion`, `alt`, `opt`, `loop`, `par`, `break`, `critical`, `seq`, `strict`, `neg`, `assert`, `ignore`, `consider`.
+Written at the top level and inside `alt`, `else`, `opt`, `loop`, `par`, `and`, `break`, `critical`, `seq`, `strict`, `neg`, `assert`, `ignore` or `consider`. Indented below it: `msg`, `create`, `destroy`, `activate`, `deactivate`, `note`, `ref`, `invariant`, `coregion`, `alt`, `opt`, `loop`, `par`, `break`, `critical`, `seq`, `strict`, `neg`, `assert`, `ignore`, `consider`.
 
 | Part | Kind | Value | Meaning |
 |---|---|---|---|
@@ -656,7 +656,7 @@ critical [guard] [id=<id>]
 
 A critical region: its events are not interleaved. The statements indented below it belong to the fragment; fragments nest. UML 2.5.1: 17.6.3.3 Combined fragment, 17.6.3.14 Critical region (`critical`), 17.6.3.1 Operand of a combined fragment.
 
-Written at the top level and inside `alt`, `else`, `opt`, `loop`, `par`, `and`, `break`, `critical`, `seq`, `strict`, `neg`, `assert`, `ignore`, `consider`. Indented below it: `msg`, `create`, `destroy`, `activate`, `deactivate`, `note`, `ref`, `invariant`, `coregion`, `alt`, `opt`, `loop`, `par`, `break`, `critical`, `seq`, `strict`, `neg`, `assert`, `ignore`, `consider`.
+Written at the top level and inside `alt`, `else`, `opt`, `loop`, `par`, `and`, `break`, `critical`, `seq`, `strict`, `neg`, `assert`, `ignore` or `consider`. Indented below it: `msg`, `create`, `destroy`, `activate`, `deactivate`, `note`, `ref`, `invariant`, `coregion`, `alt`, `opt`, `loop`, `par`, `break`, `critical`, `seq`, `strict`, `neg`, `assert`, `ignore`, `consider`.
 
 | Part | Kind | Value | Meaning |
 |---|---|---|---|
@@ -677,7 +677,7 @@ seq [guard] [id=<id>]
 
 Weak sequencing of operands, separated by `and`. The statements indented below it belong to the fragment; fragments nest. UML 2.5.1: 17.6.3.3 Combined fragment, 17.6.3.11 Weak sequencing (`seq`), 17.6.3.1 Operand of a combined fragment.
 
-Written at the top level and inside `alt`, `else`, `opt`, `loop`, `par`, `and`, `break`, `critical`, `seq`, `strict`, `neg`, `assert`, `ignore`, `consider`. Indented below it: `msg`, `create`, `destroy`, `activate`, `deactivate`, `note`, `ref`, `invariant`, `coregion`, `alt`, `opt`, `loop`, `par`, `break`, `critical`, `seq`, `strict`, `neg`, `assert`, `ignore`, `consider`, `and`.
+Written at the top level and inside `alt`, `else`, `opt`, `loop`, `par`, `and`, `break`, `critical`, `seq`, `strict`, `neg`, `assert`, `ignore` or `consider`. Indented below it: `msg`, `create`, `destroy`, `activate`, `deactivate`, `note`, `ref`, `invariant`, `coregion`, `alt`, `opt`, `loop`, `par`, `break`, `critical`, `seq`, `strict`, `neg`, `assert`, `ignore`, `consider`, `and`.
 
 | Part | Kind | Value | Meaning |
 |---|---|---|---|
@@ -698,7 +698,7 @@ strict [guard] [id=<id>]
 
 Strict sequencing of operands, separated by `and`. The statements indented below it belong to the fragment; fragments nest. UML 2.5.1: 17.6.3.3 Combined fragment, 17.6.3.12 Strict sequencing (`strict`), 17.6.3.1 Operand of a combined fragment.
 
-Written at the top level and inside `alt`, `else`, `opt`, `loop`, `par`, `and`, `break`, `critical`, `seq`, `strict`, `neg`, `assert`, `ignore`, `consider`. Indented below it: `msg`, `create`, `destroy`, `activate`, `deactivate`, `note`, `ref`, `invariant`, `coregion`, `alt`, `opt`, `loop`, `par`, `break`, `critical`, `seq`, `strict`, `neg`, `assert`, `ignore`, `consider`, `and`.
+Written at the top level and inside `alt`, `else`, `opt`, `loop`, `par`, `and`, `break`, `critical`, `seq`, `strict`, `neg`, `assert`, `ignore` or `consider`. Indented below it: `msg`, `create`, `destroy`, `activate`, `deactivate`, `note`, `ref`, `invariant`, `coregion`, `alt`, `opt`, `loop`, `par`, `break`, `critical`, `seq`, `strict`, `neg`, `assert`, `ignore`, `consider`, `and`.
 
 | Part | Kind | Value | Meaning |
 |---|---|---|---|
@@ -719,7 +719,7 @@ neg [guard] [id=<id>]
 
 An invalid trace: what must not happen. The statements indented below it belong to the fragment; fragments nest. UML 2.5.1: 17.6.3.3 Combined fragment, 17.6.3.13 Invalid traces (`neg`), 17.6.3.1 Operand of a combined fragment.
 
-Written at the top level and inside `alt`, `else`, `opt`, `loop`, `par`, `and`, `break`, `critical`, `seq`, `strict`, `neg`, `assert`, `ignore`, `consider`. Indented below it: `msg`, `create`, `destroy`, `activate`, `deactivate`, `note`, `ref`, `invariant`, `coregion`, `alt`, `opt`, `loop`, `par`, `break`, `critical`, `seq`, `strict`, `neg`, `assert`, `ignore`, `consider`.
+Written at the top level and inside `alt`, `else`, `opt`, `loop`, `par`, `and`, `break`, `critical`, `seq`, `strict`, `neg`, `assert`, `ignore` or `consider`. Indented below it: `msg`, `create`, `destroy`, `activate`, `deactivate`, `note`, `ref`, `invariant`, `coregion`, `alt`, `opt`, `loop`, `par`, `break`, `critical`, `seq`, `strict`, `neg`, `assert`, `ignore`, `consider`.
 
 | Part | Kind | Value | Meaning |
 |---|---|---|---|
@@ -740,7 +740,7 @@ assert [guard] [id=<id>]
 
 The only valid trace at this point. The statements indented below it belong to the fragment; fragments nest. UML 2.5.1: 17.6.3.3 Combined fragment, 17.6.3.16 Assertion (`assert`), 17.6.3.1 Operand of a combined fragment.
 
-Written at the top level and inside `alt`, `else`, `opt`, `loop`, `par`, `and`, `break`, `critical`, `seq`, `strict`, `neg`, `assert`, `ignore`, `consider`. Indented below it: `msg`, `create`, `destroy`, `activate`, `deactivate`, `note`, `ref`, `invariant`, `coregion`, `alt`, `opt`, `loop`, `par`, `break`, `critical`, `seq`, `strict`, `neg`, `assert`, `ignore`, `consider`.
+Written at the top level and inside `alt`, `else`, `opt`, `loop`, `par`, `and`, `break`, `critical`, `seq`, `strict`, `neg`, `assert`, `ignore` or `consider`. Indented below it: `msg`, `create`, `destroy`, `activate`, `deactivate`, `note`, `ref`, `invariant`, `coregion`, `alt`, `opt`, `loop`, `par`, `break`, `critical`, `seq`, `strict`, `neg`, `assert`, `ignore`, `consider`.
 
 | Part | Kind | Value | Meaning |
 |---|---|---|---|
@@ -761,7 +761,7 @@ ignore [guard] [id=<id>]
 
 Messages that may appear anywhere and are ignored; the guard lists their names and shows as `ignore {...}`. The statements indented below it belong to the fragment; fragments nest. UML 2.5.1: 17.6.3.3 Combined fragment, 17.6.3.15 Ignored messages (`ignore`), 17.6.3.1 Operand of a combined fragment.
 
-Written at the top level and inside `alt`, `else`, `opt`, `loop`, `par`, `and`, `break`, `critical`, `seq`, `strict`, `neg`, `assert`, `ignore`, `consider`. Indented below it: `msg`, `create`, `destroy`, `activate`, `deactivate`, `note`, `ref`, `invariant`, `coregion`, `alt`, `opt`, `loop`, `par`, `break`, `critical`, `seq`, `strict`, `neg`, `assert`, `ignore`, `consider`.
+Written at the top level and inside `alt`, `else`, `opt`, `loop`, `par`, `and`, `break`, `critical`, `seq`, `strict`, `neg`, `assert`, `ignore` or `consider`. Indented below it: `msg`, `create`, `destroy`, `activate`, `deactivate`, `note`, `ref`, `invariant`, `coregion`, `alt`, `opt`, `loop`, `par`, `break`, `critical`, `seq`, `strict`, `neg`, `assert`, `ignore`, `consider`.
 
 | Part | Kind | Value | Meaning |
 |---|---|---|---|
@@ -782,7 +782,7 @@ consider [guard] [id=<id>]
 
 Only the listed messages are considered; the guard lists their names and shows as `consider {...}`. The statements indented below it belong to the fragment; fragments nest. UML 2.5.1: 17.6.3.3 Combined fragment, 17.6.3.15 Considered messages (`consider`), 17.6.3.1 Operand of a combined fragment.
 
-Written at the top level and inside `alt`, `else`, `opt`, `loop`, `par`, `and`, `break`, `critical`, `seq`, `strict`, `neg`, `assert`, `ignore`, `consider`. Indented below it: `msg`, `create`, `destroy`, `activate`, `deactivate`, `note`, `ref`, `invariant`, `coregion`, `alt`, `opt`, `loop`, `par`, `break`, `critical`, `seq`, `strict`, `neg`, `assert`, `ignore`, `consider`.
+Written at the top level and inside `alt`, `else`, `opt`, `loop`, `par`, `and`, `break`, `critical`, `seq`, `strict`, `neg`, `assert`, `ignore` or `consider`. Indented below it: `msg`, `create`, `destroy`, `activate`, `deactivate`, `note`, `ref`, `invariant`, `coregion`, `alt`, `opt`, `loop`, `par`, `break`, `critical`, `seq`, `strict`, `neg`, `assert`, `ignore`, `consider`.
 
 | Part | Kind | Value | Meaning |
 |---|---|---|---|

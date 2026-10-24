@@ -1,5 +1,5 @@
 import type { Shape } from '@diagrist/core';
-import type { NoteArt } from '../layout/notes.js';
+import type { NoteArt } from './notes.js';
 
 /** The folded corner of a note card. */
 const FOLD = 8;

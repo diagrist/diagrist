@@ -1,5 +1,5 @@
 import { domId, type Rect, type Shape } from '@diagrist/core';
-import { cardBody, headPath } from '../../class/scene/cards.js';
+import { cardBody, headPath } from '../../shared/cards.js';
 import type { Vertex } from '../diagram.js';
 import { stateArt } from '../layout/box.js';
 import { STATE as S } from '../layout/metrics.js';

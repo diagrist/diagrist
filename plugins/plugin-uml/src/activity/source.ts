@@ -1,7 +1,7 @@
 import type { Tone } from '@diagrist/core';
 import type { Header, KindReading } from '@diagrist/lang';
 import { decisionOf } from '@diagrist/parts';
-import { splitNames } from '../usecase/grammar/values.js';
+import { splitNames } from '../shared/values.js';
 import type { ActivityDiagram, ActivityNode, Expansion, Flow } from './diagram.js';
 import type { ActivityStatement } from './grammar/spec.js';
 import { NODE_KEYWORDS, type NodeKind } from './grammar/values.js';

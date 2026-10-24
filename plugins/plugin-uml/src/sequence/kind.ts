@@ -11,7 +11,7 @@ import { sequenceDiagram } from './source.js';
 import { SEQUENCE_STYLES } from './styles.js';
 
 /** The kind `sequence`: tables, model, rules, layout, styles and description of UML sequence diagrams. */
-export const sequence = defineKind({
+export const sequenceKind = defineKind({
   spec: sequenceSpec,
   model: (reading) => sequenceModel(sequenceDiagram(reading)),
   rules: SEQUENCE_RULES,

@@ -1,10 +1,10 @@
 import { type Anchors, domId, type Scene, type Shape } from '@diagrist/core';
 import { headerShapes, markShapes, stripShapes, type Words } from '@diagrist/parts';
+import { noteShapes } from '../../shared/note-shapes.js';
 import type { ClassLayout, PictureTexts } from '../layout/index.js';
 import type { ClassModel } from '../model.js';
 import { edgeShape, labelShape } from './edges.js';
 import { classShape, diamondShape, packageShape } from './nodes.js';
-import { noteShapes } from './notes.js';
 
 /** Routes with a relation, in drawing order: the index `k` of `edge-<k>` and `label-<k>`. */
 const drawn = (l: ClassLayout) =>

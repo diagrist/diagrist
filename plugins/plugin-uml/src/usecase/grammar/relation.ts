@@ -1,7 +1,7 @@
 import { arg, arrow, attr, optionalArg, ref, statement, text } from '@diagrist/lang';
+import { multiplicity } from '../../shared/values.js';
 import { implementing, type SpecElement } from '../../spec/catalog.js';
 import { USE_CASES } from '../../spec/use-cases.js';
-import { multiplicity } from './values.js';
 
 /**
  * The arrows of `rel`, what each one means and the elements of UML it implements. `-->` stands for two relations, so

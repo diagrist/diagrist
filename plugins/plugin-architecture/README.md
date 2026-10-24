@@ -25,7 +25,8 @@ context diagram is an unknown keyword (L101) with the list of what the level off
 and warned (W110). The ends of edges, flows and notes refer to exactly these elements and to groups.
 
 Every statement, argument, attribute and flag has a doc and every statement an example (ADR 0005); `grammarOf`
-returns the tables as data.
+returns the tables as data. Because the levels share their tables, the plugin has one set of the folders a UML kind
+has (`grammar`, `model`, `rules`, `messages`, `layout`, `scene`, `describe`, `texts`), not one per level.
 
 ## Looks
 

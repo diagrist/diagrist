@@ -53,7 +53,7 @@ Each statement is one line that starts with its keyword. Statements inside block
 ### `state`
 
 ```text
-state <id> <label> [in <ref>] [entry=<text>] [do=<text>] [exit=<text>] [defer=<text>] [submachine=<text>] [file=<text>] [tone=<oneOf>] [mark=<ref>] [emph]
+state <id> <label> [in <ref>] [entry=<text>] [do=<text>] [exit=<text>] [defer=<text>] [submachine=<text>] [file=<text>] [tone=<choice>] [mark=<ref>] [emph]
 ```
 
 A state: a rounded box with the name, below it a compartment with `entry`, `do` and `exit`, deferred events and internal transitions. A state with vertices `in` it is a composite state, drawn as a frame around them; with `submachine=` it calls another state machine. Diagrist lays states out in layers from the initial pseudostate to the final state. UML 2.5.1: 14.2.3.4 Simple state.
@@ -64,7 +64,7 @@ Written at the top level.
 |---|---|---|---|
 | `<id>` | argument | an identifier like `api` (letters, digits, `_` and `-`, starting with a letter) | Id that `go`, `in`, `internal` and `note` use for this state. |
 | `<label>` | argument | a text in double quotes like `"Order service"` | Name of the state. |
-| `in <ref>` | clause | the id of a `state` or `region` declared in this diagram | The composite state or the region the vertex lies in; without it it stands at the top level. UML 2.5.1: 14.2.3.4 Composite state with substates. |
+| `in <ref>` | clause | the id of a `state` or `region` declared in this diagram | The composite state or the region the vertex lies in; without it, the vertex stands at the top level. UML 2.5.1: 14.2.3.4 Composite state with substates. |
 | `entry=` | attribute | a text in double quotes like `"Order service"` | Behaviour on entering, shown as `entry / ...`. UML 2.5.1: 14.2.4 Entry, do and exit behavior in the compartment of a state. |
 | `do=` | attribute | a text in double quotes like `"Order service"` | Behaviour while in the state, `do / ...`. UML 2.5.1: 14.2.4 Entry, do and exit behavior in the compartment of a state. |
 | `exit=` | attribute | a text in double quotes like `"Order service"` | Behaviour on leaving, `exit / ...`. UML 2.5.1: 14.2.4 Entry, do and exit behavior in the compartment of a state. |
@@ -72,7 +72,7 @@ Written at the top level.
 | `submachine=` | attribute | a text in double quotes like `"Order service"` | Name of the state machine the state calls: the box reads `Name : Machine` and carries the submachine symbol. Entry and exit points `in` it are its connection point references. UML 2.5.1: 14.2.3.4 Submachine state calling another state machine. |
 | `file=` | attribute | a text in double quotes like `"Order service"` | File of the called state machine, relative to this one; named in the description, not checked yet. |
 | `tone=` | attribute | one of `blue`, `indigo`, `purple`, `maroon`, `green`, `teal`, `slate`, `red`, `orange`, `peach`, `sky` | Colour of the name field in `look=cards`; without it slate. |
-| `mark=` | attribute | the id of a `adr` declared in this diagram | Id of a decision of the decision bar, such as `E1`; the mark is drawn beside it. |
+| `mark=` | attribute | the id of an `adr` declared in this diagram | Id of a decision of the decision bar, such as `E1`; the mark is drawn beside it. |
 | `emph` | flag |  | Highlights the state in the accent colour. |
 
 Examples:
@@ -96,7 +96,7 @@ Written at the top level.
 |---|---|---|---|
 | `<id>` | argument | an identifier like `api` (letters, digits, `_` and `-`, starting with a letter) | Id that `go` uses for this vertex. |
 | `[label]` | optional argument | a text in double quotes like `"Order service"` | Name shown small beside the symbol. |
-| `in <ref>` | clause | the id of a `state` or `region` declared in this diagram | The composite state or the region the vertex lies in; without it it stands at the top level. UML 2.5.1: 14.2.3.4 Composite state with substates. |
+| `in <ref>` | clause | the id of a `state` or `region` declared in this diagram | The composite state or the region the vertex lies in; without it, the vertex stands at the top level. UML 2.5.1: 14.2.3.4 Composite state with substates. |
 
 Example:
 
@@ -118,7 +118,7 @@ Written at the top level.
 |---|---|---|---|
 | `<id>` | argument | an identifier like `api` (letters, digits, `_` and `-`, starting with a letter) | Id that `go` uses for this vertex. |
 | `[label]` | optional argument | a text in double quotes like `"Order service"` | Name shown small beside the symbol. |
-| `in <ref>` | clause | the id of a `state` or `region` declared in this diagram | The composite state or the region the vertex lies in; without it it stands at the top level. UML 2.5.1: 14.2.3.4 Composite state with substates. |
+| `in <ref>` | clause | the id of a `state` or `region` declared in this diagram | The composite state or the region the vertex lies in; without it, the vertex stands at the top level. UML 2.5.1: 14.2.3.4 Composite state with substates. |
 
 Example:
 
@@ -140,7 +140,7 @@ Written at the top level.
 |---|---|---|---|
 | `<id>` | argument | an identifier like `api` (letters, digits, `_` and `-`, starting with a letter) | Id that `go` uses for this vertex. |
 | `[label]` | optional argument | a text in double quotes like `"Order service"` | Name shown small beside the symbol. |
-| `in <ref>` | clause | the id of a `state` or `region` declared in this diagram | The composite state or the region the vertex lies in; without it it stands at the top level. UML 2.5.1: 14.2.3.4 Composite state with substates. |
+| `in <ref>` | clause | the id of a `state` or `region` declared in this diagram | The composite state or the region the vertex lies in; without it, the vertex stands at the top level. UML 2.5.1: 14.2.3.4 Composite state with substates. |
 
 Example:
 
@@ -162,7 +162,7 @@ Written at the top level.
 |---|---|---|---|
 | `<id>` | argument | an identifier like `api` (letters, digits, `_` and `-`, starting with a letter) | Id that `go` uses for this vertex. |
 | `[label]` | optional argument | a text in double quotes like `"Order service"` | Name shown small beside the symbol. |
-| `in <ref>` | clause | the id of a `state` or `region` declared in this diagram | The composite state or the region the vertex lies in; without it it stands at the top level. UML 2.5.1: 14.2.3.4 Composite state with substates. |
+| `in <ref>` | clause | the id of a `state` or `region` declared in this diagram | The composite state or the region the vertex lies in; without it, the vertex stands at the top level. UML 2.5.1: 14.2.3.4 Composite state with substates. |
 
 Example:
 
@@ -184,7 +184,7 @@ Written at the top level.
 |---|---|---|---|
 | `<id>` | argument | an identifier like `api` (letters, digits, `_` and `-`, starting with a letter) | Id that `go` uses for this pseudostate. |
 | `[label]` | optional argument | a text in double quotes like `"Order service"` | Name shown small beside the symbol. |
-| `in <ref>` | clause | the id of a `state` or `region` declared in this diagram | The composite state or the region the vertex lies in; without it it stands at the top level. UML 2.5.1: 14.2.3.4 Composite state with substates. |
+| `in <ref>` | clause | the id of a `state` or `region` declared in this diagram | The composite state or the region the vertex lies in; without it, the vertex stands at the top level. UML 2.5.1: 14.2.3.4 Composite state with substates. |
 | `deep` | flag |  | Deep history: resumes the innermost substates too, drawn `H*`. |
 
 Example:
@@ -207,7 +207,7 @@ Written at the top level.
 |---|---|---|---|
 | `<id>` | argument | an identifier like `api` (letters, digits, `_` and `-`, starting with a letter) | Id that `go` uses for this vertex. |
 | `[label]` | optional argument | a text in double quotes like `"Order service"` | Name shown small beside the symbol. |
-| `in <ref>` | clause | the id of a `state` or `region` declared in this diagram | The composite state or the region the vertex lies in; without it it stands at the top level. UML 2.5.1: 14.2.3.4 Composite state with substates. |
+| `in <ref>` | clause | the id of a `state` or `region` declared in this diagram | The composite state or the region the vertex lies in; without it, the vertex stands at the top level. UML 2.5.1: 14.2.3.4 Composite state with substates. |
 
 Example:
 
@@ -229,7 +229,7 @@ Written at the top level.
 |---|---|---|---|
 | `<id>` | argument | an identifier like `api` (letters, digits, `_` and `-`, starting with a letter) | Id that `go` uses for this vertex. |
 | `[label]` | optional argument | a text in double quotes like `"Order service"` | Name shown small beside the symbol. |
-| `in <ref>` | clause | the id of a `state` or `region` declared in this diagram | The composite state or the region the vertex lies in; without it it stands at the top level. UML 2.5.1: 14.2.3.4 Composite state with substates. |
+| `in <ref>` | clause | the id of a `state` or `region` declared in this diagram | The composite state or the region the vertex lies in; without it, the vertex stands at the top level. UML 2.5.1: 14.2.3.4 Composite state with substates. |
 
 Example:
 
@@ -251,7 +251,7 @@ Written at the top level.
 |---|---|---|---|
 | `<id>` | argument | an identifier like `api` (letters, digits, `_` and `-`, starting with a letter) | Id that `go` uses for this vertex. |
 | `[label]` | optional argument | a text in double quotes like `"Order service"` | Name shown small beside the symbol. |
-| `in <ref>` | clause | the id of a `state` or `region` declared in this diagram | The composite state or the region the vertex lies in; without it it stands at the top level. UML 2.5.1: 14.2.3.4 Composite state with substates. |
+| `in <ref>` | clause | the id of a `state` or `region` declared in this diagram | The composite state or the region the vertex lies in; without it, the vertex stands at the top level. UML 2.5.1: 14.2.3.4 Composite state with substates. |
 
 Example:
 
@@ -337,9 +337,9 @@ Written at the top level.
 
 | Part | Kind | Value | Meaning |
 |---|---|---|---|
-| `<from>` | argument | the id of a `state` or `initial` or `final` or `choice` or `junction` or `history` or `fork` or `join` or `terminate` or `entrypoint` or `exitpoint` declared in this diagram | The vertex the transition leaves. |
+| `<from>` | argument | the id of a `state`, `initial`, `final`, `choice`, `junction`, `history`, `fork`, `join`, `terminate`, `entrypoint` or `exitpoint` declared in this diagram | The vertex the transition leaves. |
 | `<arrow>` | argument | one of the arrows `->` transition, with an open arrowhead at `to` | The arrow of a transition. |
-| `<to>` | argument | the id of a `state` or `initial` or `final` or `choice` or `junction` or `history` or `fork` or `join` or `terminate` or `entrypoint` or `exitpoint` declared in this diagram | The vertex the transition enters. |
+| `<to>` | argument | the id of a `state`, `initial`, `final`, `choice`, `junction`, `history`, `fork`, `join`, `terminate`, `entrypoint` or `exitpoint` declared in this diagram | The vertex the transition enters. |
 | `on=` | attribute | a text in double quotes like `"Order service"` | Trigger: the events that fire the transition, separated by commas. A time event is written `after(30 days)`, a change event `when(stock empty)`. In a protocol state machine the operation called. UML 2.5.1: 14.2.3.8 Transition with trigger, guard and effect. |
 | `when=` | attribute | a text in double quotes like `"Order service"` | Guard, written without brackets; `else` is the predefined else branch. UML 2.5.1: 14.2.3.8 Predefined guard else. |
 | `do=` | attribute | a text in double quotes like `"Order service"` | Effect: the behaviour the transition runs, shown after `/`. |
@@ -396,7 +396,7 @@ Written at the top level.
 | Part | Kind | Value | Meaning |
 |---|---|---|---|
 | `<text>` | argument | a text in double quotes like `"Order service"` | What the note says, in one line. |
-| `on <ref>` | clause | the id of a `state` or `initial` or `final` or `choice` or `junction` or `history` or `fork` or `join` or `terminate` or `entrypoint` or `exitpoint` declared in this diagram | The vertex the note belongs to. Required. |
+| `on <ref>` | clause | the id of a `state`, `initial`, `final`, `choice`, `junction`, `history`, `fork`, `join`, `terminate`, `entrypoint` or `exitpoint` declared in this diagram | The vertex the note belongs to. Required. |
 
 Example:
 

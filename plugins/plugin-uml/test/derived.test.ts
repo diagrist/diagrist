@@ -1,10 +1,10 @@
-import { readdirSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { compareGolden } from '@diagrist/testkit';
 import { describe, expect, it } from 'vitest';
-import { activity } from '../src/activity/kind.js';
+import { activityKind } from '../src/activity/kind.js';
 import { classKind } from '../src/class/kind.js';
-import { sequence } from '../src/sequence/kind.js';
+import { umlPlugin } from '../src/index.js';
+import { sequenceKind } from '../src/sequence/kind.js';
 import { ACTIVITIES } from '../src/spec/activities.js';
 import { CLASSES } from '../src/spec/classes.js';
 import { claimsOf } from '../src/spec/coverage.js';
@@ -13,41 +13,46 @@ import { type CoveredKind, coverageReport } from '../src/spec/report.js';
 import { STATE_MACHINES } from '../src/spec/state-machines.js';
 import { USE_CASES } from '../src/spec/use-cases.js';
 import { stateKind } from '../src/state/kind.js';
-import { usecase } from '../src/usecase/kind.js';
+import { usecaseKind } from '../src/usecase/kind.js';
+import { examplesOf } from './compile.js';
 
-const examplesOf = (kind: string): CoveredKind['examples'] => {
-  const folder = new URL(`../examples/${kind}/`, import.meta.url);
-  return readdirSync(folder)
-    .filter((file) => file.endsWith('.dgr'))
-    .map((file) => ({ name: file.slice(0, -'.dgr'.length), source: readFileSync(new URL(file, folder), 'utf8') }));
+/** The examples of a kind as the coverage report lists them: by name without `.dgr`, with their source. */
+const examples = (kind: string): CoveredKind['examples'] => {
+  const { names, source } = examplesOf(kind);
+  return names.map((file) => ({ name: file.slice(0, -'.dgr'.length), source: source(file) }));
 };
 
 const KINDS: readonly CoveredKind[] = [
-  { kind: sequence, chapter: 'chapter 17, Interactions', catalog: INTERACTIONS, examples: examplesOf('sequence') },
-  { kind: usecase, chapter: 'chapter 18, Use Cases', catalog: USE_CASES, examples: examplesOf('usecase') },
+  { kind: sequenceKind, chapter: 'chapter 17, Interactions', catalog: INTERACTIONS, examples: examples('sequence') },
+  { kind: usecaseKind, chapter: 'chapter 18, Use Cases', catalog: USE_CASES, examples: examples('usecase') },
   {
-    kind: activity,
+    kind: activityKind,
     chapter: 'chapters 15, Activities, and 16, Actions',
     catalog: ACTIVITIES,
-    examples: examplesOf('activity'),
+    examples: examples('activity'),
   },
   {
     kind: classKind,
     chapter: 'chapters 9 to 12, Classification, Simple and Structured Classifiers, Packages',
     catalog: CLASSES,
-    examples: examplesOf('class'),
+    examples: examples('class'),
   },
   {
     kind: stateKind,
     chapter: 'chapter 14, State Machines',
     catalog: STATE_MACHINES,
-    examples: examplesOf('state'),
+    examples: examples('state'),
   },
 ];
 
 const report = fileURLToPath(new URL('../docs/spec-coverage.md', import.meta.url));
 
 describe('the UML catalogs', () => {
+  it('exist for every kind of the plugin, one catalog each', () => {
+    expect(KINDS.map((k) => k.kind.spec.name)).toEqual(umlPlugin.kinds.map((kind) => kind.spec.name));
+    expect(new Set(KINDS.map((k) => k.catalog)).size).toBe(KINDS.length);
+  });
+
   it.each(KINDS.map((k) => [k.kind.spec.name, k] as const))(
     'are what the tables and rules of %s point at, never an element of another catalog or one written inline',
     (_, { kind, catalog }) => {

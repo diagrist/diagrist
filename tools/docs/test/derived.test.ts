@@ -1,6 +1,6 @@
 import { fileURLToPath } from 'node:url';
 import { COMMANDS, GLOBAL_OPTIONS, PLUGINS, SCHEMA_PATH } from '@diagrist/cli/tables';
-import { GRAMMAR_SCHEMA, grammarOf } from '@diagrist/lang';
+import { either, GRAMMAR_SCHEMA, grammarOf } from '@diagrist/lang';
 import { compareGolden } from '@diagrist/testkit';
 import { describe, expect, it } from 'vitest';
 import { derivedFiles } from '../src/files.js';
@@ -57,7 +57,7 @@ describe('the agent skill', () => {
     const [, frontmatter = ''] = /^---\n([\s\S]*?)\n---\n/.exec(skill) ?? [];
     const description = /^description: (.*)$/m.exec(frontmatter)?.[1] ?? '';
     expect(frontmatter).toMatch(/^name: diagrist$/m);
-    expect(description).toContain(kinds.map((kind) => kind.spec.name).join(' or '));
+    expect(description).toContain(either(kinds.map((kind) => kind.spec.name)));
     expect(description).not.toMatch(/: | #|^["'{[]/);
   });
 

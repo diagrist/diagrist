@@ -11,7 +11,7 @@ import { activityDiagram } from './source.js';
 import { ACTIVITY_STYLES } from './styles.js';
 
 /** The kind `activity`: tables, model, rules, layout, styles and description of UML activity diagrams. */
-export const activity = defineKind({
+export const activityKind = defineKind({
   spec: activitySpec,
   model: (reading) => activityModel(activityDiagram(reading)),
   rules: ACTIVITY_RULES,

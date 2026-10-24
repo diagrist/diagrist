@@ -1,9 +1,4 @@
-import type { Catalogue } from '@diagrist/core';
-
-type Values = Readonly<Record<string, string>>;
-
-/** Picks the text for `v.case` from a table, so a finding names its case as data, not as prose. */
-export const pick = (v: Values, cases: Readonly<Record<string, string>>): string => cases[v.case ?? ''] ?? v.case ?? '';
+import { type Catalogue, pick } from '@diagrist/core';
 
 /** Messages of the model errors, in English and German. A109 has its own catalogue entry in `layout-errors.ts`. */
 export const ERRORS: Catalogue = {

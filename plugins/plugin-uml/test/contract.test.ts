@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { activity, sequence, usecase } from './compile.js';
+import { activity, classDiagram, sequence, stateDiagram, usecase } from './compile.js';
 
 /** The SVG and anchor contract that embeddings such as code-animations rely on. */
 describe('sequence SVG contract', () => {
@@ -87,5 +87,66 @@ describe('activity SVG contract', () => {
       ['edge-3', 'a', 'e', undefined],
     ]);
     expect(svg).toMatch(/<g id="label-1"><text [^>]+>\[yes\]<\/text><\/g>/);
+  });
+});
+
+/** The same contract for class diagrams: packages are groups, a named relation has a label group. */
+describe('class SVG contract', () => {
+  const result = classDiagram(
+    'package p "P"',
+    'class a "A" in p',
+    'class b "B"',
+    'interface i "I"',
+    'rel a --> b "uses"',
+    'rel a --|> i',
+  );
+  const svg = result.svg ?? '';
+
+  it('puts classifiers into node-<id>, packages into group-<id>, relations into edge-<k>', () => {
+    expect(svg).toContain('<g id="node-a">');
+    expect(svg).toContain('<g id="group-p">');
+    expect(svg).toMatch(/<g id="edge-0"><path d="M[^"]+" class="line halo"\/>/);
+    expect(svg).toMatch(/<g id="label-0"><text [^>]+>uses<\/text><\/g>/);
+  });
+
+  it('anchors classifiers, packages and relations with the label group of a named one', () => {
+    expect(result.anchors?.nodes.map((n) => n.domId)).toEqual(['node-a', 'node-b', 'node-i']);
+    expect(result.anchors?.groups.map((g) => g.domId)).toEqual(['group-p']);
+    expect(result.anchors?.edges.map((e) => [e.domId, e.from, e.to, e.labelId])).toEqual([
+      ['edge-0', 'a', 'b', 'label-0'],
+      ['edge-1', 'a', 'i', undefined],
+    ]);
+  });
+});
+
+/** The same contract for state machine diagrams: a composite state is a group around its substates. */
+describe('state SVG contract', () => {
+  const result = stateDiagram(
+    'initial s',
+    'state c "C"',
+    'state x "X" in c',
+    'initial t in c',
+    'final e',
+    'go s -> c',
+    'go t -> x',
+    'go c -> e on="done"',
+  );
+  const svg = result.svg ?? '';
+
+  it('puts vertices into node-<id>, composite states into group-<id>, transitions into edge-<k>', () => {
+    expect(result.diagnostics).toEqual([]);
+    expect(svg).toContain('<g id="node-s">');
+    expect(svg).toContain('<g id="group-c">');
+    expect(svg).toMatch(/<g id="edge-0"><path d="M[^"]+" class="line halo"\/>/);
+  });
+
+  it('anchors vertices, composite states and transitions with the label group of a triggered one', () => {
+    expect(result.anchors?.nodes.map((n) => n.domId)).toEqual(['node-s', 'node-t', 'node-x', 'node-e']);
+    expect(result.anchors?.groups.map((g) => g.domId)).toEqual(['group-c']);
+    expect(result.anchors?.edges.map((e) => [e.domId, e.from, e.to, e.labelId])).toEqual([
+      ['edge-0', 's', 'c', undefined],
+      ['edge-1', 't', 'x', undefined],
+      ['edge-2', 'c', 'e', 'label-2'],
+    ]);
   });
 });

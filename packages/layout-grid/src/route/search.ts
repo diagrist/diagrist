@@ -39,9 +39,10 @@ export function searchPath(
 }
 
 function shortest(graph: SearchGrid): Point[] | undefined {
-  const { source, target, point } = graph;
-  const distance = new Map<number, number>([[source, 0]]);
-  const previous = new Map<number, number>();
+  const { source, target, point, size, bend } = graph;
+  const distance = new Float64Array(size * 3).fill(Number.POSITIVE_INFINITY);
+  const previous = new Int32Array(size * 3).fill(-1);
+  distance[source] = 0;
   const queue = new MinQueue();
   queue.push(source, 0);
   let current = queue.pop();
@@ -49,20 +50,18 @@ function shortest(graph: SearchGrid): Point[] | undefined {
     const { key, cost } = current;
     if (Math.floor(key / 3) === target) {
       const path: Point[] = [];
-      let cursor: number | undefined = key;
-      while (cursor !== undefined) {
-        path.push(point(Math.floor(cursor / 3)));
-        cursor = previous.get(cursor);
-      }
+      for (let cursor = key; cursor >= 0; cursor = previous[cursor] as number) path.push(point(Math.floor(cursor / 3)));
       return simplify(path.reverse());
     }
-    if (distance.get(key) === cost) {
-      for (const next of graph.neighbors(key)) {
-        const nextCost = cost + next.cost;
-        if (nextCost >= (distance.get(next.key) ?? Infinity)) continue;
-        distance.set(next.key, nextCost);
-        previous.set(next.key, key);
-        queue.push(next.key, nextCost);
+    if (distance[key] === cost) {
+      const from = key % 3;
+      for (const { next, dir, length, penalty } of graph.steps(Math.floor(key / 3))) {
+        const nextKey = next * 3 + dir;
+        const nextCost = cost + (length + (from && from !== dir ? bend : 0) + penalty);
+        if (nextCost >= (distance[nextKey] as number)) continue;
+        distance[nextKey] = nextCost;
+        previous[nextKey] = key;
+        queue.push(nextKey, nextCost);
       }
     }
     current = queue.pop();

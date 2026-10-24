@@ -7,7 +7,7 @@ export function isReference(child: GrammarStatement | GrammarReference): child i
 
 /**
  * A line as written: the head, then `<argument>` or `[optional]`, then clauses, attributes and flags in brackets.
- * Values with a short list of choices show them, `[look=<plain|cards>]`.
+ * Values with a short list of choices show them, `[look=<plain|cards>]`, a longer list shows `<choice>`.
  */
 export function signatureOf(head: string, line: GrammarLine): string {
   return [
@@ -24,7 +24,8 @@ export function signatureOf(head: string, line: GrammarLine): string {
 const SHOWN_CHOICES = 6;
 
 function shownValue(field: GrammarField): string {
-  return field.choices && field.choices.length <= SHOWN_CHOICES ? field.choices.join('|') : field.type;
+  if (!field.choices) return field.type;
+  return field.choices.length <= SHOWN_CHOICES ? field.choices.join('|') : 'choice';
 }
 
 /** The header of a kind as a line, so it is shown like a statement: `diagram <kind> "Title"` and its attributes. */

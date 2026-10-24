@@ -4,7 +4,7 @@ export { checkPlugin } from './check.js';
 export type { Compilation, CompileOptions } from './compile.js';
 export { compile, localeAttribute } from './compile.js';
 export type { Point, Rect } from './geometry.js';
-export { formatMessage, KERNEL_CODES } from './messages.js';
+export { formatMessage, KERNEL_CODES, pick } from './messages.js';
 export type { Placed } from './placement.js';
 export { checkPlacement } from './placement.js';
 export type { Catalogue, Drawing, Finding, Kind, KindContext, Plugin, Rule } from './plugin.js';

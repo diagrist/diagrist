@@ -44,7 +44,7 @@ Each statement is one line that starts with its keyword. Statements inside block
 ### `class`
 
 ```text
-class <id> <label> [in <ref>] [stereotype=<text>] [template=<text>] [tone=<oneOf>] [mark=<ref>] [abstract] [emph]
+class <id> <label> [in <ref>] [stereotype=<text>] [template=<text>] [tone=<choice>] [mark=<ref>] [abstract] [emph]
 ```
 
 A class: a box with the name, below it the compartments of attributes and operations, shown even when empty. Members follow indented, one per line. Diagrist places classifiers in layers: superclasses and interfaces above, the whole above its parts, the user above what it uses, associated classes side by side. UML 2.5.1: 11.4.4 Class with compartments for attributes and operations.
@@ -59,7 +59,7 @@ Written at the top level.
 | `stereotype=` | attribute | a text in double quotes like `"Order service"` | Stereotype above the name, written without guillemets: `entity` shows `«entity»`. |
 | `template=` | attribute | a text in double quotes like `"Order service"` | Template parameters such as `"T"` or `"K, V"`, drawn in a dashed box at the top right corner. UML 2.5.1: 7.3.4 Template parameters in a dashed box at the top right corner. |
 | `tone=` | attribute | one of `blue`, `indigo`, `purple`, `maroon`, `green`, `teal`, `slate`, `red`, `orange`, `peach`, `sky` | Colour of the name field in `look=cards`; without it slate. |
-| `mark=` | attribute | the id of a `adr` declared in this diagram | Id of a decision of the decision bar, such as `E1`; the mark is drawn beside it. |
+| `mark=` | attribute | the id of an `adr` declared in this diagram | Id of a decision of the decision bar, such as `E1`; the mark is drawn beside it. |
 | `abstract` | flag |  | An abstract classifier: the name in italics with `{abstract}` below it. UML 2.5.1: 9.2.4 Abstract classifier, its name in italics. |
 | `emph` | flag |  | Highlights the box in the accent colour. |
 
@@ -95,7 +95,7 @@ Examples:
 ### `interface`
 
 ```text
-interface <id> <label> [in <ref>] [stereotype=<text>] [template=<text>] [tone=<oneOf>] [mark=<ref>] [abstract] [emph]
+interface <id> <label> [in <ref>] [stereotype=<text>] [template=<text>] [tone=<choice>] [mark=<ref>] [abstract] [emph]
 ```
 
 An interface: `«interface»` above the name, operations in italics; the attribute compartment only when it holds something. Members follow indented, one per line. Diagrist places classifiers in layers: superclasses and interfaces above, the whole above its parts, the user above what it uses, associated classes side by side. UML 2.5.1: 10.4.4 Interface with the keyword «interface».
@@ -110,7 +110,7 @@ Written at the top level.
 | `stereotype=` | attribute | a text in double quotes like `"Order service"` | Stereotype above the name, written without guillemets: `entity` shows `«entity»`. |
 | `template=` | attribute | a text in double quotes like `"Order service"` | Template parameters such as `"T"` or `"K, V"`, drawn in a dashed box at the top right corner. UML 2.5.1: 7.3.4 Template parameters in a dashed box at the top right corner. |
 | `tone=` | attribute | one of `blue`, `indigo`, `purple`, `maroon`, `green`, `teal`, `slate`, `red`, `orange`, `peach`, `sky` | Colour of the name field in `look=cards`; without it slate. |
-| `mark=` | attribute | the id of a `adr` declared in this diagram | Id of a decision of the decision bar, such as `E1`; the mark is drawn beside it. |
+| `mark=` | attribute | the id of an `adr` declared in this diagram | Id of a decision of the decision bar, such as `E1`; the mark is drawn beside it. |
 | `abstract` | flag |  | An abstract classifier: the name in italics with `{abstract}` below it. UML 2.5.1: 9.2.4 Abstract classifier, its name in italics. |
 | `emph` | flag |  | Highlights the box in the accent colour. |
 
@@ -145,7 +145,7 @@ Examples:
 ### `enum`
 
 ```text
-enum <id> <label> [in <ref>] [stereotype=<text>] [template=<text>] [tone=<oneOf>] [mark=<ref>] [abstract] [emph]
+enum <id> <label> [in <ref>] [stereotype=<text>] [template=<text>] [tone=<choice>] [mark=<ref>] [abstract] [emph]
 ```
 
 An enumeration: `«enumeration»` above the name, below it one value per line. Members follow indented, one per line. Diagrist places classifiers in layers: superclasses and interfaces above, the whole above its parts, the user above what it uses, associated classes side by side. UML 2.5.1: 10.2.4 Enumeration with its literals.
@@ -160,7 +160,7 @@ Written at the top level.
 | `stereotype=` | attribute | a text in double quotes like `"Order service"` | Stereotype above the name, written without guillemets: `entity` shows `«entity»`. |
 | `template=` | attribute | a text in double quotes like `"Order service"` | Template parameters such as `"T"` or `"K, V"`, drawn in a dashed box at the top right corner. UML 2.5.1: 7.3.4 Template parameters in a dashed box at the top right corner. |
 | `tone=` | attribute | one of `blue`, `indigo`, `purple`, `maroon`, `green`, `teal`, `slate`, `red`, `orange`, `peach`, `sky` | Colour of the name field in `look=cards`; without it slate. |
-| `mark=` | attribute | the id of a `adr` declared in this diagram | Id of a decision of the decision bar, such as `E1`; the mark is drawn beside it. |
+| `mark=` | attribute | the id of an `adr` declared in this diagram | Id of a decision of the decision bar, such as `E1`; the mark is drawn beside it. |
 | `abstract` | flag |  | An abstract classifier: the name in italics with `{abstract}` below it. UML 2.5.1: 9.2.4 Abstract classifier, its name in italics. |
 | `emph` | flag |  | Highlights the box in the accent colour. |
 
@@ -196,7 +196,7 @@ Examples:
 ### `package`
 
 ```text
-package <id> <label> [in <ref>] [tone=<oneOf>]
+package <id> <label> [in <ref>] [tone=<choice>]
 ```
 
 A package: a frame with a tab holding the name, around the classifiers `in` it. Packages nest with `in`. Between packages, and between a package and a classifier, only dependencies `-->` exist, optionally with `import` or `access`. A package without classifiers is not drawn. UML 2.5.1: 12.2.4 Package as a frame with its name in the tab.
@@ -233,7 +233,7 @@ Written at the top level.
 | `[label]` | optional argument | a text in double quotes like `"Order service"` | Name of the association, shown at the top right of the diamond. |
 | `in <ref>` | clause | the id of a `package` declared in this diagram | The package the association belongs to. |
 | `class=` | attribute | the id of a `class` declared in this diagram | The association class: a class that is this association, joined dashed to the diamond. UML 2.5.1: 11.5.4 Association class joined by a dashed line. |
-| `mark=` | attribute | the id of a `adr` declared in this diagram | Id of a decision of the decision bar, such as `E1`; the mark is drawn beside it. |
+| `mark=` | attribute | the id of an `adr` declared in this diagram | Id of a decision of the decision bar, such as `E1`; the mark is drawn beside it. |
 | `emph` | flag |  | Highlights the diamond in the accent colour. |
 
 Example:
@@ -254,9 +254,9 @@ Written at the top level.
 
 | Part | Kind | Value | Meaning |
 |---|---|---|---|
-| `<from>` | argument | the id of a `class` or `interface` or `enum` or `assoc` or `package` declared in this diagram | Classifier, n-ary association or package the relation starts at. |
+| `<from>` | argument | the id of a `class`, `interface`, `enum`, `assoc` or `package` declared in this diagram | Classifier, n-ary association or package the relation starts at. |
 | `<arrow>` | argument | one of the arrows `--` association, navigability open at both ends, `->` directed association, navigable towards `to` (open head there), `<->` association navigable at both ends (open heads at both), `-->` dependency, dashed with an open head at `to`; between packages with `import` or `access`, `-\|>` generalization: `from` is a special kind of `to`, hollow triangle at `to`, `--\|>` realization: `from` implements the interface `to`, dashed with a hollow triangle, `o--` aggregation: `from` is the whole, hollow diamond at `from`, `*--` composition: `from` is the whole that owns its parts, filled diamond at `from` | What kind of relation it is. UML 2.5.1: `--` 11.5.4 Binary association as a line with its name; `->` 11.5.4 Binary association as a line with its name, 11.5.4 Navigable end with an open arrowhead; `<->` 11.5.4 Binary association as a line with its name, 11.5.4 Navigable end with an open arrowhead; `-->` 7.7.4 Dependency as a dashed arrow; `-\|>` 9.2.3.2 Generalization between classifiers; `--\|>` 10.4.4 Realization of an interface, dashed with a hollow triangle; `o--` 11.5.4 Shared aggregation with a hollow diamond at the whole; `*--` 11.5.4 Composition with a filled diamond at the whole. |
-| `<to>` | argument | the id of a `class` or `interface` or `enum` or `assoc` or `package` declared in this diagram | Classifier, n-ary association or package the relation points to. |
+| `<to>` | argument | the id of a `class`, `interface`, `enum`, `assoc` or `package` declared in this diagram | Classifier, n-ary association or package the relation points to. |
 | `[label]` | optional argument | a text in double quotes like `"Order service"` | Name of the relation, shown at the middle of the line. |
 | `source=` | attribute | a UML multiplicity like `1`, `0..1`, `1..*` or `*`, the lower bound not above the upper one | Multiplicity at `from`: how many `from` belong to one `to`. UML 2.5.1: 7.5.4 Multiplicity at an end or of a property. |
 | `card=` | attribute | a UML multiplicity like `1`, `0..1`, `1..*` or `*`, the lower bound not above the upper one | Multiplicity at `to`: how many `to` belong to one `from`. UML 2.5.1: 7.5.4 Multiplicity at an end or of a property. |
@@ -305,7 +305,7 @@ Written at the top level.
 | Part | Kind | Value | Meaning |
 |---|---|---|---|
 | `<text>` | argument | a text in double quotes like `"Order service"` | What the note says, in one line. |
-| `on <ref>` | clause | the id of a `class` or `interface` or `enum` declared in this diagram | The classifier the note belongs to. Required. |
+| `on <ref>` | clause | the id of a `class`, `interface` or `enum` declared in this diagram | The classifier the note belongs to. Required. |
 
 Example:
 

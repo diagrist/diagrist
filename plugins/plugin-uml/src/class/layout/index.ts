@@ -13,14 +13,14 @@ import {
   routeEdges,
 } from '@diagrist/layout-grid';
 import { decisionStrip, HEADER, type Header, MARGIN, type Strip, stripWidth, type Words } from '@diagrist/parts';
+import { homed } from '../../shared/homed.js';
+import { type NoteArt, noteArts } from '../../shared/notes.js';
 import type { ClassRelation } from '../diagram.js';
 import type { ClassModel } from '../model.js';
 import { classCells } from './cells.js';
 import { endLabels } from './ends.js';
 import { belowTabs, legsAtVertices, type Tether, tethers } from './extras.js';
-import { homed } from './homed.js';
 import { CLASS_FONTS } from './metrics.js';
-import { type NoteArt, noteArts } from './notes.js';
 import { clearPackageLines } from './package-lines.js';
 import { alignPackages, packageExtents, tabGrowth } from './packages.js';
 import { classGridSpec, edgeId } from './spec.js';

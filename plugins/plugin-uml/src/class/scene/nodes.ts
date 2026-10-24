@@ -1,8 +1,8 @@
 import { domId, type Rect, type Shape, type Tone } from '@diagrist/core';
+import { CARD, cardBody, headPath, tabbedFrame } from '../../shared/cards.js';
 import type { Classifier, NaryAssociation } from '../diagram.js';
 import { type ClassArt, type ClassText, classArt } from '../layout/box.js';
 import { CLASS, tabWidth } from '../layout/metrics.js';
-import { CARD, cardBody, headPath, tabbedFrame } from './cards.js';
 
 function text(t: ClassText, role: string, font: string, anchor: 'start' | 'middle'): Shape[] {
   const line = t.underline;

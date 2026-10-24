@@ -1,9 +1,9 @@
 import type { Tone } from '@diagrist/core';
 import type { Header, KindReading } from '@diagrist/lang';
 import { decisionOf } from '@diagrist/parts';
+import { splitNames } from '../shared/values.js';
 import type { Actor, Relation, RelationKind, UseCase, UseCaseDiagram } from './diagram.js';
 import type { UseCaseStatement } from './grammar/spec.js';
-import { splitNames } from './grammar/values.js';
 
 type Of<K extends UseCaseStatement['keyword']> = Extract<UseCaseStatement, { keyword: K }>;
 

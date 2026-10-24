@@ -93,7 +93,7 @@ layer business "Business logic"
 ### `group`
 
 ```text
-group <id> <title> [in <ref>] [team=<text>] [heading=<top|side>] [tag=<text>] [cover=<grid-name>] [tone=<oneOf>] [own] [shared] [external]
+group <id> <title> [in <ref>] [team=<text>] [heading=<top|side>] [tag=<text>] [cover=<grid-name>] [tone=<choice>] [own] [shared] [external]
 ```
 
 A frame around elements by responsibility; it grows from its members. Exactly one of `own`, `shared`, `external`. `in` nests it into another group; an empty title draws only the frame.
@@ -124,7 +124,7 @@ group api "API" own in backend
 ### `style`
 
 ```text
-style <id> [icon=<oneOf>] [shape=<db|queue|store|job|app>] [width=<integer>] [height=<integer>] [tone=<oneOf>] [form=<card|circle|text>]
+style <id> [icon=<choice>] [shape=<db|queue|store|job|app>] [width=<integer>] [height=<integer>] [tone=<choice>] [form=<card|circle|text>]
 ```
 
 Named values for elements, and a tone for edges, so sizes and colours stand in one place. `style=name` applies them where the element or edge sets none.
@@ -151,7 +151,7 @@ style store shape=db height=96
 ### `person`
 
 ```text
-person <id> <label> [at <place>] [in <ref>] [tech=<text>] [icon=<oneOf>] [shape=<db|queue|store|job|app>] [width=<integer>] [height=<integer>] [tone=<oneOf>] [form=<card|circle|text>] [status=<planned|deprecated>] [replicas=<integer>] [span=<span>] [slot=<slot>] [style=<ref>] [mark=<ref>] [emph]
+person <id> <label> [at <place>] [in <ref>] [tech=<text>] [icon=<choice>] [shape=<db|queue|store|job|app>] [width=<integer>] [height=<integer>] [tone=<choice>] [form=<card|circle|text>] [status=<planned|deprecated>] [replicas=<integer>] [span=<span>] [slot=<slot>] [style=<ref>] [mark=<ref>] [emph]
 ```
 
 A person who uses the system, drawn as a stick figure with name and role below it. `at` places it in the grid, `in` puts it into a group. `emph` marks a core decision with a thick border.
@@ -176,7 +176,7 @@ Written at the top level.
 | `span=` | attribute | the last column like `mobile`, or `column/row` like `edge/data` | Last column, or `column/row`, of the area the element covers; needs `layout=adaptive`. |
 | `slot=` | attribute | `i/n` with 1 ≤ i ≤ n ≤ 64, like `2/3` | Takes place `i` of `n` equal places in its area, like `2/3`; needs `layout=adaptive`. |
 | `style=` | attribute | the id of a `style` declared in this diagram | A `style` whose values apply where the element sets none. |
-| `mark=` | attribute | the id of a `adr` declared in this diagram | Id of a decision of the bar below, such as `E1`; the mark stands at the corner. |
+| `mark=` | attribute | the id of an `adr` declared in this diagram | Id of a decision of the bar below, such as `E1`; the mark stands at the corner. |
 | `emph` | flag |  | Draws the border thick: the core decision of the picture. |
 
 Example:
@@ -188,7 +188,7 @@ person customer "Customer" tech="account holder" at user/main
 ### `container`
 
 ```text
-container <id> <label> [at <place>] [in <ref>] [tech=<text>] [icon=<oneOf>] [shape=<db|queue|store|job|app>] [width=<integer>] [height=<integer>] [tone=<oneOf>] [form=<card|circle|text>] [status=<planned|deprecated>] [replicas=<integer>] [span=<span>] [slot=<slot>] [style=<ref>] [mark=<ref>] [emph]
+container <id> <label> [at <place>] [in <ref>] [tech=<text>] [icon=<choice>] [shape=<db|queue|store|job|app>] [width=<integer>] [height=<integer>] [tone=<choice>] [form=<card|circle|text>] [status=<planned|deprecated>] [replicas=<integer>] [span=<span>] [slot=<slot>] [style=<ref>] [mark=<ref>] [emph]
 ```
 
 A container: an application or data store that runs on its own, such as a service or a database. `at` places it in the grid, `in` puts it into a group. `emph` marks a core decision with a thick border.
@@ -213,7 +213,7 @@ Written at the top level.
 | `span=` | attribute | the last column like `mobile`, or `column/row` like `edge/data` | Last column, or `column/row`, of the area the element covers; needs `layout=adaptive`. |
 | `slot=` | attribute | `i/n` with 1 ≤ i ≤ n ≤ 64, like `2/3` | Takes place `i` of `n` equal places in its area, like `2/3`; needs `layout=adaptive`. |
 | `style=` | attribute | the id of a `style` declared in this diagram | A `style` whose values apply where the element sets none. |
-| `mark=` | attribute | the id of a `adr` declared in this diagram | Id of a decision of the bar below, such as `E1`; the mark stands at the corner. |
+| `mark=` | attribute | the id of an `adr` declared in this diagram | Id of a decision of the bar below, such as `E1`; the mark stands at the corner. |
 | `emph` | flag |  | Draws the border thick: the core decision of the picture. |
 
 Example:
@@ -225,7 +225,7 @@ container db "Database" tech="PostgreSQL" icon=postgresql at infra/data in infra
 ### `component`
 
 ```text
-component <id> <label> [at <place>] [in <ref>] [tech=<text>] [icon=<oneOf>] [shape=<db|queue|store|job|app>] [width=<integer>] [height=<integer>] [tone=<oneOf>] [form=<card|circle|text>] [status=<planned|deprecated>] [replicas=<integer>] [span=<span>] [slot=<slot>] [style=<ref>] [mark=<ref>] [emph]
+component <id> <label> [at <place>] [in <ref>] [tech=<text>] [icon=<choice>] [shape=<db|queue|store|job|app>] [width=<integer>] [height=<integer>] [tone=<choice>] [form=<card|circle|text>] [status=<planned|deprecated>] [replicas=<integer>] [span=<span>] [slot=<slot>] [style=<ref>] [mark=<ref>] [emph]
 ```
 
 A component inside a container, such as a module or an adapter. `at` places it in the grid, `in` puts it into a group. `emph` marks a core decision with a thick border.
@@ -250,7 +250,7 @@ Written at the top level.
 | `span=` | attribute | the last column like `mobile`, or `column/row` like `edge/data` | Last column, or `column/row`, of the area the element covers; needs `layout=adaptive`. |
 | `slot=` | attribute | `i/n` with 1 ≤ i ≤ n ≤ 64, like `2/3` | Takes place `i` of `n` equal places in its area, like `2/3`; needs `layout=adaptive`. |
 | `style=` | attribute | the id of a `style` declared in this diagram | A `style` whose values apply where the element sets none. |
-| `mark=` | attribute | the id of a `adr` declared in this diagram | Id of a decision of the bar below, such as `E1`; the mark stands at the corner. |
+| `mark=` | attribute | the id of an `adr` declared in this diagram | Id of a decision of the bar below, such as `E1`; the mark stands at the corner. |
 | `emph` | flag |  | Draws the border thick: the core decision of the picture. |
 
 Example:
@@ -262,7 +262,7 @@ component api "REST API" tech="Spring Boot" icon=springboot at backend.2/main in
 ### `node`
 
 ```text
-node <id> <label> [at <place>] [in <ref>] [tech=<text>] [icon=<oneOf>] [shape=<db|queue|store|job|app>] [width=<integer>] [height=<integer>] [tone=<oneOf>] [form=<card|circle|text>] [status=<planned|deprecated>] [replicas=<integer>] [span=<span>] [slot=<slot>] [style=<ref>] [mark=<ref>] [emph]
+node <id> <label> [at <place>] [in <ref>] [tech=<text>] [icon=<choice>] [shape=<db|queue|store|job|app>] [width=<integer>] [height=<integer>] [tone=<choice>] [form=<card|circle|text>] [status=<planned|deprecated>] [replicas=<integer>] [span=<span>] [slot=<slot>] [style=<ref>] [mark=<ref>] [emph]
 ```
 
 A neutral element for any level, such as a queue, a job or a layer of a pattern. `at` places it in the grid, `in` puts it into a group. `emph` marks a core decision with a thick border.
@@ -287,7 +287,7 @@ Written at the top level.
 | `span=` | attribute | the last column like `mobile`, or `column/row` like `edge/data` | Last column, or `column/row`, of the area the element covers; needs `layout=adaptive`. |
 | `slot=` | attribute | `i/n` with 1 ≤ i ≤ n ≤ 64, like `2/3` | Takes place `i` of `n` equal places in its area, like `2/3`; needs `layout=adaptive`. |
 | `style=` | attribute | the id of a `style` declared in this diagram | A `style` whose values apply where the element sets none. |
-| `mark=` | attribute | the id of a `adr` declared in this diagram | Id of a decision of the bar below, such as `E1`; the mark stands at the corner. |
+| `mark=` | attribute | the id of an `adr` declared in this diagram | Id of a decision of the bar below, such as `E1`; the mark stands at the corner. |
 | `emph` | flag |  | Draws the border thick: the core decision of the picture. |
 
 Example:
@@ -299,7 +299,7 @@ node orders "Orders" tech="business logic" replicas=3 at web/business in cloud
 ### `edge`
 
 ```text
-edge <from> <arrow> <to> [label] [via=<text>] [schedule=<text>] [volume=<text>] [sla=<text>] [mark=<ref>] [bundle=<word>] [lane=<grid-name>] [tone=<oneOf>] [style=<ref>]
+edge <from> <arrow> <to> [label] [via=<text>] [schedule=<text>] [volume=<text>] [sla=<text>] [mark=<ref>] [bundle=<word>] [lane=<grid-name>] [tone=<choice>] [style=<ref>]
 ```
 
 An edge outside of flows, without number. Its ends may be groups too.
@@ -308,15 +308,15 @@ Written at the top level.
 
 | Part | Kind | Value | Meaning |
 |---|---|---|---|
-| `<from>` | argument | the id of a `person` or `container` or `component` or `node` or `group` declared in this diagram | Where it starts: an element or a group. |
+| `<from>` | argument | the id of a `person`, `container`, `component`, `node` or `group` declared in this diagram | Where it starts: an element or a group. |
 | `<arrow>` | argument | one of the arrows `->` synchronous call (filled head), `~>` asynchronous message or event (dashed, open head), `-->` dependency (dashed, open head), `=>` data flow (thick line, filled head), `--` connection without direction (no head), `<->` call in both directions (a head at each end) | The kind of edge, which also decides how it is drawn. |
-| `<to>` | argument | the id of a `person` or `container` or `component` or `node` or `group` declared in this diagram | Where it ends: an element or a group. |
+| `<to>` | argument | the id of a `person`, `container`, `component`, `node` or `group` declared in this diagram | Where it ends: an element or a group. |
 | `[label]` | optional argument | a text in double quotes like `"Order service"` | What happens, such as `"reads documents"`; first line of the label. |
 | `via=` | attribute | a text in double quotes like `"Order service"` | Protocol or transport, such as `HTTPS`; second line of the label. |
 | `schedule=` | attribute | a text in double quotes like `"Order service"` | When it runs, such as `"nightly 02:00"`; joins the second line. |
 | `volume=` | attribute | a text in double quotes like `"Order service"` | How much, such as `"10k/day"`; joins the second line. |
 | `sla=` | attribute | a text in double quotes like `"Order service"` | What is promised, such as `"< 200 ms"`; joins the second line. |
-| `mark=` | attribute | the id of a `adr` declared in this diagram | Id of a decision of the bar below, such as `E1`; the mark stands near the end. |
+| `mark=` | attribute | the id of an `adr` declared in this diagram | Id of a decision of the bar below, such as `E1`; the mark stands near the end. |
 | `bundle=` | attribute | a single word without quotes | Edges with the same bundle and a shared end share one trunk; needs `layout=adaptive`. |
 | `lane=` | attribute | a column or row name like `api` or `backend.1` | Column a vertical edge runs in, reaching into frames at its ends; needs `layout=adaptive`. |
 | `tone=` | attribute | one of `blue`, `indigo`, `purple`, `maroon`, `green`, `teal`, `slate`, `red`, `orange`, `peach`, `sky` | Colour of line and heads, such as `red` for a highlighted way. |
@@ -365,22 +365,22 @@ flow import primary
 Indented lines that start without one of these keywords have this form:
 
 ```text
-<from> <arrow> <to> [label] [via=<text>] [schedule=<text>] [volume=<text>] [sla=<text>] [mark=<ref>] [bundle=<word>] [lane=<grid-name>] [tone=<oneOf>] [style=<ref>]
+<from> <arrow> <to> [label] [via=<text>] [schedule=<text>] [volume=<text>] [sla=<text>] [mark=<ref>] [bundle=<word>] [lane=<grid-name>] [tone=<choice>] [style=<ref>]
 ```
 
 A step of the flow: an edge without keyword, numbered after the steps before it, across all flows.
 
 | Part | Kind | Value | Meaning |
 |---|---|---|---|
-| `<from>` | argument | the id of a `person` or `container` or `component` or `node` or `group` declared in this diagram | Where it starts: an element or a group. |
+| `<from>` | argument | the id of a `person`, `container`, `component`, `node` or `group` declared in this diagram | Where it starts: an element or a group. |
 | `<arrow>` | argument | one of the arrows `->` synchronous call (filled head), `~>` asynchronous message or event (dashed, open head), `-->` dependency (dashed, open head), `=>` data flow (thick line, filled head), `--` connection without direction (no head), `<->` call in both directions (a head at each end) | The kind of edge, which also decides how it is drawn. |
-| `<to>` | argument | the id of a `person` or `container` or `component` or `node` or `group` declared in this diagram | Where it ends: an element or a group. |
+| `<to>` | argument | the id of a `person`, `container`, `component`, `node` or `group` declared in this diagram | Where it ends: an element or a group. |
 | `[label]` | optional argument | a text in double quotes like `"Order service"` | What happens, such as `"reads documents"`; first line of the label. |
 | `via=` | attribute | a text in double quotes like `"Order service"` | Protocol or transport, such as `HTTPS`; second line of the label. |
 | `schedule=` | attribute | a text in double quotes like `"Order service"` | When it runs, such as `"nightly 02:00"`; joins the second line. |
 | `volume=` | attribute | a text in double quotes like `"Order service"` | How much, such as `"10k/day"`; joins the second line. |
 | `sla=` | attribute | a text in double quotes like `"Order service"` | What is promised, such as `"< 200 ms"`; joins the second line. |
-| `mark=` | attribute | the id of a `adr` declared in this diagram | Id of a decision of the bar below, such as `E1`; the mark stands near the end. |
+| `mark=` | attribute | the id of an `adr` declared in this diagram | Id of a decision of the bar below, such as `E1`; the mark stands near the end. |
 | `bundle=` | attribute | a single word without quotes | Edges with the same bundle and a shared end share one trunk; needs `layout=adaptive`. |
 | `lane=` | attribute | a column or row name like `api` or `backend.1` | Column a vertical edge runs in, reaching into frames at its ends; needs `layout=adaptive`. |
 | `tone=` | attribute | one of `blue`, `indigo`, `purple`, `maroon`, `green`, `teal`, `slate`, `red`, `orange`, `peach`, `sky` | Colour of line and heads, such as `red` for a highlighted way. |
@@ -417,7 +417,7 @@ Written at the top level.
 | Part | Kind | Value | Meaning |
 |---|---|---|---|
 | `<text>` | argument | a text in double quotes like `"Order service"` | What the note says. |
-| `on <ref>` | clause | the id of a `person` or `container` or `component` or `node` declared in this diagram | The element it points at. Required. |
+| `on <ref>` | clause | the id of a `person`, `container`, `component` or `node` declared in this diagram | The element it points at. Required. |
 
 Example:
 

@@ -11,7 +11,7 @@ import { useCaseDiagram } from './source.js';
 import { USECASE_STYLES } from './styles.js';
 
 /** The kind `usecase`: tables, model, rules, layout, styles and description of UML use case diagrams. */
-export const usecase = defineKind({
+export const usecaseKind = defineKind({
   spec: usecaseSpec,
   model: (reading) => useCaseModel(useCaseDiagram(reading)),
   rules: USECASE_RULES,

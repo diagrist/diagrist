@@ -1,7 +1,7 @@
 import type { Locale } from '@diagrist/lang';
 import type { ActivityProse } from '../activity/describe/prose.js';
 import type { ClassProse } from '../class/describe/prose.js';
-import type { Prose } from '../sequence/describe/prose.js';
+import type { SequenceProse } from '../sequence/describe/prose.js';
 import type { StateProse } from '../state/describe/prose.js';
 import type { UseCaseProse } from '../usecase/describe/prose.js';
 import { DE } from './de.js';
@@ -29,7 +29,7 @@ export interface PictureWords {
 export interface Texts {
   readonly picture: PictureWords;
   /** Sentences of the description of a sequence diagram. */
-  readonly sequence: Prose;
+  readonly sequence: SequenceProse;
   /** Sentences of the description of a use case diagram. */
   readonly usecase: UseCaseProse;
   /** Sentences of the description of an activity diagram. */

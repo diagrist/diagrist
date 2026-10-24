@@ -65,23 +65,38 @@ export function inkInRows(picture: Picture, from: number, to: number): number {
   return ink;
 }
 
-const styles: Styles = {
+/** Pixels in rows `from` to `to` that are not the same in both pictures, which have the same size. */
+export function differing(a: Picture, b: Picture, from: number, to: number): number {
+  let count = 0;
+  for (let i = from * a.width * 4; i < to * a.width * 4; i += 4)
+    if (a.rgba.subarray(i, i + 4).some((value, channel) => value !== b.rgba[i + channel])) count++;
+  return count;
+}
+
+const styles = (italic: boolean): Styles => ({
   root: 'dia',
   fontFamily: '"JetBrains Mono", monospace',
   fontSize: 20,
   canvas: '#fafafa',
   markerSize: 12,
   markers: [],
-  roles: { regular: { classes: ['ink'] }, bold: { classes: ['ink', 'strong'] } },
+  roles: {
+    regular: { classes: italic ? ['ink', 'slant'] : ['ink'] },
+    bold: { classes: italic ? ['ink', 'strong', 'slant'] : ['ink', 'strong'] },
+  },
   rules: [
     { name: 'ink', declarations: 'fill: #18181b;' },
     { name: 'strong', declarations: 'font-weight: 700;' },
+    { name: 'slant', declarations: 'font-style: italic;' },
   ],
   fonts: { body: { size: 20 }, heading: { size: 20, weight: 700 } },
-};
+});
 
-/** The kernel's SVG of a 200 x 60 picture: the same word in regular in the upper half, in bold in the lower. */
-export function kernelSvg(options: { readonly inline?: boolean } = {}): string {
+/**
+ * The kernel's SVG of a 200 x 60 picture: the same word in regular in the upper half, in bold in the lower, both in
+ * italics with `italic`.
+ */
+export function kernelSvg(options: { readonly inline?: boolean; readonly italic?: boolean } = {}): string {
   const scene: Scene = {
     width: 200,
     height: 60,
@@ -91,5 +106,5 @@ export function kernelSvg(options: { readonly inline?: boolean } = {}): string {
       { kind: 'text', x: 10, y: 54, text: 'Hamburg', role: 'bold', font: 'heading' },
     ],
   };
-  return toSvg(scene, styles, options);
+  return toSvg(scene, styles(options.italic ?? false), { inline: options.inline ?? false });
 }
