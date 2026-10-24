@@ -1,10 +1,25 @@
 {
   "name": "@diagrist/export-png",
   "version": "0.0.0",
-  "private": true,
   "description": "PNG export for Diagrist: renders the kernel's SVG with resvg (WebAssembly) and the bundled fonts, without a browser.",
+  "keywords": [
+    "diagrist",
+    "diagrams-as-code",
+    "diagram",
+    "png",
+    "resvg",
+    "export"
+  ],
+  "homepage": "https://github.com/diagrist/diagrist/tree/main/plugins/export-png#readme",
+  "bugs": "https://github.com/diagrist/diagrist/issues",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/diagrist/diagrist.git",
+    "directory": "plugins/export-png"
+  },
   "license": "Apache-2.0",
   "type": "module",
+  "sideEffects": false,
   "exports": {
     ".": {
       "@diagrist/source": "./src/index.ts",
@@ -18,8 +33,16 @@
     }
   },
   "files": [
-    "dist"
+    "dist",
+    "NOTICE"
   ],
+  "engines": {
+    "node": ">=22.11"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
   "scripts": {
     "build": "tsdown"
   },

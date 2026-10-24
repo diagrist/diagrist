@@ -108,3 +108,4 @@ keep it so; they go in the clean-up with a second baseline.
 | Debt | Clean-up |
 |---|---|
 | **Two generators of README code tables**, `plugins/plugin-uml/test/codes.ts` and `plugins/plugin-architecture/test/codes.ts`, each with the plugin's table of predecessor codes. | One generator in `tools/docs`, with the predecessor tables as data of their plugins. |
+| **The source condition is published.** Every packed `package.json` keeps the export condition `@diagrist/source`, which points into `src/`, which is not in the tarball. Hosts outside the workspace never set the condition, so nothing resolves through it; only the CLI drops a subpath (`./tables`) with `publishConfig.exports`. | `publishConfig.exports` in every package, derived from `exports` when a host outside the repository needs it gone. |

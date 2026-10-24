@@ -1,10 +1,25 @@
 {
   "name": "@diagrist/plugin-architecture",
   "version": "0.0.0",
-  "private": true,
   "description": "C4 architecture diagrams for Diagrist: context, container and component.",
+  "keywords": [
+    "diagrist",
+    "diagrams-as-code",
+    "diagram",
+    "c4",
+    "c4-model",
+    "software-architecture"
+  ],
+  "homepage": "https://github.com/diagrist/diagrist/tree/main/plugins/plugin-architecture#readme",
+  "bugs": "https://github.com/diagrist/diagrist/issues",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/diagrist/diagrist.git",
+    "directory": "plugins/plugin-architecture"
+  },
   "license": "Apache-2.0",
   "type": "module",
+  "sideEffects": false,
   "exports": {
     ".": {
       "@diagrist/source": "./src/index.ts",
@@ -14,8 +29,16 @@
   },
   "files": [
     "dist",
-    "ICONS.md"
+    "ICONS.md",
+    "NOTICE"
   ],
+  "engines": {
+    "node": ">=22.11"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
   "scripts": {
     "build": "tsdown"
   },

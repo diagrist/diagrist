@@ -1,5 +1,5 @@
-import { SCHEMA_PATH, summaryOf } from '@diagrist/cli/tables';
 import type { Plugin } from '@diagrist/core';
+import { SCHEMA_PATH, summaryOf } from 'diagrist/tables';
 import { LANGUAGE_BASICS } from './basics.js';
 import { kernelCodes, languageCodes } from './codes.js';
 import { code, generatedFrom, table } from './markdown.js';

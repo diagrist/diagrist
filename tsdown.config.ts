@@ -10,8 +10,12 @@ export const shared: UserConfig = {
   format: ['esm'],
   platform: 'neutral',
   target: 'es2023',
-  dts: true,
-  sourcemap: true,
+  /**
+   * No source maps, for code or declarations: they would point into `src/`, which is not published, and made up
+   * two thirds of the tarballs. The declaration maps are off here because the root tsconfig turns them on for `tsc`.
+   */
+  dts: { sourcemap: false },
+  sourcemap: false,
   clean: true,
   /** All packages are `"type": "module"`, so `.js` instead of `.mjs`, matching their exports. */
   fixedExtension: false,

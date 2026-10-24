@@ -1,6 +1,6 @@
 import manifest from '../package.json' with { type: 'json' };
 
-/** Version of `@diagrist/cli`. The bundler inlines package.json, so nothing is read at run time. */
+/** Version of the package `diagrist`. The bundler inlines package.json, so nothing is read at run time. */
 export const VERSION: string = manifest.version;
 
 /** Names the CLI is installed under, taken from `bin` in package.json, the short one first. */

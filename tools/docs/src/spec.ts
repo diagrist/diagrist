@@ -1,6 +1,6 @@
-import { headerLine, signatureOf, summaryOf } from '@diagrist/cli/tables';
 import type { Kind } from '@diagrist/core';
 import { article, either, type GrammarField, type GrammarLine, grammarOf } from '@diagrist/lang';
+import { headerLine, signatureOf, summaryOf } from 'diagrist/tables';
 import { ruleCodes } from './codes.js';
 import { code, generatedFrom, table } from './markdown.js';
 import { type PlacedStatement, placedStatements, whereOf } from './statements.js';

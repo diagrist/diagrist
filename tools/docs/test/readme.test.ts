@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { PLUGINS } from '@diagrist/cli/tables';
 import { compareGolden } from '@diagrist/testkit';
+import { PLUGINS } from 'diagrist/tables';
 import { describe, expect, it } from 'vitest';
 import { README_EXAMPLES, readmeImage } from '../src/readme.js';
 

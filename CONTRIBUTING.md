@@ -22,7 +22,7 @@ The hooks need [gitleaks](https://github.com/gitleaks/gitleaks) on your PATH.
 ## Pull requests
 
 - One topic per pull request, with tests. Golden files change only on purpose and the PR says why.
-- Published packages change only with a changeset (`pnpm changeset`).
+- Published packages change only with a changeset (`pnpm changeset`). How a release is cut: [`docs/release`](docs/release/README.md).
 
 ## Never commit
 

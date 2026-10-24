@@ -163,3 +163,4 @@ node packages/cli/dist/main.js build diagrams/order.dgr --png
 | How the code is organised and the rules it follows | [`AGENTS.md`](AGENTS.md), [`docs/engineering.md`](docs/engineering.md) |
 | Why it is built this way | [`docs/adr`](docs/adr) |
 | Debt we accept on purpose | [`docs/burn-down.md`](docs/burn-down.md) |
+| How a release is cut, and what is published | [`docs/release`](docs/release/README.md) |

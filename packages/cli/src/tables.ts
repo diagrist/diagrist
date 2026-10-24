@@ -1,8 +1,8 @@
 /**
  * The tables the CLI is built from, for the files derived from them in `tools/docs` (ADR 0004): the commands and
  * their options, exit codes and JSON fields, the plugins of this build, and the helpers that write a table as a
- * usage line. The subpath `@diagrist/cli/tables` resolves inside the workspace only, through the source condition,
- * so it is no part of the published package.
+ * usage line. The subpath `diagrist/tables` resolves inside the workspace only, through the source condition;
+ * `publishConfig.exports` leaves it out of the published package.
  */
 export { COMMANDS } from './commands/all.js';
 export {

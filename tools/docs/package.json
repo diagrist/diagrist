@@ -6,9 +6,9 @@
   "license": "Apache-2.0",
   "type": "module",
   "dependencies": {
-    "@diagrist/cli": "workspace:*",
     "@diagrist/core": "workspace:*",
-    "@diagrist/lang": "workspace:*"
+    "@diagrist/lang": "workspace:*",
+    "diagrist": "workspace:*"
   },
   "devDependencies": {
     "@diagrist/testkit": "workspace:*"

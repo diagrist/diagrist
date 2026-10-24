@@ -1,7 +1,7 @@
 import { fileURLToPath } from 'node:url';
-import { COMMANDS, GLOBAL_OPTIONS, PLUGINS, SCHEMA_PATH } from '@diagrist/cli/tables';
 import { either, GRAMMAR_SCHEMA, grammarOf } from '@diagrist/lang';
 import { compareGolden } from '@diagrist/testkit';
+import { COMMANDS, GLOBAL_OPTIONS, PLUGINS, SCHEMA_PATH } from 'diagrist/tables';
 import { describe, expect, it } from 'vitest';
 import { derivedFiles } from '../src/files.js';
 import { SKILL_PATH } from '../src/skill.js';

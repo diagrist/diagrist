@@ -12,7 +12,7 @@ import {
   PROGRAM_NAMES,
   ROOT_OPTIONS,
   summaryOf,
-} from '@diagrist/cli/tables';
+} from 'diagrist/tables';
 import { code, generatedFrom, table } from './markdown.js';
 
 /** Where the reference is checked in, relative to the repository root. */

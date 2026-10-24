@@ -1,10 +1,25 @@
 {
   "name": "@diagrist/layout-grid",
   "version": "0.0.0",
-  "private": true,
   "description": "Grid layout for Diagrist kinds: places measured nodes and frames, routes edges, places edge labels.",
+  "keywords": [
+    "diagrist",
+    "diagrams-as-code",
+    "diagram",
+    "layout",
+    "graph-layout",
+    "edge-routing"
+  ],
+  "homepage": "https://github.com/diagrist/diagrist/tree/main/packages/layout-grid#readme",
+  "bugs": "https://github.com/diagrist/diagrist/issues",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/diagrist/diagrist.git",
+    "directory": "packages/layout-grid"
+  },
   "license": "Apache-2.0",
   "type": "module",
+  "sideEffects": false,
   "exports": {
     ".": {
       "@diagrist/source": "./src/index.ts",
@@ -13,8 +28,16 @@
     }
   },
   "files": [
-    "dist"
+    "dist",
+    "NOTICE"
   ],
+  "engines": {
+    "node": ">=22.11"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
   "scripts": {
     "build": "tsdown"
   },

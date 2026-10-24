@@ -10,6 +10,7 @@ import { lineOf, manifest, nodes, packageOf, parse, sourceFiles } from './source
  */
 describe('package boundaries', () => {
   const files = sourceFiles().filter((file) => packageOf(file) !== undefined);
+  const workspace = new Set(files.map((file) => manifest(packageOf(file) as string).name));
 
   it('import only declared Diagrist packages and stay inside their package', () => {
     const offending = files.flatMap((file) => {
@@ -25,7 +26,7 @@ describe('package boundaries', () => {
         )
         .map((node) => ({ node, from: (node.source as { value?: string } | null)?.value }))
         .filter((entry): entry is { node: typeof entry.node; from: string } => typeof entry.from === 'string')
-        .filter(({ from }) => violates(from, file, root, declared))
+        .filter(({ from }) => violates(from, file, root, declared, workspace))
         .map(({ node, from }) => `${file}:${lineOf(source, node.start)}  ${from}`);
     });
     expect(offending).toEqual([]);
@@ -51,11 +52,20 @@ function declaredDependencies(root: string, includeDev: boolean): string[] {
 
 const SHARED_BUILD_CONFIG = 'tsdown.config.ts';
 
-function violates(from: string, file: string, root: string, declared: string[]): boolean {
+/** Whether an import leaves its package, or reaches a workspace package (`@diagrist/*` or `diagrist`) undeclared. */
+function violates(
+  from: string,
+  file: string,
+  root: string,
+  declared: string[],
+  workspace: ReadonlySet<string | undefined>,
+): boolean {
   const target = join(file, '..', from);
   if (file === `${root}/${SHARED_BUILD_CONFIG}` && target === SHARED_BUILD_CONFIG) return false;
   if (from.startsWith('.')) return !target.startsWith(`${root}/`);
-  if (!from.startsWith('@diagrist/')) return false;
-  const name = from.split('/').slice(0, 2).join('/');
-  return !declared.includes(name);
+  const name = from
+    .split('/')
+    .slice(0, from.startsWith('@') ? 2 : 1)
+    .join('/');
+  return workspace.has(name) && !declared.includes(name);
 }

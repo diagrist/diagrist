@@ -1,6 +1,6 @@
-import { type Command, commandLine, headerLine, signatureOf, summaryOf } from '@diagrist/cli/tables';
 import type { Kind, Plugin } from '@diagrist/core';
 import { either, type GrammarField, grammarOf } from '@diagrist/lang';
+import { type Command, commandLine, headerLine, signatureOf, summaryOf } from 'diagrist/tables';
 import { LANGUAGE_BASICS } from './basics.js';
 import { kernelCodes, languageCodes, ruleCodes } from './codes.js';
 import { code, generatedFrom, table } from './markdown.js';

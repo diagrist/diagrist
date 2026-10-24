@@ -22,6 +22,7 @@ export function packageOf(file: string): string | undefined {
 
 /** The fields of a package.json the architecture tests read. */
 export interface Manifest {
+  readonly name?: string;
   readonly dependencies?: Readonly<Record<string, string>>;
   readonly peerDependencies?: Readonly<Record<string, string>>;
   readonly devDependencies?: Readonly<Record<string, string>>;

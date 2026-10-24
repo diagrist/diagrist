@@ -1,6 +1,6 @@
-import { type Command, SCHEMA_PATH } from '@diagrist/cli/tables';
 import type { Plugin } from '@diagrist/core';
 import { GRAMMAR_SCHEMA } from '@diagrist/lang';
+import { type Command, SCHEMA_PATH } from 'diagrist/tables';
 import { languageOverview, OVERVIEW_PATH } from './overview.js';
 import { REFERENCE_PATH, reference } from './reference.js';
 import { agentSkill, SKILL_PATH } from './skill.js';

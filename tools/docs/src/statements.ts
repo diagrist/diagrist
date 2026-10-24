@@ -1,5 +1,5 @@
-import { isReference } from '@diagrist/cli/tables';
 import type { Grammar, GrammarStatement } from '@diagrist/lang';
+import { isReference } from 'diagrist/tables';
 
 /** A statement described in full, with the blocks it may stand in. */
 export interface PlacedStatement {

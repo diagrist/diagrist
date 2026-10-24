@@ -1,0 +1,59 @@
+Diagrist
+Copyright 2026 Noel Lang
+
+Licensed under the Apache License, Version 2.0 (see LICENSE). Diagrist ships the
+third-party material listed below under its own licences. Each entry names the
+package that ships it, the licence, where the full licence text is, and where the
+material comes from.
+
+
+Fonts
+=====
+
+JetBrains Mono 2.305
+  Shipped in:  @diagrist/core, fonts/JetBrainsMono-*.ttf, and as advance widths
+               in its code; @diagrist/export-png reads the files to draw PNGs.
+  Copyright:   2020 The JetBrains Mono Project Authors
+  Licence:     SIL Open Font License 1.1, full text in fonts/OFL.txt of
+               @diagrist/core (packages/core/fonts/OFL.txt in the repository)
+  Source:      https://github.com/JetBrains/JetBrainsMono
+
+Inter 4.1
+  Shipped in:  @diagrist/core, fonts/Inter-Regular.ttf and fonts/Inter-SemiBold.ttf,
+               and as advance widths in its code; @diagrist/export-png reads the
+               files to draw PNGs of looks that use Inter.
+  Copyright:   2016 The Inter Project Authors
+  Licence:     SIL Open Font License 1.1, full text in fonts/OFL-Inter.txt of
+               @diagrist/core (packages/core/fonts/OFL-Inter.txt in the repository)
+  Source:      https://github.com/rsms/inter, release v4.1; files and checksums
+               in fonts/FONTS.md of @diagrist/core
+
+
+Icons
+=====
+
+Lucide
+  Shipped in:  @diagrist/plugin-architecture, the line icons of `icon=`
+  Copyright:   Lucide Contributors 2022; portions Cole Bemis 2013-2022 as part
+               of Feather
+  Licence:     ISC License, with the portions from Feather under the MIT
+               License; full texts in ICONS.md of @diagrist/plugin-architecture
+  Source:      https://lucide.dev, https://github.com/lucide-icons/lucide
+
+Simple Icons
+  Shipped in:  @diagrist/plugin-architecture, the brand icons of `icon=`
+  Licence:     CC0 1.0 Universal, see ICONS.md of @diagrist/plugin-architecture.
+               CC0 covers the drawings, not the trademarks they show.
+  Source:      https://simpleicons.org, https://github.com/simple-icons/simple-icons
+
+
+Dependencies installed from npm
+===============================
+
+These are not part of the Diagrist packages. npm installs them unchanged, with
+their own licence files.
+
+@resvg/resvg-wasm 2.6.2
+  Used by:     @diagrist/export-png, to render PNG from SVG
+  Licence:     Mozilla Public License 2.0
+  Source:      https://github.com/yisibl/resvg-js

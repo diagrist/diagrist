@@ -13,7 +13,7 @@
     "typecheck": "tsc -b",
     "lint": "biome check .",
     "format": "biome check --write .",
-    "docs:generate": "UPDATE_GOLDEN=1 vitest run --project docs --project plugin-uml --project plugin-architecture derived readme",
+    "docs:generate": "UPDATE_GOLDEN=1 vitest run --project docs --project plugin-uml --project plugin-architecture derived readme notice",
     "docs:uml": "UPDATE_GOLDEN=1 vitest run --project plugin-uml readme",
     "test": "vitest run",
     "check": "pnpm lint && pnpm typecheck && pnpm test && pnpm knip",

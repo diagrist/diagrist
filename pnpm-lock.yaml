@@ -137,15 +137,15 @@ importers:
 
   tools/docs:
     dependencies:
-      '@diagrist/cli':
-        specifier: workspace:*
-        version: link:../../packages/cli
       '@diagrist/core':
         specifier: workspace:*
         version: link:../../packages/core
       '@diagrist/lang':
         specifier: workspace:*
         version: link:../../packages/lang
+      diagrist:
+        specifier: workspace:*
+        version: link:../../packages/cli
     devDependencies:
       '@diagrist/testkit':
         specifier: workspace:*

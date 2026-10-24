@@ -1,10 +1,28 @@
 {
   "name": "@diagrist/plugin-uml",
   "version": "0.0.0",
-  "private": true,
-  "description": "UML diagrams for Diagrist: sequence and use case diagrams.",
+  "description": "UML diagrams for Diagrist: sequence, use case, activity, class and state machine diagrams.",
+  "keywords": [
+    "diagrist",
+    "diagrams-as-code",
+    "diagram",
+    "uml",
+    "sequence-diagram",
+    "use-case-diagram",
+    "activity-diagram",
+    "class-diagram",
+    "state-machine"
+  ],
+  "homepage": "https://github.com/diagrist/diagrist/tree/main/plugins/plugin-uml#readme",
+  "bugs": "https://github.com/diagrist/diagrist/issues",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/diagrist/diagrist.git",
+    "directory": "plugins/plugin-uml"
+  },
   "license": "Apache-2.0",
   "type": "module",
+  "sideEffects": false,
   "exports": {
     ".": {
       "@diagrist/source": "./src/index.ts",
@@ -13,8 +31,16 @@
     }
   },
   "files": [
-    "dist"
+    "dist",
+    "NOTICE"
   ],
+  "engines": {
+    "node": ">=22.11"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
   "scripts": {
     "build": "tsdown"
   },

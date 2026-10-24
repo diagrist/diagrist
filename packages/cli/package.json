@@ -1,8 +1,24 @@
 {
-  "name": "@diagrist/cli",
+  "name": "diagrist",
   "version": "0.0.0",
-  "private": true,
   "description": "The Diagrist command line: format, check and build .dgr files, and look up the grammar of a kind.",
+  "keywords": [
+    "diagrist",
+    "diagrams-as-code",
+    "diagram",
+    "cli",
+    "uml",
+    "c4",
+    "svg",
+    "png"
+  ],
+  "homepage": "https://github.com/diagrist/diagrist/tree/main/packages/cli#readme",
+  "bugs": "https://github.com/diagrist/diagrist/issues",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/diagrist/diagrist.git",
+    "directory": "packages/cli"
+  },
   "license": "Apache-2.0",
   "type": "module",
   "bin": {
@@ -20,8 +36,22 @@
     }
   },
   "files": [
-    "dist"
+    "dist",
+    "NOTICE"
   ],
+  "engines": {
+    "node": ">=22.11"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true,
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      }
+    }
+  },
   "scripts": {
     "build": "tsdown"
   },

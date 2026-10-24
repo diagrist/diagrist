@@ -1,10 +1,23 @@
 {
   "name": "@diagrist/parts",
   "version": "0.0.0",
-  "private": true,
   "description": "Pieces several Diagrist plugins draw alike: title header, decision bar, legend, picture words.",
+  "keywords": [
+    "diagrist",
+    "diagrams-as-code",
+    "diagram",
+    "svg"
+  ],
+  "homepage": "https://github.com/diagrist/diagrist/tree/main/packages/parts#readme",
+  "bugs": "https://github.com/diagrist/diagrist/issues",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/diagrist/diagrist.git",
+    "directory": "packages/parts"
+  },
   "license": "Apache-2.0",
   "type": "module",
+  "sideEffects": false,
   "exports": {
     ".": {
       "@diagrist/source": "./src/index.ts",
@@ -13,8 +26,16 @@
     }
   },
   "files": [
-    "dist"
+    "dist",
+    "NOTICE"
   ],
+  "engines": {
+    "node": ">=22.11"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
   "scripts": {
     "build": "tsdown"
   },
