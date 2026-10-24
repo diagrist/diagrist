@@ -27,7 +27,10 @@ How Diagrist is built. Short on purpose; if a rule is not here, prefer what make
 - **No comments, only TSDoc.** Names and structure explain the code; when a declaration needs more, it gets a
   TSDoc block (`/** ... */`). Line and block comments are rejected by `test/architecture/comments.test.ts`.
   Code, TSDoc, commits and public docs are in English.
-- Files stay small (around 200 lines). If a file grows past that, it usually does two things.
+- Files stay small: at most 200 lines. A longer file usually does two things.
+- **Enforced as tests** in `test/architecture`: TSDoc-only comments that say more than the name, purity of kernel
+  and plugins (no clock, randomness, console, Node APIs), package boundaries derived from `package.json`, file size.
+  knip rejects dead code. See `AGENTS.md` for the full list.
 
 ## Tests
 
