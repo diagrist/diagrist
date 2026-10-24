@@ -1,0 +1,14 @@
+name: Feature request
+description: A diagram kind, check, exporter or integration you need
+labels: [enhancement]
+body:
+  - type: textarea
+    id: need
+    attributes:
+      label: What do you want to draw or check, and where does it end up?
+    validations:
+      required: true
+  - type: textarea
+    id: example
+    attributes:
+      label: Example (sketch, existing diagram, or .dgr you wish worked)

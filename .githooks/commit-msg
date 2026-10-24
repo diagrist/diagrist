@@ -1,0 +1,19 @@
+#!/usr/bin/env sh
+# Conventional Commits: <type>(<scope>)!: <subject>
+# https://www.conventionalcommits.org/en/v1.0.0/
+msg_file="$1"
+first=$(sed -n '1p' "$msg_file")
+
+case "$first" in
+  Merge\ *|Revert\ *|fixup!\ *|squash!\ *|amend!\ *) exit 0 ;;
+esac
+
+pattern='^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\([a-z0-9][a-z0-9._/-]*\))?!?: [^ ].{0,98}$'
+if ! printf '%s' "$first" | grep -Eq "$pattern"; then
+  echo "commit-msg: not a Conventional Commit:" >&2
+  echo "  $first" >&2
+  echo "Expected: <type>(<scope>)!: <subject>, type one of" >&2
+  echo "  feat fix docs style refactor perf test build ci chore revert" >&2
+  echo "Example: feat(plugin-uml): add combined fragments to sequence diagrams" >&2
+  exit 1
+fi

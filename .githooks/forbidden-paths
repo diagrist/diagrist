@@ -1,0 +1,7 @@
+# Erweiterte Regex je Zeile, geprüft gegen Pfade im Repo.
+# Was hier steht, darf nie in diesem öffentlichen Repo landen.
+(^|/)business/
+(^|/)docs/planung/referenzen/
+(^|/)\.env($|\.)
+(^|/)\.npmrc$
+\.(pem|key|p12|pfx)$

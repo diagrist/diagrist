@@ -1,0 +1,9 @@
+# https://github.com/gitleaks/gitleaks#configuration
+[extend]
+useDefault = true
+
+[[rules]]
+id = "npm-token-in-npmrc"
+description = "npm auth token"
+regex = '''//registry\.npmjs\.org/:_authToken=[A-Za-z0-9_-]+'''
+keywords = ["_authToken"]

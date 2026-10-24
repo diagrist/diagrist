@@ -1,0 +1,6 @@
+# Erweiterte Regex je Zeile, geprüft gegen den Inhalt gestagter Dateien.
+# Nur allgemeine Muster. Persönliche Muster stehen lokal in ~/.config/diagrist/forbidden-content
+# und werden vom Hook zusätzlich gelesen; sie gehören nicht in ein öffentliches Repo.
+/home/[a-z][a-z0-9_-]*/
+/Users/[A-Za-z][A-Za-z0-9_-]*/
+C:\\Users\\

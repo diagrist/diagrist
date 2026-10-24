@@ -1,0 +1,14 @@
+{
+  "name": "diagrist-monorepo",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "packageManager": "pnpm@11.18.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "prepare": "git config core.hooksPath .githooks",
+    "check": "echo \"no packages yet\""
+  }
+}

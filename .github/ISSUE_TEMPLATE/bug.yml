@@ -1,0 +1,21 @@
+name: Bug report
+description: Something renders or checks wrong
+labels: [bug]
+body:
+  - type: textarea
+    id: source
+    attributes:
+      label: Minimal .dgr source
+      render: text
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect, what happened?
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Diagrist version (`dgr --version`)

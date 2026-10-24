@@ -1,0 +1,12 @@
+#!/usr/bin/env sh
+# Prüft alle Commits, die gepusht werden, auf Secrets und verbotene Inhalte.
+set -e
+root=$(git rev-parse --show-toplevel)
+zero=0000000000000000000000000000000000000000
+while read -r local_ref local_sha remote_ref remote_sha; do
+  [ "$local_sha" = "$zero" ] && continue
+  if [ "$remote_sha" = "$zero" ]; then range="$local_sha"; else range="$remote_sha..$local_sha"; fi
+  gitleaks git --log-opts="$range" --redact --no-banner --log-level warn --exit-code 1 -c "$root/.gitleaks.toml" "$root" || {
+    echo "pre-push: gitleaks found a possible secret in $range. Push blocked." >&2; exit 1; }
+  "$root/.githooks/check-forbidden" --range "$range"
+done

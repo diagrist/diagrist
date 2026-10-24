@@ -1,0 +1,55 @@
+#!/usr/bin/env sh
+# Blockiert Pfade und Inhalte, die in diesem Repo nichts verloren haben.
+# Muster stehen je Repo in .githooks/forbidden-paths und .githooks/forbidden-content (erweiterte Regex, eine pro Zeile).
+# Aufruf: check-forbidden --staged | --range <a..b> | --all
+set -e
+root=$(git rev-parse --show-toplevel)
+paths_file="$root/.githooks/forbidden-paths"
+content_file="$root/.githooks/forbidden-content"
+local_file="${DIAGRIST_FORBIDDEN:-$HOME/.config/diagrist/forbidden-content}"
+mode="${1:---staged}"
+
+case "$mode" in
+  --staged) files=$(git diff --cached --name-only --diff-filter=ACMR) ;;
+  --range)  files=$(git diff --name-only --diff-filter=ACMR "$2") ;;
+  --all)    files=$(git ls-files) ;;
+  *) echo "usage: check-forbidden --staged | --range <a..b> | --all" >&2; exit 2 ;;
+esac
+[ -z "$files" ] && exit 0
+
+fail=0
+patterns() { grep -Ev '^\s*(#|$)' "$1" 2>/dev/null || true; }
+
+if [ -f "$paths_file" ]; then
+  for p in $(patterns "$paths_file"); do
+    hits=$(printf '%s\n' "$files" | grep -E "$p" || true)
+    if [ -n "$hits" ]; then
+      echo "forbidden path ($p):" >&2; printf '  %s\n' $hits >&2; fail=1
+    fi
+  done
+fi
+
+if [ -f "$content_file" ] || [ -f "$local_file" ]; then
+  content=$( (patterns "$content_file"; patterns "$local_file") )
+  if [ -n "$content" ]; then
+    for f in $files; do
+      case "$f" in .githooks/forbidden-*) continue ;; esac
+      case "$mode" in
+        --staged) blob=$(git show ":$f" 2>/dev/null || true) ;;
+        --range)  blob=$(git show "${2##*..}:$f" 2>/dev/null || true) ;;
+        --all)    blob=$(cat "$root/$f" 2>/dev/null || true) ;;
+      esac
+      printf '%s\n' "$content" | while IFS= read -r c; do
+        if printf '%s' "$blob" | grep -Eq -- "$c"; then
+          echo "forbidden content ($c) in $f" >&2; echo x > "$root/.git/forbidden-hit"
+        fi
+      done
+    done
+    if [ -f "$root/.git/forbidden-hit" ]; then rm -f "$root/.git/forbidden-hit"; fail=1; fi
+  fi
+fi
+
+if [ "$fail" -ne 0 ]; then
+  echo "Blocked. If this is a false positive, adjust .githooks/forbidden-* in a separate, reviewed commit." >&2
+  exit 1
+fi

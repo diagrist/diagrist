@@ -1,0 +1,16 @@
+#!/usr/bin/env sh
+# 1. Secrets in den gestagten Änderungen (gitleaks)
+# 2. Verbotene Pfade und Inhalte (.githooks/forbidden-paths, .githooks/forbidden-content)
+set -e
+root=$(git rev-parse --show-toplevel)
+hooks="$root/.githooks"
+
+if command -v gitleaks >/dev/null 2>&1; then
+  gitleaks git --pre-commit --staged --redact --no-banner --log-level warn --exit-code 1 -c "$root/.gitleaks.toml" "$root" || {
+    echo "pre-commit: gitleaks found a possible secret. Commit blocked." >&2; exit 1; }
+else
+  echo "pre-commit: gitleaks is not installed. Install it: https://github.com/gitleaks/gitleaks" >&2
+  exit 1
+fi
+
+"$hooks/check-forbidden" --staged
