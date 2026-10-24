@@ -23,7 +23,9 @@
     "build": "tsdown"
   },
   "dependencies": {
-    "@diagrist/lang": "workspace:*"
+    "@diagrist/core": "workspace:*",
+    "@diagrist/lang": "workspace:*",
+    "@diagrist/plugin-uml": "workspace:*"
   },
   "devDependencies": {
     "@diagrist/testkit": "workspace:*"

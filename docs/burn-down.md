@@ -24,3 +24,10 @@ in one clean-up with a second baseline.
 
 - Palette, strokes and fonts (`plugins/plugin-uml/src/theme.ts`) move to the kernel with the second plugin.
 - Title header and decision bar (`plugins/plugin-uml/src/shared`) move to a small library then.
+
+## Found while joining the CLI with the kernel
+
+- **U400 points at the statement, not the token.** `msg a -> b` reports column 1 instead of the `b`. Clean-up:
+  carry the span of the offending end through the model.
+- **German messages keep English value descriptions.** `expected` texts of value types (`a text in double quotes
+  like ...`) are English in every locale. Clean-up: phrase value descriptions through the catalogue (ADR 0004).
