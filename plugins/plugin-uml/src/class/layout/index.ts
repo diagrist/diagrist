@@ -7,6 +7,7 @@ import {
   labelEdges,
   placedOf,
   type Route,
+  right,
 } from '@diagrist/layout-grid';
 import { decisionStrip, HEADER, type Header, MARGIN, type Strip, stripWidth, type Words } from '@diagrist/parts';
 import { homed } from '../../shared/homed.js';
@@ -49,8 +50,6 @@ export interface ClassLayout {
   readonly strip: Strip;
   readonly placed: readonly Placed[];
 }
-
-const right = (r: { x: number; w: number }) => r.x + r.w;
 
 /** Name of the relation, and `«import»` or `«access»` below it, for the labelling of `layout-grid`. */
 function texts(routes: readonly Route[], relations: readonly (ClassRelation | undefined)[]): EdgeText[] {

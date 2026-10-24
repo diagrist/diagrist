@@ -52,6 +52,23 @@ export const STATE = {
   labelDy: 4,
 } as const;
 
+/**
+ * What a place costs an entry or exit point besides the length of its ways, in pixels of that length. A place that
+ * costs `taken` or more is given up when the point is placed as one end of a straight pair.
+ */
+export const POINT_PENALTY = {
+  /** In the middle of the top of a composite state, on its name. */
+  title: 500,
+  /** At the bottom of the right side of a submachine state, on its icon. */
+  icon: 500,
+  /** Closer than three point widths to a point placed before. */
+  taken: 2000,
+  /** A pair that bends through the gap instead of running straight across. */
+  bend: 100,
+  /** Added per further way round of a bending pair, so the first one wins a tie. */
+  bendNext: 10,
+} as const;
+
 /** The measures `layout-grid` lays a state machine diagram out with: adaptive columns, orthogonal lines. */
 export const stateMetrics = (colGap: number): GridMetrics => ({
   grid: STATE.grid,

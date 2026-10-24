@@ -1,10 +1,11 @@
 import { type Placed, textWidth } from '@diagrist/core';
+import { right } from '@diagrist/layout-grid';
 import { decisionStrip, HEADER, type Header, MARGIN, type Strip, stripWidth, type Words } from '@diagrist/parts';
 import type { ActivityModel } from '../model/index.js';
 import { layoutGraph } from './graph.js';
 import { type GuardText, guardTexts, placeQuestions } from './guards.js';
 import type { LaneArt } from './lanes.js';
-import { ACT, ACT_FONTS, right, widthOf } from './metrics.js';
+import { ACT, ACT_FONTS, widthOf } from './metrics.js';
 import { placePins } from './pins.js';
 import { type PlacedNode, placeActivity } from './place.js';
 import { placedOf } from './placed.js';

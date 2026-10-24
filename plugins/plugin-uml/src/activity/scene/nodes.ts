@@ -1,6 +1,7 @@
 import type { Rect, Shape } from '@diagrist/core';
+import { cx, cy } from '@diagrist/layout-grid';
 import { EXPANSION_SLOTS } from '../layout/expansion.js';
-import { ACT, cx, cy } from '../layout/metrics.js';
+import { ACT } from '../layout/metrics.js';
 import type { PlacedNode } from '../layout/place.js';
 import type { ActivityArt } from '../layout/size.js';
 

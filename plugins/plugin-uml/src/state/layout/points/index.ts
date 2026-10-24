@@ -1,22 +1,10 @@
-import { type Point, type Rect, textWidth } from '@diagrist/core';
-import type { GridLayout, PlacedNode, Side } from '@diagrist/layout-grid';
+import type { Point, Rect } from '@diagrist/core';
+import { bottom, cx, cy, type GridLayout, type PlacedNode, right, type Side } from '@diagrist/layout-grid';
 import type { StateModel } from '../../model.js';
-import { STATE_FONTS as F, STATE as S } from '../metrics.js';
-import {
-  borderOf,
-  bottom,
-  cx,
-  cy,
-  directPartners,
-  hits,
-  hostOf,
-  inFrame,
-  nearIcon,
-  onDirectLine,
-  pointFrame,
-  right,
-} from './geometry.js';
+import { STATE as S } from '../metrics.js';
+import { borderOf, hits, hostOf, inFrame, pointFrame } from './geometry.js';
 import { pointPairs } from './pairs.js';
+import { plus, pointPenalties } from './penalty.js';
 
 const SIDES: readonly Side[] = ['bottom', 'right', 'left', 'top'];
 const OUTWARD = { top: [0, -1], bottom: [0, 1], left: [-1, 0], right: [1, 0] } as const;
@@ -114,12 +102,7 @@ function score(
     const detour = crossed && !border ? railDetour(at, side, p.rect, others) : undefined;
     sum += detour ?? 1000 * crossed;
   }
-  const title = border ? textWidth(m.vertices.get(border)?.label ?? '', F.name) : 0;
-  if (border && side === 'top' && Math.abs(at[0] - cx(rect)) < title / 2 + S.point) sum += 500;
-  if (host && nearIcon(rect, at, side)) sum += 500;
-  if (host) sum += onDirectLine(rect, at, side, directPartners(m, host, nodes));
-  if (taken.some((q) => Math.abs(q[0] - at[0]) + Math.abs(q[1] - at[1]) < 3 * S.point)) sum += 2000;
-  return sum;
+  return plus(sum, pointPenalties(m, id, { rect, at, side }, nodes, taken));
 }
 
 /**

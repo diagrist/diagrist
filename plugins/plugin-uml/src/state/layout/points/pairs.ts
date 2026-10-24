@@ -1,19 +1,9 @@
-import { type Point, type Rect, textWidth } from '@diagrist/core';
-import type { GridLayout, Side } from '@diagrist/layout-grid';
+import type { Point, Rect } from '@diagrist/core';
+import { bottom, type GridLayout, overlaps, right, type Side } from '@diagrist/layout-grid';
 import type { StateModel } from '../../model.js';
-import { STATE_FONTS as F, STATE as S } from '../metrics.js';
-import {
-  borderOf,
-  bottom,
-  cx,
-  directPartners,
-  hostOf,
-  nearIcon,
-  onDirectLine,
-  pointFrame,
-  right,
-  segmentHits,
-} from './geometry.js';
+import { POINT_PENALTY as P, STATE as S } from '../metrics.js';
+import { borderOf, hostOf, pointFrame, segmentHits } from './geometry.js';
+import { plus, pointPenalties } from './penalty.js';
 
 /** One end of a pair: the point, where it sits, and on which side. */
 export interface PointEnd {
@@ -33,7 +23,6 @@ function facingSides(a: Rect, b: Rect): { sides: [Side, Side]; flat: boolean } |
 const holds = (o: Rect, i: Rect) => o.x <= i.x && right(o) >= right(i) && o.y <= i.y && bottom(o) >= bottom(i);
 const edgeOf = (r: Rect, side: Side) =>
   side === 'top' ? r.y : side === 'bottom' ? bottom(r) : side === 'left' ? r.x : right(r);
-const overlaps = (a: Rect, b: Rect) => a.x < right(b) && right(a) > b.x && a.y < bottom(b) && bottom(a) > b.y;
 
 interface Candidate {
   readonly path: readonly Point[];
@@ -77,14 +66,11 @@ function bend(a: Rect, b: Rect, inset: number): Candidate[] {
   const forward = face.sides[0] === 'right' || face.sides[0] === 'bottom';
   return across.map((side, i) => {
     const out = side === 'right' || side === 'bottom' ? 1 : -1;
-    const along = (r: Rect, near: boolean) =>
-      face.flat
-        ? near === forward
-          ? bottom(r) - inset
-          : r.y + inset
-        : near === forward
-          ? right(r) - inset
-          : r.x + inset;
+    const along = (r: Rect, near: boolean) => {
+      const far = near === forward;
+      if (face.flat) return far ? bottom(r) - inset : r.y + inset;
+      return far ? right(r) - inset : r.x + inset;
+    };
     const edge = (r: Rect) => edgeOf(r, side);
     const depth = (out > 0 ? Math.max(edge(a), edge(b)) : Math.min(edge(a), edge(b))) + out * S.step;
     const [u, v] = [along(a, true), along(b, false)];
@@ -101,55 +87,66 @@ function bend(a: Rect, b: Rect, inset: number): Candidate[] {
           [v, depth],
           [v, edge(b)],
         ];
-    return { path, sides: [side, side] as const, cost: 100 + 10 * i };
+    return { path, sides: [side, side] as const, cost: P.bend + P.bendNext * i };
   });
+}
+
+/** The ends of a transition between two points: the ids, and the rectangles they sit on. */
+interface Ends {
+  readonly from: string;
+  readonly to: string;
+  readonly a: Rect;
+  readonly b: Rect;
+}
+
+/**
+ * The cheapest straight line or bend between two points that crosses no other node and no frame that holds neither
+ * end: its own cost plus the penalties of both ends. The first of equal costs wins.
+ */
+function cheapest(
+  m: StateModel,
+  { from, to, a, b }: Ends,
+  grid: GridLayout,
+  taken: readonly Point[],
+): { c: Candidate; score: number } | undefined {
+  const inset = S.radius + S.point;
+  const hosts = [hostOf(m, from), hostOf(m, to)];
+  const others = [
+    ...grid.nodes.filter((n) => ![from, to, ...hosts].includes(n.id)).map((n) => n.rect),
+    ...grid.groups.map((g) => g.rect).filter((r) => r !== a && r !== b && !holds(r, a) && !holds(r, b)),
+  ];
+  const clear = (c: Candidate) =>
+    !c.path.slice(1).some((x, i) => others.some((r) => segmentHits(c.path[i] ?? x, x, r, 2)));
+  const penalties = (id: string, rect: Rect, at: Point | undefined, side: Side) =>
+    at === undefined ? [] : pointPenalties(m, id, { rect, at, side }, grid.nodes, taken);
+  let best: { c: Candidate; score: number } | undefined;
+  for (const c of [...straight(a, b, inset), ...bend(a, b, inset)].filter(clear)) {
+    const ends = [...penalties(from, a, c.path[0], c.sides[0]), ...penalties(to, b, c.path.at(-1), c.sides[1])];
+    const score = plus(c.cost, ends);
+    if (!best || score < best.score) best = { c, score };
+  }
+  return best;
 }
 
 /**
  * Transitions between points of two states side by side or one behind the other: both points sit on the facing
  * sides at the same place and the line runs straight across; sides too short take a short bend through the gap.
+ * A pair whose best place is taken by another point is left to the single placement.
  */
 export function pointPairs(m: StateModel, grid: GridLayout): { from: PointEnd; to: PointEnd }[] {
   const pairs: { from: PointEnd; to: PointEnd }[] = [];
   const taken: Point[] = [];
   const used = new Set<string>();
-  const inset = S.radius + S.point;
   const isPoint = (id: string) => borderOf(m, id) !== undefined || hostOf(m, id) !== undefined;
-  for (const t of m.diagram.transitions) {
-    const [a, b] = [pointFrame(m, t.from, grid), pointFrame(m, t.to, grid)];
-    if (!isPoint(t.from) || !isPoint(t.to) || !a || !b || used.has(t.from) || used.has(t.to) || overlaps(a, b))
-      continue;
-    const hosts = [hostOf(m, t.from), hostOf(m, t.to)];
-    const others = [
-      ...grid.nodes.filter((n) => ![t.from, t.to, ...hosts].includes(n.id)).map((n) => n.rect),
-      ...grid.groups.map((g) => g.rect).filter((r) => r !== a && r !== b && !holds(r, a) && !holds(r, b)),
-    ];
-    let best: { c: Candidate; score: number } | undefined;
-    for (const c of [...straight(a, b, inset), ...bend(a, b, inset)]) {
-      if (c.path.slice(1).some((x, i) => others.some((r) => segmentHits(c.path[i] ?? x, x, r, 2)))) continue;
-      let score = c.cost;
-      for (const [id, rect, at, side] of [
-        [t.from, a, c.path[0], c.sides[0]],
-        [t.to, b, c.path.at(-1), c.sides[1]],
-      ] as const) {
-        if (!at) continue;
-        const host = hostOf(m, id);
-        if (host) {
-          score += onDirectLine(rect, at, side, directPartners(m, host, grid.nodes));
-          if (nearIcon(rect, at, side)) score += 500;
-        } else if (side === 'top') {
-          const title = m.vertices.get(borderOf(m, id) ?? '')?.label ?? '';
-          if (Math.abs(at[0] - cx(rect)) < textWidth(title, F.name) / 2 + S.point) score += 500;
-        }
-        if (taken.some((x) => Math.abs(x[0] - at[0]) + Math.abs(x[1] - at[1]) < 3 * S.point)) score += 2000;
-      }
-      if (!best || score < best.score) best = { c, score };
-    }
+  for (const { from, to } of m.diagram.transitions) {
+    const [a, b] = [pointFrame(m, from, grid), pointFrame(m, to, grid)];
+    if (!isPoint(from) || !isPoint(to) || !a || !b || used.has(from) || used.has(to) || overlaps(a, b)) continue;
+    const best = cheapest(m, { from, to, a, b }, grid, taken);
     const [u, v] = [best?.c.path[0], best?.c.path.at(-1)];
-    if (!best || best.score >= 2000 || !u || !v) continue;
-    pairs.push({ from: { id: t.from, at: u, side: best.c.sides[0] }, to: { id: t.to, at: v, side: best.c.sides[1] } });
+    if (!best || best.score >= P.taken || !u || !v) continue;
+    pairs.push({ from: { id: from, at: u, side: best.c.sides[0] }, to: { id: to, at: v, side: best.c.sides[1] } });
     taken.push(u, v);
-    used.add(t.from).add(t.to);
+    used.add(from).add(to);
   }
   return pairs;
 }

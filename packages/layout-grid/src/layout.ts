@@ -1,3 +1,11 @@
+/**
+ * The placed grid: columns, rows, nodes, frames and routes as the layout hands them to a kind.
+ *
+ * Layout code keeps the predecessor's order of floating point steps. A value computed once is passed on, not computed
+ * again from its parts (the right edge stays as it was summed, not `x + w`), and sums are not regrouped or reordered,
+ * because floating point addition is not associative and the golden pictures compare bytes. A refactor here, or in a
+ * kind's layout, must keep every number as it was; the hash files of the examples show at once when it does not.
+ */
 import type { Point, Rect } from '@diagrist/core';
 import type { Side } from './geometry.js';
 

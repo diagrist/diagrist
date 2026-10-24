@@ -1,7 +1,7 @@
 import type { Rect } from '@diagrist/core';
-import type { Side } from '@diagrist/layout-grid';
+import { cx, type Side } from '@diagrist/layout-grid';
 import { SIDE_PIN_SLOT } from './extents.js';
-import { ACT, cx, SIZE, widthOf, type XY } from './metrics.js';
+import { ACT, SIZE, widthOf, type XY } from './metrics.js';
 import type { Routed } from './route.js';
 
 /** A pin of an action with the edges that start at it (output) or end at it (input). */

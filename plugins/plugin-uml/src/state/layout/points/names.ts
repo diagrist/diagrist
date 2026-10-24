@@ -1,5 +1,5 @@
 import { type Rect, textWidth } from '@diagrist/core';
-import type { EdgeLabel, GridLayout, Route, Side } from '@diagrist/layout-grid';
+import { type EdgeLabel, type GridLayout, overlaps, type Route, type Side } from '@diagrist/layout-grid';
 import type { StateModel } from '../../model.js';
 import { STATE_FONTS as F, STATE as S } from '../metrics.js';
 import { borderOf, borderSide, hostOf, segmentHits } from './geometry.js';
@@ -37,9 +37,6 @@ function spots(rect: Rect, side: Side): Omit<PointName, 'text'>[] {
   };
   return choices[side];
 }
-
-const overlaps = (a: Rect, b: Rect, pad: number) =>
-  a.x < b.x + b.w + pad && a.x + a.w > b.x - pad && a.y < b.y + b.h + pad && a.y + a.h > b.y - pad;
 
 /**
  * Names of entry and exit points outside beside their circle, so they are not taken for the inside of the state. On a

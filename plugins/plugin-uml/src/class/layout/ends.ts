@@ -1,5 +1,5 @@
 import { type Point, type Rect, textWidth } from '@diagrist/core';
-import type { EdgeLabel, GridLayout, Route } from '@diagrist/layout-grid';
+import { type EdgeLabel, type GridLayout, overlaps, type Route } from '@diagrist/layout-grid';
 import type { ClassRelation } from '../diagram.js';
 import { crossEnds, HEAD_AT_END, HEAD_AT_START, headLength } from './heads.js';
 import { CLASS, CLASS_FONTS as F } from './metrics.js';
@@ -54,9 +54,6 @@ function item(text: string, end: End, side: 1 | -1, route: number, shift: number
   const left = anchor === 'start' ? x : x - w;
   return { text, x, y, anchor, box: { x: left, y: y - size + 1, w, h: size + 2 }, route, part: 'mark' };
 }
-
-const overlaps = (a: Rect, b: Rect, pad: number) =>
-  a.x < b.x + b.w + pad && a.x + a.w > b.x - pad && a.y < b.y + b.h + pad && a.y + a.h > b.y - pad;
 
 const within = (a: Rect, b: Rect) => a.x >= b.x && a.y >= b.y && a.x + a.w <= b.x + b.w && a.y + a.h <= b.y + b.h;
 

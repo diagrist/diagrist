@@ -1,5 +1,13 @@
 import type { Point, Rect } from '@diagrist/core';
-import type { GridGroup, GridLayout, GridSpec, Pads, PlacedGroup, Route } from '@diagrist/layout-grid';
+import {
+  type GridGroup,
+  type GridLayout,
+  type GridSpec,
+  overlaps,
+  type Pads,
+  type PlacedGroup,
+  type Route,
+} from '@diagrist/layout-grid';
 import type { ClassRelation } from '../diagram.js';
 import type { ClassModel } from '../model.js';
 import { packagesAround } from '../model.js';
@@ -93,9 +101,6 @@ export function alignPackages(
 
 /** Air between a tab and a line passing it. */
 const AIR = 12;
-
-const overlaps = (a: Rect, b: Rect, pad: number) =>
-  a.x < b.x + b.w + pad && a.x + a.w > b.x - pad && a.y < b.y + b.h + pad && a.y + a.h > b.y - pad;
 
 const hits = (p: Point, q: Point, r: Rect) =>
   Math.min(p[0], q[0]) < r.x + r.w &&

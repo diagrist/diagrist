@@ -14,6 +14,7 @@ import {
   STROKES as w,
 } from '@diagrist/core';
 import { PART_ROLES } from '@diagrist/parts';
+import { CARD_RULES, TINT_RULES } from './card-rules.js';
 
 /** Font roles of the UML kinds with boxes, class and state machine diagrams: layout measures with them. */
 export const UML_BOX_FONTS = {
@@ -24,9 +25,6 @@ export const UML_BOX_FONTS = {
 
 const F = UML_BOX_FONTS;
 
-/** Tinted areas of the card look: opacity of fill and outline. */
-const TINT = { fill: 0.07, stroke: 0.45 } as const;
-
 const one = (...classes: string[]): RoleStyle => ({ classes });
 
 /**
@@ -34,10 +32,10 @@ const one = (...classes: string[]): RoleStyle => ({ classes });
  * markers, which the kernel does not count as used, so they are always written (docs/burn-down.md).
  */
 export const UML_BOX_RULES: readonly StyleRule[] = [
-  rule('card', `fill: ${c.fill}; stroke: ${c.grid}; stroke-width: ${w.frame};`),
-  rule('card-shadow', `fill: ${c.grid}; stroke: none;`),
+  CARD_RULES.card,
+  CARD_RULES.shadow,
   rule('note-box', `fill: ${c.canvas}; stroke: ${c.note}; stroke-width: ${w.frame}; stroke-dasharray: ${DASH.frame};`),
-  rule('note-tail', `fill: none; stroke: ${c.note}; stroke-width: ${w.frame}; stroke-dasharray: ${DASH.frame};`),
+  CARD_RULES.noteTail,
   rule('entity-rule', `stroke: ${c.grid}; stroke-width: ${w.frame};`),
   ...TONE_NAMES.map((tone) => rule(`tone-${tone}`, `fill: ${TONES[tone]};`)),
   rule('uml-stereo', textRule(`fill: ${c.stroke};`, F.stereo)),
@@ -52,15 +50,10 @@ export const UML_BOX_RULES: readonly StyleRule[] = [
   rule('uml-stub', `fill: none; stroke: ${c.stroke}; stroke-opacity: 0;`),
   rule('uml-package', `fill: none; stroke: ${c.stroke}; stroke-width: ${w.shape};`),
   rule('uml-tether', `fill: none; stroke: ${c.stroke}; stroke-width: ${w.line}; stroke-dasharray: ${DASH.line};`),
-  rule('card-head-text', textRule('fill: #ffffff;', F.name)),
-  rule('card-head-sub', textRule('fill: #ffffff; fill-opacity: 0.85;', F.note)),
-  rule('card-box', `fill: ${c.fill}; stroke: ${c.border}; stroke-width: ${w.frame};`),
-  ...TONE_NAMES.map((tone) =>
-    rule(
-      `tint-${tone}`,
-      `fill: ${TONES[tone]}; fill-opacity: ${TINT.fill}; stroke: ${TONES[tone]}; stroke-opacity: ${TINT.stroke}; stroke-width: ${w.frame};`,
-    ),
-  ),
+  CARD_RULES.name,
+  CARD_RULES.stereo,
+  CARD_RULES.box,
+  ...TINT_RULES,
 ];
 
 /** Edge length of the markers of UML relations: room for the predecessor's diamond of 16 pixels. */

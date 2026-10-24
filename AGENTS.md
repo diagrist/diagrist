@@ -83,6 +83,9 @@ Most rules are tests in `test/architecture`, and their failures name the offendi
 
 ## How to work
 
+A pull request stays under about 3,000 changed lines. Bigger work goes into follow-up pull requests, each green on
+its own and stacked on the one before when it builds on it; a reviewer has to be able to read every line.
+
 Derive, do not repeat (ADR 0004). Before writing a list, type, schema or doc by hand, check whether it can be
 derived from a table or another source.
 

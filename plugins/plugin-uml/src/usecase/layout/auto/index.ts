@@ -1,4 +1,3 @@
-import type { Slot } from '@diagrist/layout-grid';
 import { isKnown } from '../../diagram.js';
 import type { UseCaseModel } from '../../model.js';
 import { acrossPlan } from './across.js';
@@ -6,7 +5,7 @@ import { type AutoGrid, toGrid } from './grid.js';
 import { bandOrder } from './order.js';
 import { depths, type Parts, type Side } from './parts.js';
 import { acrossSides, bandIndex, bridged, stackedPlan } from './plan.js';
-import { insertRow } from './rows.js';
+import { insertRow, type Slot } from './rows.js';
 import { flipFamilies } from './search.js';
 import { sides } from './sides.js';
 import { type Solved, solve } from './solve.js';

@@ -1,7 +1,7 @@
 import type { Point, Rect } from '@diagrist/core';
-import type { GridLayout, Route, Side } from '@diagrist/layout-grid';
+import { bottom, type GridLayout, type Route, right, type Side } from '@diagrist/layout-grid';
 import { STATE as S } from '../metrics.js';
-import { bottom, right, segmentHits } from '../points/geometry.js';
+import { segmentHits } from '../points/geometry.js';
 
 /** Corners in the order of preference: top right as on the learning platform, then the others. */
 const CORNERS = [

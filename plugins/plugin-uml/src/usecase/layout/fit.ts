@@ -1,16 +1,9 @@
-import {
-  fitFrames,
-  type GridLayout,
-  type GridSpec,
-  placeGrid,
-  type Route,
-  routeEdges,
-  type Slot,
-} from '@diagrist/layout-grid';
+import { fitFrames, type GridLayout, type GridSpec, placeGrid, type Route, routeEdges } from '@diagrist/layout-grid';
 import type { UseCaseModel } from '../model.js';
 import { type Annotations, annotate } from './annotate.js';
 import type { Comment } from './art.js';
 import { useCaseGrid } from './auto/index.js';
+import type { Slot } from './auto/rows.js';
 import { useCaseSpec } from './spec.js';
 
 /** At most this many free rows one after the other; each costs a full layout per candidate. */

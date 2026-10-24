@@ -1,8 +1,8 @@
 import { type Rect, textWidth } from '@diagrist/core';
-import type { EdgeLabel, GridLayout, PlacedGroup } from '@diagrist/layout-grid';
+import { bottom, type EdgeLabel, type GridLayout, type PlacedGroup, right } from '@diagrist/layout-grid';
 import { regionUnder, type StateModel } from '../model.js';
 import { STATE_FONTS as F, STATE as S } from './metrics.js';
-import { borderOf, bottom, right } from './points/geometry.js';
+import { borderOf } from './points/geometry.js';
 import { compositeHead } from './spec.js';
 
 /** The orthogonal regions of a composite state: dashed separators and names. */

@@ -1,6 +1,5 @@
 import {
   COLORS as c,
-  DASH,
   MARKER_SHAPES,
   type RoleStyle,
   rule,
@@ -13,18 +12,16 @@ import {
   STROKES as w,
 } from '@diagrist/core';
 import { PART_ROLES } from '@diagrist/parts';
+import { CARD_RULES, OUTLINE_RULES, TINT_RULES } from '../shared/card-rules.js';
 import { UC_FONTS as F } from './layout/metrics.js';
-
-/** Tinted areas of the card look: opacity of fill and outline. */
-const TINT = { fill: 0.07, stroke: 0.45 } as const;
 
 /**
  * Rules of use case diagrams. The hollow triangles paint markers, which the kernel does not count as used, so they
  * are always written.
  */
 const RULES: readonly StyleRule[] = [
-  rule('note-tail', `fill: none; stroke: ${c.note}; stroke-width: ${w.frame}; stroke-dasharray: ${DASH.frame};`),
-  rule('card-shadow', `fill: ${c.grid}; stroke: none;`),
+  CARD_RULES.noteTail,
+  CARD_RULES.shadow,
   ...TONE_NAMES.map((tone) => rule(`tone-${tone}`, `fill: ${TONES[tone]};`)),
   rule('uml-stereo', textRule(`fill: ${c.stroke};`, F.stereo)),
   rule('uml-member', textRule(`fill: ${c.stroke};`, F.member)),
@@ -35,21 +32,11 @@ const RULES: readonly StyleRule[] = [
   rule('uc-name', textRule(`fill: ${c.stroke};`, F.ucName)),
   rule('uc-boundary', `fill: none; stroke: ${c.stroke}; stroke-width: ${w.shape};`),
   rule('uc-note', `fill: ${c.fill}; stroke: ${c.stroke}; stroke-width: ${w.frame};`),
-  rule('card-head-text', textRule('fill: #ffffff;', F.name)),
-  rule('card-head-sub', textRule('fill: #ffffff; fill-opacity: 0.85;', F.note)),
-  rule('card-box', `fill: ${c.fill}; stroke: ${c.border}; stroke-width: ${w.frame};`),
-  ...TONE_NAMES.map((tone) =>
-    rule(
-      `tint-${tone}`,
-      `fill: ${TONES[tone]}; fill-opacity: ${TINT.fill}; stroke: ${TONES[tone]}; stroke-opacity: ${TINT.stroke}; stroke-width: ${w.frame};`,
-    ),
-  ),
-  ...TONE_NAMES.map((tone) =>
-    rule(
-      `outline-${tone}`,
-      `fill: ${c.fill}; stroke: ${TONES[tone]}; stroke-width: ${w.shape}; stroke-linecap: round; stroke-linejoin: round;`,
-    ),
-  ),
+  CARD_RULES.name,
+  CARD_RULES.stereo,
+  CARD_RULES.box,
+  ...TINT_RULES,
+  ...OUTLINE_RULES,
 ];
 
 const one = (...classes: string[]): RoleStyle => ({ classes });

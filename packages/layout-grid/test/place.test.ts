@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { grow, insertRows, placeGrid } from '../src/index.js';
+import { grow, placeGrid } from '../src/index.js';
 import { group, inside, METRICS, overlap, spec } from './fixture.js';
 
 const rectOf = (layout: ReturnType<typeof placeGrid>, id: string) => layout.nodes.find((n) => n.id === id)?.rect;
@@ -84,15 +84,5 @@ describe('a second run', () => {
     const before = placeGrid(s).groups[0]?.rect;
     const after = placeGrid(grow(s, new Map([['g', { top: 0, bottom: 0, left: 0, right: 30 }]]))).groups[0]?.rect;
     expect(after).toEqual(before && { ...before, w: before.w + 30 });
-  });
-
-  it('keeps empty rows free below or above a node', () => {
-    const s = insertRows(spec('a', 'r1 r2', ['x@a/r1', 'y@a/r2']), [{ near: 'x', below: true, rows: 2 }]);
-    expect(s.rows.map((r) => r.name)).toEqual(['r1', '~x+1', '~x+2', 'r2']);
-    const above = insertRows(s, [
-      { near: 'x', below: false },
-      { near: 'nobody', below: true },
-    ]);
-    expect(above.rows.map((r) => r.name)).toEqual(['~x-1', 'r1', '~x+1', '~x+2', 'r2']);
   });
 });

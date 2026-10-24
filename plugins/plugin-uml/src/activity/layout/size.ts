@@ -1,9 +1,9 @@
 import type { Rect } from '@diagrist/core';
-import { wrapTwo } from '@diagrist/layout-grid';
+import { cx, cy, wrapTwo } from '@diagrist/layout-grid';
 import type { ActivityNode } from '../diagram.js';
 import type { NodeKind } from '../grammar/values.js';
 import { expansionSize, expansionText } from './expansion.js';
-import { ACT, cx, cy, SIZE, widthOf } from './metrics.js';
+import { ACT, SIZE, widthOf } from './metrics.js';
 import type { ActivityText } from './regions.js';
 
 /** A pin: a square on the edge of an action, the object type beside it. */

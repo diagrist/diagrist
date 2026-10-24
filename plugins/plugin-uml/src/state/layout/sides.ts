@@ -1,8 +1,8 @@
 import type { Point, Rect } from '@diagrist/core';
-import type { GridLayout, Side } from '@diagrist/layout-grid';
+import { bottom, cx, cy, type GridLayout, right, type Side } from '@diagrist/layout-grid';
 import type { StateModel } from '../model.js';
 import { type EndBox, foreignFrames } from './ends.js';
-import { borderOf, borderSide, bottom, cx, cy, hostOf, inFrame, right, segmentHits } from './points/geometry.js';
+import { borderOf, borderSide, hostOf, inFrame, segmentHits } from './points/geometry.js';
 
 const FLIP: Readonly<Record<Side, Side>> = { top: 'bottom', bottom: 'top', left: 'right', right: 'left' };
 const BARS = new Set(['state', 'fork', 'join']);

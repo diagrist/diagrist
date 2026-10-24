@@ -1,8 +1,8 @@
 import type { Rect } from '@diagrist/core';
-import type { LayerEdge } from '@diagrist/layout-grid';
+import { cx, type LayerEdge } from '@diagrist/layout-grid';
 import type { ActivityNode } from '../diagram.js';
 import type { Graph, GraphFlow } from './graph.js';
-import { ACT, cx, union } from './metrics.js';
+import { ACT, union } from './metrics.js';
 
 /** A text with its anchor, as the scene draws it. */
 export interface ActivityText {

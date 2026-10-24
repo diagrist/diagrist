@@ -1,5 +1,12 @@
 import type { Point, Rect } from '@diagrist/core';
-import type { GridLayout, GridNode, GridSpec, Occupancy, PlacedNode } from '@diagrist/layout-grid';
+import {
+  type GridLayout,
+  type GridNode,
+  type GridSpec,
+  type Occupancy,
+  overlaps,
+  type PlacedNode,
+} from '@diagrist/layout-grid';
 import type { Note } from '../diagram.js';
 import type { Comment } from './art.js';
 import { placeComment } from './comment.js';
@@ -18,9 +25,6 @@ export function wrapNote(text: string, width: number = UC.noteWrap): string[] {
   }
   return out;
 }
-
-const overlaps = (a: Rect, b: Rect, pad: number): boolean =>
-  a.x - pad < b.x + b.w && a.x + a.w + pad > b.x && a.y - pad < b.y + b.h && a.y + a.h + pad > b.y;
 
 /** Where a ray from `o` inside the rectangle leaves it. */
 function exitBox(o: Point, d: Point, r: Rect): Point {

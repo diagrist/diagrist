@@ -90,7 +90,11 @@ export function obstacles(parts: {
   return out;
 }
 
-const overlaps = (a: Rect, b: Rect): boolean =>
+/**
+ * Whether two rectangles overlap by more than `EPS` on every axis: unlike `overlaps` of `layout-grid`, rectangles that
+ * meet within rounding do not count, since a constraint's bracket may touch the bars it measures.
+ */
+const overlapsDeeply = (a: Rect, b: Rect): boolean =>
   a.x < b.x + b.w - EPS && a.x + a.w > b.x + EPS && a.y < b.y + b.h - EPS && a.y + a.h > b.y + EPS;
 
 /** Obstacles a placed constraint hits; the lines of its own messages do not count. */
@@ -98,7 +102,7 @@ export function hits(p: RailPieces, all: readonly Obstacle[], own: readonly numb
   const out: Rect[] = [];
   for (const o of all) {
     if (o.message !== undefined && own.includes(o.message)) continue;
-    if (p.solid.some((r) => overlaps(r, o.rect)) || (!o.soft && p.guides.some((r) => overlaps(r, o.rect))))
+    if (p.solid.some((r) => overlapsDeeply(r, o.rect)) || (!o.soft && p.guides.some((r) => overlapsDeeply(r, o.rect))))
       out.push(o.rect);
   }
   return out;

@@ -3,9 +3,13 @@ import type { Point, Rect } from '@diagrist/core';
 /** A side of a rectangle, where an edge leaves or enters it. */
 export type Side = 'top' | 'bottom' | 'left' | 'right';
 
+/** Right edge of a rectangle, `x + w` in this order, so every user rounds alike. */
 export const right = (r: Rect): number => r.x + r.w;
+/** Lower edge of a rectangle, `y + h` in this order. */
 export const bottom = (r: Rect): number => r.y + r.h;
+/** Horizontal middle of a rectangle, `x + w / 2`. */
 export const cx = (r: Rect): number => r.x + r.w / 2;
+/** Vertical middle of a rectangle, `y + h / 2`. */
 export const cy = (r: Rect): number => r.y + r.h / 2;
 
 export const OPPOSITE: Readonly<Record<Side, Side>> = { left: 'right', right: 'left', top: 'bottom', bottom: 'top' };

@@ -12,26 +12,22 @@ import {
   STROKES as w,
 } from '@diagrist/core';
 import { PART_ROLES } from '@diagrist/parts';
+import { CARD_RULES, OUTLINE_RULES } from '../shared/card-rules.js';
 import { ACT_FONTS as F } from './layout/metrics.js';
 
 /** Rules of activity diagrams, as the predecessor wrote them; the kernel writes only those a shape uses. */
 const RULES: readonly StyleRule[] = [
-  rule('card', `fill: ${c.fill}; stroke: ${c.grid}; stroke-width: ${w.frame};`),
-  rule('card-shadow', `fill: ${c.grid}; stroke: none;`),
+  CARD_RULES.card,
+  CARD_RULES.shadow,
   ...TONE_NAMES.map((tone) => rule(`tone-${tone}`, `fill: ${TONES[tone]};`)),
   rule('uml-filled', `fill: ${c.stroke}; stroke: ${c.stroke}; stroke-width: ${w.line}; stroke-linejoin: miter;`),
   rule('act-text', textRule(`fill: ${c.stroke};`, F.act)),
   rule('act-lane', `fill: none; stroke: ${c.stroke}; stroke-width: ${w.frame};`),
   rule('act-lane-head', `fill: ${c.fillMuted}; stroke: ${c.stroke}; stroke-width: ${w.frame};`),
   rule('act-region', `fill: none; stroke: ${c.stroke}; stroke-width: ${w.frame}; stroke-dasharray: ${DASH.line};`),
-  rule('card-head-text', textRule('fill: #ffffff;', F.name)),
+  CARD_RULES.name,
   rule('card-lane', `fill: none; stroke: ${c.grid}; stroke-width: ${w.frame};`),
-  ...TONE_NAMES.map((tone) =>
-    rule(
-      `outline-${tone}`,
-      `fill: ${c.fill}; stroke: ${TONES[tone]}; stroke-width: ${w.shape}; stroke-linecap: round; stroke-linejoin: round;`,
-    ),
-  ),
+  ...OUTLINE_RULES,
 ];
 
 const one = (...classes: string[]): RoleStyle => ({ classes });

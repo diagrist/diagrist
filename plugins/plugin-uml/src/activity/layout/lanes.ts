@@ -30,7 +30,7 @@ export function laneMinWidth(g: Graph, lane: number, content: number): number {
   if (g.partitions.length === 0) return content;
   const label = g.partitions[lane]?.label ?? '';
   const head = widthOf.node(label, true) + 2 * ACT.lanePadX;
-  return Math.ceil(Math.max(ACT.laneMinW, content + 2 * ACT.lanePadX, head) / 8) * 8;
+  return Math.ceil(Math.max(ACT.laneMinW, content + 2 * ACT.lanePadX, head) / ACT.laneStep) * ACT.laneStep;
 }
 
 /** Lanes side by side, all as tall, with a head and the name centred in it. */

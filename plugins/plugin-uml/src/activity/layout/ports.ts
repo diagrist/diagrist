@@ -1,6 +1,6 @@
 import type { Rect } from '@diagrist/core';
-import type { Side } from '@diagrist/layout-grid';
-import { cx, cy, right, type XY } from './metrics.js';
+import { cx, cy, right, type Side } from '@diagrist/layout-grid';
+import type { XY } from './metrics.js';
 import type { ActivityPlacement } from './place.js';
 import type { RankedFlow } from './rank.js';
 

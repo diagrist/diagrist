@@ -112,11 +112,6 @@ export interface GridGroup {
   readonly minWidth?: number;
   /** A column the frame also reaches over, at the height of its members. */
   readonly cover?: string;
-  /**
-   * Lines to the nodes inside may run through the head strip; the head moves aside. Such a frame also keeps the
-   * trunks of bundles out when only some of their ends lie inside.
-   */
-  readonly passable?: boolean;
   readonly source?: Placed['span'];
 }
 

@@ -1,3 +1,10 @@
+/**
+ * The layout of sequence diagrams keeps the predecessor's order of floating point steps, because its pictures are
+ * compared byte for byte with the predecessor's (`docs/burn-down.md`, sequence Nr. 5). A value computed once is passed
+ * on, never recomputed from its parts: the right edge of a note stays `right`, not `x + w`, and sums are not
+ * regrouped, since `a + b + c` and `a + (b + c)` may differ in the last bit. A refactor here must keep every example's
+ * hash in `test/__golden__/sequence-examples.sha256`.
+ */
 import { FONT_SIZE } from '@diagrist/core';
 import { decisionStrip, HEADER, MARGIN, stripWidth, type Words } from '@diagrist/parts';
 import type { SequenceModel } from '../model/types.js';

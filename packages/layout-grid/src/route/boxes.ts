@@ -1,7 +1,7 @@
 import type { Rect } from '@diagrist/core';
 import type { GridLayout, PlacedGroup, PlacedNode } from '../layout.js';
-import { homeOf, isWithin, type Tree, treeOf } from '../place/extent.js';
-import type { GridEdge, GridGroup, GridNode, GridSpec } from '../spec.js';
+import { type Tree, treeOf } from '../place/extent.js';
+import type { GridEdge, GridNode, GridSpec } from '../spec.js';
 
 /** What the router knows of an edge end: a node, or a frame under the id `group:<id>`. */
 export interface Box {
@@ -63,50 +63,14 @@ function endNodes(board: Board, id: string): readonly string[] {
   return board.tree.group(id)?.members ?? [];
 }
 
-/** The frame an end lies in: the node's frame, or for `group:<id>` the frame itself. */
-function homeOfEnd(board: Board, id: string): GridGroup | undefined {
-  if (id.startsWith('group:')) return board.tree.group(id.slice('group:'.length));
-  return homeOf(board.tree, id);
-}
-
-const inside = (board: Board, home: GridGroup | undefined, g: GridGroup): boolean =>
-  home !== undefined && (home === g || isWithin(board.tree, home, g));
-
-/** Passable frames around one of the ends: a line has to enter them anyway and may cross their head strip. */
-export function passableHeads(board: Board, ends: readonly string[]): Set<string> {
-  const homes = ends.map((id) => homeOfEnd(board, id));
-  const out = new Set<string>();
-  for (const p of board.layout.groups) {
-    const g = board.tree.group(p.id);
-    if (g?.passable && homes.some((h) => inside(board, h, g))) out.add(groupKey(p.id));
-  }
-  return out;
-}
-
-/**
- * Where the trunk of a bundle must not run across: passable frames holding only some of the ends, and the head
- * strips (`headers`, one per placed frame) of those holding all. So it branches on the level the ends share.
- */
-export function trunkBarriers(board: Board, ends: readonly string[], headers: readonly Rect[]): Rect[] {
-  const homes = ends.map((id) => homeOfEnd(board, id));
-  return board.layout.groups.flatMap((p, i): Rect[] => {
-    const g = board.tree.group(p.id);
-    if (!g?.passable) return [];
-    const n = homes.filter((h) => inside(board, h, g)).length;
-    if (n === 0) return [];
-    return [n < ends.length ? p.rect : (headers[i] as Rect)];
-  });
-}
-
 /** Head strips of all placed frames, `height` deep. */
 export const headStrips = (groups: readonly PlacedGroup[], height: number): Rect[] =>
   groups.map((g) => ({ ...g.rect, h: height }));
 
-/** Obstacles of an edge in a fixed grid: all nodes and head strips except its own ends, their members and passable heads. */
+/** Obstacles of an edge in a fixed grid: all nodes and head strips except its own ends and their members. */
 export function obstaclesFor(board: Board, edge: GridEdge): Box[] {
   const own = new Set<string>([...endNodes(board, edge.from), ...endNodes(board, edge.to)]);
   for (const end of [edge.from, edge.to]) if (!board.node(end) && board.tree.group(end)) own.add(groupKey(end));
-  for (const id of passableHeads(board, [...own])) own.add(id);
   const height = board.tree.spec.metrics.framePad.top;
   const headers: Box[] = board.layout.groups.map((g) => ({
     id: groupKey(g.id),

@@ -8,7 +8,8 @@ the crutches that keep the predecessor's bytes are numbered, since they go toget
 
 | Debt | Clean-up |
 |---|---|
-| **Operators are fixed in `lang`.** `OPERATORS` in `packages/lang/src/scanner.ts` knows the UML diamond ends; BPMN gateways or ER crow's feet would need a change there. | Plugins declare their operators, when the first one needs its own. |
+| **Operators are fixed in `lang`.** `OPERATORS` in `packages/lang/src/scanner.ts` knows the UML diamond ends; BPMN gateways or ER crow's feet would need a change there. | `operators` in `KindSpec`, handed to the scanner by `readKind`, with `lang` keeping `=`, `=>`, `->` and `--`. It changes `read-kind.ts` and the tables, which the work on variants rewrites, so it follows once that has landed, or with the first plugin that needs its own. |
+| **`Theme` and the description reach no host.** `compile` takes a `theme` and returns a `description` and `anchors`, but the CLI passes no theme and drops the other two, so the words in `describe/` of every UML kind reach no user yet. | `--theme <file>` and `description` in `build --json`, or drop what still has no host by the first release. |
 | **`Infer` stops at recursion, and `readKind` casts.** Children of fragments are typed by hand in `plugins/plugin-uml/src/sequence/source.ts`, and `readKind` asserts its result type. | Carry the child tables in the type when a second recursive kind arrives. |
 | **No list of arguments.** A statement cannot take a variable number of arguments, so C4 writes grid names with commas (`grid cols a,b,c`). | A variadic last argument in `lang`; then the predecessor's spaces read again. |
 | **Value descriptions are English in every locale.** The `expected` text of a value type (`a text in double quotes like ...`) is not translated in German messages. | Phrase value descriptions through the catalogue (ADR 0004). |
@@ -18,6 +19,7 @@ the crutches that keep the predecessor's bytes are numbered, since they go toget
 | **One marker size per style table.** The kernel's markers share `markerSize`; class diagrams set 18 for the diamond of 16 pixels and draw each symbol in pixels of that size, while use case diagrams draw the triangle 10 long where the predecessor drew 14. | A size per marker. |
 | **The placement check knows no lines.** Edges of every kind are not reported, so a line through a node or under a label goes unseen; activity diagrams also leave out the lines of their lanes. | An outline for polylines on `Placed` (ADR 0020), with the C4 route checks below. |
 | **Ligatures of JetBrains Mono.** Browsers join texts such as `->` in labels, while the layout measured single glyphs. Fixing it changes the bytes of every picture. | `font-variant-ligatures: none` on the root rule, with the second baseline of sequence diagrams. |
+| **Two public types named `Finding`.** `core` calls the finding of a rule so, and `packages/cli/src/engine.ts` its diagnostic with a phrased message. | Rename the CLI's, such as `PhrasedDiagnostic`, once the variants work in `packages/cli` has landed; it changes the same files. |
 | **Contextual alternates of Inter** (ADR 0022). resvg and browsers turn `->` and `=>` into an arrow glyph, narrower than the advances the table sums, and resvg has no switch for `calt`. Such texts take a little less room than measured, never more. | Read those substitutions from `GSUB` into the packed table, or switch `calt` off once resvg honours `font-feature-settings`. |
 
 ## Layout library (`layout-grid`)
@@ -30,6 +32,7 @@ spec and is compared number for number, as the path finding of state machines wa
 | **Paths of one predecessor kind only.** The tile flow of C4 without a grid (fixed columns, bands, row gaps), the FigJam `elbow` profile and relations docking at attribute rows are not in the library. | Each comes back with its plugin. |
 | **The layered layout of activity diagrams stays in the plugin.** Lanes, bars of fork and join, diamonds branching at their corners, loop channels, tracks for parallel jogs, pins and region names live in `src/activity/layout`; state machines, the second layered kind, brought their own rails, steps and loops. | Move what a second kind would draw alike, probably loop channels and tracks. |
 | **Labels along straight lines stay in the plugin.** Use case labels look along a slanted line, at both ends and inside the frame of the use case; notes search a field around their anchor. | Move the search for spots along a line into the library when a second kind draws straight lines. |
+| **Options with one user so far.** `rowMin`, `avoid` and `placeLabels` serve state machines, `demand` and `lines: 'straight'` use case diagrams, `cover`, `slot`, `bundle`, `lane`, `rowOverhang` and `crest` C4. All but `crest` describe geometry a second kind can set unchanged: a least row height, rectangles a route keeps out of, labels a kind placed itself, the width a node asks of its columns, straight lines, a frame over one more column, equal places in an area, shared trunks, a column an edge runs in, room for what sticks out below a row. `crest` is the icon of a C4 card in disguise, a circle on the middle of the top edge. | `crest` becomes a general outline that routes keep clear of with the look refactor of C4, which owns its only user. The others stay as options. |
 | **Disconnected parts of a scope are layered side by side.** `layerGraph` lays out each connected part on its own, where the predecessor ordered all vertices of a state's scope at once. All examples are connected. | An option to layer a graph as one part, if a machine needs it. |
 
 ## UML (`plugin-uml`)
@@ -46,7 +49,8 @@ with a second baseline.
 4. **Unrounded path numbers and circle radii** (`r="5.151515151515151"`), while rectangles, lines and texts are
    rounded to one decimal in `packages/core/src/svg.ts`. Clean-up: one rounding for all numbers.
 5. **Arithmetic order of the layout.** `src/sequence/layout` keeps the predecessor's order of floating point steps
-   (the right edge of a note is passed on, not recomputed as `x + w`). Refactors there must keep the bytes.
+   (the right edge of a note is passed on, not recomputed as `x + w`). Refactors there must keep the bytes; the
+   module TSDoc of `src/sequence/layout/index.ts` and of `packages/layout-grid/src/layout.ts` says so where the code is.
 6. **Measuring by size, not by font role.** The layout measures with token sizes (`messageSize`) instead of the
    font roles of its style table. Clean-up: measure with `FONTS`.
 7. **Card look in code.** `look=cards` changes shapes in `scene/cards.ts`, not only the style table.
@@ -69,7 +73,7 @@ frames and labels are not handed to the placement check, which would report what
 | class | **No grid placed by hand.** `grid` and `at` are gone, as in use case diagrams, so `pakete-raster` and the warning W415 are not carried over. | Only if a diagram needs it. |
 | class | **Packages align per level only.** A parent is not grown again around children that moved. No example nests packages. | Enclose parents after aligning. |
 | class | **Lines on toned packages keep the canvas halo**, a faint light seam on the 7 % tint, where the predecessor tinted it (`halo-<tone>`). | A halo role per surface, shared with C4 and use case cards. |
-| class | **The dashed note exists twice**, in `src/shared/notes.ts` and in `plugins/plugin-architecture/src/layout/notes.ts`. | Move it into `parts`. |
+| class | **The dashed note exists twice**, in `src/shared/notes.ts` and in `plugins/plugin-architecture/src/layout/notes.ts`. | Move both into `parts` with the look refactor of C4, which owns the second copy. |
 | class | **Coverage does not see line forms.** The walker in `src/spec/coverage.ts` reads statements, so the static and abstract flags of members count as not covered. | Walk `lines` too. |
 | state | **Cross references are not checked.** `file=` on a submachine state is only named in the description; the predecessor loaded the file and compared points and kind (E480 to E484). | A port for the files a source names, handed in by the CLI, and the checks as rules over two models. |
 | state | **Orthogonal regions are not placed.** The dashed lines between regions of a state and their names at the top left are drawn, but not handed to the placement check, so a name on a line or a state goes unseen. | Report each region as a frame with its name, as activity diagrams do (ADR 0020). |
@@ -101,6 +105,8 @@ keep it so; they go in the clean-up with a second baseline.
 | **No layout checks on routes.** The predecessor reported edges through nodes (E204), unroutable edges (E206), crossings (W203), overlapping edges (W206), labels on edges (W207) and lines through heads (W492). | Report routes as placed lines. |
 | **Labels reach into foreign frames.** `radverleih/komponenten`, `soll` and `variante-a` warn (G400, G402) where an edge label reaches into a frame it does not belong to; the pictures show it. | Fixing it changes their bytes. |
 | **The sheet of `look=paper` lives in the plugin.** Kicker above the title, margin notes for decisions, the legend as sentences and the gap behind texts on a line are drawn in `src/layout/paper*.ts` and `src/scene/paper.ts`, measured with the plugin's fonts. | Move them into `parts` when a second plugin draws paper (ADR 0014). |
+| **The legend in `parts` has one user.** ADR 0014 moved it there for a second plugin, but only C4 draws one; `stripWidth` and `MARGIN` beside it serve UML. | Back into the plugin with the look refactor of C4, or it stays when a second plugin draws a legend. |
+| **Copies the UML plugin no longer has.** The card and note rules in `src/styles/rules.ts` (`card`, `card-shadow`, `note-tail`) repeat `plugins/plugin-uml/src/shared/card-rules.ts`, and `src/layout/index.ts` defines `right` and `bottom`, which `layout-grid` exports with `overlaps`, `cx` and `cy`. | The look refactor of C4: card rules into `parts` or the standard look for both plugins, and the helpers from `layout-grid`. |
 | **Edges to a group in a fixed grid run slanted** when the group's middle lies in another row, and their label can cover the start node, as with the predecessor. | Dock at the frame like at a node. |
 
 ## Tools

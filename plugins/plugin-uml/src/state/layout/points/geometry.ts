@@ -1,12 +1,7 @@
 import type { Point, Rect } from '@diagrist/core';
-import type { GridLayout, PlacedNode, Side } from '@diagrist/layout-grid';
+import { bottom, cx, cy, type GridLayout, type PlacedNode, right, type Side } from '@diagrist/layout-grid';
 import { frameOf, isBorderPoint, isInside, type StateModel } from '../../model.js';
 import { STATE as S } from '../metrics.js';
-
-export const right = (r: Rect): number => r.x + r.w;
-export const bottom = (r: Rect): number => r.y + r.h;
-export const cx = (r: Rect): number => r.x + r.w / 2;
-export const cy = (r: Rect): number => r.y + r.h / 2;
 
 /** Does the bounding box of a segment reach into the rectangle widened by `pad`? */
 export const segmentHits = (p: Point, q: Point, r: Rect, pad = 0): boolean =>

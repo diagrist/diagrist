@@ -1,4 +1,3 @@
-import type { Slot } from '@diagrist/layout-grid';
 import type { Actor } from '../../diagram.js';
 import { casesOf, type Parts } from './parts.js';
 
@@ -55,6 +54,13 @@ export function compact(p: Parts, bandOf: (id: string) => number, pos: Positions
     const rows = [...new Set(ids.map((id) => at(pos, id)))].sort((x, y) => x - y);
     for (const id of ids) pos.set(id, (rows[0] ?? 0) + rows.indexOf(at(pos, id)));
   }
+}
+
+/** Room for a note beside a node: `rows` empty rows directly below or above the node's row. */
+export interface Slot {
+  readonly near: string;
+  readonly below: boolean;
+  readonly rows?: number;
 }
 
 /**

@@ -14,6 +14,7 @@ import {
   STROKES as w,
 } from '@diagrist/core';
 import { PART_ROLES } from '@diagrist/parts';
+import { CARD_RULES, OUTLINE_RULES, TINT_RULES } from '../shared/card-rules.js';
 import { SEQUENCE_TOKENS } from './layout/tokens.js';
 
 /** Fonts by role; `message` is the size every label, guard and constraint is measured with. */
@@ -23,11 +24,9 @@ export const FONTS = {
   tag: { size: SEQUENCE_TOKENS.messageSize, weight: 700 },
 } as const satisfies Record<string, Font>;
 
-const CARDS = { tintFill: 0.07, tintStroke: 0.45 } as const;
-
 /** Classes the predecessor wrote before the sequence rules, in its order: card shapes, tones, ground, stereotype. */
 const BEFORE: readonly StyleRule[] = [
-  rule('card-shadow', `fill: ${c.grid}; stroke: none;`),
+  CARD_RULES.shadow,
   rule('card-ref', `fill: ${c.fill}; stroke: ${c.border}; stroke-width: ${w.shape}; stroke-dasharray: ${DASH.line};`),
   rule('card-frame', `fill: none; stroke: ${c.border}; stroke-width: ${w.frame};`),
   ...TONE_NAMES.map((tone) => rule(`tone-${tone}`, `fill: ${TONES[tone]};`)),
@@ -60,23 +59,13 @@ const SEQUENCE: readonly StyleRule[] = [
 ];
 
 const AFTER: readonly StyleRule[] = [
-  rule('card-head-text', textRule('fill: #ffffff;', FONTS.name)),
-  rule('card-head-sub', textRule('fill: #ffffff; fill-opacity: 0.85;', FONTS.note)),
+  CARD_RULES.name,
+  CARD_RULES.stereo,
   rule('card-head-edge', `fill: none; stroke: #ffffff; stroke-opacity: 0.6; stroke-width: ${w.frame};`),
   rule('card-tag', `fill: ${c.fillMuted}; stroke: ${c.border}; stroke-width: ${w.frame};`),
-  rule('card-box', `fill: ${c.fill}; stroke: ${c.border}; stroke-width: ${w.frame};`),
-  ...TONE_NAMES.map((tone) =>
-    rule(
-      `tint-${tone}`,
-      `fill: ${TONES[tone]}; fill-opacity: ${CARDS.tintFill}; stroke: ${TONES[tone]}; stroke-opacity: ${CARDS.tintStroke}; stroke-width: ${w.frame};`,
-    ),
-  ),
-  ...TONE_NAMES.map((tone) =>
-    rule(
-      `outline-${tone}`,
-      `fill: ${c.fill}; stroke: ${TONES[tone]}; stroke-width: ${w.shape}; stroke-linecap: round; stroke-linejoin: round;`,
-    ),
-  ),
+  CARD_RULES.box,
+  ...TINT_RULES,
+  ...OUTLINE_RULES,
 ];
 
 const one = (...classes: string[]): RoleStyle => ({ classes });

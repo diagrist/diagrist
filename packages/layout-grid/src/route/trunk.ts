@@ -1,7 +1,7 @@
 import type { Point, Rect } from '@diagrist/core';
 import { bottom, right, segmentHitsRect } from '../geometry.js';
 import type { PortRequest } from './adaptive-ports.js';
-import { type Board, groupKey, passableHeads, trunkBarriers } from './boxes.js';
+import { type Board, groupKey } from './boxes.js';
 import type { BundlePlan } from './bundle.js';
 import { mapRect, turnFor } from './rotate.js';
 import { simplify } from './search.js';
@@ -60,7 +60,7 @@ export function trunkPaths(
   const hubPort = f.to(ports.get(plan.hubRequest) as Point);
   const leafPorts = plan.leafRequests.map((r) => f.to(ports.get(r) as Point));
   const ends = [plan.hub.id, ...plan.leaves.map((l) => l.id)];
-  const own = new Set([...ends, ...passableHeads(board, ends)]);
+  const own = new Set(ends);
   const groups = board.layout.groups;
   const blocks = [
     ...board.nodes.filter((n) => !own.has(n.id)).map((n) => n.rect),
@@ -77,8 +77,7 @@ export function trunkPaths(
   const ys = [hubPort[1], ...leafPorts.map((q) => q[1])];
   const lo = Math.min(...ys);
   const hi = Math.max(...ys);
-  const barriers = trunkBarriers(board, ends, headers).map((r) => mapRect(r, f.to));
-  const blocked = [...blocks, ...borders, ...barriers]
+  const blocked = [...blocks, ...borders]
     .filter((r) => r.y <= hi + gap && bottom(r) >= lo - gap && right(r) >= hubPort[0] && r.x <= near)
     .map((r): Interval => [r.x - gap, right(r) + gap]);
   const intervals = freeIntervals(hubPort[0] + gap, near - gap, blocked).sort((a, b) => b[1] - a[1]);

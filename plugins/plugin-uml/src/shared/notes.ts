@@ -1,5 +1,5 @@
 import { type Point, type Rect, STANDARD_FONTS, textWidth } from '@diagrist/core';
-import type { EdgeLabel, GridLayout, Route } from '@diagrist/layout-grid';
+import { type EdgeLabel, type GridLayout, overlaps, type Route } from '@diagrist/layout-grid';
 
 /** A dashed note above an element, with a tip down to it: left foot, tip, right foot. */
 export interface NoteArt {
@@ -23,9 +23,6 @@ const PAD = F.size;
 const HEIGHT = Math.round(2.6 * F.size);
 const LIFT = Math.round(2.2 * F.size);
 const BASE = Math.round(1.4 * F.size);
-
-const overlaps = (a: Rect, b: Rect, pad: number) =>
-  a.x < b.x + b.w + pad && a.x + a.w > b.x - pad && a.y < b.y + b.h + pad && a.y + a.h > b.y - pad;
 
 const hits = (p: Point, q: Point, r: Rect, pad: number) =>
   Math.min(p[0], q[0]) < r.x + r.w + pad &&

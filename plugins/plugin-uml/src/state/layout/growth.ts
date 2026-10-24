@@ -1,9 +1,19 @@
 import type { Point, Rect } from '@diagrist/core';
-import type { EdgeLabel, GridLayout, Pads, Route, Side } from '@diagrist/layout-grid';
+import {
+  bottom,
+  cx,
+  cy,
+  type EdgeLabel,
+  type GridLayout,
+  type Pads,
+  type Route,
+  right,
+  type Side,
+} from '@diagrist/layout-grid';
 import { regionsOf, type StateModel } from '../model.js';
 import { labelWidth } from './labels.js';
 import { STATE as S } from './metrics.js';
-import { borderOf, borderSide, bottom, cx, cy, inFrame, right } from './points/geometry.js';
+import { borderOf, borderSide, inFrame } from './points/geometry.js';
 import { regionArt, regionNameRoom } from './regions.js';
 
 /** What a growth pass reads of a laid out picture. */

@@ -2,7 +2,7 @@ import type { Point, Rect } from '@diagrist/core';
 import { bottom, cx, OPPOSITE, polylineLength, type Side, segmentHitsRect, segmentsCross } from '../geometry.js';
 import { ellipseSides, type Plan, plansOf } from './adaptive-plans.js';
 import { adaptivePorts, type PortRequest } from './adaptive-ports.js';
-import { type Board, groupKey, headStrips, passableHeads } from './boxes.js';
+import { type Board, groupKey, headStrips } from './boxes.js';
 import { bundlePlans } from './bundle.js';
 import type { Routed } from './routed.js';
 import { searchPath, simplify } from './search.js';
@@ -97,7 +97,7 @@ function searched(
   const toSide = plan.to.side;
   const start = port(plan.from);
   const end = port(plan.to);
-  const ownHeaders = new Set([a.id, b.id, ...passableHeads(board, [a.id, b.id])]);
+  const ownHeaders = new Set([a.id, b.id]);
   const blocks = [
     ...obstacles,
     ...headers.filter((_, i) => !ownHeaders.has(groupKey((board.layout.groups[i] as { id: string }).id))),

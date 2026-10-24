@@ -14,22 +14,14 @@ function moved(items: readonly EdgeLabel[], dx: number, dy: number): EdgeLabel[]
   }));
 }
 
-/** Left, right and bottom line of a frame, as rectangles without area. */
-const sides = (r: Rect): Rect[] => [
-  { x: r.x, y: r.y, w: 0, h: r.h },
-  { x: r.x + r.w, y: r.y, w: 0, h: r.h },
-  { x: r.x, y: r.y + r.h, w: r.w, h: 0 },
-];
-
 /** Places on a segment, the middle first; the fine eighths help where many frame heads crowd. */
 const FRACTIONS = [0.5, 0.25, 0.75, 0.375, 0.625, 0.125, 0.875];
 
 /**
  * Labels of an adaptive grid move as one block per route: over the segments from the longest, the places in
- * `FRACTIONS`, both sides, the first spot clear of nodes, head strips, sides of passable frames, `fixed` texts,
- * routes and labels placed before. Without one they stay where they are. With `keep`, labels already on a free
- * spot stay there. With `onLine` a block stands on its own route, centred on the segment, and only other routes
- * count as in its way.
+ * `FRACTIONS`, both sides, the first spot clear of nodes, head strips, `fixed` texts, routes and labels placed
+ * before. Without one they stay where they are. With `keep`, labels already on a free spot stay there. With `onLine`
+ * a block stands on its own route, centred on the segment, and only other routes count as in its way.
  */
 export function adaptiveLabels(
   board: Board,
@@ -43,7 +35,6 @@ export function adaptiveLabels(
   const blocked: Rect[] = board.layout.nodes.map((n) => memberBounds(n, board.node(n.id)));
   blocked.push(...fixed.map((f) => f.box));
   blocked.push(...headStrips(board.layout.groups, m.framePad.top));
-  blocked.push(...board.layout.groups.filter((g) => board.tree.group(g.id)?.passable).flatMap((g) => sides(g.rect)));
   const placed: EdgeLabel[] = [];
   const clear = (rect: Rect, own = -1) =>
     !blocked.some((b) => overlaps(rect, b, 4)) &&

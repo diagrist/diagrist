@@ -1,10 +1,7 @@
 import type { Rect } from '@diagrist/core';
-import type { GridLayout } from '@diagrist/layout-grid';
+import { type GridLayout, overlaps } from '@diagrist/layout-grid';
 import type { StateModel } from '../model.js';
 import { STATE as S } from './metrics.js';
-
-const overlaps = (a: Rect, b: Rect, pad: number) =>
-  a.x < b.x + b.w + pad && a.x + a.w > b.x - pad && a.y < b.y + b.h + pad && a.y + a.h > b.y - pad;
 
 /**
  * Fork and join bars reach over all their neighbours, so every branch leaves or enters straight: from the middle of

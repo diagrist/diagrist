@@ -1,8 +1,8 @@
 import type { Rect } from '@diagrist/core';
-import type { LayerEdge } from '@diagrist/layout-grid';
+import { cx, cy, type LayerEdge } from '@diagrist/layout-grid';
 import type { ActivityNode, ExpansionPort } from '../diagram.js';
 import type { Graph, GraphFlow } from './graph.js';
-import { ACT, cx, cy, SIZE, union, widthOf } from './metrics.js';
+import { ACT, SIZE, union, widthOf } from './metrics.js';
 import { type ActivityText, memberBox, type RegionArt } from './regions.js';
 
 /** Gap of the keyword to the frame and to the edge from the input inside (as in `nameRegions`). */

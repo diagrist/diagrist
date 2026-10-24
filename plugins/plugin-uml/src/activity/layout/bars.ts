@@ -1,6 +1,6 @@
 import type { Point, Rect } from '@diagrist/core';
-import type { LayerEdge } from '@diagrist/layout-grid';
-import { ACT, cx, right } from './metrics.js';
+import { cx, type LayerEdge, right } from '@diagrist/layout-grid';
+import { ACT } from './metrics.js';
 import type { ActivityRanks } from './rank.js';
 
 /** Centre of a node or waypoint. */

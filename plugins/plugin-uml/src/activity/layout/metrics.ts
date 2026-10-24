@@ -1,4 +1,5 @@
 import { FONT_SIZE, type Font, type Rect, STANDARD_FONTS, textWidth as textWidthOf } from '@diagrist/core';
+import { bottom, right } from '@diagrist/layout-grid';
 
 /** Font roles of activity diagrams: layout measures with them, the style table sets them. */
 export const ACT_FONTS = {
@@ -38,6 +39,8 @@ export const ACT = {
   lanePadX: 24,
   lanePadY: 24,
   laneMinW: 176,
+  /** Lanes are as wide as a whole number of these steps, so their borders stay on one grid. */
+  laneStep: 8,
   /** Gap of the channel of a loop to the outermost node and between two channels. */
   loopGap: 24,
   /** Offset of parallel horizontal pieces in one gap between layers. */
@@ -70,12 +73,6 @@ export const widthOf = {
   node: (text: string, bold = false): number => textWidthOf(text, bold ? STANDARD_FONTS.name : ACT_FONTS.act),
   label: (text: string): number => textWidthOf(text, STANDARD_FONTS.label),
 };
-
-/** Centre and far edges of a rectangle. */
-export const cx = (r: Rect): number => r.x + r.w / 2;
-export const cy = (r: Rect): number => r.y + r.h / 2;
-export const right = (r: Rect): number => r.x + r.w;
-export const bottom = (r: Rect): number => r.y + r.h;
 
 /** The smallest rectangle around all of them. */
 export function union(rects: readonly Rect[]): Rect {

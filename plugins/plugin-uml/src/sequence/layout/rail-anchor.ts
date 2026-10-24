@@ -1,5 +1,6 @@
 import { type Constraint, FOUND, GATE, LOST, type SequenceEvent } from '../diagram.js';
 import type { SequenceModel } from '../model/types.js';
+import type { Need } from './needs.js';
 import type { SeqCtx } from './text.js';
 
 const OPEN_ENDS: readonly string[] = [FOUND, LOST, GATE];
@@ -41,13 +42,14 @@ const railWidth = (text: string, c: SeqCtx): number =>
  * a short way to them): the gap to the neighbour on the left holds bracket and text beside the bar. At the
  * leftmost lifeline none is needed, the picture grows there.
  */
-export function railNeeds(m: SequenceModel, c: SeqCtx): { a: number; b: number; d: number }[] {
+export function railNeeds(m: SequenceModel, c: SeqCtx): Need[] {
   const ids = messageIndex(m.diagram.events);
-  const out: { a: number; b: number; d: number }[] = [];
+  const out: Need[] = [];
   for (const k of m.diagram.constraints) {
     const anchor = railLifelines(k, m.diagram.events, ids, m.order)[0];
-    const b = anchor === undefined ? -1 : m.order.indexOf(anchor);
-    if (b > 0) out.push({ a: b - 1, b, d: railWidth(k.text, c) + c.s.barW / 2 + c.s.barLevel + c.s.labelPadX });
+    const right = anchor === undefined ? -1 : m.order.indexOf(anchor);
+    const distance = railWidth(k.text, c) + c.s.barW / 2 + c.s.barLevel + c.s.labelPadX;
+    if (right > 0) out.push({ left: right - 1, right, distance });
   }
   return out;
 }
