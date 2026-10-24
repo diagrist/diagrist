@@ -6,7 +6,8 @@ import { lineOf, nodes, parse, repository, sourceFiles } from './source.js';
 /**
  * Package boundaries are derived from each package.json (ADR 0004): a package may import another Diagrist
  * package only if it declares it as a dependency. Plugins never depend on other plugins, and relative imports
- * never leave their package.
+ * never leave their package. The one exception is a package's build config, which spreads the shared one at the
+ * root so that every way of building writes the same files.
  */
 describe('package boundaries', () => {
   const files = sourceFiles().filter((file) => packageOf(file) !== undefined);
@@ -54,8 +55,12 @@ function declaredDependencies(root: string, includeDev: boolean): string[] {
   return groups.flatMap((group) => Object.keys(json[group] ?? {}));
 }
 
+const SHARED_BUILD_CONFIG = 'tsdown.config.ts';
+
 function violates(from: string, file: string, root: string, declared: string[]): boolean {
-  if (from.startsWith('.')) return !join(file, '..', from).startsWith(`${root}/`);
+  const target = join(file, '..', from);
+  if (file === `${root}/${SHARED_BUILD_CONFIG}` && target === SHARED_BUILD_CONFIG) return false;
+  if (from.startsWith('.')) return !target.startsWith(`${root}/`);
   if (!from.startsWith('@diagrist/')) return false;
   const name = from.split('/').slice(0, 2).join('/');
   return !declared.includes(name);

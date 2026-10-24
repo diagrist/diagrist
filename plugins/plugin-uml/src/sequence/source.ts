@@ -13,6 +13,7 @@ import type {
   SequenceEvent,
 } from './diagram.js';
 import { FRAGMENT_OPERATORS, PARTICIPANT_KINDS } from './diagram.js';
+import { ARROWS } from './grammar/messages.js';
 import type { OperandStatement, SequenceStatement } from './grammar/spec.js';
 
 type Of<K extends SequenceStatement['keyword']> = Extract<SequenceStatement, { keyword: K }>;
@@ -44,14 +45,12 @@ const isParticipant = (s: SequenceStatement): s is Of<ParticipantKind> =>
 const isFragment = (s: SequenceStatement): s is Of<FragmentOperator> =>
   (FRAGMENT_OPERATORS as readonly string[]).includes(s.keyword);
 
-const KIND_OF = { '->': 'sync', '~>': 'async', '-->': 'reply' } as const;
-
 function message(s: Of<'msg'> | Of<'create'>): MessageEvent {
   return {
     type: 'message',
     from: s.from,
     to: s.to,
-    kind: s.keyword === 'create' ? 'create' : KIND_OF[s.arrow],
+    kind: s.keyword === 'create' ? 'create' : ARROWS[s.arrow].kind,
     ...some('label', s.label),
     ...some('id', s.attributes.id),
     ...some('mark', s.attributes.mark),
@@ -114,7 +113,7 @@ function fragment(s: Of<FragmentOperator>): SequenceEvent[] {
 
 /**
  * Statements written inside a fragment after one of its operand markers, at the level of the marker. They
- * would silently join the operand above them, so rule U401 reports them.
+ * would silently join the operand above them, so the rule `afterOperand` reports them.
  */
 function afterOperands(statements: readonly (SequenceStatement | OperandStatement)[]): Misplaced[] {
   return statements.flatMap((s): Misplaced[] => {

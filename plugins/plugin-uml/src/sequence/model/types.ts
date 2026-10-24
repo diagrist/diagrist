@@ -55,9 +55,15 @@ export interface SeqActivation {
   readonly cause: 'call' | 'self' | 'explicit' | 'create';
 }
 
-/** A finding made while building the model; the rule with the same code reports it. */
+/**
+ * What the model noticed while it paired calls and bars. It names the case, not a diagnostic code: the rule that
+ * reports the case owns the code, and the catalogue owns the text (ADR 0004).
+ */
+export type SeqIssueCase = 'replyWithoutCall' | 'deactivateWithoutActivate' | 'openActivation';
+
+/** A finding made while building the model, reported by the rule for its case. */
 export interface SeqIssue {
-  readonly code: string;
+  readonly case: SeqIssueCase;
   readonly span: Span;
   readonly values: Readonly<Record<string, string>>;
 }

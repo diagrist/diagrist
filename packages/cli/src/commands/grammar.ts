@@ -1,7 +1,6 @@
-import { nearest } from '@diagrist/lang';
-import { list, problem } from '../messages.js';
+import { list, nearest } from '@diagrist/lang';
+import { problem } from '../messages.js';
 import { type Command, command } from './command.js';
-import { needEngine } from './engine-required.js';
 import { grammarText } from './grammar-text.js';
 
 export const grammar: Command = command({
@@ -16,10 +15,9 @@ export const grammar: Command = command({
   json: {
     kinds: 'Without a kind: `[{ kind, doc }]` for every kind.',
     grammar:
-      'With a kind: its grammar as data, `{ kind, doc, header, statements }`; each statement lists `keyword`, `doc`, `examples`, `arguments`, `clauses`, `attributes`, `flags`, `children` and its line form `lines`.',
+      'With a kind: its grammar as data, `{ kind, doc, header, statements }`; each statement lists `keyword`, `doc`, `examples`, `arguments`, `clauses`, `attributes`, `flags`, `children` and its line form `lines`. Each table is described once; elsewhere a child is `{ keyword, ref }`, where `ref` is a JSON Pointer into `grammar` such as `/statements/9`.',
   },
   async run({ arguments: { kind }, engine }) {
-    if (engine === undefined) return needEngine('grammar');
     const names = engine.kinds();
     if (kind === undefined) {
       const kinds = names.map((name) => ({ kind: name, doc: engine.grammar(name)?.doc ?? '' }));

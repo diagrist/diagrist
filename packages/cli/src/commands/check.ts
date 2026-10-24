@@ -1,7 +1,6 @@
 import { say } from '../messages.js';
 import { diagnosticJson, diagnosticText, hasError } from '../report/diagnostics.js';
 import { type Command, command } from './command.js';
-import { needEngine } from './engine-required.js';
 import { readSource } from './files.js';
 
 export const check: Command = command({
@@ -18,10 +17,9 @@ export const check: Command = command({
     diagnostics: 'All findings, see "Diagnostics".',
   },
   async run({ arguments: { file }, io, engine, locale }) {
-    if (engine === undefined) return needEngine('check');
     const source = await readSource(io, file, locale);
     if ('problem' in source) return source;
-    const { diagnostics } = engine.compile(source.text, { locale });
+    const diagnostics = [...source.notices, ...engine.compile(source.text, { locale }).diagnostics];
     const lines = diagnostics.map((d) => diagnosticText(file, source.text, d, locale));
     return {
       exitCode: hasError(diagnostics) ? 1 : 0,

@@ -17,7 +17,7 @@ export interface SequenceDiagram {
   readonly frame?: { readonly label?: string };
   readonly constraints: readonly Constraint[];
   readonly decisions: readonly Decision[];
-  /** Statements that stand in a fragment after an operand marker instead of below it (rule U401). */
+  /** Statements that stand in a fragment after an operand marker instead of below it (rule `afterOperand`). */
   readonly afterOperands: readonly Misplaced[];
 }
 

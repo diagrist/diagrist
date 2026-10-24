@@ -1,5 +1,6 @@
 import { HEADER } from '../../shared/header.js';
 import { decisionStrip, stripWidth } from '../../shared/strip.js';
+import type { Words } from '../../texts/index.js';
 import { FONT_SIZE, MARGIN } from '../../theme.js';
 import type { SequenceModel } from '../model/types.js';
 import { body, extent, lowest, type Parts } from './body.js';
@@ -9,13 +10,11 @@ import { rows } from './rows.js';
 import { measureEvent, SEQ_CTX } from './text.js';
 import type { SequenceLayout } from './types.js';
 
-/** Texts of the picture that depend on the locale. */
-export interface PictureTexts {
+/** The texts of the picture the layout measures: the title line, and the suffix of open decisions. */
+export type PictureTexts = Pick<Words, 'open'> & {
   /** Title line: kind and title, such as `Sequence diagram (UML) · Login`. */
   readonly title: string;
-  /** Suffix of an open decision, naming who decides. */
-  readonly open: (who: string) => string;
-}
+};
 
 /**
  * Layout of a sequence diagram: lifelines are columns, events are rows. Columns grow with the measured labels,

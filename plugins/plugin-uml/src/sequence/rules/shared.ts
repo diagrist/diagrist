@@ -1,7 +1,7 @@
 import type { Finding, Rule } from '@diagrist/core';
 import type { Severity } from '@diagrist/lang';
 import { FOUND, GATE, LOST, type SequenceEvent } from '../diagram.js';
-import type { SequenceModel } from '../model/types.js';
+import type { SeqIssueCase, SequenceModel } from '../model/types.js';
 
 /** A rule of the sequence kind. */
 export type SequenceRule = Rule<SequenceModel>;
@@ -14,9 +14,9 @@ export const defineRule = (
   check: (model: SequenceModel) => readonly Finding[],
 ): SequenceRule => ({ code, severity, doc, check });
 
-/** Findings the model made while it was built, under the code of the rule that reports them. */
-export const issues = (model: SequenceModel, code: string): Finding[] =>
-  model.issues.filter((i) => i.code === code).map(({ span, values }) => ({ span, values }));
+/** Findings of one case the model made while it was built; the rule that calls this gives them its code. */
+export const issues = (model: SequenceModel, found: SeqIssueCase): Finding[] =>
+  model.issues.filter((i) => i.case === found).map(({ span, values }) => ({ span, values }));
 
 /** `gate` and `gate.name`: a gate on the frame `sd` of the interaction. */
 export const isFrameGate = (id: string): boolean => id === GATE || id.startsWith(`${GATE}.`);
@@ -49,6 +49,3 @@ export function messageIds(events: readonly SequenceEvent[]): Map<string, number
   });
   return out;
 }
-
-/** A list of names for a message, such as `` `a`, `b` ``. */
-export const names = (ids: readonly string[]): string => ids.map((id) => `\`${id}\``).join(', ') || 'none';

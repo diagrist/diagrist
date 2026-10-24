@@ -1,4 +1,4 @@
-import type { Font, Marker, StyleRule } from '@diagrist/core';
+import { type Font, MARKER_SHAPES, type Marker, type StyleRule } from '@diagrist/core';
 import { COLORS as c, DASH, FONT_SIZE as f, STROKES as w } from '../theme.js';
 
 /** Fonts by role: layout measures with them, the stylesheet sets them (ADR 0008). */
@@ -57,8 +57,8 @@ export const BASE_RULES: readonly StyleRule[] = [
 
 /** Arrowheads; every picture carries all four (clean-up: only used ones, ADR 0008 Nr. 5). */
 export const MARKERS: readonly Marker[] = [
-  { id: 'open', filled: false, name: 'arrow-open' },
-  { id: 'filled', filled: true, name: 'arrow-filled' },
-  { id: 'open-accent', filled: false, name: 'arrow-open-accent' },
-  { id: 'filled-accent', filled: true, name: 'arrow-filled-accent' },
+  { id: 'open', shape: MARKER_SHAPES.hook, name: 'arrow-open' },
+  { id: 'filled', shape: MARKER_SHAPES.triangle, name: 'arrow-filled' },
+  { id: 'open-accent', shape: MARKER_SHAPES.hook, name: 'arrow-open-accent' },
+  { id: 'filled-accent', shape: MARKER_SHAPES.triangle, name: 'arrow-filled-accent' },
 ];

@@ -1,6 +1,6 @@
 export type { Diagnostic, Severity } from './diagnostic.js';
 export { diagnostic } from './diagnostic.js';
-export type { Grammar, GrammarField, GrammarLine, GrammarStatement } from './grammar/describe.js';
+export type { Grammar, GrammarField, GrammarLine, GrammarReference, GrammarStatement } from './grammar/describe.js';
 export { checkKind, grammarOf } from './grammar/describe.js';
 export type { Header, KindReading } from './grammar/read-kind.js';
 export { readKind } from './grammar/read-kind.js';
@@ -9,8 +9,9 @@ export { arg, attr, kind, lines, optionalArg, statement } from './grammar/spec.j
 export { nearest } from './grammar/suggest.js';
 export type { Value, ValueResult } from './grammar/value.js';
 export { arrow, id, number, oneOf, ref, text, word } from './grammar/value.js';
+export { didYouMean, list } from './list.js';
 export type { Locale } from './messages.js';
-export { formatDiagnostic, LANG_CODES } from './messages.js';
+export { formatDiagnostic, LANG_CODES, LOCALES } from './messages.js';
 export { print } from './printer.js';
 export type { Comment, Line, Operator, Scan, Token } from './scanner.js';
 export { OPERATORS, scan } from './scanner.js';

@@ -40,6 +40,16 @@ export type Shape =
       readonly anchor?: 'start' | 'middle' | 'end';
     }
   | {
+      readonly kind: 'icon';
+      /** A key of `Styles.icons`. */
+      readonly icon: string;
+      readonly x: number;
+      readonly y: number;
+      /** Edge length of the square the icon is drawn into. */
+      readonly size: number;
+      readonly role: string;
+    }
+  | {
       readonly kind: 'group';
       /** DOM id that embeddings use to find the group, see `domId`. */
       readonly id?: string;

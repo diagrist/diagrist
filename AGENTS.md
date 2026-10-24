@@ -34,14 +34,21 @@ pnpm check            # lint, typecheck, tests, knip: must be green before every
 pnpm format           # Biome format and safe fixes
 pnpm exec vitest run --project lang   # one package
 pnpm docs:cli         # regenerate docs/cli.md from the command tables
+pnpm docs:uml         # regenerate the code tables in plugins/plugin-uml/README.md from the rules
+pnpm build            # build every package; needed before running node packages/cli/dist/main.js
+node test/package/check.ts            # after a build: bin and exports exist, the built dgr works (CI runs it)
 ```
+
+Golden files (SVGs, generated docs, font metrics, example hashes) are rewritten by running their test with
+`UPDATE_GOLDEN=1`; review the diff before committing it. `pnpm --filter <package> build` writes the same files as
+`pnpm build` because every package's `tsdown.config.ts` spreads the shared one at the root.
 
 ## Rules that fail the build
 
 - **Comments:** TSDoc only (`/** ... */`), and it must say more than the name. No `//`, no `/* */`, hence no
   suppressions either. Make the code explain itself instead.
-- **Purity:** no `Date`, `Math.random`, `console`, timers, `fetch`, `process` or `node:` imports in `packages/lang/src`,
-  `packages/core/src` and `plugins/*/src`. Same input, same bytes. The same holds for `packages/cli/src`, except that
+- **Purity:** no `Date`, `Math.random`, `console`, timers, `fetch`, `Intl`, `localeCompare` or other `toLocale…`
+  methods, `process` or `node:` imports in `packages/lang/src`, `packages/core/src` and `plugins/*/src`. Same input, same bytes. The same holds for `packages/cli/src`, except that
   its host adapters `main.ts` and `node-io.ts` may use `process` and `node:` modules, and `node:util` is allowed for
   `parseArgs`. A plugin that needs the disk keeps it in one Node entry, listed in the test (so far
   `plugins/export-png/src/node.ts`, published as `@diagrist/export-png/node`).
@@ -63,6 +70,11 @@ pnpm docs:cli         # regenerate docs/cli.md from the command tables
 4. **Small public API.** Export only what another package needs; knip will tell you.
 5. **English** in code, TSDoc, commits and docs.
 6. **No Effect** (ADR 0007).
+7. **A diagnostic code lives in its rule and its catalogue**, nowhere else (ADR 0011). Models name cases, docs
+   generate their code tables.
+8. **Declare kinds with `defineKind`**: it ties the model to the kind's own tables (`Kind<M, S>`).
+9. **Debt is listed in `docs/burn-down.md`**: crutches for byte-identical output, derivatives not generated yet,
+   pieces waiting for a second user. Add to it instead of working around it silently.
 
 ## Working in parallel
 

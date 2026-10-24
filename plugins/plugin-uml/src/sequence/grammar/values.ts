@@ -14,7 +14,7 @@ export const message = (): Value<string> => ref('msg', 'create');
 /**
  * One end of a message. Besides a lifeline it may be an open end (`found`, `lost`), the frame of the
  * interaction (`gate`, `gate.name`) or the frame of a `ref` or fragment with `id=` (`r`, `r.name`). Which one
- * it is depends on the other declarations, so rule U400 checks it after reading, not `lang`.
+ * it is depends on the other declarations, so the rule `unknownLifeline` checks it after reading, not `lang`.
  */
 export const messageEnd = (): Value<string> => ({
   type: 'end',
@@ -24,7 +24,7 @@ export const messageEnd = (): Value<string> => ({
   read: (raw) => (END.test(raw) ? { ok: true, value: raw } : { ok: false }),
 });
 
-/** Lifelines a note or reference spans, comma separated without spaces; checked by rule U400. */
+/** Lifelines a note or reference spans, comma separated without spaces; checked by the rule `unknownLifeline`. */
 export const lifelines = (): Value<readonly string[]> => ({
   type: 'lifelines',
   expected: 'lifeline ids separated by commas without spaces, like `auftrag,lager`',

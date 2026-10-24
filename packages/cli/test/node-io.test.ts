@@ -1,9 +1,11 @@
 import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { Writable } from 'node:stream';
 import { describe, expect, it } from 'vitest';
 import { run } from '../src/index.js';
 import { nodeIo } from '../src/node-io.js';
+import { fakeEngine } from './support/fake-engine.js';
 
 describe('the Node adapter', () => {
   it('lets `dgr fmt` rewrite a real file', async () => {
@@ -11,11 +13,28 @@ describe('the Node adapter', () => {
     writeFileSync(file, 'diagram sequence "Login"\n    participant api "API"\n\n\n\nparticipant db "DB"\n');
     const printed: string[] = [];
     const io = { ...nodeIo(), stdout: (text: string) => void printed.push(text) };
-    expect(await run(['fmt', file], io, undefined)).toBe(0);
+    expect(await run(['fmt', file], io, fakeEngine())).toBe(0);
     expect(readFileSync(file, 'utf8')).toBe(
       'diagram sequence "Login"\n  participant api "API"\n\nparticipant db "DB"\n',
     );
     expect(printed).toEqual([`formatted ${file}\n`]);
+  });
+
+  it('ends quietly with its exit code when the reader of stdout is gone, as in `dgr help | head`', async () => {
+    const epipe = (): Error => Object.assign(new Error('write EPIPE'), { code: 'EPIPE' });
+    const writes: string[] = [];
+    const stdout = new Writable({
+      write(chunk: Buffer, _encoding, done) {
+        writes.push(String(chunk));
+        done(epipe());
+      },
+    });
+    const stderr = new Writable({ write: (_chunk, _encoding, done) => done() });
+    const io = nodeIo({ stdout, stderr });
+    expect(await run(['help'], io, fakeEngine())).toBe(0);
+    io.stdout('more\n');
+    await new Promise((resolve) => setImmediate(resolve));
+    expect(writes).toHaveLength(1);
   });
 
   it('reports a missing file and a directory as such', async () => {

@@ -1,5 +1,5 @@
 import { arg, kind, statement, text } from '@diagrist/lang';
-import { definePlugin, type Kind, localeAttribute, type Styles } from '../src/index.js';
+import { defineKind, definePlugin, localeAttribute, MARKER_SHAPES, type Styles } from '../src/index.js';
 
 const line = statement('line', {
   doc: 'One line of text.',
@@ -15,7 +15,7 @@ const styles: Styles = {
   fontSize: 11,
   canvas: '#fafafa',
   markerSize: 12,
-  markers: [{ id: 'open', filled: false, name: 'arrow' }],
+  markers: [{ id: 'open', shape: MARKER_SHAPES.hook, name: 'arrow' }],
   roles: { line: { classes: ['text'] }, rule: { classes: ['stroke', 'thin'], marker: 'open' } },
   rules: [
     { name: 'base', declarations: 'fill: none;', always: true },
@@ -26,9 +26,9 @@ const styles: Styles = {
 };
 
 /** A kind that writes its lines below each other and warns about empty ones, for testing the kernel alone. */
-const lines: Kind<{ readonly texts: readonly { text: string; line: number }[] }, { text: string; line: number }> = {
+const lines = defineKind({
   spec,
-  model: (reading) => ({ texts: reading.statements }),
+  model: (reading) => ({ texts: reading.statements.map(({ text, line }) => ({ text, line })) }),
   rules: [
     {
       code: 'T900',
@@ -56,7 +56,7 @@ const lines: Kind<{ readonly texts: readonly { text: string; line: number }[] },
     anchors: { width: 100, height: 0, nodes: [], groups: [], edges: [] },
   }),
   describe: (model) => model.texts.map((t) => t.text).join('\n'),
-};
+});
 
 export const linesPlugin = definePlugin({
   name: 'lines',

@@ -1,12 +1,8 @@
 import type { Locale } from '@diagrist/lang';
-import { WORDS } from '../../words.js';
+import { TEXTS } from '../../texts/index.js';
 import { FOUND, LOST, type MessageEvent } from '../diagram.js';
 import type { SeqFragment, SeqItem, SequenceModel, TimelineEvent } from '../model/types.js';
-import { DE } from './de.js';
-import { EN } from './en.js';
 import type { GatePlace, Prose } from './prose.js';
-
-const PROSE: Readonly<Record<Locale, Prose>> = { en: EN, de: DE };
 
 /** `ignore` and `consider` name messages as their guard; they stand in `{...}`. */
 const LISTS: readonly string[] = ['ignore', 'consider'];
@@ -111,7 +107,7 @@ function itemLines(items: readonly SeqItem[], depth: number, w: Writer): void {
 
 /** Alt text of a sequence diagram: lifelines, then the messages numbered, fragments indented, then decisions. */
 export function describeSequence(m: SequenceModel, locale: Locale): string {
-  const p = PROSE[locale];
+  const p = TEXTS[locale].sequence;
   const d = m.diagram;
   const name = (id: string) => m.participants.get(id)?.label ?? id;
   const traits = (id: string) => {
@@ -123,7 +119,7 @@ export function describeSequence(m: SequenceModel, locale: Locale): string {
   const w: Writer = { p, m, lines: [], name, numbers: new Map(), n: 0 };
   const messages = d.events.filter((e) => e.type === 'message').length;
   w.lines.push(
-    p.summary(d.title, WORDS[locale].sequence, m.order.length, messages),
+    p.summary(d.title, TEXTS[locale].picture.sequence, m.order.length, messages),
     p.lineup(m.order.map((id) => (traits(id) ? `${name(id)} (${traits(id)})` : name(id))).join(', ')),
   );
   if (d.autonumber) w.lines.push(p.numbered);

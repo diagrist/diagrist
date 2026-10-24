@@ -53,7 +53,7 @@ function message(state: State, index: number, e: MessageEvent): void {
   while (k >= 0 && !(state.calls[k]?.caller === e.to && state.calls[k]?.callee === e.from)) k--;
   const call = state.calls[k];
   if (!call) {
-    state.issues.push({ code: 'U403', span: e.span, values: { from: e.from, to: e.to } });
+    state.issues.push({ case: 'replyWithoutCall', span: e.span, values: { from: e.from, to: e.to } });
     return;
   }
   close(state, call.bar, index);
@@ -72,7 +72,7 @@ function event(state: State, index: number, e: SequenceEvent): void {
     const bar = open.at(-1);
     state.explicit.set(e.target, open.slice(0, -1));
     if (bar) close(state, bar, index);
-    else state.issues.push({ code: 'U405', span: e.span, values: { target: e.target } });
+    else state.issues.push({ case: 'deactivateWithoutActivate', span: e.span, values: { target: e.target } });
   } else if (e.type === 'destroy') {
     for (const bar of state.bars)
       if (bar.lifeline === e.target && bar.to === OPEN && bar.cause !== 'create') bar.to = index;
@@ -133,7 +133,7 @@ function closeOpen(state: State, events: readonly SequenceEvent[]): void {
     if (bar.cause === 'explicit') {
       const e = events[bar.from];
       bar.to = Math.max(bar.from, events.length - 1);
-      if (e) state.issues.push({ code: 'U905', span: e.span, values: { lifeline: bar.lifeline } });
+      if (e) state.issues.push({ case: 'openActivation', span: e.span, values: { lifeline: bar.lifeline } });
     } else if (bar.cause === 'self') bar.to = bar.from;
     else if (bar.cause === 'call') {
       const call = events[bar.from];

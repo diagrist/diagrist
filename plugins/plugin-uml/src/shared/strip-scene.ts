@@ -1,5 +1,5 @@
 import type { Shape } from '@diagrist/core';
-import type { Words } from '../words.js';
+import type { Words } from '../texts/index.js';
 import { questionText, type Strip } from './strip.js';
 
 const MARK_W = 24;

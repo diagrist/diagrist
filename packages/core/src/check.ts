@@ -1,7 +1,5 @@
-import { checkKind, type Locale } from '@diagrist/lang';
+import { checkKind, LOCALES } from '@diagrist/lang';
 import type { Plugin } from './plugin.js';
-
-const LOCALES: readonly Locale[] = ['en', 'de'];
 
 /**
  * Checks a plugin against ADR 0004 and ADR 0005: every kind passes `checkKind`, every rule has a doc and a

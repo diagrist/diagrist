@@ -10,15 +10,15 @@ import { deliver } from './report/output.js';
 
 /**
  * Runs one call of the CLI and resolves to its exit code: 0 done, 1 a finding with severity error, 2 a wrong
- * call. All input and output goes through `io`; `engine` is `undefined` until the kernel is wired in.
+ * call. All input and output goes through `io`, every diagram goes through `engine`.
  */
-export async function run(argv: readonly string[], io: Io, engine: Engine | undefined): Promise<number> {
+export async function run(argv: readonly string[], io: Io, engine: Engine): Promise<number> {
   const parsed = parse(argv, COMMANDS);
   const answer = parsed.problem ?? (await perform(parsed, io, engine));
   return deliver(answer, { command: commandName(parsed), json: parsed.json, locale: parsed.locale }, io);
 }
 
-async function perform(parsed: Parsed, io: Io, engine: Engine | undefined): Promise<Outcome | Problem> {
+async function perform(parsed: Parsed, io: Io, engine: Engine): Promise<Outcome | Problem> {
   if (asksForVersion(parsed)) return { exitCode: 0, json: { version: VERSION }, text: VERSION };
   const command = chosen(parsed);
   const args = command === parsed.command ? parsed.arguments : { command: parsed.command?.name };

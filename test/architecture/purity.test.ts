@@ -23,6 +23,20 @@ const FORBIDDEN_GLOBALS = new Set([
   'setTimeout',
   'setInterval',
   'crypto',
+  'Intl',
+]);
+
+/**
+ * String and number methods whose result depends on the locale of the runtime, so the same input could give other
+ * bytes on another machine: sorting with `localeCompare` is the classic case.
+ */
+const LOCALE_METHODS = new Set([
+  'localeCompare',
+  'toLocaleString',
+  'toLocaleLowerCase',
+  'toLocaleUpperCase',
+  'toLocaleDateString',
+  'toLocaleTimeString',
 ]);
 
 /**
@@ -42,7 +56,7 @@ const PURE_NODE_MODULES: readonly { readonly below: string; readonly module: str
 ];
 
 describe('pure sources', () => {
-  it('use no clock, randomness, console, timers, network or Node APIs', () => {
+  it('use no clock, randomness, console, timers, network, Node APIs or locale of the runtime', () => {
     const offending = sourceFiles()
       .filter((file) => PURE_SOURCES.some((pattern) => pattern.test(file)))
       .flatMap((file) => {
@@ -66,6 +80,10 @@ function impurities(program: unknown): { at: number; what: string }[] {
     if (node.type === 'ImportDeclaration' || node.type === 'ImportExpression') {
       const from = (node.source as { value?: unknown } | undefined)?.value;
       if (typeof from === 'string' && from.startsWith('node:')) found.push({ at: node.start, what: `import ${from}` });
+    }
+    if (node.type === 'Identifier' && parent?.type === 'MemberExpression' && key === 'property') {
+      const method = node.name as string;
+      if (LOCALE_METHODS.has(method)) found.push({ at: node.start, what: method });
     }
     if (node.type !== 'Identifier' || !isReference(parent, key)) return;
     const name = node.name as string;

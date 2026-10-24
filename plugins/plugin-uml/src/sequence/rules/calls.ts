@@ -6,14 +6,14 @@ export const replyWithoutCall = defineRule(
   'U403',
   'error',
   'A reply `-->` answers an open synchronous call in the opposite direction; the model pairs them innermost first.',
-  (m) => issues(m, 'U403'),
+  (m) => issues(m, 'replyWithoutCall'),
 );
 
 export const deactivateWithoutActivate = defineRule(
   'U405',
   'error',
   '`deactivate` ends a bar that `activate` started on the same lifeline.',
-  (m) => issues(m, 'U405'),
+  (m) => issues(m, 'deactivateWithoutActivate'),
 );
 
 export const callWithoutReply = defineRule(
@@ -35,7 +35,7 @@ export const openActivation = defineRule(
   'U905',
   'warning',
   '`activate` without `deactivate`: the bar reaches to the end of the diagram.',
-  (m) => issues(m, 'U905'),
+  (m) => issues(m, 'openActivation'),
 );
 
 export const lostFoundCall = defineRule(

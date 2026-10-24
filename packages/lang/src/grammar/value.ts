@@ -15,6 +15,8 @@ export interface Value<T> {
   readonly tokens: readonly TokenKind[];
   /** The complete list of allowed values, when there is one. */
   readonly choices?: readonly string[];
+  /** What each choice stands for, when the table says it, such as `->` for a synchronous call. */
+  readonly meanings?: Readonly<Record<string, string>>;
   /** The kind of id this value refers to, when it is a reference (see `ref`). */
   readonly refersTo?: readonly string[];
   /** Whether the value declares an id that references can point to. */
@@ -71,16 +73,31 @@ export function oneOf<const C extends string>(choices: readonly C[]): Value<C> {
   };
 }
 
-/** One operator out of a fixed list, such as the arrow of a message. */
-export function arrow<const C extends string>(operators: readonly C[]): Value<C> {
-  const allowed = new Set<string>(operators);
+/**
+ * One operator out of a fixed list, such as the arrow of a message. Given as a table from operator to meaning, the
+ * meanings reach the grammar, completion and every diagnostic that lists the arrows, from this one place.
+ */
+export function arrow<const C extends string>(operators: readonly C[] | Readonly<Record<C, string>>): Value<C> {
+  const meanings: Readonly<Record<string, string>> | undefined = isList(operators) ? undefined : operators;
+  const choices: readonly C[] = isList(operators) ? operators : keysOf(operators);
+  const allowed = new Set<string>(choices);
+  const shown = (o: string): string => (meanings?.[o] ? `\`${o}\` ${meanings[o]}` : `\`${o}\``);
   return {
     type: 'arrow',
-    expected: `one of the arrows ${operators.map((o) => `\`${o}\``).join(', ')}`,
+    expected: `one of the arrows ${choices.map(shown).join(', ')}`,
     tokens: ['operator'],
-    choices: operators,
+    choices,
+    ...(meanings ? { meanings } : {}),
     read: (raw) => (allowed.has(raw) ? ok(raw as C) : fail),
   };
+}
+
+function isList<C extends string>(operators: readonly C[] | Readonly<Record<C, string>>): operators is readonly C[] {
+  return Array.isArray(operators);
+}
+
+function keysOf<C extends string>(table: Readonly<Record<C, string>>): readonly C[] {
+  return Object.keys(table) as C[];
 }
 
 /** A decimal number, optionally within bounds. */

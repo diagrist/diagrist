@@ -1,7 +1,8 @@
 import type { Diagnostic } from '../diagnostic.js';
+import { list } from '../list.js';
 import { LANG_CODES } from '../messages.js';
 import type { Document, Entry, Statement } from '../tree.js';
-import { type LineContext, list, readLine, report } from './read-line.js';
+import { type LineContext, readLine, report } from './read-line.js';
 import type { Infer, KindSpec, StatementSpec } from './spec.js';
 import { nearest } from './suggest.js';
 

@@ -1,5 +1,6 @@
-import type { KindReading, KindSpec, Locale, Severity, Span } from '@diagrist/lang';
+import type { Infer, KindReading, KindSpec, Locale, Severity, Span, StatementSpec } from '@diagrist/lang';
 import type { Anchors } from './anchors.js';
+import type { Placed } from './placement.js';
 import type { Scene } from './scene.js';
 import type { Styles } from './styles.js';
 
@@ -27,6 +28,8 @@ export interface Drawing {
   readonly scene: Scene;
   readonly styles: Styles;
   readonly anchors: Anchors;
+  /** The rectangles it filled, for the kernel's placement check (G400 to G402); a kind may leave it out. */
+  readonly placed?: readonly Placed[];
 }
 
 /** What a kind learns about the compilation besides its model. */
@@ -37,16 +40,31 @@ export interface KindContext {
 
 /**
  * A diagram kind, such as `sequence`: its statement tables, how a reading becomes a model, the rules on
- * that model, the layout into a scene, and a description in words. `S` is the statement value type that
- * `readKind` derives from the tables, `M` the model.
+ * that model, the layout into a scene, and a description in words. `S` are the statement tables of `spec`, so the
+ * reading `model` gets is typed from exactly those tables (`Infer`); `M` is the model. Declare kinds with
+ * `defineKind`, which infers both.
  */
-export interface Kind<M = unknown, S = unknown> {
-  readonly spec: KindSpec;
-  model(reading: KindReading<S>): M;
+export interface Kind<M = unknown, S extends readonly StatementSpec[] = readonly StatementSpec[]> {
+  readonly spec: KindSpec<S>;
+  model(reading: KindReading<Infer<S[number]>>): M;
   readonly rules: readonly Rule<M>[];
   layout(model: M, context: KindContext): Drawing;
   /** Alt text: the diagram in sentences, in the locale of the context. */
   describe(model: M, context: KindContext): string;
+}
+
+/**
+ * Declares a kind. Tables and model type are inferred from `spec` and `model`, and checked strictly: a `model` that
+ * expects the statements of other tables, or a rule on another model, does not compile.
+ */
+export function defineKind<M, const S extends readonly StatementSpec[]>(kind: {
+  readonly spec: KindSpec<S>;
+  readonly model: (reading: KindReading<Infer<S[number]>>) => M;
+  readonly rules: readonly Rule<M>[];
+  readonly layout: (model: M, context: KindContext) => Drawing;
+  readonly describe: (model: M, context: KindContext) => string;
+}): Kind<M, S> {
+  return kind;
 }
 
 /** Message templates by code and locale, filled with the values of a diagnostic. */

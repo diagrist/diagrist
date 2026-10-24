@@ -1,6 +1,7 @@
 import { describe, expect, expectTypeOf, it } from 'vitest';
 import {
   arg,
+  arrow,
   attr,
   checkKind,
   formatDiagnostic,
@@ -134,7 +135,7 @@ describe('readKind with attributes and recursion', () => {
     expect(reading.statements[0]?.children[0]?.children[0]).toMatchObject({ id: 'c' });
     expect(checkKind(nested)).toEqual([]);
     const [outer] = grammarOf(nested).statements;
-    expect(outer?.children.map((c) => [c.keyword, c.repeats, c.children.length])).toEqual([['box', true, 0]]);
+    expect(outer?.children).toEqual([{ keyword: 'box', ref: '/statements/0' }]);
   });
 });
 
@@ -171,5 +172,20 @@ describe('grammarOf', () => {
       ['to', 'ref', ['participant']],
       ['label', 'text', undefined],
     ]);
+  });
+
+  it('carries the meaning of each arrow from its table into the grammar and the diagnostics', () => {
+    const send = statement('send', {
+      doc: 'A message.',
+      examples: ['send ->'],
+      arguments: [arg('arrow', arrow({ '->': 'call', '~>': 'signal' }), 'Kind of message.')],
+    });
+    const signals = kind('signals', { doc: 'Signals.', statements: [send] });
+    const [field] = grammarOf(signals).statements[0]?.arguments ?? [];
+    expect(field).toMatchObject({ choices: ['->', '~>'], meanings: { '->': 'call', '~>': 'signal' } });
+    const [wrong] = readAs(signals, 'diagram signals "x"', 'send =>').diagnostics;
+    expect(wrong && formatDiagnostic(wrong)).toBe(
+      '`=>` is not valid for arrow; expected one of the arrows `->` call, `~>` signal.',
+    );
   });
 });

@@ -6,19 +6,6 @@ import { call, callJson } from './support/memory-io.js';
 const engine = fakeEngine();
 const WRONG_TARGET = LOGIN.replace('-> api', '-> apx');
 
-describe('without an engine', () => {
-  it.each(['check a.dgr', 'build a.dgr', 'grammar'])(
-    '`dgr %s` says that kind support arrives with the kernel',
-    async (line) => {
-      const result = await call(line.split(' '), { files: { 'a.dgr': LOGIN } });
-      expect(result.exitCode).toBe(2);
-      expect(result.stderr).toContain('kind support arrives with @diagrist/core');
-      expect(result.stderr).toContain('Example: `dgr fmt diagrams/order.dgr`');
-      expect([...result.files.keys()]).toEqual(['a.dgr']);
-    },
-  );
-});
-
 describe('dgr check', () => {
   it('says so when there is nothing to report', async () => {
     expect(await call(['check', 'a.dgr'], { files: { 'a.dgr': LOGIN }, engine })).toMatchObject({
@@ -101,5 +88,21 @@ describe('dgr grammar', () => {
     expect(result.stderr).toBe(
       'Unknown diagram kind `sequense`; did you mean `sequence`? Kinds: `sequence`. Example: `dgr grammar sequence`\n',
     );
+  });
+});
+
+describe('the old extension .dia', () => {
+  it('is still read, with a warning that names the deadline and the new name (ADR 0002 Nr. 6)', async () => {
+    const result = await call(['build', 'old/login.dia'], { files: { 'old/login.dia': LOGIN } });
+    expect(result.exitCode).toBe(0);
+    expect(result.files.get('old/login.svg')).toBe('<svg>Login</svg>');
+    expect(result.stdout).toContain(
+      'old/login.dia:1:1  C100  warning: `old/login.dia` has the old extension `.dia`, which is read until 2027-10-24 only. Rename it to `old/login.dgr`.',
+    );
+    const checked = await callJson(['check', 'old/login.dia', '--locale', 'de'], { files: { 'old/login.dia': LOGIN } });
+    expect(checked.json.diagnostics).toMatchObject([
+      { code: 'C100', severity: 'warning', message: expect.stringContaining('umbenennen') },
+    ]);
+    expect((await call(['check', 'login.dgr'], { files: { 'login.dgr': LOGIN } })).stdout).not.toContain('C100');
   });
 });

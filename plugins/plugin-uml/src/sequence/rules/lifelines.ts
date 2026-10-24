@@ -1,6 +1,7 @@
 import type { Finding } from '@diagrist/core';
+import { list } from '@diagrist/lang';
 import { FOUND, LOST, type MessageEvent } from '../diagram.js';
-import { defineRule, isFrameGate, names, referencedLifelines } from './shared.js';
+import { defineRule, isFrameGate, referencedLifelines } from './shared.js';
 
 const RESERVED: readonly string[] = [LOST, FOUND];
 
@@ -14,7 +15,7 @@ export const unknownLifeline = defineRule(
       e.type === 'message' || e.type === 'note' || e.type === 'ref'
         ? referencedLifelines(e, m.gateIds)
             .filter((id) => !m.participants.has(id))
-            .map((found) => ({ span: e.span, values: { found, known: names(known) } }))
+            .map((found) => ({ span: e.span, values: { found, known: list(known) } }))
         : [],
     );
   },

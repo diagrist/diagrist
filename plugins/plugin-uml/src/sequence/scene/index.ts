@@ -1,17 +1,16 @@
 import { type Anchors, domId, type Scene, type Shape } from '@diagrist/core';
 import { stripShapes } from '../../shared/strip-scene.js';
-import { imageTitle, type Words } from '../../words.js';
+import type { Words } from '../../texts/index.js';
 import type { SequenceDiagram } from '../diagram.js';
+import type { PictureTexts } from '../layout/index.js';
 import type { SeqShape, SequenceLayout } from '../layout/types.js';
 import type { SequenceModel } from '../model/types.js';
 import { cardHeads, cardShapes } from './cards.js';
 import { messageShape, shape } from './shapes.js';
 
-function titleShapes(l: SequenceLayout, d: SequenceDiagram, words: Words): Shape[] {
+function titleShapes(l: SequenceLayout, d: SequenceDiagram, words: PictureTexts): Shape[] {
   const { title, subtitle } = l.header;
-  const out: Shape[] = [
-    { kind: 'text', ...title, text: imageTitle(words.sequence, d.title), role: 'title', font: 'title' },
-  ];
+  const out: Shape[] = [{ kind: 'text', ...title, text: words.title, role: 'title', font: 'title' }];
   if (d.subtitle) out.push({ kind: 'text', ...subtitle, text: d.subtitle, role: 'subtitle', font: 'note' });
   return out;
 }
@@ -20,7 +19,7 @@ function titleShapes(l: SequenceLayout, d: SequenceDiagram, words: Words): Shape
  * The scene of a sequence diagram: title, lifelines, guides, bars, frames, boxes, messages, heads, marks,
  * annotations and decision bar, in this drawing order. `look=cards` draws heads and areas as cards.
  */
-export function sequenceScene(l: SequenceLayout, m: SequenceModel, words: Words): Scene {
+export function sequenceScene(l: SequenceLayout, m: SequenceModel, words: Words & PictureTexts): Scene {
   const d = m.diagram;
   const cards = d.look === 'cards';
   const area = (shapes: readonly SeqShape[]) =>

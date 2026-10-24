@@ -1,4 +1,5 @@
 import { type Diagnostic, diagnostic } from '../diagnostic.js';
+import { list } from '../list.js';
 import { LANG_CODES } from '../messages.js';
 import { type Span, span } from '../span.js';
 import type { Argument, Attribute } from '../tree.js';
@@ -178,8 +179,4 @@ function endOf(input: LineInput): Span {
 
 export function report(context: LineContext, code: string, at: Span, values: Record<string, string>): void {
   context.diagnostics.push(diagnostic(code, 'error', at, values));
-}
-
-export function list(items: readonly string[]): string {
-  return items.length > 0 ? items.map((item) => (item.startsWith('`') ? item : `\`${item}\``)).join(', ') : 'nothing';
 }

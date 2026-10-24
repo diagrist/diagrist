@@ -34,7 +34,7 @@ Without a command:
 |---|---|
 | 0 | Done: no finding with severity error. Warnings alone do not fail. |
 | 1 | A finding with severity error, or `fmt --check` found a file that is not formatted. |
-| 2 | The call cannot be carried out: unknown command or option, missing or extra argument, unreadable or unwritable file, or a command this build cannot run yet. |
+| 2 | The call cannot be carried out: unknown command or option, missing or extra argument, unreadable or unwritable file. |
 
 ## dgr fmt
 
@@ -155,7 +155,7 @@ With `--json`, besides the fields of every document:
 | Field | Meaning |
 |---|---|
 | `kinds` | Without a kind: `[{ kind, doc }]` for every kind. |
-| `grammar` | With a kind: its grammar as data, `{ kind, doc, header, statements }`; each statement lists `keyword`, `doc`, `examples`, `arguments`, `clauses`, `attributes`, `flags`, `children` and its line form `lines`. |
+| `grammar` | With a kind: its grammar as data, `{ kind, doc, header, statements }`; each statement lists `keyword`, `doc`, `examples`, `arguments`, `clauses`, `attributes`, `flags`, `children` and its line form `lines`. Each table is described once; elsewhere a child is `{ keyword, ref }`, where `ref` is a JSON Pointer into `grammar` such as `/statements/9`. |
 
 ## dgr help
 

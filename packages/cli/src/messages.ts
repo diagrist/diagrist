@@ -1,4 +1,5 @@
-import type { Locale } from '@diagrist/lang';
+import { type Locale, didYouMean as suggest } from '@diagrist/lang';
+import type { Finding } from './engine.js';
 import type { FileProblem } from './io.js';
 
 type Template = (values: Readonly<Record<string, string>>) => string;
@@ -15,7 +16,6 @@ export type ProblemName =
   | 'invalidChoice'
   | 'unreadable'
   | 'unwritable'
-  | 'noEngine'
   | 'unknownKind'
   | 'commandFirst';
 
@@ -30,32 +30,25 @@ type TextName =
   | 'warning'
   | FileProblem;
 
-/** The locales of all messages; `--locale` offers exactly these. */
-export const LOCALES: readonly Locale[] = ['en', 'de'];
-
-const suggest = (v: Readonly<Record<string, string>>, locale: Locale): string =>
-  v.suggestion
-    ? locale === 'de'
-      ? `; gemeint ist wohl \`${v.suggestion}\`?`
-      : `; did you mean \`${v.suggestion}\`?`
-    : '.';
-
 /**
  * Why a call cannot be carried out (exit code 2). Each message says what was found, what is allowed and gives
- * an example of a correct call (ADR 0005). The codes are stable for tools; the texts may improve.
+ * an example of a correct call (ADR 0005). The codes are stable for tools; the texts may improve. A code is
+ * never reused: C010 was the refusal of a build without the kernel and is retired.
  */
 const PROBLEMS: Readonly<Record<ProblemName, Texts & { readonly code: string }>> = {
   unknownCommand: {
     code: 'C001',
-    en: (v) => `Unknown command \`${v.found}\`${suggest(v, 'en')} Commands: ${v.allowed}. Example: \`${v.example}\``,
-    de: (v) => `Unbekannter Befehl \`${v.found}\`${suggest(v, 'de')} Befehle: ${v.allowed}. Beispiel: \`${v.example}\``,
+    en: (v) =>
+      `Unknown command \`${v.found}\`${suggest(v.suggestion, 'en')} Commands: ${v.allowed}. Example: \`${v.example}\``,
+    de: (v) =>
+      `Unbekannter Befehl \`${v.found}\`${suggest(v.suggestion, 'de')} Befehle: ${v.allowed}. Beispiel: \`${v.example}\``,
   },
   unknownOption: {
     code: 'C002',
     en: (v) =>
-      `\`${v.command}\` has no option \`${v.found}\`${suggest(v, 'en')} Allowed: ${v.allowed}. Example: \`${v.example}\``,
+      `\`${v.command}\` has no option \`${v.found}\`${suggest(v.suggestion, 'en')} Allowed: ${v.allowed}. Example: \`${v.example}\``,
     de: (v) =>
-      `\`${v.command}\` hat keine Option \`${v.found}\`${suggest(v, 'de')} Erlaubt: ${v.allowed}. Beispiel: \`${v.example}\``,
+      `\`${v.command}\` hat keine Option \`${v.found}\`${suggest(v.suggestion, 'de')} Erlaubt: ${v.allowed}. Beispiel: \`${v.example}\``,
   },
   missingArgument: {
     code: 'C003',
@@ -93,18 +86,12 @@ const PROBLEMS: Readonly<Record<ProblemName, Texts & { readonly code: string }>>
     en: (v) => `Cannot write \`${v.file}\`: ${v.reason}.`,
     de: (v) => `\`${v.file}\` lässt sich nicht schreiben: ${v.reason}.`,
   },
-  noEngine: {
-    code: 'C010',
-    en: (v) =>
-      `\`dgr ${v.command}\` needs diagram kind support, and kind support arrives with @diagrist/core. Until then this build formats only. Example: \`${v.example}\``,
-    de: (v) =>
-      `\`dgr ${v.command}\` braucht die Unterstützung der Diagrammarten, und die kommt mit @diagrist/core. Bis dahin formatiert dieser Build nur. Beispiel: \`${v.example}\``,
-  },
   unknownKind: {
     code: 'C011',
-    en: (v) => `Unknown diagram kind \`${v.found}\`${suggest(v, 'en')} Kinds: ${v.allowed}. Example: \`${v.example}\``,
+    en: (v) =>
+      `Unknown diagram kind \`${v.found}\`${suggest(v.suggestion, 'en')} Kinds: ${v.allowed}. Example: \`${v.example}\``,
     de: (v) =>
-      `Unbekannte Diagrammart \`${v.found}\`${suggest(v, 'de')} Arten: ${v.allowed}. Beispiel: \`${v.example}\``,
+      `Unbekannte Diagrammart \`${v.found}\`${suggest(v.suggestion, 'de')} Arten: ${v.allowed}. Beispiel: \`${v.example}\``,
   },
   commandFirst: {
     code: 'C012',
@@ -157,7 +144,22 @@ export function say(name: TextName, locale: Locale, values: Readonly<Record<stri
   return TEXTS[name][locale](values);
 }
 
-/** Items as an inline code list, `a`, `b`, the way the language's own diagnostics list what is allowed. */
-export function list(items: readonly string[]): string {
-  return items.map((item) => `\`${item}\``).join(', ');
+/** Last day the old extension `.dia` is read: one year after ADR 0002, see ADR 0012. */
+export const LEGACY_EXTENSION_UNTIL = '2027-10-24';
+
+const LEGACY: Texts = {
+  en: (v) =>
+    `\`${v.file}\` has the old extension \`.dia\`, which is read until ${v.until} only. Rename it to \`${v.renamed}\`.`,
+  de: (v) =>
+    `\`${v.file}\` hat die alte Endung \`.dia\`, die nur bis ${v.until} gelesen wird. In \`${v.renamed}\` umbenennen.`,
+};
+
+/**
+ * The notice ADR 0002 Nr. 6 promises for a `.dia` file: a warning C100 on the file, so the call still succeeds.
+ * The code stands for the file, not for a line, and is stable like the refusal codes.
+ */
+export function legacyExtension(file: string, locale: Locale): Finding {
+  const values = { file, renamed: `${file.slice(0, -'.dia'.length)}.dgr`, until: LEGACY_EXTENSION_UNTIL };
+  const span = { line: 1, column: 1, length: 0 };
+  return { code: 'C100', severity: 'warning', span, values, message: LEGACY[locale](values) };
 }

@@ -1,7 +1,6 @@
 import { say } from '../messages.js';
 import { diagnosticJson, diagnosticText, hasError } from '../report/diagnostics.js';
 import { type Command, command } from './command.js';
-import { needEngine } from './engine-required.js';
 import { readSource, writeOutput } from './files.js';
 
 export const build: Command = command({
@@ -26,10 +25,11 @@ export const build: Command = command({
     diagnostics: 'All findings, see "Diagnostics".',
   },
   async run({ arguments: { file }, options, io, engine, locale }) {
-    if (engine === undefined) return needEngine('build');
     const source = await readSource(io, file, locale);
     if ('problem' in source) return source;
-    const { svg, diagnostics } = engine.compile(source.text, { locale });
+    const compiled = engine.compile(source.text, { locale });
+    const { svg } = compiled;
+    const diagnostics = [...source.notices, ...compiled.diagnostics];
     let output: string | undefined;
     if (svg !== undefined && !hasError(diagnostics)) {
       output = options.out ?? svgBeside(file);

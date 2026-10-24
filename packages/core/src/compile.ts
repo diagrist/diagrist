@@ -4,15 +4,20 @@ import {
   type Diagnostic,
   type Document,
   diagnostic,
+  LANG_CODES,
+  LOCALES,
   type Locale,
+  list,
   oneOf,
   read,
   readKind,
 } from '@diagrist/lang';
 import type { Anchors } from './anchors.js';
+import { checkDrawing } from './drawing.js';
 import { KERNEL_CODES } from './messages.js';
 import type { Kind, Plugin } from './plugin.js';
 import { toSvg } from './svg.js';
+import { applyTheme, type Theme } from './theme.js';
 
 /** What `compile` may draw and how: the registered plugins and whether the SVG is inline. */
 export interface CompileOptions {
@@ -20,6 +25,8 @@ export interface CompileOptions {
   readonly plugins: readonly Plugin[];
   /** Leave stylesheet and background out of the SVG, for hosts that style the classes themselves. */
   readonly inline?: boolean;
+  /** Laid over the style table of the drawn kind, such as a corporate design; see `Theme`. */
+  readonly theme?: Theme;
 }
 
 /**
@@ -34,8 +41,6 @@ export interface Compilation {
   readonly anchors?: Anchors;
   readonly description?: string;
 }
-
-const LOCALES = ['en', 'de'] as const satisfies readonly Locale[];
 
 /**
  * The `locale=` header attribute shared by all kinds: plugins put it into their header table, the kernel
@@ -58,10 +63,8 @@ export function compile(source: string, options: CompileOptions): Compilation {
   const name = kindName(document);
   const kind = name === undefined ? undefined : registry.kinds.get(name);
   if (kind === undefined) {
-    const at = document.statements[0]?.keywordSpan ?? { line: 1, column: 1, length: 1 };
-    const allowed = [...registry.kinds.keys()].map((k) => `\`${k}\``).join(', ') || 'none';
-    const unknown = diagnostic(KERNEL_CODES.unknownKind, 'error', at, { found: name ?? '', allowed });
-    return { diagnostics: sorted([...syntax, ...registry.diagnostics, unknown]), locale: fallback };
+    const found = noKind(document, name, [...registry.kinds.keys()]);
+    return { diagnostics: sorted([...syntax, ...registry.diagnostics, found]), locale: fallback };
   }
   const reading = readKind(kind.spec, document);
   const locale = LOCALES.find((l) => l === reading.header?.attributes.locale) ?? fallback;
@@ -71,13 +74,28 @@ export function compile(source: string, options: CompileOptions): Compilation {
   const checked = sorted([...found, ...runRules(kind, model)]);
   if (hasErrors(checked)) return { diagnostics: checked, locale };
   const drawing = kind.layout(model, { locale });
+  const styles = applyTheme(drawing.styles, options.theme);
+  const drawn = sorted([...checked, ...checkDrawing(drawing, styles)]);
+  if (hasErrors(drawn)) return { diagnostics: drawn, locale };
   return {
-    diagnostics: checked,
+    diagnostics: drawn,
     locale,
-    svg: toSvg(drawing.scene, drawing.styles, options.inline === true ? { inline: true } : {}),
+    svg: toSvg(drawing.scene, styles, options.inline === true ? { inline: true } : {}),
     anchors: drawing.anchors,
     description: kind.describe(model, { locale }),
   };
+}
+
+/**
+ * Why no kind can draw the source: without a header line it is L100, which shows how a diagram starts; with a
+ * header naming an unknown kind it is K100. Both list the registered kinds, so the next try can be right.
+ */
+function noKind(document: Document, name: string | undefined, kinds: readonly string[]): Diagnostic {
+  const at = document.statements[0]?.keywordSpan ?? { line: 1, column: 1, length: 1 };
+  const allowed = list(kinds);
+  if (name !== undefined) return diagnostic(KERNEL_CODES.unknownKind, 'error', at, { found: name, allowed });
+  const example = `diagram ${kinds[0] ?? 'sequence'} "Title"`;
+  return diagnostic(LANG_CODES.missingHeader, 'error', at, { kind: '<kind>', allowed, example });
 }
 
 function kindName(document: Document): string | undefined {

@@ -1,8 +1,16 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import type { FileProblem, Io } from './io.js';
 
+/** The two output streams of the host; `process` has them, tests pass their own. */
+export interface Streams {
+  readonly stdout: NodeJS.WritableStream;
+  readonly stderr: NodeJS.WritableStream;
+}
+
 /** The host as Node sees it: files relative to the working directory, and the process's output streams. */
-export function nodeIo(): Io {
+export function nodeIo(streams: Streams = process): Io {
+  const stdout = untilClosed(streams.stdout);
+  const stderr = untilClosed(streams.stderr);
   return {
     readFile: (path) =>
       readFile(path, 'utf8').then(
@@ -14,12 +22,30 @@ export function nodeIo(): Io {
         () => undefined,
         (error: unknown) => problemOf(error),
       ),
-    stdout: (text) => {
-      process.stdout.write(text);
-    },
-    stderr: (text) => {
-      process.stderr.write(text);
-    },
+    stdout,
+    stderr,
+  };
+}
+
+/**
+ * Writes to a stream until its reader is gone. A reader that stops early, like `head` in
+ * `dgr grammar sequence | head`, closes the pipe; Node then reports EPIPE as an `error` event, which would crash
+ * the process with a stack trace. The rest of the output is dropped instead and the call ends with its own exit
+ * code. Any other write error is raised again as before.
+ */
+function untilClosed(stream: NodeJS.WritableStream): (text: string) => void {
+  let closed = false;
+  const onError = (error: unknown): void => {
+    if (codeOf(error) === 'EPIPE') {
+      closed = true;
+      return;
+    }
+    stream.off('error', onError);
+    stream.emit('error', error);
+  };
+  stream.on('error', onError);
+  return (text) => {
+    if (!closed) stream.write(text);
   };
 }
 
@@ -32,6 +58,11 @@ const PROBLEMS: Readonly<Record<string, FileProblem>> = {
 };
 
 function problemOf(error: unknown): FileProblem {
+  const code = codeOf(error);
+  return (code === undefined ? undefined : PROBLEMS[code]) ?? 'failed';
+}
+
+function codeOf(error: unknown): string | undefined {
   const code = error instanceof Error && 'code' in error ? error.code : undefined;
-  return (typeof code === 'string' ? PROBLEMS[code] : undefined) ?? 'failed';
+  return typeof code === 'string' ? code : undefined;
 }

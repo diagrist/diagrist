@@ -58,7 +58,7 @@ export const fmt: Command = command({
 
 function format(source: Source, checkOnly: boolean, locale: Locale): Formatting {
   const reading = read(source.text);
-  const diagnostics = languageFindings(reading.diagnostics, locale);
+  const diagnostics = [...source.notices, ...languageFindings(reading.diagnostics, locale)];
   if (hasError(diagnostics)) return { source, status: 'invalid', printed: source.text, diagnostics };
   const printed = print(reading.document);
   const status = printed === source.text ? 'unchanged' : checkOnly ? 'unformatted' : 'formatted';

@@ -1,4 +1,4 @@
-import type { Grammar, GrammarField, GrammarLine, GrammarStatement } from '@diagrist/lang';
+import type { Grammar, GrammarField, GrammarLine, GrammarReference, GrammarStatement } from '@diagrist/lang';
 
 const INDENT = '  ';
 
@@ -22,12 +22,22 @@ export function grammarText(grammar: Grammar): string {
   ].join('\n');
 }
 
+/** A statement, its line form and its children; children described elsewhere are named in one line. */
 function statementText(statement: GrammarStatement, depth: number): string[] {
+  const described = statement.children.filter((child): child is GrammarStatement => !isReference(child));
+  const elsewhere = statement.children.filter(isReference).map((child) => child.keyword);
   return [
     ...lineText(statement.keyword, statement, depth),
+    ...(elsewhere.length > 0
+      ? [`${INDENT.repeat(depth + 1)}also inside: ${elsewhere.join(', ')} (each described at its own entry)`]
+      : []),
     ...(statement.lines ? lineText('(line without keyword)', statement.lines, depth + 1) : []),
-    ...statement.children.flatMap((child) => statementText(child, depth + 1)),
+    ...described.flatMap((child) => statementText(child, depth + 1)),
   ];
+}
+
+function isReference(child: GrammarStatement | GrammarReference): child is GrammarReference {
+  return 'ref' in child;
 }
 
 function lineText(head: string, line: GrammarLine, depth: number): string[] {

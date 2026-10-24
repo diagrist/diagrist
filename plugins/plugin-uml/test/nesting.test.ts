@@ -6,18 +6,44 @@ import { codes, sequence } from './compile.js';
 
 const heads = ['participant a "A"', 'participant b "B"'];
 
+/** The grammar of the sequence kind as `dgr grammar sequence --json` gives it. */
+const grammar = () => grammarOf(umlPlugin.kinds[0]?.spec ?? { name: '', doc: '', header: {}, statements: [] });
+
+/** Follows a JSON Pointer (RFC 6901) without escapes, as the grammar writes them. */
+const resolve = (root: unknown, pointer: string): unknown =>
+  pointer
+    .split('/')
+    .slice(1)
+    .reduce<unknown>((node, key) => (node as Record<string, unknown> | undefined)?.[key], root);
+
 describe('the sequence tables', () => {
   it('document every statement, argument, attribute and flag, and every rule has en and de messages', () => {
     expect(checkPlugin(umlPlugin)).toEqual([]);
   });
 
   it('describe fragments as recursive data for agents', () => {
-    const [kind] = umlPlugin.kinds;
-    const alt = kind && grammarOf(kind.spec).statements.find((s) => s.keyword === 'alt');
-    const children = alt?.children.map((c) => c.keyword) ?? [];
-    expect(children).toContain('else');
-    expect(children).toContain('loop');
-    expect(alt?.children.find((c) => c.keyword === 'alt')?.repeats).toBe(true);
+    const statements = grammar().statements;
+    const at = statements.findIndex((s) => s.keyword === 'alt');
+    const children = statements[at]?.children ?? [];
+    expect(children.map((c) => c.keyword)).toEqual(expect.arrayContaining(['else', 'loop', 'msg']));
+    expect(children.find((c) => c.keyword === 'alt')).toEqual({ keyword: 'alt', ref: `/statements/${at}` });
+  });
+
+  it('describe every table in full once, everywhere else by a pointer that resolves to it', () => {
+    const data = grammar();
+    const json = JSON.stringify(data);
+    expect(json.length, 'about 45 KB; before references it was 284 KB').toBeLessThan(60_000);
+    const full: string[] = [];
+    const visit = (node: unknown, at: string): void => {
+      if (node === null || typeof node !== 'object') return;
+      const entry = node as { keyword?: unknown; ref?: unknown; children?: unknown };
+      if (typeof entry.ref === 'string')
+        expect(resolve(data, entry.ref), `${at} -> ${entry.ref}`).toMatchObject({ keyword: entry.keyword });
+      else if (typeof entry.keyword === 'string' && Array.isArray(entry.children)) full.push(entry.keyword);
+      for (const [key, value] of Object.entries(node)) visit(value, `${at}/${key}`);
+    };
+    visit(data, '');
+    expect(full.length).toBe(new Set(full).size);
   });
 });
 

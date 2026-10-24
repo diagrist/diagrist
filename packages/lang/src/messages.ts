@@ -1,6 +1,10 @@
 import type { Diagnostic } from './diagnostic.js';
+import { didYouMean } from './list.js';
 
-export type Locale = 'en' | 'de';
+/** Every language Diagrist speaks: messages, picture texts, descriptions and `--locale` (ADR 0002 Nr. 5). */
+export const LOCALES = ['en', 'de'] as const;
+
+export type Locale = (typeof LOCALES)[number];
 
 type Template = (values: Readonly<Record<string, string>>) => string;
 
@@ -21,7 +25,10 @@ export const LANG_CODES = {
   duplicateId: 'L108',
 } as const;
 
-const MESSAGES: Readonly<Record<string, Readonly<Record<Locale, Template>>>> = {
+type LangCode = (typeof LANG_CODES)[keyof typeof LANG_CODES];
+
+/** One text per code and locale; the type makes a code without a text in every locale a compile error. */
+const MESSAGES: Readonly<Record<LangCode, Readonly<Record<Locale, Template>>>> = {
   L001: {
     en: () => 'Text is missing its closing quote.',
     de: () => 'Dem Text fehlt das schließende Anführungszeichen.',
@@ -35,14 +42,15 @@ const MESSAGES: Readonly<Record<string, Readonly<Record<Locale, Template>>>> = {
     de: () => 'Mit Leerzeichen einrücken, nicht mit Tabs.',
   },
   L100: {
-    en: (v) => `A diagram starts with \`diagram ${v.kind} "Title"\`.`,
-    de: (v) => `Ein Diagramm beginnt mit \`diagram ${v.kind} "Titel"\`.`,
+    en: (v) =>
+      `A diagram starts with \`diagram ${v.kind} "Title"\`.${v.allowed ? ` Registered kinds: ${v.allowed}. Example: \`${v.example}\`` : ''}`,
+    de: (v) =>
+      `Ein Diagramm beginnt mit \`diagram ${v.kind} "Titel"\`.${v.allowed ? ` Registrierte Arten: ${v.allowed}. Beispiel: \`${v.example}\`` : ''}`,
   },
   L101: {
-    en: (v) =>
-      `Unknown keyword \`${v.found}\` here${v.suggestion ? `; did you mean \`${v.suggestion}\`?` : '.'} Allowed: ${v.allowed}.`,
+    en: (v) => `Unknown keyword \`${v.found}\` here${didYouMean(v.suggestion, 'en')} Allowed: ${v.allowed}.`,
     de: (v) =>
-      `Unbekanntes Schlüsselwort \`${v.found}\` an dieser Stelle${v.suggestion ? `; gemeint ist wohl \`${v.suggestion}\`?` : '.'} Erlaubt: ${v.allowed}.`,
+      `Unbekanntes Schlüsselwort \`${v.found}\` an dieser Stelle${didYouMean(v.suggestion, 'de')} Erlaubt: ${v.allowed}.`,
   },
   L102: {
     en: (v) => `\`${v.statement}\` needs ${v.name}: ${v.expected}. Example: \`${v.example}\``,
@@ -81,7 +89,11 @@ const MESSAGES: Readonly<Record<string, Readonly<Record<Locale, Template>>>> = {
   },
 };
 
-/** Renders a diagnostic as text. Unknown codes fall back to the code itself. */
+/** Renders a diagnostic of the language as text. A code that is not the language's own falls back to the code. */
 export function formatDiagnostic(found: Diagnostic, locale: Locale = 'en'): string {
-  return MESSAGES[found.code]?.[locale](found.values) ?? found.code;
+  return isLangCode(found.code) ? MESSAGES[found.code][locale](found.values) : found.code;
+}
+
+function isLangCode(code: string): code is LangCode {
+  return Object.hasOwn(MESSAGES, code);
 }

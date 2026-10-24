@@ -18,6 +18,8 @@ export interface GrammarField {
   readonly expected: string;
   readonly optional?: boolean;
   readonly choices?: readonly string[];
+  /** What each choice stands for, by choice, when the table says it. */
+  readonly meanings?: Readonly<Record<string, string>>;
   readonly refersTo?: readonly string[];
 }
 
@@ -32,35 +34,67 @@ export interface GrammarLine {
 
 export interface GrammarStatement extends GrammarLine {
   readonly keyword: string;
-  readonly children: readonly GrammarStatement[];
+  readonly children: readonly (GrammarStatement | GrammarReference)[];
   readonly lines?: GrammarLine;
-  /**
-   * The statement is described in full where it first appears, depth first; this later occurrence, such as a
-   * fragment inside a fragment, lists no children, which are the same as there.
-   */
-  readonly repeats?: true;
 }
 
+/**
+ * A statement that is described in full elsewhere in the same grammar, such as `msg` inside a fragment or a
+ * fragment inside itself. `ref` is a JSON Pointer (RFC 6901) from the grammar's root to that description.
+ */
+export interface GrammarReference {
+  readonly keyword: string;
+  readonly ref: string;
+}
+
+/**
+ * The grammar of a kind as data. Every table is described in full exactly once, at the shallowest place it occurs
+ * (top-level statements first); every other occurrence is a `GrammarReference`. Recursive tables such as nested
+ * fragments stay finite, and the size grows with the number of tables, not with how often they are reused.
+ */
 export function grammarOf(kind: KindSpec): Grammar {
-  const described = new Set<StatementSpec>();
+  const home = homes(kind.statements);
   return {
     kind: kind.name,
     doc: kind.doc,
     header: fields(kind.header),
-    statements: kind.statements.map((spec) => describeStatement(spec, described)),
+    statements: kind.statements.map((spec, i) => describeFully(spec, `/statements/${i}`, home)),
   };
 }
 
-/** Describes every table once; recursive tables such as nested fragments stay finite and small. */
-function describeStatement(spec: StatementSpec, described: Set<StatementSpec>): GrammarStatement {
-  const repeats = described.has(spec);
-  described.add(spec);
+/** Where each table is described in full: the first place a breadth-first walk from the top level reaches it. */
+function homes(statements: readonly StatementSpec[]): Map<StatementSpec, string> {
+  const home = new Map<StatementSpec, string>();
+  let level = statements.map((spec, i) => ({ spec, at: `/statements/${i}` }));
+  while (level.length > 0) {
+    const fresh: { spec: StatementSpec; at: string }[] = [];
+    for (const entry of level) {
+      if (home.has(entry.spec)) continue;
+      home.set(entry.spec, entry.at);
+      fresh.push(entry);
+    }
+    level = fresh.flatMap(({ spec, at }) =>
+      spec.children.map((child, j) => ({ spec: child, at: `${at}/children/${j}` })),
+    );
+  }
+  return home;
+}
+
+function describeStatement(
+  spec: StatementSpec,
+  at: string,
+  home: ReadonlyMap<StatementSpec, string>,
+): GrammarStatement | GrammarReference {
+  const full = home.get(spec);
+  return full !== undefined && full !== at ? { keyword: spec.keyword, ref: full } : describeFully(spec, at, home);
+}
+
+function describeFully(spec: StatementSpec, at: string, home: ReadonlyMap<StatementSpec, string>): GrammarStatement {
   return {
     keyword: spec.keyword,
     ...describeLine(spec),
-    children: repeats ? [] : spec.children.map((child) => describeStatement(child, described)),
+    children: spec.children.map((child, j) => describeStatement(child, `${at}/children/${j}`, home)),
     ...(spec.lines ? { lines: describeLine(spec.lines) } : {}),
-    ...(repeats ? { repeats } : {}),
   };
 }
 
@@ -86,6 +120,7 @@ function field(name: string, doc: string, value: Value<unknown>): GrammarField {
     type: value.type,
     expected: value.expected,
     ...(value.choices ? { choices: value.choices } : {}),
+    ...(value.meanings ? { meanings: value.meanings } : {}),
     ...(value.refersTo ? { refersTo: value.refersTo } : {}),
   };
 }

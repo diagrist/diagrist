@@ -13,6 +13,17 @@ describe('compile', () => {
     expect(other?.values).toMatchObject({ found: 'flow', allowed: '`lines`' });
   });
 
+  it('reports a source without header line as L100 with the registered kinds and an example, not as K100', () => {
+    const result = compile('line "Hello"', { plugins: [linesPlugin] });
+    expect(result.diagnostics.map((d) => [d.code, d.span.line, d.span.column])).toEqual([['L100', 1, 1]]);
+    const [missing] = result.diagnostics;
+    expect(missing && formatMessage(missing, [linesPlugin])).toBe(
+      'A diagram starts with `diagram <kind> "Title"`. Registered kinds: `lines`. Example: `diagram lines "Title"`',
+    );
+    expect(missing && formatMessage(missing, [linesPlugin], 'de')).toContain('Registrierte Arten: `lines`.');
+    expect(compile('diagram "Greeting"', { plugins: [linesPlugin] }).diagnostics[0]?.code).toBe('L100');
+  });
+
   it('runs the rules of the kind and phrases their findings from the plugin catalogue', () => {
     const result = compile(source, { plugins: [linesPlugin] });
     expect(result.diagnostics.map((d) => [d.code, d.severity, d.span.line])).toEqual([['T900', 'warning', 3]]);

@@ -2,7 +2,7 @@
   "$schema": "https://unpkg.com/knip@6/schema.json",
   "ignoreExportsUsedInFile": true,
   "workspaces": {
-    ".": { "entry": ["test/architecture/*.test.ts"], "project": ["*.ts", "test/**/*.ts"] },
+    ".": { "entry": ["test/architecture/*.test.ts", "test/package/*.ts"], "project": ["*.ts", "test/**/*.ts"] },
     "packages/*": { "project": ["src/**/*.ts", "test/**/*.ts"] },
     "plugins/*": { "project": ["src/**/*.ts", "test/**/*.ts"] }
   }

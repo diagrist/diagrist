@@ -1,8 +1,8 @@
 import { parseArgs } from 'node:util';
-import { type Locale, nearest } from '@diagrist/lang';
+import { LOCALES, type Locale, list, nearest } from '@diagrist/lang';
 import { type Command, GLOBAL_OPTIONS, type Options, ROOT_OPTIONS } from './commands/command.js';
 import { usageOf } from './commands/usage.js';
-import { LOCALES, list, type Problem, problem } from './messages.js';
+import { type Problem, problem } from './messages.js';
 
 type Arguments = Readonly<Record<string, string | readonly string[] | undefined>>;
 type Token = NonNullable<ReturnType<typeof parseArgs>['tokens']>[number];

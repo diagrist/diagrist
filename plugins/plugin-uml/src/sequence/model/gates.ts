@@ -37,7 +37,7 @@ export function gateEnd(
 }
 
 export interface Gates {
-  /** For each message its end on a frame; when both ends are on one, the receiver counts (U450, U454). */
+  /** For each message its end on a frame; when both ends are on one, the receiver counts (rules `frameGate`, `frameEdgeGate`). */
   readonly byMessage: ReadonlyMap<number, SeqGate>;
   /** All message ends that are gates; they are no lifelines. */
   readonly ids: ReadonlySet<string>;

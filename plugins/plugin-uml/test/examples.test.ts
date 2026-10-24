@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import { compile } from '@diagrist/core';
 import { compareGolden } from '@diagrist/testkit';
 import { describe, expect, it } from 'vitest';
@@ -21,6 +22,12 @@ describe('sequence examples', () => {
       expect(compareGolden(golden(`${name}.svg`), svg)).toEqual({ status: 'match' });
     },
   );
+
+  it('all render the bytes of the predecessor, checked by a SHA-256 per example', () => {
+    const sha256 = (text: string) => createHash('sha256').update(text).digest('hex');
+    const hashes = exampleNames.map((name) => `${sha256(compile(source(name), { plugins }).svg ?? '')}  ${name}\n`);
+    expect(compareGolden(golden('examples.sha256'), hashes.join(''))).toEqual({ status: 'match' });
+  });
 
   it('describes a diagram in German with locale=de', () => {
     const text = compile(source('bestellung-bestaetigen.dgr'), { plugins }).description ?? '';

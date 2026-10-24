@@ -25,6 +25,32 @@ in one clean-up with a second baseline.
 - Palette, strokes and fonts (`plugins/plugin-uml/src/theme.ts`) move to the kernel with the second plugin.
 - Title header and decision bar (`plugins/plugin-uml/src/shared`) move to a small library then.
 
+## Changes that need new bytes (found in the review of 24.10.2026)
+
+They change the SVG of the 15 examples, so they wait for the clean-up with a second baseline.
+
+- **Ligatures of JetBrains Mono.** Browsers apply the font's ligatures to texts such as `->` in labels, while the
+  layout measured single glyphs. Clean-up: `font-variant-ligatures: none` on the root rule.
+- **`label-<i>` is never written.** The SVG contract names `label-<index>` for the text of an edge, and
+  `EdgeAnchor.labelId` exists, but the sequence scene sets neither (`scene/index.ts`). Clean-up: give message
+  labels their own group with the id and set `labelId`.
+- **Sequence diagrams report no placed rectangles** (ADR 0010). Reporting them changes no bytes, but fixing what
+  the check finds in the examples does. Clean-up: hand heads, notes, frames and labels to the placement check.
+
+## Not derived yet (ADR 0004)
+
+ADR 0004 names these derivatives of the statement tables; they do not exist yet and must not be written by hand:
+JSON schema of a kind, completion, language spec and agent skill. `dgr grammar --json` is the source they will
+be generated from.
+
+## Waiting for a plugin that needs it
+
+- **Operators are fixed in `lang`.** `OPERATORS` in `packages/lang/src/scanner.ts` knows the UML diamond ends;
+  BPMN gateways or ER crow's feet would need a change there. Clean-up: plugins declare their operators.
+- **`Infer` stops at recursion and `readKind` casts.** Children of fragments are typed by hand in
+  `plugins/plugin-uml/src/sequence/source.ts`, and `readKind` asserts its result type. Clean-up when a second
+  recursive kind arrives: carry the child tables in the type.
+
 ## Found while joining the CLI with the kernel
 
 - **U400 points at the statement, not the token.** `msg a -> b` reports column 1 instead of the `b`. Clean-up:

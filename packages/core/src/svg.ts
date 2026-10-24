@@ -1,5 +1,5 @@
 import type { Scene, Shape } from './scene.js';
-import type { Marker, Styles } from './styles.js';
+import type { Icon, Marker, Styles } from './styles.js';
 
 /** How `toSvg` writes the document. */
 export interface SvgOptions {
@@ -39,10 +39,11 @@ function element(shape: Shape, styles: Styles): string {
     case 'rect':
       return `<rect x="${num(shape.x)}" y="${num(shape.y)}" width="${num(shape.w)}" height="${num(shape.h)}"${shape.rx ? ` rx="${shape.rx}"` : ''} ${cls(shape.role)}/>`;
     case 'path': {
-      const marker = styles.roles[shape.role]?.marker;
+      const { marker, markerStart } = styles.roles[shape.role] ?? {};
       const end = marker === undefined ? '' : ` marker-end="url(#m-${marker})"`;
+      const start = markerStart === undefined ? '' : ` marker-start="url(#m-${markerStart})"`;
       const move = shape.offset ? ` transform="translate(${shape.offset[0]} ${shape.offset[1]})"` : '';
-      return `<path d="${shape.d}" ${cls(shape.role)}${end}${move}/>`;
+      return `<path d="${shape.d}" ${cls(shape.role)}${end}${start}${move}/>`;
     }
     case 'line':
       return `<line x1="${num(shape.x1)}" y1="${num(shape.y1)}" x2="${num(shape.x2)}" y2="${num(shape.y2)}" ${cls(shape.role)}/>`;
@@ -52,6 +53,8 @@ function element(shape: Shape, styles: Styles): string {
       const anchor = shape.anchor ? ` text-anchor="${shape.anchor}"` : '';
       return `<text x="${num(shape.x)}" y="${num(shape.y)}"${anchor} ${cls(shape.role)}>${escapeText(shape.text)}</text>`;
     }
+    case 'icon':
+      return icon(shape, styles.icons?.[shape.icon], cls(shape.role));
     case 'group': {
       const id = shape.id === undefined ? '' : ` id="${escapeText(shape.id)}"`;
       const role = shape.role === undefined ? '' : ` ${cls(shape.role)}`;
@@ -76,11 +79,22 @@ function styleSheet(styles: Styles, used: ReadonlySet<string>): string {
   return `\n  ${root} { font-family: ${styles.fontFamily}; font-size: ${styles.fontSize}px; }\n${rules.join('')}`;
 }
 
-/** Arrowheads drawn in a grid of 12 units, scaled to `markerSize`. */
+/** An icon as a nested `<svg>` scaled into its square; an icon without a table entry draws nothing (K102). */
+function icon(shape: Extract<Shape, { kind: 'icon' }>, found: Icon | undefined, cls: string): string {
+  if (found === undefined) return '';
+  const { x, y, size } = shape;
+  const paths = found.paths.map((d) => `<path d="${d}"/>`).join('');
+  return `<svg x="${num(x)}" y="${num(y)}" width="${num(size)}" height="${num(size)}" viewBox="0 0 ${found.size} ${found.size}" ${cls}>${paths}</svg>`;
+}
+
+/** Markers drawn in a grid of 12 units, scaled to `markerSize`. */
 function markers(styles: Styles): string {
   const size = styles.markerSize;
   const unit = (n: number) => num((n * size) / 12);
+  const outline = (m: Marker) =>
+    m.shape.points.map(([x, y], i) => `${i === 0 ? 'M' : 'L'}${unit(x)} ${unit(y)}`).join(' ') +
+    (m.shape.closed === true ? ' Z' : '');
   const marker = (m: Marker) =>
-    `<marker id="m-${m.id}" markerUnits="userSpaceOnUse" markerWidth="${size}" markerHeight="${size}" refX="${unit(11)}" refY="${unit(6)}" orient="auto"><path d="M${unit(1)} ${unit(1)} L${unit(11)} ${unit(6)} L${unit(1)} ${unit(11)}${m.filled ? ' Z' : ''}" class="${m.name}" stroke-linecap="round"/></marker>`;
+    `<marker id="m-${m.id}" markerUnits="userSpaceOnUse" markerWidth="${size}" markerHeight="${size}" refX="${unit(11)}" refY="${unit(6)}" orient="${m.orient ?? 'auto'}"><path d="${outline(m)}" class="${m.name}" stroke-linecap="round"/></marker>`;
   return `<defs>${styles.markers.map(marker).join('')}</defs>`;
 }

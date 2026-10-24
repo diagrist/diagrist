@@ -1,7 +1,7 @@
-import type { Locale } from '@diagrist/lang';
+import { LOCALES, type Locale } from '@diagrist/lang';
 import type { Engine } from '../engine.js';
 import type { Io } from '../io.js';
-import { LOCALES, type Problem } from '../messages.js';
+import type { Problem } from '../messages.js';
 
 /** A positional argument. `one` is exactly one value, `optional` zero or one, `many` one or more. */
 export interface ArgumentSpec {
@@ -52,8 +52,8 @@ export interface Outcome {
 interface Context {
   readonly locale: Locale;
   readonly io: Io;
-  /** `undefined` until the kernel is wired in; commands that need it refuse with `noEngine`. */
-  readonly engine: Engine | undefined;
+  /** The diagram kernel behind the port (ADR 0009); `main.ts` wires in the real one. */
+  readonly engine: Engine;
   /** All command tables, for `help`. */
   readonly commands: readonly Command[];
 }
@@ -126,7 +126,7 @@ export const EXIT_CODES: readonly { readonly code: number; readonly doc: string 
   { code: 1, doc: 'A finding with severity error, or `fmt --check` found a file that is not formatted.' },
   {
     code: 2,
-    doc: 'The call cannot be carried out: unknown command or option, missing or extra argument, unreadable or unwritable file, or a command this build cannot run yet.',
+    doc: 'The call cannot be carried out: unknown command or option, missing or extra argument, unreadable or unwritable file.',
   },
 ];
 

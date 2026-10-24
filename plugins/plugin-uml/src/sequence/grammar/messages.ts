@@ -9,8 +9,24 @@ const attributes = {
 
 const flags = { emph: 'Highlights the message in the accent colour.' };
 
+/**
+ * The arrows of `msg`: what each one means and which kind of message the model makes of it. The grammar, its
+ * diagnostics and the model read this one table.
+ */
+export const ARROWS = {
+  '->': { kind: 'sync', meaning: 'synchronous call (filled head)' },
+  '~>': { kind: 'async', meaning: 'asynchronous message (open head)' },
+  '-->': { kind: 'reply', meaning: 'reply (dashed, open head)' },
+} as const;
+
+type Arrow = keyof typeof ARROWS;
+
+const MEANINGS: Readonly<Record<Arrow, string>> = Object.fromEntries(
+  Object.entries(ARROWS).map(([arrow, { meaning }]) => [arrow, meaning]),
+) as Record<Arrow, string>;
+
 export const msg = statement('msg', {
-  doc: 'A message in source order. `->` is a synchronous call (filled head), `~>` an asynchronous message (open head), `-->` a reply (dashed). Sender equal to receiver is a self call. Calls and replies activate the receiver by themselves. `found` as sender and `lost` as receiver are found and lost messages; `gate` is a gate on the frame of the interaction (`gate -> a` comes in from the left, `a --> gate` replies to the left, `a -> gate` leaves to the right), `gate.name` names it. The `id=` of a `ref` or fragment as an end leads the message to its edge.',
+  doc: 'A message in source order; its arrow says what kind. Sender equal to receiver is a self call. Calls and replies activate the receiver by themselves. `found` as sender and `lost` as receiver are found and lost messages; `gate` is a gate on the frame of the interaction (`gate -> a` comes in from the left, `a --> gate` replies to the left, `a -> gate` leaves to the right), `gate.name` names it. The `id=` of a `ref` or fragment as an end leads the message to its edge.',
   examples: [
     'msg client -> api "GET /orders" id=request',
     'msg api --> client "200 OK"',
@@ -18,7 +34,7 @@ export const msg = statement('msg', {
   ],
   arguments: [
     arg('from', messageEnd(), 'Sender: a lifeline, `found`, `gate`, or a frame with `id=`.'),
-    arg('arrow', arrow(['->', '~>', '-->']), '`->` call, `~>` asynchronous message, `-->` reply.'),
+    arg('arrow', arrow(MEANINGS), 'The kind of message, which also decides how it is drawn.'),
     arg('to', messageEnd(), 'Receiver: a lifeline, `lost`, `gate`, or a frame with `id=`.'),
     optionalArg('label', text(), 'What is sent; without it the arrow has no label.'),
   ],
