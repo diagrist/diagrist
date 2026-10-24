@@ -49,7 +49,7 @@ function gridNode(n: ArchNode, at: NonNullable<ArchNode['at']>, adaptive: boolea
   const circle = isCircle(n, look);
   const own = look === 'blocks' || n.height !== undefined ? nodeHeight(n, sizing) : undefined;
   const fixed = adaptive ? fixedWidth(n, sizing) : undefined;
-  const width = n.keyword === 'person' ? PERSON_W : circle ? 2 * m.circleR : fixed;
+  const width = n.keyword === 'person' && look !== 'columns' ? PERSON_W : circle ? 2 * m.circleR : fixed;
   const measured = nodeWidth(n, sizing);
   const demand =
     fixed !== undefined

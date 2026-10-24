@@ -2,6 +2,7 @@ import { rule, STANDARD_FONTS, STROKES, type StyleRule, type Styles, standardSty
 import { ICONS } from '../icons/index.js';
 import type { FontSizes } from '../layout/metrics.js';
 import { metricsOf } from '../layout/metrics.js';
+import { columnsStyles } from '../looks/columns/styles.js';
 import type { Look } from '../model/types.js';
 import { paperStyles } from './paper.js';
 import { ARCHITECTURE_ROLES } from './roles.js';
@@ -42,6 +43,7 @@ function blockBase(f: FontSizes, w: Strokes): StyleRule[] {
 export function stylesOf(look: Look): Styles {
   const m = metricsOf(look);
   if (look === 'paper') return paperStyles(m);
+  if (look === 'columns') return columnsStyles(m);
   const f = m.fontSize;
   const strokes = look === 'blocks' ? BLOCK_STROKES : STANDARD_STROKES;
   const base = standardStyles({ roles: ARCHITECTURE_ROLES, rules: architectureRules(f, strokes), fonts: m.fonts });

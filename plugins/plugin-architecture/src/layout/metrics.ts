@@ -1,4 +1,5 @@
 import { FONT_SIZE, type Font } from '@diagrist/core';
+import { COLUMNS } from '../looks/columns/metrics.js';
 import type { Look } from '../model/types.js';
 
 /** Font sizes by role, the same numbers the layout measures with and the stylesheet sets. */
@@ -133,7 +134,6 @@ const STANDARD: Metrics = {
 };
 
 const BLOCK_SIZES: FontSizes = { title: 16, node: 19, group: 16, label: 14, note: 14, badge: 12 };
-
 /** Blocks pack sub-modules tightly, with large text, high boxes and strong lines, as pattern books draw them. */
 const BLOCKS: Metrics = {
   ...STANDARD,
@@ -192,6 +192,7 @@ const LOOK_METRICS: Readonly<Record<Look, Metrics>> = {
   cards: STANDARD,
   blocks: BLOCKS,
   paper: PAPER,
+  columns: COLUMNS,
 };
 
 /** The measures of a look. */

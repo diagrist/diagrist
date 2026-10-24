@@ -9,7 +9,7 @@ This page lists everything a `container` diagram may contain. The same grammar i
 ## The first line
 
 ```text
-diagram container "Title" [subtitle=<text>] [label=<text>] [look=<plain|cards|blocks|paper>] [layout=<adaptive>] [locale=<en|de>]
+diagram container "Title" [subtitle=<text>] [label=<text>] [look=<plain|cards|blocks|paper|columns>] [layout=<adaptive>] [locale=<en|de>]
 ```
 
 Every container diagram starts with this line.
@@ -18,7 +18,7 @@ Every container diagram starts with this line.
 |---|---|---|---|
 | `subtitle=` | attribute | a text in double quotes like `"Order service"` | Second line below the title. |
 | `label=` | attribute | a text in double quotes like `"Order service"` | Name before the title instead of the kind; an empty `label=""` leaves only the title. |
-| `look=` | attribute | one of `plain`, `cards`, `blocks`, `paper` | `plain` (default) boxes with a legend, `cards` toned icon cards, `blocks` filled blocks as in pattern books, `paper` a quiet print look: Inter on paper, zones as areas, the core in yellow, decisions in the margin. |
+| `look=` | attribute | one of `plain`, `cards`, `blocks`, `paper`, `columns` | `plain` (default) boxes with a legend, `cards` toned icon cards, `blocks` filled blocks as in pattern books, `paper` a quiet print look: Inter on paper, zones as areas, the core in yellow, decisions in the margin, `columns` technical clarity: column bands with heads, names in the top edge of square boxes, the focus flow in black and its context in grey. |
 | `layout=` | attribute | one of `adaptive` | Columns grow to their content and edges find their own way around obstacles; without it the grid is fixed. |
 | `locale=` | attribute | one of `en`, `de` | Language of the texts Diagrist adds to the picture and of the description: `en` (default) or `de`. |
 

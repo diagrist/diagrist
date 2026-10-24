@@ -10,6 +10,10 @@ import {
   routeEdges,
 } from '@diagrist/layout-grid';
 import { decisionStrip, type Legend, legendLayout, type Strip, WORDS } from '@diagrist/parts';
+import { columnsGridModel, columnsSheetOf } from '../looks/columns/layout.js';
+import { columnsMetrics } from '../looks/columns/metrics.js';
+import type { ColumnsSheet } from '../looks/columns/sheet.js';
+import { clearTabs } from '../looks/columns/tabs.js';
 import type { ArchGroup, ArchitectureModel, ArchNode } from '../model/types.js';
 import type { Texts } from '../texts/index.js';
 import { PAPER_WORDS } from '../texts/paper.js';
@@ -57,6 +61,8 @@ export interface ArchitectureLayout {
   readonly legend?: Legend<Sample>;
   /** Only in `look=paper`: decisions in the margin and the legend as sentences, instead of `strip` and `legend`. */
   readonly sheet?: PaperSheet;
+  /** Only in `look=columns`: head bands, separators, the side column and the footer. */
+  readonly columns?: ColumnsSheet;
   readonly width: number;
   readonly height: number;
   readonly placed: readonly Placed[];
@@ -71,11 +77,12 @@ const bottom = (r: Rect): number => r.y + r.h;
  * bar and the legend.
  */
 export function layoutArchitecture(model: ArchitectureModel, texts: Texts, locale: Locale): ArchitectureLayout {
-  const sizing: Sizing = { look: model.look, m: metricsOf(model.look) };
+  const columns = model.look === 'columns';
+  const sizing: Sizing = { look: model.look, m: columns ? columnsMetrics(model) : metricsOf(model.look) };
   const m = sizing.m;
-  const { spec, texts: edgeTexts } = gridSpecOf(model, sizing);
+  const { spec, texts: edgeTexts } = gridSpecOf(columns ? columnsGridModel(model) : model, sizing);
   const grid = placeGrid(spec);
-  const routes = routeEdges(spec, grid);
+  const routes = columns ? clearTabs(routeEdges(spec, grid), grid.nodes, model.nodes, m) : routeEdges(spec, grid);
   const paper = model.look === 'paper';
   const found = labelEdges(spec, grid, routes, edgeTexts, { preferFlat: model.look === 'cards', onLine: paper });
   const pl = spec.adaptive ? fitFrames(spec, grid, routes, found) : grid;
@@ -91,8 +98,9 @@ export function layoutArchitecture(model: ArchitectureModel, texts: Texts, local
   });
   const rects = new Map(pl.nodes.map((p) => [p.id, p.rect]));
   const { badges: numbers, marks: aside } = marksOf(model, routes, rects, m);
-  const { badges, labels } = paper ? seatBadges(numbers, found, routes) : { badges: numbers, labels: found };
-  const marks = paper ? marksInside(aside, model.nodes, rects) : aside;
+  const seated = paper || columns;
+  const { badges, labels } = seated ? seatBadges(numbers, found, routes) : { badges: numbers, labels: found };
+  const marks = seated ? marksInside(aside, model.nodes, rects) : aside;
   const routeRight = Math.max(0, ...routes.flatMap((r) => r.points.map((p) => p[0])));
   const contentRight = Math.max(
     routeRight,
@@ -102,7 +110,7 @@ export function layoutArchitecture(model: ArchitectureModel, texts: Texts, local
   const layers = layerArts(model.layers, pl.rows, contentRight, m, paper);
   const crest = (id: string) => crestOf(nodes, id, m.cardIconR);
   const notes = noteArts(model.notes, rects, crest, m);
-  const strip = decisionStrip(paper ? [] : model.decisions, pl.bottom, pl.width);
+  const strip = decisionStrip(seated ? [] : model.decisions, pl.bottom, pl.width);
   const items = legendItems(model, routes, marks.length > 0, texts, m);
   const legend = model.look === 'plain' ? legendLayout(items, strip.bottom, pl.width) : undefined;
   const noteBottom = Math.max(0, ...notes.map((n) => bottom(n.rect) + m.groupPadBottom));
@@ -126,6 +134,9 @@ export function layoutArchitecture(model: ArchitectureModel, texts: Texts, local
         m,
       )
     : undefined;
+  const sheetOfColumns = columns
+    ? columnsSheetOf(model, { grid: pl, routes, labels, badges }, texts, locale, m)
+    : undefined;
   return {
     sizing,
     nodes,
@@ -139,8 +150,12 @@ export function layoutArchitecture(model: ArchitectureModel, texts: Texts, local
     strip,
     ...(legend ? { legend } : {}),
     ...(sheet ? { sheet } : {}),
-    width: sheet?.width ?? width,
-    height: sheet?.height ?? (legend ? Math.max(strip.bottom + m.legendReserve, legend.bottom) : body + m.margin),
+    ...(sheetOfColumns ? { columns: sheetOfColumns } : {}),
+    width: sheetOfColumns?.width ?? sheet?.width ?? width,
+    height:
+      sheetOfColumns?.height ??
+      sheet?.height ??
+      (legend ? Math.max(strip.bottom + m.legendReserve, legend.bottom) : body + m.margin),
     placed: placedOf(spec, pl, routes, labels),
   };
 }

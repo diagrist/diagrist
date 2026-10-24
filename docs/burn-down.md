@@ -101,6 +101,7 @@ keep it so; they go in the clean-up with a second baseline.
 | **No layout checks on routes.** The predecessor reported edges through nodes (E204), unroutable edges (E206), crossings (W203), overlapping edges (W206), labels on edges (W207) and lines through heads (W492). | Report routes as placed lines. |
 | **Labels reach into foreign frames.** `radverleih/komponenten`, `soll` and `variante-a` warn (G400, G402) where an edge label reaches into a frame it does not belong to; the pictures show it. | Fixing it changes their bytes. |
 | **The sheet of `look=paper` lives in the plugin.** Kicker above the title, margin notes for decisions, the legend as sentences and the gap behind texts on a line are drawn in `src/layout/paper*.ts` and `src/scene/paper.ts`, measured with the plugin's fonts. | Move them into `parts` when a second plugin draws paper (ADR 0014). |
+| **`look=columns` moves line ends after routing.** The name in the top edge of a box needs that stretch of the edge free; `layout-grid` knows no reserved stretch on a side, so `src/looks/columns/tabs.ts` moves vertical ends right of the name by lanes, and a box without room right of its name stacks the name inside. | A reserved stretch per side on `GridNode`, honoured where the grid docks lines. |
 | **Edges to a group in a fixed grid run slanted** when the group's middle lies in another row, and their label can cover the start node, as with the predecessor. | Dock at the frame like at a node. |
 
 ## Tools

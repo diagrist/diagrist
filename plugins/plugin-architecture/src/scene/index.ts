@@ -1,6 +1,7 @@
 import { type Anchors, domId, type Scene, type Shape } from '@diagrist/core';
 import { HEADER, headerShapes, imageTitle, legendShapes, stripShapes, type Words } from '@diagrist/parts';
 import type { ArchitectureLayout } from '../layout/index.js';
+import { columnsScene } from '../looks/columns/scene.js';
 import type { ArchitectureModel } from '../model/types.js';
 import type { Texts } from '../texts/index.js';
 import { edgeShapes } from './edges.js';
@@ -28,6 +29,7 @@ export function architectureScene(
   texts: Texts,
   words: Words,
 ): Scene {
+  if (model.look === 'columns') return columnsScene(model, layout, texts);
   const under = surfacesOf(layout.frames, model.look);
   const header =
     model.look === 'paper'
