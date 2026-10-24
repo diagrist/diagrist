@@ -13,6 +13,11 @@ How Diagrist is built. Short on purpose; if a rule is not here, prefer what make
 
 ## Code
 
+- **One source, everything else derived** (ADR 0004). Before writing something by hand, check whether it can be
+  derived from an existing source; if it can, derive it.
+- **Agents first** (ADR 0005). Every statement, attribute and diagnostic tells an agent what is allowed and what
+  happens, with an example.
+
 - **Readable over clever.** Names say what a thing is. A function does one job.
 - **Data in, data out.** No hidden side effects, no global state. Errors are diagnostics (data with line and code),
   not exceptions.
