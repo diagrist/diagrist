@@ -1,0 +1,30 @@
+# Order handling for architects: who uses the system, which use cases include others, which extend them under a
+# condition. Other systems stand right as system actors; the payment provider takes part in refunds and
+# reconciliation directly. The notes of the conditions get rows of their own where there would be no room.
+diagram usecase "Auftragsabwicklung" subtitle="Anwendungsfälle mit Fremdsystemen" locale=de
+actor kunde "Kunde"
+actor sb "Sachbearbeiter"
+actor psp "Payment-Provider" kind=system
+actor erp "Alt-ERP" kind=system
+subject system "Auftragsabwicklung"
+usecase erfassen "Auftrag erfassen" in system points="nach Positionen"
+usecase stornieren "Auftrag stornieren" in system points="vor Erstattung"
+usecase freigeben "Auftrag freigeben" in system
+usecase abgleichen "Zahlung abgleichen" in system
+usecase bonitaet "Bonität prüfen" in system
+usecase bestand "Lagerbestand abfragen" in system
+usecase erstatten "Zahlung erstatten" in system
+usecase rabatt "Rahmenrabatt anwenden" in system
+usecase gebuehr "Stornogebühr berechnen" in system
+rel kunde -- erfassen source=1 card=0..*
+rel sb -- freigeben
+rel kunde -- stornieren
+rel sb -- abgleichen
+rel erfassen --> bonitaet include
+rel erfassen --> bestand include
+rel stornieren --> erstatten include
+rel rabatt --> erfassen extend when="Rahmenvertrag vorhanden" at="nach Positionen"
+rel gebuehr --> stornieren extend when="Ware bereits versandt" at="vor Erstattung"
+rel bestand -- erp
+rel erstatten -- psp
+rel abgleichen -- psp

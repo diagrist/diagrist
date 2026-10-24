@@ -78,3 +78,19 @@ ADR 0004 asks that a derivative which cannot be generated yet is listed here, wi
 - **Use case gets new numbers.** The predecessor reserved room for stacked frame heads above the first row only in
   C4, measured actors with their name and started lines at the figure. `layout-grid` reserves in every adaptive grid
   and expects a figure as the node with its name as `caption`, so the use case baseline is new.
+
+## Use case diagrams (`plugin-uml/src/usecase`)
+
+- **Classes of markers count as unused.** The kernel writes a rule only when a shape uses its class, and the class
+  of a marker in `<defs>` is no shape's. The hollow triangle of a generalization (`uml-hollow`) is therefore marked
+  `always` and written into every use case picture. Clean-up: the kernel counts the classes of referenced markers.
+- **One marker size per style table.** The predecessor drew the hollow triangle 14 pixels long and the open head 10;
+  the kernel's markers share `markerSize` 12 in a 12-unit grid, so the triangle is 10 long. Clean-up, if the
+  difference matters: a size per marker.
+- **Labels of straight lines stay in the plugin.** `labelEdges` puts names on the longest segment of orthogonal
+  routes; the use case labels look along a slanted line, at both ends and inside the frame of the use case, and
+  notes search a field around their anchor. They use `occupancy` and `cheapest` of the library. Clean-up when a
+  second kind draws straight lines: move the search for spots along a line into `layout-grid`.
+- **Ellipses are reported as their inscribed rectangle.** The placement check knows boxes and texts only, and a
+  label near the curve of an ellipse lies inside its bounding box without touching it. Clean-up: an outline on
+  `Placed`.

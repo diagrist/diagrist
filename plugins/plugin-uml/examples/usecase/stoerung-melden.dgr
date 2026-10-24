@@ -1,0 +1,9 @@
+# UML dojo, use case diagram 09 "A special use case" (model answer of the learning platform). Reporting a grid
+# failure is a special case of reporting a failure.
+diagram usecase "Serviceportal" subtitle="Generalisierung von Anwendungsfällen" locale=de
+actor kunde "Kunde"
+subject portal "Serviceportal"
+usecase melden "Störung melden" in portal
+usecase netz "Netzstörung melden" in portal
+rel kunde -- melden
+rel netz -|> melden

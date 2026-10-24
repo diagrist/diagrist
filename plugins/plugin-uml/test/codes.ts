@@ -1,17 +1,32 @@
 import type { Plugin } from '@diagrist/core';
 
-/** Predecessor codes whose check the language or the tables do now, with the `lang` code that reports it. */
-const NOW_IN_LANG: readonly (readonly [string, string, string])[] = [
-  ['E400, in part', 'L107', '`activate`, `destroy`, `coregion` and `on=` name declared lifelines'],
-  ['E402', 'L101', '`else` only in `alt`, `and` only in `par`, `seq`, `strict`'],
-  ['E406', 'L108', 'ids are unique'],
-  ['E407', 'L107, L108', '`id=` is an id like any other'],
-  ['E409', 'L101', '`divider` only at the top level'],
-  ['E453, in part', 'L101', 'statements a coregion cannot hold'],
-  ['W302', 'L107', '`mark=` refers to an `adr`'],
-];
+type Moved = readonly (readonly [string, string, string])[];
 
-const START = '<!-- Generated from the rules in src/sequence/rules by `pnpm docs:uml`. Do not edit. -->';
+/** Predecessor codes per kind whose check the language, the tables or the kernel do now, with the code reporting it. */
+const MOVED: Readonly<Record<string, Moved>> = {
+  sequence: [
+    ['E400, in part', 'L107', '`activate`, `destroy`, `coregion` and `on=` name declared lifelines'],
+    ['E402', 'L101', '`else` only in `alt`, `and` only in `par`, `seq`, `strict`'],
+    ['E406', 'L108', 'ids are unique'],
+    ['E407', 'L107, L108', '`id=` is an id like any other'],
+    ['E409', 'L101', '`divider` only at the top level'],
+    ['E453, in part', 'L101', 'statements a coregion cannot hold'],
+    ['W302', 'L107', '`mark=` refers to an `adr`'],
+  ],
+  usecase: [
+    ['E101', 'L107', '`rel`, `in`, `on` and `mark=` name declared elements of the right kind'],
+    ['E102', 'L108', 'ids are unique'],
+    ['E420', 'L104', '`actor` has no `in`: actors stand outside every subject'],
+    ['E426, in part', 'L103', '`source=` and `card=` are valid multiplicities'],
+    ['E004, in part', 'U426', '`-->` without `include` or `extend`'],
+    ['W425', 'G400', 'a note without free room overlaps a node, a text or a frame line'],
+  ],
+};
+
+/** Checks without a predecessor code. */
+const NEW: readonly string[] = ['U428'];
+
+const START = '<!-- Generated from the rules in src/*/rules by `pnpm docs:uml`. Do not edit. -->';
 const END = '<!-- End of the generated codes. -->';
 
 /**
@@ -19,30 +34,30 @@ const END = '<!-- End of the generated codes. -->';
  * code follows from code and severity and is written nowhere by hand.
  */
 function predecessor(code: string, severity: string): string {
+  if (NEW.includes(code)) return '–';
   const number = Number(code.slice(1));
   return severity === 'error' ? `E${number}` : `W${number - 500}`;
 }
 
 const cell = (text: string): string => text.replace(/\|/g, '\\|');
 
-/** The code tables of the README, derived from the plugin's rules (ADR 0004). */
+/** The code tables of the README per kind, derived from the plugin's rules (ADR 0004). */
 function codeTables(plugin: Plugin): string[] {
-  const rules = plugin.kinds.flatMap((kind) => kind.rules);
-  return [
-    START,
+  const kinds = plugin.kinds.flatMap((kind) => [
+    `### \`${kind.spec.name}\``,
     '',
     '| Code | Severity | Before | What it checks |',
     '|---|---|---|---|',
-    ...rules.map((r) => `| ${r.code} | ${r.severity} | ${predecessor(r.code, r.severity)} | ${cell(r.doc)} |`),
+    ...kind.rules.map((r) => `| ${r.code} | ${r.severity} | ${predecessor(r.code, r.severity)} | ${cell(r.doc)} |`),
     '',
-    'Checks of the predecessor that the language or the tables do now:',
+    'Checks of the predecessor that the language, the tables or the kernel do now:',
     '',
     '| Before | Now | |',
     '|---|---|---|',
-    ...NOW_IN_LANG.map(([before, now, what]) => `| ${before} | ${now} | ${what} |`),
+    ...(MOVED[kind.spec.name] ?? []).map(([before, now, what]) => `| ${before} | ${now} | ${what} |`),
     '',
-    END,
-  ];
+  ]);
+  return [START, '', ...kinds, END];
 }
 
 /** The README with its code section replaced by what the rules generate, `undefined` without the markers. */

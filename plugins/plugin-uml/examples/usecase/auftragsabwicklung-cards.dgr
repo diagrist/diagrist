@@ -1,0 +1,30 @@
+# Order handling in the card look: the same use cases as auftragsabwicklung.dgr. The subject is a toned area,
+# actors share the tone with their use cases (customer blue, clerk teal), other systems stand as dark cards.
+# include, extend and notes stay UML.
+diagram usecase "Auftragsabwicklung" subtitle="Anwendungsfälle mit Fremdsystemen" look=cards locale=de
+actor kunde "Kunde" tone=blue
+actor sb "Sachbearbeiter" tone=teal
+actor psp "Payment-Provider" kind=system tone=purple
+actor erp "Alt-ERP" kind=system
+subject system "Auftragsabwicklung" tone=blue
+usecase erfassen "Auftrag erfassen" tone=blue in system points="nach Positionen"
+usecase stornieren "Auftrag stornieren" tone=blue in system points="vor Erstattung"
+usecase freigeben "Auftrag freigeben" tone=teal in system
+usecase abgleichen "Zahlung abgleichen" tone=teal in system
+usecase bonitaet "Bonität prüfen" in system
+usecase bestand "Lagerbestand abfragen" in system
+usecase erstatten "Zahlung erstatten" in system
+usecase rabatt "Rahmenrabatt anwenden" in system
+usecase gebuehr "Stornogebühr berechnen" in system
+rel kunde -- erfassen source=1 card=0..*
+rel sb -- freigeben
+rel kunde -- stornieren
+rel sb -- abgleichen
+rel erfassen --> bonitaet include
+rel erfassen --> bestand include
+rel stornieren --> erstatten include
+rel rabatt --> erfassen extend when="Rahmenvertrag vorhanden" at="nach Positionen"
+rel gebuehr --> stornieren extend when="Ware bereits versandt" at="vor Erstattung"
+rel bestand -- erp
+rel erstatten -- psp
+rel abgleichen -- psp

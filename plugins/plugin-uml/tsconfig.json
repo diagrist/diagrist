@@ -11,6 +11,7 @@
   "references": [
     { "path": "../../packages/lang" },
     { "path": "../../packages/core" },
-    { "path": "../../packages/parts" }
+    { "path": "../../packages/parts" },
+    { "path": "../../packages/layout-grid" }
   ]
 }

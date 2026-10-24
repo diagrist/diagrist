@@ -1,0 +1,20 @@
+Onlineshop. Use-Case-Diagramm (UML) mit 5 Akteuren und 8 Anwendungsfällen.
+Das System Onlineshop bietet 8 Anwendungsfälle: Produkte suchen, Bestellung aufgeben, Anmelden, Bezahlen, Gutschein einlösen, Bestellung stornieren, Express bestellen, Bestellung prüfen.
+Akteur Gast.
+Akteur Kunde.
+Akteur Stammkunde.
+Akteur Zahlungsdienst (System).
+Akteur Support.
+Bestellung aufgeben hat die Erweiterungsstelle vor Abschluss.
+Kunde ist eine spezielle Rolle von Gast.
+Stammkunde ist eine spezielle Rolle von Kunde.
+Gast ist beteiligt an Produkte suchen.
+Kunde ist beteiligt an Bestellung aufgeben.
+Kunde ist beteiligt an Bestellung stornieren.
+Stammkunde ist beteiligt an Express bestellen.
+Support ist beteiligt an Bestellung prüfen.
+Zahlungsdienst ist beteiligt an Bezahlen, Multiplizität 1 bei Zahlungsdienst, 0..* bei Bezahlen.
+Bestellung aufgeben schließt Anmelden ein (include).
+Bestellung aufgeben schließt Bezahlen ein (include).
+Gutschein einlösen erweitert Bestellung aufgeben an der Stelle vor Abschluss, wenn Gutschein vorhanden (extend).
+Express bestellen ist ein spezieller Fall von Bestellung aufgeben.

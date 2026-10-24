@@ -2,6 +2,7 @@ export { longestSegment, pointAlong, polylineLength, type Side } from './geometr
 export { grow, insertRows, type Slot } from './grow.js';
 export { type LabelOptions, labelEdges } from './label/index.js';
 export { cheapest, type Occupancy, occupancy } from './label/occupancy.js';
+export { segmentMeetsEllipse, segmentMeetsRect, segmentsIntersect } from './label/segment.js';
 export type { EdgeLabel, EdgeText, EndText } from './label/types.js';
 export { wrapTwo } from './label/wrap.js';
 export type { LayerEdge, Layered, LayerGraph } from './layers/graph.js';

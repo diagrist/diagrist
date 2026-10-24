@@ -1,0 +1,37 @@
+# Two subjects side by side: web shop and ERP. The clerk works in both and stands between them, so does the
+# shipping provider as a system actor. Notes on a use case, on an actor and on a subject are UML comments with a
+# folded corner and a dashed link. `direction=down` would stack the subjects.
+diagram usecase "Webshop und ERP" subtitle="Zwei Systemgrenzen, Akteure an beiden Systemen" locale=de
+actor kunde "Kunde"
+actor sb "Sachbearbeiter"
+actor lager "Lagerist"
+actor psp "Zahlungsdienst" kind=system
+actor versand "Versanddienstleister" kind=system
+subject shop "Webshop"
+usecase bestellen "Bestellung aufgeben" in shop
+usecase bezahlen "Bezahlen" in shop
+usecase verfolgen "Sendung verfolgen" in shop
+usecase retoure "Retoure anmelden" in shop
+usecase pruefen "Retoure prüfen" in shop
+subject erp "ERP"
+usecase gutschrift "Gutschrift buchen" in erp
+usecase rechnung "Rechnung stellen" in erp
+usecase kommissionieren "Auftrag kommissionieren" in erp
+usecase bestand "Bestand buchen" in erp
+usecase versenden "Versand beauftragen" in erp
+rel kunde -- bestellen
+rel kunde -- verfolgen
+rel kunde -- retoure
+rel bestellen --> bezahlen include
+rel bezahlen -- psp
+rel verfolgen -- versand
+rel sb -- pruefen
+rel sb -- gutschrift
+rel sb -- rechnung
+rel lager -- kommissionieren
+rel kommissionieren --> bestand include
+rel kommissionieren --> versenden include
+rel versenden -- versand
+note "Der Webshop meldet jede Bestellung an das ERP." on bestellen
+note "Rolle im Lager, nicht im Webshop" on lager
+note "Altsystem, Ablösung bis 2027 geplant" on erp

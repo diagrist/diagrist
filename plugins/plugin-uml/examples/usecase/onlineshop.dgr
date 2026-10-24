@@ -1,0 +1,30 @@
+# Online shop from the analysis of use case diagrams and the verifier test "perfect use case diagram" of the
+# learning platform: roles with generalization, a system actor, include, extend with an extension point, and the
+# generalization of a use case.
+diagram usecase "Onlineshop" subtitle="Rollen, Systemakteur, include, extend und Generalisierung" locale=de
+actor gast "Gast"
+actor kunde "Kunde"
+actor stamm "Stammkunde"
+actor psp "Zahlungsdienst" kind=system
+actor support "Support"
+subject shop "Onlineshop"
+usecase suchen "Produkte suchen" in shop
+usecase bestellen "Bestellung aufgeben" in shop points="vor Abschluss"
+usecase login "Anmelden" in shop
+usecase bezahlen "Bezahlen" in shop
+usecase gutschein "Gutschein einlösen" in shop
+usecase storno "Bestellung stornieren" in shop
+usecase express "Express bestellen" in shop
+usecase pruefen "Bestellung prüfen" in shop
+rel kunde -|> gast
+rel stamm -|> kunde
+rel gast -- suchen
+rel kunde -- bestellen
+rel kunde -- storno
+rel stamm -- express
+rel support -- pruefen
+rel psp -- bezahlen source=1 card=0..*
+rel bestellen --> login include
+rel bestellen --> bezahlen include
+rel gutschein --> bestellen extend when="Gutschein vorhanden" at="vor Abschluss"
+rel express -|> bestellen

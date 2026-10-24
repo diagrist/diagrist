@@ -1,0 +1,16 @@
+# UML dojo, use case diagrams 08 and 11 (corrected draft of the learning platform). The team lead is a special
+# employee role; exporting a report extends viewing a ticket when an export is wanted, and always includes a
+# permission check.
+diagram usecase "Serviceportal" subtitle="Akteur-Generalisierung, include und extend" locale=de
+actor mitarbeiter "Mitarbeiter"
+actor leitung "Teamleitung"
+subject portal "Serviceportal"
+usecase lesen "Ticket ansehen" in portal points="nach Anzeige"
+usecase zuweisen "Ticket zuweisen" in portal
+usecase export "Bericht exportieren" in portal
+usecase berechtigung "Berechtigung prüfen" in portal
+rel mitarbeiter -- lesen
+rel leitung -- zuweisen
+rel leitung -|> mitarbeiter
+rel export --> lesen extend when="Export gewünscht" at="nach Anzeige"
+rel export --> berechtigung include

@@ -1,0 +1,23 @@
+# Three subjects side by side: the doctor works in the practice software and in billing, the patient in the
+# appointment portal and in billing. Billing therefore moves to the middle, against the order of declaration,
+# and every actor stands between two neighbouring subjects.
+diagram usecase "Klinik" subtitle="Drei Systeme, Akteure zwischen benachbarten Grenzen" locale=de
+actor patient "Patient"
+actor arzt "Ärztin"
+actor kasse "Krankenkasse" kind=system
+subject termin "Terminportal"
+usecase buchen "Termin buchen" in termin
+usecase absagen "Termin absagen" in termin
+subject praxis "Praxissoftware"
+usecase befund "Befund erfassen" in praxis
+usecase rezept "Rezept ausstellen" in praxis
+subject abrechnung "Abrechnung"
+usecase abrechnen "Leistung abrechnen" in abrechnung
+usecase pruefen "Abrechnung prüfen" in abrechnung
+rel patient -- buchen
+rel patient -- absagen
+rel arzt -- befund
+rel arzt -- rezept
+rel patient -- pruefen
+rel abrechnen -- kasse
+rel arzt -- abrechnen

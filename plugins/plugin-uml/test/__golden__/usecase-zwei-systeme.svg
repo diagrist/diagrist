@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1512 666" width="1512" height="666" class="dia" role="img" aria-label="Webshop und ERP"><title>Webshop und ERP</title><style>
+  .dia { font-family: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 11px; }
+  .dia .shape { fill: #ffffff; stroke: #18181b; stroke-width: 1.5; }
+  .dia .shape-muted { fill: #f4f4f5; stroke: #18181b; stroke-width: 1.5; }
+  .dia .shape-emph { fill: #ffffff; stroke: #18181b; stroke-width: 2.5; }
+  .dia .frame { fill: none; stroke: #a1a1aa; stroke-width: 1; stroke-dasharray: 4 3; }
+  .dia .frame-own { fill: #f4f4f5; fill-opacity: 0.55; stroke: #18181b; stroke-width: 2; }
+  .dia .line { fill: none; stroke: #18181b; stroke-width: 1.5; }
+  .dia .line-accent { fill: none; stroke: #1d4ed8; stroke-width: 1.8; }
+  .dia .dashed { stroke-dasharray: 6 4; }
+  .dia .label { fill: #18181b; font-size: 10px; }
+  .dia .label-accent { fill: #1d4ed8; font-size: 10px; }
+  .dia .label-bold { fill: #18181b; font-weight: 600; font-size: 12px; }
+  .dia .label-title { fill: #18181b; font-weight: 600; font-size: 14px; }
+  .dia .label-group { fill: #18181b; font-weight: 600; font-size: 11px; }
+  .dia .label-note { fill: #52525b; font-size: 10px; }
+  .dia .arrow-open { fill: none; stroke: #18181b; stroke-width: 1.5; }
+  .dia .arrow-filled { fill: #18181b; stroke: none; }
+  .dia .arrow-open-accent { fill: none; stroke: #1d4ed8; stroke-width: 1.8; }
+  .dia .arrow-filled-accent { fill: #1d4ed8; stroke: none; }
+  .dia .halo { paint-order: stroke; stroke: #fafafa; stroke-width: 4px; stroke-linejoin: round; }
+  .dia .badge { fill: #18181b; }
+  .dia .badge-accent { fill: #1d4ed8; }
+  .dia .badge-text { fill: #ffffff; font-weight: 700; font-size: 10px; }
+  .dia .mark { fill: #dbeafe; stroke: #1d4ed8; stroke-width: 1; }
+  .dia .mark-text { fill: #1d4ed8; font-weight: 700; font-size: 9px; }
+  .dia .note-tail { fill: none; stroke: #52525b; stroke-width: 1; stroke-dasharray: 4 3; }
+  .dia .uml-stereo { fill: #18181b; font-size: 10px; }
+  .dia .uml-hollow { fill: #fafafa; stroke: #18181b; stroke-width: 1.5; stroke-linejoin: miter; }
+  .dia .uml-hollow-accent { fill: #fafafa; stroke: #1d4ed8; stroke-width: 1.8; }
+  .dia .uc-name { fill: #18181b; font-size: 12px; }
+  .dia .uc-boundary { fill: none; stroke: #18181b; stroke-width: 1.5; }
+  .dia .uc-note { fill: #ffffff; stroke: #18181b; stroke-width: 1; }
+</style><rect width="1512" height="666" fill="#fafafa"/><defs><marker id="m-open" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto"><path d="M1 1 L11 6 L1 11" class="arrow-open" stroke-linecap="round"/></marker><marker id="m-filled" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto"><path d="M1 1 L11 6 L1 11 Z" class="arrow-filled" stroke-linecap="round"/></marker><marker id="m-open-accent" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto"><path d="M1 1 L11 6 L1 11" class="arrow-open-accent" stroke-linecap="round"/></marker><marker id="m-filled-accent" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto"><path d="M1 1 L11 6 L1 11 Z" class="arrow-filled-accent" stroke-linecap="round"/></marker><marker id="m-hollow" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto"><path d="M1 1 L11 6 L1 11 Z" class="uml-hollow" stroke-linecap="round"/></marker><marker id="m-hollow-accent" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto"><path d="M1 1 L11 6 L1 11 Z" class="uml-hollow-accent" stroke-linecap="round"/></marker></defs>
+<text x="32" y="36" class="label-title">Use-Case-Diagramm (UML) · Webshop und ERP</text>
+<text x="32" y="52" class="label-note">Zwei Systemgrenzen, Akteure an beiden Systemen</text>
+<g id="group-shop"><rect x="176" y="158" width="472" height="396" class="uc-boundary"/><text x="188" y="178" class="label-bold">Webshop</text></g>
+<g id="group-erp"><rect x="992" y="158" width="472" height="396" class="uc-boundary"/><text x="1004" y="178" class="label-bold">ERP</text></g>
+<g id="node-kunde"><circle cx="68" cy="390" r="8.99" class="shape"/><line x1="68" y1="399" x2="68" y2="421" class="line"/><line x1="53" y1="407.1" x2="83" y2="407.1" class="line"/><line x1="68" y1="421" x2="56" y2="439" class="line"/><line x1="68" y1="421" x2="80" y2="439" class="line"/><text x="68" y="455" text-anchor="middle" class="uc-name">Kunde</text></g>
+<g id="node-sb"><circle cx="820" cy="177.5" r="8.99" class="shape"/><line x1="820" y1="186.5" x2="820" y2="208.5" class="line"/><line x1="805" y1="194.6" x2="835" y2="194.6" class="line"/><line x1="820" y1="208.5" x2="808" y2="226.5" class="line"/><line x1="820" y1="208.5" x2="832" y2="226.5" class="line"/><text x="820" y="242.5" text-anchor="middle" class="uc-name">Sachbearbeiter</text></g>
+<g id="node-lager"><circle cx="820" cy="434" r="8.99" class="shape"/><line x1="820" y1="443" x2="820" y2="465" class="line"/><line x1="805" y1="451.1" x2="835" y2="451.1" class="line"/><line x1="820" y1="465" x2="808" y2="483" class="line"/><line x1="820" y1="465" x2="832" y2="483" class="line"/><text x="820" y="499" text-anchor="middle" class="uc-name">Lagerist</text></g>
+<g id="node-psp"><rect x="756" y="294" width="128" height="56" class="shape"/><text x="820" y="316" text-anchor="middle" class="uml-stereo">«actor»</text><text x="820" y="331" text-anchor="middle" class="uc-name">Zahlungsdienst</text></g>
+<g id="node-versand"><rect x="736" y="554" width="168" height="56" class="shape"/><text x="820" y="576" text-anchor="middle" class="uml-stereo">«actor»</text><text x="820" y="591" text-anchor="middle" class="uc-name">Versanddienstleister</text></g>
+<g id="node-bestellen"><path d="M224 322 A60 32 0 1 0 344 322 A60 32 0 1 0 224 322 Z" class="shape"/><text x="284" y="318.5" text-anchor="middle" class="uc-name">Bestellung</text><text x="284" y="333.5" text-anchor="middle" class="uc-name">aufgeben</text></g>
+<g id="node-bezahlen"><path d="M496 322 A56 24 0 1 0 608 322 A56 24 0 1 0 496 322 Z" class="shape"/><text x="552" y="326" text-anchor="middle" class="uc-name">Bezahlen</text></g>
+<g id="node-verfolgen"><path d="M200 498 A84 24 0 1 0 368 498 A84 24 0 1 0 200 498 Z" class="shape"/><text x="284" y="502" text-anchor="middle" class="uc-name">Sendung verfolgen</text></g>
+<g id="node-retoure"><path d="M204 410 A80 24 0 1 0 364 410 A80 24 0 1 0 204 410 Z" class="shape"/><text x="284" y="414" text-anchor="middle" class="uc-name">Retoure anmelden</text></g>
+<g id="node-pruefen"><path d="M480 238 A72 24 0 1 0 624 238 A72 24 0 1 0 480 238 Z" class="shape"/><text x="552" y="242" text-anchor="middle" class="uc-name">Retoure prüfen</text></g>
+<g id="node-gutschrift"><path d="M1016 238 A84 24 0 1 0 1184 238 A84 24 0 1 0 1016 238 Z" class="shape"/><text x="1100" y="242" text-anchor="middle" class="uc-name">Gutschrift buchen</text></g>
+<g id="node-rechnung"><path d="M1020 322 A80 24 0 1 0 1180 322 A80 24 0 1 0 1020 322 Z" class="shape"/><text x="1100" y="326" text-anchor="middle" class="uc-name">Rechnung stellen</text></g>
+<g id="node-kommissionieren"><path d="M1020 410 A80 32 0 1 0 1180 410 A80 32 0 1 0 1020 410 Z" class="shape"/><text x="1100" y="406.5" text-anchor="middle" class="uc-name">Auftrag</text><text x="1100" y="421.5" text-anchor="middle" class="uc-name">kommissionieren</text></g>
+<g id="node-bestand"><path d="M1296 410 A72 24 0 1 0 1440 410 A72 24 0 1 0 1296 410 Z" class="shape"/><text x="1368" y="414" text-anchor="middle" class="uc-name">Bestand buchen</text></g>
+<g id="node-versenden"><path d="M1304 498 A64 32 0 1 0 1432 498 A64 32 0 1 0 1304 498 Z" class="shape"/><text x="1368" y="494.5" text-anchor="middle" class="uc-name">Versand</text><text x="1368" y="509.5" text-anchor="middle" class="uc-name">beauftragen</text></g>
+<g id="edge-0"><path d="M90.8 400.7 L236.3 341.4" class="line halo"/><path d="M90.8 400.7 L236.3 341.4" class="line"/></g>
+<g id="edge-1"><path d="M90.8 419.3 L235.8 478.4" class="line halo"/><path d="M90.8 419.3 L235.8 478.4" class="line"/></g>
+<g id="edge-2"><path d="M91 410 L204 410" class="line halo"/><path d="M91 410 L204 410" class="line"/></g>
+<g id="edge-3"><path d="M344 322 L496 322" class="line halo"/><path d="M344 322 L496 322" class="line dashed" marker-end="url(#m-open)"/></g>
+<g id="edge-4"><path d="M608 322 L753 322" class="line halo"/><path d="M608 322 L753 322" class="line"/></g>
+<g id="edge-5"><path d="M357.6 509.5 L733 568.4" class="line halo"/><path d="M357.6 509.5 L733 568.4" class="line"/></g>
+<g id="edge-6"><path d="M797 201 L617.6 228.1" class="line halo"/><path d="M797 201 L617.6 228.1" class="line"/></g>
+<g id="edge-7"><path d="M843 200.8 L1025.1 227.2" class="line halo"/><path d="M843 200.8 L1025.1 227.2" class="line"/></g>
+<g id="edge-8"><path d="M842.7 207.6 L1055.3 302.1" class="line halo"/><path d="M842.7 207.6 L1055.3 302.1" class="line"/></g>
+<g id="edge-9"><path d="M843 450.4 L1025.5 421.7" class="line halo"/><path d="M843 450.4 L1025.5 421.7" class="line"/></g>
+<g id="edge-10"><path d="M1180 410 L1296 410" class="line halo"/><path d="M1180 410 L1296 410" class="line dashed" marker-end="url(#m-open)"/></g>
+<g id="edge-11"><path d="M1161.8 430.3 L1314.5 480.4" class="line halo"/><path d="M1161.8 430.3 L1314.5 480.4" class="line dashed" marker-end="url(#m-open)"/></g>
+<g id="edge-12"><path d="M1306.8 507.4 L907 568.7" class="line halo"/><path d="M1306.8 507.4 L907 568.7" class="line"/></g>
+<g><line x1="299.5" y1="291.1" x2="306" y2="278" class="note-tail"/><path d="M237 238 L387 238 L395 246 L395 278 L237 278 Z" class="uc-note"/><path d="M387 238 L387 246 L395 246" class="uc-note"/><text x="243" y="254" text-anchor="start" class="label">Der Webshop meldet jede</text><text x="243" y="268" text-anchor="start" class="label">Bestellung an das ERP.</text></g>
+<g><line x1="800.3" y1="422.5" x2="792.5" y2="410" class="note-tail"/><path d="M722 370 L830 370 L838 378 L838 410 L722 410 Z" class="uc-note"/><path d="M830 370 L830 378 L838 378" class="uc-note"/><text x="728" y="386" text-anchor="start" class="label">Rolle im Lager,</text><text x="728" y="400" text-anchor="start" class="label">nicht im Webshop</text></g>
+<g><line x1="1224" y1="158" x2="1224" y2="138" class="note-tail"/><path d="M1130 98 L1310 98 L1318 106 L1318 138 L1130 138 Z" class="uc-note"/><path d="M1310 98 L1310 106 L1318 106" class="uc-note"/><text x="1136" y="114" text-anchor="start" class="label">Altsystem, Ablösung bis 2027</text><text x="1136" y="128" text-anchor="start" class="label">geplant</text></g>
+<g id="label-3"><text x="420" y="314.6" text-anchor="middle" class="label halo">«include»</text></g>
+<g id="label-10"><text x="1238" y="402.6" text-anchor="middle" class="label halo">«include»</text></g>
+<g id="label-11"><text x="1244.1" y="440.8" text-anchor="middle" class="label halo">«include»</text></g>
+</svg>

@@ -2,7 +2,7 @@
   "name": "@diagrist/plugin-uml",
   "version": "0.0.0",
   "private": true,
-  "description": "UML diagrams for Diagrist, starting with sequence diagrams.",
+  "description": "UML diagrams for Diagrist: sequence and use case diagrams.",
   "license": "Apache-2.0",
   "type": "module",
   "exports": {
@@ -21,6 +21,7 @@
   "dependencies": {
     "@diagrist/core": "workspace:*",
     "@diagrist/lang": "workspace:*",
+    "@diagrist/layout-grid": "workspace:*",
     "@diagrist/parts": "workspace:*"
   },
   "devDependencies": {

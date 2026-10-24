@@ -50,7 +50,7 @@ describe('sequence rules', () => {
   });
 
   it('cover every rule of the kind', () => {
-    const rules = umlPlugin.kinds.flatMap((k) => k.rules.map((r) => r.code));
+    const rules = umlPlugin.kinds.filter((k) => k.spec.name === 'sequence').flatMap((k) => k.rules.map((r) => r.code));
     expect([...new Set(CASES.map(([code]) => code))].sort()).toEqual([...rules].sort());
   });
 
@@ -73,7 +73,7 @@ describe('sequence rules', () => {
 describe('rule codes', () => {
   it('are written in their rule and in the catalogue, nowhere else in the plugin (ADR 0004)', () => {
     const src = new URL('../src/', import.meta.url);
-    const owners = /^sequence\/(rules|messages)\//;
+    const owners = /^(sequence|usecase)\/(rules|messages)\//;
     const strays = readdirSync(src, { recursive: true, encoding: 'utf8' })
       .filter((file) => file.endsWith('.ts') && !owners.test(file))
       .flatMap((file) =>

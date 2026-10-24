@@ -1,0 +1,11 @@
+# UML dojo, use case diagram 12 "Integrate a new requirement" (model answer of the learning platform). Every
+# booking includes the seat check; a valid discount code extends it before checkout.
+diagram usecase "Kursportal" subtitle="include, extend mit Bedingung und Erweiterungsstelle" locale=de
+actor teilnehmer "Teilnehmer"
+subject portal "Kursportal"
+usecase buchen "Kurs buchen" in portal points="vor Abschluss"
+usecase platz "Platz prüfen" in portal
+usecase rabatt "Rabatt anwenden" in portal
+rel teilnehmer -- buchen
+rel buchen --> platz include
+rel rabatt --> buchen extend when="Rabattcode gültig" at="vor Abschluss"

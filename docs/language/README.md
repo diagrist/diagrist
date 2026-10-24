@@ -15,6 +15,7 @@ Each kind has its own page with every statement, its parts, examples and the cod
 | Kind | Plugin | What it draws |
 |---|---|---|
 | [`sequence`](sequence.md) | `uml` | A UML sequence diagram (UML 2.5.1, chapter 17): lifelines from left to right in source order, messages and fragments from top to bottom. |
+| [`usecase`](usecase.md) | `uml` | A UML use case diagram (UML 2.5.1, chapter 18): actors outside, use cases inside their subject, relations as straight lines. |
 
 ## The grammar as data
 

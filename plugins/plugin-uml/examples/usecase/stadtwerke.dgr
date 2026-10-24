@@ -1,0 +1,30 @@
+# Four subjects in a grid of rows and columns (2 x 2): without direction more than three subjects no longer all
+# stand below each other when actors join several systems. Columns behave as side by side, with lanes for actors
+# between them, rows as below each other.
+diagram usecase "Stadtwerke" subtitle="Vier Systeme im Raster" locale=de
+actor kunde "Kundin"
+actor service "Servicemitarbeiter"
+actor techniker "Techniker"
+actor bank "Bank" kind=system
+subject portal "Kundenportal"
+usecase zaehler "Zählerstand melden" in portal
+usecase vertrag "Vertrag einsehen" in portal
+subject crm "CRM"
+usecase anfrage "Anfrage bearbeiten" in crm
+usecase tarif "Tarif wechseln" in crm
+subject abrechnung "Abrechnung"
+usecase rechnung "Rechnung erstellen" in abrechnung
+usecase lastschrift "Lastschrift einziehen" in abrechnung
+subject netz "Netzbetrieb"
+usecase stoerung "Störung beheben" in netz
+usecase ablesen "Zähler ablesen" in netz
+rel kunde -- zaehler source=1 card=0..*
+rel kunde -- vertrag
+rel kunde -- tarif
+rel service -- anfrage
+rel service -- tarif
+rel service -- rechnung source=1..* card=0..*
+rel lastschrift -- bank
+rel techniker -- stoerung
+rel techniker -- ablesen
+rel rechnung --> lastschrift include
