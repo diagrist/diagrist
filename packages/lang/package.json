@@ -1,0 +1,21 @@
+{
+  "name": "@diagrist/lang",
+  "version": "0.0.0",
+  "private": true,
+  "description": "The Diagrist language: scanner, statement tree and diagnostics.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "exports": {
+    ".": {
+      "@diagrist/source": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsdown"
+  }
+}
