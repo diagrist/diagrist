@@ -2,8 +2,9 @@
 
 Turns the SVG of the kernel into a PNG, without a browser. Rendering runs in
 [resvg](https://github.com/linebender/resvg) compiled to WebAssembly (`@resvg/resvg-wasm`), with the fonts the
-kernel measures text with: JetBrains Mono 2.305 in Regular, Bold, Italic and Bold Italic, and Inter 4.1 in Regular
-and SemiBold for looks that name it (ADR 0022), all SIL Open Font License 1.1, in `packages/core/fonts`. Italic text,
+kernel measures text with: JetBrains Mono 2.305 in Regular, Bold, Italic and Bold Italic, Inter 4.1 in Regular and
+SemiBold and Space Grotesk 2.0.0 in Regular and Medium for looks that name them (ADR 0022), all SIL Open Font License
+1.1, in `packages/core/fonts`. Italic text,
 such as abstract names in class diagrams, is set in the italic faces. No system fonts, no network: the same SVG gives
 the same bytes on every machine.
 

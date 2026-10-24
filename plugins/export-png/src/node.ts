@@ -4,8 +4,8 @@ import { type PngFonts, pngRenderer, type ToPng } from './index.js';
 /**
  * The fonts the kernel measures text with (`@diagrist/core/fonts`, SIL Open Font License 1.1), so the PNG sets
  * text in the same widths the layout was computed for. The italic faces set `font-style: italic`; without them
- * resvg would draw such text upright. Inter sets the texts of looks that name it (ADR 0022); every other family
- * falls back to JetBrains Mono.
+ * resvg would draw such text upright. Inter and Space Grotesk set the texts of looks that name them (ADR 0022);
+ * every other family falls back to JetBrains Mono.
  */
 const BUNDLED = {
   family: 'JetBrains Mono',
@@ -16,6 +16,8 @@ const BUNDLED = {
     'JetBrainsMono-BoldItalic.ttf',
     'Inter-Regular.ttf',
     'Inter-SemiBold.ttf',
+    'SpaceGrotesk-Regular.ttf',
+    'SpaceGrotesk-Medium.ttf',
   ],
 } as const;
 

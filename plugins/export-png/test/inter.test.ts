@@ -17,7 +17,7 @@ const START = 10;
 
 /** One line of Inter at `x`, anchored as given; `kerning` leaves the renderer's kerning on. */
 function picture(font: Font, x: number, anchor: 'start' | 'end', kerning: boolean): Picture {
-  const root = `font-family: ${FONT_STACKS.inter};${kerning ? '' : ' font-kerning: none;'}`;
+  const root = `font-family: ${FONT_STACKS[font.family ?? 'inter']};${kerning ? '' : ' font-kerning: none;'}`;
   const weight = font.weight === undefined ? '' : ` font-weight="${font.weight}"`;
   const tracking = font.letterSpacing === undefined ? '' : ` letter-spacing="${font.letterSpacing}"`;
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="320" height="40"><style>svg { ${root} }</style><rect width="320" height="40" fill="#fff"/><text x="${x}" y="28" font-size="${font.size}"${weight}${tracking} text-anchor="${anchor}">${TEXT}</text></svg>`;
@@ -37,11 +37,13 @@ const drift = (font: Font, kerning: boolean): number =>
   firstInk(picture(font, START + textWidth(TEXT, font), 'end', kerning)) -
   firstInk(picture(font, START, 'start', kerning));
 
-describe('Inter in the PNG', () => {
+describe('Proportional faces in the PNG', () => {
   it.each([
     ['regular', { size: 20, family: 'inter' }],
     ['semibold', { size: 20, weight: 600, family: 'inter' }],
     ['tracked small capitals', { size: 9.5, weight: 600, family: 'inter', letterSpacing: 0.7 }],
+    ['Space Grotesk regular', { size: 20, family: 'space-grotesk' }],
+    ['Space Grotesk medium, tracked', { size: 13, weight: 500, family: 'space-grotesk', letterSpacing: 1 }],
   ] as const)('is set as wide as the kernel measures it, %s, with kerning off', (_, font: Font) => {
     expect(Math.abs(drift(font, false))).toBeLessThanOrEqual(1);
   });

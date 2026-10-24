@@ -12,17 +12,25 @@ const at = (path: string) => fileURLToPath(new URL(path, import.meta.url));
 const file = (name: string): Advances => readAdvances(readFileSync(at(`../fonts/${name}.ttf`)));
 const face = (name: 'Regular' | 'Bold' | 'Italic' | 'BoldItalic'): Advances => file(`JetBrainsMono-${name}`);
 
-/** The packed table of an Inter face, regenerated from its file (ADR 0022). */
-const inter = (weight: 'Regular' | 'SemiBold', name: string): string =>
-  packedSource(
+/** A proportional face bundled as a packed table (ADR 0022): its release, its licence file and the weight's name. */
+const PACKED = {
+  inter: { name: 'Inter 4.1', file: 'Inter', licence: 'OFL-Inter.txt' },
+  'space-grotesk': { name: 'Space Grotesk 2.0.0', file: 'SpaceGrotesk', licence: 'OFL-SpaceGrotesk.txt' },
+} as const;
+
+/** The packed table of a proportional face, regenerated from its file. */
+const packed = (family: keyof typeof PACKED, weight: string, name: string): string => {
+  const f = PACKED[family];
+  return packedSource(
     name,
     [
-      `Advances of Inter 4.1 ${weight} (SIL Open Font License 1.1, see \`fonts/OFL-Inter.txt\`) in font units, packed`,
-      `as \`PackedFace\` describes. Generated from \`fonts/Inter-${weight}.ttf\` by \`test/font-metrics.test.ts\`; run it`,
+      `Advances of ${f.name} ${weight} (SIL Open Font License 1.1, see \`fonts/${f.licence}\`) in font units, packed`,
+      `as \`PackedFace\` describes. Generated from \`fonts/${f.file}-${weight}.ttf\` by \`test/font-metrics.test.ts\`; run it`,
       'with `UPDATE_GOLDEN=1` instead of editing this file.',
     ],
-    file(`Inter-${weight}`),
+    file(`${f.file}-${weight}`),
   );
+};
 
 /** The checked-in metrics, regenerated from the font files (ADR 0004); `UPDATE_GOLDEN=1` rewrites them. */
 function generate(): string {
@@ -71,10 +79,12 @@ describe('font metrics', () => {
   });
 
   it.each([
-    ['Regular', 'inter-regular', 'INTER_REGULAR'],
-    ['SemiBold', 'inter-semibold', 'INTER_SEMIBOLD'],
-  ] as const)('of Inter %s match the bundled file', (weight, path, name) => {
-    expect(compareGolden(at(`../src/${path}.ts`), inter(weight, name)).status).not.toBe('mismatch');
+    ['inter', 'Regular', 'inter-regular', 'INTER_REGULAR'],
+    ['inter', 'SemiBold', 'inter-semibold', 'INTER_SEMIBOLD'],
+    ['space-grotesk', 'Regular', 'space-grotesk-regular', 'SPACE_GROTESK_REGULAR'],
+    ['space-grotesk', 'Medium', 'space-grotesk-medium', 'SPACE_GROTESK_MEDIUM'],
+  ] as const)('of %s %s match the bundled file', (family, weight, path, name) => {
+    expect(compareGolden(at(`../src/${path}.ts`), packed(family, weight, name)).status).not.toBe('mismatch');
   });
 
   it.each([
@@ -93,6 +103,14 @@ describe('textWidth', () => {
     expect(textWidth('Hamburg', { size: 10, family: 'inter' })).toBe(44);
     expect(textWidth('iiii', { size: 10, family: 'inter' })).toBeLessThan(
       textWidth('MMMM', { size: 10, family: 'inter' }),
+    );
+  });
+
+  it('sets Space Grotesk in its Medium face from weight 500, where the other faces still set regular', () => {
+    const at = (weight: number) => textWidth('RADVERLEIH KONTO', { size: 13, weight, family: 'space-grotesk' });
+    expect(at(500)).toBeGreaterThan(at(400));
+    expect(textWidth('RADVERLEIH', { size: 13, weight: 500, family: 'inter' })).toBe(
+      textWidth('RADVERLEIH', { size: 13, family: 'inter' }),
     );
   });
 
