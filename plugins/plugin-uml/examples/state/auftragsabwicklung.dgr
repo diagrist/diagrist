@@ -1,0 +1,28 @@
+# Order processing: the life cycle of an order. The four main states are the values of the column
+# auftragsstatus.status. While "bestaetigt" holds, the warehouse runs as a composite state whose substates are
+# not in the table.
+diagram state "Auftrag" subtitle="Auftragsabwicklung · Werte von auftragsstatus.status" locale=de
+initial start
+state offen "offen" entry="Frist setzen"
+choice zahlung
+state bestaetigt "bestätigt" entry="Bestand reservieren"
+initial lager in bestaetigt
+state reserviert "Ware reserviert" in bestaetigt
+state kommissioniert "kommissioniert" in bestaetigt
+state versandt "versandt" do="Sendung verfolgen" in bestaetigt
+state geliefert "geliefert" entry="Rechnung stellen"
+state storniert "storniert" entry="Reservierung freigeben"
+final ende
+go start -> offen
+go offen -> zahlung on="absenden"
+go zahlung -> bestaetigt when="Zahlung gesichert"
+go zahlung -> offen when=else do="Kunde informieren"
+go lager -> reserviert
+go reserviert -> kommissioniert on="Picking abgeschlossen"
+go kommissioniert -> versandt on="übergeben" do="Sendungsnummer speichern"
+go versandt -> geliefert on="zugestellt"
+go offen -> storniert on="stornieren"
+go bestaetigt -> storniert on="stornieren" when="noch nicht versandt"
+go geliefert -> ende on="Rückgabefrist abgelaufen"
+go storniert -> ende
+internal offen on="Position ändern" do="Summe neu berechnen"

@@ -1,0 +1,18 @@
+# The protocol of the order API: which calls are allowed in which state (protocol state machine). Each
+# transition reads [precondition] operation / [postcondition]; there are no effects, entry, do or exit (U463).
+# The states are the values of auftragsstatus.status, the operations the endpoints of the API.
+diagram state "Auftrags-API {protocol}" subtitle="Erlaubte Aufrufe mit Vor- und Nachbedingungen" locale=de
+initial start
+state angelegt "angelegt"
+state bestaetigt "bestätigt"
+state versandt "versandt"
+state storniert "storniert"
+final ende
+go start -> angelegt
+go angelegt -> angelegt on="ändern()" when="Positionen nicht leer" post="Summe neu berechnet"
+go angelegt -> bestaetigt on="bestätigen()" when="Zahlung autorisiert" post="Bestand reserviert"
+go angelegt -> storniert on="stornieren()" post="nichts reserviert"
+go bestaetigt -> storniert on="stornieren()" when="nicht versandt" post="Reservierung frei"
+go bestaetigt -> versandt on="versenden()" when="Ware kommissioniert" post="Sendungsnummer gesetzt"
+go versandt -> ende on="abschließen()" when="Rückgabefrist abgelaufen"
+go storniert -> ende on="archivieren()"

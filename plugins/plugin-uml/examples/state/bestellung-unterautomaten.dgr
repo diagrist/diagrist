@@ -1,0 +1,21 @@
+# An order of three submachine states side by side (direction=right). Between neighbouring submachines the
+# transitions run from point to point without a detour: "Bezahlt" leads straight across to the entry point
+# "Paket" of the delivery. Where "zur Kasse" already takes the middle, a short bend through the gap joins the
+# instant purchase with the express entry of the checkout.
+diagram state "Bestellung" subtitle="Unterautomaten nebeneinander" direction=right locale=de
+initial start
+state warenkorb "Warenkorb" submachine="Warenkorbpflege"
+exitpoint sofort "Sofortkauf" in warenkorb
+state kasse "Kasse" submachine="Bezahlvorgang"
+entrypoint express "Express" in kasse
+exitpoint bezahlt "Bezahlt" in kasse
+exitpoint abbruch "Abbruch" in kasse
+state versand "Versand" submachine="Lieferung"
+entrypoint paket "Paket" in versand
+final ende
+go start -> warenkorb
+go warenkorb -> kasse on="zur Kasse"
+go sofort -> express
+go bezahlt -> paket
+go abbruch -> warenkorb
+go versand -> ende on="zugestellt"

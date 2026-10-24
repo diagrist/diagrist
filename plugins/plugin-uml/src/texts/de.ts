@@ -1,6 +1,8 @@
 import { type GatePlace, plural } from '../sequence/describe/prose.js';
 import { ACTIVITY_DE } from './activity-de.js';
+import { CLASS_DE } from './class-de.js';
 import type { Texts } from './index.js';
+import { STATE_DE } from './state-de.js';
 import { USECASE_DE } from './usecase-de.js';
 
 const which = (p: GatePlace) => (p.name ? `das Gate „${p.name}“` : 'ein Gate');
@@ -11,6 +13,8 @@ export const DE: Texts = {
     sequence: 'Sequenzdiagramm (UML)',
     usecase: 'Use-Case-Diagramm (UML)',
     activity: 'Aktivitätsdiagramm (UML)',
+    class: 'Klassendiagramm (UML)',
+    state: 'Zustandsdiagramm (UML)',
   },
   sequence: {
     summary: (title, kind, p, m) =>
@@ -89,4 +93,6 @@ export const DE: Texts = {
   },
   usecase: USECASE_DE,
   activity: ACTIVITY_DE,
+  class: CLASS_DE,
+  state: STATE_DE,
 };

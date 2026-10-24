@@ -1,0 +1,16 @@
+# UML dojo, state machine 06 "alternatives, way back and completion" (model answer of the learning platform):
+# two ways out on the same trigger, told apart by opposite guards; a back edge; the completion transition
+# from "Wird bereitgestellt" to "Bereit" stays without label.
+diagram state "Freigabe" subtitle="Alternativen, Rücksprung und Abschluss" locale=de
+initial start
+state pruefung "In Prüfung"
+state rueckfrage "Rückfrage offen"
+state bereitstellung "Wird bereitgestellt"
+state bereit "Bereit"
+final ende
+go start -> pruefung
+go pruefung -> bereitstellung on="Prüfung beendet" when="Angaben vollständig" do="Bereitstellung starten"
+go pruefung -> rueckfrage on="Prüfung beendet" when="Angaben unvollständig" do="Rückfrage senden"
+go rueckfrage -> pruefung on="Antwort eingetroffen"
+go bereitstellung -> bereit
+go bereit -> ende on="Auslieferung beendet"

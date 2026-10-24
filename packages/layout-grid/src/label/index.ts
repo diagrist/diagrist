@@ -32,3 +32,17 @@ export function labelEdges(
   const ends = endLabels(board, routes, byEdge, []);
   return [...adaptiveLabels(board, named, routes, ends), ...ends];
 }
+
+/**
+ * Labels a kind phrased and placed itself, such as the triggers and guards of a state machine beside their rail or
+ * loop: they stay where they are when that place is free, else they move as one block per route to the first free
+ * spot of an adaptive grid, as `labelEdges` moves names.
+ */
+export function placeLabels(
+  spec: GridSpec,
+  layout: GridLayout,
+  routes: readonly Route[],
+  labels: readonly EdgeLabel[],
+): EdgeLabel[] {
+  return adaptiveLabels(boardOf(spec, layout), labels, routes, [], true);
+}

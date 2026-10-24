@@ -86,7 +86,8 @@ function edgePoints(
 
 /**
  * Routes of a fixed grid in the order of the edges: shape and sides per edge, ports spread per side, and each Z on
- * its own lane in its gap, the next one `laneGap` further.
+ * its own lane in its gap, the next one `laneGap` further. A route the kind laid itself counts as a loop: it keeps
+ * its port, and the adaptive router leaves it as it is.
  */
 export function gridRoutes(board: Board): Routed[] {
   const m = board.tree.spec.metrics;
@@ -101,6 +102,8 @@ export function gridRoutes(board: Board): Routed[] {
     const start = portPoint(p.a.rect, p.fromSide, p.port.from);
     const end = portPoint(p.b.rect, p.toSide, p.port.to);
     const lane = p.lane ? { axis: p.lane.axis, at: nextLane(p.lane) } : undefined;
+    const own = p.edge.route;
+    if (own) return { edge: p.edge, from: p.a, to: p.b, shape: 'loop', ...own };
     return {
       edge: p.edge,
       from: p.a,

@@ -45,6 +45,19 @@ function crestZone(board: Board, box: Box, side: Side, gap: number): [number, nu
   return c ? [c.cx - c.r - gap, c.cx + c.r + gap] : undefined;
 }
 
+/**
+ * The part of a side that a route laid by the kind (a loop) touches, widened by `gap`: other edges dock beside it.
+ */
+function fixedZone(routes: readonly Routed[], box: Box, side: Side, gap: number): [number, number] | undefined {
+  const fixed = routes.find(
+    (r) => r.edge.route !== undefined && r.from.id === box.id && (r.fromSide === side || r.toSide === side),
+  );
+  if (!fixed) return undefined;
+  const flat = side === 'top' || side === 'bottom';
+  const along = fixed.points.map((p) => (flat ? p[0] : p[1]));
+  return [Math.min(...along) - gap, Math.max(...along) + gap];
+}
+
 /** Vertically overlapping pairs share the part to keep free, so the edge stays straight. */
 function zones(board: Board, a: Box, b: Box, s: readonly [Side, Side], gap: number) {
   const za = crestZone(board, a, s[0], gap);
@@ -64,6 +77,7 @@ export function plansOf(
   board: Board,
   bundles: readonly BundlePlan[],
   mode: number,
+  attempt: number,
   gap: number,
 ): (Plan | undefined)[] {
   const inBundle = new Map<number, { bundle: BundlePlan; k: number }>();
@@ -83,8 +97,12 @@ export function plansOf(
     }
     const isGroup = (box: Box) => box.id.startsWith('group:');
     const long = !isGroup(a) && !isGroup(b) && Math.abs(b.rowIndex - a.rowIndex) > 1;
-    const [fromSide, toSide] = sides(a.rect, b.rect, long, mode, board.layout.gutters.cols);
-    const free = zones(board, a, b, [fromSide, toSide], gap);
+    const [fromSide, toSide] = r.edge.sides?.[attempt] ?? sides(a.rect, b.rect, long, mode, board.layout.gutters.cols);
+    const crest = zones(board, a, b, [fromSide, toSide], gap);
+    const free = {
+      from: crest.from ?? fixedZone(routes, a, fromSide, gap),
+      to: crest.to ?? fixedZone(routes, b, toSide, gap),
+    };
     const at = laneAt(board, r, fromSide);
     return {
       a,

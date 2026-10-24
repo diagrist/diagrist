@@ -1,0 +1,25 @@
+# Order release with a submachine state: "Prüfung" calls the state machine "Bonitätsprüfung" (symbol at the
+# bottom right). New customers enter through the entry point, a refusal leaves through the exit point. Address
+# changes during the check are deferred and handled in "Freigegeben"; after 7 days without payment a reminder
+# goes out (time event). The submachine is in bonitaetspruefung.dgr (file=).
+diagram state "Auftrag" subtitle="Freigabe mit Unterautomat" locale=de
+initial start
+state erfasst "Erfasst" entry="Auftragsnummer vergeben"
+state pruefung "Prüfung" submachine="Bonitätsprüfung" file="bonitaetspruefung.dgr" defer="Adresse geändert"
+entrypoint neukunde "Neukunde" in pruefung
+exitpoint abgelehnt "Abgelehnt" in pruefung
+state freigegeben "Freigegeben"
+state versand "Im Versand"
+state storniert "Storniert" entry="Kunde benachrichtigen"
+final ende
+go start -> erfasst
+go erfasst -> pruefung on="prüfen" when="Bestandskunde"
+go erfasst -> neukunde on="prüfen" when="Neukunde"
+go pruefung -> freigegeben
+go abgelehnt -> storniert
+go freigegeben -> versand on="Zahlung eingegangen"
+go freigegeben -> storniert on="after(14 Tage)"
+go versand -> ende on="zugestellt"
+go storniert -> ende
+internal freigegeben on="Adresse geändert" do="Lieferadresse übernehmen"
+internal freigegeben on="after(7 Tage)" do="Zahlung anmahnen"

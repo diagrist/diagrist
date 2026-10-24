@@ -1,0 +1,36 @@
+# An order in processing: payment and shipping run at the same time, as two orthogonal regions. The fork
+# enters both regions explicitly, the join waits for both ends. When the payment provider refuses, the order
+# leaves the state through the exit point "Storno".
+diagram state "Auftrag" subtitle="Zahlung und Versand parallel" locale=de
+initial start
+state angelegt "Angelegt"
+fork teilen
+state bearbeitung "In Bearbeitung"
+region versand "Versand" in bearbeitung
+region zahlung "Zahlung" in bearbeitung
+state offen "offen" in zahlung
+state autorisiert "autorisiert" in zahlung
+state eingezogen "eingezogen" in zahlung
+state kommissioniert "kommissioniert" in versand
+state versandt "versandt" in versand
+state zugestellt "zugestellt" in versand
+exitpoint storno "Storno" in bearbeitung
+join fertig
+state abgeschlossen "Abgeschlossen"
+state storniert "Storniert" entry="Ware zurückholen"
+final ende
+go start -> angelegt
+go angelegt -> teilen on="bestätigen"
+go teilen -> offen
+go teilen -> kommissioniert
+go offen -> autorisiert on="Zahlung autorisiert"
+go autorisiert -> eingezogen on="Ware versandt"
+go kommissioniert -> versandt on="übergeben"
+go versandt -> zugestellt on="zugestellt"
+go eingezogen -> fertig
+go zugestellt -> fertig
+go fertig -> abgeschlossen
+go abgeschlossen -> ende
+go offen -> storno on="Zahlung abgelehnt"
+go storno -> storniert
+go storniert -> ende

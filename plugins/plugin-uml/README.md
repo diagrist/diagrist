@@ -1,7 +1,7 @@
 # @diagrist/plugin-uml
 
-UML diagrams for Diagrist: `sequence` (UML 2.5.1, chapter 17), `usecase` (chapter 18) and `activity` (chapters 15
-and 16).
+UML diagrams for Diagrist: `sequence` (UML 2.5.1, chapter 17), `usecase` (chapter 18), `activity` (chapters 15
+and 16), `class` (chapters 9 to 12) and `state` (chapter 14).
 
 ```dgr
 diagram sequence "Login" locale=en
@@ -51,8 +51,38 @@ go refusal -> done
 go done -> end
 ```
 
-The statement tables in `src/sequence/grammar`, `src/usecase/grammar` and `src/activity/grammar` are the reference; `grammarOf` returns
-them as data and every statement has a doc and an example.
+```dgr
+diagram class "Orders" locale=en
+package domain "domain"
+class order "Order" in domain stereotype="entity"
+  "- number : String {readOnly}"
+  "+ total() : Money"
+class item "Item" in domain
+  "- quantity : int"
+interface repo "OrderRepository" in domain
+  "+ save(o : Order) : void"
+class jpa "JpaOrderRepository"
+  "+ save(o : Order) : void"
+rel order *-- item source=1 card=1..*
+rel jpa --|> repo
+```
+
+```dgr
+diagram state "Order" locale=en
+initial start
+state open "Open" entry="set deadline"
+choice paid
+state shipped "Shipped"
+final end
+go start -> open
+go open -> paid on="pay"
+go paid -> shipped when="amount covered"
+go paid -> open when=else do="remind customer"
+go shipped -> end on="delivered"
+internal open on="change item" do="recalculate"
+```
+
+The statement tables in `src/<kind>/grammar` are the reference; `grammarOf` returns them as data and every statement has a doc and an example.
 
 ## UML 2.5.1 coverage
 
@@ -121,11 +151,65 @@ bars, diamonds, loops, pins and regions, which no other kind draws. Three exampl
 edges downwards with loops on the right, alternatives symmetric below their decision, bars as wide as their
 branches, region frames around their members only, pins on the edge where their flow attaches.
 
+## Class diagrams: changes from the predecessor's syntax
+
+| Before | Now | Why |
+|---|---|---|
+| `group domain "domain"` | `package domain "domain"` | ADR 0002 Nr. 3: `group` is a C4 frame; `package` is the UML term |
+| `grid cols ...`, `grid rows ...`, `at col/row` | gone; Diagrist always lays the diagram out itself | one way to write a diagram, as in use case diagrams; only one example placed by hand |
+| `rel a -- b class=t` naming an interface (E417) | `class=` refers to a `class`; anything else is L107 | ADR 0004: the table says what it accepts |
+| `card=x` (E414) | a value error of the table (L103) | a multiplicity is checked where it is read |
+| `note "..." on x` without `on` | U471, a note without its classifier | the note has nothing to point at |
+| `decision E1 "Q" = "A" => "C"` | `adr E1 "Q" = "A" => "C"` | ADR 0002 Nr. 3 |
+| texts added to the picture in German | `locale=de` in the header for German, default `en` | ADR 0008 Nr. 3 |
+
+Members stay entries (ADR 0003): indented lines in double quotes, written as UML text, with `static` and `abstract`
+as flags; they are the line form of `class`, `interface` and `enum` (ADR 0006).
+
+Thirteen of the predecessor's fifteen examples are under `examples/class`, converted by these rules only. Their
+layout runs on `@diagrist/layout-grid`: the layering of classes and of packages as blocks, the adaptive grid, the
+routes with shared triangles, and the name labels; the kind adds end texts, legs at the vertices of the diamond,
+lines of association classes, package tabs and the second run that widens a package whose tab a line crosses. With
+`locale=de` their geometry is the predecessor's to the pixel where no package is involved, and within a few pixels
+for packages; their descriptions are the predecessor's word for word. The end symbols are the kernel's markers in
+the predecessor's sizes, and a symbol at the start of a line sits on a transparent stub, because the PNG renderer
+turns no marker with `auto-start-reverse`. Italic names and operations are written with `font-style: italic`, which
+browsers slant and the PNG renderer, lacking an italic face, does not (`docs/burn-down.md`). Two examples are left
+out: `pakete-raster` placed its classes by hand, and `pakete-quer` needs the search for an arrangement of four and
+more packages, which is not ported yet. Two examples are golden files (`test/__golden__/class-*.svg`), and geometric
+tests check superclasses above and between their subclasses, shared triangles, the diamond at the whole, association
+classes below their line, n-ary diamonds among their ends, packages around their classes and imports beside the tab.
+
+## State machine diagrams: changes from the predecessor's syntax
+
+| Before | Now | Why |
+|---|---|---|
+| `state x "X" kind=...`, one statement for every vertex | one statement per vertex: `state`, `initial`, `final`, `choice`, `junction`, `history`, `fork`, `join`, `terminate`, `entrypoint`, `exitpoint`, `region` | ADR 0005: each table says what its vertex takes, so `deep` elsewhere than on `history`, behaviour on a pseudostate or `in` a pseudostate are language errors naming the allowed parts |
+| `grid`, `at` | gone; Diagrist always lays the diagram out itself | one way to write a diagram; no example placed by hand |
+| `tone=` and `mark=` on `go` | gone | the predecessor drew neither on transitions |
+| `decision E1 "Q" = "A" => "C"` | `adr E1 "Q" = "A" => "C"` | ADR 0002 Nr. 3 |
+| texts added to the picture in German | `locale=de` in the header for German, default `en` | ADR 0008 Nr. 3 |
+
+`region` keeps its UML meaning, the orthogonal region of a state; activity diagrams call their interruptible region
+`interruptible` (ADR 0018). `{protocol}` in the title still makes a protocol state machine, as UML writes it in the
+frame. `file=` on a submachine state is named in the description and not checked against the file yet.
+
+All twelve examples under `examples/state` were converted by these rules only. The layout is the predecessor's,
+reviewed and ported into `src/state/layout`: layering by blocks with final states last, through `layerGraph` and its
+`last` option; the grid, the routing search and the label placement of `@diagrist/layout-grid`, fed with the sides
+the kind chooses for each transition, the frames of foreign states as obstacles and loops laid by the kind; and in
+the plugin the stretched bars, entry and exit points on their borders, rails, steps, loops at the freest corner,
+regions and frames that grow around their points in a second run. With `locale=de` the pictures match the
+predecessor's to the pixel but for antialiasing at the arrowheads, and the descriptions word for word. Two examples
+are golden files (`test/__golden__/state-*.svg`), and geometric tests check layers, rails, loops, frames around
+their substates, bars over their branches, separators of regions, points on borders and straight lines between
+points of neighbouring submachines.
+
 ## Diagnostic codes
 
 Errors keep their number with the prefix `U`; warnings, which shared numbers with errors before, keep their
 number plus 500 (ADR 0011). Checks that the language, the tables or the kernel's placement check now do have
-their codes. The use case kind adds U428, a note without the element it belongs to.
+their codes. The use case kind adds U428, the class kind U471 and the state kind U465, a note without the element it belongs to.
 
 <!-- Generated from the rules in src/*/rules by `pnpm docs:uml`. Do not edit. -->
 
@@ -240,6 +324,83 @@ Checks of the predecessor that the language, the tables or the kernel do now:
 | E439, now a warning | G400 | the frame of a region overlaps a node that is not its member |
 | W458 | L105 | `tone=` only on nodes drawn as cards |
 | E456, in part | L107 | both ends of `handler` are actions |
+
+### `class`
+
+| Code | Severity | Before | What it checks |
+|---|---|---|---|
+| U410 | error | E410 | A realization `--\|>` runs from a class or enumeration to an interface: its target is an interface, its source is none. UML 2.5.1: 10.4.4 Realization of an interface, dashed with a hollow triangle. |
+| U411 | error | E411 | A generalization `-\|>` joins classifiers of one kind (class with class, interface with interface) and runs in no cycle; the triangle points at the more general one. A class implements an interface with `--\|>`. UML 2.5.1: 9.2.3.2 Generalization between classifiers. |
+| U412 | error | E412 | Only operations are abstract, and only in abstract classes and interfaces: an abstract operation of a concrete class has no implementation anywhere. UML 2.5.1: 9.6.4 Abstract operation, in italics. |
+| U413 | error | E413 | A member is a UML text: `[visibility] name : Type` for an attribute, `[visibility] name(p : Type) : Type` for an operation; a value of an enumeration is a plain name without `static` or `abstract`. UML 2.5.1: 9.5.4 Attribute with visibility, type, multiplicity and properties, 9.6.4 Operation with visibility, parameters, return type and properties, 10.2.4 Enumeration with its literals. |
+| U414 | error | E414 | Generalization, realization and dependency join types, not objects: their ends have no multiplicity and no role. UML 2.5.1: 7.7.4 Dependency as a dashed arrow, 9.2.3.2 Generalization between classifiers, 10.4.4 Realization of an interface, dashed with a hollow triangle. |
+| U415 | error | E415 | A part belongs to at most one whole at a time: the multiplicity at the whole of a composition `*--` is `1` or `0..1`. UML 2.5.1: 11.5.4 Composition with a filled diamond at the whole. |
+| U416 | error | E416 | A classifier names each attribute once and each operation once per list of parameter types; overloads with other parameter types are allowed. UML 2.5.1: 9.5.4 Attribute with visibility, type, multiplicity and properties, 9.6.4 Operation with visibility, parameters, return type and properties. |
+| U417 | error | E417 | An association class is an association and a class at once: `class=` stands on an association between classifiers or on an `assoc`, names a `class` (the table allows no other) that is none of its own ends, and each association class belongs to exactly one association. UML 2.5.1: 11.5.4 Association class joined by a dashed line. |
+| U418 | error | E418 | A package is no classifier: it is an end of dependencies `-->` only. `import` and `access` mark package imports, so they belong to dependencies `-->`. UML 2.5.1: 12.2.4 Package as a frame with its name in the tab, 7.4.4 Package import with the keyword «import» or «access». |
+| U419 | error | E419 | A package already holds its members; a dependency between a package and its own content says nothing. UML 2.5.1: 12.2.4 Package as a frame with its name in the tab, 7.7.4 Dependency as a dashed arrow. |
+| U470 | error | E470 | An end is navigable (open head), not navigable (x) or open. An x at an end with an arrowhead contradicts itself, and generalization, realization and dependency have no navigable ends. UML 2.5.1: 11.5.4 Navigable end with an open arrowhead, 11.5.4 Non-navigable end with a small x. |
+| U471 | error | – | A note in a class diagram is a comment on one classifier: it names it with `on`. UML 2.5.1: 7.2.3.2 Comment (note). |
+| U910 | warning | W410 | UML allows ends without multiplicity; exam practice, like the learning platform, asks for both ends of an association, aggregation or composition. A leg of an n-ary association needs it at the class end only. UML 2.5.1: 7.5.4 Multiplicity at an end or of a property. |
+| U911 | warning | W411 | Two relations between the same classifiers can only be told apart by a name or a role. UML 2.5.1: 11.5.4 Binary association as a line with its name, 11.5.4 Role name at an end of an association. |
+| U912 | warning | W412 | Packages should depend on each other without cycles (acyclic dependencies principle). Dependencies `-->` between packages and between classifiers of different packages count; UML allows cycles, so it is a warning, once per cycle. UML 2.5.1: 12.2.4 Package as a frame with its name in the tab. |
+| U913 | warning | W413 | A package without classifiers, also in its nested packages, has no frame: it is not drawn, and relations to it are left out. UML 2.5.1: 12.2.4 Package as a frame with its name in the tab. |
+| U916 | warning | W416 | `{readOnly}` makes an attribute unchangeable, `{query}` an operation free of side effects. Swapped, neither says anything; the text is drawn as written. UML 2.5.1: 9.5.4 Attribute with visibility, type, multiplicity and properties, 9.6.4 Operation with visibility, parameters, return type and properties. |
+| U917 | warning | W417 | An n-ary association joins three or more ends. With two legs it is a binary association, drawn as a line without diamond. UML 2.5.1: 11.5.4 N-ary association as a diamond with a leg to each end. |
+| U918 | warning | W418 | A leg of an n-ary association is a line from the diamond to a class: `--`, or `->` towards the class. Name and association class belong to the diamond, multiplicity and role to the class end; aggregation and composition exist only between two ends. UML 2.5.1: 11.5.4 N-ary association as a diamond with a leg to each end. |
+
+Checks of the predecessor that the language, the tables or the kernel do now:
+
+| Before | Now | |
+|---|---|---|
+| E101 | L107 | `rel`, `in`, `on`, `class=` and `mark=` name declared elements of the right kind |
+| E102 | L108 | ids are unique |
+| E414, in part | L103 | `source=` and `card=` are valid multiplicities |
+| E417, in part | L107 | `class=` names a `class` |
+
+### `state`
+
+| Code | Severity | Before | What it checks |
+|---|---|---|---|
+| U440 | error | E440 | No transition leaves a final state or a terminate pseudostate, and none enters an initial pseudostate: it is an entry only. UML 2.5.1: 14.2.3 Final state, 14.2.3 Initial pseudostate, 14.2.3 Terminate pseudostate. |
+| U441 | error | E441 | Each pseudostate has its number of ways in and out: initial and history at most one out, a fork one in and at least two out, a join at least two in and one out, choice and junction at least one each. UML 2.5.1: 14.2.3 Initial pseudostate, 14.2.3 Shallow and deep history pseudostates, 14.2.3 Fork pseudostate, 14.2.3 Join pseudostate, 14.2.3 Choice pseudostate, 14.2.3 Junction pseudostate. |
+| U442 | error | E442 | The transition from an initial pseudostate and the branches of fork and join have neither trigger nor guard; transitions leaving other pseudostates have no trigger. UML 2.5.1: 14.2.3.8 Transition with trigger, guard and effect. |
+| U443 | error | E443 | A region, the top level included, has at most one initial pseudostate, one shallow and one deep history. UML 2.5.1: 14.2.3 Initial pseudostate, 14.2.3 Shallow and deep history pseudostates. |
+| U444 | error | E444 | A history pseudostate remembers the active substate of a composite state, so it lies in one. UML 2.5.1: 14.2.3 Shallow and deep history pseudostates. |
+| U445 | error | E445 | Nesting with `in` forms no cycle, and an internal transition names its trigger: it fires on an event without leaving the state. UML 2.5.1: 14.2.3.4 Composite state with substates, 14.2.4 Internal transition in the compartment of a state. |
+| U446 | error | E446 | The branches of a fork end at states, the branches of a join start at states. UML 2.5.1: 14.2.3 Fork pseudostate, 14.2.3 Join pseudostate. |
+| U447 | error | E447 | The else branch applies when no other guard holds; two of them at one vertex contradict each other. UML 2.5.1: 14.2.3.8 Predefined guard else. |
+| U448 | error | E448 | A region belongs to a state; a state with regions keeps its substates in them; a transition never crosses the border between two regions of one state, they run at the same time; and the branches of a fork or join lie in different regions. UML 2.5.1: 14.2.3.2 Orthogonal regions of a state, separated by dashed lines, 14.2.3 Fork pseudostate, 14.2.3 Join pseudostate. |
+| U449 | error | E449 | Entry and exit points sit on the border of a state. An entry point is reached from outside and leads inside, an exit point the other way round. UML 2.5.1: 14.2.3 Entry point on the border of a state, 14.2.3 Exit point on the border of a state. |
+| U460 | error | E460 | Entry and exit points belong to a composite state, or as connection point references to a submachine state; a simple state has none. UML 2.5.1: 14.2.3 Entry point on the border of a state, 14.2.3 Exit point on the border of a state, 14.2.3.4 Submachine state calling another state machine. |
+| U461 | error | E461 | A submachine state calls another state machine and has no substates or regions of its own. At its points, transitions from outside end at the entry point and start at the exit point; the way inside lies in the called machine. UML 2.5.1: 14.2.3.4 Submachine state calling another state machine. |
+| U462 | error | E462 | A time event `after(duration)` and a change event `when(condition)` are triggers: they stand in `on=` with parentheses. In the guard `when=` they would be a condition, not an event. UML 2.5.1: 13.3.3 Time event as a trigger, after(...), 13.3.3 Change event as a trigger, when(...). |
+| U463 | error | E463 | A protocol state machine (`{protocol}` in the title) says which calls are allowed in which order. Its states have no entry, do or exit behaviour, its transitions no effect, and it has no history. UML 2.5.1: 14.4.3 Protocol state machine, 14.4.3 Protocol transition with precondition and postcondition. |
+| U464 | error | E464 | Only the transition of a protocol state machine has a postcondition `post=`. UML 2.5.1: 14.4.3 Protocol transition with precondition and postcondition. |
+| U465 | error | – | A note in a state machine diagram is a comment on one vertex: it names it with `on`. UML 2.5.1: 7.2.3.2 Comment (note). |
+| U940 | warning | W440 | A state machine starts at an initial pseudostate at the top level, and an initial pseudostate leads somewhere. A machine drawn as one state with its own entry and exit points starts at the caller instead. UML 2.5.1: 14.2.3 Initial pseudostate. |
+| U941 | warning | W441 | Every state can be reached from the initial pseudostate: entering a composite state reaches its inside, and being in a substate means being in its parents too. UML 2.5.1: 14.2.3.4 Simple state. |
+| U942 | warning | W442 | A simple state that no transition leaves, neither itself nor a parent nor an exit point of it, is a dead end; usually a transition to a final state is missing. UML 2.5.1: 14.2.3.4 Simple state, 14.2.3 Final state. |
+| U943 | warning | W443 | Every way out of a choice has a guard and one of them is `else`, so the machine never gets stuck there; `else` belongs to a choice or junction. UML 2.5.1: 14.2.3 Choice pseudostate, 14.2.3.8 Predefined guard else. |
+| U944 | warning | W444 | Two ways out of a state on the same trigger need guards that tell them apart; otherwise the machine is not deterministic. UML 2.5.1: 14.2.3.8 Transition with trigger, guard and effect. |
+| U945 | warning | W445 | A transition of a state to itself leaves and enters it again and runs its exit and entry behaviour; an internal transition does not. UML 2.5.1: 14.2.4 Internal transition in the compartment of a state, 14.2.4 Entry, do and exit behavior in the compartment of a state. |
+| U946 | warning | W446 | A transition that ends at the frame of a composite state enters it at its initial pseudostate; without one it is not clear where it continues. States with regions are checked per region. UML 2.5.1: 14.2.3.4 Composite state with substates, 14.2.3 Initial pseudostate. |
+| U947 | warning | W447 | What a fork splits, a join usually brings together again. UML 2.5.1: 14.2.3 Fork pseudostate, 14.2.3 Join pseudostate. |
+| U948 | warning | W448 | Each region of a state starts at its own initial pseudostate, unless every way into the state enters the region explicitly, as the branches of a fork do. UML 2.5.1: 14.2.3.2 Orthogonal regions of a state, separated by dashed lines, 14.2.3 Initial pseudostate. |
+| U949 | warning | W449 | An entry or exit point has a way in and a way out. On a submachine state only the outside counts, and on the frame of a machine drawn with its own points the outside lies with the caller. UML 2.5.1: 14.2.3 Entry point on the border of a state, 14.2.3 Exit point on the border of a state. |
+| U960 | warning | W460 | A state that defers an event and fires a transition on it in the same state: the transition wins and the deferral says nothing. UML 2.5.1: 14.2.4 Deferred event in the compartment of a state. |
+| U961 | warning | W461 | A deferred event waits for a later state that fires a transition on it; without one it waits forever. UML 2.5.1: 14.2.4 Deferred event in the compartment of a state. |
+
+Checks of the predecessor that the language, the tables or the kernel do now:
+
+| Before | Now | |
+|---|---|---|
+| E101 | L107 | `go`, `in`, `on`, `internal` and `mark=` name declared vertices of the right kind |
+| E102 | L108 | ids are unique |
+| E444, in part | L104 | `deep` only on `history` |
+| E445, in part | L107 | `in` names a state or region, `internal` a state |
+| E448, in part | L107 | a region lies in a state; transitions end at vertices, not at regions |
+| E449, in part | L107 | entry and exit points sit on states |
 
 <!-- End of the generated codes. -->
 

@@ -1,0 +1,22 @@
+# Submachine of freigabe-unterautomat.dgr: the state machine "Bonitätsprüfung" that the state "Prüfung" there
+# calls with submachine= and file=. The enclosing state carries the entry and exit points of the machine.
+# Existing customers start at the initial pseudostate, new ones come in through "Neukunde" and identify first.
+# A passed check ends in the final state, a refusal leaves the machine through "Abgelehnt".
+diagram state "Bonitätsprüfung" subtitle="Unterautomat zu „Auftrag, Freigabe mit Unterautomat“" locale=de
+state bp "Bonitätsprüfung"
+entrypoint neukunde "Neukunde" in bp
+exitpoint abgelehnt "Abgelehnt" in bp
+initial start in bp
+state identitaet "Identität prüfen" in bp entry="Ausweisdaten anfordern"
+state auskunft "Auskunft einholen" in bp entry="Auskunftei anfragen"
+choice score in bp
+state manuell "Manuelle Prüfung" in bp
+final bestanden in bp
+go start -> auskunft
+go neukunde -> identitaet
+go identitaet -> auskunft on="bestätigt"
+go auskunft -> score on="Score erhalten"
+go score -> bestanden when="Score ≥ 600"
+go score -> manuell when=else
+go manuell -> bestanden on="freigeben"
+go manuell -> abgelehnt on="ablehnen"

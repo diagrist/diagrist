@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 804 1155" width="804" height="1155" class="dia" role="img" aria-label="Auftrag"><title>Auftrag</title><style>
+  .dia { font-family: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 11px; }
+  .dia .shape { fill: #ffffff; stroke: #18181b; stroke-width: 1.5; }
+  .dia .shape-muted { fill: #f4f4f5; stroke: #18181b; stroke-width: 1.5; }
+  .dia .shape-emph { fill: #ffffff; stroke: #18181b; stroke-width: 2.5; }
+  .dia .frame { fill: none; stroke: #a1a1aa; stroke-width: 1; stroke-dasharray: 4 3; }
+  .dia .frame-own { fill: #f4f4f5; fill-opacity: 0.55; stroke: #18181b; stroke-width: 2; }
+  .dia .line { fill: none; stroke: #18181b; stroke-width: 1.5; }
+  .dia .line-accent { fill: none; stroke: #1d4ed8; stroke-width: 1.8; }
+  .dia .dashed { stroke-dasharray: 6 4; }
+  .dia .label { fill: #18181b; font-size: 10px; }
+  .dia .label-accent { fill: #1d4ed8; font-size: 10px; }
+  .dia .label-bold { fill: #18181b; font-weight: 600; font-size: 12px; }
+  .dia .label-title { fill: #18181b; font-weight: 600; font-size: 14px; }
+  .dia .label-group { fill: #18181b; font-weight: 600; font-size: 11px; }
+  .dia .label-note { fill: #52525b; font-size: 10px; }
+  .dia .arrow-open { fill: none; stroke: #18181b; stroke-width: 1.5; }
+  .dia .arrow-filled { fill: #18181b; stroke: none; }
+  .dia .arrow-open-accent { fill: none; stroke: #1d4ed8; stroke-width: 1.8; }
+  .dia .arrow-filled-accent { fill: #1d4ed8; stroke: none; }
+  .dia .halo { paint-order: stroke; stroke: #fafafa; stroke-width: 4px; stroke-linejoin: round; }
+  .dia .badge { fill: #18181b; }
+  .dia .badge-accent { fill: #1d4ed8; }
+  .dia .badge-text { fill: #ffffff; font-weight: 700; font-size: 10px; }
+  .dia .mark { fill: #dbeafe; stroke: #1d4ed8; stroke-width: 1; }
+  .dia .mark-text { fill: #1d4ed8; font-weight: 700; font-size: 9px; }
+  .dia .uml-member { fill: #18181b; font-size: 11px; }
+  .dia .uml-hollow { fill: #fafafa; stroke: #18181b; stroke-width: 1.5; stroke-linejoin: miter; }
+  .dia .uml-filled { fill: #18181b; stroke: #18181b; stroke-width: 1.5; stroke-linejoin: miter; }
+  .dia .uml-hollow-accent { fill: #fafafa; stroke: #1d4ed8; stroke-width: 1.8; }
+  .dia .uml-filled-accent { fill: #1d4ed8; stroke: #1d4ed8; stroke-width: 1.8; }
+</style><rect width="804" height="1155" fill="#fafafa"/><defs><marker id="m-open" markerUnits="userSpaceOnUse" markerWidth="18" markerHeight="18" refX="16.5" refY="9" orient="auto"><path d="M1.5 1.5 L16.5 9 L1.5 16.5" class="arrow-open" stroke-linecap="round"/></marker><marker id="m-filled" markerUnits="userSpaceOnUse" markerWidth="18" markerHeight="18" refX="16.5" refY="9" orient="auto"><path d="M1.5 1.5 L16.5 9 L1.5 16.5 Z" class="arrow-filled" stroke-linecap="round"/></marker><marker id="m-open-accent" markerUnits="userSpaceOnUse" markerWidth="18" markerHeight="18" refX="16.5" refY="9" orient="auto"><path d="M1.5 1.5 L16.5 9 L1.5 16.5" class="arrow-open-accent" stroke-linecap="round"/></marker><marker id="m-filled-accent" markerUnits="userSpaceOnUse" markerWidth="18" markerHeight="18" refX="16.5" refY="9" orient="auto"><path d="M1.5 1.5 L16.5 9 L1.5 16.5 Z" class="arrow-filled-accent" stroke-linecap="round"/></marker><marker id="m-uml-open" markerUnits="userSpaceOnUse" markerWidth="18" markerHeight="18" refX="16.5" refY="9" orient="auto"><path d="M6.5 4 L16.5 9 L6.5 14" class="arrow-open" stroke-linecap="round"/></marker><marker id="m-uml-open-accent" markerUnits="userSpaceOnUse" markerWidth="18" markerHeight="18" refX="16.5" refY="9" orient="auto"><path d="M6.5 4 L16.5 9 L6.5 14" class="arrow-open-accent" stroke-linecap="round"/></marker><marker id="m-hollow" markerUnits="userSpaceOnUse" markerWidth="18" markerHeight="18" refX="16.5" refY="9" orient="auto"><path d="M2.5 2 L16.5 9 L2.5 16 Z" class="uml-hollow" stroke-linecap="round"/></marker><marker id="m-hollow-accent" markerUnits="userSpaceOnUse" markerWidth="18" markerHeight="18" refX="16.5" refY="9" orient="auto"><path d="M2.5 2 L16.5 9 L2.5 16 Z" class="uml-hollow-accent" stroke-linecap="round"/></marker><marker id="m-diamond" markerUnits="userSpaceOnUse" markerWidth="18" markerHeight="18" refX="16.5" refY="9" orient="auto"><path d="M0.5 9 L8.5 4 L16.5 9 L8.5 14 Z" class="uml-hollow" stroke-linecap="round"/></marker><marker id="m-diamond-accent" markerUnits="userSpaceOnUse" markerWidth="18" markerHeight="18" refX="16.5" refY="9" orient="auto"><path d="M0.5 9 L8.5 4 L16.5 9 L8.5 14 Z" class="uml-hollow-accent" stroke-linecap="round"/></marker><marker id="m-diamond-filled" markerUnits="userSpaceOnUse" markerWidth="18" markerHeight="18" refX="16.5" refY="9" orient="auto"><path d="M0.5 9 L8.5 4 L16.5 9 L8.5 14 Z" class="uml-filled" stroke-linecap="round"/></marker><marker id="m-diamond-filled-accent" markerUnits="userSpaceOnUse" markerWidth="18" markerHeight="18" refX="16.5" refY="9" orient="auto"><path d="M0.5 9 L8.5 4 L16.5 9 L8.5 14 Z" class="uml-filled-accent" stroke-linecap="round"/></marker></defs>
+<text x="32" y="36" class="label-title">Zustandsdiagramm (UML) · Auftrag</text>
+<text x="32" y="52" class="label-note">Zahlung und Versand parallel</text>
+<g id="group-bearbeitung"><rect x="40" y="394" width="500" height="384" rx="12" class="shape"/><text x="237" y="413" text-anchor="middle" class="label-bold">In Bearbeitung</text><line x1="40" y1="424" x2="540" y2="424" class="line"/><line x1="206" y1="424" x2="206" y2="778" class="line dashed"/><text x="52" y="438" text-anchor="start" class="label">Versand</text><text x="218" y="438" text-anchor="start" class="label">Zahlung</text></g>
+<g id="node-start"><circle cx="236" cy="138" r="10" class="uml-filled"/></g>
+<g id="node-angelegt"><rect x="176" y="220" width="120" height="48" rx="12" class="shape"/><text x="236" y="248" text-anchor="middle" class="label-bold">Angelegt</text></g>
+<g id="node-teilen"><rect x="110" y="340" width="252" height="6" class="uml-filled"/></g>
+<g id="node-kommissioniert"><rect x="70" y="466" width="128" height="48" rx="12" class="shape"/><text x="134" y="494" text-anchor="middle" class="label-bold">kommissioniert</text></g>
+<g id="node-versandt"><rect x="74" y="586" width="120" height="48" rx="12" class="shape"/><text x="134" y="614" text-anchor="middle" class="label-bold">versandt</text></g>
+<g id="node-zugestellt"><rect x="74" y="706" width="120" height="48" rx="12" class="shape"/><text x="134" y="734" text-anchor="middle" class="label-bold">zugestellt</text></g>
+<g id="node-offen"><rect x="278" y="466" width="120" height="48" rx="12" class="shape"/><text x="338" y="494" text-anchor="middle" class="label-bold">offen</text></g>
+<g id="node-autorisiert"><rect x="278" y="586" width="120" height="48" rx="12" class="shape"/><text x="338" y="614" text-anchor="middle" class="label-bold">autorisiert</text></g>
+<g id="node-eingezogen"><rect x="278" y="706" width="120" height="48" rx="12" class="shape"/><text x="338" y="734" text-anchor="middle" class="label-bold">eingezogen</text></g>
+<g id="node-fertig"><rect x="110" y="850.5" width="252" height="6" class="uml-filled"/></g>
+<g id="node-storniert"><rect x="556" y="826" width="184" height="55" rx="12" class="shape"/><text x="648" y="845" text-anchor="middle" class="label-bold">Storniert</text><line x1="556" y1="856" x2="740" y2="856" class="line"/><text x="568" y="873" text-anchor="start" class="uml-member">entry / Ware zurückholen</text></g>
+<g id="node-abgeschlossen"><rect x="176" y="953" width="120" height="48" rx="12" class="shape"/><text x="236" y="981" text-anchor="middle" class="label-bold">Abgeschlossen</text></g>
+<g id="node-ende"><circle cx="236" cy="1086" r="13" class="shape"/><circle cx="236" cy="1086" r="7" class="uml-filled"/></g>
+<g id="node-storno"><circle cx="540" cy="490" r="8" class="shape"/><line x1="534.3" y1="484.3" x2="545.7" y2="495.7" class="line"/><line x1="534.3" y1="495.7" x2="545.7" y2="484.3" class="line"/><text x="554" y="479" text-anchor="start" class="label-note">Storno</text></g>
+<g id="edge-0"><path d="M236 148 L236 220" class="line halo"/><path d="M236 148 L236 220" class="line" marker-end="url(#m-uml-open)"/></g>
+<g id="edge-1"><path d="M236 268 L236 340" class="line halo"/><path d="M236 268 L236 340" class="line" marker-end="url(#m-uml-open)"/></g>
+<g id="edge-2"><path d="M320 346 L320 466" class="line halo"/><path d="M320 346 L320 466" class="line" marker-end="url(#m-uml-open)"/></g>
+<g id="edge-3"><path d="M154 346 L154 466" class="line halo"/><path d="M154 346 L154 466" class="line" marker-end="url(#m-uml-open)"/></g>
+<g id="edge-4"><path d="M338 514 L338 586" class="line halo"/><path d="M338 514 L338 586" class="line" marker-end="url(#m-uml-open)"/></g>
+<g id="edge-5"><path d="M338 634 L338 706" class="line halo"/><path d="M338 634 L338 706" class="line" marker-end="url(#m-uml-open)"/></g>
+<g id="edge-6"><path d="M134 514 L134 586" class="line halo"/><path d="M134 514 L134 586" class="line" marker-end="url(#m-uml-open)"/></g>
+<g id="edge-7"><path d="M134 634 L134 706" class="line halo"/><path d="M134 634 L134 706" class="line" marker-end="url(#m-uml-open)"/></g>
+<g id="edge-8"><path d="M320 754 L320 850.5" class="line halo"/><path d="M320 754 L320 850.5" class="line" marker-end="url(#m-uml-open)"/></g>
+<g id="edge-9"><path d="M152 754 L152 850.5" class="line halo"/><path d="M152 754 L152 850.5" class="line" marker-end="url(#m-uml-open)"/></g>
+<g id="edge-10"><path d="M236 856.5 L236 953" class="line halo"/><path d="M236 856.5 L236 953" class="line" marker-end="url(#m-uml-open)"/></g>
+<g id="edge-11"><path d="M236 1001 L236 1073" class="line halo"/><path d="M236 1001 L236 1073" class="line" marker-end="url(#m-uml-open)"/></g>
+<g id="edge-12"><path d="M398 490 L532 490" class="line halo"/><path d="M398 490 L532 490" class="line" marker-end="url(#m-uml-open)"/></g>
+<g id="edge-13"><path d="M548 490 L572 490 L572 826" class="line halo"/><path d="M548 490 L572 490 L572 826" class="line" marker-end="url(#m-uml-open)"/></g>
+<g id="edge-14"><path d="M572 881 L572 1086 L249 1086" class="line halo"/><path d="M572 881 L572 1086 L249 1086" class="line" marker-end="url(#m-uml-open)"/></g>
+<g id="label-1"><text x="226" y="308" text-anchor="end" class="label halo">bestätigen</text></g>
+<g id="label-4"><text x="328" y="554" text-anchor="end" class="label halo">Zahlung autorisiert</text></g>
+<g id="label-5"><text x="328" y="674" text-anchor="end" class="label halo">Ware versandt</text></g>
+<g id="label-6"><text x="124" y="554" text-anchor="end" class="label halo">übergeben</text></g>
+<g id="label-7"><text x="124" y="674" text-anchor="end" class="label halo">zugestellt</text></g>
+<g id="label-12"><text x="465" y="480" text-anchor="middle" class="label halo">Zahlung abgelehnt</text></g>
+</svg>

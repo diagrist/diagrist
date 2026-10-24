@@ -8,11 +8,15 @@ export interface LayerEdge {
   readonly rank: 0 | 1;
 }
 
-/** Ids in declaration order, which breaks every tie, and the most nodes a layer may hold before it wraps. */
+/**
+ * Ids in declaration order, which breaks every tie, and the most nodes a layer may hold before it wraps. Nodes in
+ * `last`, such as the final states of a state machine, go below every other node of their part.
+ */
 export interface LayerGraph {
   readonly nodes: readonly string[];
   readonly edges: readonly LayerEdge[];
   readonly maxPerLayer: number;
+  readonly last?: readonly string[];
 }
 
 /** Layers from top to bottom and a position per node in half columns; neighbours in a layer stand at least 1 apart. */

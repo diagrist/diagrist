@@ -1,0 +1,28 @@
+# Order processing in the card look: the same life cycle as auftragsabwicklung.dgr. States are cards with a
+# toned name field (open blue, warehouse teal, delivered green, cancelled red), the composite state a toned area.
+# Pseudostates stay UML symbols.
+diagram state "Auftrag" subtitle="Auftragsabwicklung · Werte von auftragsstatus.status" look=cards locale=de
+initial start
+state offen "offen" entry="Frist setzen" tone=blue
+choice zahlung
+state bestaetigt "bestätigt" entry="Bestand reservieren" tone=teal
+initial lager in bestaetigt
+state reserviert "Ware reserviert" tone=teal in bestaetigt
+state kommissioniert "kommissioniert" tone=teal in bestaetigt
+state versandt "versandt" do="Sendung verfolgen" tone=teal in bestaetigt
+state geliefert "geliefert" entry="Rechnung stellen" tone=green
+state storniert "storniert" entry="Reservierung freigeben" tone=red
+final ende
+go start -> offen
+go offen -> zahlung on="absenden"
+go zahlung -> bestaetigt when="Zahlung gesichert"
+go zahlung -> offen when=else do="Kunde informieren"
+go lager -> reserviert
+go reserviert -> kommissioniert on="Picking abgeschlossen"
+go kommissioniert -> versandt on="übergeben" do="Sendungsnummer speichern"
+go versandt -> geliefert on="zugestellt"
+go offen -> storniert on="stornieren"
+go bestaetigt -> storniert on="stornieren" when="noch nicht versandt"
+go geliefert -> ende on="Rückgabefrist abgelaufen"
+go storniert -> ende
+internal offen on="Position ändern" do="Summe neu berechnen"

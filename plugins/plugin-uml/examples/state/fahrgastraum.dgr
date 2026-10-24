@@ -1,0 +1,21 @@
+# Fixture "passenger load" of the learning platform: a cyclic machine with a self transition, opposite edges
+# and long labels, a touchstone for the layout. There "Fahrt beginnen" is a trigger at the start; UML allows no
+# trigger on the initial transition, so here it is the effect.
+diagram state "Fahrgastraum" subtitle="Auslastung während einer Fahrt" locale=de
+initial start
+state leer "Leer"
+state niedrig "Niedrig"
+state normal "Normal"
+state hoch "Hoch"
+final ende
+go start -> leer do="Fahrt beginnen"
+go leer -> ende on="Fahrt beenden"
+go leer -> niedrig on="Abfahrt" when="Auslastung > 0 %"
+go niedrig -> leer on="Abfahrt" when="Auslastung = 0 %"
+go niedrig -> normal on="Abfahrt" when="Auslastung > 30 % und < 70 %"
+go niedrig -> hoch on="Abfahrt" when="Auslastung >= 70 %"
+go normal -> niedrig on="Abfahrt" when="Auslastung <= 30 %"
+go normal -> hoch on="Abfahrt" when="Auslastung >= 70 %"
+go normal -> normal on="Abfahrt" when="Auslastung > 30 % und < 70 %"
+go hoch -> niedrig on="Abfahrt" when="Auslastung <= 30 %"
+go hoch -> normal on="Abfahrt" when="Auslastung > 30 % und < 70 %"

@@ -1,4 +1,5 @@
-import type { Font, Placed } from '@diagrist/core';
+import type { Font, Placed, Point, Rect } from '@diagrist/core';
+import type { Side } from './geometry.js';
 
 /** Room between the line of a frame and what it holds, per side. */
 export interface Pads {
@@ -19,6 +20,8 @@ export interface GridMetrics {
   readonly nodeW: number;
   /** Least height of a row, and the height of a node that says nothing else. */
   readonly nodeH: number;
+  /** Least height of a row instead of `nodeH`, for kinds whose small symbols take rows of their own. */
+  readonly rowMin?: number;
   /** Gap between columns, and between columns whose names share the prefix before a dot (`api.1`, `api.2`). */
   readonly colGap: number;
   readonly subColGap: number;
@@ -128,6 +131,19 @@ export interface GridEdge {
   readonly lane?: string;
   /** How far a loop reaches out; default `loopReach`. */
   readonly loopReach?: number;
+  /**
+   * Sides the kind chooses in an adaptive grid, one pair per attempt: the three ways round of a long edge with the
+   * edges in their order, then the same three with the edges in reverse order. Without them the grid chooses. A state
+   * machine docks back edges on rails beside both states this way.
+   */
+  readonly sides?: readonly (readonly [Side, Side])[];
+  /** Rectangles an adaptive route keeps out of besides the nodes, such as frames that hold neither end. */
+  readonly avoid?: readonly Rect[];
+  /**
+   * A route the kind laid itself, such as a loop at the freest corner of a state. The grid takes it as it is, and in
+   * an adaptive grid other edges route around it and keep the parts of the sides it touches free.
+   */
+  readonly route?: { readonly points: readonly Point[]; readonly fromSide: Side; readonly toSide: Side };
   readonly source?: Placed['span'];
 }
 

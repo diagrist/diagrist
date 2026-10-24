@@ -35,10 +35,18 @@ function components(graph: LayerGraph): string[][] {
   });
 }
 
+/** Nodes of `last` one layer below the deepest other node, if there is one. */
+function lowest(layer: Map<string, number>, last: readonly string[]): Map<string, number> {
+  const inner = [...layer].filter(([n]) => !last.includes(n));
+  if (!inner.length) return layer;
+  const deepest = Math.max(0, ...inner.map(([, l]) => l));
+  return new Map([...layer].map(([n, l]) => [n, last.includes(n) ? Math.max(l, deepest + 1) : l]));
+}
+
 function single(graph: LayerGraph): Layered {
   const ranked = acyclic(graph.nodes, graph.edges);
   const side = graph.edges.filter((e) => e.rank === 0 && e.from !== e.to);
-  const layerOf = compact(assignLayers(graph.nodes, ranked, side));
+  const layerOf = compact(lowest(assignLayers(graph.nodes, ranked, side), graph.last ?? []));
   const adj = neighbours(graph);
   const layers = wrap(orderLayers(graph.nodes, layerOf, adj), graph.maxPerLayer);
   const wrapped = new Map(layers.flatMap((layer, l) => layer.map((n) => [n, l] as const)));
@@ -46,8 +54,8 @@ function single(graph: LayerGraph): Layered {
 }
 
 /**
- * Layers a graph: cycles broken by direction, layers by longest path, order by barycentre, columns near the mean of
- * the neighbours, too wide layers wrapped. Separate parts stand side by side and wrap into bands when together they
+ * Layers a graph: cycles broken by direction, layers by longest path with `last` at the bottom, order by barycentre,
+ * columns near the mean of the neighbours, too wide layers wrapped. Separate parts stand side by side and wrap into bands when together they
  * grow too wide. The same graph gives the same layers.
  */
 export function layerGraph(graph: LayerGraph): Layered {
@@ -58,7 +66,7 @@ export function layerGraph(graph: LayerGraph): Layered {
   let height = 0;
   for (const nodes of components(graph)) {
     const edges = graph.edges.filter((e) => nodes.includes(e.from));
-    const part = single({ nodes, edges, maxPerLayer: graph.maxPerLayer });
+    const part = single({ nodes, edges, maxPerLayer: graph.maxPerLayer, last: graph.last ?? [] });
     const width = Math.max(...part.position.values()) + 1;
     if (x > 0 && x + width > graph.maxPerLayer) {
       top += height;

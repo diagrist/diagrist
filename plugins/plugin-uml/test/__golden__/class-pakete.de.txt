@@ -1,0 +1,16 @@
+Auftragsabwicklung. Klassendiagramm (UML) mit 3 Paketen, 5 Klassen, 1 Schnittstelle und 6 Beziehungen.
+Paket service: enthält AuftragService.
+Paket domain: enthält AuftragRepository, Kunde, Auftrag, Auftragsposition.
+Paket persistence: enthält JpaAuftragRepository.
+Klasse AuftragService «service»: Operationen + erfasse(k : Kunde) : Auftrag, + gebeFrei(nr : String) : void.
+Schnittstelle AuftragRepository: Operationen + speichere(a : Auftrag) : void, + finde(nr : String) : Auftrag.
+Klasse Kunde: Attribute - kundennummer : String, - name : String.
+Klasse Auftrag «entity»: Attribute - auftragsnummer : String, - datum : Date; Operationen + summe() : Geld.
+Klasse Auftragsposition: Attribute - menge : int, - einzelpreis : Geld.
+Klasse JpaAuftragRepository: Operationen + speichere(a : Auftrag) : void, + finde(nr : String) : Auftrag.
+Kunde und Auftrag sind assoziiert: erteilt; je Kunde 0..* Auftrag, je Auftrag 1 Kunde.
+Auftrag besteht aus Auftragsposition (Komposition, Auftragsposition existiert nur mit Auftrag): je Auftrag 1..* Auftragsposition, je Auftragsposition 1 Auftrag.
+AuftragService hängt von AuftragRepository ab: nutzt.
+JpaAuftragRepository realisiert die Schnittstelle AuftragRepository.
+Paket service importiert Paket domain («import»).
+Paket persistence importiert Paket domain («import»).

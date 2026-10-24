@@ -1,0 +1,12 @@
+# UML dojo, class diagram 05 "inheritance and abstract class" (model answer of the learning platform). The
+# vehicle is abstract, car and truck are vehicles; the generalizations share one triangle.
+diagram class "Fuhrpark" subtitle="Generalisierung mit abstrakter Oberklasse" locale=de
+class fahrzeug "Fahrzeug" abstract
+  "- kennzeichen : Zeichenkette"
+  "- kilometerstand : Ganzzahl"
+class pkw "Pkw"
+  "- sitzplaetze : Ganzzahl"
+class lkw "Lkw"
+  "- zuladungKg : Ganzzahl"
+rel pkw -|> fahrzeug
+rel lkw -|> fahrzeug

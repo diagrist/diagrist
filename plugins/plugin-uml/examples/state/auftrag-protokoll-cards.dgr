@@ -1,0 +1,17 @@
+# The protocol of the order API in the card look: the same protocol as auftrag-protokoll.dgr, states as cards
+# with a toned name field (created blue, confirmed teal, shipped green, cancelled red).
+diagram state "Auftrags-API {protocol}" subtitle="Erlaubte Aufrufe mit Vor- und Nachbedingungen" look=cards locale=de
+initial start
+state angelegt "angelegt" tone=blue
+state bestaetigt "bestätigt" tone=teal
+state versandt "versandt" tone=green
+state storniert "storniert" tone=red
+final ende
+go start -> angelegt
+go angelegt -> angelegt on="ändern()" when="Positionen nicht leer" post="Summe neu berechnet"
+go angelegt -> bestaetigt on="bestätigen()" when="Zahlung autorisiert" post="Bestand reserviert"
+go angelegt -> storniert on="stornieren()" post="nichts reserviert"
+go bestaetigt -> storniert on="stornieren()" when="nicht versandt" post="Reservierung frei"
+go bestaetigt -> versandt on="versenden()" when="Ware kommissioniert" post="Sendungsnummer gesetzt"
+go versandt -> ende on="abschließen()" when="Rückgabefrist abgelaufen"
+go storniert -> ende on="archivieren()"

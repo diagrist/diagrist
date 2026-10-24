@@ -1,0 +1,12 @@
+# UML dojo, state machine 06b "self transition and way back" (model answer of the learning platform): a guarded
+# self transition at "Bereit" next to the way back from "Gesperrt".
+diagram state "Zugang" subtitle="Selbsttransition mit Guard" locale=de
+initial start
+state bereit "Bereit"
+state gesperrt "Gesperrt"
+final ende
+go start -> bereit
+go bereit -> bereit on="erneuern" when="Schlüssel gültig" do="Gültigkeit verlängern"
+go bereit -> gesperrt on="sperren"
+go gesperrt -> bereit on="entsperren"
+go bereit -> ende on="widerrufen"

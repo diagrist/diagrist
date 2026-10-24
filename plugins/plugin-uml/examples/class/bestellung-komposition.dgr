@@ -1,0 +1,21 @@
+# UML dojo, class diagram 04 "aggregation or composition" (model answer of the learning platform). A filled
+# diamond at the whole that owns its parts exclusively, a hollow one for the loose grouping.
+diagram class "Onlineshop" subtitle="Aggregation oder Komposition" locale=de
+class kundenkonto "Kundenkonto"
+  "- kundennummer : Ganzzahl"
+class lieferadresse "Lieferadresse"
+  "- strasse : Zeichenkette"
+  "- ort : Zeichenkette"
+class bestellung "Bestellung"
+  "- bestellnummer : Ganzzahl"
+  "- datum : Datum"
+class bestellposition "Bestellposition"
+  "- menge : Ganzzahl"
+class warenkorb "Warenkorb"
+class artikel "Artikel"
+  "- bezeichnung : Zeichenkette"
+  "- preis : Kommazahl"
+rel kundenkonto *-- lieferadresse source=1 card=1..*
+rel bestellung *-- bestellposition source=1 card=1..*
+rel warenkorb o-- artikel source=0..* card=0..*
+rel bestellposition -- artikel source=0..* card=1

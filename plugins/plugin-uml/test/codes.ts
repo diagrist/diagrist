@@ -38,10 +38,24 @@ const MOVED: Readonly<Record<string, Moved>> = {
     ['W458', 'L105', '`tone=` only on nodes drawn as cards'],
     ['E456, in part', 'L107', 'both ends of `handler` are actions'],
   ],
+  class: [
+    ['E101', 'L107', '`rel`, `in`, `on`, `class=` and `mark=` name declared elements of the right kind'],
+    ['E102', 'L108', 'ids are unique'],
+    ['E414, in part', 'L103', '`source=` and `card=` are valid multiplicities'],
+    ['E417, in part', 'L107', '`class=` names a `class`'],
+  ],
+  state: [
+    ['E101', 'L107', '`go`, `in`, `on`, `internal` and `mark=` name declared vertices of the right kind'],
+    ['E102', 'L108', 'ids are unique'],
+    ['E444, in part', 'L104', '`deep` only on `history`'],
+    ['E445, in part', 'L107', '`in` names a state or region, `internal` a state'],
+    ['E448, in part', 'L107', 'a region lies in a state; transitions end at vertices, not at regions'],
+    ['E449, in part', 'L107', 'entry and exit points sit on states'],
+  ],
 };
 
 /** Checks without a predecessor code. */
-const NEW: readonly string[] = ['U428'];
+const NEW: readonly string[] = ['U428', 'U471', 'U465'];
 
 const START = '<!-- Generated from the rules in src/*/rules by `pnpm docs:uml`. Do not edit. -->';
 const END = '<!-- End of the generated codes. -->';

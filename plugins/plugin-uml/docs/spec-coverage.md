@@ -120,3 +120,67 @@ Nobody declares an element covered. A statement, an argument, a value such as an
 | Expansion mode iterative | 16.12.3 | `expansion` with `mode=iterative` | `karten-belasten` and 1 more |
 | Expansion mode parallel | 16.12.3 | `expansion` with `mode=parallel` | `positionen-pruefen` and 1 more |
 | Expansion mode stream | 16.12.3 | `expansion` with `mode=stream` |  |
+
+## `class`: chapters 9 to 12, Classification, Simple and Structured Classifiers, Packages
+
+23 of 25 elements are covered (92 %).
+
+| Element | Section | Covered by | Examples |
+|---|---|---|---|
+| Comment (note) | 7.2.3.2 | `note`, U471 | `stundenplan` and 1 more |
+| Template parameters in a dashed box at the top right corner | 7.3.4 | `class`, `interface`, `enum` with `template=` | `vorlagen` |
+| Binding of a template, shown as a dependency «bind» | 7.3.4 | not covered |  |
+| Package import with the keyword «import» or «access» | 7.4.4 | `rel` with `import`, `rel` with `access`, U418 | `pakete` |
+| Multiplicity at an end or of a property | 7.5.4 | `rel` with `source=`, `rel` with `card=`, U910 | `auftragsabwicklung` and 9 more |
+| Dependency as a dashed arrow | 7.7.4 | `rel` with `-->`, U414, U419 | `auftragsabwicklung` and 3 more |
+| Generalization between classifiers | 9.2.3.2 | `rel` with `-\|>`, U411, U414 | `auftragsabwicklung` and 5 more |
+| Abstract classifier, its name in italics | 9.2.4 | `class`, `interface`, `enum` with `abstract` | `auftragsabwicklung` and 4 more |
+| Static feature, underlined | 9.4.4 | not covered |  |
+| Attribute with visibility, type, multiplicity and properties | 9.5.4 | U413, U416, U916 |  |
+| Operation with visibility, parameters, return type and properties | 9.6.4 | U413, U416, U916 |  |
+| Abstract operation, in italics | 9.6.4 | U412 |  |
+| Enumeration with its literals | 10.2.4 | `enum`, U413 | `auftragsabwicklung` and 1 more |
+| Interface with the keyword «interface» | 10.4.4 | `interface` | `auftragsabwicklung` and 3 more |
+| Realization of an interface, dashed with a hollow triangle | 10.4.4 | `rel` with `--\|>`, U410, U414 | `auftragsabwicklung` and 3 more |
+| Class with compartments for attributes and operations | 11.4.4 | `class` | `auftragsabwicklung` and 12 more |
+| Binary association as a line with its name | 11.5.4 | `rel` with `--`, `rel` with `->`, `rel` with `<->`, U911 | `auftragsabwicklung` and 9 more |
+| Role name at an end of an association | 11.5.4 | `rel` with `role=`, `rel` with `srole=`, U911 | `auftragsabwicklung` and 1 more |
+| Navigable end with an open arrowhead | 11.5.4 | `rel` with `->`, `rel` with `<->`, U470 | `auftragsabwicklung` and 3 more |
+| Non-navigable end with a small x | 11.5.4 | `rel` with `nonav=`, U470 | `navigierbarkeit` |
+| Shared aggregation with a hollow diamond at the whole | 11.5.4 | `rel` with `o--` | `bestellung-komposition` |
+| Composition with a filled diamond at the whole | 11.5.4 | `rel` with `*--`, U415 | `auftragsabwicklung` and 4 more |
+| N-ary association as a diamond with a leg to each end | 11.5.4 | `assoc`, U917, U918 | `stundenplan` and 1 more |
+| Association class joined by a dashed line | 11.5.4 | `assoc`, `rel` with `class=`, U417 | `kurs-assoziationsklasse` and 2 more |
+| Package as a frame with its name in the tab | 12.2.4 | `package`, U418, U419, U912, U913 | `pakete` and 1 more |
+
+## `state`: chapter 14, State Machines
+
+25 of 25 elements are covered (100 %).
+
+| Element | Section | Covered by | Examples |
+|---|---|---|---|
+| Comment (note) | 7.2.3.2 | `note`, U465 |  |
+| Time event as a trigger, after(...) | 13.3.3 | U462 |  |
+| Change event as a trigger, when(...) | 13.3.3 | U462 |  |
+| Simple state | 14.2.3.4 | `state`, U941, U942 | `auftrag-parallel` and 11 more |
+| Composite state with substates | 14.2.3.4 | `state`, `initial`, `final`, `choice`, `junction`, `history`, `fork`, `join`, `terminate` with `in`, U445, U946 | `auftrag-parallel` and 3 more |
+| Orthogonal regions of a state, separated by dashed lines | 14.2.3.2 | `region`, U448, U948 | `auftrag-parallel` |
+| Submachine state calling another state machine | 14.2.3.4 | `state` with `submachine=`, U460, U461 | `bestellung-unterautomaten` and 1 more |
+| Entry, do and exit behavior in the compartment of a state | 14.2.4 | `state` with `entry=`, `state` with `do=`, `state` with `exit=`, U945 | `auftrag-parallel` and 4 more |
+| Deferred event in the compartment of a state | 14.2.4 | `state` with `defer=`, U960, U961 | `freigabe-unterautomat` |
+| Internal transition in the compartment of a state | 14.2.4 | `internal`, U445, U945 | `auftragsabwicklung` and 2 more |
+| Final state | 14.2.3 | `final`, U440, U942 | `auftrag-parallel` and 11 more |
+| Initial pseudostate | 14.2.3 | `initial`, U440, U441, U443, U940, U946, U948 | `auftrag-parallel` and 11 more |
+| Shallow and deep history pseudostates | 14.2.3 | `history`, U441, U443, U444 |  |
+| Choice pseudostate | 14.2.3 | `choice`, U441, U943 | `auftragsabwicklung` and 2 more |
+| Junction pseudostate | 14.2.3 | `junction`, U441 |  |
+| Fork pseudostate | 14.2.3 | `fork`, U441, U446, U448, U947 | `auftrag-parallel` |
+| Join pseudostate | 14.2.3 | `join`, U441, U446, U448, U947 | `auftrag-parallel` |
+| Terminate pseudostate | 14.2.3 | `terminate`, U440 |  |
+| Entry point on the border of a state | 14.2.3 | `entrypoint`, U449, U460, U949 | `bestellung-unterautomaten` and 2 more |
+| Exit point on the border of a state | 14.2.3 | `exitpoint`, U449, U460, U949 | `auftrag-parallel` and 3 more |
+| Transition with trigger, guard and effect | 14.2.3.8 | `go`, `go`, `internal` with `on=`, U442, U944 | `auftrag-parallel` and 11 more |
+| Predefined guard else | 14.2.3.8 | `go` with `when=`, U447, U943 | `auftrag-protokoll` and 9 more |
+| Completion transition without trigger | 14.2.3.8 | `go` | `auftrag-parallel` and 11 more |
+| Protocol state machine | 14.4.3 | U463 |  |
+| Protocol transition with precondition and postcondition | 14.4.3 | `go` with `post=`, U463, U464 | `auftrag-protokoll` and 1 more |

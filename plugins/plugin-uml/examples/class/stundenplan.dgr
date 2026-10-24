@@ -1,0 +1,24 @@
+# N-ary association: a lesson joins four classes at once, lecturer, course, room and time slot. No binary
+# association can say that, hence a diamond with four legs. The multiplicity at an end says how many objects
+# there belong to one fixed combination of the other ends: exactly one lecturer per course, room and slot.
+# The association class carries the data of the lesson itself; the note is a UML comment.
+diagram class "Stundenplan" subtitle="N-äre Assoziation mit Assoziationsklasse" locale=de
+class dozent "Dozent"
+  "- name : String"
+class kurs "Kurs"
+  "- titel : String"
+class raum "Raum"
+  "- nummer : String"
+  "- plaetze : int"
+class termin "Termin"
+  "- beginn : DateTime"
+  "- dauer : Minuten"
+class einheit "Unterrichtseinheit"
+  "- thema : String"
+  "- anwesend : int"
+assoc unterricht "Unterricht" class=einheit
+rel unterricht -- dozent card=1
+rel unterricht -- kurs card=0..*
+rel unterricht -- raum card=0..1
+rel unterricht -- termin card=*
+note "Genau ein Dozent je Stunde" on dozent

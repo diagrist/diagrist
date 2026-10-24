@@ -107,9 +107,12 @@ ADR 0004 asks that a derivative which cannot be generated yet is listed here, wi
 ## Left out of `layout-grid` until a plugin needs it (ADR 0015)
 
 - **Predecessor paths for one kind only.** The tile flow of C4 without a grid (fixed columns, bands, row gaps),
-  the FigJam `elbow` profile, state transitions (rails, loops at corners, border points), class packages (row gaps,
-  legs at vertices, wider air between package frames) and domain relations docking at attribute rows are not in the
-  library. Each comes back as data on the spec when its plugin arrives, compared number for number like the rest.
+  the FigJam `elbow` profile and domain relations docking at attribute rows are not in the library. Each comes back
+  as data on the spec when its plugin arrives, compared number for number like the rest. State machines came back
+  this way: the sides a kind chooses per attempt, rectangles to avoid and routes it lays itself on `GridEdge`,
+  `rowMin` on the metrics, `last` on the layering and `placeLabels`; their rails, steps, loop corners and border
+  points, and the row gaps, legs at vertices and tabs of class packages, stay in `plugin-uml`, which no other kind
+  draws.
 - **Use case gets new numbers.** The predecessor reserved room for stacked frame heads above the first row only in
   C4, measured actors with their name and started lines at the figure. `layout-grid` reserves in every adaptive grid
   and expects a figure as the node with its name as `caption`, so the use case baseline is new.
@@ -118,10 +121,12 @@ ADR 0004 asks that a derivative which cannot be generated yet is listed here, wi
 
 - **Classes of markers count as unused.** The kernel writes a rule only when a shape uses its class, and the class
   of a marker in `<defs>` is no shape's. The hollow triangle of a generalization (`uml-hollow`) is therefore marked
-  `always` and written into every use case picture. Clean-up: the kernel counts the classes of referenced markers.
+  `always` and written into every use case picture, and the same holds for the hollow and filled symbols of class
+  diagrams (`UML_BOX_RULES`). Clean-up: the kernel counts the classes of referenced markers.
 - **One marker size per style table.** The predecessor drew the hollow triangle 14 pixels long and the open head 10;
-  the kernel's markers share `markerSize` 12 in a 12-unit grid, so the triangle is 10 long. Clean-up, if the
-  difference matters: a size per marker.
+  the kernel's markers share `markerSize` 12 in a 12-unit grid, so the triangle is 10 long. Class diagrams need the
+  diamond of 16 pixels, so their table sets `markerSize` 18 and gives each symbol its outline in pixels of that size;
+  the four standard heads, which class diagrams write but never use, grow with it. Clean-up: a size per marker.
 - **Labels of straight lines stay in the plugin.** `labelEdges` puts names on the longest segment of orthogonal
   routes; the use case labels look along a slanted line, at both ends and inside the frame of the use case, and
   notes search a field around their anchor. They use `occupancy` and `cheapest` of the library. Clean-up when a
@@ -144,3 +149,44 @@ ADR 0004 asks that a derivative which cannot be generated yet is listed here, wi
   not reported, because lines cross lanes and frames by design. A region frame around a foreign node is therefore a
   G400 warning, where the predecessor reported E439 as an error. Clean-up: a kind of `Placed` for frames whose
   overlap is an error.
+
+## Class diagrams (`plugin-uml/src/class`)
+
+- **Italics are upright in PNG.** Abstract names and operations carry `font-style: italic`; browsers slant the font,
+  the PNG renderer has no italic face of JetBrains Mono and draws them upright. The predecessor slanted the text with a
+  `skewX` transform, which the scene has no field for. Clean-up: bundle the italic face in `export-png`.
+- **Symbols at the start of a line sit on a stub.** resvg ignores `orient="auto-start-reverse"` and draws no marker
+  on a path without stroke, so a diamond at the whole, the second head of `<->` and the shared triangle of a bundle
+  drawn from its hub are the end marker of a short path with `stroke-opacity: 0`. Clean-up: `marker-start` once the
+  renderer turns markers there.
+- **No search for an arrangement of many packages.** From four packages on one level the predecessor swapped and
+  shifted package blocks and kept the best of four trial layouts (`class-package-arrange.ts`, `package-fit.ts`).
+  Without it `pakete-quer` lays out readably but with labels reaching into foreign packages (G400), so the example is
+  not carried over. Clean-up: port the search with its trial layouts and bring the example back.
+- **No grid placed by hand.** `grid` and `at` are gone, as in use case diagrams, so `pakete-raster` and the warning
+  W415 (a package frame around a foreign class) are not carried over.
+- **Packages align per level only.** Packages of one depth share top and bottom edges by their layers; a parent is
+  not grown again around children that moved. No example nests packages. Clean-up: enclose parents after aligning.
+- **Lines on toned packages keep the canvas halo.** The predecessor tinted the halo of lines and labels on a toned
+  area (`halo-<tone>`); here it is the canvas colour, a faint light seam on the 7 % tint. Clean-up: a halo role per
+  surface, shared with C4 and use case cards.
+- **The dashed note exists twice.** `src/class/layout/notes.ts` and `plugins/plugin-architecture/src/layout/notes.ts`
+  place the same note above a node. Clean-up: move it into `parts`.
+- **Coverage does not see line forms.** The walker in `src/spec/coverage.ts` reads statements, not their line forms,
+  so the static and abstract flags of members cite their elements in the docs but count as not covered (static
+  feature). Clean-up: walk `lines` too.
+
+## State machine diagrams (`plugin-uml/src/state`)
+
+- **Cross references are not checked.** `file=` on a submachine state is named in the description; the
+  predecessor's `dgr check` loaded the file and compared its points and kind (E480 to E484). Clean-up: a port for
+  the files a source names, handed in by the CLI, and the checks as rules over two models.
+- **Entry and exit points are not in the placement check.** They sit on the border of their state by design, so
+  their box overlaps the frame line; the names beside points and pseudostates are not reported either. Clean-up: an
+  outline on `Placed`, as for ellipses.
+- **No room for long region names.** The predecessor moved the columns of a right neighbour when the name of a region
+  side by side was wider than half the gap (`region-room.ts`). No example needs it; the frame still grows for the
+  name of the last region. Clean-up: a column offset per region, compared with an example.
+- **Disconnected parts of one scope are layered side by side.** `layerGraph` lays out each connected part on its
+  own, where the predecessor ordered all vertices of a scope in one go. All examples are connected. Clean-up, if a
+  machine needs it: an option to layer a graph as one part.

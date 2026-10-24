@@ -1,0 +1,20 @@
+# UML dojo, class diagram 10 "exam format with inheritance" (model answer of the learning platform): an
+# abstract superclass with an operation, two specializations, associations at the common ticket.
+diagram class "Ticketsystem" subtitle="IT-Support" locale=de
+class ticket "Ticket" abstract
+  "- ticketnummer : Ganzzahl"
+  "- titel : Zeichenkette"
+  "- erstelltAm : Datum"
+  "+ berechneReaktionszeit() : Ganzzahl"
+class stoerung "Störung"
+  "- prioritaet : Ganzzahl"
+class anfrage "Anfrage"
+  "- frist : Datum"
+class kunde "Kunde"
+  "- kundennummer : Ganzzahl"
+class mitarbeiter "Mitarbeiter"
+  "- personalnummer : Ganzzahl"
+rel stoerung -|> ticket
+rel anfrage -|> ticket
+rel kunde -- ticket "meldet" source=1 card=0..*
+rel mitarbeiter -- ticket "bearbeitet" source=0..1 card=0..*

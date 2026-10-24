@@ -1,0 +1,50 @@
+# Order processing in the card look: the same classes as auftragsabwicklung.dgr, the name field toned per
+# area (partners blue, order indigo, enumeration orange, services teal). Layout and notation stay.
+diagram class "Auftragsabwicklung" subtitle="Domänenmodell mit Diensten" look=cards locale=de
+class partner "Geschäftspartner" tone=blue abstract
+  "- partnernummer : String"
+  "- name : String"
+  "+ anschrift() : Adresse" abstract
+class kunde "Kunde" tone=blue
+  "- bonitaet : Bonitaet"
+  "+ anschrift() : Adresse"
+class lieferant "Lieferant" tone=blue
+  "- lieferzeitTage : int"
+  "+ anschrift() : Adresse"
+class auftrag "Auftrag" stereotype="entity" tone=indigo
+  "- auftragsnummer : String"
+  "- datum : Date"
+  "+ summe() : Geld"
+  "+ freigeben() : void"
+  "+ naechsteNummer() : String" static
+class position "Auftragsposition" tone=indigo
+  "- menge : int"
+  "- einzelpreis : Geld"
+  "+ betrag() : Geld"
+class artikel "Artikel"
+  "- artikelnummer : String"
+  "- bezeichnung : String"
+enum status "Auftragsstatus" tone=orange
+  "ERFASST"
+  "FREIGEGEBEN"
+  "GELIEFERT"
+  "STORNIERT"
+interface repo "AuftragRepository" tone=teal
+  "+ speichere(a : Auftrag) : void"
+  "+ finde(nr : String) : Auftrag"
+class service "AuftragService" stereotype="service" tone=teal
+  "+ erfasse(k : Kunde) : Auftrag"
+  "+ gebeFrei(nr : String) : void"
+class jpa "JpaAuftragRepository"
+  "+ speichere(a : Auftrag) : void"
+  "+ finde(nr : String) : Auftrag"
+rel kunde -|> partner
+rel lieferant -|> partner
+rel kunde -- auftrag "erteilt" source=1 card=0..*
+rel auftrag *-- position source=1 card=1..*
+rel position -> artikel source=0..* card=1
+rel lieferant -- artikel "liefert" source=1..* card=0..*
+rel auftrag -> status source=0..* card=1 role=status
+rel service --> repo "nutzt"
+rel jpa --|> repo
+rel service --> auftrag "verwaltet"

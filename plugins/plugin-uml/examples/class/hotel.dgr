@@ -1,0 +1,22 @@
+# UML dojo, class diagram 09 "find the errors" (corrected model answer of the learning platform). Rooms
+# disappear with the hotel (composition); single and double rooms are rooms.
+diagram class "Hotel" subtitle="Komposition, Generalisierung und Assoziationen" locale=de
+class hotel "Hotel"
+  "- name : Zeichenkette"
+class zimmer "Zimmer" abstract
+  "- zimmernummer : Ganzzahl"
+  "- preisProNacht : Kommazahl"
+class einzelzimmer "Einzelzimmer"
+class doppelzimmer "Doppelzimmer"
+  "- zustellbettMoeglich : Wahrheitswert"
+class gast "Gast"
+  "- name : Zeichenkette"
+  "- email : Zeichenkette"
+class buchung "Buchung"
+  "- anreise : Datum"
+  "- abreise : Datum"
+rel hotel *-- zimmer source=1 card=1..*
+rel einzelzimmer -|> zimmer
+rel doppelzimmer -|> zimmer
+rel gast -- buchung source=1 card=0..*
+rel zimmer -- buchung source=1 card=0..*

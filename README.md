@@ -11,8 +11,8 @@ It is written for two kinds of authors. People who keep diagrams next to their c
 check with stable codes and a picture that only changes when the source does. Coding agents get the grammar of
 every kind as data, findings as JSON and an agent skill.
 
-**Status:** early. Six diagram kinds work end to end, state machine and class diagrams are being built. Nothing
-is published to npm yet, so Diagrist is built from source.
+**Status:** early. Eight diagram kinds work end to end. Nothing is published to npm yet, so Diagrist is built
+from source.
 
 - Website: https://diagrist.com
 - License: [Apache-2.0](LICENSE)
@@ -27,13 +27,14 @@ Each kind comes from a plugin, and each has a page with every statement, its exa
 | [`sequence`](docs/language/sequence.md) | [`plugin-uml`](plugins/plugin-uml/README.md) | UML sequence diagram (UML 2.5.1, chapter 17) |
 | [`usecase`](docs/language/usecase.md) | `plugin-uml` | UML use case diagram (chapter 18) |
 | [`activity`](docs/language/activity.md) | `plugin-uml` | UML activity diagram (chapters 15 and 16) |
+| [`class`](docs/language/class.md) | `plugin-uml` | UML class diagram (chapters 9 to 12) |
+| [`state`](docs/language/state.md) | `plugin-uml` | UML state machine diagram (chapter 14) |
 | [`context`](docs/language/context.md) | [`plugin-architecture`](plugins/plugin-architecture/README.md) | C4 system context diagram (level 1) |
 | [`container`](docs/language/container.md) | `plugin-architecture` | C4 container diagram (level 2) |
 | [`component`](docs/language/component.md) | `plugin-architecture` | C4 component diagram (level 3) |
 
 UML diagrams are laid out by Diagrist itself. C4 diagrams place their elements in a named grid that the file
-declares, so the author decides what stands next to what. State machine and class diagrams are the next kinds of
-`plugin-uml`.
+declares, so the author decides what stands next to what.
 
 How much of UML 2.5.1 the UML kinds cover is not claimed by hand. The tables mark which element of the
 specification each statement and rule implements, and the

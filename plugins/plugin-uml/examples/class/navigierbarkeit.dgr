@@ -1,0 +1,18 @@
+# Navigability: arrowhead navigable, x not navigable, nothing open. The customer knows his accounts, an
+# account not its customer (x at the source). Account and booking know each other, nobody knows the audit
+# log (x at both ends).
+diagram class "Bankkonto" subtitle="Navigierbare und nicht navigierbare Enden" locale=de
+class kunde "Kunde"
+  "- name : String"
+class konto "Konto"
+  "- iban : String {readOnly}"
+  "- saldo : Geld"
+  "+ bucheAb(betrag : Geld) : void"
+class buchung "Buchung"
+  "- betrag : Geld"
+  "- datum : Date {readOnly}"
+class protokoll "Prüfprotokoll"
+  "- eintrag : String [1..*] {ordered}"
+rel kunde -> konto "führt" source=1 card=0..* nonav=from
+rel konto <-> buchung source=1 card=0..*
+rel buchung -- protokoll source=0..* card=1 nonav=both

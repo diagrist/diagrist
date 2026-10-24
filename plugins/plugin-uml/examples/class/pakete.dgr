@@ -1,0 +1,31 @@
+# Order processing with packages: the service uses the domain only through the interface AuftragRepository,
+# which persistence realizes (dependency inversion). Both outer packages import domain, which depends on none.
+diagram class "Auftragsabwicklung" subtitle="Pakete und ihre Abhängigkeiten" locale=de
+package service "service"
+package domain "domain"
+package persistence "persistence"
+class auftragService "AuftragService" in service stereotype="service"
+  "+ erfasse(k : Kunde) : Auftrag"
+  "+ gebeFrei(nr : String) : void"
+interface repo "AuftragRepository" in domain
+  "+ speichere(a : Auftrag) : void"
+  "+ finde(nr : String) : Auftrag"
+class kunde "Kunde" in domain
+  "- kundennummer : String"
+  "- name : String"
+class auftrag "Auftrag" in domain stereotype="entity"
+  "- auftragsnummer : String"
+  "- datum : Date"
+  "+ summe() : Geld"
+class position "Auftragsposition" in domain
+  "- menge : int"
+  "- einzelpreis : Geld"
+class jpa "JpaAuftragRepository" in persistence
+  "+ speichere(a : Auftrag) : void"
+  "+ finde(nr : String) : Auftrag"
+rel kunde -- auftrag "erteilt" source=1 card=0..*
+rel auftrag *-- position source=1 card=1..*
+rel auftragService --> repo "nutzt"
+rel jpa --|> repo
+rel service --> domain import
+rel persistence --> domain import

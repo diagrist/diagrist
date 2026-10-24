@@ -19,14 +19,14 @@ function offset(point: Point, side: Side, gap: number): Point {
  * One attempt in a given order and `mode`: straight connections first, as they read best; then the trunks of
  * bundles around them; then every other edge by path search around nodes, foreign head strips and laid routes.
  */
-function routeAttempt(routes: readonly Routed[], board: Board, mode: number): Routed[] {
+function routeAttempt(routes: readonly Routed[], board: Board, mode: number, attempt: number): Routed[] {
   const used: Point[][] = [];
   const m = board.tree.spec.metrics;
   const gap = m.laneGap;
   const obstacles = board.nodes.map((n) => n.rect);
   const headers = headStrips(board.layout.groups, m.framePad.top);
   const bundles = bundlePlans(routes, board);
-  const plans = ellipseSides(plansOf(routes, board, bundles, mode, gap), board);
+  const plans = ellipseSides(plansOf(routes, board, bundles, mode, attempt, gap), board);
   const ports = adaptivePorts([...new Set(plans.flatMap((p) => (p ? [p.from, p.to] : [])))], gap);
   const port = (r: PortRequest) => ports.get(r) as Point;
   const fixed = new Map<number, Routed>();
@@ -101,6 +101,7 @@ function searched(
   const blocks = [
     ...obstacles,
     ...headers.filter((_, i) => !ownHeaders.has(groupKey((board.layout.groups[i] as { id: string }).id))),
+    ...(r.edge.avoid ?? []),
   ];
   const startStub = offset(start, fromSide, gap);
   const endStub = offset(end, toSide, gap);
@@ -154,7 +155,7 @@ export function adaptiveRoutes(routes: readonly Routed[], board: Board): Routed[
   for (const reverse of [false, true])
     for (const mode of [0, 1, 2]) {
       const input = reverse ? [...routes].reverse() : [...routes];
-      const result = routeAttempt(input, board, mode);
+      const result = routeAttempt(input, board, mode, (reverse ? 3 : 0) + mode);
       const candidate = reverse ? result.reverse() : result;
       const cost = score(candidate) + candidate.filter((r) => r.unroutable).length * 10000000;
       if (!best || cost < best.score) best = { routes: candidate, score: cost };

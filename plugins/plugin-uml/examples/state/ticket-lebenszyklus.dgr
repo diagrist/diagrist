@@ -1,0 +1,16 @@
+# UML dojo, state machine 10 "life cycle of a support ticket" (model answer of the learning platform): start,
+# end, trigger, guard, effect, self transition and back edge.
+diagram state "Support-Ticket" subtitle="Lebenszyklus" locale=de
+initial start
+state neu "Neu"
+state bearbeitung "In Bearbeitung"
+state geloest "Gelöst"
+state geschlossen "Geschlossen"
+final ende
+go start -> neu
+go neu -> bearbeitung on="zuweisen" do="Bearbeiter informieren"
+go bearbeitung -> bearbeitung on="Kommentar eingegangen" do="Verlauf aktualisieren"
+go bearbeitung -> geloest on="lösen" when="Lösung dokumentiert" do="Melder informieren"
+go geloest -> bearbeitung on="wieder öffnen"
+go geloest -> geschlossen on="bestätigen"
+go geschlossen -> ende on="archivieren"

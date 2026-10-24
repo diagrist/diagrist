@@ -27,13 +27,15 @@ const FRACTIONS = [0.5, 0.25, 0.75, 0.375, 0.625, 0.125, 0.875];
 /**
  * Labels of an adaptive grid move as one block per route: over the segments from the longest, the places in
  * `FRACTIONS`, both sides, the first spot clear of nodes, head strips, sides of passable frames, `fixed` texts,
- * routes and labels placed before. Without one they stay where they are.
+ * routes and labels placed before. Without one they stay where they are. With `keep`, labels already on a free
+ * spot stay there.
  */
 export function adaptiveLabels(
   board: Board,
   texts: readonly EdgeLabel[],
   routes: readonly Route[],
   fixed: readonly EdgeLabel[],
+  keep = false,
 ): EdgeLabel[] {
   const m = board.tree.spec.metrics;
   const blocked: Rect[] = board.layout.nodes.map((n) => memberBounds(n, board.node(n.id)));
@@ -49,6 +51,10 @@ export function adaptiveLabels(
     const items = texts.filter((t) => t.route === route);
     if (!items.length) return;
     const bounds = union(items.map((i) => i.box));
+    if (keep && clear(bounds)) {
+      placed.push(...items);
+      return;
+    }
     const segments = r.points
       .slice(1)
       .map((b, i) => {

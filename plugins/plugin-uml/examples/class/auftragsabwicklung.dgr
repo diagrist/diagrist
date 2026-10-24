@@ -1,0 +1,50 @@
+# Architect's example order processing: domain classes with generalization, interfaces, composition, an
+# enumeration and a service that works through interfaces only.
+diagram class "Auftragsabwicklung" subtitle="Domänenmodell mit Diensten" locale=de
+class partner "Geschäftspartner" abstract
+  "- partnernummer : String"
+  "- name : String"
+  "+ anschrift() : Adresse" abstract
+class kunde "Kunde"
+  "- bonitaet : Bonitaet"
+  "+ anschrift() : Adresse"
+class lieferant "Lieferant"
+  "- lieferzeitTage : int"
+  "+ anschrift() : Adresse"
+class auftrag "Auftrag" stereotype="entity"
+  "- auftragsnummer : String"
+  "- datum : Date"
+  "+ summe() : Geld"
+  "+ freigeben() : void"
+  "+ naechsteNummer() : String" static
+class position "Auftragsposition"
+  "- menge : int"
+  "- einzelpreis : Geld"
+  "+ betrag() : Geld"
+class artikel "Artikel"
+  "- artikelnummer : String"
+  "- bezeichnung : String"
+enum status "Auftragsstatus"
+  "ERFASST"
+  "FREIGEGEBEN"
+  "GELIEFERT"
+  "STORNIERT"
+interface repo "AuftragRepository"
+  "+ speichere(a : Auftrag) : void"
+  "+ finde(nr : String) : Auftrag"
+class service "AuftragService" stereotype="service"
+  "+ erfasse(k : Kunde) : Auftrag"
+  "+ gebeFrei(nr : String) : void"
+class jpa "JpaAuftragRepository"
+  "+ speichere(a : Auftrag) : void"
+  "+ finde(nr : String) : Auftrag"
+rel kunde -|> partner
+rel lieferant -|> partner
+rel kunde -- auftrag "erteilt" source=1 card=0..*
+rel auftrag *-- position source=1 card=1..*
+rel position -> artikel source=0..* card=1
+rel lieferant -- artikel "liefert" source=1..* card=0..*
+rel auftrag -> status source=0..* card=1 role=status
+rel service --> repo "nutzt"
+rel jpa --|> repo
+rel service --> auftrag "verwaltet"

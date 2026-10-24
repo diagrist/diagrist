@@ -3,12 +3,16 @@ import { fileURLToPath } from 'node:url';
 import { compareGolden } from '@diagrist/testkit';
 import { describe, expect, it } from 'vitest';
 import { activity } from '../src/activity/kind.js';
+import { classKind } from '../src/class/kind.js';
 import { sequence } from '../src/sequence/kind.js';
 import { ACTIVITIES } from '../src/spec/activities.js';
+import { CLASSES } from '../src/spec/classes.js';
 import { claimsOf } from '../src/spec/coverage.js';
 import { INTERACTIONS } from '../src/spec/interactions.js';
 import { type CoveredKind, coverageReport } from '../src/spec/report.js';
+import { STATE_MACHINES } from '../src/spec/state-machines.js';
 import { USE_CASES } from '../src/spec/use-cases.js';
+import { stateKind } from '../src/state/kind.js';
 import { usecase } from '../src/usecase/kind.js';
 
 const examplesOf = (kind: string): CoveredKind['examples'] => {
@@ -26,6 +30,18 @@ const KINDS: readonly CoveredKind[] = [
     chapter: 'chapters 15, Activities, and 16, Actions',
     catalog: ACTIVITIES,
     examples: examplesOf('activity'),
+  },
+  {
+    kind: classKind,
+    chapter: 'chapters 9 to 12, Classification, Simple and Structured Classifiers, Packages',
+    catalog: CLASSES,
+    examples: examplesOf('class'),
+  },
+  {
+    kind: stateKind,
+    chapter: 'chapter 14, State Machines',
+    catalog: STATE_MACHINES,
+    examples: examplesOf('state'),
   },
 ];
 

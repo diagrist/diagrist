@@ -1,0 +1,26 @@
+Auftrag. Zustandsdiagramm (UML) mit 10 Zuständen, 5 Pseudo- und Endzuständen, 2 Regionen und 15 Transitionen.
+Zustand Angelegt.
+Zusammengesetzter Zustand In Bearbeitung mit den 2 orthogonalen Regionen Versand (kommissioniert, versandt, zugestellt) und Zahlung (offen, autorisiert, eingezogen), die gleichzeitig aktiv sind; auf dem Rand Austrittspunkt „Storno“.
+Zustand offen in Region „Zahlung“.
+Zustand autorisiert in Region „Zahlung“.
+Zustand eingezogen in Region „Zahlung“.
+Zustand kommissioniert in Region „Versand“.
+Zustand versandt in Region „Versand“.
+Zustand zugestellt in Region „Versand“.
+Zustand Abgeschlossen.
+Zustand Storniert (beim Eintritt Ware zurückholen).
+Der Ablauf beginnt bei Start und geht nach Angelegt.
+Im Zustand Angelegt führt das Ereignis bestätigen nach Gabelung.
+Von Gabelung geht es nach offen.
+Von Gabelung geht es nach kommissioniert.
+Im Zustand offen führt das Ereignis Zahlung autorisiert nach autorisiert.
+Im Zustand autorisiert führt das Ereignis Ware versandt nach eingezogen.
+Im Zustand kommissioniert führt das Ereignis übergeben nach versandt.
+Im Zustand versandt führt das Ereignis zugestellt nach zugestellt.
+Ist der Zustand eingezogen abgeschlossen, geht es nach Vereinigung.
+Ist der Zustand zugestellt abgeschlossen, geht es nach Vereinigung.
+Von Vereinigung geht es nach Abgeschlossen.
+Ist der Zustand Abgeschlossen abgeschlossen, geht es nach Ende.
+Im Zustand offen führt das Ereignis Zahlung abgelehnt nach Austrittspunkt „Storno“.
+Über Austrittspunkt „Storno“ verlässt der Ablauf In Bearbeitung und geht nach Storniert.
+Ist der Zustand Storniert abgeschlossen, geht es nach Ende.

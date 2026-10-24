@@ -5,13 +5,16 @@ import { topReserve } from './reserve.js';
 
 const rowShare = (n: GridNode, nodeH: number): number => n.rowHeight ?? n.height ?? nodeH;
 
-/** Rows from top to bottom: each as high as the highest node that asks of it, at least `nodeH`. */
+/** Rows from top to bottom: each as high as the highest node that asks of it, at least `rowMin` or `nodeH`. */
 export function rows(tree: Tree): Row[] {
   const m = tree.spec.metrics;
   const out: Row[] = [];
   let y = m.firstRowY + topReserve(tree);
   for (const name of tree.rowNames) {
-    const h = Math.max(m.nodeH, ...tree.spec.nodes.filter((n) => n.row === name).map((n) => rowShare(n, m.nodeH)));
+    const h = Math.max(
+      m.rowMin ?? m.nodeH,
+      ...tree.spec.nodes.filter((n) => n.row === name).map((n) => rowShare(n, m.nodeH)),
+    );
     out.push({ name, y, h });
     y += h + rowGap(tree, name);
   }

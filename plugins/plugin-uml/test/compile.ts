@@ -34,3 +34,23 @@ export const activitySource = (name: string): string => readFileSync(new URL(nam
 /** Compiles lines of an activity diagram with the UML plugin, adding the header. */
 export const activity = (...lines: string[]): Compilation =>
   compile(['diagram activity "Test"', ...lines].join('\n'), { plugins: [umlPlugin] });
+
+export const classExamples = new URL('../examples/class/', import.meta.url);
+
+export const classNames: readonly string[] = readdirSync(classExamples).filter((f) => f.endsWith('.dgr'));
+
+export const classSource = (name: string): string => readFileSync(new URL(name, classExamples), 'utf8');
+
+/** Compiles lines of a class diagram with the UML plugin, adding the header. */
+export const classDiagram = (...lines: string[]): Compilation =>
+  compile(['diagram class "Test"', ...lines].join('\n'), { plugins: [umlPlugin] });
+
+export const stateExamples = new URL('../examples/state/', import.meta.url);
+
+export const stateNames: readonly string[] = readdirSync(stateExamples).filter((f) => f.endsWith('.dgr'));
+
+export const stateSource = (name: string): string => readFileSync(new URL(name, stateExamples), 'utf8');
+
+/** Compiles lines of a state machine diagram with the UML plugin, adding the header. */
+export const stateDiagram = (...lines: string[]): Compilation =>
+  compile(['diagram state "Test"', ...lines].join('\n'), { plugins: [umlPlugin] });

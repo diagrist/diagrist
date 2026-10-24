@@ -1,0 +1,15 @@
+# UML dojo, class diagram 06 "interface and realization" (model answer of the learning platform). Dashed
+# line with a hollow triangle at the interface; both classes offer drucken().
+diagram class "Belege" subtitle="Schnittstelle und Realisierung" locale=de
+interface druckbar "Druckbar"
+  "+ drucken() : Zeichenkette"
+class rechnung "Rechnung"
+  "- rechnungsnummer : Ganzzahl"
+  "- betrag : Kommazahl"
+  "+ drucken() : Zeichenkette"
+class lieferschein "Lieferschein"
+  "- lieferscheinnummer : Ganzzahl"
+  "- lieferdatum : Datum"
+  "+ drucken() : Zeichenkette"
+rel rechnung --|> druckbar
+rel lieferschein --|> druckbar

@@ -1,0 +1,21 @@
+# Templates: the parameters stand in the dashed box at the top right corner. Customer list and customer
+# directory bind the parameters to Kunde («bind»), the sorted list inherits the template. {readOnly}
+# belongs to attributes, {query} to operations.
+diagram class "Vorlagen" subtitle="Template-Parameter, Bindung und Eigenschaften" locale=de
+class liste "Liste" template="T"
+  "- elemente : T [0..*] {ordered}"
+  "+ fügeHinzu(e : T) : void"
+  "+ anzahl() : Integer {query}"
+class sortiert "SortierteListe" template="T"
+  "+ sortiere() : void"
+class zuordnung "Zuordnung" template="K, V"
+  "+ hole(k : K) : V [0..1] {query}"
+  "+ lege(k : K, v : V) : void"
+class kundenliste "Kundenliste"
+class verzeichnis "Kundenverzeichnis"
+class kunde "Kunde"
+  "- kundennummer : String {readOnly}"
+  "- name : String"
+rel sortiert -|> liste
+rel kundenliste --> liste "«bind» <T → Kunde>"
+rel verzeichnis --> zuordnung "«bind» <K → String, V → Kunde>"

@@ -1,0 +1,18 @@
+# Association class: the grade belongs neither to the student nor to the course but to a student taking a
+# course. Enrolment is the association "belegt" and a class with attributes at once. Lecturer and course
+# know each other (<->, navigable at both ends).
+diagram class "Kursverwaltung" subtitle="Assoziationsklasse und Navigierbarkeit" locale=de
+class student "Student"
+  "- matrikelnummer : int"
+  "- name : String"
+class kurs "Kurs"
+  "- titel : String"
+  "- ects : int"
+class teilnahme "Teilnahme"
+  "- note : Dezimal"
+  "- versuch : int"
+  "+ bestanden() : boolean"
+class dozent "Dozent"
+  "- name : String"
+rel student -- kurs "belegt" source=* card=* class=teilnahme
+rel dozent <-> kurs "hält" source=1 card=1..*
