@@ -1,0 +1,12 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": ".",
+    "outDir": ".tsbuild",
+    "emitDeclarationOnly": true,
+    // Only `src/node.ts` uses Node, as the host adapter; the purity test keeps Node out of `src/index.ts`.
+    "types": ["node"]
+  },
+  "include": ["src"],
+  "references": [{ "path": "../../packages/core" }]
+}

@@ -11,6 +11,8 @@
     { "path": "packages/cli/test" },
     { "path": "plugins/plugin-uml" },
     { "path": "plugins/plugin-uml/test" },
+    { "path": "plugins/export-png" },
+    { "path": "plugins/export-png/test" },
     { "path": "test" }
   ]
 }

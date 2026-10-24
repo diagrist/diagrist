@@ -22,7 +22,7 @@ working **on** Diagrist. Read it fully before changing code; details live in `do
 | `packages/lang` | Scanner, statement tree, printer, statement tables, diagnostics. No Node APIs. |
 | `packages/testkit` | Golden-file comparison for tests. Node only. |
 | `packages/cli` | The command line `dgr` (also `diagrist`). Commands are tables in `src/commands`; the kernel is reached through the `Engine` port. |
-| `plugins/*` | Diagram families, looks, exporters (none yet). |
+| `plugins/*` | Diagram families, looks, exporters (`export-png`). |
 | `test/architecture` | Rules enforced as tests: comments, purity, package boundaries, file size. |
 | `docs/adr` | Decisions. Short; read the ones touching your change. |
 
@@ -43,7 +43,8 @@ pnpm docs:cli         # regenerate docs/cli.md from the command tables
 - **Purity:** no `Date`, `Math.random`, `console`, timers, `fetch`, `process` or `node:` imports in `packages/lang/src`,
   `packages/core/src` and `plugins/*/src`. Same input, same bytes. The same holds for `packages/cli/src`, except that
   its host adapters `main.ts` and `node-io.ts` may use `process` and `node:` modules, and `node:util` is allowed for
-  `parseArgs`.
+  `parseArgs`. A plugin that needs the disk keeps it in one Node entry, listed in the test (so far
+  `plugins/export-png/src/node.ts`, published as `@diagrist/export-png/node`).
 - **Boundaries:** import another `@diagrist/*` package only if it is in your `package.json`; plugins never depend on
   other plugins; relative imports stay inside the package.
 - **Size:** at most 200 lines per source file.

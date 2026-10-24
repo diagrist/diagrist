@@ -1,0 +1,30 @@
+{
+  "name": "@diagrist/export-png",
+  "version": "0.0.0",
+  "private": true,
+  "description": "PNG export for Diagrist: renders the kernel's SVG with resvg (WebAssembly) and the bundled fonts, without a browser.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "exports": {
+    ".": {
+      "@diagrist/source": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./node": {
+      "@diagrist/source": "./src/node.ts",
+      "types": "./dist/node.d.ts",
+      "default": "./dist/node.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsdown"
+  },
+  "dependencies": {
+    "@diagrist/core": "workspace:*",
+    "@resvg/resvg-wasm": "2.6.2"
+  }
+}
