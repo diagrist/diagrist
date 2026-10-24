@@ -15,12 +15,12 @@ beforeAll(async () => {
 const TEXT = 'AVAVAV Tower Ty Wa';
 const START = 10;
 
-/** One line of Inter at `x`, anchored as given; `kerning` leaves the renderer's kerning on. */
-function picture(font: Font, x: number, anchor: 'start' | 'end', kerning: boolean): Picture {
-  const root = `font-family: ${FONT_STACKS.inter};${kerning ? '' : ' font-kerning: none;'}`;
+/** One line in the face of `font` (Inter without one) at `x`, anchored as given; `kerning` leaves kerning on. */
+function picture(font: Font, x: number, anchor: 'start' | 'end', kerning: boolean, text = TEXT): Picture {
+  const root = `font-family: ${FONT_STACKS[font.family ?? 'inter']};${kerning ? '' : ' font-kerning: none;'}`;
   const weight = font.weight === undefined ? '' : ` font-weight="${font.weight}"`;
   const tracking = font.letterSpacing === undefined ? '' : ` letter-spacing="${font.letterSpacing}"`;
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="320" height="40"><style>svg { ${root} }</style><rect width="320" height="40" fill="#fff"/><text x="${x}" y="28" font-size="${font.size}"${weight}${tracking} text-anchor="${anchor}">${TEXT}</text></svg>`;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="320" height="40"><style>svg { ${root} }</style><rect width="320" height="40" fill="#fff"/><text x="${x}" y="28" font-size="${font.size}"${weight}${tracking} text-anchor="${anchor}">${text}</text></svg>`;
   const result = toPng(svg, { fonts });
   if (!('png' in result)) throw new Error(result.detail);
   return decodePng(result.png);
@@ -33,9 +33,9 @@ function firstInk(p: Picture): number {
 }
 
 /** How far the text set from its end lands from where the same text set from its start begins. */
-const drift = (font: Font, kerning: boolean): number =>
-  firstInk(picture(font, START + textWidth(TEXT, font), 'end', kerning)) -
-  firstInk(picture(font, START, 'start', kerning));
+const drift = (font: Font, kerning: boolean, text = TEXT): number =>
+  firstInk(picture(font, START + textWidth(text, font), 'end', kerning, text)) -
+  firstInk(picture(font, START, 'start', kerning, text));
 
 describe('Inter in the PNG', () => {
   it.each([
@@ -48,5 +48,19 @@ describe('Inter in the PNG', () => {
 
   it('would be set narrower with kerning on, which is why pictures in Inter switch it off (ADR 0022)', () => {
     expect(drift({ size: 20, family: 'inter' }, true)).toBeGreaterThan(4);
+  });
+});
+
+describe('Geist in the PNG', () => {
+  it.each([
+    ['regular', { size: 20, family: 'geist' }],
+    ['semibold', { size: 20, weight: 600, family: 'geist' }],
+    ['mono', { size: 20, family: 'geist-mono' }],
+  ] as const)('is set as wide as the kernel measures it, %s', (_, font: Font) => {
+    expect(Math.abs(drift(font, false))).toBeLessThanOrEqual(1);
+  });
+
+  it('joins ff and ffl into ligatures, which resvg cannot switch off: narrower than measured, never wider', () => {
+    expect(drift({ size: 20, family: 'geist' }, false, 'Zugriffsprüfung, offline')).toBeGreaterThan(1);
   });
 });

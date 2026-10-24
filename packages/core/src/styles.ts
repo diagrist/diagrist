@@ -77,6 +77,29 @@ export interface Marker {
   readonly orient?: 'auto' | 'auto-start-reverse';
 }
 
+/** One soft shadow, as SVG `feDropShadow` draws it: offset, blur as standard deviation, colour and its opacity. */
+export interface Shadow {
+  readonly dx: number;
+  readonly dy: number;
+  readonly blur: number;
+  readonly color: string;
+  readonly opacity: number;
+}
+
+/**
+ * A filter in `<defs>`, referenced by a rule as `filter: url(#f-<id>)`: its shadows chained under the shape, as a
+ * CSS list of `drop-shadow()` would draw them. resvg and browsers render it alike.
+ */
+export interface ShadowFilter {
+  readonly id: string;
+  readonly shadows: readonly Shadow[];
+  /**
+   * The smallest shape the filter falls on. The filter region grows each shape by the share of this size its
+   * shadows reach, so no shadow is cut off and a rasterizer blurs no more area than needed, which is what costs.
+   */
+  readonly smallest: { readonly w: number; readonly h: number };
+}
+
 /** A pictogram as path data in a square of `size` units, drawn with the class of the shape's role. */
 export interface Icon {
   readonly size: number;
@@ -107,6 +130,8 @@ export interface Styles {
   /** Edge length of an arrowhead in pixels. */
   readonly markerSize: number;
   readonly markers: readonly Marker[];
+  /** Shadows the rules name with `filter: url(#f-<id>)`; written into `<defs>` only when given. */
+  readonly shadows?: readonly ShadowFilter[];
   readonly roles: Readonly<Record<string, RoleStyle>>;
   /** In stylesheet order. */
   readonly rules: readonly StyleRule[];

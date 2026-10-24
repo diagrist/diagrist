@@ -1,13 +1,16 @@
 import { type FaceMetrics, FONT_METRICS } from './font-metrics.js';
+import { GEIST_MONO } from './geist-mono.js';
+import { GEIST_REGULAR } from './geist-regular.js';
+import { GEIST_SEMIBOLD } from './geist-semibold.js';
 import { INTER_REGULAR } from './inter-regular.js';
 import { INTER_SEMIBOLD } from './inter-semibold.js';
 import { type PackedFace, unpackFace } from './packed-face.js';
 
 /**
  * A typeface the kernel bundles in `fonts/`, measures from its own table and hands to rasterizers: JetBrains Mono,
- * the face of the standard look, and Inter, the proportional face of looks that ask for it (ADR 0022).
+ * the face of the standard look, and Inter, Geist and Geist Mono, the faces of looks that ask for them (ADR 0022).
  */
-export type Typeface = 'jetbrains-mono' | 'inter';
+export type Typeface = 'jetbrains-mono' | 'inter' | 'geist' | 'geist-mono';
 
 /** How a text is set: size in pixels, CSS weight (400 regular, 600 and above bold), typeface and tracking. */
 export interface Font {
@@ -23,6 +26,8 @@ export interface Font {
 export const FONT_STACKS: Readonly<Record<Typeface, string>> = {
   'jetbrains-mono': '"JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace',
   inter: 'Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif',
+  geist: 'Geist, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif',
+  'geist-mono': '"Geist Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace',
 };
 
 const BOLD = 600;
@@ -39,7 +44,10 @@ function unpacked(face: PackedFace): Advance {
   return (codePoint) => advances.get(codePoint) ?? face.advance;
 }
 
-/** Advances of each bundled typeface, regular and bold, and the units per em they are given in. */
+/**
+ * Advances of each bundled typeface, regular and bold, and the units per em they are given in. Only the regular
+ * face of Geist Mono is bundled; its glyphs are equally wide at every weight.
+ */
 const FACES: Readonly<
   Record<Typeface, { readonly regular: Advance; readonly bold: Advance; readonly unitsPerEm: number }>
 > = {
@@ -49,6 +57,8 @@ const FACES: Readonly<
     unitsPerEm: FONT_METRICS.unitsPerEm,
   },
   inter: { regular: unpacked(INTER_REGULAR), bold: unpacked(INTER_SEMIBOLD), unitsPerEm: INTER_REGULAR.unitsPerEm },
+  geist: { regular: unpacked(GEIST_REGULAR), bold: unpacked(GEIST_SEMIBOLD), unitsPerEm: GEIST_REGULAR.unitsPerEm },
+  'geist-mono': { regular: unpacked(GEIST_MONO), bold: unpacked(GEIST_MONO), unitsPerEm: GEIST_MONO.unitsPerEm },
 };
 
 /**

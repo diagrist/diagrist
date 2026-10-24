@@ -1,6 +1,6 @@
 import { xmlSafe } from '@diagrist/lang';
 import type { Scene, Shape } from './scene.js';
-import type { Icon, Marker, Styles } from './styles.js';
+import type { Icon, Marker, Shadow, ShadowFilter, Styles } from './styles.js';
 
 /** How `toSvg` writes the document. */
 export interface SvgOptions {
@@ -110,5 +110,28 @@ function markers(styles: Styles): string {
     (m.shape.closed === true ? ' Z' : '');
   const marker = (m: Marker) =>
     `<marker id="m-${m.id}" markerUnits="userSpaceOnUse" markerWidth="${size}" markerHeight="${size}" refX="${unit(11)}" refY="${unit(6)}" orient="${m.orient ?? 'auto'}"><path d="${outline(m)}" class="${m.name}" stroke-linecap="round"/></marker>`;
-  return `<defs>${styles.markers.map(marker).join('')}</defs>`;
+  return `<defs>${styles.markers.map(marker).join('')}${(styles.shadows ?? []).map(shadow).join('')}</defs>`;
+}
+
+/** How far a shadow reaches beyond its shape: three standard deviations of its blur, shifted by its offset. */
+const reach = (s: Shadow, offset: number, side: -1 | 1): number => Math.max(0, 3 * s.blur + side * offset);
+
+/**
+ * A filter of shadows whose region reaches as far as its shadows do from its smallest shape, in whole percent of
+ * the shape. Blending in sRGB, as CSS shadows do, keeps faint shadows free of the bands linearRGB leaves in 8-bit
+ * pictures.
+ */
+function shadow(filter: ShadowFilter): string {
+  const { w, h } = filter.smallest;
+  const share = (pick: (s: Shadow) => number, size: number) =>
+    Math.ceil((100 * Math.max(...filter.shadows.map(pick))) / size);
+  const left = share((s) => reach(s, s.dx, -1), w);
+  const top = share((s) => reach(s, s.dy, -1), h);
+  const width = 100 + left + share((s) => reach(s, s.dx, 1), w);
+  const height = 100 + top + share((s) => reach(s, s.dy, 1), h);
+  const drops = filter.shadows.map(
+    (s) =>
+      `<feDropShadow dx="${s.dx}" dy="${s.dy}" stdDeviation="${s.blur}" flood-color="${s.color}" flood-opacity="${s.opacity}"/>`,
+  );
+  return `<filter id="f-${filter.id}" x="-${left}%" y="-${top}%" width="${width}%" height="${height}%" color-interpolation-filters="sRGB">${drops.join('')}</filter>`;
 }

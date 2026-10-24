@@ -118,6 +118,20 @@ describe('toSvg', () => {
     expect(svg).toContain('>a\ufffd\ufffd\ufffd\u{1F600}</text>');
   });
 
+  it('writes shadow filters into <defs> only when the style table has them', () => {
+    const shadows = [
+      {
+        id: 'card',
+        shadows: [{ dx: 0, dy: 3, blur: 4, color: '#0a2540', opacity: 0.06 }],
+        smallest: { w: 200, h: 60 },
+      },
+    ];
+    expect(toSvg(scene, styles)).not.toContain('<filter');
+    expect(toSvg(scene, { ...styles, shadows })).toContain(
+      '<filter id="f-card" x="-6%" y="-15%" width="112%" height="140%" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#0a2540" flood-opacity="0.06"/></filter></defs>',
+    );
+  });
+
   it('escapes texts and leaves the stylesheet out when inline', () => {
     const svg = compile(source, { plugins: [linesPlugin], inline: true }).svg ?? '';
     expect(svg).toContain('aria-label="en: &quot;lines&quot; &amp; &lt;more&gt;"');

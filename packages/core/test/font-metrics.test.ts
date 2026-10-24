@@ -24,6 +24,18 @@ const inter = (weight: 'Regular' | 'SemiBold', name: string): string =>
     file(`Inter-${weight}`),
   );
 
+/** The packed table of a Geist face, regenerated from its file like Inter's. */
+const geist = (font: 'Geist-Regular' | 'Geist-SemiBold' | 'GeistMono-Regular', name: string): string =>
+  packedSource(
+    name,
+    [
+      `Advances of ${font.replace('-', ' ').replace('Mono', ' Mono')} 1.8.2 (SIL Open Font License 1.1, see \`fonts/OFL-Geist.txt\`) in`,
+      `font units, packed as \`PackedFace\` describes. Generated from \`fonts/${font}.ttf\` by`,
+      '`test/font-metrics.test.ts`; run it with `UPDATE_GOLDEN=1` instead of editing this file.',
+    ],
+    file(font),
+  );
+
 /** The checked-in metrics, regenerated from the font files (ADR 0004); `UPDATE_GOLDEN=1` rewrites them. */
 function generate(): string {
   const [regular, bold] = [face('Regular'), face('Bold')];
@@ -75,6 +87,14 @@ describe('font metrics', () => {
     ['SemiBold', 'inter-semibold', 'INTER_SEMIBOLD'],
   ] as const)('of Inter %s match the bundled file', (weight, path, name) => {
     expect(compareGolden(at(`../src/${path}.ts`), inter(weight, name)).status).not.toBe('mismatch');
+  });
+
+  it.each([
+    ['Geist-Regular', 'geist-regular', 'GEIST_REGULAR'],
+    ['Geist-SemiBold', 'geist-semibold', 'GEIST_SEMIBOLD'],
+    ['GeistMono-Regular', 'geist-mono', 'GEIST_MONO'],
+  ] as const)('of %s match the bundled file', (font, path, name) => {
+    expect(compareGolden(at(`../src/${path}.ts`), geist(font, name)).status).not.toBe('mismatch');
   });
 
   it.each([
