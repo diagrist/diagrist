@@ -38,7 +38,7 @@ describe('scan', () => {
   it('keeps comments, but not a # inside text', () => {
     const [line] = scan('node api "C# service" # owned by team a').lines;
     expect(line?.tokens.at(-1)?.value).toBe('C# service');
-    expect(line?.comment?.text).toBe('owned by team a');
+    expect(line?.comment?.text).toBe(' owned by team a');
   });
 
   it('turns an unterminated text into a token and an error, so the file can still be read', () => {

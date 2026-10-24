@@ -21,9 +21,9 @@ describe('read', () => {
     const source = ['# the gateway', '# owned by platform', 'node api # public', '', '# end'];
     const { document } = read(source.join('\n'));
     const [api] = document.statements;
-    expect(api?.comments.above.map((c) => c.text)).toEqual(['the gateway', 'owned by platform']);
-    expect(api?.comments.inline?.text).toBe('public');
-    expect(document.trailingComments.map((c) => c.text)).toEqual(['end']);
+    expect(api?.comments.above.map((c) => c.text.trim())).toEqual(['the gateway', 'owned by platform']);
+    expect(api?.comments.inline?.text.trim()).toBe('public');
+    expect(document.trailingComments.map((c) => c.text.trim())).toEqual(['end']);
   });
 
   it('remembers where blank lines separated statements', () => {

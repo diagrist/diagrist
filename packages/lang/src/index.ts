@@ -2,6 +2,7 @@ export type { Diagnostic, Severity } from './diagnostic.js';
 export { diagnostic } from './diagnostic.js';
 export type { Locale } from './messages.js';
 export { formatDiagnostic, LANG_CODES } from './messages.js';
+export { print } from './printer.js';
 export type { Comment, Line, Operator, Scan, Token } from './scanner.js';
 export { OPERATORS, scan } from './scanner.js';
 export type { Span } from './span.js';

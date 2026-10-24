@@ -19,6 +19,7 @@ export type Token =
       readonly span: Span;
     };
 
+/** A comment as written after `#`, including its leading spaces, so aligned continuations survive printing. */
 export interface Comment {
   readonly text: string;
   readonly span: Span;
@@ -71,7 +72,7 @@ function scanLine(text: string, number: number, diagnostics: Diagnostic[]): Line
       continue;
     }
     if (char === '#') {
-      const comment = { text: text.slice(at + 1).trim(), span: span(number, at + 1, text.length - at) };
+      const comment = { text: text.slice(at + 1).trimEnd(), span: span(number, at + 1, text.length - at) };
       return { number, indent, tokens, comment };
     }
     const token = readToken(text, at, number, diagnostics);
