@@ -1,5 +1,5 @@
-import { plural } from '../shared/words.js';
-import type { Doings, StateProse } from '../state/describe/prose.js';
+import { plural } from '../../shared/words.js';
+import type { Doings, StateProse } from './prose.js';
 
 const NOUN = {
   state: 'Zustand',

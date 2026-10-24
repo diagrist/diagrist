@@ -31,5 +31,5 @@ const DE: Words = {
 /** The words of the shared parts by locale; the type makes a missing locale a compile error. */
 export const WORDS: Readonly<Record<Locale, Words>> = { en: EN, de: DE };
 
-/** Title line of a picture: the kind's name and the title, as in `Sequence diagram (UML) · Login`. */
+/** Title line of a picture: the kind's name and the title, as in `<name of the kind> · <title>`. */
 export const imageTitle = (kind: string, title: string): string => `${kind} · ${title}`;

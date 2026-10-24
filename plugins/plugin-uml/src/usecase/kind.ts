@@ -1,7 +1,7 @@
 import { defineKind } from '@diagrist/core';
 import { imageTitle, WORDS } from '@diagrist/parts';
-import { TEXTS } from '../texts/index.js';
 import { describeUseCase } from './describe/index.js';
+import { USECASE_NAME } from './describe/texts.js';
 import { usecaseSpec } from './grammar/spec.js';
 import { layoutUseCase } from './layout/index.js';
 import { useCaseModel } from './model.js';
@@ -16,7 +16,7 @@ export const usecaseKind = defineKind({
   model: (reading) => useCaseModel(useCaseDiagram(reading)),
   rules: USECASE_RULES,
   layout: (model, { locale }) => {
-    const words = { ...WORDS[locale], title: imageTitle(TEXTS[locale].picture.usecase, model.diagram.title) };
+    const words = { ...WORDS[locale], title: imageTitle(USECASE_NAME[locale], model.diagram.title) };
     const layout = layoutUseCase(model, words);
     return {
       scene: useCaseScene(layout, model, words),

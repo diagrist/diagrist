@@ -19,7 +19,7 @@ export const COLORS = {
 /** Stroke widths of the standard look by what is drawn. */
 export const STROKES = { line: 1.5, accent: 1.8, shape: 1.5, emph: 2.5, frame: 1, frameOwn: 2, halo: 4 } as const;
 
-/** Dash patterns: dashed lines, and the finer pattern of frames and lifelines. */
+/** Dash patterns: dashed lines, and the finer pattern of frames and guide lines. */
 export const DASH = { line: '6 4', frame: '4 3' } as const;
 
 /** The font stack of the standard look; layout measures with the bundled JetBrains Mono metrics. */

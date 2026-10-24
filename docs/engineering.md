@@ -39,8 +39,10 @@ less, because a longer file usually does two things.
 Most of these rules are tests in `test/architecture`: TSDoc only, and saying more than the name; documented public
 APIs listed name by name; purity of the kernel, the plugins, the tools and the CLI outside its host adapters; package
 boundaries derived from `package.json`; imports that never reach from `src` into `test` and form no cycle; kinds that
-import nothing from each other; diagnostic codes only in rules and catalogues; file size; no parked tests and no
-raised time limits. knip rejects dead code. `AGENTS.md` lists them all.
+reach nothing of each other, and a kernel, parts and layout libraries that name no kind; diagnostic codes only in
+rules and catalogues; messages that say the same in every locale; a hash for every example; file size; no parked
+tests and no raised time limits. A new rule comes with a second test that feeds it a made-up offence and expects it
+found, so a rule that silently stops finding anything fails too. knip rejects dead code. `AGENTS.md` lists them all.
 
 ## Tests
 

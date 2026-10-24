@@ -39,8 +39,8 @@ export interface KindContext {
 }
 
 /**
- * A diagram kind, such as `sequence`: its statement tables, how a reading becomes a model, the rules on
- * that model, the layout into a scene, and a description in words. `S` are the statement tables of `spec`, so the
+ * A diagram kind, named in the header as in `diagram <kind>`: its statement tables, how a reading becomes a model,
+ * the rules on that model, the layout into a scene, and a description in words. `S` are the statement tables of `spec`, so the
  * reading `model` gets is typed from exactly those tables (`Infer`); `M` is the model. Declare kinds with
  * `defineKind`, which infers both.
  */

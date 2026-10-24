@@ -41,9 +41,9 @@ export function labelEdges(
 }
 
 /**
- * Labels a kind phrased and placed itself, such as the triggers and guards of a state machine beside their rail or
- * loop: they stay where they are when that place is free, else they move as one block per route to the first free
- * spot of an adaptive grid, as `labelEdges` moves names.
+ * Labels a kind phrased and placed itself, such as the texts of an edge beside its rail or loop: they stay where they
+ * are when that place is free, else they move as one block per route to the first free spot of an adaptive grid, as
+ * `labelEdges` moves names.
  */
 export function placeLabels(
   spec: GridSpec,

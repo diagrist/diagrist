@@ -1,9 +1,8 @@
-import { createHash } from 'node:crypto';
 import { compile } from '@diagrist/core';
 import { compareGolden } from '@diagrist/testkit';
 import { describe, expect, it } from 'vitest';
 import { umlPlugin } from '../src/index.js';
-import { golden, sequenceNames, sequenceSource } from './compile.js';
+import { exampleHashes, golden, sequenceNames, sequenceSource } from './compile.js';
 
 const plugins = [umlPlugin];
 
@@ -24,11 +23,7 @@ describe('sequence examples', () => {
   );
 
   it('all render the bytes of the predecessor, checked by a SHA-256 per example', () => {
-    const sha256 = (text: string) => createHash('sha256').update(text).digest('hex');
-    const hashes = sequenceNames.map(
-      (name) => `${sha256(compile(sequenceSource(name), { plugins }).svg ?? '')}  ${name}\n`,
-    );
-    expect(compareGolden(golden('sequence-examples.sha256'), hashes.join(''))).toEqual({ status: 'match' });
+    expect(compareGolden(golden('sequence-examples.sha256'), exampleHashes('sequence'))).toEqual({ status: 'match' });
   });
 
   it('describes a diagram in German with locale=de', () => {

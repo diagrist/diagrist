@@ -4,6 +4,7 @@
     "rootDir": ".",
     "outDir": "../.tsbuild/test",
     "emitDeclarationOnly": true,
+    "allowImportingTsExtensions": true,
     "isolatedDeclarations": false,
     "types": ["node"]
   },

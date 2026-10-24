@@ -26,7 +26,7 @@ export interface Decision {
   readonly span: Span;
 }
 
-/** The decision an `adr` statement states; optional fields are left out instead of set to `undefined`. */
+/** The decision an `adr` statement records; optional fields are left out instead of set to `undefined`. */
 export function decisionOf(s: Infer<typeof adr>): Decision {
   const { id, question, choice, consequence, span } = s;
   const open = s.attributes.open;

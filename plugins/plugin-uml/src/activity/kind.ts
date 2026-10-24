@@ -1,7 +1,7 @@
 import { defineKind } from '@diagrist/core';
 import { imageTitle, WORDS } from '@diagrist/parts';
-import { TEXTS } from '../texts/index.js';
 import { describeActivity } from './describe/index.js';
+import { ACTIVITY_NAME } from './describe/texts.js';
 import { activitySpec } from './grammar/spec.js';
 import { layoutActivity } from './layout/index.js';
 import { activityModel } from './model/index.js';
@@ -16,7 +16,7 @@ export const activityKind = defineKind({
   model: (reading) => activityModel(activityDiagram(reading)),
   rules: ACTIVITY_RULES,
   layout: (model, { locale }) => {
-    const words = { ...WORDS[locale], title: imageTitle(TEXTS[locale].picture.activity, model.diagram.title) };
+    const words = { ...WORDS[locale], title: imageTitle(ACTIVITY_NAME[locale], model.diagram.title) };
     const layout = layoutActivity(model, words);
     return {
       scene: activityScene(layout, model, words),

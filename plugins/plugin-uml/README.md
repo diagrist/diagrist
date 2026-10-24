@@ -84,15 +84,31 @@ internal open on="change item" do="recalculate"
 
 The statement tables in `src/<kind>/grammar` are the reference; `grammarOf` returns them as data and every statement has a doc and an example.
 
+## One kind or all of them
+
+`umlPlugin` from `@diagrist/plugin-uml` registers all five kinds. A host that draws only one of them imports the
+entry of that kind instead, which brings its kind and the pieces of `src/shared` and nothing of the other four
+(ADR 0024):
+
+```ts
+import { compile } from '@diagrist/core';
+import { sequencePlugin } from '@diagrist/plugin-uml/sequence';
+
+const { svg } = compile(source, { plugins: [sequencePlugin] });
+```
+
+The entries are `@diagrist/plugin-uml/sequence`, `/usecase`, `/activity`, `/class` and `/state`, exporting
+`sequencePlugin`, `usecasePlugin`, `activityPlugin`, `classPlugin` and `statePlugin`.
+
 ## How the code is laid out
 
 Every kind is built the same way, in `src/<kind>`: `kind.ts` ties the tables to the model, `grammar` holds the
 statement tables, `source.ts` and `model` turn the read statements into the diagram of `diagram.ts`, `rules` check
 it, `messages` phrase their codes, `layout` measures and places, `scene` turns the placed parts into shapes with the
-roles of `styles.ts`, and `describe` writes the text description. The words of picture and description are in
-`src/texts/<kind>-<locale>.ts`, the UML catalogs in `src/spec`. Pieces that two kinds share, such as the notes, cards
+roles of `styles.ts`, and `describe` writes the text description, in the words of `describe/<locale>.ts`.
+`index.ts` is the kind's own entry. The UML catalogs are in `src/spec`. Pieces that two kinds share, such as the notes, cards
 and style rules of the boxes of class and state diagrams, live in `src/shared`; a kind imports nothing from another
-kind's folder. Examples are in `examples/<kind>`, and tests and golden files carry the kind as prefix
+kind's folder, neither directly nor through `src/shared`. Examples are in `examples/<kind>`, and tests and golden files carry the kind as prefix
 (`test/state-layout.test.ts`, `test/__golden__/state-freigabe-unterautomat.svg`).
 
 ## UML 2.5.1 coverage

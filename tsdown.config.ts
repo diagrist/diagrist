@@ -16,7 +16,12 @@ export const shared: UserConfig = {
    */
   dts: { sourcemap: false },
   sourcemap: false,
-  clean: true,
+  /**
+   * Everything below `dist` goes before a build, so nothing of an earlier one, such as source maps from when they were
+   * on or chunks of a renamed entry, reaches a tarball; `test/package/check.ts` fails on such leftovers. Written as a
+   * glob of the files, because a bare `dist` relies on tsdown expanding the folder it then keeps.
+   */
+  clean: ['dist/**'],
   /** All packages are `"type": "module"`, so `.js` instead of `.mjs`, matching their exports. */
   fixedExtension: false,
 };

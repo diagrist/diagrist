@@ -1,5 +1,5 @@
-import type { GatePlace, SequenceProse } from '../sequence/describe/prose.js';
-import { plural } from '../shared/words.js';
+import { plural } from '../../shared/words.js';
+import type { GatePlace, SequenceProse } from './prose.js';
 
 const which = (p: GatePlace) => (p.name ? `das Gate „${p.name}“` : 'ein Gate');
 

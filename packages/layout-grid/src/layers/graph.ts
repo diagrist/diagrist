@@ -10,7 +10,7 @@ export interface LayerEdge {
 
 /**
  * Ids in declaration order, which breaks every tie, and the most nodes a layer may hold before it wraps. Nodes in
- * `last`, such as the final states of a state machine, go below every other node of their part.
+ * `last`, such as the ends of a flow, go below every other node of their part.
  */
 export interface LayerGraph {
   readonly nodes: readonly string[];

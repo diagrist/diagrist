@@ -1,10 +1,10 @@
 import type { Locale } from '@diagrist/lang';
 import { WORDS } from '@diagrist/parts';
-import { TEXTS } from '../../texts/index.js';
 import type { ClassRelation, NaryAssociation } from '../diagram.js';
 import { parseMember } from '../members.js';
 import type { ClassModel } from '../model.js';
 import type { ClassProse, NaryEnd } from './prose.js';
+import { CLASS_NAME, CLASS_PROSE } from './texts.js';
 
 /** A leg of an n-ary association: exactly one end is a diamond. */
 const isLeg = (m: ClassModel, r: ClassRelation): boolean => m.associations.has(r.from) !== m.associations.has(r.to);
@@ -31,7 +31,7 @@ function naryLine(m: ClassModel, a: NaryAssociation, p: ClassProse, name: (id: s
  * associations, then the relations with direction and multiplicities, notes and decisions.
  */
 export function describeClass(m: ClassModel, locale: Locale): string {
-  const p = TEXTS[locale].class;
+  const p = CLASS_PROSE[locale];
   const d = m.diagram;
   const name = (id: string) => {
     const pkg = m.packages.get(id);
@@ -45,7 +45,7 @@ export function describeClass(m: ClassModel, locale: Locale): string {
     ),
     p.count('nary', d.associations.length),
   ].filter((x): x is string => x !== undefined);
-  const lines = [p.summary(d.title, TEXTS[locale].picture.class, counts, binary.length)];
+  const lines = [p.summary(d.title, CLASS_NAME[locale], counts, binary.length)];
   for (const pkg of d.packages) {
     const parts = [
       ...d.classifiers.filter((c) => c.package === pkg.id).map((c) => c.label),

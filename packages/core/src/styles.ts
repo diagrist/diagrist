@@ -6,7 +6,7 @@ export interface RoleStyle {
   readonly classes: readonly string[];
   /** Id of a `Marker` drawn at the end of the path. */
   readonly marker?: string;
-  /** Id of a `Marker` drawn at the start of the path, such as the diamond of a UML composition. */
+  /** Id of a `Marker` drawn at the start of the path, such as a diamond at the whole of a part. */
   readonly markerStart?: string;
   /**
    * Presentation attributes written after the class, such as `stroke="#e4e4e7"`. Only for pictures that must keep
@@ -33,8 +33,8 @@ export interface MarkerShape {
 }
 
 /**
- * Common marker outlines as data. Fill and stroke come from the marker's class, so `triangle` is the filled head of
- * a call or, with a class that fills it with the canvas, the hollow head of a UML generalization.
+ * Common marker outlines as data. Fill and stroke come from the marker's class, so `triangle` is a filled head or,
+ * with a class that fills it with the canvas, a hollow one.
  */
 export const MARKER_SHAPES: {
   readonly hook: MarkerShape;

@@ -1,4 +1,4 @@
-import type { ActivityProse } from '../activity/describe/prose.js';
+import type { ActivityProse } from './prose.js';
 
 const list = (items: readonly string[]) =>
   items.length < 2 ? (items[0] ?? '') : `${items.slice(0, -1).join(', ')} und ${items.at(-1)}`;

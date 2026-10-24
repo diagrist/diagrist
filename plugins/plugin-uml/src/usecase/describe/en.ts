@@ -1,5 +1,5 @@
-import { plural } from '../shared/words.js';
-import type { UseCaseProse } from '../usecase/describe/prose.js';
+import { plural } from '../../shared/words.js';
+import type { UseCaseProse } from './prose.js';
 
 const list = (items: readonly string[]) =>
   items.length < 2 ? (items[0] ?? '') : `${items.slice(0, -1).join(', ')} and ${items.at(-1)}`;

@@ -1,10 +1,10 @@
 import type { Locale } from '@diagrist/lang';
 import { WORDS } from '@diagrist/parts';
-import { TEXTS } from '../../texts/index.js';
 import type { KnownRelation } from '../diagram.js';
 import { isKnown } from '../diagram.js';
 import type { UseCaseModel } from '../model.js';
 import type { UseCaseProse } from './prose.js';
+import { USECASE_NAME, USECASE_PROSE } from './texts.js';
 
 function relationLine(r: KnownRelation, p: UseCaseProse, m: UseCaseModel): string {
   const name = (id: string) => (m.actors.get(id) ?? m.cases.get(id))?.label ?? id;
@@ -29,9 +29,9 @@ function relationLine(r: KnownRelation, p: UseCaseProse, m: UseCaseModel): strin
  * then the relations and notes in source order, then the decisions.
  */
 export function describeUseCase(m: UseCaseModel, locale: Locale): string {
-  const p = TEXTS[locale].usecase;
+  const p = USECASE_PROSE[locale];
   const d = m.diagram;
-  const lines = [p.summary(d.title, TEXTS[locale].picture.usecase, d.actors.length, d.cases.length)];
+  const lines = [p.summary(d.title, USECASE_NAME[locale], d.actors.length, d.cases.length)];
   for (const s of d.subjects) {
     const inside = d.cases.filter((u) => u.subject === s.id).map((u) => u.label);
     lines.push(p.offers(s.label, inside.length, inside.join(', ')));

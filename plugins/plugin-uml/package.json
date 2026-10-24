@@ -28,6 +28,31 @@
       "@diagrist/source": "./src/index.ts",
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
+    },
+    "./sequence": {
+      "@diagrist/source": "./src/sequence/index.ts",
+      "types": "./dist/sequence.d.ts",
+      "default": "./dist/sequence.js"
+    },
+    "./usecase": {
+      "@diagrist/source": "./src/usecase/index.ts",
+      "types": "./dist/usecase.d.ts",
+      "default": "./dist/usecase.js"
+    },
+    "./activity": {
+      "@diagrist/source": "./src/activity/index.ts",
+      "types": "./dist/activity.d.ts",
+      "default": "./dist/activity.js"
+    },
+    "./class": {
+      "@diagrist/source": "./src/class/index.ts",
+      "types": "./dist/class.d.ts",
+      "default": "./dist/class.js"
+    },
+    "./state": {
+      "@diagrist/source": "./src/state/index.ts",
+      "types": "./dist/state.d.ts",
+      "default": "./dist/state.js"
     }
   },
   "files": [

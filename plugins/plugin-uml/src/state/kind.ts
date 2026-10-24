@@ -1,7 +1,7 @@
 import { defineKind } from '@diagrist/core';
 import { imageTitle, WORDS } from '@diagrist/parts';
-import { TEXTS } from '../texts/index.js';
 import { describeState } from './describe/index.js';
+import { STATE_NAME } from './describe/texts.js';
 import { stateSpec } from './grammar/spec.js';
 import { layoutState } from './layout/index.js';
 import { stateModel } from './model.js';
@@ -16,7 +16,7 @@ export const stateKind = defineKind({
   model: (reading) => stateModel(stateDiagram(reading)),
   rules: STATE_RULES,
   layout: (model, { locale }) => {
-    const words = { ...WORDS[locale], title: imageTitle(TEXTS[locale].picture.state, model.diagram.title) };
+    const words = { ...WORDS[locale], title: imageTitle(STATE_NAME[locale], model.diagram.title) };
     const layout = layoutState(model, words);
     return {
       scene: stateScene(layout, model, words),

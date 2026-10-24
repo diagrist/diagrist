@@ -22,7 +22,7 @@ const SUBTITLE_Y = 52;
 export const HEADER: Header = { title: { x: MARGIN, y: TITLE_Y }, subtitle: { x: MARGIN, y: SUBTITLE_Y } };
 
 /**
- * The title line, such as `Sequence diagram (UML) · Login` from `imageTitle`, and the subtitle when the header
+ * The title line, such as `<name of the kind> · <title>` from `imageTitle`, and the subtitle when the header
  * has one. Roles `title` and `subtitle` are styled by `PART_ROLES`.
  */
 export function headerShapes(header: Header, title: string, subtitle: string | undefined): Shape[] {

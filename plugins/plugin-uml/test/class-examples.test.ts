@@ -2,11 +2,15 @@ import { compile } from '@diagrist/core';
 import { compareGolden } from '@diagrist/testkit';
 import { describe, expect, it } from 'vitest';
 import { umlPlugin } from '../src/index.js';
-import { classNames, classSource, golden } from './compile.js';
+import { classNames, classSource, exampleHashes, golden } from './compile.js';
 
 const plugins = [umlPlugin];
 
 describe('class examples', () => {
+  it('all keep their pictures, checked by a SHA-256 per example', () => {
+    expect(compareGolden(golden('class-examples.sha256'), exampleHashes('class'))).toEqual({ status: 'match' });
+  });
+
   it.each(classNames)('%s compiles without findings, twice to the same bytes', (name) => {
     const first = compile(classSource(name), { plugins });
     expect(first.diagnostics).toEqual([]);

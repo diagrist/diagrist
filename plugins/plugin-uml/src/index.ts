@@ -1,36 +1,18 @@
 import { definePlugin, type Plugin } from '@diagrist/core';
-import { activityKind } from './activity/kind.js';
-import { ACTIVITY_ERRORS } from './activity/messages/errors.js';
-import { ACTIVITY_WARNINGS } from './activity/messages/warnings.js';
-import { classKind } from './class/kind.js';
-import { CLASS_ERRORS } from './class/messages/errors.js';
-import { CLASS_WARNINGS } from './class/messages/warnings.js';
-import { sequenceKind } from './sequence/kind.js';
-import { SEQUENCE_ERRORS } from './sequence/messages/errors.js';
-import { SEQUENCE_WARNINGS } from './sequence/messages/warnings.js';
-import { stateKind } from './state/kind.js';
-import { STATE_ERRORS } from './state/messages/errors.js';
-import { STATE_MORE_ERRORS } from './state/messages/more-errors.js';
-import { STATE_WARNINGS } from './state/messages/warnings.js';
-import { usecaseKind } from './usecase/kind.js';
-import { USECASE_ERRORS } from './usecase/messages/errors.js';
-import { USECASE_WARNINGS } from './usecase/messages/warnings.js';
+import { activityPlugin } from './activity/index.js';
+import { classPlugin } from './class/index.js';
+import { sequencePlugin } from './sequence/index.js';
+import { statePlugin } from './state/index.js';
+import { usecasePlugin } from './usecase/index.js';
 
-/** UML diagrams: the kinds `sequence`, `usecase`, `activity`, `class` and `state`. Rule codes start with `U` (ADR 0008). */
+const KINDS: readonly Plugin[] = [sequencePlugin, usecasePlugin, activityPlugin, classPlugin, statePlugin];
+
+/**
+ * UML diagrams: the kinds `sequence`, `usecase`, `activity`, `class` and `state`. Rule codes start with `U` (ADR 0008).
+ * A host that draws one kind only imports its entry instead, such as `@diagrist/plugin-uml/sequence` (ADR 0024).
+ */
 export const umlPlugin: Plugin = definePlugin({
   name: 'uml',
-  kinds: [sequenceKind, usecaseKind, activityKind, classKind, stateKind],
-  messages: {
-    ...SEQUENCE_ERRORS,
-    ...SEQUENCE_WARNINGS,
-    ...USECASE_ERRORS,
-    ...USECASE_WARNINGS,
-    ...ACTIVITY_ERRORS,
-    ...ACTIVITY_WARNINGS,
-    ...CLASS_ERRORS,
-    ...CLASS_WARNINGS,
-    ...STATE_ERRORS,
-    ...STATE_MORE_ERRORS,
-    ...STATE_WARNINGS,
-  },
+  kinds: KINDS.flatMap((plugin) => plugin.kinds),
+  messages: Object.fromEntries(KINDS.flatMap((plugin) => Object.entries(plugin.messages))),
 });

@@ -2,11 +2,15 @@ import { compile } from '@diagrist/core';
 import { compareGolden } from '@diagrist/testkit';
 import { describe, expect, it } from 'vitest';
 import { umlPlugin } from '../src/index.js';
-import { golden, usecaseNames, usecaseSource } from './compile.js';
+import { exampleHashes, golden, usecaseNames, usecaseSource } from './compile.js';
 
 const plugins = [umlPlugin];
 
 describe('use case examples', () => {
+  it('all keep their pictures, checked by a SHA-256 per example', () => {
+    expect(compareGolden(golden('usecase-examples.sha256'), exampleHashes('usecase'))).toEqual({ status: 'match' });
+  });
+
   it.each(usecaseNames)('%s compiles without findings, twice to the same bytes', (name) => {
     const first = compile(usecaseSource(name), { plugins });
     expect(first.diagnostics).toEqual([]);

@@ -117,7 +117,7 @@ function noKind(document: Document, name: string | undefined, kinds: readonly st
   const at = document.statements[0]?.keywordSpan ?? { line: 1, column: 1, length: 1 };
   const allowed = list(kinds);
   if (name !== undefined) return diagnostic(KERNEL_CODES.unknownKind, 'error', at, { found: name, allowed });
-  const example = `diagram ${kinds[0] ?? 'sequence'} "Title"`;
+  const example = `diagram ${kinds[0] ?? '<kind>'} "Title"`;
   return diagnostic(LANG_CODES.missingHeader, 'error', at, { kind: '<kind>', allowed, example });
 }
 

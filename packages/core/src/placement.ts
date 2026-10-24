@@ -13,9 +13,9 @@ export interface Placed {
   readonly key: string;
   /**
    * What it is to the check. A `box` or `text` overlapping something it does not belong to is a warning (G400). A
-   * `frame` claims what lies in it, such as an interruptible region: a box or frame reaching into it without belonging
-   * into it is an error (G403), since the picture then says it is part of the frame. An `area` is background, such as
-   * a lane: things lie in it and cross it freely, so it meets only other areas.
+   * `frame` claims what lies in it: a box or frame reaching into it without belonging into it is an error (G403),
+   * since the picture then says it is part of the frame. An `area` is background, such as a lane: things lie in it
+   * and cross it freely, so it meets only other areas.
    */
   readonly kind: 'box' | 'text' | 'frame' | 'area';
   readonly rect: Rect;
@@ -30,7 +30,7 @@ export interface Placed {
    */
   readonly within?: string;
   /**
-   * Key of the box this one sits on the border of, such as an entry point on its state: it may overlap that box and
+   * Key of the box this one sits on the border of, such as a port on its node: it may overlap that box and
    * everything around it, and need not lie inside. Stands instead of `within`.
    */
   readonly on?: string;

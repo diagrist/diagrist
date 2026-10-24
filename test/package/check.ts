@@ -3,6 +3,7 @@ import { createHash } from 'node:crypto';
 import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
+import { staleFiles } from './dist.ts';
 
 /** The fields of a package.json that name built files. */
 interface Manifest {
@@ -22,7 +23,7 @@ const PICTURES = [
     plugin: 'plugins/plugin-uml',
     example: 'sequence/oauth-pkce.dgr',
     hashes: 'sequence-examples.sha256',
-    listed: 'oauth-pkce.dgr',
+    listed: 'sequence/oauth-pkce.dgr',
   },
   {
     plugin: 'plugins/plugin-architecture',
@@ -54,12 +55,20 @@ function promised(manifest: Manifest): string[] {
   return [...Object.values(manifest.bin ?? {}), ...targets];
 }
 
-/** Built files that `package.json` names in the workspace but the build did not write. */
+/**
+ * Built files that `package.json` names in the workspace but the build did not write, and files in `dist` that the
+ * build did not write either, left over from an earlier one: they would end up in the tarball.
+ */
 function unbuilt(dir: string): string[] {
   const manifest = manifestOf(dir);
-  return promised(manifest)
-    .filter((path) => !existsSync(join(dir, path)))
-    .map((path) => `${manifest.name}: ${path} is in package.json but was not built`);
+  return [
+    ...promised(manifest)
+      .filter((path) => !existsSync(join(dir, path)))
+      .map((path) => `${manifest.name}: ${path} is in package.json but was not built`),
+    ...staleFiles(dir, promised(manifest)).map(
+      (path) => `${manifest.name}: ${path} is left over from an earlier build; the build cleans dist, so build again`,
+    ),
+  ];
 }
 
 /**

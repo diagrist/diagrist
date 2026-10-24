@@ -1,9 +1,9 @@
 import type { Locale } from '@diagrist/lang';
 import { WORDS } from '@diagrist/parts';
-import { TEXTS } from '../../texts/index.js';
 import type { ActivityNode, Flow } from '../diagram.js';
 import type { ActivityModel } from '../model/index.js';
 import type { ActivityProse } from './prose.js';
+import { ACTIVITY_NAME, ACTIVITY_PROSE } from './texts.js';
 
 /** A readable name: actions by their text, control nodes by kind and, where ambiguous, id. */
 function namer(m: ActivityModel, p: ActivityProse): (n: ActivityNode) => string {
@@ -74,12 +74,10 @@ function flowLines(n: ActivityNode, m: ActivityModel, p: ActivityProse, name: (n
  * edges node by node in source order, then the decisions.
  */
 export function describeActivity(m: ActivityModel, locale: Locale): string {
-  const p = TEXTS[locale].activity;
+  const p = ACTIVITY_PROSE[locale];
   const d = m.diagram;
   const name = namer(m, p);
-  const lines = [
-    p.summary(d.title, TEXTS[locale].picture.activity, d.nodes.length, d.flows.length, d.partitions.length),
-  ];
+  const lines = [p.summary(d.title, ACTIVITY_NAME[locale], d.nodes.length, d.flows.length, d.partitions.length)];
   for (const lane of d.partitions) lines.push(p.lane(lane.label, d.nodes.filter((n) => n.lane === lane.id).map(name)));
   for (const r of d.regions)
     lines.push(p.region(r.label ? p.quote(r.label) : r.id, d.nodes.filter((n) => n.interruptible === r.id).map(name)));

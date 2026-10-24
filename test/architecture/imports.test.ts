@@ -30,25 +30,60 @@ describe('imports inside a package', () => {
 
 /**
  * Kinds of one plugin are built side by side and stay apart: a folder that holds a `kind.ts` is a kind, and nothing in
- * it imports from another kind's folder. A piece two kinds draw alike lives beside them, in a folder of its own such as
- * `src/shared`, so a change for one kind cannot break another unseen.
+ * it reaches another kind's folder, neither directly nor through the files beside the kinds. A piece two kinds draw
+ * alike lives in a folder of its own such as `src/shared`, which imports no kind, so a change for one kind cannot
+ * break another unseen and the entry of a kind bundles no other (ADR 0024). Type imports count too: a shared type that
+ * names one kind's model ties the others to it.
  */
 describe('kinds of a plugin', () => {
   const files = sourceFiles().filter((file) => file.startsWith('plugins/') && isIn('src', file));
   const kinds = files.filter((file) => file.endsWith('/kind.ts')).map((file) => file.slice(0, -'kind.ts'.length));
-  const kindOf = (file: string) => kinds.find((folder) => file.startsWith(folder));
+  const graph = new Map(files.map((file) => [file, relativeImports(file).map((i) => i.target)]));
 
-  it('import nothing from each other', () => {
-    const offending = files.flatMap((file) => {
-      const own = kindOf(file);
-      if (own === undefined) return [];
-      return relativeImports(file)
-        .filter(({ target }) => ![undefined, own].includes(kindOf(target)))
-        .map(({ target, line }) => `${file}:${line}  ${target}`);
-    });
-    expect(offending).toEqual([]);
+  it('reach nothing of each other', () => {
+    expect(kinds.length).toBeGreaterThan(1);
+    expect(kindLeaks(graph, kinds)).toEqual([]);
+  });
+
+  it('are found reaching each other directly and through a shared file', () => {
+    const fake = new Map([
+      ['p/src/a/x.ts', ['p/src/shared/s.ts', 'p/src/a/y.ts']],
+      ['p/src/a/y.ts', ['p/src/b/z.ts']],
+      ['p/src/shared/s.ts', ['p/src/shared/t.ts']],
+      ['p/src/shared/t.ts', ['p/src/b/z.ts']],
+      ['p/src/b/z.ts', ['p/src/shared/u.ts']],
+    ]);
+    expect(kindLeaks(fake, ['p/src/a/', 'p/src/b/'])).toEqual([
+      'p/src/a/x.ts -> p/src/shared/s.ts -> p/src/shared/t.ts -> p/src/b/z.ts',
+      'p/src/a/y.ts -> p/src/b/z.ts',
+    ]);
   });
 });
+
+/**
+ * Each way from a file of a kind to a file of another kind, through files of no kind only, as the chain of files; the
+ * first way found per pair of file and foreign kind.
+ */
+function kindLeaks(graph: ReadonlyMap<string, readonly string[]>, kinds: readonly string[]): string[] {
+  const kindOf = (file: string) => kinds.find((folder) => file.startsWith(folder));
+  return [...graph.keys()].flatMap((start) => {
+    const own = kindOf(start);
+    if (own === undefined) return [];
+    const found = new Map<string, string>();
+    const seen = new Set<string>();
+    const walk = (file: string, path: readonly string[]): void => {
+      for (const next of graph.get(file) ?? []) {
+        const kind = kindOf(next);
+        if (kind !== undefined && kind !== own && !found.has(kind)) found.set(kind, [...path, next].join(' -> '));
+        if (kind !== undefined || seen.has(next)) continue;
+        seen.add(next);
+        walk(next, [...path, next]);
+      }
+    };
+    walk(start, [start]);
+    return [...found.values()];
+  });
+}
 
 /** Whether a file lies in the `src` or `test` folder of its package. */
 function isIn(folder: 'src' | 'test', file: string): boolean {

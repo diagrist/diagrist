@@ -1,7 +1,7 @@
 import { defineKind } from '@diagrist/core';
 import { imageTitle, WORDS } from '@diagrist/parts';
-import { TEXTS } from '../texts/index.js';
 import { describeSequence } from './describe/index.js';
+import { SEQUENCE_NAME } from './describe/texts.js';
 import { sequenceSpec } from './grammar/spec.js';
 import { layoutSequence } from './layout/index.js';
 import { sequenceModel } from './model/index.js';
@@ -16,7 +16,7 @@ export const sequenceKind = defineKind({
   model: (reading) => sequenceModel(sequenceDiagram(reading)),
   rules: SEQUENCE_RULES,
   layout: (model, { locale }) => {
-    const words = { ...WORDS[locale], title: imageTitle(TEXTS[locale].picture.sequence, model.diagram.title) };
+    const words = { ...WORDS[locale], title: imageTitle(SEQUENCE_NAME[locale], model.diagram.title) };
     const layout = layoutSequence(model, words);
     return { scene: sequenceScene(layout, model, words), styles: SEQUENCE_STYLES, anchors: sequenceAnchors(layout) };
   },

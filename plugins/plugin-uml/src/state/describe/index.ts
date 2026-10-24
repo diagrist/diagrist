@@ -1,9 +1,9 @@
 import type { Locale } from '@diagrist/lang';
 import { WORDS } from '@diagrist/parts';
-import { TEXTS } from '../../texts/index.js';
 import type { Transition, Vertex } from '../diagram.js';
 import { isBorderPoint, type StateModel } from '../model.js';
 import type { Opening, StateProse } from './prose.js';
+import { STATE_NAME, STATE_PROSE } from './texts.js';
 
 /**
  * Name of a vertex in a sentence: states by their name, pseudostates by their kind; where the kind occurs more than
@@ -67,7 +67,7 @@ function opening(m: StateModel, t: Transition, name: (id: string) => string): Op
 
 /** Alt text of a state machine: overview, states with their behaviour, then one sentence per transition, notes, decisions. */
 export function describeState(m: StateModel, locale: Locale): string {
-  const p = TEXTS[locale].state;
+  const p = STATE_PROSE[locale];
   const d = m.diagram;
   const name = namer(m, p);
   const states = d.vertices.filter((v) => v.kind === 'state');
@@ -76,7 +76,7 @@ export function describeState(m: StateModel, locale: Locale): string {
   const lines = [
     p.summary(
       title,
-      TEXTS[locale].picture.state,
+      STATE_NAME[locale],
       d.protocol,
       states.length,
       d.vertices.length - states.length - regions,

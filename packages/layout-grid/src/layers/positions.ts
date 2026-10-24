@@ -11,7 +11,7 @@ interface Block {
   readonly size: number;
 }
 
-/** Minimises the sum of w_i (p_i - d_i)^2 subject to p_{i+1} >= p_i + 1 (pool adjacent violators), in half steps. */
+/** Minimises the sum of w_i (p_i - d_i)^2 with p_{i+1} >= p_i + 1 (pool adjacent violators), in half steps. */
 function isotone(desired: readonly number[], weights: readonly number[]): number[] {
   const blocks: Block[] = [];
   desired.forEach((d, i) => {

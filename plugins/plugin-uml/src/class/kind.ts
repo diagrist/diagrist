@@ -1,7 +1,7 @@
 import { defineKind } from '@diagrist/core';
 import { imageTitle, WORDS } from '@diagrist/parts';
-import { TEXTS } from '../texts/index.js';
 import { describeClass } from './describe/index.js';
+import { CLASS_NAME } from './describe/texts.js';
 import { classSpec } from './grammar/spec.js';
 import { layoutClass } from './layout/index.js';
 import { classModel } from './model.js';
@@ -16,7 +16,7 @@ export const classKind = defineKind({
   model: (reading) => classModel(classDiagram(reading)),
   rules: CLASS_RULES,
   layout: (model, { locale }) => {
-    const words = { ...WORDS[locale], title: imageTitle(TEXTS[locale].picture.class, model.diagram.title) };
+    const words = { ...WORDS[locale], title: imageTitle(CLASS_NAME[locale], model.diagram.title) };
     const layout = layoutClass(model, words);
     return {
       scene: classScene(layout, model, words),

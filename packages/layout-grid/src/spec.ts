@@ -81,7 +81,7 @@ export interface GridNode {
   readonly width?: number;
   /** Own height; a smaller node stands vertically in the middle of its row. */
   readonly height?: number;
-  /** Height the node asks of its row; without it its own height, else `nodeH`. An actor reaching over rows asks less. */
+  /** Height the node asks of its row; without it its own height, else `nodeH`. A tall node reaching over rows asks less. */
   readonly rowHeight?: number;
   /**
    * Width the node asks of its columns in an adaptive grid. `exact` lets a column of only such nodes be narrower than
@@ -133,14 +133,14 @@ export interface GridEdge {
   readonly loopReach?: number;
   /**
    * Sides the kind chooses in an adaptive grid, one pair per attempt: the three ways round of a long edge with the
-   * edges in their order, then the same three with the edges in reverse order. Without them the grid chooses. A state
-   * machine docks back edges on rails beside both states this way.
+   * edges in their order, then the same three with the edges in reverse order. Without them the grid chooses. A kind
+   * docks back edges on rails beside both of their nodes this way.
    */
   readonly sides?: readonly (readonly [Side, Side])[];
   /** Rectangles an adaptive route keeps out of besides the nodes, such as frames that hold neither end. */
   readonly avoid?: readonly Rect[];
   /**
-   * A route the kind laid itself, such as a loop at the freest corner of a state. The grid takes it as it is, and in
+   * A route the kind laid itself, such as a loop at the freest corner of a node. The grid takes it as it is, and in
    * an adaptive grid other edges route around it and keep the parts of the sides it touches free.
    */
   readonly route?: { readonly points: readonly Point[]; readonly fromSide: Side; readonly toSide: Side };

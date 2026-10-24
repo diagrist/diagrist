@@ -6,13 +6,18 @@ import { parseSync } from 'oxc-parser';
 /** The repository root, so architecture tests work from any working directory. */
 export const repository: string = execFileSync('git', ['rev-parse', '--show-toplevel'], { encoding: 'utf8' }).trim();
 
-/** Tracked and new source files, honouring .gitignore. */
-export function sourceFiles(): string[] {
+/** Tracked and new files of any type, honouring .gitignore. */
+export function repositoryFiles(): string[] {
   const listed = execFileSync('git', ['ls-files', '--cached', '--others', '--exclude-standard'], {
     cwd: repository,
     encoding: 'utf8',
   });
-  return listed.split('\n').filter((file) => /\.(ts|mts|cts|js|mjs)$/.test(file) && !file.endsWith('.d.ts'));
+  return listed.split('\n').filter((file) => file !== '' && existsSync(join(repository, file)));
+}
+
+/** Tracked and new source files, honouring .gitignore. */
+export function sourceFiles(): string[] {
+  return repositoryFiles().filter((file) => /\.(ts|mts|cts|js|mjs)$/.test(file) && !file.endsWith('.d.ts'));
 }
 
 /** The package a file belongs to, such as `packages/lang`, or `undefined` outside `packages`, `plugins` and `tools`. */
