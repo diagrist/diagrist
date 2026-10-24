@@ -1,32 +1,29 @@
 {
-  // Gemeinsame Compiler-Optionen für alle Pakete. TypeScript 7: strict, esModuleInterop und
-  // noUncheckedSideEffectImports sind Standard; hier steht nur, was davon abweicht oder bewusst festgehalten wird.
+  // Shared compiler options. TypeScript 7 already defaults to strict, esModuleInterop and
+  // noUncheckedSideEffectImports; this file states what differs or is pinned on purpose.
   "compilerOptions": {
-    // Laufzeit: Node 22+, aktuelle Browser, Edge. ES2023 können alle drei.
+    // Runs on Node 22+, current browsers and edge runtimes; all support ES2023.
     "target": "es2023",
     "lib": ["es2023"],
-    // Echte Node-ESM-Auflösung: Importe tragen die Endung .js, so wie sie zur Laufzeit gesucht werden.
+    // Real Node ESM resolution: imports carry the .js extension they are resolved with at runtime.
     "module": "nodenext",
     "moduleResolution": "nodenext",
-    // Quelltext-Einstieg der Pakete für Tests und Typprüfung im Monorepo (siehe exports in den package.json).
+    // Packages resolve each other through their source inside the monorepo (see exports in package.json).
     "customConditions": ["@diagrist/source"],
 
-    // Strenge über strict hinaus
+    // Stricter than strict
     "noUncheckedIndexedAccess": true,
     "exactOptionalPropertyTypes": true,
     "noImplicitOverride": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
 
-    // Neu gegenüber ai-diagrams:
-    // isolatedDeclarations: exportierte Funktionen brauchen ausdrückliche Typen. Die öffentliche API steht
-    // damit lesbar im Code, und Typdeklarationen entstehen ohne Typprüfung (schneller Build mit tsdown).
+    // Exported declarations need explicit types: the public API is readable in the code, and declaration
+    // files are emitted without a type check (fast builds with tsdown).
     "isolatedDeclarations": true,
-    // erasableSyntaxOnly: kein enum, kein namespace, keine Parameter-Properties. Typen sind dann reines
-    // Beiwerk, das Node, Bundler und Browser-Tools ohne Umschreiben entfernen können.
+    // No enum, namespace or parameter properties: types can be erased by any tool without rewriting code.
     "erasableSyntaxOnly": true,
-    // types: TS 7 lädt standardmäßig keine globalen Typen mehr. Wer Node braucht, sagt es im eigenen Paket.
-    // So fällt sofort auf, wenn der Kern versehentlich Node-APIs nutzt (er soll auch im Browser laufen).
+    // No global types by default. A package that needs Node says so, which keeps Node APIs out of the kernel.
     "types": [],
 
     "verbatimModuleSyntax": true,

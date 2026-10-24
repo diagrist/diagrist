@@ -1,5 +1,5 @@
 #!/usr/bin/env sh
-# Prüft alle Commits, die gepusht werden, auf Secrets und verbotene Inhalte.
+# Checks every commit being pushed for secrets and forbidden content.
 set -e
 root=$(git rev-parse --show-toplevel)
 zero=0000000000000000000000000000000000000000

@@ -1,5 +1,4 @@
 {
-  // Lösungsdatei für `tsc -b`: kennt nur die Pakete, kompiliert selbst nichts.
   "files": [],
-  "references": [{ "path": "packages/testkit" }]
+  "references": [{ "path": "packages/testkit" }, { "path": "test" }]
 }

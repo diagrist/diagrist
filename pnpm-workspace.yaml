@@ -2,13 +2,13 @@ packages:
   - packages/*
   - plugins/*
 
-# Lieferkette (pnpm 11): die ersten drei sind dort schon Standard, hier ausdrücklich festgehalten.
-minimumReleaseAge: 1440 # neue Versionen erst nach 24 Stunden installieren
-blockExoticSubdeps: true # keine Git- oder Tarball-Quellen in transitiven Abhängigkeiten
-strictDepBuilds: true # Install-Skripte nur mit ausdrücklicher Freigabe in allowBuilds
-trustPolicy: no-downgrade # Version ablehnen, wenn ihr Vertrauensnachweis schwächer ist als bisher
+# Supply chain (pnpm 11). The first three are pnpm defaults, pinned here on purpose.
+minimumReleaseAge: 1440 # install new versions only after 24 hours
+blockExoticSubdeps: true # no git or tarball sources in transitive dependencies
+strictDepBuilds: true # install scripts only when listed in allowBuilds
+trustPolicy: no-downgrade # reject a version whose provenance is weaker than before
 allowBuilds: {}
 trustPolicyExclude:
-  # 24.10.2026 geprüft: veröffentlicht 13.11.2024 von den Node-Maintainern, ohne Herkunftsnachweis,
-  # den erst spätere 6.x-Versionen haben. @types/node@22 verlangt genau ~6.21.0.
+  # Reviewed 2026-10-24: published 2024-11-13 by the Node maintainers, before provenance was added
+  # in later 6.x releases. @types/node@22 requires exactly ~6.21.0.
   - undici-types@6.21.0

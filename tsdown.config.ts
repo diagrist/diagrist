@@ -1,6 +1,6 @@
 import { defineConfig } from 'tsdown';
 
-// Gemeinsame Build-Einstellungen; Pakete erben sie (tsdown sucht die Wurzelkonfiguration).
+/** Shared build settings. Packages inherit them in workspace mode. */
 export default defineConfig({
   entry: ['src/index.ts'],
   format: ['esm'],
@@ -9,6 +9,6 @@ export default defineConfig({
   dts: true,
   sourcemap: true,
   clean: true,
-  // Alle Pakete sind "type": "module"; .js statt .mjs, passend zu den exports in den package.json.
+  /** All packages are `"type": "module"`, so `.js` instead of `.mjs`, matching their exports. */
   fixedExtension: false,
 });

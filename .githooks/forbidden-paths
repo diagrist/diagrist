@@ -1,5 +1,5 @@
-# Erweiterte Regex je Zeile, geprüft gegen Pfade im Repo.
-# Was hier steht, darf nie in diesem öffentlichen Repo landen.
+# Extended regex per line, matched against paths in the repository.
+# Nothing matching these may ever land in this public repository.
 (^|/)business/
 (^|/)docs/planung/referenzen/
 (^|/)\.env($|\.)

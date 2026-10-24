@@ -1,23 +1,27 @@
 import { existsSync, readdirSync } from 'node:fs';
 import { defineConfig } from 'vitest/config';
 
-// Ein Testprojekt je Paket unter packages/ und plugins/. Inline definiert, damit jedes Projekt die
-// Einstellungen unten erbt; als Ordner referenzierte Projekte würden das nicht tun.
-const packages = ['packages', 'plugins'].flatMap((group) =>
-  existsSync(group)
-    ? readdirSync(group, { withFileTypes: true })
-        .filter((entry) => entry.isDirectory())
-        .map((entry) => `${group}/${entry.name}`)
-    : [],
-);
+/**
+ * One test project per package under packages/ and plugins/, plus the architecture tests.
+ * Defined inline so every project inherits the settings below; projects referenced as folders would not.
+ */
+const projectRoots = [
+  ...['packages', 'plugins'].flatMap((group) =>
+    existsSync(group)
+      ? readdirSync(group, { withFileTypes: true })
+          .filter((entry) => entry.isDirectory())
+          .map((entry) => `${group}/${entry.name}`)
+      : [],
+  ),
+  'test/architecture',
+];
 
 export default defineConfig({
-  // Pakete lösen sich gegenseitig über ihren Quelltext auf (exports-Bedingung "@diagrist/source"),
-  // nicht über dist/. So braucht es weder einen Build vor den Tests noch eine Alias-Liste.
+  /** Packages resolve each other through their source (export condition "@diagrist/source"), not dist/. */
   resolve: { conditions: ['@diagrist/source'] },
   test: {
-    projects: packages.map((root) => ({ test: { name: root.split('/')[1] ?? root, root } })),
-    // Die Kiste hat 8 Kerne; mehr Worker als Kerne führte im alten Repo zu Zeitüberschreitungen.
+    projects: projectRoots.map((root) => ({ test: { name: root.split('/').at(-1) ?? root, root } })),
+    /** More workers than cores caused timeouts in the predecessor project. */
     maxWorkers: '50%',
   },
 });

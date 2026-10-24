@@ -19,7 +19,9 @@ How Diagrist is built. Short on purpose; if a rule is not here, prefer what make
 - **Deterministic.** Same input, same bytes. No clock, no randomness without a seed, no network.
 - **No abstraction without a second real user.** No code "for later".
 - **Small public API.** Everything exported is documented (TSDoc) and typed explicitly; everything else stays internal.
-- **Comments explain why**, not what. Code, comments, commits and public docs are in English.
+- **No comments, only TSDoc.** Names and structure explain the code; when a declaration needs more, it gets a
+  TSDoc block (`/** ... */`). Line and block comments are rejected by `test/architecture/comments.test.ts`.
+  Code, TSDoc, commits and public docs are in English.
 - Files stay small (around 200 lines). If a file grows past that, it usually does two things.
 
 ## Tests

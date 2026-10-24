@@ -1,7 +1,8 @@
 #!/usr/bin/env sh
-# Blockiert Pfade und Inhalte, die in diesem Repo nichts verloren haben.
-# Muster stehen je Repo in .githooks/forbidden-paths und .githooks/forbidden-content (erweiterte Regex, eine pro Zeile).
-# Aufruf: check-forbidden --staged | --range <a..b> | --all
+# Blocks paths and content that do not belong in this repository.
+# Patterns live in .githooks/forbidden-paths and .githooks/forbidden-content (extended regex, one per line),
+# plus an optional personal list outside the repository ($DIAGRIST_FORBIDDEN or ~/.config/diagrist/forbidden-content).
+# Usage: check-forbidden --staged | --range <a..b> | --all
 set -e
 root=$(git rev-parse --show-toplevel)
 paths_file="$root/.githooks/forbidden-paths"

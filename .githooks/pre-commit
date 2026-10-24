@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
-# 1. Secrets in den gestagten Änderungen (gitleaks)
-# 2. Verbotene Pfade und Inhalte (.githooks/forbidden-paths, .githooks/forbidden-content)
+# 1. Secrets in staged changes (gitleaks)
+# 2. Forbidden paths and content (.githooks/forbidden-paths, .githooks/forbidden-content)
 set -e
 root=$(git rev-parse --show-toplevel)
 hooks="$root/.githooks"

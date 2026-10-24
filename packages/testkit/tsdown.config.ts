@@ -1,5 +1,4 @@
 import { defineConfig } from 'tsdown';
 
-// Erbt die Wurzelkonfiguration (Workspace-Modus). Das Testkit nutzt node:fs und läuft nur unter Node;
-// der Standard "neutral" gilt für Kern und Plugins.
+/** The testkit uses node:fs and runs on Node only; kernel and plugins stay platform neutral. */
 export default defineConfig({ platform: 'node' });
