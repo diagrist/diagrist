@@ -1,0 +1,280 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/diagrist/diagrist/main/schemas/grammar.schema.json",
+  "$comment": "Generated from GRAMMAR_SCHEMA in packages/lang/src/grammar/schema.ts by `pnpm docs:generate`. Do not edit.",
+  "title": "Diagrist grammar of a diagram kind",
+  "description": "Everything a diagram kind allows, derived from its statement tables (ADR 0004). Each table is described in full once; other occurrences are references.",
+  "type": "object",
+  "properties": {
+    "kind": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Name of the kind, as written in `diagram <kind> \"Title\"`."
+    },
+    "doc": {
+      "type": "string",
+      "minLength": 1,
+      "description": "What the kind draws."
+    },
+    "header": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/field"
+      },
+      "description": "Attributes of the first line, `diagram <kind> \"Title\"`."
+    },
+    "statements": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/statement"
+      },
+      "description": "Statements allowed at the top level, each in full."
+    }
+  },
+  "required": [
+    "kind",
+    "doc",
+    "header",
+    "statements"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "field": {
+      "description": "One value of a line: an argument, a clause, an attribute or a header field.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Name of an argument; keyword of a clause; key of an attribute without `=`."
+        },
+        "doc": {
+          "type": "string",
+          "minLength": 1,
+          "description": "What the value means and what happens when it is left out."
+        },
+        "type": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The value type, such as `id`, `ref`, `text`, `oneOf` or `arrow`; plugins add their own."
+        },
+        "expected": {
+          "type": "string",
+          "minLength": 1,
+          "description": "What a correct value looks like, as diagnostics phrase it."
+        },
+        "optional": {
+          "type": "boolean",
+          "description": "Arguments only: whether the argument may be left out."
+        },
+        "choices": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "The complete list of allowed values, when there is one."
+        },
+        "meanings": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "What each choice stands for, by choice, such as the arrows of a message."
+        },
+        "refersTo": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Keywords of the statements whose ids this value refers to."
+        }
+      },
+      "required": [
+        "name",
+        "doc",
+        "type",
+        "expected"
+      ],
+      "additionalProperties": false
+    },
+    "flag": {
+      "description": "A single word after the arguments that switches something on.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The word."
+        },
+        "doc": {
+          "type": "string",
+          "minLength": 1,
+          "description": "What it does."
+        }
+      },
+      "required": [
+        "name",
+        "doc"
+      ],
+      "additionalProperties": false
+    },
+    "line": {
+      "description": "The shape of an indented line without keyword (a line form, ADR 0006).",
+      "type": "object",
+      "properties": {
+        "doc": {
+          "type": "string",
+          "minLength": 1,
+          "description": "What the line does."
+        },
+        "examples": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Complete lines as an agent would write them; each reads without diagnostics.",
+          "minItems": 1
+        },
+        "arguments": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/field"
+          },
+          "description": "Positional values in order; optional ones may be left out."
+        },
+        "clauses": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/field"
+          },
+          "description": "Keyword-value pairs after the arguments, such as `in backend`."
+        },
+        "attributes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/field"
+          },
+          "description": "Attributes written `key=value` after the keyword."
+        },
+        "flags": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/flag"
+          },
+          "description": "Single words after the arguments."
+        }
+      },
+      "required": [
+        "doc",
+        "examples",
+        "arguments",
+        "clauses",
+        "attributes",
+        "flags"
+      ],
+      "additionalProperties": false
+    },
+    "statement": {
+      "description": "A statement, described in full.",
+      "type": "object",
+      "properties": {
+        "doc": {
+          "type": "string",
+          "minLength": 1,
+          "description": "What the line does."
+        },
+        "examples": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Complete lines as an agent would write them; each reads without diagnostics.",
+          "minItems": 1
+        },
+        "arguments": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/field"
+          },
+          "description": "Positional values in order; optional ones may be left out."
+        },
+        "clauses": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/field"
+          },
+          "description": "Keyword-value pairs after the arguments, such as `in backend`."
+        },
+        "attributes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/field"
+          },
+          "description": "Attributes written `key=value` after the keyword."
+        },
+        "flags": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/flag"
+          },
+          "description": "Single words after the arguments."
+        },
+        "keyword": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The first word of the line."
+        },
+        "children": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/statement"
+              },
+              {
+                "$ref": "#/$defs/reference"
+              }
+            ]
+          },
+          "description": "Statements allowed indented below this one, in full or as a reference to their description."
+        },
+        "lines": {
+          "$ref": "#/$defs/line",
+          "description": "The form of indented lines that start without a child keyword."
+        }
+      },
+      "required": [
+        "doc",
+        "examples",
+        "arguments",
+        "clauses",
+        "attributes",
+        "flags",
+        "keyword",
+        "children"
+      ],
+      "additionalProperties": false
+    },
+    "reference": {
+      "description": "A statement described in full elsewhere in the same grammar.",
+      "type": "object",
+      "properties": {
+        "keyword": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The first word of the line."
+        },
+        "ref": {
+          "type": "string",
+          "pattern": "^/statements/[0-9]+(/children/[0-9]+)*$",
+          "description": "JSON Pointer (RFC 6901) from the root of the grammar to the full description."
+        }
+      },
+      "required": [
+        "keyword",
+        "ref"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

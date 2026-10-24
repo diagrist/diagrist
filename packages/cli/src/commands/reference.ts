@@ -1,3 +1,4 @@
+import { code, generatedFrom, table } from '../derived/markdown.js';
 import { DESCRIPTION, PROGRAM_NAMES } from '../manifest.js';
 import { DIAGNOSTIC_FIELDS } from '../report/diagnostics.js';
 import { type Command, EXIT_CODES, GLOBAL_OPTIONS, JSON_ENVELOPE, type Options, ROOT_OPTIONS } from './command.js';
@@ -8,11 +9,11 @@ export const REFERENCE_PATH = 'docs/cli.md';
 
 /**
  * The command reference in Markdown, derived from the same tables as `dgr help` (ADR 0004). It is checked in
- * as docs/cli.md; a test fails when the file differs from what this returns.
+ * as docs/cli.md with the other derived files (`derivedFiles`).
  */
 export function reference(commands: readonly Command[]): string {
   return [
-    '<!-- Generated from the command tables in packages/cli/src/commands by `pnpm docs:cli`. Do not edit. -->',
+    generatedFrom('the command tables in packages/cli/src/commands'),
     '',
     '# Command line',
     '',
@@ -97,14 +98,4 @@ function fieldTable(fields: Readonly<Record<string, string>>): string[] {
     ['Field', 'Meaning'],
     Object.entries(fields).map(([name, doc]) => [code(name), doc]),
   );
-}
-
-function table(head: readonly [string, string], rows: readonly (readonly string[])[]): string[] {
-  const line = (cells: readonly string[]): string =>
-    `| ${cells.map((cell) => cell.replace(/\|/g, '\\|')).join(' | ')} |`;
-  return [line(head), `|${head.map(() => '---').join('|')}|`, ...rows.map(line)];
-}
-
-function code(text: string): string {
-  return `\`${text}\``;
 }

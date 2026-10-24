@@ -43,9 +43,15 @@ They change the SVG of the 15 examples, so they wait for the clean-up with a sec
 
 ## Not derived yet (ADR 0004)
 
-ADR 0004 names these derivatives of the statement tables; they do not exist yet and must not be written by hand:
-JSON schema of a kind, completion, language spec and agent skill. `dgr grammar --json` is the source they will
-be generated from.
+~~JSON schema of the grammar, completion, language spec and agent skill.~~ Done: `GRAMMAR_SCHEMA` and `complete` in
+`lang`, the files from `pnpm docs:generate`. Two pieces remain:
+
+- **JSON schema of a kind's statements as data.** No command reads or writes statements as JSON yet, so a schema
+  of the typed values (`Infer`) would have no user. Clean-up: derive it from the tables when such a command arrives.
+- **Completion knows no lifelines in `msg`.** Message ends are no `ref`, because they may also be `found`, `lost`,
+  `gate` or a frame (`messageEnd` in `plugins/plugin-uml/src/sequence/grammar/values.ts`), and the same holds for
+  `over=` lists. `complete` therefore proposes no ids there. Clean-up: let a value name the declarations it accepts
+  besides its own forms, without `lang` checking them.
 
 ## Waiting for a plugin that needs it
 

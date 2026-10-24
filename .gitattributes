@@ -3,3 +3,9 @@
 *.jpg binary
 *.woff2 binary
 *.ttf binary
+
+# Derived from the tables by `pnpm docs:generate` (ADR 0004); collapsed in diffs, not counted as source.
+docs/cli.md linguist-generated=true
+docs/language/*.md linguist-generated=true
+schemas/*.schema.json linguist-generated=true
+skills/diagrist/SKILL.md linguist-generated=true

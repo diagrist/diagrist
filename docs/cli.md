@@ -1,4 +1,4 @@
-<!-- Generated from the command tables in packages/cli/src/commands by `pnpm docs:cli`. Do not edit. -->
+<!-- Generated from the command tables in packages/cli/src/commands by `pnpm docs:generate`. Do not edit. -->
 
 # Command line
 
@@ -162,7 +162,7 @@ With `--json`, besides the fields of every document:
 | Field | Meaning |
 |---|---|
 | `kinds` | Without a kind: `[{ kind, doc }]` for every kind. |
-| `grammar` | With a kind: its grammar as data, `{ kind, doc, header, statements }`; each statement lists `keyword`, `doc`, `examples`, `arguments`, `clauses`, `attributes`, `flags`, `children` and its line form `lines`. Each table is described once; elsewhere a child is `{ keyword, ref }`, where `ref` is a JSON Pointer into `grammar` such as `/statements/9`. |
+| `grammar` | With a kind: its grammar as data, `{ kind, doc, header, statements }`; each statement lists `keyword`, `doc`, `examples`, `arguments`, `clauses`, `attributes`, `flags`, `children` and its line form `lines`. Each table is described once; elsewhere a child is `{ keyword, ref }`, where `ref` is a JSON Pointer into `grammar` such as `/statements/9`. It validates against the JSON Schema in `schemas/grammar.schema.json`. |
 
 ## dgr help
 

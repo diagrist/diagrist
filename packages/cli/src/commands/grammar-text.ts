@@ -1,4 +1,5 @@
-import type { Grammar, GrammarField, GrammarLine, GrammarReference, GrammarStatement } from '@diagrist/lang';
+import type { Grammar, GrammarField, GrammarLine, GrammarStatement } from '@diagrist/lang';
+import { headerLine, isReference, signatureOf } from '../derived/statements.js';
 
 const INDENT = '  ';
 
@@ -7,17 +8,9 @@ const INDENT = '  ';
  * indented below their parent. `--json` gives the same grammar as data.
  */
 export function grammarText(grammar: Grammar): string {
-  const header: GrammarLine = {
-    doc: `Every ${grammar.kind} diagram starts with this line.`,
-    examples: [`diagram ${grammar.kind} "Title"`],
-    arguments: [],
-    clauses: [],
-    attributes: grammar.header,
-    flags: [],
-  };
   return [
     `${grammar.kind}: ${grammar.doc}`,
-    ...lineText(`diagram ${grammar.kind} "Title"`, header, 0),
+    ...lineText(`diagram ${grammar.kind} "Title"`, headerLine(grammar), 0),
     ...grammar.statements.flatMap((statement) => statementText(statement, 0)),
   ].join('\n');
 }
@@ -36,19 +29,9 @@ function statementText(statement: GrammarStatement, depth: number): string[] {
   ];
 }
 
-function isReference(child: GrammarStatement | GrammarReference): child is GrammarReference {
-  return 'ref' in child;
-}
-
 function lineText(head: string, line: GrammarLine, depth: number): string[] {
   const pad = INDENT.repeat(depth);
-  const signature = [
-    head,
-    ...line.arguments.map((a) => (a.optional ? `[${a.name}]` : `<${a.name}>`)),
-    ...line.clauses.map((c) => `[${c.name} <${c.type}>]`),
-    ...line.attributes.map((a) => `[${a.name}=<${a.type}>]`),
-    ...line.flags.map((f) => `[${f.name}]`),
-  ].join(' ');
+  const signature = signatureOf(head, line);
   const fields: [string, string][] = [
     ...line.arguments.map((a): [string, string] => [a.optional ? `[${a.name}]` : `<${a.name}>`, explain(a)]),
     ...line.clauses.map((c): [string, string] => [c.name, explain(c)]),

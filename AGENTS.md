@@ -22,11 +22,12 @@ working **on** Diagrist. Read it fully before changing code; details live in `do
 | `packages/lang` | Scanner, statement tree, printer, statement tables, diagnostics. No Node APIs. |
 | `packages/core` | The kernel: plugin registry, `compile`, scene, text metrics, SVG, placement check, and the standard look (`src/standard`: palette, strokes, font roles, base rules) that themes overlay (ADR 0014). No Node APIs. |
 | `packages/parts` | Pieces several plugins draw alike: title header, decision bar with the `adr` table, legend mechanics, their roles and words (ADR 0014). No Node APIs, no kinds. |
-| `packages/testkit` | Golden-file comparison for tests. Node only. |
-| `packages/cli` | The command line `dgr` (also `diagrist`). Commands are tables in `src/commands`; the kernel is reached through the `Engine` port. |
+| `packages/testkit` | Golden-file comparison and a strict JSON Schema check for tests. Node only. |
+| `packages/cli` | The command line `dgr` (also `diagrist`). Commands are tables in `src/commands`; the kernel is reached through the `Engine` port. `src/derived` generates every derived file (`derivedFiles`). |
 | `plugins/*` | Diagram families, looks, exporters (`export-png`). |
 | `test/architecture` | Rules enforced as tests: comments, purity, package boundaries, file size. |
 | `docs/adr` | Decisions. Short; read the ones touching your change. |
+| `docs/language`, `schemas`, `skills/diagrist` | Generated: language spec per kind, JSON Schema of the grammar, agent skill. Never edited by hand. |
 
 ## Commands
 
@@ -35,8 +36,8 @@ pnpm install          # also activates the git hooks
 pnpm check            # lint, typecheck, tests, knip: must be green before every push
 pnpm format           # Biome format and safe fixes
 pnpm exec vitest run --project lang   # one package
-pnpm docs:cli         # regenerate docs/cli.md from the command tables
-pnpm docs:uml         # regenerate the code tables in plugins/plugin-uml/README.md from the rules
+pnpm docs:generate    # regenerate every derived file: docs/cli.md, docs/language, schemas, skills, UML codes
+pnpm docs:uml         # only the code tables in plugins/plugin-uml/README.md
 pnpm build            # build every package; needed before running node packages/cli/dist/main.js
 node test/package/check.ts            # after a build: bin and exports exist, the built dgr works (CI runs it)
 ```

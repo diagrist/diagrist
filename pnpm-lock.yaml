@@ -62,7 +62,11 @@ importers:
         specifier: workspace:*
         version: link:../testkit
 
-  packages/lang: {}
+  packages/lang:
+    devDependencies:
+      '@diagrist/testkit':
+        specifier: workspace:*
+        version: link:../testkit
 
   packages/parts:
     dependencies:

@@ -2,7 +2,7 @@
   "$schema": "https://biomejs.dev/schemas/2.6.2/schema.json",
   "vcs": { "enabled": true, "clientKind": "git", "useIgnoreFile": true, "defaultBranch": "main" },
   "files": {
-    "includes": ["**", "!**/dist", "!**/coverage", "!**/__golden__", "!pnpm-lock.yaml", "!**/*.md"]
+    "includes": ["**", "!**/dist", "!**/coverage", "!**/__golden__", "!pnpm-lock.yaml", "!**/*.md", "!schemas"]
   },
   "formatter": { "enabled": true, "indentStyle": "space", "indentWidth": 2, "lineWidth": 120 },
   "javascript": {

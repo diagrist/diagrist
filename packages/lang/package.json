@@ -17,5 +17,8 @@
   ],
   "scripts": {
     "build": "tsdown"
+  },
+  "devDependencies": {
+    "@diagrist/testkit": "workspace:*"
   }
 }

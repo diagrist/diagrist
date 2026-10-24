@@ -1,9 +1,14 @@
+export type { Completion, Position } from './complete/complete.js';
+export { complete } from './complete/complete.js';
+export type { CompletionItem, CompletionKind } from './complete/line.js';
 export type { Diagnostic, Severity } from './diagnostic.js';
 export { diagnostic } from './diagnostic.js';
 export type { Grammar, GrammarField, GrammarLine, GrammarReference, GrammarStatement } from './grammar/describe.js';
 export { checkKind, grammarOf } from './grammar/describe.js';
 export type { Header, KindReading } from './grammar/read-kind.js';
 export { readKind } from './grammar/read-kind.js';
+export type { JsonSchema } from './grammar/schema.js';
+export { GRAMMAR_SCHEMA } from './grammar/schema.js';
 export type { Arg, Attr, Infer, KindSpec, LineSpec, StatementSpec } from './grammar/spec.js';
 export { arg, attr, kind, lines, optionalArg, statement } from './grammar/spec.js';
 export { nearest } from './grammar/suggest.js';

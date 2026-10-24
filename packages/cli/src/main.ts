@@ -1,12 +1,12 @@
 #!/usr/bin/env node
-import { umlPlugin } from '@diagrist/plugin-uml';
 import { coreEngine } from './core-engine.js';
 import { nodeIo } from './node-io.js';
+import { PLUGINS } from './plugins.js';
 import { pngRaster } from './png-raster.js';
 import { run } from './run.js';
 
 /** The diagram kinds this build of the CLI can draw. */
-const engine = coreEngine([umlPlugin]);
+const engine = coreEngine(PLUGINS);
 
 /** resvg and its 2.5 MB WebAssembly module are imported at the first PNG, so `fmt` and `check` stay fast. */
 const raster = pngRaster(async () => {

@@ -1,4 +1,5 @@
 import { list, nearest } from '@diagrist/lang';
+import { SCHEMA_PATH } from '../derived/overview.js';
 import { problem } from '../messages.js';
 import { type Command, command } from './command.js';
 import { grammarText } from './grammar-text.js';
@@ -14,8 +15,7 @@ export const grammar: Command = command({
   ],
   json: {
     kinds: 'Without a kind: `[{ kind, doc }]` for every kind.',
-    grammar:
-      'With a kind: its grammar as data, `{ kind, doc, header, statements }`; each statement lists `keyword`, `doc`, `examples`, `arguments`, `clauses`, `attributes`, `flags`, `children` and its line form `lines`. Each table is described once; elsewhere a child is `{ keyword, ref }`, where `ref` is a JSON Pointer into `grammar` such as `/statements/9`.',
+    grammar: `With a kind: its grammar as data, \`{ kind, doc, header, statements }\`; each statement lists \`keyword\`, \`doc\`, \`examples\`, \`arguments\`, \`clauses\`, \`attributes\`, \`flags\`, \`children\` and its line form \`lines\`. Each table is described once; elsewhere a child is \`{ keyword, ref }\`, where \`ref\` is a JSON Pointer into \`grammar\` such as \`/statements/9\`. It validates against the JSON Schema in \`${SCHEMA_PATH}\`.`,
   },
   async run({ arguments: { kind }, engine }) {
     const names = engine.kinds();

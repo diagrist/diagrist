@@ -8,5 +8,5 @@
     "types": ["node"]
   },
   "include": ["."],
-  "references": [{ "path": ".." }]
+  "references": [{ "path": ".." }, { "path": "../../testkit" }]
 }
