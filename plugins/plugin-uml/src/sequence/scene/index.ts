@@ -1,19 +1,10 @@
 import { type Anchors, domId, type Scene, type Shape } from '@diagrist/core';
-import { stripShapes } from '../../shared/strip-scene.js';
-import type { Words } from '../../texts/index.js';
-import type { SequenceDiagram } from '../diagram.js';
+import { headerShapes, stripShapes, type Words } from '@diagrist/parts';
 import type { PictureTexts } from '../layout/index.js';
 import type { SeqShape, SequenceLayout } from '../layout/types.js';
 import type { SequenceModel } from '../model/types.js';
 import { cardHeads, cardShapes } from './cards.js';
 import { messageShape, shape } from './shapes.js';
-
-function titleShapes(l: SequenceLayout, d: SequenceDiagram, words: PictureTexts): Shape[] {
-  const { title, subtitle } = l.header;
-  const out: Shape[] = [{ kind: 'text', ...title, text: words.title, role: 'title', font: 'title' }];
-  if (d.subtitle) out.push({ kind: 'text', ...subtitle, text: d.subtitle, role: 'subtitle', font: 'note' });
-  return out;
-}
 
 /**
  * The scene of a sequence diagram: title, lifelines, guides, bars, frames, boxes, messages, heads, marks,
@@ -28,7 +19,7 @@ export function sequenceScene(l: SequenceLayout, m: SequenceModel, words: Words 
     ? cardHeads(l.heads, m.participants, domId.node)
     : l.heads.map((h): Shape => ({ kind: 'group', id: domId.node(h.id), children: h.shapes.map(shape) }));
   const children: Shape[] = [
-    ...titleShapes(l, d, words),
+    ...headerShapes(l.header, words.title, d.subtitle),
     ...l.lifelines.map(shape),
     ...l.guides.map(shape),
     ...area(l.activations),

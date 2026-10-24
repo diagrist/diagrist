@@ -64,6 +64,15 @@ importers:
 
   packages/lang: {}
 
+  packages/parts:
+    dependencies:
+      '@diagrist/core':
+        specifier: workspace:*
+        version: link:../core
+      '@diagrist/lang':
+        specifier: workspace:*
+        version: link:../lang
+
   packages/testkit: {}
 
   plugins/export-png:
@@ -83,6 +92,9 @@ importers:
       '@diagrist/lang':
         specifier: workspace:*
         version: link:../../packages/lang
+      '@diagrist/parts':
+        specifier: workspace:*
+        version: link:../../packages/parts
     devDependencies:
       '@diagrist/testkit':
         specifier: workspace:*

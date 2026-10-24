@@ -1,6 +1,6 @@
 import { localeAttribute } from '@diagrist/core';
 import { attr, type Infer, kind, oneOf, text } from '@diagrist/lang';
-import { adr } from '../../shared/adr.js';
+import { adr } from '@diagrist/parts';
 import { autonumber, divider, duration, frame, invariant, note, ref, time } from './annotations.js';
 import { type and, coregion, FRAGMENTS, type otherwise } from './fragments.js';
 import { activate, create, deactivate, destroy, msg } from './messages.js';

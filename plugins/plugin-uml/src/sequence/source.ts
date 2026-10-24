@@ -1,8 +1,8 @@
+import type { Tone } from '@diagrist/core';
 import type { Header, KindReading } from '@diagrist/lang';
-import type { Tone } from '../theme.js';
+import { type Decision, decisionOf } from '@diagrist/parts';
 import type {
   Constraint,
-  Decision,
   FragmentOperator,
   Look,
   MessageEvent,
@@ -153,8 +153,7 @@ function constraint(s: SequenceStatement): Constraint[] {
 
 function decision(s: SequenceStatement): Decision[] {
   if (s.keyword !== 'adr') return [];
-  const { id, question, choice, consequence, span } = s;
-  return [{ id, question, choice, ...some('consequence', consequence), ...some('open', s.attributes.open), span }];
+  return [decisionOf(s)];
 }
 
 /** The diagram behind a reading without errors: header, lifelines, flattened events, constraints, decisions. */

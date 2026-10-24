@@ -5,11 +5,7 @@ const which = (p: GatePlace) => (p.name ? `das Gate „${p.name}“` : 'ein Gate
 
 /** German texts, as the predecessor wrote them. */
 export const DE: Texts = {
-  picture: {
-    sequence: 'Sequenzdiagramm (UML)',
-    decisions: 'Entscheidungen (Marken im Bild)',
-    open: (who) => `(offen, ${who})`,
-  },
+  picture: { sequence: 'Sequenzdiagramm (UML)' },
   sequence: {
     summary: (title, kind, p, m) =>
       `${title}. ${kind} mit ${plural(p, 'Teilnehmer', 'Teilnehmern')} und ${plural(m, 'Nachricht', 'Nachrichten')}.`,
@@ -84,7 +80,5 @@ export const DE: Texts = {
     message: (n) => `Nachricht ${n}`,
     duration: (from, to, text) => `Zeitbedingung von ${from} bis ${to}: {${text}}.`,
     time: (at, text) => `Zeitbedingung an ${at}: {${text}}.`,
-    decision: (id, question, choice, consequence, open) =>
-      `${id} ${question} Gewählt: ${choice}.${consequence ? ` ${consequence}` : ''}${open ? ` Offen: ${open}.` : ''}`,
   },
 };

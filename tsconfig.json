@@ -6,6 +6,8 @@
     { "path": "packages/testkit" },
     { "path": "packages/core" },
     { "path": "packages/core/test" },
+    { "path": "packages/parts" },
+    { "path": "packages/parts/test" },
     { "path": "packages/testkit/test" },
     { "path": "packages/cli" },
     { "path": "packages/cli/test" },

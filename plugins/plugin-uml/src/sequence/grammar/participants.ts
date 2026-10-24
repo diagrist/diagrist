@@ -1,5 +1,5 @@
+import { TONE_NAMES } from '@diagrist/core';
 import { arg, attr, id, oneOf, statement, text } from '@diagrist/lang';
-import { TONE_NAMES } from '../../theme.js';
 
 /** One head statement per lifeline shape; they share arguments, attributes and flags. */
 function head<const K extends string>(keyword: K, shape: string, example: string) {

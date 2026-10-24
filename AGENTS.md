@@ -20,6 +20,8 @@ working **on** Diagrist. Read it fully before changing code; details live in `do
 | Path | What |
 |---|---|
 | `packages/lang` | Scanner, statement tree, printer, statement tables, diagnostics. No Node APIs. |
+| `packages/core` | The kernel: plugin registry, `compile`, scene, text metrics, SVG, placement check, and the standard look (`src/standard`: palette, strokes, font roles, base rules) that themes overlay (ADR 0014). No Node APIs. |
+| `packages/parts` | Pieces several plugins draw alike: title header, decision bar with the `adr` table, legend mechanics, their roles and words (ADR 0014). No Node APIs, no kinds. |
 | `packages/testkit` | Golden-file comparison for tests. Node only. |
 | `packages/cli` | The command line `dgr` (also `diagrist`). Commands are tables in `src/commands`; the kernel is reached through the `Engine` port. |
 | `plugins/*` | Diagram families, looks, exporters (`export-png`). |
@@ -48,7 +50,7 @@ Golden files (SVGs, generated docs, font metrics, example hashes) are rewritten 
 - **Comments:** TSDoc only (`/** ... */`), and it must say more than the name. No `//`, no `/* */`, hence no
   suppressions either. Make the code explain itself instead.
 - **Purity:** no `Date`, `Math.random`, `console`, timers, `fetch`, `Intl`, `localeCompare` or other `toLocale…`
-  methods, `process` or `node:` imports in `packages/lang/src`, `packages/core/src` and `plugins/*/src`. Same input, same bytes. The same holds for `packages/cli/src`, except that
+  methods, `process` or `node:` imports in `packages/lang/src`, `packages/core/src`, `packages/parts/src` and `plugins/*/src`. Same input, same bytes. The same holds for `packages/cli/src`, except that
   its host adapters `main.ts` and `node-io.ts` may use `process` and `node:` modules, and `node:util` is allowed for
   `parseArgs`. A plugin that needs the disk keeps it in one Node entry, listed in the test (so far
   `plugins/export-png/src/node.ts`, published as `@diagrist/export-png/node`).

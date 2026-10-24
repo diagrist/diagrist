@@ -1,11 +1,24 @@
-import type { Font, RoleStyle, StyleRule, Styles } from '@diagrist/core';
-import { FONTS as BASE_FONTS, BASE_RULES, MARKERS, rule, text } from '../shared/base-styles.js';
-import { COLORS as c, DASH, FONT_FAMILY, FONT_SIZE, MARKER_SIZE, TONE_NAMES, TONES, STROKES as w } from '../theme.js';
+import {
+  COLORS as c,
+  DASH,
+  type Font,
+  type RoleStyle,
+  rule,
+  STANDARD_FONTS,
+  type StyleRule,
+  type Styles,
+  standardStyles,
+  TONE_NAMES,
+  TONES,
+  textRule,
+  STROKES as w,
+} from '@diagrist/core';
+import { PART_ROLES } from '@diagrist/parts';
 import { SEQUENCE_TOKENS } from './layout/tokens.js';
 
 /** Fonts by role; `message` is the size every label, guard and constraint is measured with. */
 export const FONTS = {
-  ...BASE_FONTS,
+  ...STANDARD_FONTS,
   message: { size: SEQUENCE_TOKENS.messageSize },
   tag: { size: SEQUENCE_TOKENS.messageSize, weight: 700 },
 } as const satisfies Record<string, Font>;
@@ -19,7 +32,7 @@ const BEFORE: readonly StyleRule[] = [
   rule('card-frame', `fill: none; stroke: ${c.border}; stroke-width: ${w.frame};`),
   ...TONE_NAMES.map((tone) => rule(`tone-${tone}`, `fill: ${TONES[tone]};`)),
   rule('label-back', `fill: ${c.canvas}; stroke: none;`),
-  rule('uml-stereo', text(`fill: ${c.stroke};`, FONTS.note)),
+  rule('uml-stereo', textRule(`fill: ${c.stroke};`, FONTS.note)),
 ];
 
 const SEQUENCE: readonly StyleRule[] = [
@@ -36,19 +49,19 @@ const SEQUENCE: readonly StyleRule[] = [
   ),
   rule('seq-frame', `fill: none; stroke: ${c.stroke}; stroke-width: ${w.frame};`),
   rule('seq-tag', `fill: ${c.fillMuted}; stroke: ${c.stroke}; stroke-width: ${w.frame};`),
-  rule('seq-tag-text', text(`fill: ${c.stroke};`, FONTS.tag)),
-  rule('seq-guard', text(`fill: ${c.stroke};`, FONTS.message)),
+  rule('seq-tag-text', textRule(`fill: ${c.stroke};`, FONTS.tag)),
+  rule('seq-guard', textRule(`fill: ${c.stroke};`, FONTS.message)),
   rule('seq-separator', `fill: none; stroke: ${c.stroke}; stroke-width: ${w.frame}; stroke-dasharray: ${DASH.line};`),
-  rule('seq-message', text(`fill: ${c.stroke};`, FONTS.message)),
-  rule('seq-message-accent', text(`fill: ${c.accent};`, FONTS.message)),
+  rule('seq-message', textRule(`fill: ${c.stroke};`, FONTS.message)),
+  rule('seq-message-accent', textRule(`fill: ${c.accent};`, FONTS.message)),
   rule('seq-note', `fill: ${c.fill}; stroke: ${c.note}; stroke-width: ${w.frame};`),
   rule('seq-destroy', `fill: none; stroke: ${c.stroke}; stroke-width: ${w.emph};`),
   rule('seq-dot', `fill: ${c.stroke}; stroke: none;`),
 ];
 
 const AFTER: readonly StyleRule[] = [
-  rule('card-head-text', text('fill: #ffffff;', FONTS.name)),
-  rule('card-head-sub', text('fill: #ffffff; fill-opacity: 0.85;', FONTS.note)),
+  rule('card-head-text', textRule('fill: #ffffff;', FONTS.name)),
+  rule('card-head-sub', textRule('fill: #ffffff; fill-opacity: 0.85;', FONTS.note)),
   rule('card-head-edge', `fill: none; stroke: #ffffff; stroke-opacity: 0.6; stroke-width: ${w.frame};`),
   rule('card-tag', `fill: ${c.fillMuted}; stroke: ${c.border}; stroke-width: ${w.frame};`),
   rule('card-box', `fill: ${c.fill}; stroke: ${c.border}; stroke-width: ${w.frame};`),
@@ -87,8 +100,7 @@ const TONED = Object.fromEntries(
 
 /** Role to classes for both looks (ADR 0008): the card look uses more roles, never other classes for the same. */
 const ROLES: Record<string, RoleStyle> = {
-  title: one('label-title'),
-  subtitle: one('label-note'),
+  ...PART_ROLES,
   head: one('shape'),
   headExternal: one('seq-external'),
   figure: one('seq-figure'),
@@ -120,13 +132,6 @@ const ROLES: Record<string, RoleStyle> = {
   number: one('seq-tag-text'),
   constraint: one('seq-guard'),
   ...MESSAGES,
-  mark: one('mark'),
-  markText: one('mark-text'),
-  stripHeading: one('label-group'),
-  decision: one('shape'),
-  decisionOpen: one('frame'),
-  decisionChoice: one('label-bold'),
-  decisionNote: one('label-note'),
   cardShadow: one('card-shadow'),
   cardRef: one('card-ref'),
   cardFrame: one('card-frame'),
@@ -138,15 +143,9 @@ const ROLES: Record<string, RoleStyle> = {
   ...TONED,
 };
 
-/** The style table of sequence diagrams. */
-export const SEQUENCE_STYLES: Styles = {
-  root: 'dia',
-  fontFamily: FONT_FAMILY,
-  fontSize: FONT_SIZE.group,
-  canvas: c.canvas,
-  markerSize: MARKER_SIZE,
-  markers: MARKERS,
+/** The style table of sequence diagrams: the kernel's standard look plus the sequence rules (ADR 0010). */
+export const SEQUENCE_STYLES: Styles = standardStyles({
   roles: ROLES,
-  rules: [...BASE_RULES, ...BEFORE, ...SEQUENCE, ...AFTER],
+  rules: [...BEFORE, ...SEQUENCE, ...AFTER],
   fonts: FONTS,
-};
+});

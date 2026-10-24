@@ -10,6 +10,7 @@ import { lineOf, type Node, parse, sourceFiles } from './source.js';
 const PURE_SOURCES = [
   /^packages\/lang\/src\//,
   /^packages\/core\/src\//,
+  /^packages\/parts\/src\//,
   /^packages\/cli\/src\//,
   /^plugins\/[^/]+\/src\//,
 ];

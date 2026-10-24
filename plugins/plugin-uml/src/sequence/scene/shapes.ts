@@ -1,5 +1,5 @@
 import type { Shape } from '@diagrist/core';
-import { markShapes } from '../../shared/strip-scene.js';
+import { markShapes } from '@diagrist/parts';
 import type { SeqMessageArt, SeqShape, SeqTextRole } from '../layout/types.js';
 
 /** Role and font role of each text role of the layout. */

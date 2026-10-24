@@ -1,5 +1,5 @@
 import type { Shape } from '@diagrist/core';
-import type { Words } from '../texts/index.js';
+import type { Words } from '../words.js';
 import { questionText, type Strip } from './strip.js';
 
 const MARK_W = 24;
@@ -7,7 +7,7 @@ const MARK_H = 14;
 const TEXT_DY = 3.5;
 const CARD_RX = 8;
 
-/** A decision mark (E1, E2 ...), centred on (x, y). */
+/** A decision mark (E1, E2 ...) centred on (x, y): where `mark=` points into the picture, and its legend sample. */
 export function markShapes(id: string, x: number, y: number): Shape[] {
   return [
     { kind: 'rect', x: x - MARK_W / 2, y: y - MARK_H / 2, w: MARK_W, h: MARK_H, rx: 3, role: 'mark' },
@@ -15,8 +15,8 @@ export function markShapes(id: string, x: number, y: number): Shape[] {
   ];
 }
 
-/** The decision bar: heading and one card per decision; open decisions are drawn dashed. */
-export function stripShapes(strip: Strip, words: Words): Shape[] {
+/** The decision bar: heading and one card per decision; open decisions are drawn dashed. Empty without cards. */
+export function stripShapes(strip: Strip, words: Pick<Words, 'decisions' | 'open'>): Shape[] {
   if (strip.cards.length === 0) return [];
   const out: Shape[] = [{ kind: 'text', ...strip.heading, text: words.decisions, role: 'stripHeading', font: 'group' }];
   for (const card of strip.cards) {

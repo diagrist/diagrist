@@ -1,5 +1,6 @@
+import type { Tone } from '@diagrist/core';
 import type { Span } from '@diagrist/lang';
-import type { Tone } from '../theme.js';
+import type { Decision } from '@diagrist/parts';
 
 /**
  * A sequence diagram as the model reads it: lifelines in declaration order and events in source order.
@@ -134,13 +135,3 @@ export type Constraint =
       readonly span: Span;
     }
   | { readonly type: 'time'; readonly at: string; readonly text: string; readonly span: Span };
-
-/** An entry of the decision bar; `mark=` on a message shows its id in the picture. */
-export interface Decision {
-  readonly id: string;
-  readonly question: string;
-  readonly choice: string;
-  readonly consequence?: string;
-  readonly open?: string;
-  readonly span: Span;
-}

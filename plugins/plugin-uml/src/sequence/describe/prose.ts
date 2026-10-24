@@ -37,7 +37,6 @@ export interface Prose {
   readonly message: (n: number) => string;
   readonly duration: (from: string, to: string, text: string) => string;
   readonly time: (at: string, text: string) => string;
-  readonly decision: (id: string, question: string, choice: string, consequence?: string, open?: string) => string;
 }
 
 /** `n` with the singular or plural noun. */

@@ -1,7 +1,5 @@
-import { HEADER } from '../../shared/header.js';
-import { decisionStrip, stripWidth } from '../../shared/strip.js';
-import type { Words } from '../../texts/index.js';
-import { FONT_SIZE, MARGIN } from '../../theme.js';
+import { FONT_SIZE } from '@diagrist/core';
+import { decisionStrip, HEADER, MARGIN, stripWidth, type Words } from '@diagrist/parts';
 import type { SequenceModel } from '../model/types.js';
 import { body, extent, lowest, type Parts } from './body.js';
 import { columns, widenNotes } from './columns.js';

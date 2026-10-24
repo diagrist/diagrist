@@ -8,5 +8,9 @@
     "isolatedDeclarations": false
   },
   "include": ["src"],
-  "references": [{ "path": "../../packages/lang" }, { "path": "../../packages/core" }]
+  "references": [
+    { "path": "../../packages/lang" },
+    { "path": "../../packages/core" },
+    { "path": "../../packages/parts" }
+  ]
 }

@@ -5,11 +5,7 @@ const which = (p: GatePlace) => (p.name ? `the gate "${p.name}"` : 'a gate');
 
 /** English texts. */
 export const EN: Texts = {
-  picture: {
-    sequence: 'Sequence diagram (UML)',
-    decisions: 'Decisions (marks in the picture)',
-    open: (who) => `(open, ${who})`,
-  },
+  picture: { sequence: 'Sequence diagram (UML)' },
   sequence: {
     summary: (title, kind, p, m) =>
       `${title}. ${kind} with ${plural(p, 'participant', 'participants')} and ${plural(m, 'message', 'messages')}.`,
@@ -82,7 +78,5 @@ export const EN: Texts = {
     message: (n) => `message ${n}`,
     duration: (from, to, text) => `Time constraint from ${from} to ${to}: {${text}}.`,
     time: (at, text) => `Time constraint at ${at}: {${text}}.`,
-    decision: (id, question, choice, consequence, open) =>
-      `${id} ${question} Chosen: ${choice}.${consequence ? ` ${consequence}` : ''}${open ? ` Open: ${open}.` : ''}`,
   },
 };

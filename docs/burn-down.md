@@ -7,10 +7,10 @@ Debt we accept on purpose, each with the reason and what removes it. Strike item
 `plugin-uml` renders the predecessor's 15 sequence examples byte for byte. These crutches keep it so; they go
 in one clean-up with a second baseline.
 
-1. **Base stylesheet always written.** 24 rules marked `always` in `plugins/plugin-uml/src/shared/base-styles.ts`,
+1. **Base stylesheet always written.** 24 rules marked `always` in `packages/core/src/standard/styles.ts`,
    also in pictures that use none of them. Clean-up: drop `always`, the kernel writes only used rules.
 2. **All four arrowheads in every `<defs>`** (`MARKERS`). Clean-up: write only referenced markers.
-3. **Root class `dia`.** The target is `diagrist` (and `--dgr-` for CSS variables).
+3. **Root class `dia`** (`standardStyles`). The target is `diagrist` (and `--dgr-` for CSS variables).
 4. **Unrounded path numbers and circle radii** (`r="5.151515151515151"`), while rectangles, lines and texts
    are rounded to one decimal in `packages/core/src/svg.ts`. Clean-up: one rounding for all numbers.
 5. **Arithmetic order of the layout.** `plugins/plugin-uml/src/sequence/layout` keeps the predecessor's order of
@@ -22,8 +22,12 @@ in one clean-up with a second baseline.
 
 ## Waiting for a second user (ADR 0008 Nr. 6)
 
-- Palette, strokes and fonts (`plugins/plugin-uml/src/theme.ts`) move to the kernel with the second plugin.
-- Title header and decision bar (`plugins/plugin-uml/src/shared`) move to a small library then.
+- ~~Palette, strokes and fonts (`plugins/plugin-uml/src/theme.ts`) move to the kernel with the second plugin.~~
+  Done: `packages/core/src/standard` (ADR 0014).
+- ~~Title header and decision bar (`plugins/plugin-uml/src/shared`) move to a small library then.~~ Done:
+  `packages/parts` (ADR 0014).
+- **Legend mechanics have no plugin yet.** `legendLayout` and `legendShapes` in `packages/parts` are tested against
+  the predecessor's `radverleih/kontext.dgr`; C4 is their first user.
 
 ## Changes that need new bytes (found in the review of 24.10.2026)
 
@@ -50,6 +54,11 @@ be generated from.
 - **`Infer` stops at recursion and `readKind` casts.** Children of fragments are typed by hand in
   `plugins/plugin-uml/src/sequence/source.ts`, and `readKind` asserts its result type. Clean-up when a second
   recursive kind arrives: carry the child tables in the type.
+- **Legend separator with inline paint.** The predecessor drew the default separator as class `line` with
+  `stroke="#e4e4e7" stroke-width="1"` written on the element, and the separator of an own `legend` as class
+  `legend-rule`. The scene has no attributes besides the role, so `legendShapes` writes role `legendRule` (class
+  `line`) only. Byte-identical `kontext.dgr` needs a decision in the C4 stream: a class for the thin rule
+  (new bytes) or paint on scene shapes.
 
 ## Found while joining the CLI with the kernel
 

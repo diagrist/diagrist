@@ -1,4 +1,4 @@
-import { arg, arrow, attr, id, optionalArg, statement, text } from '@diagrist/lang';
+import { arg, arrow, attr, type Infer, id, optionalArg, type Span, statement, text } from '@diagrist/lang';
 
 /** An entry of the decision bar below the picture (ADR 0002 Nr. 3: its own keyword, `adr`). */
 export const adr = statement('adr', {
@@ -14,3 +14,28 @@ export const adr = statement('adr', {
   ],
   attributes: { open: attr(text(), 'Who still decides an open question; the card is drawn dashed.') },
 });
+
+/** An entry of the decision bar; `mark=` on an element shows its id in the picture. */
+export interface Decision {
+  readonly id: string;
+  readonly question: string;
+  readonly choice: string;
+  readonly consequence?: string;
+  /** Who still decides; an open decision is drawn dashed. */
+  readonly open?: string;
+  readonly span: Span;
+}
+
+/** The decision an `adr` statement states; optional fields are left out instead of set to `undefined`. */
+export function decisionOf(s: Infer<typeof adr>): Decision {
+  const { id, question, choice, consequence, span } = s;
+  const open = s.attributes.open;
+  return {
+    id,
+    question,
+    choice,
+    ...(consequence === undefined ? {} : { consequence }),
+    ...(open === undefined ? {} : { open }),
+    span,
+  };
+}

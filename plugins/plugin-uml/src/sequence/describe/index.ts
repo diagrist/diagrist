@@ -1,4 +1,5 @@
 import type { Locale } from '@diagrist/lang';
+import { WORDS } from '@diagrist/parts';
 import { TEXTS } from '../../texts/index.js';
 import { FOUND, LOST, type MessageEvent } from '../diagram.js';
 import type { SeqFragment, SeqItem, SequenceModel, TimelineEvent } from '../model/types.js';
@@ -131,6 +132,6 @@ export function describeSequence(m: SequenceModel, locale: Locale): string {
   };
   for (const c of d.constraints)
     w.lines.push(c.type === 'duration' ? p.duration(nr(c.from), nr(c.to), c.text) : p.time(nr(c.at), c.text));
-  for (const x of d.decisions) w.lines.push(p.decision(x.id, x.question, x.choice, x.consequence, x.open));
+  for (const x of d.decisions) w.lines.push(WORDS[locale].decision(x));
   return w.lines.join('\n');
 }

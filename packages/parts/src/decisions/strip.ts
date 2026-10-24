@@ -1,6 +1,6 @@
-import { textWidth } from '@diagrist/core';
-import type { Decision } from '../sequence/diagram.js';
-import { FONT_SIZE, MARGIN } from '../theme.js';
+import { STANDARD_FONTS, textWidth } from '@diagrist/core';
+import { MARGIN, type Spot } from '../sheet.js';
+import type { Decision } from './adr.js';
 
 /** One card of the decision bar, with the baselines of its three texts. */
 export interface DecisionCard {
@@ -9,16 +9,17 @@ export interface DecisionCard {
   readonly y: number;
   readonly w: number;
   readonly h: number;
-  readonly question: { readonly x: number; readonly y: number };
-  readonly choice: { readonly x: number; readonly y: number };
-  readonly consequence: { readonly x: number; readonly y: number };
+  readonly question: Spot;
+  readonly choice: Spot;
+  readonly consequence: Spot;
 }
 
 /** The decision bar below the picture: a heading and cards of equal width in one row. */
 export interface Strip {
   readonly y: number;
-  readonly heading: { readonly x: number; readonly y: number };
+  readonly heading: Spot;
   readonly cards: readonly DecisionCard[];
+  /** Lower edge of the bar; without decisions the top, so the picture does not grow. */
   readonly bottom: number;
 }
 
@@ -60,15 +61,15 @@ export function decisionStrip(decisions: readonly Decision[], bodyBottom: number
   return { y, heading, cards, bottom: y + STRIP_H };
 }
 
-/** The width the bar needs: every card as wide as its longest text. */
+/** The width the bar needs: every card as wide as its longest text, plus the margins of the sheet. */
 export function stripWidth(decisions: readonly Decision[], open: (who: string) => string): number {
   if (decisions.length === 0) return 0;
-  const note = { size: FONT_SIZE.note };
+  const { note, name } = STANDARD_FONTS;
   const cards = decisions.map(
     (d) =>
       Math.max(
         textWidth(questionText(d, open), note),
-        textWidth(d.choice, { size: FONT_SIZE.node, weight: 600 }),
+        textWidth(d.choice, name),
         textWidth(d.consequence ?? '', note),
       ) +
       2 * CARD_PAD,

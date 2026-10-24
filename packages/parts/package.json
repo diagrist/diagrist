@@ -1,0 +1,25 @@
+{
+  "name": "@diagrist/parts",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Pieces several Diagrist plugins draw alike: title header, decision bar, legend, picture words.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "exports": {
+    ".": {
+      "@diagrist/source": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsdown"
+  },
+  "dependencies": {
+    "@diagrist/core": "workspace:*",
+    "@diagrist/lang": "workspace:*"
+  }
+}

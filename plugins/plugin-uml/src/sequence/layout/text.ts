@@ -1,5 +1,4 @@
-import { textWidth } from '@diagrist/core';
-import { FONT_SIZE } from '../../theme.js';
+import { FONT_SIZE, textWidth } from '@diagrist/core';
 import type { FragmentEvent, Participant, SequenceEvent } from '../diagram.js';
 import { SEQUENCE_TOKENS, type SequenceTokens } from './tokens.js';
 

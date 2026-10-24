@@ -1,5 +1,4 @@
-import type { Rect, Shape } from '@diagrist/core';
-import type { Tone } from '../../theme.js';
+import type { Rect, Shape, Tone } from '@diagrist/core';
 import type { Participant } from '../diagram.js';
 import { isFigure } from '../layout/text.js';
 import type { SeqHeadArt, SeqShape } from '../layout/types.js';

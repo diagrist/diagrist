@@ -1,0 +1,13 @@
+export type { Decision } from './decisions/adr.js';
+export { adr, decisionOf } from './decisions/adr.js';
+export { markShapes, stripShapes } from './decisions/scene.js';
+export type { DecisionCard, Strip } from './decisions/strip.js';
+export { decisionStrip, stripWidth } from './decisions/strip.js';
+export type { Legend, LegendEntry, LegendItem } from './legend/layout.js';
+export { LEGEND, legendLayout } from './legend/layout.js';
+export { legendShapes } from './legend/scene.js';
+export { PART_ROLES } from './roles.js';
+export type { Header, Spot } from './sheet.js';
+export { HEADER, headerShapes, MARGIN } from './sheet.js';
+export type { Words } from './words.js';
+export { imageTitle, WORDS } from './words.js';

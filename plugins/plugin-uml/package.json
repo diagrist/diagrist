@@ -20,7 +20,8 @@
   },
   "dependencies": {
     "@diagrist/core": "workspace:*",
-    "@diagrist/lang": "workspace:*"
+    "@diagrist/lang": "workspace:*",
+    "@diagrist/parts": "workspace:*"
   },
   "devDependencies": {
     "@diagrist/testkit": "workspace:*"

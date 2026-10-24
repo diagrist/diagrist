@@ -1,6 +1,5 @@
 import type { Point, Rect } from '@diagrist/core';
-import type { Header } from '../../shared/header.js';
-import type { Strip } from '../../shared/strip.js';
+import type { Header, Strip } from '@diagrist/parts';
 import type { MessageKind } from '../diagram.js';
 
 /** A named point, such as the anchor of a text. */
