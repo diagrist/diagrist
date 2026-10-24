@@ -1,0 +1,145 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1611 1824" width="1611" height="1824" class="dia" role="img" aria-label="Bestellung anlegen"><title>Bestellung anlegen</title><style>
+  .dia { font-family: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 11px; }
+  .dia .shape { fill: #ffffff; stroke: #18181b; stroke-width: 1.5; }
+  .dia .shape-muted { fill: #f4f4f5; stroke: #18181b; stroke-width: 1.5; }
+  .dia .shape-emph { fill: #ffffff; stroke: #18181b; stroke-width: 2.5; }
+  .dia .frame { fill: none; stroke: #a1a1aa; stroke-width: 1; stroke-dasharray: 4 3; }
+  .dia .frame-own { fill: #f4f4f5; fill-opacity: 0.55; stroke: #18181b; stroke-width: 2; }
+  .dia .line { fill: none; stroke: #18181b; stroke-width: 1.5; }
+  .dia .line-accent { fill: none; stroke: #1d4ed8; stroke-width: 1.8; }
+  .dia .dashed { stroke-dasharray: 6 4; }
+  .dia .label { fill: #18181b; font-size: 10px; }
+  .dia .label-accent { fill: #1d4ed8; font-size: 10px; }
+  .dia .label-bold { fill: #18181b; font-weight: 600; font-size: 12px; }
+  .dia .label-title { fill: #18181b; font-weight: 600; font-size: 14px; }
+  .dia .label-group { fill: #18181b; font-weight: 600; font-size: 11px; }
+  .dia .label-note { fill: #52525b; font-size: 10px; }
+  .dia .arrow-open { fill: none; stroke: #18181b; stroke-width: 1.5; }
+  .dia .arrow-filled { fill: #18181b; stroke: none; }
+  .dia .arrow-open-accent { fill: none; stroke: #1d4ed8; stroke-width: 1.8; }
+  .dia .arrow-filled-accent { fill: #1d4ed8; stroke: none; }
+  .dia .halo { paint-order: stroke; stroke: #fafafa; stroke-width: 4px; stroke-linejoin: round; }
+  .dia .badge { fill: #18181b; }
+  .dia .badge-accent { fill: #1d4ed8; }
+  .dia .badge-text { fill: #ffffff; font-weight: 700; font-size: 10px; }
+  .dia .mark { fill: #dbeafe; stroke: #1d4ed8; stroke-width: 1; }
+  .dia .mark-text { fill: #1d4ed8; font-weight: 700; font-size: 9px; }
+  .dia .label-back { fill: #fafafa; stroke: none; }
+  .dia .uml-stereo { fill: #18181b; font-size: 10px; }
+  .dia .seq-lifeline { fill: none; stroke: #52525b; stroke-width: 1; stroke-dasharray: 4 3; }
+  .dia .seq-activation { fill: #ffffff; stroke: #18181b; stroke-width: 1; }
+  .dia .seq-external { fill: #ffffff; stroke: #18181b; stroke-width: 1.5; stroke-dasharray: 6 4; }
+  .dia .seq-figure { fill: #fafafa; stroke: #18181b; stroke-width: 1.5; stroke-linecap: round; }
+  .dia .seq-frame { fill: none; stroke: #18181b; stroke-width: 1; }
+  .dia .seq-tag { fill: #f4f4f5; stroke: #18181b; stroke-width: 1; }
+  .dia .seq-tag-text { fill: #18181b; font-weight: 700; font-size: 11px; }
+  .dia .seq-guard { fill: #18181b; font-size: 11px; }
+  .dia .seq-separator { fill: none; stroke: #18181b; stroke-width: 1; stroke-dasharray: 6 4; }
+  .dia .seq-message { fill: #18181b; font-size: 11px; }
+  .dia .seq-message-accent { fill: #1d4ed8; font-size: 11px; }
+  .dia .seq-note { fill: #ffffff; stroke: #52525b; stroke-width: 1; }
+</style><rect width="1611" height="1824" fill="#fafafa"/><defs><marker id="m-open" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto"><path d="M1 1 L11 6 L1 11" class="arrow-open" stroke-linecap="round"/></marker><marker id="m-filled" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto"><path d="M1 1 L11 6 L1 11 Z" class="arrow-filled" stroke-linecap="round"/></marker><marker id="m-open-accent" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto"><path d="M1 1 L11 6 L1 11" class="arrow-open-accent" stroke-linecap="round"/></marker><marker id="m-filled-accent" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto"><path d="M1 1 L11 6 L1 11 Z" class="arrow-filled-accent" stroke-linecap="round"/></marker></defs>
+<text x="32" y="36" class="label-title">Sequenzdiagramm (UML) · Bestellung anlegen</text>
+<text x="32" y="52" class="label-note">Saga mit Kompensation über Kafka, Timeout und Retry beim Payment-Provider</text>
+<line x1="50" y1="137" x2="50" y2="1616" class="seq-lifeline"/>
+<line x1="255" y1="137" x2="255" y2="1616" class="seq-lifeline"/>
+<line x1="480" y1="137" x2="480" y2="1616" class="seq-lifeline"/>
+<line x1="731" y1="137" x2="731" y2="1616" class="seq-lifeline"/>
+<line x1="865" y1="137" x2="865" y2="1616" class="seq-lifeline"/>
+<line x1="1043" y1="137" x2="1043" y2="1616" class="seq-lifeline"/>
+<line x1="1278" y1="137" x2="1278" y2="1616" class="seq-lifeline"/>
+<line x1="1507" y1="137" x2="1507" y2="1616" class="seq-lifeline"/>
+<line x1="241" y1="211" x2="249" y2="211" class="seq-lifeline"/>
+<line x1="241" y1="359" x2="249" y2="359" class="seq-lifeline"/>
+<rect x="249" y="174" width="12" height="228" class="seq-activation"/>
+<rect x="474" y="211" width="12" height="154" class="seq-activation"/>
+<rect x="725" y="248" width="12" height="43" class="seq-activation"/>
+<rect x="1037" y="433" width="12" height="126" class="seq-activation"/>
+<rect x="1043" y="470" width="12" height="16" class="seq-activation"/>
+<rect x="1272" y="590" width="12" height="605" class="seq-activation"/>
+<rect x="1501" y="657" width="12" height="73" class="seq-activation"/>
+<rect x="1278" y="789" width="12" height="16" class="seq-activation"/>
+<rect x="725" y="974" width="12" height="43" class="seq-activation"/>
+<rect x="1037" y="1122" width="12" height="16" class="seq-activation"/>
+<rect x="725" y="1263" width="12" height="43" class="seq-activation"/>
+<rect x="1037" y="1312" width="12" height="59" class="seq-activation"/>
+<rect x="725" y="1439" width="12" height="43" class="seq-activation"/>
+<rect x="436" y="502" width="1131" height="988" class="seq-frame"/>
+<path d="M436 502 H479 V515 L472 522 H436 Z" class="seq-tag"/>
+<text x="444" y="516" text-anchor="start" class="seq-tag-text">alt</text>
+<rect x="486" y="505" width="112" height="14" class="label-back"/>
+<text x="489" y="516" text-anchor="start" class="seq-guard">[Bestand reicht]</text>
+<line x1="436" y1="1312" x2="1567" y2="1312" class="seq-separator"/>
+<rect x="443" y="1314" width="92" height="14" class="label-back"/>
+<text x="446" y="1325" text-anchor="start" class="seq-guard">[Fehlbestand]</text>
+<rect x="1203" y="606" width="348" height="227" class="seq-frame"/>
+<path d="M1203 606 H1253 V619 L1246 626 H1203 Z" class="seq-tag"/>
+<text x="1211" y="620" text-anchor="start" class="seq-tag-text">loop</text>
+<rect x="1291" y="609" width="119" height="14" class="label-back"/>
+<text x="1294" y="620" text-anchor="start" class="seq-guard">[max. 3 Versuche]</text>
+<rect x="1219" y="673" width="316" height="146" class="seq-frame"/>
+<path d="M1219 673 H1262 V686 L1255 693 H1219 Z" class="seq-tag"/>
+<text x="1227" y="687" text-anchor="start" class="seq-tag-text">alt</text>
+<rect x="1291" y="676" width="158" height="14" class="label-back"/>
+<text x="1294" y="687" text-anchor="start" class="seq-guard">[Antwort innerhalb 5 s]</text>
+<line x1="1219" y1="736" x2="1535" y2="736" class="seq-separator"/>
+<rect x="1291" y="738" width="66" height="14" class="label-back"/>
+<text x="1294" y="749" text-anchor="start" class="seq-guard">[Timeout]</text>
+<rect x="452" y="849" width="854" height="303" class="seq-frame"/>
+<path d="M452 849 H508 V862 L501 869 H452 Z" class="seq-tag"/>
+<text x="460" y="863" text-anchor="start" class="seq-tag-text">break</text>
+<rect x="515" y="852" width="185" height="14" class="label-back"/>
+<text x="518" y="863" text-anchor="start" class="seq-guard">[alle Versuche gescheitert]</text>
+<path d="M452 1506 H1063 L1071 1514 V1536 H452 Z" class="seq-note"/>
+<path d="M1063 1506 V1514 H1071" class="seq-note"/>
+<text x="460" y="1525" text-anchor="start" class="label-note">Idempotenz-Key = auftrag_nr: Kafka-Replays sind unschädlich</text>
+<rect x="452" y="1552" width="619" height="36" class="seq-activation"/>
+<path d="M452 1552 H495 V1565 L488 1572 H452 Z" class="seq-tag"/>
+<text x="460" y="1566" text-anchor="start" class="seq-tag-text">ref</text>
+<text x="761.5" y="1578" text-anchor="middle" class="label-bold">Lieferung und Tracking</text>
+<g id="edge-0"><path d="M50 174 L249 174" class="line" marker-end="url(#m-filled)"/><rect x="110" y="158" width="79" height="14" class="label-back"/><text x="113" y="169" text-anchor="start" class="seq-tag-text">1</text><text x="127" y="169" text-anchor="start" class="seq-message">Bestellen</text></g>
+<g id="edge-1"><path d="M261 211 L474 211" class="line" marker-end="url(#m-filled)"/><rect x="308" y="195" width="119" height="14" class="label-back"/><text x="311" y="206" text-anchor="start" class="seq-tag-text">2</text><text x="325" y="206" text-anchor="start" class="seq-message">POST /auftraege</text></g>
+<g id="edge-2"><path d="M486 248 L725 248" class="line" marker-end="url(#m-filled)"/><rect x="500" y="232" width="211" height="14" class="label-back"/><text x="503" y="243" text-anchor="start" class="seq-tag-text">3</text><text x="517" y="243" text-anchor="start" class="seq-message">INSERT auftrag (status=offen)</text></g>
+<g id="edge-3"><path d="M725 285 L486 285" class="line dashed" marker-end="url(#m-open)"/><rect x="589" y="269" width="33" height="14" class="label-back"/><text x="592" y="280" text-anchor="start" class="seq-tag-text">4</text><text x="606" y="280" text-anchor="start" class="seq-message">ok</text></g>
+<g id="edge-4"><path d="M486 322 L865 322" class="line" marker-end="url(#m-open)"/><rect x="524" y="306" width="157" height="14" class="label-back"/><text x="527" y="317" text-anchor="start" class="seq-tag-text">5</text><text x="541" y="317" text-anchor="start" class="seq-message">auftrag.angelegt</text><g><rect x="654" y="306" width="24" height="14" rx="3" class="mark"/><text x="666" y="316.5" text-anchor="middle" class="mark-text">E1</text></g></g>
+<g id="edge-5"><path d="M474 359 L261 359" class="line dashed" marker-end="url(#m-open)"/><rect x="275" y="343" width="185" height="14" class="label-back"/><text x="278" y="354" text-anchor="start" class="seq-tag-text">6</text><text x="292" y="354" text-anchor="start" class="seq-message">202 Accepted · auftrag_nr</text></g>
+<g id="edge-6"><path d="M249 396 L50 396" class="line dashed" marker-end="url(#m-open)"/><rect x="67" y="380" width="165" height="14" class="label-back"/><text x="70" y="391" text-anchor="start" class="seq-tag-text">7</text><text x="84" y="391" text-anchor="start" class="seq-message">Bestellung eingegangen</text></g>
+<g id="edge-7"><path d="M865 433 L1037 433" class="line" marker-end="url(#m-open)"/><rect x="888.5" y="417" width="125" height="14" class="label-back"/><text x="891.5" y="428" text-anchor="start" class="seq-tag-text">8</text><text x="905.5" y="428" text-anchor="start" class="seq-message">auftrag.angelegt</text></g>
+<g id="edge-8"><path d="M1049 456 L1085 456 L1085 476 L1055 476" class="line" marker-end="url(#m-filled)"/><rect x="1090" y="459" width="145" height="14" class="label-back"/><text x="1093" y="470" text-anchor="start" class="seq-tag-text">9</text><text x="1107" y="470" text-anchor="start" class="seq-message">Bestand reservieren</text></g>
+<g id="edge-9"><path d="M1037 553 L865 553" class="line" marker-end="url(#m-open)"/><rect x="885" y="537" width="132" height="14" class="label-back"/><text x="888" y="548" text-anchor="start" class="seq-tag-text">10</text><text x="908" y="548" text-anchor="start" class="seq-message">lager.reserviert</text></g>
+<g id="edge-10"><path d="M865 590 L1272 590" class="line" marker-end="url(#m-open)"/><rect x="882" y="574" width="132" height="14" class="label-back"/><text x="885" y="585" text-anchor="start" class="seq-tag-text">11</text><text x="905" y="585" text-anchor="start" class="seq-message">lager.reserviert</text></g>
+<g id="edge-11"><path d="M1284 657 L1501 657" class="line" marker-end="url(#m-filled)"/><rect x="1333" y="641" width="119" height="14" class="label-back"/><text x="1336" y="652" text-anchor="start" class="seq-tag-text">12</text><text x="1356" y="652" text-anchor="start" class="seq-message">POST /payments</text></g>
+<g id="edge-12"><path d="M1501 724 L1284 724" class="line dashed" marker-end="url(#m-open)"/><rect x="1300" y="708" width="185" height="14" class="label-back"/><text x="1303" y="719" text-anchor="start" class="seq-tag-text">13</text><text x="1323" y="719" text-anchor="start" class="seq-message">201 Created · payment_id</text></g>
+<g id="edge-13"><path d="M1284 775 L1320 775 L1320 795 L1290 795" class="line" marker-end="url(#m-filled)"/><rect x="1325" y="778" width="165" height="14" class="label-back"/><text x="1328" y="789" text-anchor="start" class="seq-tag-text">14</text><text x="1348" y="789" text-anchor="start" class="seq-message">Backoff 1 s, 2 s, 4 s</text></g>
+<g id="edge-14"><path d="M1272 900 L865 900" class="line" marker-end="url(#m-open)"/><rect x="1078" y="884" width="171" height="14" class="label-back"/><text x="1081" y="895" text-anchor="start" class="seq-tag-text">15</text><text x="1101" y="895" text-anchor="start" class="seq-message">zahlung.fehlgeschlagen</text></g>
+<g id="edge-15"><path d="M865 937 L480 937" class="line" marker-end="url(#m-open)"/><rect x="514" y="921" width="171" height="14" class="label-back"/><text x="517" y="932" text-anchor="start" class="seq-tag-text">16</text><text x="537" y="932" text-anchor="start" class="seq-message">zahlung.fehlgeschlagen</text></g>
+<g id="edge-16"><path d="M480 974 L725 974" class="line-accent" marker-end="url(#m-filled-accent)"/><rect x="513.5" y="958" width="178" height="14" class="label-back"/><text x="516.5" y="969" text-anchor="start" class="seq-tag-text">17</text><text x="536.5" y="969" text-anchor="start" class="seq-message-accent">UPDATE status=storniert</text></g>
+<g id="edge-17"><path d="M725 1011 L480 1011" class="line dashed" marker-end="url(#m-open)"/><rect x="583" y="995" width="39" height="14" class="label-back"/><text x="586" y="1006" text-anchor="start" class="seq-tag-text">18</text><text x="606" y="1006" text-anchor="start" class="seq-message">ok</text></g>
+<g id="edge-18"><path d="M480 1048 L865 1048" class="line-accent" marker-end="url(#m-open-accent)"/><rect x="530.5" y="1032" width="138" height="14" class="label-back"/><text x="533.5" y="1043" text-anchor="start" class="seq-tag-text">19</text><text x="553.5" y="1043" text-anchor="start" class="seq-message-accent">auftrag.storniert</text></g>
+<g id="edge-19"><path d="M865 1085 L1043 1085" class="line-accent" marker-end="url(#m-open-accent)"/><rect x="885" y="1069" width="138" height="14" class="label-back"/><text x="888" y="1080" text-anchor="start" class="seq-tag-text">20</text><text x="908" y="1080" text-anchor="start" class="seq-message-accent">auftrag.storniert</text></g>
+<g id="edge-20"><path d="M1043 1108 L1079 1108 L1079 1128 L1049 1128" class="line-accent" marker-end="url(#m-filled-accent)"/><rect x="1084" y="1111" width="171" height="14" class="label-back"/><text x="1087" y="1122" text-anchor="start" class="seq-tag-text">21</text><text x="1107" y="1122" text-anchor="start" class="seq-message-accent">Reservierung freigeben</text></g>
+<g id="edge-21"><path d="M1272 1189 L865 1189" class="line" marker-end="url(#m-open)"/><rect x="1101" y="1173" width="125" height="14" class="label-back"/><text x="1104" y="1184" text-anchor="start" class="seq-tag-text">22</text><text x="1124" y="1184" text-anchor="start" class="seq-message">zahlung.erfolgt</text></g>
+<g id="edge-22"><path d="M865 1226 L480 1226" class="line" marker-end="url(#m-open)"/><rect x="537" y="1210" width="125" height="14" class="label-back"/><text x="540" y="1221" text-anchor="start" class="seq-tag-text">23</text><text x="560" y="1221" text-anchor="start" class="seq-message">zahlung.erfolgt</text></g>
+<g id="edge-23"><path d="M480 1263 L725 1263" class="line" marker-end="url(#m-filled)"/><rect x="513.5" y="1247" width="178" height="14" class="label-back"/><text x="516.5" y="1258" text-anchor="start" class="seq-tag-text">24</text><text x="536.5" y="1258" text-anchor="start" class="seq-message">UPDATE status=bestätigt</text></g>
+<g id="edge-24"><path d="M725 1300 L480 1300" class="line dashed" marker-end="url(#m-open)"/><rect x="583" y="1284" width="39" height="14" class="label-back"/><text x="586" y="1295" text-anchor="start" class="seq-tag-text">25</text><text x="606" y="1295" text-anchor="start" class="seq-message">ok</text></g>
+<g id="edge-25"><path d="M1037 1365 L865 1365" class="line" marker-end="url(#m-open)"/><rect x="882" y="1349" width="138" height="14" class="label-back"/><text x="885" y="1360" text-anchor="start" class="seq-tag-text">26</text><text x="905" y="1360" text-anchor="start" class="seq-message">lager.fehlbestand</text></g>
+<g id="edge-26"><path d="M865 1402 L480 1402" class="line" marker-end="url(#m-open)"/><rect x="530.5" y="1386" width="138" height="14" class="label-back"/><text x="533.5" y="1397" text-anchor="start" class="seq-tag-text">27</text><text x="553.5" y="1397" text-anchor="start" class="seq-message">lager.fehlbestand</text></g>
+<g id="edge-27"><path d="M480 1439 L725 1439" class="line-accent" marker-end="url(#m-filled-accent)"/><rect x="513.5" y="1423" width="178" height="14" class="label-back"/><text x="516.5" y="1434" text-anchor="start" class="seq-tag-text">28</text><text x="536.5" y="1434" text-anchor="start" class="seq-message-accent">UPDATE status=storniert</text></g>
+<g id="edge-28"><path d="M725 1476 L480 1476" class="line dashed" marker-end="url(#m-open)"/><rect x="583" y="1460" width="39" height="14" class="label-back"/><text x="586" y="1471" text-anchor="start" class="seq-tag-text">29</text><text x="606" y="1471" text-anchor="start" class="seq-message">ok</text></g>
+<g id="node-kunde"><circle cx="50" cy="90.2" r="5.151515151515151" class="seq-figure"/><path d="M50 95.33333333333333 V106.66666666666666 M39.696969696969695 99.45454545454545 H60.303030303030305 M40.72727272727273 118 L50 106.66666666666666 L59.27272727272727 118" class="line"/><text x="50" y="132" text-anchor="middle" class="label-bold">Kunde</text></g>
+<g id="node-shop"><rect x="207" y="101" width="96" height="36" class="shape"/><text x="255" y="123" text-anchor="middle" class="label-bold">Webshop</text></g>
+<g id="node-auftrag"><rect x="411.5" y="89" width="137" height="48" class="shape"/><text x="480" y="111" text-anchor="middle" class="uml-stereo">«service»</text><text x="480" y="123" text-anchor="middle" class="label-bold">auftrag-service</text></g>
+<g id="node-db"><path d="M677 107 A54 6 0 0 1 785 107 V131 A54 6 0 0 1 677 131 Z" class="shape"/><path d="M677 107 A54 6 0 0 0 785 107" class="line"/><text x="731" y="126" text-anchor="middle" class="label-bold">Auftrags-DB</text></g>
+<g id="node-broker"><path d="M823 101 H907 A6 18 0 0 1 907 137 H823 A6 18 0 0 1 823 101 Z" class="shape"/><path d="M907 101 A6 18 0 0 0 907 137" class="line"/><text x="865" y="123" text-anchor="middle" class="label-bold">Kafka</text></g>
+<g id="node-lager"><rect x="982" y="89" width="122" height="48" class="shape"/><text x="1043" y="111" text-anchor="middle" class="uml-stereo">«service»</text><text x="1043" y="123" text-anchor="middle" class="label-bold">lager-service</text></g>
+<g id="node-faktura"><rect x="1192" y="89" width="172" height="48" class="shape"/><text x="1278" y="111" text-anchor="middle" class="uml-stereo">«service»</text><text x="1278" y="123" text-anchor="middle" class="label-bold">fakturierung-service</text></g>
+<g id="node-psp"><rect x="1435" y="101" width="144" height="36" class="seq-external"/><text x="1507" y="123" text-anchor="middle" class="label-bold">Payment-Provider</text></g>
+<path d="M241 211 H233 V359 H241" class="seq-frame"/>
+<rect x="158" y="278" width="72" height="14" class="label-back"/>
+<text x="227" y="289" text-anchor="end" class="seq-guard">{≤ 300 ms}</text>
+<text x="32" y="1652" class="label-group">Entscheidungen (Marken im Bild)</text>
+<rect x="32" y="1664" width="1547" height="78" rx="8" class="shape"/>
+<text x="44" y="1684" class="label-note">E1  Wie stimmen sich die Services ab?</text>
+<text x="44" y="1704" class="label-bold">Choreographie über Kafka-Ereignisse statt Orchestrierung</text>
+<text x="44" y="1722" class="label-note">Kein zentraler Koordinator; jeder Service reagiert auf Ereignisse und kompensiert selbst</text>
+</svg>

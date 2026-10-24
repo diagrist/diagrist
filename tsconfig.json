@@ -4,9 +4,13 @@
     { "path": "packages/lang" },
     { "path": "packages/lang/test" },
     { "path": "packages/testkit" },
+    { "path": "packages/core" },
+    { "path": "packages/core/test" },
     { "path": "packages/testkit/test" },
     { "path": "packages/cli" },
     { "path": "packages/cli/test" },
+    { "path": "plugins/plugin-uml" },
+    { "path": "plugins/plugin-uml/test" },
     { "path": "test" }
   ]
 }

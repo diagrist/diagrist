@@ -1,0 +1,29 @@
+# Confirming an order. The call comes in through the named gate "bestellung" on the frame. A separate
+# interaction authorizes the payment (ref); its call and its result run through named gates at its edge.
+# notification-service sends e-mail, SMS and the notice in the customer account in any order (coregion).
+# A bounce comes into the repetition through a formal gate. The referenced interaction is
+# zahlung-autorisieren.dgr (file=).
+diagram sequence "Bestellung bestätigen" subtitle="Coregion, benannte Gates am Rahmen, am Verweis und an der Wiederholung" locale=de
+participant shop "Webshop" stereotype="service"
+participant auftrag "auftrag-service" stereotype="service"
+participant zahlung "zahlung-service" stereotype="service"
+participant psp "Zahlungsanbieter" external
+participant notify "notification-service" stereotype="service"
+participant mail "Mail-Provider" external
+participant sms "SMS-Gateway" external
+msg gate.bestellung -> auftrag "bestellen(warenkorb)" id=start
+ref "Zahlung autorisieren" over=zahlung,psp id=zahlen file="zahlung-autorisieren.dgr"
+msg auftrag -> zahlen.betrag "autorisieren(betrag)"
+msg zahlen.ergebnis --> auftrag "autorisiert"
+msg auftrag ~> notify "bestellung.bestaetigt"
+activate notify
+coregion notify
+  msg notify ~> mail "Bestätigung per E-Mail"
+  msg notify ~> sms "Bestätigung per SMS"
+  msg notify ~> shop "Hinweis im Kundenkonto"
+deactivate notify
+loop "bis zugestellt, höchstens 3" id=wdh
+  msg wdh.bounce ~> notify "Rückläufer"
+  msg notify ~> mail "erneut senden"
+msg auftrag --> gate.antwort "201 Created" id=fertig
+duration start fertig "≤ 2 s"

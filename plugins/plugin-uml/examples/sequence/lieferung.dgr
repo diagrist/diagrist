@@ -1,0 +1,19 @@
+# The interaction bestellung-saga.dgr refers to at its end: "Lieferung und Tracking" over auftrag-service and
+# lager-service. Same lifelines as there, plus the external carrier. The shipment is created, then the
+# carrier reports its status by webhook until it is delivered.
+diagram sequence "Lieferung und Tracking" subtitle="Verwiesene Interaktion der Saga: Versand und Sendungsstatus über Kafka" locale=de
+participant auftrag "auftrag-service" stereotype="service"
+queue broker "Kafka"
+participant lager "lager-service" stereotype="service"
+participant versand "Versanddienstleister" external
+msg broker ~> lager "auftrag.bestätigt"
+activate lager
+msg lager -> versand "POST /sendungen"
+msg versand --> lager "201 Created · sendungsnummer"
+msg lager ~> broker "lieferung.versandt"
+deactivate lager
+msg broker ~> auftrag "lieferung.versandt"
+loop "bis zugestellt"
+  msg versand ~> lager "Webhook: Sendungsstatus"
+  msg lager ~> broker "lieferung.status"
+  msg broker ~> auftrag "lieferung.status"

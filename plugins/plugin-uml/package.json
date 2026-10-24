@@ -1,0 +1,28 @@
+{
+  "name": "@diagrist/plugin-uml",
+  "version": "0.0.0",
+  "private": true,
+  "description": "UML diagrams for Diagrist, starting with sequence diagrams.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "exports": {
+    ".": {
+      "@diagrist/source": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsdown"
+  },
+  "dependencies": {
+    "@diagrist/core": "workspace:*",
+    "@diagrist/lang": "workspace:*"
+  },
+  "devDependencies": {
+    "@diagrist/testkit": "workspace:*"
+  }
+}

@@ -1,0 +1,14 @@
+# The interaction bestellung-bestaetigen.dgr refers to: "Zahlung autorisieren". Call and result run
+# through the formal gates "betrag" and "ergebnis" on the frame sd; the actual gates at the reference are
+# named the same (zahlen.betrag, zahlen.ergebnis). If the provider asks for 3-D Secure, the customer confirms
+# the payment there.
+diagram sequence "Zahlung autorisieren" subtitle="Verwiesene Interaktion mit formalen Gates betrag und ergebnis" locale=de
+participant zahlung "zahlung-service" stereotype="service"
+participant psp "Zahlungsanbieter" external
+msg gate.betrag -> zahlung "autorisieren(betrag)"
+msg zahlung -> psp "POST /authorizations"
+opt "3-D Secure verlangt"
+  msg psp ~> zahlung "challenge"
+  msg zahlung ~> psp "challenge bestätigt"
+msg psp --> zahlung "201 Created · autorisierung_id"
+msg zahlung --> gate.ergebnis "autorisiert"

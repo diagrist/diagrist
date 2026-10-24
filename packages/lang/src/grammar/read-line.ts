@@ -62,7 +62,7 @@ function readArguments(
         : { ok: false as const };
     if (token !== undefined && result.ok) {
       values[argument.name] = result.value;
-      track(argument.name, argument.value, token, input, context);
+      track(argument.name, argument.value, token.value, token.span, input, context);
       index++;
     } else if (argument.optional) {
       values[argument.name] = undefined;
@@ -106,7 +106,7 @@ function readTail(
       const result = clause.value.tokens.includes(value.kind) ? clause.value.read(value.value) : { ok: false as const };
       if (result.ok) {
         clauses[token.value] = result.value;
-        track(token.value, clause.value, value, input, context);
+        track(token.value, clause.value, value.value, value.span, input, context);
       } else {
         report(context, LANG_CODES.invalidValue, value.span, {
           name: token.value,
@@ -140,8 +140,10 @@ function readAttributes(spec: LineSpec, input: LineInput, context: LineContext):
       continue;
     }
     const result = definition.value.read(attribute.value);
-    if (result.ok) attributes[attribute.key] = result.value;
-    else {
+    if (result.ok) {
+      attributes[attribute.key] = result.value;
+      track(`${attribute.key}=`, definition.value, attribute.value, attribute.span, input, context);
+    } else {
       report(context, LANG_CODES.invalidValue, attribute.span, {
         name: `${attribute.key}=`,
         found: attribute.value,
@@ -152,11 +154,19 @@ function readAttributes(spec: LineSpec, input: LineInput, context: LineContext):
   return attributes;
 }
 
-function track(name: string, value: Value<unknown>, token: Argument, input: LineInput, context: LineContext): void {
+/** Records ids and references of arguments, clauses and attributes alike, so all are checked after reading. */
+function track(
+  name: string,
+  value: Value<unknown>,
+  raw: string,
+  at: Span,
+  input: LineInput,
+  context: LineContext,
+): void {
   if (value.declaresId === true) {
-    context.declarations.push({ id: token.value, keyword: input.keyword, line: input.line, span: token.span });
+    context.declarations.push({ id: raw, keyword: input.keyword, line: input.line, span: at });
   }
-  if (value.refersTo !== undefined) context.references.push({ name, found: token.value, value, span: token.span });
+  if (value.refersTo !== undefined) context.references.push({ name, found: raw, value, span: at });
 }
 
 function endOf(input: LineInput): Span {

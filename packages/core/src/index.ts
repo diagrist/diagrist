@@ -1,0 +1,15 @@
+export type { Anchors, EdgeAnchor, NodeAnchor } from './anchors.js';
+export { domId } from './anchors.js';
+export { checkPlugin } from './check.js';
+export type { Compilation, CompileOptions } from './compile.js';
+export { compile, localeAttribute } from './compile.js';
+export type { Point, Rect } from './geometry.js';
+export { formatMessage, KERNEL_CODES } from './messages.js';
+export type { Catalogue, Drawing, Finding, Kind, KindContext, Plugin, Rule } from './plugin.js';
+export { definePlugin } from './plugin.js';
+export type { Scene, Shape } from './scene.js';
+export type { Marker, RoleStyle, StyleRule, Styles } from './styles.js';
+export type { SvgOptions } from './svg.js';
+export { toSvg } from './svg.js';
+export type { Font } from './text.js';
+export { textWidth } from './text.js';

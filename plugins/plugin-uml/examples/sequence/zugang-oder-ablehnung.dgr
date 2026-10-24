@@ -1,0 +1,9 @@
+# Access or rejection: the call stands before the frame; alt picks exactly one of the two answers.
+diagram sequence "Zugang oder Ablehnung" subtitle="alt-Fragment mit zwei Operanden" locale=de
+participant client "Client"
+participant auth "Anmeldedienst"
+msg client -> auth "anmelden()"
+alt "Zugangsdaten gültig"
+  msg auth --> client "Zugang"
+  else
+    msg auth --> client "Ablehnung"

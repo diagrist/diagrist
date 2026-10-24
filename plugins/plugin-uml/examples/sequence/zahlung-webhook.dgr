@@ -1,0 +1,30 @@
+# Receiving a payment by webhook. The payment provider is no lifeline, its call is a found message; the
+# receipt by e-mail is lost without a delivery confirmation. Dividers split the time axis into accepting
+# and distributing.
+diagram sequence "Zahlungseingang per Webhook" subtitle="Gefundene und verlorene Nachricht, Trenner zwischen den Phasen" locale=de
+autonumber
+participant gateway "API-Gateway"
+participant zahlung "zahlung-service" stereotype="service"
+database db "Zahlungs-DB"
+queue broker "Kafka"
+participant mail "mail-service" stereotype="service"
+divider "Webhook annehmen"
+msg found ~> gateway "POST /webhooks/psp" id=hook
+activate gateway
+msg gateway -> zahlung "zahlungMelden(event)"
+msg zahlung -> zahlung "Signatur prüfen"
+alt "Signatur gültig"
+  msg zahlung -> db "INSERT zahlung_event (idempotent)"
+  msg db --> zahlung "ok"
+  msg zahlung --> gateway "204 No Content" id=ack
+  else
+    msg zahlung --> gateway "401 Unauthorized"
+deactivate gateway
+divider "Folgen verteilen"
+msg zahlung ~> broker "zahlung.eingegangen"
+msg broker ~> mail "zahlung.eingegangen"
+activate mail
+msg mail ~> lost "Quittung per E-Mail"
+deactivate mail
+note "Ohne 2xx wiederholt der Provider den Webhook bis zu drei Tage lang." over=gateway,zahlung
+duration hook ack "≤ 10 s"

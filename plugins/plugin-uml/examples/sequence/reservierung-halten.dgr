@@ -1,0 +1,25 @@
+# The warehouse holds the reservation while the customer pays. The payment is a separate interaction (ref);
+# its result comes back only after the customer entered their data: the gate at the reference also takes a
+# later message, and the reference reaches down to it. In the loop the warehouse reports every stock change
+# through a formal gate on the nearer, right side of the frame.
+diagram sequence "Reservierung halten" subtitle="Spätere Rückkehr an den Verweis, formales Gate an der näheren Seite" locale=de
+actor kunde "Kunde"
+participant shop "Webshop" stereotype="service"
+participant lager "lager-service" stereotype="service"
+participant zahlung "zahlung-service" stereotype="service"
+participant psp "Zahlungsanbieter" external
+msg kunde -> shop "zur Kasse"
+msg shop -> lager "reservieren(korb)"
+msg lager --> shop "reserviert"
+ref "Zahlung autorisieren" over=zahlung,psp id=zahlen
+msg shop ~> zahlen.betrag "autorisieren(betrag)"
+msg kunde ~> shop "Zahlungsdaten"
+msg shop ~> kunde "bitte warten"
+msg zahlen.ergebnis ~> shop "autorisiert"
+loop "je Position" id=pos
+  msg shop -> lager "abbuchen(position)"
+  msg lager --> shop "abgebucht"
+  msg lager ~> pos.meldung "bestand.geändert"
+msg shop -> lager "freigeben()"
+msg lager --> shop "ok"
+msg shop --> kunde "Bestellung bestätigt"

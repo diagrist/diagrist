@@ -1,0 +1,9 @@
+# Modelling a reservation from text: the request happens in both cases, exactly one of the answers is sent.
+diagram sequence "Reservierung" subtitle="Ein Aufruf, zwei alternative Antworten" locale=de
+participant portal "Portal"
+participant dienst "Reservierungsdienst"
+msg portal -> dienst "platzReservieren()"
+alt "Platz frei"
+  msg dienst --> portal "Reserviert"
+  else
+    msg dienst --> portal "Abgelehnt"

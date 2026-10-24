@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1001 821" width="1001" height="821" class="dia" role="img" aria-label="OAuth-Callback verarbeiten"><title>OAuth-Callback verarbeiten</title><style>
+  .dia { font-family: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 11px; }
+  .dia .shape { fill: #ffffff; stroke: #18181b; stroke-width: 1.5; }
+  .dia .shape-muted { fill: #f4f4f5; stroke: #18181b; stroke-width: 1.5; }
+  .dia .shape-emph { fill: #ffffff; stroke: #18181b; stroke-width: 2.5; }
+  .dia .frame { fill: none; stroke: #a1a1aa; stroke-width: 1; stroke-dasharray: 4 3; }
+  .dia .frame-own { fill: #f4f4f5; fill-opacity: 0.55; stroke: #18181b; stroke-width: 2; }
+  .dia .line { fill: none; stroke: #18181b; stroke-width: 1.5; }
+  .dia .line-accent { fill: none; stroke: #1d4ed8; stroke-width: 1.8; }
+  .dia .dashed { stroke-dasharray: 6 4; }
+  .dia .label { fill: #18181b; font-size: 10px; }
+  .dia .label-accent { fill: #1d4ed8; font-size: 10px; }
+  .dia .label-bold { fill: #18181b; font-weight: 600; font-size: 12px; }
+  .dia .label-title { fill: #18181b; font-weight: 600; font-size: 14px; }
+  .dia .label-group { fill: #18181b; font-weight: 600; font-size: 11px; }
+  .dia .label-note { fill: #52525b; font-size: 10px; }
+  .dia .arrow-open { fill: none; stroke: #18181b; stroke-width: 1.5; }
+  .dia .arrow-filled { fill: #18181b; stroke: none; }
+  .dia .arrow-open-accent { fill: none; stroke: #1d4ed8; stroke-width: 1.8; }
+  .dia .arrow-filled-accent { fill: #1d4ed8; stroke: none; }
+  .dia .halo { paint-order: stroke; stroke: #fafafa; stroke-width: 4px; stroke-linejoin: round; }
+  .dia .badge { fill: #18181b; }
+  .dia .badge-accent { fill: #1d4ed8; }
+  .dia .badge-text { fill: #ffffff; font-weight: 700; font-size: 10px; }
+  .dia .mark { fill: #dbeafe; stroke: #1d4ed8; stroke-width: 1; }
+  .dia .mark-text { fill: #1d4ed8; font-weight: 700; font-size: 9px; }
+  .dia .label-back { fill: #fafafa; stroke: none; }
+  .dia .uml-stereo { fill: #18181b; font-size: 10px; }
+  .dia .seq-lifeline { fill: none; stroke: #52525b; stroke-width: 1; stroke-dasharray: 4 3; }
+  .dia .seq-activation { fill: #ffffff; stroke: #18181b; stroke-width: 1; }
+  .dia .seq-external { fill: #ffffff; stroke: #18181b; stroke-width: 1.5; stroke-dasharray: 6 4; }
+  .dia .seq-frame { fill: none; stroke: #18181b; stroke-width: 1; }
+  .dia .seq-tag { fill: #f4f4f5; stroke: #18181b; stroke-width: 1; }
+  .dia .seq-tag-text { fill: #18181b; font-weight: 700; font-size: 11px; }
+  .dia .seq-guard { fill: #18181b; font-size: 11px; }
+  .dia .seq-message { fill: #18181b; font-size: 11px; }
+  .dia .seq-note { fill: #ffffff; stroke: #52525b; stroke-width: 1; }
+</style><rect width="1001" height="821" fill="#fafafa"/><defs><marker id="m-open" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto"><path d="M1 1 L11 6 L1 11" class="arrow-open" stroke-linecap="round"/></marker><marker id="m-filled" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto"><path d="M1 1 L11 6 L1 11 Z" class="arrow-filled" stroke-linecap="round"/></marker><marker id="m-open-accent" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto"><path d="M1 1 L11 6 L1 11" class="arrow-open-accent" stroke-linecap="round"/></marker><marker id="m-filled-accent" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto"><path d="M1 1 L11 6 L1 11 Z" class="arrow-filled-accent" stroke-linecap="round"/></marker></defs>
+<text x="32" y="36" class="label-title">Sequenzdiagramm (UML) · OAuth-Callback verarbeiten</text>
+<text x="32" y="52" class="label-note">Gates am Rahmen, Zustandsinvarianten, Nachricht mit Dauer, neg</text>
+<line x1="359" y1="160" x2="359" y2="775" class="seq-lifeline"/>
+<line x1="713" y1="160" x2="713" y2="775" class="seq-lifeline"/>
+<line x1="892" y1="160" x2="892" y2="775" class="seq-lifeline"/>
+<rect x="353" y="197" width="12" height="355" class="seq-activation"/>
+<rect x="707" y="296" width="12" height="54" class="seq-activation"/>
+<rect x="359" y="381" width="12" height="96" class="seq-activation"/>
+<rect x="886" y="434" width="12" height="43" class="seq-activation"/>
+<rect x="707" y="650" width="12" height="43" class="seq-activation"/>
+<rect x="32" y="76" width="937" height="713" class="seq-frame"/>
+<path d="M32 76 H168 V89 L161 96 H32 Z" class="seq-tag"/>
+<text x="40" y="90" text-anchor="start" class="seq-tag-text">sd OAuth-Callback</text>
+<rect x="331" y="599" width="410" height="102" class="seq-frame"/>
+<path d="M331 599 H374 V612 L367 619 H331 Z" class="seq-tag"/>
+<text x="339" y="613" text-anchor="start" class="seq-tag-text">neg</text>
+<rect x="255" y="213" width="208" height="22" class="label-back"/>
+<text x="359" y="228" text-anchor="middle" class="seq-guard">{state = gespeicherter state}</text>
+<rect x="318" y="487" width="82" height="22" rx="11" class="seq-activation"/>
+<text x="359" y="502" text-anchor="middle" class="seq-message">Angemeldet</text>
+<path d="M331 717 H733 L741 725 V747 H331 Z" class="seq-note"/>
+<path d="M733 717 V725 H741" class="seq-note"/>
+<text x="339" y="736" text-anchor="start" class="label-note">Ein Code gilt genau einmal: der zweite Tausch muss scheitern.</text>
+<g id="edge-0"><path d="M32 197 L353 197" class="line" marker-end="url(#m-filled)"/><rect x="177" y="181" width="165" height="14" class="label-back"/><text x="259.5" y="192" text-anchor="middle" class="seq-message">GET /callback?code&amp;state</text></g>
+<g id="edge-1"><path d="M365 272 L707 296" class="line" marker-end="url(#m-filled)"/><rect x="404" y="256" width="264" height="14" class="label-back"/><text x="536" y="267" text-anchor="middle" class="seq-message">POST /oauth/token (code, code_verifier)</text><rect x="464" y="288" width="72" height="14" class="label-back"/><text x="467" y="299" text-anchor="start" class="seq-guard">{≤ 800 ms}</text></g>
+<g id="edge-2"><path d="M707 344 L365 344" class="line dashed" marker-end="url(#m-open)"/><rect x="434" y="328" width="204" height="14" class="label-back"/><text x="536" y="339" text-anchor="middle" class="seq-message">ID-, Access- und Refresh-Token</text></g>
+<g id="edge-3"><path d="M365 367 L401 367 L401 387 L371 387" class="line" marker-end="url(#m-filled)"/><rect x="406" y="370" width="290" height="14" class="label-back"/><text x="409" y="381" text-anchor="start" class="seq-message">ID-Token prüfen (Signatur, iss, aud, nonce)</text></g>
+<g id="edge-4"><path d="M371 434 L886 434" class="line" marker-end="url(#m-filled)"/><rect x="420.5" y="418" width="231" height="14" class="label-back"/><text x="536" y="429" text-anchor="middle" class="seq-message">SET session (Tokens verschlüsselt)</text></g>
+<g id="edge-5"><path d="M886 471 L371 471" class="line dashed" marker-end="url(#m-open)"/><rect x="795.5" y="455" width="20" height="14" class="label-back"/><text x="805.5" y="466" text-anchor="middle" class="seq-message">ok</text></g>
+<g id="edge-6"><path d="M353 546 L32 546" class="line dashed" marker-end="url(#m-open)"/><rect x="118" y="530" width="224" height="14" class="label-back"/><text x="230" y="541" text-anchor="middle" class="seq-message">302 Location: / · Set-Cookie: sid</text></g>
+<g id="edge-7"><path d="M359 583 L969 583" class="line" marker-end="url(#m-open)"/><rect x="370" y="567" width="138" height="14" class="label-back"/><text x="439" y="578" text-anchor="middle" class="seq-message">audit: login.erfolgt</text></g>
+<g id="edge-8"><path d="M359 650 L707 650" class="line" marker-end="url(#m-filled)"/><rect x="421" y="634" width="224" height="14" class="label-back"/><text x="533" y="645" text-anchor="middle" class="seq-message">POST /oauth/token (derselbe code)</text></g>
+<g id="edge-9"><path d="M707 687 L359 687" class="line dashed" marker-end="url(#m-open)"/><rect x="493.5" y="671" width="79" height="14" class="label-back"/><text x="533" y="682" text-anchor="middle" class="seq-message">neue Tokens</text></g>
+<g id="node-bff"><rect x="273" y="112" width="172" height="48" class="shape"/><text x="359" y="134" text-anchor="middle" class="uml-stereo">«service»</text><text x="359" y="146" text-anchor="middle" class="label-bold">Backend for Frontend</text></g>
+<g id="node-idp"><rect x="627" y="124" width="172" height="36" class="seq-external"/><text x="713" y="146" text-anchor="middle" class="label-bold">Autorisierungsserver</text></g>
+<g id="node-sessions"><path d="M831 130 A61 6 0 0 1 953 130 V154 A61 6 0 0 1 831 154 Z" class="shape"/><path d="M831 130 A61 6 0 0 0 953 130" class="line"/><text x="892" y="149" text-anchor="middle" class="label-bold">Session-Store</text></g>
+<path d="M112 197 H104 V546 H112 M100 205 L104 197 L108 205 M100 538 L104 546 L108 538" class="seq-frame"/>
+<rect x="48" y="364.5" width="53" height="14" class="label-back"/>
+<text x="98" y="375.5" text-anchor="end" class="seq-guard">{≤ 2 s}</text>
+</svg>

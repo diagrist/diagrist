@@ -34,23 +34,33 @@ export interface GrammarStatement extends GrammarLine {
   readonly keyword: string;
   readonly children: readonly GrammarStatement[];
   readonly lines?: GrammarLine;
+  /**
+   * The statement is described in full where it first appears, depth first; this later occurrence, such as a
+   * fragment inside a fragment, lists no children, which are the same as there.
+   */
+  readonly repeats?: true;
 }
 
 export function grammarOf(kind: KindSpec): Grammar {
+  const described = new Set<StatementSpec>();
   return {
     kind: kind.name,
     doc: kind.doc,
     header: fields(kind.header),
-    statements: kind.statements.map(describeStatement),
+    statements: kind.statements.map((spec) => describeStatement(spec, described)),
   };
 }
 
-function describeStatement(spec: StatementSpec): GrammarStatement {
+/** Describes every table once; recursive tables such as nested fragments stay finite and small. */
+function describeStatement(spec: StatementSpec, described: Set<StatementSpec>): GrammarStatement {
+  const repeats = described.has(spec);
+  described.add(spec);
   return {
     keyword: spec.keyword,
     ...describeLine(spec),
-    children: spec.children.map(describeStatement),
+    children: repeats ? [] : spec.children.map((child) => describeStatement(child, described)),
     ...(spec.lines ? { lines: describeLine(spec.lines) } : {}),
+    ...(repeats ? { repeats } : {}),
   };
 }
 
@@ -101,7 +111,10 @@ export function checkKind(kind: KindSpec): string[] {
     if (spec.examples.length === 0) problems.push(`${where} has no example`);
     for (const example of spec.examples) problems.push(...exampleProblems(spec, example, where, keyword));
   };
+  const visited = new Set<StatementSpec>();
   const visitStatement = (spec: StatementSpec): void => {
+    if (visited.has(spec)) return;
+    visited.add(spec);
     visit(spec, `statement ${spec.keyword}`, spec.keyword);
     if (spec.lines) visit(spec.lines, `line form of ${spec.keyword}`);
     spec.children.forEach(visitStatement);

@@ -1,0 +1,14 @@
+# A web service with a cache: a self call with a reply to itself in the first operand, the database call in
+# the second.
+diagram sequence "Aktionäre einer Stadt abfragen" subtitle="Cache-Treffer oder Datenbankzugriff" locale=de
+participant app ":App"
+participant ws ":WebService"
+participant db ":Database"
+msg app -> ws "GET /shareholders?city=Köln"
+alt "Daten im Cache"
+  msg ws -> ws "getCache(city)"
+  msg ws --> ws "data"
+  else "Daten nicht im Cache"
+    msg ws -> db "getData(city)"
+    msg db --> ws "data"
+msg ws --> app "Response 200 {data}"

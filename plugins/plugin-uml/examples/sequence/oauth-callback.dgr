@@ -1,0 +1,24 @@
+# The callback of the OAuth flow in a backend for frontend (BFF). The browser is the environment of the
+# interaction and no lifeline: its call comes in through a gate on the frame, the answer goes back through
+# the gate, the audit event leaves to the right. State invariants say what must hold at that point; the
+# token exchange carries its transmission time, neg forbids redeeming the code twice.
+diagram sequence "OAuth-Callback verarbeiten" subtitle="Gates am Rahmen, Zustandsinvarianten, Nachricht mit Dauer, neg" locale=de
+frame "OAuth-Callback"
+participant bff "Backend for Frontend" stereotype="service"
+participant idp "Autorisierungsserver" external
+database sessions "Session-Store"
+msg gate -> bff "GET /callback?code&state" id=callback
+invariant "state = gespeicherter state" on=bff
+msg bff -> idp "POST /oauth/token (code, code_verifier)" duration="≤ 800 ms"
+msg idp --> bff "ID-, Access- und Refresh-Token"
+msg bff -> bff "ID-Token prüfen (Signatur, iss, aud, nonce)"
+msg bff -> sessions "SET session (Tokens verschlüsselt)"
+msg sessions --> bff "ok"
+invariant "Angemeldet" on=bff state
+msg bff --> gate "302 Location: / · Set-Cookie: sid" id=done
+msg bff ~> gate "audit: login.erfolgt"
+neg
+  msg bff -> idp "POST /oauth/token (derselbe code)"
+  msg idp --> bff "neue Tokens"
+note "Ein Code gilt genau einmal: der zweite Tausch muss scheitern." over=bff,idp
+duration callback done "≤ 2 s"

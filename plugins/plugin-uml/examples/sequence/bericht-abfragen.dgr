@@ -1,0 +1,15 @@
+# Notation: a duration constraint right of the lifelines. While the database computes the report, the browser
+# polls for progress, so there is no room left of api-service at that height. The bracket therefore moves
+# mirrored to the right, beside the right one of the two lifelines the query and its answer touch, and
+# crosses no other lifeline.
+diagram sequence "Bericht abfragen" subtitle="Zeitklammer rechts, weil links Nachrichten kreuzen" locale=de
+actor browser "Browser"
+participant api "api-service" stereotype="service"
+database db "Postgres"
+msg browser -> api "GET /bericht"
+msg api -> db "SELECT … (Bericht)" id=abfrage
+msg browser ~> api "Fortschritt?"
+msg api ~> browser "läuft noch"
+msg db --> api "Zeilen" id=zeilen
+msg api --> browser "200 OK"
+duration abfrage zeilen "≤ 2 s"

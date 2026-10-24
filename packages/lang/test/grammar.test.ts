@@ -1,14 +1,19 @@
 import { describe, expect, expectTypeOf, it } from 'vitest';
 import {
+  arg,
+  attr,
   checkKind,
   formatDiagnostic,
   grammarOf,
+  id as identifier,
   type KindSpec,
   kind,
   read,
   readKind,
+  ref,
   type StatementSpec,
   statement,
+  text,
 } from '../src/index.js';
 import { sequence, structure } from './fixtures/kinds.js';
 
@@ -101,6 +106,35 @@ describe('readKind', () => {
     expect(codes(reading)).toEqual(['L108', 'L107']);
     const unknown = reading.diagnostics.find((d) => d.code === 'L107');
     expect(unknown?.values).toMatchObject({ found: 'db', known: '`api`, `api`' });
+  });
+});
+
+describe('readKind with attributes and recursion', () => {
+  const body: StatementSpec[] = [];
+  const box = statement('box', {
+    doc: 'A box that may contain boxes.',
+    examples: ['box b1 "Outer" mark=b1'],
+    arguments: [arg('id', identifier(), 'Id of the box.'), arg('label', text(), 'Title.')],
+    attributes: { mark: attr(ref('box'), 'Another box this one points to.'), alias: attr(identifier(), 'Second id.') },
+    children: body,
+  });
+  body.push(box);
+  const nested = kind('nested', { doc: 'Boxes in boxes.', statements: [box] });
+
+  it('checks ids and references written as attributes like arguments', () => {
+    const reading = readAs(nested, 'diagram nested "x"', 'box a "A" alias=b mark=b', 'box c "C" mark=missing alias=a');
+    expect(codes(reading)).toEqual(['L107', 'L108']);
+    expect(reading.diagnostics[0]?.values).toMatchObject({ name: 'mark=', found: 'missing' });
+    expect(reading.diagnostics[1]?.values).toMatchObject({ found: 'a', first: '2' });
+  });
+
+  it('reads, checks and describes statements that contain themselves', () => {
+    const reading = readAs(nested, 'diagram nested "x"', 'box a "A"', '  box b "B"', '    box c "C" mark=a');
+    expect(codes(reading)).toEqual([]);
+    expect(reading.statements[0]?.children[0]?.children[0]).toMatchObject({ id: 'c' });
+    expect(checkKind(nested)).toEqual([]);
+    const [outer] = grammarOf(nested).statements;
+    expect(outer?.children.map((c) => [c.keyword, c.repeats, c.children.length])).toEqual([['box', true, 0]]);
   });
 });
 

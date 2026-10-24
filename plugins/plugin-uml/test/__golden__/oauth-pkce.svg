@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1026 905" width="1026" height="905" class="dia" role="img" aria-label="Anmeldung mit OAuth 2.0"><title>Anmeldung mit OAuth 2.0</title><style>
+  .dia { font-family: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 11px; }
+  .dia .shape { fill: #ffffff; stroke: #18181b; stroke-width: 1.5; }
+  .dia .shape-muted { fill: #f4f4f5; stroke: #18181b; stroke-width: 1.5; }
+  .dia .shape-emph { fill: #ffffff; stroke: #18181b; stroke-width: 2.5; }
+  .dia .frame { fill: none; stroke: #a1a1aa; stroke-width: 1; stroke-dasharray: 4 3; }
+  .dia .frame-own { fill: #f4f4f5; fill-opacity: 0.55; stroke: #18181b; stroke-width: 2; }
+  .dia .line { fill: none; stroke: #18181b; stroke-width: 1.5; }
+  .dia .line-accent { fill: none; stroke: #1d4ed8; stroke-width: 1.8; }
+  .dia .dashed { stroke-dasharray: 6 4; }
+  .dia .label { fill: #18181b; font-size: 10px; }
+  .dia .label-accent { fill: #1d4ed8; font-size: 10px; }
+  .dia .label-bold { fill: #18181b; font-weight: 600; font-size: 12px; }
+  .dia .label-title { fill: #18181b; font-weight: 600; font-size: 14px; }
+  .dia .label-group { fill: #18181b; font-weight: 600; font-size: 11px; }
+  .dia .label-note { fill: #52525b; font-size: 10px; }
+  .dia .arrow-open { fill: none; stroke: #18181b; stroke-width: 1.5; }
+  .dia .arrow-filled { fill: #18181b; stroke: none; }
+  .dia .arrow-open-accent { fill: none; stroke: #1d4ed8; stroke-width: 1.8; }
+  .dia .arrow-filled-accent { fill: #1d4ed8; stroke: none; }
+  .dia .halo { paint-order: stroke; stroke: #fafafa; stroke-width: 4px; stroke-linejoin: round; }
+  .dia .badge { fill: #18181b; }
+  .dia .badge-accent { fill: #1d4ed8; }
+  .dia .badge-text { fill: #ffffff; font-weight: 700; font-size: 10px; }
+  .dia .mark { fill: #dbeafe; stroke: #1d4ed8; stroke-width: 1; }
+  .dia .mark-text { fill: #1d4ed8; font-weight: 700; font-size: 9px; }
+  .dia .label-back { fill: #fafafa; stroke: none; }
+  .dia .uml-stereo { fill: #18181b; font-size: 10px; }
+  .dia .seq-lifeline { fill: none; stroke: #52525b; stroke-width: 1; stroke-dasharray: 4 3; }
+  .dia .seq-activation { fill: #ffffff; stroke: #18181b; stroke-width: 1; }
+  .dia .seq-external { fill: #ffffff; stroke: #18181b; stroke-width: 1.5; stroke-dasharray: 6 4; }
+  .dia .seq-figure { fill: #fafafa; stroke: #18181b; stroke-width: 1.5; stroke-linecap: round; }
+  .dia .seq-frame { fill: none; stroke: #18181b; stroke-width: 1; }
+  .dia .seq-tag { fill: #f4f4f5; stroke: #18181b; stroke-width: 1; }
+  .dia .seq-tag-text { fill: #18181b; font-weight: 700; font-size: 11px; }
+  .dia .seq-guard { fill: #18181b; font-size: 11px; }
+  .dia .seq-separator { fill: none; stroke: #18181b; stroke-width: 1; stroke-dasharray: 6 4; }
+  .dia .seq-message { fill: #18181b; font-size: 11px; }
+  .dia .seq-note { fill: #ffffff; stroke: #52525b; stroke-width: 1; }
+</style><rect width="1026" height="905" fill="#fafafa"/><defs><marker id="m-open" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto"><path d="M1 1 L11 6 L1 11" class="arrow-open" stroke-linecap="round"/></marker><marker id="m-filled" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto"><path d="M1 1 L11 6 L1 11 Z" class="arrow-filled" stroke-linecap="round"/></marker><marker id="m-open-accent" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto"><path d="M1 1 L11 6 L1 11" class="arrow-open-accent" stroke-linecap="round"/></marker><marker id="m-filled-accent" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto"><path d="M1 1 L11 6 L1 11 Z" class="arrow-filled-accent" stroke-linecap="round"/></marker></defs>
+<text x="32" y="36" class="label-title">Sequenzdiagramm (UML) · Anmeldung mit OAuth 2.0</text>
+<text x="32" y="52" class="label-note">Authorization Code Flow mit PKCE (RFC 7636)</text>
+<line x1="60" y1="137" x2="60" y2="873" class="seq-lifeline"/>
+<line x1="258" y1="137" x2="258" y2="873" class="seq-lifeline"/>
+<line x1="595" y1="137" x2="595" y2="873" class="seq-lifeline"/>
+<line x1="929" y1="137" x2="929" y2="873" class="seq-lifeline"/>
+<rect x="252" y="174" width="12" height="501" class="seq-activation"/>
+<rect x="258" y="224" width="12" height="16" class="seq-activation"/>
+<rect x="589" y="425" width="12" height="139" class="seq-activation"/>
+<rect x="595" y="475" width="12" height="16" class="seq-activation"/>
+<rect x="923" y="595" width="12" height="43" class="seq-activation"/>
+<rect x="589" y="681" width="12" height="59" class="seq-activation"/>
+<rect x="252" y="681" width="12" height="96" class="seq-activation"/>
+<rect x="32" y="507" width="925" height="278" class="seq-frame"/>
+<path d="M32 507 H75 V520 L68 527 H32 Z" class="seq-tag"/>
+<text x="40" y="521" text-anchor="start" class="seq-tag-text">alt</text>
+<rect x="82" y="510" width="145" height="14" class="label-back"/>
+<text x="85" y="521" text-anchor="start" class="seq-guard">[Prüfung erfolgreich]</text>
+<line x1="32" y1="681" x2="957" y2="681" class="seq-separator"/>
+<rect x="39" y="683" width="46" height="14" class="label-back"/>
+<text x="42" y="694" text-anchor="start" class="seq-guard">[else]</text>
+<path d="M230 801 H615 L623 809 V845 H230 Z" class="seq-note"/>
+<path d="M615 801 V809 H623" class="seq-note"/>
+<text x="238" y="820" text-anchor="start" class="label-note">Der code_verifier verlässt die App nie: ein abgefangener Code</text>
+<text x="238" y="834" text-anchor="start" class="label-note">ist ohne ihn wertlos.</text>
+<g id="edge-0"><path d="M60 174 L252 174" class="line" marker-end="url(#m-filled)"/><rect x="93.5" y="158" width="125" height="14" class="label-back"/><text x="156" y="169" text-anchor="middle" class="seq-message">Login-Link klicken</text></g>
+<g id="edge-1"><path d="M264 197 L300 197 L300 230 L270 230" class="line" marker-end="url(#m-filled)"/><rect x="305" y="199.5" width="270" height="28" class="label-back"/><text x="308" y="210.5" text-anchor="start" class="seq-message">code_verifier erzeugen, code_challenge =</text><text x="308" y="224.5" text-anchor="start" class="seq-message">SHA256(code_verifier)</text></g>
+<g id="edge-2"><path d="M264 277 L595 277" class="line" marker-end="url(#m-open)"/><rect x="281" y="261" width="297" height="14" class="label-back"/><text x="429.5" y="272" text-anchor="middle" class="seq-message">GET /authorize (code_challenge, method=S256)</text></g>
+<g id="edge-3"><path d="M595 314 L60 314" class="line" marker-end="url(#m-open)"/><rect x="307" y="298" width="251" height="14" class="label-back"/><text x="432.5" y="309" text-anchor="middle" class="seq-message">Weiterleitung zu Login und Zustimmung</text></g>
+<g id="edge-4"><path d="M60 351 L595 351" class="line" marker-end="url(#m-open)"/><rect x="77" y="335" width="152" height="14" class="label-back"/><text x="153" y="346" text-anchor="middle" class="seq-message">Anmelden und zustimmen</text></g>
+<g id="edge-5"><path d="M595 388 L264 388" class="line" marker-end="url(#m-open)"/><rect x="324" y="372" width="211" height="14" class="label-back"/><text x="429.5" y="383" text-anchor="middle" class="seq-message">Redirect mit Authorization Code</text></g>
+<g id="edge-6"><path d="M264 425 L589 425" class="line" marker-end="url(#m-filled)"/><rect x="294.5" y="409" width="264" height="14" class="label-back"/><text x="426.5" y="420" text-anchor="middle" class="seq-message">POST /oauth/token (code, code_verifier)</text></g>
+<g id="edge-7"><path d="M601 448 L637 448 L637 481 L607 481" class="line" marker-end="url(#m-filled)"/><rect x="642" y="450.5" width="270" height="28" class="label-back"/><text x="645" y="461.5" text-anchor="start" class="seq-message">SHA256(code_verifier) mit code_challenge</text><text x="645" y="475.5" text-anchor="start" class="seq-message">vergleichen</text></g>
+<g id="edge-8"><path d="M589 558 L264 558" class="line dashed" marker-end="url(#m-open)"/><rect x="341" y="542" width="171" height="14" class="label-back"/><text x="426.5" y="553" text-anchor="middle" class="seq-message">ID-Token und Access-Token</text></g>
+<g id="edge-9"><path d="M264 595 L923 595" class="line" marker-end="url(#m-filled)"/><rect x="314.5" y="579" width="218" height="14" class="label-back"/><text x="423.5" y="590" text-anchor="middle" class="seq-message">GET /daten (Bearer Access-Token)</text></g>
+<g id="edge-10"><path d="M923 632 L264 632" class="line dashed" marker-end="url(#m-open)"/><rect x="732" y="616" width="66" height="14" class="label-back"/><text x="765" y="627" text-anchor="middle" class="seq-message">200 Daten</text></g>
+<g id="edge-11"><path d="M252 669 L60 669" class="line dashed" marker-end="url(#m-open)"/><rect x="120" y="653" width="72" height="14" class="label-back"/><text x="156" y="664" text-anchor="middle" class="seq-message">Startseite</text></g>
+<g id="edge-12"><path d="M589 734 L264 734" class="line dashed" marker-end="url(#m-open)"/><rect x="367" y="718" width="119" height="14" class="label-back"/><text x="426.5" y="729" text-anchor="middle" class="seq-message">400 invalid_grant</text></g>
+<g id="edge-13"><path d="M252 771 L60 771" class="line dashed" marker-end="url(#m-open)"/><rect x="110" y="755" width="92" height="14" class="label-back"/><text x="156" y="766" text-anchor="middle" class="seq-message">Fehlermeldung</text></g>
+<g id="node-nutzer"><circle cx="60" cy="90.2" r="5.151515151515151" class="seq-figure"/><path d="M60 95.33333333333333 V106.66666666666666 M49.696969696969695 99.45454545454545 H70.3030303030303 M50.72727272727273 118 L60 106.66666666666666 L69.27272727272728 118" class="line"/><text x="60" y="132" text-anchor="middle" class="label-bold">Nutzer</text></g>
+<g id="node-app"><rect x="199" y="89" width="118" height="48" class="shape"/><text x="258" y="111" text-anchor="middle" class="uml-stereo">«public client»</text><text x="258" y="123" text-anchor="middle" class="label-bold">App</text></g>
+<g id="node-idp"><rect x="509" y="101" width="172" height="36" class="seq-external"/><text x="595" y="123" text-anchor="middle" class="label-bold">Autorisierungsserver</text></g>
+<g id="node-api"><rect x="864.5" y="101" width="129" height="36" class="shape"/><text x="929" y="123" text-anchor="middle" class="label-bold">Ressourcen-API</text></g>
+</svg>

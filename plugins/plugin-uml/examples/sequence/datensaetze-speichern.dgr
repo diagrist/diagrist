@@ -1,0 +1,7 @@
+# Saving records repeatedly: call and reply belong into the loop together; the guard says when it goes on.
+diagram sequence "Datensätze wiederholt speichern" subtitle="loop-Fragment mit Wächter" locale=de
+participant importdienst "Importdienst"
+participant db "Datenbank"
+loop "Weitere Datensätze vorhanden"
+  msg importdienst -> db "datensatzSpeichern()"
+  msg db --> importdienst "Gespeichert"

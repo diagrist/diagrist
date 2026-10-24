@@ -1,0 +1,18 @@
+# The observer pattern: creation with constructor bars, the self call notifyObservers() with nested calls.
+# As in the model solution there is no reply to update() and notifyObservers(): the reply to Client encloses them.
+diagram sequence "Zählerstände beobachten" subtitle="Observer: Anmeldung und Benachrichtigung" locale=de
+participant client "Client"
+participant meter "meterData : MeterData"
+participant avg ":AvgDisplay"
+create client -> meter "create"
+create client -> avg "new AvgDisplay(meterData)"
+msg avg -> meter "addObserver(o : Observer)"
+msg meter --> avg
+msg avg --> client
+msg client -> meter "setReadings_Data(readings)"
+msg meter -> meter "notifyObservers()"
+msg meter -> avg "update()"
+msg avg -> meter "getAvgMonth()"
+msg meter --> avg "Double"
+msg avg -> avg "display()"
+msg meter --> client

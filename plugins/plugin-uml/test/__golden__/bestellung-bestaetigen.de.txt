@@ -1,0 +1,19 @@
+Bestellung bestätigen. Sequenzdiagramm (UML) mit 7 Teilnehmern und 10 Nachrichten.
+Teilnehmer von links nach rechts: Webshop («service»), auftrag-service («service»), zahlung-service («service»), Zahlungsanbieter (extern), notification-service («service»), Mail-Provider (extern), SMS-Gateway (extern).
+Ein Rahmen „sd Bestellung bestätigen“ umschließt die Interaktion.
+1. auftrag-service wird über das Gate „bestellung“ am Rahmen von außen aufgerufen: bestellen(warenkorb).
+Verweis auf die Interaktion „Zahlung autorisieren“ aus der Datei zahlung-autorisieren.dgr über zahlung-service, Zahlungsanbieter.
+2. auftrag-service ruft über das Gate „betrag“ am Verweis „Zahlung autorisieren“ auf: autorisieren(betrag).
+3. auftrag-service erhält über das Gate „ergebnis“ am Verweis „Zahlung autorisieren“ die Antwort: autorisiert.
+4. auftrag-service sendet asynchron an notification-service: bestellung.bestaetigt.
+notification-service wird aktiv.
+In beliebiger Reihenfolge auf notification-service (Coregion):
+  5. notification-service sendet asynchron an Mail-Provider: Bestätigung per E-Mail.
+  6. notification-service sendet asynchron an SMS-Gateway: Bestätigung per SMS.
+  7. notification-service sendet asynchron an Webshop: Hinweis im Kundenkonto.
+notification-service ist fertig.
+Wiederholung [bis zugestellt, höchstens 3]:
+  8. notification-service empfängt über das Gate „bounce“ am Rahmen von loop eine Nachricht: Rückläufer.
+  9. notification-service sendet asynchron an Mail-Provider: erneut senden.
+10. auftrag-service antwortet über das Gate „antwort“ am Rahmen nach außen: 201 Created.
+Zeitbedingung von Nachricht 1 bis Nachricht 10: {≤ 2 s}.

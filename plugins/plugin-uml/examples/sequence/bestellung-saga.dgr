@@ -1,0 +1,58 @@
+# Placing an order as a saga (choreography over Kafka) with compensation. The payment provider is external;
+# timeout and retry are a loop with alt, failure is a break. Numbered, with the SLA of the synchronous answer
+# as a duration constraint and the architecture decision E1 at its message. The reference at the end names
+# the file of the interaction with file= (lieferung.dgr).
+diagram sequence "Bestellung anlegen" subtitle="Saga mit Kompensation über Kafka, Timeout und Retry beim Payment-Provider" locale=de
+autonumber
+actor kunde "Kunde"
+participant shop "Webshop"
+participant auftrag "auftrag-service" stereotype="service"
+database db "Auftrags-DB"
+queue broker "Kafka"
+participant lager "lager-service" stereotype="service"
+participant faktura "fakturierung-service" stereotype="service"
+participant psp "Payment-Provider" external
+msg kunde -> shop "Bestellen"
+msg shop -> auftrag "POST /auftraege" id=post
+msg auftrag -> db "INSERT auftrag (status=offen)"
+msg db --> auftrag "ok"
+msg auftrag ~> broker "auftrag.angelegt" mark=E1
+msg auftrag --> shop "202 Accepted · auftrag_nr" id=accepted
+msg shop --> kunde "Bestellung eingegangen"
+msg broker ~> lager "auftrag.angelegt"
+activate lager
+msg lager -> lager "Bestand reservieren"
+alt "Bestand reicht"
+  msg lager ~> broker "lager.reserviert"
+  deactivate lager
+  msg broker ~> faktura "lager.reserviert"
+  activate faktura
+  loop "max. 3 Versuche"
+    msg faktura -> psp "POST /payments"
+    alt "Antwort innerhalb 5 s"
+      msg psp --> faktura "201 Created · payment_id"
+      else "Timeout"
+        msg faktura -> faktura "Backoff 1 s, 2 s, 4 s"
+  break "alle Versuche gescheitert"
+    msg faktura ~> broker "zahlung.fehlgeschlagen"
+    msg broker ~> auftrag "zahlung.fehlgeschlagen"
+    msg auftrag -> db "UPDATE status=storniert" emph
+    msg db --> auftrag "ok"
+    msg auftrag ~> broker "auftrag.storniert" emph
+    msg broker ~> lager "auftrag.storniert" emph
+    msg lager -> lager "Reservierung freigeben" emph
+  msg faktura ~> broker "zahlung.erfolgt"
+  deactivate faktura
+  msg broker ~> auftrag "zahlung.erfolgt"
+  msg auftrag -> db "UPDATE status=bestätigt"
+  msg db --> auftrag "ok"
+  else "Fehlbestand"
+    msg lager ~> broker "lager.fehlbestand"
+    deactivate lager
+    msg broker ~> auftrag "lager.fehlbestand"
+    msg auftrag -> db "UPDATE status=storniert" emph
+    msg db --> auftrag "ok"
+note "Idempotenz-Key = auftrag_nr: Kafka-Replays sind unschädlich" over=auftrag,lager
+ref "Lieferung und Tracking" over=auftrag,lager file="lieferung.dgr"
+duration post accepted "≤ 300 ms"
+adr E1 "Wie stimmen sich die Services ab?" = "Choreographie über Kafka-Ereignisse statt Orchestrierung" => "Kein zentraler Koordinator; jeder Service reagiert auf Ereignisse und kompensiert selbst"
