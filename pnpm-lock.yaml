@@ -77,6 +77,12 @@ importers:
         specifier: workspace:*
         version: link:../lang
 
+  packages/layout-grid:
+    dependencies:
+      '@diagrist/core':
+        specifier: workspace:*
+        version: link:../core
+
   packages/testkit: {}
 
   plugins/export-png:

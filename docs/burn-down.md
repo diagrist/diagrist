@@ -72,3 +72,13 @@ They change the SVG of the 15 examples, so they wait for the clean-up with a sec
   carry the span of the offending end through the model.
 - **German messages keep English value descriptions.** `expected` texts of value types (`a text in double quotes
   like ...`) are English in every locale. Clean-up: phrase value descriptions through the catalogue (ADR 0004).
+
+## Left out of `layout-grid` until a plugin needs it (ADR 0015)
+
+- **Predecessor paths for one kind only.** The tile flow of C4 without a grid (fixed columns, bands, row gaps),
+  the FigJam `elbow` profile, state transitions (rails, loops at corners, border points), class packages (row gaps,
+  legs at vertices, wider air between package frames) and domain relations docking at attribute rows are not in the
+  library. Each comes back as data on the spec when its plugin arrives, compared number for number like the rest.
+- **Use case gets new numbers.** The predecessor reserved room for stacked frame heads above the first row only in
+  C4, measured actors with their name and started lines at the figure. `layout-grid` reserves in every adaptive grid
+  and expects a figure as the node with its name as `caption`, so the use case baseline is new.

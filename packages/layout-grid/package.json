@@ -1,0 +1,24 @@
+{
+  "name": "@diagrist/layout-grid",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Grid layout for Diagrist kinds: places measured nodes and frames, routes edges, places edge labels.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "exports": {
+    ".": {
+      "@diagrist/source": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsdown"
+  },
+  "dependencies": {
+    "@diagrist/core": "workspace:*"
+  }
+}

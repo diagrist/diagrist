@@ -11,6 +11,7 @@ const PURE_SOURCES = [
   /^packages\/lang\/src\//,
   /^packages\/core\/src\//,
   /^packages\/parts\/src\//,
+  /^packages\/layout-grid\/src\//,
   /^packages\/cli\/src\//,
   /^plugins\/[^/]+\/src\//,
 ];
