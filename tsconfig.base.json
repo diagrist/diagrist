@@ -1,0 +1,39 @@
+{
+  // Gemeinsame Compiler-Optionen für alle Pakete. TypeScript 7: strict, esModuleInterop und
+  // noUncheckedSideEffectImports sind Standard; hier steht nur, was davon abweicht oder bewusst festgehalten wird.
+  "compilerOptions": {
+    // Laufzeit: Node 22+, aktuelle Browser, Edge. ES2023 können alle drei.
+    "target": "es2023",
+    "lib": ["es2023"],
+    // Echte Node-ESM-Auflösung: Importe tragen die Endung .js, so wie sie zur Laufzeit gesucht werden.
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    // Quelltext-Einstieg der Pakete für Tests und Typprüfung im Monorepo (siehe exports in den package.json).
+    "customConditions": ["@diagrist/source"],
+
+    // Strenge über strict hinaus
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "noImplicitOverride": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+
+    // Neu gegenüber ai-diagrams:
+    // isolatedDeclarations: exportierte Funktionen brauchen ausdrückliche Typen. Die öffentliche API steht
+    // damit lesbar im Code, und Typdeklarationen entstehen ohne Typprüfung (schneller Build mit tsdown).
+    "isolatedDeclarations": true,
+    // erasableSyntaxOnly: kein enum, kein namespace, keine Parameter-Properties. Typen sind dann reines
+    // Beiwerk, das Node, Bundler und Browser-Tools ohne Umschreiben entfernen können.
+    "erasableSyntaxOnly": true,
+    // types: TS 7 lädt standardmäßig keine globalen Typen mehr. Wer Node braucht, sagt es im eigenen Paket.
+    // So fällt sofort auf, wenn der Kern versehentlich Node-APIs nutzt (er soll auch im Browser laufen).
+    "types": [],
+
+    "verbatimModuleSyntax": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "composite": true,
+    "skipLibCheck": true
+  }
+}
