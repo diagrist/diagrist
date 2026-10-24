@@ -70,6 +70,29 @@ describe('the layout of an activity diagram', () => {
       expect(apart(n.rect, frame), n.id).toBe(true);
   });
 
+  it('reports a node the frame of a region encloses without being its member as an error', () => {
+    const source = (m: string) =>
+      [
+        'diagram activity "T"',
+        'interruptible r',
+        'initial s',
+        'action a "A" interruptible=r',
+        `action m "Mitte"${m}`,
+        'action b "B" interruptible=r',
+        'final e',
+        'go s -> a',
+        'go a -> m',
+        'go m -> b',
+        'go b -> e',
+      ].join('\n');
+    const found = (m: string) =>
+      compile(source(m), { plugins: [umlPlugin] }).diagnostics.filter((d) => d.code.startsWith('G'));
+    expect(found('').map((d) => [d.code, d.severity, d.values, d.span.line])).toEqual([
+      ['G403', 'error', { frame: 'r', key: 'm' }, 5],
+    ]);
+    expect(found(' interruptible=r')).toEqual([]);
+  });
+
   it('starts and ends an object flow between pins at the edges of its actions', () => {
     const [start, end] = [p.edge('erfassen', 'reservieren').points[0], p.edge('erfassen', 'reservieren').points.at(-1)];
     const [a, b] = [p.node('erfassen'), p.node('reservieren')];

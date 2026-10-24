@@ -1,4 +1,4 @@
-import { type Placed, type Rect, textWidth } from '@diagrist/core';
+import { type Placed, textWidth } from '@diagrist/core';
 import { type EdgeLabel, type GridLayout, type GridSpec, placedOf, type Route } from '@diagrist/layout-grid';
 import { decisionStrip, HEADER, type Header, MARGIN, type Strip, stripWidth, type Words } from '@diagrist/parts';
 import type { UseCaseModel } from '../model.js';
@@ -46,21 +46,9 @@ function marks(m: UseCaseModel, grid: GridLayout): MarkSpot[] {
   });
 }
 
-/**
- * An ellipse reported as the rectangle inscribed in it: texts near its curve do not touch it, while everything in
- * the inner rectangle does.
- */
-const inscribed = (r: Rect): Rect => {
-  const [w, h] = [r.w / Math.SQRT2, r.h / Math.SQRT2];
-  return { x: r.x + (r.w - w) / 2, y: r.y + (r.h - h) / 2, w, h };
-};
-
 function placedAll(t: ReturnType<typeof fitUseCase>, m: UseCaseModel): Placed[] {
-  const ellipses = new Set(t.spec.nodes.filter((n) => n.shape === 'ellipse').map((n) => n.id));
   const lines = t.labels.filter((l) => l.part !== 'detail');
-  const grid = placedOf(t.spec, t.layout, t.routes, lines).map((p) =>
-    ellipses.has(p.key) ? { ...p, rect: inscribed(p.rect) } : p.kind === 'text' ? homed(p, t.layout) : p,
-  );
+  const grid = placedOf(t.spec, t.layout, t.routes, lines).map((p) => (p.kind === 'text' ? homed(p, t.layout) : p));
   const captions = captionBoxes(t.spec, t.layout).map(
     (c): Placed => ({ key: `${c.id}.name`, kind: 'text', rect: c.rect, ...span(m.actors.get(c.id)?.span) }),
   );

@@ -334,7 +334,7 @@ Checks of the predecessor that the language, the tables or the kernel do now:
 | E102 | L108 | ids are unique |
 | E436 | L102, L104, L105 | actions, objects, signals and time events need their text, start, ends and bars take none, `state=` only on `object`: each node has its own table |
 | E438 | L104, L105 | pins only on `action`, `send` (input) and `accept` (output), `call` only on `action` |
-| E439, now a warning | G400 | the frame of a region overlaps a node that is not its member |
+| E439 | G403 | the frame of a region encloses a node that is not its member, again an error |
 | W458 | L105 | `tone=` only on nodes drawn as cards |
 | E456, in part | L107 | both ends of `handler` are actions |
 

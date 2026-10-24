@@ -6,8 +6,8 @@ import type { GridSpec } from './spec.js';
 
 /**
  * What the grid placed, for the kernel's placement check (ADR 0010): frames and nodes as boxes inside their frames,
- * labels as texts keyed `<edge>.label.<n>` inside the innermost frame holding both ends of their edge, which
- * `fitFrames` grows around them. Spans come from the spec.
+ * ellipses and circles (whose rectangle is their square) with their outline, labels as texts keyed `<edge>.label.<n>` inside the innermost frame holding
+ * both ends of their edge, which `fitFrames` grows around them. Spans come from the spec.
  */
 export function placedOf(
   spec: GridSpec,
@@ -25,7 +25,9 @@ export function placedOf(
   });
   const nodes = layout.nodes.map((n): Placed => {
     const home = homeOf(tree, n.id);
-    return { key: n.id, kind: 'box', rect: n.rect, ...within(home?.id), ...span(tree.node(n.id)?.source) };
+    const model = tree.node(n.id);
+    const outline = model?.shape === 'ellipse' || model?.shape === 'circle' ? { outline: 'ellipse' as const } : {};
+    return { key: n.id, kind: 'box', rect: n.rect, ...outline, ...within(home?.id), ...span(model?.source) };
   });
   const counts = new Map<string, number>();
   const texts = labels.flatMap((l): Placed[] => {

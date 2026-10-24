@@ -28,7 +28,7 @@ export interface Drawing {
   readonly scene: Scene;
   readonly styles: Styles;
   readonly anchors: Anchors;
-  /** The rectangles it filled, for the kernel's placement check (G400 to G402); a kind may leave it out. */
+  /** The rectangles it filled, for the kernel's placement check (G400 to G403); a kind may leave it out. */
   readonly placed?: readonly Placed[];
 }
 

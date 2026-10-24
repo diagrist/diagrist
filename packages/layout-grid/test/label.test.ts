@@ -86,6 +86,16 @@ describe('what the grid placed', () => {
     const picture = { width: fitted.width, height: fitted.bottom };
     expect(checkPlacement(placed, picture)).toEqual([]);
   });
+  it('hands over ellipses and circles with their outline', () => {
+    const s = spec('a b', 'r', [
+      { id: 'pay', col: 'a', row: 'r', width: 160, height: 64, shape: 'ellipse' },
+      { id: 'user', col: 'b', row: 'r', width: 40, shape: 'circle' },
+    ]);
+    expect(placedOf(s, placeGrid(s)).map((p) => [p.key, p.outline, p.rect.w, p.rect.h])).toEqual([
+      ['pay', 'ellipse', 160, 64],
+      ['user', 'ellipse', 40, 40],
+    ]);
+  });
 });
 
 describe('occupancy', () => {

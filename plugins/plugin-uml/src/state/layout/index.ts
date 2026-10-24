@@ -4,13 +4,11 @@ import {
   fitFrames,
   type GridLayout,
   type Pads,
-  placedOf,
   placeGrid,
   placeLabels,
   type Route,
 } from '@diagrist/layout-grid';
 import { decisionStrip, HEADER, type Header, MARGIN, type Strip, stripWidth, type Words } from '@diagrist/parts';
-import { homed } from '../../shared/homed.js';
 import { type NoteArt, noteArts } from '../../shared/notes.js';
 import type { StateModel } from '../model.js';
 import { stretchBars } from './bars.js';
@@ -18,7 +16,7 @@ import { stateCells } from './cells.js';
 import { frameGrowth } from './growth.js';
 import { transitionTexts } from './labels.js';
 import { STATE_FONTS as F, STATE as S } from './metrics.js';
-import { borderOf, hostOf } from './points/geometry.js';
+import { placedState } from './placed.js';
 import { placeBorderPoints } from './points/index.js';
 import { type PointName, pointNames } from './points/names.js';
 import { routeStates } from './route/index.js';
@@ -98,7 +96,7 @@ export function layoutState(m: StateModel, words: PictureTexts): StateLayout {
       ),
     );
     const strip = decisionStrip(m.diagram.decisions, bottom, width);
-    const points = new Set(fitted.nodes.flatMap((n) => (borderOf(m, n.id) || hostOf(m, n.id) ? [n.id] : [])));
+    const names = pointNames(m, fitted, routes, labels);
     return {
       header: HEADER,
       width,
@@ -107,17 +105,14 @@ export function layoutState(m: StateModel, words: PictureTexts): StateLayout {
       routes,
       ends: context.ends,
       labels,
-      names: pointNames(m, fitted, routes, labels),
+      names,
       notes,
       marks: fitted.nodes.flatMap((p) => {
         const id = m.vertices.get(p.id)?.mark;
         return id ? [{ id, x: p.rect.x + p.rect.w + 20, y: p.rect.y - 2 }] : [];
       }),
       strip,
-      placed: [
-        ...placedOf(routing.spec, fitted, routes, labels).filter((p) => !points.has(p.key)),
-        ...notes.map((n, i): Placed => ({ key: `${n.on}.note.${i + 1}`, kind: 'box', rect: n.rect })),
-      ].map((p) => homed(p, fitted)),
+      placed: placedState(m, { spec: routing.spec, grid: fitted, routes, labels, names, notes }),
     };
   }
 }

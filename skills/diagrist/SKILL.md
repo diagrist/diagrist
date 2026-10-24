@@ -469,6 +469,7 @@ These come from the kernel:
 | `G400` | `{first}` overlaps `{second}`. Shorten a text, or change what the layout places here. |
 | `G401` | `{key}` reaches outside the picture. |
 | `G402` | `{key}` does not fit into `{within}`. Shorten the text or give `{within}` more room. |
+| `G403` | `{key}` reaches into the frame `{frame}` without belonging to it, so the picture says it is part of it. Make `{key}` a member of `{frame}`, or split the frame. |
 | `K100` | No plugin draws the diagram kind `{found}`. Registered kinds: {allowed}. A diagram starts with `diagram <kind> "Title"`. |
 | `K101` | The kind `{kind}` is registered twice, by {plugins}; the first one is used. |
 | `K102` | The picture uses the icon `{icon}`, which the style table does not have. Icons: {known}. |

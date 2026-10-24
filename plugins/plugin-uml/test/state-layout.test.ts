@@ -118,3 +118,28 @@ describe('state machine layout', () => {
     );
   });
 });
+
+describe('what a state machine places', () => {
+  const found = (lines: readonly string[]) =>
+    compile(['diagram state "T" direction=right', ...lines].join('\n'), { plugins: [umlPlugin] })
+      .diagnostics.filter((d) => d.code.startsWith('G'))
+      .map((d) => [d.code, d.values.first, d.values.second]);
+
+  it('lets entry and exit points sit on their state, and checks the names beside them and beside pseudostates', () => {
+    const point = (name: string) => [
+      'initial start',
+      'state b "B"',
+      'state a "A" submachine="M"',
+      `entrypoint ein "${name}" in a`,
+      'final ende',
+      'go start -> b',
+      'go b -> ein',
+      'go a -> ende',
+    ];
+    expect(found(point('Ein'))).toEqual([]);
+    expect(found(point('Ein sehr langer Eingang mit vielen Worten'))).toEqual([['G400', 'ein.name', 'b']]);
+    const initial = (name: string) => [`initial start "${name}"`, 'state a "A"', 'go start -> a'];
+    expect(found(initial('Los'))).toEqual([]);
+    expect(found(initial('Ein sehr langer Name für den Anfang'))).toEqual([['G400', 'start.name', 'a']]);
+  });
+});

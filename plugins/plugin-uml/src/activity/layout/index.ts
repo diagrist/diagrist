@@ -52,7 +52,7 @@ function sideTexts(nodes: readonly PlacedNode[], regions: readonly RegionArt[]):
   return [
     ...nodes.flatMap((p) => [
       ...(p.art.side ? [{ key: `${p.id}.text`, text: p.art.side }] : []),
-      ...(p.art.pins ?? []).map((pin, i) => ({ key: `${p.id}.pin.${i + 1}`, text: pin.text })),
+      ...(p.art.pins ?? []).map((pin, i) => ({ key: `${p.id}.pin.${i + 1}.name`, text: pin.text })),
     ]),
     ...regions.flatMap((r) =>
       [...(r.name ? [r.name] : []), ...(r.more ?? [])].map((text, i) => ({ key: `${r.id}.name.${i + 1}`, text })),
@@ -105,6 +105,6 @@ export function layoutActivity(m: ActivityModel, words: PictureTexts): ActivityL
     guards,
     marks,
     strip,
-    placed: placedOf(nodes, regions, guards, side),
+    placed: placedOf({ lanes: ap.lanes, regions, nodes, guards, side }, m.diagram),
   };
 }

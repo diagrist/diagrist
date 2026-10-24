@@ -9,6 +9,7 @@ export const KERNEL_CODES: {
   readonly overlap: 'G400';
   readonly outside: 'G401';
   readonly overflow: 'G402';
+  readonly foreign: 'G403';
 } = {
   unknownKind: 'K100',
   duplicateKind: 'K101',
@@ -16,6 +17,7 @@ export const KERNEL_CODES: {
   overlap: 'G400',
   outside: 'G401',
   overflow: 'G402',
+  foreign: 'G403',
 };
 
 const OVERLAP: Readonly<Record<Locale, Readonly<Record<string, string>>>> = {
@@ -47,6 +49,12 @@ const KERNEL: Catalogue = {
   G402: {
     en: (v) => `\`${v.key}\` does not fit into \`${v.within}\`. Shorten the text or give \`${v.within}\` more room.`,
     de: (v) => `\`${v.key}\` passt nicht in \`${v.within}\`. Den Text kürzen oder \`${v.within}\` mehr Platz geben.`,
+  },
+  G403: {
+    en: (v) =>
+      `\`${v.key}\` reaches into the frame \`${v.frame}\` without belonging to it, so the picture says it is part of it. Make \`${v.key}\` a member of \`${v.frame}\`, or split the frame.`,
+    de: (v) =>
+      `\`${v.key}\` ragt in den Rahmen \`${v.frame}\`, ohne dazuzugehören; das Bild sagt also, es sei ein Teil davon. \`${v.key}\` zum Mitglied von \`${v.frame}\` machen oder den Rahmen teilen.`,
   },
   K102: {
     en: (v) => `The picture uses the icon \`${v.icon}\`, which the style table does not have. Icons: ${v.known}.`,
