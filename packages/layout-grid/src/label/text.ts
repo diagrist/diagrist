@@ -1,4 +1,4 @@
-import { type Point, textWidth } from '@diagrist/core';
+import { type Font, type Point, textWidth } from '@diagrist/core';
 import { longestSegment, segmentHitsRect } from '../geometry.js';
 import type { Route } from '../layout.js';
 import type { GridMetrics } from '../spec.js';
@@ -6,6 +6,10 @@ import type { EdgeLabel, EdgeText } from './types.js';
 import { wrapTwo } from './wrap.js';
 
 type Anchor = EdgeLabel['anchor'];
+
+/** The font a part of an edge text is measured in: the detail font for the detail line, else the label font. */
+export const partFont = (part: EdgeLabel['part'], metrics: GridMetrics): Font =>
+  part === 'detail' ? (metrics.detailFont ?? metrics.labelFont) : metrics.labelFont;
 
 /** A label line with the box it covers: as wide as the text, from the cap height to just below the baseline. */
 export function labelLine(
@@ -16,7 +20,7 @@ export function labelLine(
   metrics: GridMetrics,
 ): EdgeLabel {
   const size = metrics.labelFont.size;
-  const w = textWidth(text, metrics.labelFont);
+  const w = textWidth(text, partFont(part, metrics));
   const left = at.anchor === 'start' ? at.x : at.anchor === 'end' ? at.x - w : at.x - w / 2;
   return { text, ...at, box: { x: left, y: at.y - size, w, h: size + 2 }, route, part };
 }

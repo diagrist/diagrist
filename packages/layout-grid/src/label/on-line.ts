@@ -2,7 +2,7 @@ import { type Point, textWidth } from '@diagrist/core';
 import { longestSegment } from '../geometry.js';
 import type { Route } from '../layout.js';
 import type { GridMetrics } from '../spec.js';
-import { labelLine } from './text.js';
+import { labelLine, partFont } from './text.js';
 import type { EdgeLabel, EdgeText } from './types.js';
 import { wrapTwo } from './wrap.js';
 
@@ -34,7 +34,7 @@ export function onLineTexts(text: EdgeText, idx: number, routes: readonly Route[
   const r = routes[idx] as Route;
   const font = metrics.labelFont;
   const { name, detail } = text;
-  const widest = Math.max(textWidth(name ?? '', font), textWidth(detail ?? '', font));
+  const widest = Math.max(textWidth(name ?? '', font), textWidth(detail ?? '', partFont('detail', metrics)));
   const { p1, p2, len } = seat(r.points, widest);
   const horizontal = p1[1] === p2[1];
   const room = horizontal ? len - ROOM : ACROSS;

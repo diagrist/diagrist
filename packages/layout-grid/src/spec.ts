@@ -47,6 +47,8 @@ export interface GridMetrics {
   readonly labelFont: Font;
   readonly labelLineH: number;
   readonly labelGap: number;
+  /** Font of the detail line of an edge, such as a protocol; `labelFont` when left out. */
+  readonly detailFont?: Font;
   /** Straight lines stop this far outside a box. */
   readonly endGap?: number;
   /** Extra gap below every row of an adaptive grid, for parts sticking out of nodes such as icons on cards. */
