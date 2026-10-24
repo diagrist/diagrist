@@ -129,3 +129,18 @@ ADR 0004 asks that a derivative which cannot be generated yet is listed here, wi
 - **Ellipses are reported as their inscribed rectangle.** The placement check knows boxes and texts only, and a
   label near the curve of an ellipse lies inside its bounding box without touching it. Clean-up: an outline on
   `Placed`.
+
+## Activity diagrams (`plugin-uml/src/activity`)
+
+- **The layered layout stays in the plugin.** Lanes, bars of fork and join, diamonds that branch at their corners,
+  loop channels on the right, tracks for parallel jogs, pins and the names of regions live in
+  `src/activity/layout`; only the layering steps (`acyclic`, `assignLayers`, `layerCost`, `positions`) come from
+  `layout-grid`. Clean-up when the state plugin arrives: move what it shares, probably the loop channels and tracks,
+  into the library as data on a spec, compared number for number.
+- **Notes are not carried over.** The predecessor allowed `note "..." on id` in activity diagrams; no example used
+  it, and its placement belonged to the generic note layout that use case diagrams replaced. Clean-up: a `note`
+  statement with a free spot beside its node, as in use case diagrams.
+- **The placement check sees nodes, frames and texts only.** Lanes, edges, pins and expansion nodes on a frame are
+  not reported, because lines cross lanes and frames by design. A region frame around a foreign node is therefore a
+  G400 warning, where the predecessor reported E439 as an error. Clean-up: a kind of `Placed` for frames whose
+  overlap is an error.

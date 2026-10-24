@@ -1,0 +1,20 @@
+# Exercise from the learning platform's activity diagram dojo: fork and join, sample solution.
+diagram activity "Onboarding" subtitle="Parallele Schritte mit Gabelung und Vereinigung" locale=de
+
+initial start
+action bestaetigen "Einstellung bestätigen"
+fork aufspaltung
+action konto "Benutzerkonto anlegen"
+action laptop "Laptop bestellen"
+join synchronisation
+action uebergeben "Zugangsdaten übergeben"
+final ende
+
+go start -> bestaetigen
+go bestaetigen -> aufspaltung
+go aufspaltung -> konto
+go aufspaltung -> laptop
+go konto -> synchronisation
+go laptop -> synchronisation
+go synchronisation -> uebergeben
+go uebergeben -> ende

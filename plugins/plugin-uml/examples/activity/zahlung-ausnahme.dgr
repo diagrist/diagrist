@@ -1,0 +1,28 @@
+# Architect's example: collecting a payment with exception handling (UML 2.5.1, 15.5). The direct debit is
+# protected: when the bank refuses, the handler books an open item, and the flow goes on with the receipt as after a
+# successful debit; the handler has no edges of its own. The order arrives through two pins, the action reads the
+# account data from a data store, and the daily closing waits in a buffer for 20 receipts.
+diagram activity "Zahlung einziehen" subtitle="Lastschrift mit Ausnahmebehandlung, mehreren Pins und Datenspeicher" locale=de
+
+partition shop "Onlineshop"
+partition zahlung "Zahlungsdienst"
+partition buchhaltung "Buchhaltung"
+
+initial start in shop
+action bestellen "Bestellung abschließen" in shop output="Bestellung, Betrag"
+datastore konten "Kundenkonten" in zahlung
+action einziehen "Lastschrift einziehen" in zahlung input="Bestellung, Betrag, Konto" output="Beleg"
+action offen "Offenen Posten buchen" in zahlung output="Beleg"
+buffer belege "Belege" in buchhaltung
+action abschluss "Tagesabschluss buchen" in buchhaltung input="Belege"
+final ende in buchhaltung
+
+go start -> bestellen
+go bestellen => einziehen
+go bestellen => einziehen pin="Betrag"
+go konten => einziehen
+go einziehen => belege
+go belege => abschluss weight=20
+go abschluss -> ende
+
+handler einziehen -> offen "Lastschrift abgelehnt"

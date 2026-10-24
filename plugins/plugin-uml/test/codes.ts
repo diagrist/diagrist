@@ -21,6 +21,23 @@ const MOVED: Readonly<Record<string, Moved>> = {
     ['E004, in part', 'U426', '`-->` without `include` or `extend`'],
     ['W425', 'G400', 'a note without free room overlaps a node, a text or a frame line'],
   ],
+  activity: [
+    [
+      'E101',
+      'L107',
+      '`in`, `interruptible=`, `expansion=`, `mark=`, the ends of `go` and `handler` name declared elements of the right kind',
+    ],
+    ['E102', 'L108', 'ids are unique'],
+    [
+      'E436',
+      'L102, L104, L105',
+      'actions, objects, signals and time events need their text, start, ends and bars take none, `state=` only on `object`: each node has its own table',
+    ],
+    ['E438', 'L104, L105', 'pins only on `action`, `send` (input) and `accept` (output), `call` only on `action`'],
+    ['E439, now a warning', 'G400', 'the frame of a region overlaps a node that is not its member'],
+    ['W458', 'L105', '`tone=` only on nodes drawn as cards'],
+    ['E456, in part', 'L107', 'both ends of `handler` are actions'],
+  ],
 };
 
 /** Checks without a predecessor code. */

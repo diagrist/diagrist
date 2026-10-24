@@ -1,0 +1,61 @@
+# Architect's example of order processing in the card look: the same flow as auftragsabwicklung.dgr. Actions,
+# object nodes and signals are cards with a shadow, lane heads take the tone of who is responsible. Start, ends,
+# diamonds, bars and hourglass stay UML symbols in the line colour.
+diagram activity "Auftragsabwicklung" subtitle="Vom Auftrag bis zum Zahlungseingang, mit Kompensation bei Fehlbestand" look=cards locale=de
+
+partition kunde "Kunde" tone=slate
+partition service "Auftragsservice" tone=blue
+partition lager "Lager" tone=teal
+partition faktura "Fakturierung" tone=purple
+
+interruptible storno "Storno durch Kunden"
+
+initial start in kunde
+action bestellen "Auftrag erteilen" in kunde
+action erfassen "Auftrag erfassen" in service output="Auftrag"
+action reservieren "Ware reservieren" in lager input="Auftrag"
+decision bestand "Bestand ausreichend?" in lager
+action stornieren "Auftrag stornieren" in service
+send absage "Absage" in service
+final abbruch in service
+fork teilen in lager
+action kommissionieren "Ware kommissionieren" in lager interruptible=storno
+action versenden "Ware versenden" in lager interruptible=storno
+accept stornowunsch "Storno angefordert" in lager interruptible=storno
+action zuruecklegen "Ware zurücklegen" in lager
+final storniert in lager
+action fakturieren "Rechnung erstellen" in faktura call
+object rechnung "Rechnung" state="offen" in faktura
+send zustellen "Rechnung an Kunden" in faktura
+merge warten in faktura
+wait frist "14 Tage" in faktura
+decision bezahlt in faktura
+action mahnen "Mahnung senden" in faktura
+join fertig in service
+action abschliessen "Auftrag abschließen" in service
+final ende in service
+
+go start -> bestellen
+go bestellen -> erfassen
+go erfassen => reservieren
+go reservieren -> bestand
+go bestand -> teilen "ja"
+go bestand -> stornieren "nein"
+go stornieren -> absage
+go absage -> abbruch
+go teilen -> kommissionieren
+go teilen -> fakturieren
+go kommissionieren -> versenden
+go versenden -> fertig
+go stornowunsch ~> zuruecklegen
+go zuruecklegen -> storniert
+go fakturieren => rechnung
+go rechnung => zustellen
+go zustellen -> warten
+go warten -> frist
+go frist -> bezahlt
+go bezahlt -> fertig "Zahlung eingegangen"
+go bezahlt -> mahnen else
+go mahnen -> warten
+go fertig -> abschliessen
+go abschliessen -> ende

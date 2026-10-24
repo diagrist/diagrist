@@ -1,0 +1,22 @@
+# Exercise from the learning platform's activity diagram dojo: an order process from a text, sample solution.
+diagram activity "Bestellprozess" subtitle="Entscheidung und Zusammenführung" locale=de
+
+initial start
+action erfassen "Bestellung erfassen"
+action pruefen "Zahlung prüfen"
+decision zahlung
+action versenden "Ware versenden"
+action stornieren "Bestellung stornieren"
+merge zusammen
+action benachrichtigen "Kunden benachrichtigen"
+final ende
+
+go start -> erfassen
+go erfassen -> pruefen
+go pruefen -> zahlung
+go zahlung -> versenden "Zahlung erfolgreich"
+go zahlung -> stornieren "Zahlung fehlgeschlagen"
+go versenden -> zusammen
+go stornieren -> zusammen
+go zusammen -> benachrichtigen
+go benachrichtigen -> ende

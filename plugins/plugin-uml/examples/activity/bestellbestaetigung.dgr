@@ -1,0 +1,19 @@
+# Exercise from the learning platform's activity diagram dojo: flow final against activity final, sample solution.
+diagram activity "Bestellbestätigung" subtitle="Der Mailzweig endet allein, der Versand beendet die Aktivität" locale=de
+
+initial start
+action bestaetigen "Bestellung bestätigen"
+fork aufspaltung
+action mail "Bestätigungsmail senden"
+flowfinal mailende
+action verpacken "Ware verpacken"
+action versenden "Ware versenden"
+final ende
+
+go start -> bestaetigen
+go bestaetigen -> aufspaltung
+go aufspaltung -> mail
+go aufspaltung -> verpacken
+go mail -> mailende
+go verpacken -> versenden
+go versenden -> ende

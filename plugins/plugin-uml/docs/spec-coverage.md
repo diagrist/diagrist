@@ -79,3 +79,44 @@ Nobody declares an element covered. A statement, an argument, a value such as an
 | Use cases in a compartment of the classifier that owns them | 18.1.4 | not covered |  |
 | Generalization between actors or between use cases | 9.2.3.2 | `rel` with `-\|>`, U423 | `onlineshop` and 2 more |
 | Comment (note) | 7.2.3.2 | `note`, U428 | `zwei-systeme` |
+
+## `activity`: chapters 15, Activities, and 16, Actions
+
+31 of 34 elements are covered (91 %).
+
+| Element | Section | Covered by | Examples |
+|---|---|---|---|
+| Control flow | 15.2.3.3 | `go` with `->`, U434 | `auftragsabwicklung` and 11 more |
+| Guard on an activity edge | 15.2.3.3 | `go` with `<guard>`, U433, U933, U934 | `auftragsabwicklung` and 6 more |
+| Weight of an activity edge | 15.2.3.3 | `go` with `weight=` | `zahlung-ausnahme` |
+| Object flow | 15.2.3.4 | `go` with `=>`, U434 | `auftragsabwicklung` and 6 more |
+| Initial node | 15.3.3.1 | `initial`, U430, U930 | `auftragsabwicklung` and 11 more |
+| Activity final node, ending every flow | 15.3.3.2 | `final`, U430, U936, U938 | `auftragsabwicklung` and 11 more |
+| Flow final node, ending one flow | 15.3.3.2 | `flowfinal`, U430, U936 | `bestellbestaetigung` |
+| Fork node | 15.3.3.3 | `fork`, U432, U932 | `auftragsabwicklung` and 5 more |
+| Join node | 15.3.3.4 | `join`, U432, U435, U932 | `auftragsabwicklung` and 4 more |
+| Merge node | 15.3.3.5 | `merge`, U432, U932, U937 | `auftragsabwicklung` and 6 more |
+| Decision node | 15.3.3.6 | `decision`, U431, U931 | `auftragsabwicklung` and 6 more |
+| Predefined guard else | 15.3.3.6 | `go` with `else`, U433, U934 | `auftragsabwicklung` and 3 more |
+| Object node | 15.4.3.1 | `object` | `auftragsabwicklung` and 2 more |
+| Activity parameter node on the border of the activity | 15.4.3.2 | not covered |  |
+| Central buffer node | 15.4.3.3 | `buffer` | `zahlung-ausnahme` |
+| Data store node | 15.4.3.4 | `datastore` | `zahlung-ausnahme` |
+| States of an object node in brackets below its name | 15.4.4.1 | `object` with `state=` | `auftragsabwicklung` and 1 more |
+| Exception handler of an executable node | 15.5.3.1 | `handler`, U456 | `karten-belasten` and 1 more |
+| Activity partition (swimlane) | 15.6.3.1 | `partition`, `initial`, `final`, `flowfinal`, `action`, `decision`, `merge`, `fork`, `join`, `object`, `datastore`, `buffer`, `send`, `accept`, `wait` with `in` | `auftragsabwicklung` and 8 more |
+| Interruptible activity region | 15.6.3.2 | `interruptible`, `initial`, `final`, `flowfinal`, `action`, `decision`, `merge`, `fork`, `join`, `object`, `datastore`, `buffer`, `send`, `accept`, `wait` with `interruptible=`, U955 | `auftragsabwicklung` and 1 more |
+| Edge that interrupts its region | 15.6.3.2 | `go` with `~>`, U437 | `auftragsabwicklung` and 1 more |
+| Action | 16.2.3.1 | `action`, U939 | `auftragsabwicklung` and 11 more |
+| Input and output pin of an action | 16.2.3.3 | `action`, `send` with `input=`, `action`, `accept` with `output=`, `go` with `pin=`, U455 | `auftragsabwicklung` and 6 more |
+| Send signal action | 16.3.3.2 | `send` | `auftragsabwicklung` and 1 more |
+| Call behavior action with the rake symbol | 16.3.4.1 | `action` with `call` | `auftragsabwicklung` and 1 more |
+| Call operation action | 16.3.4.2 | not covered |  |
+| Accept event action | 16.10.3.1 | `accept` | `auftragsabwicklung` and 1 more |
+| Accept time event action drawn as an hourglass | 16.10.4 | `wait` | `auftragsabwicklung` and 1 more |
+| Structured activity node | 16.11.3.1 | not covered |  |
+| Expansion region | 16.12.3 | `expansion`, `initial`, `final`, `flowfinal`, `action`, `decision`, `merge`, `fork`, `join`, `object`, `datastore`, `buffer`, `send`, `accept`, `wait` with `expansion=`, U956, U957 | `karten-belasten` and 3 more |
+| Expansion node on the border of its region | 16.12.3 | `expansion`, `expansion` with `input=`, `expansion` with `output=`, U457, U458 | `karten-belasten` and 3 more |
+| Expansion mode iterative | 16.12.3 | `expansion` with `mode=iterative` | `karten-belasten` and 1 more |
+| Expansion mode parallel | 16.12.3 | `expansion` with `mode=parallel` | `positionen-pruefen` and 1 more |
+| Expansion mode stream | 16.12.3 | `expansion` with `mode=stream` |  |

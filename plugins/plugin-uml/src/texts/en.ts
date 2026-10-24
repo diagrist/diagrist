@@ -1,4 +1,5 @@
 import { type GatePlace, plural } from '../sequence/describe/prose.js';
+import { ACTIVITY_EN } from './activity-en.js';
 import type { Texts } from './index.js';
 import { USECASE_EN } from './usecase-en.js';
 
@@ -6,7 +7,11 @@ const which = (p: GatePlace) => (p.name ? `the gate "${p.name}"` : 'a gate');
 
 /** English texts. */
 export const EN: Texts = {
-  picture: { sequence: 'Sequence diagram (UML)', usecase: 'Use case diagram (UML)' },
+  picture: {
+    sequence: 'Sequence diagram (UML)',
+    usecase: 'Use case diagram (UML)',
+    activity: 'Activity diagram (UML)',
+  },
   sequence: {
     summary: (title, kind, p, m) =>
       `${title}. ${kind} with ${plural(p, 'participant', 'participants')} and ${plural(m, 'message', 'messages')}.`,
@@ -81,4 +86,5 @@ export const EN: Texts = {
     time: (at, text) => `Time constraint at ${at}: {${text}}.`,
   },
   usecase: USECASE_EN,
+  activity: ACTIVITY_EN,
 };

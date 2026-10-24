@@ -1,0 +1,29 @@
+# Exercise from the learning platform's activity diagram dojo: two parties with swimlanes, sample solution.
+diagram activity "Rücksendung" subtitle="Zwei Akteure, Übergaben zwischen den Bahnen" locale=de
+
+partition kunde "Kunde"
+partition haendler "Händler"
+
+initial start in kunde
+action anmelden "Rücksendung anmelden" in kunde
+action etikett "Rücksendeetikett erstellen" in haendler
+action verschicken "Paket verschicken" in kunde
+action pruefen "Ware prüfen" in haendler
+decision zustand in haendler
+action erstatten "Kaufpreis erstatten" in haendler
+action ablehnen "Erstattung ablehnen" in haendler
+merge zusammen in haendler
+action informieren "Kunden informieren" in haendler
+final ende in haendler
+
+go start -> anmelden
+go anmelden -> etikett
+go etikett -> verschicken
+go verschicken -> pruefen
+go pruefen -> zustand
+go zustand -> erstatten "Ware unbeschädigt"
+go zustand -> ablehnen "Ware beschädigt"
+go erstatten -> zusammen
+go ablehnen -> zusammen
+go zusammen -> informieren
+go informieren -> ende

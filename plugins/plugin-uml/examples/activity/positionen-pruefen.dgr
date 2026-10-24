@@ -1,0 +1,34 @@
+# Notation: an expansion region (UML 2.5.1, 16.12) in mode «parallel». The order hands its items as a collection to
+# the input on top of the frame; the region checks every item on its own, all at the same time, and the output at
+# the bottom collects the results. Edges at the region's id run through these expansion nodes: from outside into
+# the input, from inside into the output.
+diagram activity "Auftragspositionen prüfen" subtitle="Expansionsbereich: jede Position eines Auftrags wird parallel geprüft" locale=de
+
+partition vertrieb "Vertrieb"
+partition lager "Lager"
+
+expansion pruefung "Positionen prüfen" mode=parallel
+
+initial start in vertrieb
+action erfassen "Auftrag erfassen" in vertrieb output="Positionen"
+action bestand "Bestand prüfen" in lager expansion=pruefung input="Position"
+decision da "Ware da?" in lager expansion=pruefung
+action reservieren "Menge reservieren" in lager expansion=pruefung
+action nachbestellen "Nachbestellen" in lager expansion=pruefung
+merge fertig in lager expansion=pruefung
+action pruefen "Ergebnis festhalten" in lager expansion=pruefung output="Ergebnis"
+action bestaetigen "Auftrag bestätigen" in vertrieb input="Ergebnisse"
+final ende in vertrieb
+
+go start -> erfassen
+go erfassen => pruefung
+go pruefung => bestand
+go bestand -> da
+go da -> reservieren "ja"
+go da -> nachbestellen else
+go reservieren -> fertig
+go nachbestellen -> fertig
+go fertig -> pruefen
+go pruefen => pruefung
+go pruefung => bestaetigen
+go bestaetigen -> ende

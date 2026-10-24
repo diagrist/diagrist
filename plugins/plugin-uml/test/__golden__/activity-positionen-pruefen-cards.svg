@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 688 1044" width="688" height="1044" class="dia" role="img" aria-label="Auftragspositionen prüfen"><title>Auftragspositionen prüfen</title><style>
+  .dia { font-family: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 11px; }
+  .dia .shape { fill: #ffffff; stroke: #18181b; stroke-width: 1.5; }
+  .dia .shape-muted { fill: #f4f4f5; stroke: #18181b; stroke-width: 1.5; }
+  .dia .shape-emph { fill: #ffffff; stroke: #18181b; stroke-width: 2.5; }
+  .dia .frame { fill: none; stroke: #a1a1aa; stroke-width: 1; stroke-dasharray: 4 3; }
+  .dia .frame-own { fill: #f4f4f5; fill-opacity: 0.55; stroke: #18181b; stroke-width: 2; }
+  .dia .line { fill: none; stroke: #18181b; stroke-width: 1.5; }
+  .dia .line-accent { fill: none; stroke: #1d4ed8; stroke-width: 1.8; }
+  .dia .dashed { stroke-dasharray: 6 4; }
+  .dia .label { fill: #18181b; font-size: 10px; }
+  .dia .label-accent { fill: #1d4ed8; font-size: 10px; }
+  .dia .label-bold { fill: #18181b; font-weight: 600; font-size: 12px; }
+  .dia .label-title { fill: #18181b; font-weight: 600; font-size: 14px; }
+  .dia .label-group { fill: #18181b; font-weight: 600; font-size: 11px; }
+  .dia .label-note { fill: #52525b; font-size: 10px; }
+  .dia .arrow-open { fill: none; stroke: #18181b; stroke-width: 1.5; }
+  .dia .arrow-filled { fill: #18181b; stroke: none; }
+  .dia .arrow-open-accent { fill: none; stroke: #1d4ed8; stroke-width: 1.8; }
+  .dia .arrow-filled-accent { fill: #1d4ed8; stroke: none; }
+  .dia .halo { paint-order: stroke; stroke: #fafafa; stroke-width: 4px; stroke-linejoin: round; }
+  .dia .badge { fill: #18181b; }
+  .dia .badge-accent { fill: #1d4ed8; }
+  .dia .badge-text { fill: #ffffff; font-weight: 700; font-size: 10px; }
+  .dia .mark { fill: #dbeafe; stroke: #1d4ed8; stroke-width: 1; }
+  .dia .mark-text { fill: #1d4ed8; font-weight: 700; font-size: 9px; }
+  .dia .card { fill: #ffffff; stroke: #e4e4e7; stroke-width: 1; }
+  .dia .card-shadow { fill: #e4e4e7; stroke: none; }
+  .dia .tone-blue { fill: #2b7de9; }
+  .dia .tone-teal { fill: #0b5d4b; }
+  .dia .uml-filled { fill: #18181b; stroke: #18181b; stroke-width: 1.5; stroke-linejoin: miter; }
+  .dia .act-text { fill: #18181b; font-size: 12px; }
+  .dia .act-region { fill: none; stroke: #18181b; stroke-width: 1; stroke-dasharray: 6 4; }
+  .dia .card-head-text { fill: #ffffff; font-weight: 600; font-size: 12px; }
+  .dia .card-lane { fill: none; stroke: #e4e4e7; stroke-width: 1; }
+  .dia .outline-blue { fill: #ffffff; stroke: #2b7de9; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+  .dia .outline-green { fill: #ffffff; stroke: #1db954; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+  .dia .outline-teal { fill: #ffffff; stroke: #0b5d4b; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+  .dia .outline-orange { fill: #ffffff; stroke: #f39222; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+</style><rect width="688" height="1044" fill="#fafafa"/><defs><marker id="m-open" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto"><path d="M1 1 L11 6 L1 11" class="arrow-open" stroke-linecap="round"/></marker><marker id="m-filled" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto"><path d="M1 1 L11 6 L1 11 Z" class="arrow-filled" stroke-linecap="round"/></marker><marker id="m-open-accent" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto"><path d="M1 1 L11 6 L1 11" class="arrow-open-accent" stroke-linecap="round"/></marker><marker id="m-filled-accent" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto"><path d="M1 1 L11 6 L1 11 Z" class="arrow-filled-accent" stroke-linecap="round"/></marker></defs>
+<text x="32" y="36" class="label-title">Aktivitätsdiagramm (UML) · Auftragspositionen prüfen</text>
+<text x="32" y="52" class="label-note">Expansionsbereich: jede Position eines Auftrags wird parallel geprüft</text>
+<g id="group-vertrieb"><rect x="48" y="80" width="216" height="932" class="card-lane"/><path d="M50 88 Q50 80 58 80 L254 80 Q262 80 262 88 L262 104 Q262 112 254 112 L58 112 Q50 112 50 104 Z" class="tone-blue"/><text x="156" y="100" text-anchor="middle" class="card-head-text">Vertrieb</text></g>
+<g id="group-lager"><rect x="264" y="80" width="376" height="932" class="card-lane"/><path d="M266 88 Q266 80 274 80 L630 80 Q638 80 638 88 L638 104 Q638 112 630 112 L274 112 Q266 112 266 104 Z" class="tone-teal"/><text x="452" y="100" text-anchor="middle" class="card-head-text">Lager</text></g>
+<g id="group-pruefung"><rect x="276" y="308" width="352" height="504" rx="10" class="act-region"/><text x="284" y="328" text-anchor="start" class="label">«parallel» Positionen prüfen</text></g>
+<g id="node-start"><circle cx="156" cy="146" r="10" class="uml-filled"/></g>
+<g id="node-erfassen"><rect x="80" y="207" width="152" height="40" rx="12" class="card-shadow"/><rect x="80" y="204" width="152" height="40" rx="12" class="card"/><text x="156" y="228" text-anchor="middle" class="act-text">Auftrag erfassen</text><rect x="151" y="244" width="10" height="10" class="shape"/><text x="165" y="254" text-anchor="start" class="label">Positionen</text></g>
+<g id="node-pruefung"><rect x="436" y="302" width="48" height="12" class="shape"/><path d="M448 302 L448 314 M460 302 L460 314 M472 302 L472 314" class="line"/></g>
+<g id="node-bestand"><rect x="392" y="375" width="136" height="40" rx="12" class="card-shadow"/><rect x="392" y="372" width="136" height="40" rx="12" class="outline-blue"/><text x="460" y="396" text-anchor="middle" class="act-text">Bestand prüfen</text><rect x="455" y="362" width="10" height="10" class="shape"/><text x="469" y="370" text-anchor="start" class="label">Position</text></g>
+<g id="node-da"><path d="M460 460 L476 476 L460 492 L444 476 Z" class="shape"/><text x="476" y="450" text-anchor="start" class="label">Ware da?</text></g>
+<g id="node-reservieren"><rect x="288" y="543" width="160" height="40" rx="12" class="card-shadow"/><rect x="288" y="540" width="160" height="40" rx="12" class="outline-green"/><text x="368" y="564" text-anchor="middle" class="act-text">Menge reservieren</text></g>
+<g id="node-nachbestellen"><rect x="488" y="543" width="128" height="40" rx="12" class="card-shadow"/><rect x="488" y="540" width="128" height="40" rx="12" class="outline-orange"/><text x="552" y="564" text-anchor="middle" class="act-text">Nachbestellen</text></g>
+<g id="node-fertig"><path d="M460 628 L476 644 L460 660 L444 644 Z" class="shape"/></g>
+<g id="node-pruefen"><rect x="372" y="711" width="176" height="40" rx="12" class="card-shadow"/><rect x="372" y="708" width="176" height="40" rx="12" class="outline-teal"/><text x="460" y="732" text-anchor="middle" class="act-text">Ergebnis festhalten</text><rect x="455" y="748" width="10" height="10" class="shape"/><text x="469" y="758" text-anchor="start" class="label">Ergebnis</text></g>
+<g id="node-pruefung~out"><rect x="436" y="806" width="48" height="12" class="shape"/><path d="M448 806 L448 818 M460 806 L460 818 M472 806 L472 818" class="line"/></g>
+<g id="node-bestaetigen"><rect x="72" y="879" width="168" height="40" rx="12" class="card-shadow"/><rect x="72" y="876" width="168" height="40" rx="12" class="card"/><text x="156" y="900" text-anchor="middle" class="act-text">Auftrag bestätigen</text><rect x="151" y="866" width="10" height="10" class="shape"/><text x="165" y="874" text-anchor="start" class="label">Ergebnisse</text></g>
+<g id="node-ende"><circle cx="156" cy="976" r="12" class="shape"/><circle cx="156" cy="976" r="7" class="uml-filled"/></g>
+<g id="edge-0"><path d="M156 156 L156 204" class="line" marker-end="url(#m-open)"/></g>
+<g id="edge-1"><path d="M156 254 L156 273 L460 273 L460 302" class="line" marker-end="url(#m-open)"/></g>
+<g id="edge-2"><path d="M460 314 L460 362" class="line" marker-end="url(#m-open)"/></g>
+<g id="edge-3"><path d="M460 412 L460 460" class="line" marker-end="url(#m-open)"/></g>
+<g id="edge-4"><path d="M444 476 L368 476 L368 540" class="line" marker-end="url(#m-open)"/></g>
+<g id="edge-5"><path d="M476 476 L552 476 L552 540" class="line" marker-end="url(#m-open)"/></g>
+<g id="edge-6"><path d="M368 580 L368 644 L444 644" class="line" marker-end="url(#m-open)"/></g>
+<g id="edge-7"><path d="M552 580 L552 644 L476 644" class="line" marker-end="url(#m-open)"/></g>
+<g id="edge-8"><path d="M460 660 L460 708" class="line" marker-end="url(#m-open)"/></g>
+<g id="edge-9"><path d="M460 758 L460 806" class="line" marker-end="url(#m-open)"/></g>
+<g id="edge-10"><path d="M460 818 L460 847 L156 847 L156 866" class="line" marker-end="url(#m-open)"/></g>
+<g id="edge-11"><path d="M156 916 L156 964" class="line" marker-end="url(#m-open)"/></g>
+<g id="label-4"><text x="438" y="470" text-anchor="end" class="label halo">[ja]</text></g>
+<g id="label-5"><text x="482" y="470" text-anchor="start" class="label halo">[else]</text></g>
+</svg>

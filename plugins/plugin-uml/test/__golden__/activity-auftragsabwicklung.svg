@@ -1,0 +1,92 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1344 1417" width="1344" height="1417" class="dia" role="img" aria-label="Auftragsabwicklung"><title>Auftragsabwicklung</title><style>
+  .dia { font-family: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 11px; }
+  .dia .shape { fill: #ffffff; stroke: #18181b; stroke-width: 1.5; }
+  .dia .shape-muted { fill: #f4f4f5; stroke: #18181b; stroke-width: 1.5; }
+  .dia .shape-emph { fill: #ffffff; stroke: #18181b; stroke-width: 2.5; }
+  .dia .frame { fill: none; stroke: #a1a1aa; stroke-width: 1; stroke-dasharray: 4 3; }
+  .dia .frame-own { fill: #f4f4f5; fill-opacity: 0.55; stroke: #18181b; stroke-width: 2; }
+  .dia .line { fill: none; stroke: #18181b; stroke-width: 1.5; }
+  .dia .line-accent { fill: none; stroke: #1d4ed8; stroke-width: 1.8; }
+  .dia .dashed { stroke-dasharray: 6 4; }
+  .dia .label { fill: #18181b; font-size: 10px; }
+  .dia .label-accent { fill: #1d4ed8; font-size: 10px; }
+  .dia .label-bold { fill: #18181b; font-weight: 600; font-size: 12px; }
+  .dia .label-title { fill: #18181b; font-weight: 600; font-size: 14px; }
+  .dia .label-group { fill: #18181b; font-weight: 600; font-size: 11px; }
+  .dia .label-note { fill: #52525b; font-size: 10px; }
+  .dia .arrow-open { fill: none; stroke: #18181b; stroke-width: 1.5; }
+  .dia .arrow-filled { fill: #18181b; stroke: none; }
+  .dia .arrow-open-accent { fill: none; stroke: #1d4ed8; stroke-width: 1.8; }
+  .dia .arrow-filled-accent { fill: #1d4ed8; stroke: none; }
+  .dia .halo { paint-order: stroke; stroke: #fafafa; stroke-width: 4px; stroke-linejoin: round; }
+  .dia .badge { fill: #18181b; }
+  .dia .badge-accent { fill: #1d4ed8; }
+  .dia .badge-text { fill: #ffffff; font-weight: 700; font-size: 10px; }
+  .dia .mark { fill: #dbeafe; stroke: #1d4ed8; stroke-width: 1; }
+  .dia .mark-text { fill: #1d4ed8; font-weight: 700; font-size: 9px; }
+  .dia .uml-filled { fill: #18181b; stroke: #18181b; stroke-width: 1.5; stroke-linejoin: miter; }
+  .dia .act-text { fill: #18181b; font-size: 12px; }
+  .dia .act-lane { fill: none; stroke: #18181b; stroke-width: 1; }
+  .dia .act-lane-head { fill: #f4f4f5; stroke: #18181b; stroke-width: 1; }
+  .dia .act-region { fill: none; stroke: #18181b; stroke-width: 1; stroke-dasharray: 6 4; }
+</style><rect width="1344" height="1417" fill="#fafafa"/><defs><marker id="m-open" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto"><path d="M1 1 L11 6 L1 11" class="arrow-open" stroke-linecap="round"/></marker><marker id="m-filled" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto"><path d="M1 1 L11 6 L1 11 Z" class="arrow-filled" stroke-linecap="round"/></marker><marker id="m-open-accent" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto"><path d="M1 1 L11 6 L1 11" class="arrow-open-accent" stroke-linecap="round"/></marker><marker id="m-filled-accent" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto"><path d="M1 1 L11 6 L1 11 Z" class="arrow-filled-accent" stroke-linecap="round"/></marker></defs>
+<text x="32" y="36" class="label-title">Aktivitätsdiagramm (UML) · Auftragsabwicklung</text>
+<text x="32" y="52" class="label-note">Vom Auftrag bis zum Zahlungseingang, mit Kompensation bei Fehlbestand</text>
+<g id="group-kunde"><rect x="48" y="80" width="200" height="1305" class="act-lane"/><rect x="48" y="80" width="200" height="32" class="act-lane-head"/><text x="148" y="100" text-anchor="middle" class="label-bold">Kunde</text></g>
+<g id="group-service"><rect x="248" y="80" width="224" height="1305" class="act-lane"/><rect x="248" y="80" width="224" height="32" class="act-lane-head"/><text x="360" y="100" text-anchor="middle" class="label-bold">Auftragsservice</text></g>
+<g id="group-lager"><rect x="472" y="80" width="496" height="1305" class="act-lane"/><rect x="472" y="80" width="496" height="32" class="act-lane-head"/><text x="720" y="100" text-anchor="middle" class="label-bold">Lager</text></g>
+<g id="group-faktura"><rect x="968" y="80" width="328" height="1305" class="act-lane"/><rect x="968" y="80" width="328" height="32" class="act-lane-head"/><text x="1132" y="100" text-anchor="middle" class="label-bold">Fakturierung</text></g>
+<g id="group-storno"><rect x="484" y="570" width="472" height="173.5" rx="10" class="act-region"/><text x="592" y="584" text-anchor="start" class="label">Storno durch Kunden</text></g>
+<g id="node-start"><circle cx="148" cy="146" r="10" class="uml-filled"/></g>
+<g id="node-bestellen"><rect x="72" y="204" width="152" height="40" rx="12" class="shape"/><text x="148" y="228" text-anchor="middle" class="act-text">Auftrag erteilen</text></g>
+<g id="node-erfassen"><rect x="284" y="204" width="152" height="40" rx="12" class="shape"/><text x="360" y="228" text-anchor="middle" class="act-text">Auftrag erfassen</text><rect x="355" y="244" width="10" height="10" class="shape"/><text x="369" y="254" text-anchor="start" class="label">Auftrag</text></g>
+<g id="node-reservieren"><rect x="508" y="312" width="152" height="40" rx="12" class="shape"/><text x="584" y="336" text-anchor="middle" class="act-text">Ware reservieren</text><rect x="579" y="302" width="10" height="10" class="shape"/><text x="593" y="310" text-anchor="start" class="label">Auftrag</text></g>
+<g id="node-bestand"><path d="M584 400 L600 416 L584 432 L568 416 Z" class="shape"/><text x="600" y="398" text-anchor="start" class="label">Bestand ausreichend?</text></g>
+<g id="node-stornieren"><rect x="276" y="480" width="168" height="40" rx="12" class="shape"/><text x="360" y="504" text-anchor="middle" class="act-text">Auftrag stornieren</text></g>
+<g id="node-absage"><path d="M312 596 L394 596 L408 616 L394 636 L312 636 Z" class="shape"/><text x="353" y="620" text-anchor="middle" class="act-text">Absage</text></g>
+<g id="node-abbruch"><circle cx="360" cy="711.5" r="12" class="shape"/><circle cx="360" cy="711.5" r="7" class="uml-filled"/></g>
+<g id="node-teilen"><rect x="548" y="497" width="582" height="6" rx="1" class="uml-filled"/></g>
+<g id="node-kommissionieren"><rect x="496" y="596" width="176" height="40" rx="12" class="shape"/><text x="584" y="620" text-anchor="middle" class="act-text">Ware kommissionieren</text></g>
+<g id="node-versenden"><rect x="516" y="691.5" width="136" height="40" rx="12" class="shape"/><text x="584" y="715.5" text-anchor="middle" class="act-text">Ware versenden</text></g>
+<g id="node-stornowunsch"><path d="M768 691.5 L944 691.5 L944 731.5 L768 731.5 L782 711.5 Z" class="shape"/><text x="863" y="715.5" text-anchor="middle" class="act-text">Storno angefordert</text></g>
+<g id="node-zuruecklegen"><rect x="780" y="787" width="152" height="40" rx="12" class="shape"/><text x="856" y="811" text-anchor="middle" class="act-text">Ware zurücklegen</text></g>
+<g id="node-storniert"><circle cx="856" cy="891" r="12" class="shape"/><circle cx="856" cy="891" r="7" class="uml-filled"/></g>
+<g id="node-fakturieren"><rect x="1006" y="596" width="200" height="40" rx="12" class="shape"/><text x="1106" y="620" text-anchor="middle" class="act-text">Rechnung erstellen</text><path d="M1191 616 L1191 628 M1184 628 L1184 622 L1198 622 L1198 628" class="line"/></g>
+<g id="node-rechnung"><rect x="1058" y="684" width="96" height="55" class="shape"/><text x="1106" y="708" text-anchor="middle" class="act-text">Rechnung</text><text x="1106" y="723" text-anchor="middle" class="act-text">[offen]</text></g>
+<g id="node-zustellen"><path d="M1018 787 L1180 787 L1194 807 L1180 827 L1018 827 Z" class="shape"/><text x="1099" y="811" text-anchor="middle" class="act-text">Rechnung an Kunden</text></g>
+<g id="node-warten"><path d="M1106 875 L1122 891 L1106 907 L1090 891 Z" class="shape"/></g>
+<g id="node-frist"><path d="M1097 955 L1115 955 L1097 979 L1115 979 Z" class="shape"/><text x="1123" y="970.3" text-anchor="start" class="label">14 Tage</text></g>
+<g id="node-bezahlt"><path d="M1106 1027 L1122 1043 L1106 1059 L1090 1043 Z" class="shape"/></g>
+<g id="node-mahnen"><rect x="1112" y="1107" width="136" height="40" rx="12" class="shape"/><text x="1180" y="1131" text-anchor="middle" class="act-text">Mahnung senden</text></g>
+<g id="node-fertig"><rect x="324" y="1195" width="732" height="6" rx="1" class="uml-filled"/></g>
+<g id="node-abschliessen"><rect x="272" y="1249" width="176" height="40" rx="12" class="shape"/><text x="360" y="1273" text-anchor="middle" class="act-text">Auftrag abschließen</text></g>
+<g id="node-ende"><circle cx="360" cy="1349" r="12" class="shape"/><circle cx="360" cy="1349" r="7" class="uml-filled"/></g>
+<g id="edge-0"><path d="M148 156 L148 204" class="line" marker-end="url(#m-open)"/></g>
+<g id="edge-1"><path d="M224 224 L284 224" class="line" marker-end="url(#m-open)"/></g>
+<g id="edge-2"><path d="M360 254 L360 278 L584 278 L584 302" class="line" marker-end="url(#m-open)"/></g>
+<g id="edge-3"><path d="M584 352 L584 400" class="line" marker-end="url(#m-open)"/></g>
+<g id="edge-4"><path d="M584 432 L584 497" class="line" marker-end="url(#m-open)"/></g>
+<g id="edge-5"><path d="M568 416 L360 416 L360 480" class="line" marker-end="url(#m-open)"/></g>
+<g id="edge-6"><path d="M360 520 L360 596" class="line" marker-end="url(#m-open)"/></g>
+<g id="edge-7"><path d="M360 636 L360 699.5" class="line" marker-end="url(#m-open)"/></g>
+<g id="edge-8"><path d="M584 503 L584 596" class="line" marker-end="url(#m-open)"/></g>
+<g id="edge-9"><path d="M1106 503 L1106 596" class="line" marker-end="url(#m-open)"/></g>
+<g id="edge-10"><path d="M584 636 L584 691.5" class="line" marker-end="url(#m-open)"/></g>
+<g id="edge-11"><path d="M584 731.5 L584 1195" class="line" marker-end="url(#m-open)"/></g>
+<g id="edge-12"><path d="M856 731.5 L856 751.25 L848 759.25 L864 759.25 L856 767.25 L856 787" class="line" marker-end="url(#m-open)"/></g>
+<g id="edge-13"><path d="M856 827 L856 879" class="line" marker-end="url(#m-open)"/></g>
+<g id="edge-14"><path d="M1106 636 L1106 684" class="line" marker-end="url(#m-open)"/></g>
+<g id="edge-15"><path d="M1106 739 L1106 787" class="line" marker-end="url(#m-open)"/></g>
+<g id="edge-16"><path d="M1106 827 L1106 875" class="line" marker-end="url(#m-open)"/></g>
+<g id="edge-17"><path d="M1106 907 L1106 955" class="line" marker-end="url(#m-open)"/></g>
+<g id="edge-18"><path d="M1106 979 L1106 1027" class="line" marker-end="url(#m-open)"/></g>
+<g id="edge-19"><path d="M1090 1043 L1032 1043 L1032 1195" class="line" marker-end="url(#m-open)"/></g>
+<g id="edge-20"><path d="M1122 1043 L1180 1043 L1180 1107" class="line" marker-end="url(#m-open)"/></g>
+<g id="edge-21"><path d="M1248 1127 L1272 1127 L1272 891 L1122 891" class="line" marker-end="url(#m-open)"/></g>
+<g id="edge-22"><path d="M360 1201 L360 1249" class="line" marker-end="url(#m-open)"/></g>
+<g id="edge-23"><path d="M360 1289 L360 1337" class="line" marker-end="url(#m-open)"/></g>
+<g id="label-4"><text x="590" y="448" text-anchor="start" class="label halo">[ja]</text></g>
+<g id="label-5"><text x="562" y="410" text-anchor="end" class="label halo">[nein]</text></g>
+<g id="label-19"><text x="1084" y="1037" text-anchor="end" class="label halo">[Zahlung eingegangen]</text></g>
+<g id="label-20"><text x="1128" y="1037" text-anchor="start" class="label halo">[else]</text></g>
+</svg>

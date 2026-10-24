@@ -1,0 +1,35 @@
+# Notation: an expansion region with several inputs and outputs (UML 2.5.1, 16.12.4). The items of the order and the
+# price list arrive as two collections at two inputs on top; the region computes a price per item, and two outputs
+# at the bottom collect prices and errors apart. input= and output= on the region name the expansion nodes; without
+# pin= Diagrist takes the pin of the same name at the other end, else the next free one.
+diagram activity "Preise berechnen" subtitle="Expansionsbereich mit zwei Eingängen und zwei Ausgängen" locale=de
+
+partition vertrieb "Vertrieb"
+partition preis "Preisfindung"
+
+expansion je "Preis je Position" mode=iterative input="Positionen, Preisliste" output="Preise, Fehler"
+
+initial start in vertrieb
+fork teilen in vertrieb
+action lesen "Positionen lesen" in vertrieb output="Positionen"
+action laden "Preisliste laden" in preis output="Preisliste"
+action rechnen "Preis berechnen" in preis expansion=je input="Position, Liste" output="Preis, Fehler"
+action summe "Summe bilden" in vertrieb input="Preise"
+action melden "Fehler protokollieren" in preis input="Fehler"
+join fertig in vertrieb
+final ende in vertrieb
+
+go start -> teilen
+go teilen -> lesen
+go teilen -> laden
+go lesen => je
+go laden => je
+go je => rechnen
+go je => rechnen
+go rechnen => je
+go rechnen => je
+go je => summe
+go je => melden
+go summe -> fertig
+go melden -> fertig
+go fertig -> ende

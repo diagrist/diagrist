@@ -1,4 +1,5 @@
 import type { Locale } from '@diagrist/lang';
+import type { ActivityProse } from '../activity/describe/prose.js';
 import type { Prose } from '../sequence/describe/prose.js';
 import type { UseCaseProse } from '../usecase/describe/prose.js';
 import { DE } from './de.js';
@@ -10,6 +11,8 @@ export interface PictureWords {
   readonly sequence: string;
   /** Name of the kind before the title, as in `Use case diagram (UML) · Shop`. */
   readonly usecase: string;
+  /** Name of the kind before the title, as in `Activity diagram (UML) · Order`. */
+  readonly activity: string;
 }
 
 /**
@@ -23,6 +26,8 @@ export interface Texts {
   readonly sequence: Prose;
   /** Sentences of the description of a use case diagram. */
   readonly usecase: UseCaseProse;
+  /** Sentences of the description of an activity diagram. */
+  readonly activity: ActivityProse;
 }
 
 /** The plugin's texts by locale; the type makes a missing locale a compile error. */

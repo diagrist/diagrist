@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { sequence, usecase } from './compile.js';
+import { activity, sequence, usecase } from './compile.js';
 
 /** The SVG and anchor contract that embeddings such as code-animations rely on. */
 describe('sequence SVG contract', () => {
@@ -54,5 +54,38 @@ describe('use case SVG contract', () => {
       ['edge-1', 'a', 'b', 'label-1'],
     ]);
     expect(svg).toMatch(/<g id="label-1"><text [^>]+>«include»<\/text><\/g>/);
+  });
+});
+
+/** The same contract for activity diagrams: lanes and regions are groups, a guard is the label of its edge. */
+describe('activity SVG contract', () => {
+  const result = activity(
+    'partition l "Lane"',
+    'initial s in l',
+    'decision d in l',
+    'action a "A" in l',
+    'final e in l',
+    'go s -> d',
+    'go d -> a "yes"',
+    'go d -> e else',
+    'go a -> e',
+  );
+  const svg = result.svg ?? '';
+
+  it('puts nodes into node-<id>, lanes into group-<id>, edges into edge-<k> with an open arrowhead', () => {
+    expect(svg).toContain('<g id="node-d">');
+    expect(svg).toContain('<g id="group-l">');
+    expect(svg).toMatch(/<g id="edge-1"><path d="M[^"]+" class="line" marker-end="url\(#m-open\)"\/><\/g>/);
+  });
+
+  it('names the label group of a guarded edge in its anchor', () => {
+    const edges = result.anchors?.edges ?? [];
+    expect(edges.map((e) => [e.domId, e.from, e.to, e.labelId])).toEqual([
+      ['edge-0', 's', 'd', undefined],
+      ['edge-1', 'd', 'a', 'label-1'],
+      ['edge-2', 'd', 'e', 'label-2'],
+      ['edge-3', 'a', 'e', undefined],
+    ]);
+    expect(svg).toMatch(/<g id="label-1"><text [^>]+>\[yes\]<\/text><\/g>/);
   });
 });

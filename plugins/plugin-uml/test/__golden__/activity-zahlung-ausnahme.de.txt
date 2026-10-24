@@ -1,0 +1,16 @@
+Zahlung einziehen. Aktivitätsdiagramm (UML) mit 8 Knoten und 7 Kanten in 3 Bahnen.
+Bahn Onlineshop: Start, Bestellung abschließen.
+Bahn Zahlungsdienst: Datenspeicher „Kundenkonten“, Lastschrift einziehen, Offenen Posten buchen.
+Bahn Buchhaltung: Puffer „Belege“, Tagesabschluss buchen, Aktivitätsende.
+Bestellung abschließen hat Ausgabe-Pins „Bestellung“ und „Betrag“.
+Lastschrift einziehen hat Eingabe-Pins „Bestellung“, „Betrag“ und „Konto“ sowie Ausgabe-Pin „Beleg“.
+Offenen Posten buchen hat Ausgabe-Pin „Beleg“.
+Tagesabschluss buchen hat Eingabe-Pin „Belege“.
+Wirft Lastschrift einziehen die Ausnahme „Lastschrift abgelehnt“, übernimmt Offenen Posten buchen; danach geht es wie nach Lastschrift einziehen weiter.
+Start → Bestellung abschließen.
+Bestellung abschließen ⇒ Lastschrift einziehen über Pin „Bestellung“.
+Bestellung abschließen ⇒ Lastschrift einziehen über Pin „Betrag“.
+Datenspeicher „Kundenkonten“ ⇒ Lastschrift einziehen über Pin „Konto“.
+Lastschrift einziehen ⇒ Puffer „Belege“ über Pin „Beleg“.
+Puffer „Belege“ ⇒ Tagesabschluss buchen über Pin „Belege“ mit Gewicht 20.
+Tagesabschluss buchen → Aktivitätsende.

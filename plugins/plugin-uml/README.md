@@ -1,6 +1,7 @@
 # @diagrist/plugin-uml
 
-UML diagrams for Diagrist: `sequence` (UML 2.5.1, chapter 17) and `usecase` (chapter 18).
+UML diagrams for Diagrist: `sequence` (UML 2.5.1, chapter 17), `usecase` (chapter 18) and `activity` (chapters 15
+and 16).
 
 ```dgr
 diagram sequence "Login" locale=en
@@ -28,7 +29,29 @@ rel voucher --> order extend when="voucher present" at="before checkout"
 rel pay -- psp
 ```
 
-The statement tables in `src/sequence/grammar` and `src/usecase/grammar` are the reference; `grammarOf` returns
+```dgr
+diagram activity "Order" locale=en
+partition customer "Customer"
+partition warehouse "Warehouse"
+initial start in customer
+action order "Place order" in customer output="Order"
+action reserve "Reserve goods" in warehouse input="Order"
+decision stock "Enough stock?" in warehouse
+action ship "Ship goods" in warehouse
+send refusal "Refusal" in warehouse
+merge done in warehouse
+final end in warehouse
+go start -> order
+go order => reserve
+go reserve -> stock
+go stock -> ship "yes"
+go stock -> refusal else
+go ship -> done
+go refusal -> done
+go done -> end
+```
+
+The statement tables in `src/sequence/grammar`, `src/usecase/grammar` and `src/activity/grammar` are the reference; `grammarOf` returns
 them as data and every statement has a doc and an example.
 
 ## UML 2.5.1 coverage
@@ -71,6 +94,32 @@ a generalization is the kernel's marker and a little smaller. The descriptions a
 Three examples are golden files (`test/__golden__/usecase-*.svg`), and geometric tests check what makes the picture
 right: use cases inside their subject, actors outside, included use cases right of their base, lines from
 outline to outline without crossings, notes at free spots, multiplicities inside the frame.
+
+## Activity diagrams: changes from the predecessor's syntax
+
+| Before | Now | Why |
+|---|---|---|
+| `group kunde "Kunde"` | `partition kunde "Kunde"` | ADR 0002 Nr. 3: `group` is a C4 frame; `partition` is the UML term (15.6.3.1) |
+| `region storno "..."`, `region=storno` on nodes | `interruptible storno "..."`, `interruptible=storno` | `region` is the orthogonal region of a state; UML calls this an interruptible activity region (15.6.3.3) |
+| `time frist "14 Tage"` | `wait frist "14 Tage"` | `time` is the time constraint of sequence diagrams; the node is an accept time event action, where the flow waits |
+| one statement for all node keywords, E436 and E438 as rules | one table per node keyword | ADR 0005: each table says which text, pins, `state=`, `call` and `tone=` a node takes, so a wrong one is a language error naming the allowed parts |
+| no decision bar in activity diagrams | `adr E1 "Q" = "A"`, `mark=E1` on actions, objects and signals | ADR 0002 Nr. 3: the bar has its own keyword and works in every kind |
+| texts added to the picture in German | `locale=de` in the header for German, default `en` | ADR 0008 Nr. 3 |
+
+`decision` stays the keyword of the decision node (ADR 0018). It meant two things before, the diamond here and an entry of the
+decision bar elsewhere; since the bar is `adr` (ADR 0002 Nr. 3), `decision` means only the UML decision node
+(15.3.3.5) in every kind, and renaming it would have changed every activity source for nothing. `go`, `initial`,
+`final`, `fork` and `join` keep their names too; a state diagram may use them later with the same UML meaning.
+
+The twelve examples under `examples/activity` were converted by these rules only. Their PNGs are pixel for pixel the
+predecessor's, their descriptions word for word; their SVGs hold the same elements and differ only in that lanes and
+regions now stand in `<g id="group-<id>">` groups, as the SVG contract asks, and the expansion nodes of a region are
+written in source order. The layout is the predecessor's, reviewed and ported area by area into `src/activity/layout`;
+it uses the layering steps of `@diagrist/layout-grid` (cycles, layers, crossings, columns) and keeps its own lanes,
+bars, diamonds, loops, pins and regions, which no other kind draws. Three examples are golden files
+(`test/__golden__/activity-*.svg`), and geometric tests check what makes the picture right: nodes in their lanes,
+edges downwards with loops on the right, alternatives symmetric below their decision, bars as wide as their
+branches, region frames around their members only, pins on the edge where their flow attaches.
 
 ## Diagnostic codes
 
@@ -150,6 +199,47 @@ Checks of the predecessor that the language, the tables or the kernel do now:
 | E426, in part | L103 | `source=` and `card=` are valid multiplicities |
 | E004, in part | U426 | `-->` without `include` or `extend` |
 | W425 | G400 | a note without free room overlaps a node, a text or a frame line |
+
+### `activity`
+
+| Code | Severity | Before | What it checks |
+|---|---|---|---|
+| U430 | error | E430 | An initial node has no incoming edge, an activity final and a flow final node have no outgoing one. UML 2.5.1: 15.3.3.1 Initial node, 15.3.3.2 Activity final node, ending every flow, 15.3.3.2 Flow final node, ending one flow. |
+| U431 | error | E431 | A decision has one incoming edge; bringing flows together is the job of a merge in front of it. UML 2.5.1: 15.3.3.6 Decision node. |
+| U432 | error | E432 | A merge and a join have exactly one outgoing edge, a fork exactly one incoming edge. UML 2.5.1: 15.3.3.5 Merge node, 15.3.3.4 Join node, 15.3.3.3 Fork node. |
+| U433 | error | E433 | The guards of a decision exclude each other, so none appears twice, and `else` appears at most once and only on an edge out of a decision. UML 2.5.1: 15.2.3.3 Guard on an activity edge, 15.3.3.6 Predefined guard else. |
+| U434 | error | E434 | A control flow touches no object node, and an object flow has an object node, a pin or a control node it passes at one end at least. UML 2.5.1: 15.2.3.3 Control flow, 15.2.3.4 Object flow. |
+| U435 | error | E435 | A join waits for all its incoming edges. When they come from alternatives of one decision, only one of them runs and the activity hangs; a merge is meant. UML 2.5.1: 15.3.3.4 Join node. |
+| U437 | error | E437 | An interrupting edge `~>` starts inside an interruptible region and ends outside it. UML 2.5.1: 15.6.3.2 Edge that interrupts its region. |
+| U455 | error | E455 | Pins are named object nodes of an action: a name stands once per side, and `pin=` on an object flow names an output pin of its source or an input pin of its target, or a named expansion node. UML 2.5.1: 16.2.3.3 Input and output pin of an action. |
+| U456 | error | E456 | An exception handler joins two different actions. The handler action has no edges of its own, no input pin besides the exception pin, and as many output pins as the protected action: after it the flow goes on at the output of the protected action. UML 2.5.1: 15.5.3.1 Exception handler of an executable node. |
+| U457 | error | E457 | An expansion region gets the collection it runs over as an object flow `=>` from outside into each of its inputs. UML 2.5.1: 16.12.3 Expansion node on the border of its region. |
+| U458 | error | E458 | Expansion nodes are object nodes: only object flows `=>` start or end at an expansion region. UML 2.5.1: 16.12.3 Expansion node on the border of its region. |
+| U930 | warning | W430 | UML allows no initial node or several; exam practice expects exactly one. UML 2.5.1: 15.3.3.1 Initial node. |
+| U931 | warning | W431 | UML asks for one outgoing edge at least; a decision with fewer than two decides nothing. UML 2.5.1: 15.3.3.6 Decision node. |
+| U932 | warning | W432 | A merge or join with fewer than two incoming edges, and a fork with fewer than two outgoing ones, has no effect. UML 2.5.1: 15.3.3.5 Merge node, 15.3.3.4 Join node, 15.3.3.3 Fork node. |
+| U933 | warning | W433 | Every alternative of a decision needs a guard; otherwise it is open when it applies. UML 2.5.1: 15.2.3.3 Guard on an activity edge. |
+| U934 | warning | W434 | The guards of a decision should cover every case together. Without `else` that shows only for obvious pairs such as yes and no; otherwise the flow may stop. UML 2.5.1: 15.2.3.3 Guard on an activity edge, 15.3.3.6 Predefined guard else. |
+| U935 | warning | W435 | Every node should be reachable from a start: an initial node, or an accept event, time event or data store without incoming edge, which start a flow from outside. A handler counts when the action it protects does. |
+| U936 | warning | W436 | UML allows an activity without end; exam practice expects one. A node without outgoing edge that is no end lets its flow run out; after a handler the flow goes on at its protected action. UML 2.5.1: 15.3.3.2 Activity final node, ending every flow, 15.3.3.2 Flow final node, ending one flow. |
+| U937 | warning | W437 | A merge does not synchronize: when its incoming edges come from parallel branches of a fork, everything after it runs several times. Valid UML, but usually a join is meant. UML 2.5.1: 15.3.3.5 Merge node. |
+| U938 | warning | W438 | An activity final ends every flow. When two parallel branches end in an activity final each without a join, the faster one stops the other: the main branch ends with `final`, side branches with `flowfinal`. UML 2.5.1: 15.3.3.2 Activity final node, ending every flow. |
+| U939 | warning | W439 | An action with several incoming edges waits for all of them (implicit join), with several outgoing ones it starts all of them (implicit fork). Usually a merge or a decision is meant. Object flows at pins do not count: each pin is an object node of its own. UML 2.5.1: 16.2.3.1 Action. |
+| U955 | warning | W455 | An interruptible region without an interrupting edge `~>` interrupts nothing: usually the edge is missing, or the frame only groups. UML 2.5.1: 15.6.3.2 Interruptible activity region. |
+| U956 | warning | W456 | An edge that crosses the frame of an expansion region without an expansion node is valid UML, but leaves open whether it acts once per element or once for the whole region. The way through the input or output is clearer. UML 2.5.1: 16.12.3 Expansion region. |
+| U957 | warning | W457 | An expansion region without nodes, or without an edge from its input inside, processes nothing: usually `expansion=` on the nodes or `go region => first` is missing. UML 2.5.1: 16.12.3 Expansion region. |
+
+Checks of the predecessor that the language, the tables or the kernel do now:
+
+| Before | Now | |
+|---|---|---|
+| E101 | L107 | `in`, `interruptible=`, `expansion=`, `mark=`, the ends of `go` and `handler` name declared elements of the right kind |
+| E102 | L108 | ids are unique |
+| E436 | L102, L104, L105 | actions, objects, signals and time events need their text, start, ends and bars take none, `state=` only on `object`: each node has its own table |
+| E438 | L104, L105 | pins only on `action`, `send` (input) and `accept` (output), `call` only on `action` |
+| E439, now a warning | G400 | the frame of a region overlaps a node that is not its member |
+| W458 | L105 | `tone=` only on nodes drawn as cards |
+| E456, in part | L107 | both ends of `handler` are actions |
 
 <!-- End of the generated codes. -->
 

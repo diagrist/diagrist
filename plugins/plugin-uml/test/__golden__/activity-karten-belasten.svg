@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 832 908" width="832" height="908" class="dia" role="img" aria-label="Karten belasten"><title>Karten belasten</title><style>
+  .dia { font-family: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 11px; }
+  .dia .shape { fill: #ffffff; stroke: #18181b; stroke-width: 1.5; }
+  .dia .shape-muted { fill: #f4f4f5; stroke: #18181b; stroke-width: 1.5; }
+  .dia .shape-emph { fill: #ffffff; stroke: #18181b; stroke-width: 2.5; }
+  .dia .frame { fill: none; stroke: #a1a1aa; stroke-width: 1; stroke-dasharray: 4 3; }
+  .dia .frame-own { fill: #f4f4f5; fill-opacity: 0.55; stroke: #18181b; stroke-width: 2; }
+  .dia .line { fill: none; stroke: #18181b; stroke-width: 1.5; }
+  .dia .line-accent { fill: none; stroke: #1d4ed8; stroke-width: 1.8; }
+  .dia .dashed { stroke-dasharray: 6 4; }
+  .dia .label { fill: #18181b; font-size: 10px; }
+  .dia .label-accent { fill: #1d4ed8; font-size: 10px; }
+  .dia .label-bold { fill: #18181b; font-weight: 600; font-size: 12px; }
+  .dia .label-title { fill: #18181b; font-weight: 600; font-size: 14px; }
+  .dia .label-group { fill: #18181b; font-weight: 600; font-size: 11px; }
+  .dia .label-note { fill: #52525b; font-size: 10px; }
+  .dia .arrow-open { fill: none; stroke: #18181b; stroke-width: 1.5; }
+  .dia .arrow-filled { fill: #18181b; stroke: none; }
+  .dia .arrow-open-accent { fill: none; stroke: #1d4ed8; stroke-width: 1.8; }
+  .dia .arrow-filled-accent { fill: #1d4ed8; stroke: none; }
+  .dia .halo { paint-order: stroke; stroke: #fafafa; stroke-width: 4px; stroke-linejoin: round; }
+  .dia .badge { fill: #18181b; }
+  .dia .badge-accent { fill: #1d4ed8; }
+  .dia .badge-text { fill: #ffffff; font-weight: 700; font-size: 10px; }
+  .dia .mark { fill: #dbeafe; stroke: #1d4ed8; stroke-width: 1; }
+  .dia .mark-text { fill: #1d4ed8; font-weight: 700; font-size: 9px; }
+  .dia .uml-filled { fill: #18181b; stroke: #18181b; stroke-width: 1.5; stroke-linejoin: miter; }
+  .dia .act-text { fill: #18181b; font-size: 12px; }
+  .dia .act-lane { fill: none; stroke: #18181b; stroke-width: 1; }
+  .dia .act-lane-head { fill: #f4f4f5; stroke: #18181b; stroke-width: 1; }
+  .dia .act-region { fill: none; stroke: #18181b; stroke-width: 1; stroke-dasharray: 6 4; }
+</style><rect width="832" height="908" fill="#fafafa"/><defs><marker id="m-open" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto"><path d="M1 1 L11 6 L1 11" class="arrow-open" stroke-linecap="round"/></marker><marker id="m-filled" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto"><path d="M1 1 L11 6 L1 11 Z" class="arrow-filled" stroke-linecap="round"/></marker><marker id="m-open-accent" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto"><path d="M1 1 L11 6 L1 11" class="arrow-open-accent" stroke-linecap="round"/></marker><marker id="m-filled-accent" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto"><path d="M1 1 L11 6 L1 11 Z" class="arrow-filled-accent" stroke-linecap="round"/></marker></defs>
+<text x="32" y="36" class="label-title">Aktivitätsdiagramm (UML) · Karten belasten</text>
+<text x="32" y="52" class="label-note">Gemeinsamer Handler mit Seiten-Pins, Name des Bereichs neben der Kante</text>
+<g id="group-shop"><rect x="48" y="80" width="208" height="796" class="act-lane"/><rect x="48" y="80" width="208" height="32" class="act-lane-head"/><text x="152" y="100" text-anchor="middle" class="label-bold">Onlineshop</text></g>
+<g id="group-zahlung"><rect x="256" y="80" width="528" height="796" class="act-lane"/><rect x="256" y="80" width="528" height="32" class="act-lane-head"/><text x="520" y="100" text-anchor="middle" class="label-bold">Zahlungsdienst</text></g>
+<g id="group-je"><rect x="281" y="308" width="490" height="368" rx="10" class="act-region"/><text x="289" y="328" text-anchor="start" class="label">«iterative»</text><text x="379" y="328" text-anchor="start" class="label">Jede hinterlegte Karte nacheinander versuchen</text></g>
+<g id="node-start"><circle cx="152" cy="146" r="10" class="uml-filled"/></g>
+<g id="node-laden"><rect x="92" y="204" width="120" height="40" rx="12" class="shape"/><text x="152" y="228" text-anchor="middle" class="act-text">Karten laden</text><rect x="147" y="244" width="10" height="10" class="shape"/><text x="161" y="254" text-anchor="start" class="label">Karten</text></g>
+<g id="node-je"><rect x="347" y="302" width="48" height="12" class="shape"/><path d="M359 302 L359 314 M371 302 L371 314 M383 302 L383 314" class="line"/></g>
+<g id="node-pruefen"><rect x="311" y="389" width="120" height="40" rx="12" class="shape"/><text x="371" y="413" text-anchor="middle" class="act-text">Karte prüfen</text><rect x="366" y="379" width="10" height="10" class="shape"/><text x="380" y="387" text-anchor="start" class="label">Karte</text></g>
+<g id="node-belasten"><rect x="303" y="494" width="136" height="40" rx="12" class="shape"/><text x="371" y="518" text-anchor="middle" class="act-text">Karte belasten</text></g>
+<g id="node-beleg"><rect x="323" y="582" width="96" height="40" class="shape"/><text x="371" y="606" text-anchor="middle" class="act-text">Beleg</text></g>
+<g id="node-fehler"><rect x="607" y="372" width="152" height="74" rx="12" class="shape"/><text x="683" y="413" text-anchor="middle" class="act-text">Fehler vermerken</text><rect x="597" y="404" width="10" height="10" class="shape"/><text x="597" y="400" text-anchor="end" class="label">Karte ungültig</text><rect x="597" y="432" width="10" height="10" class="shape"/><text x="597" y="428" text-anchor="end" class="label">Limit erreicht</text></g>
+<g id="node-je~out"><rect x="347" y="670" width="48" height="12" class="shape"/><path d="M359 670 L359 682 M371 670 L371 682 M383 670 L383 682" class="line"/></g>
+<g id="node-buchen"><rect x="72" y="740" width="160" height="40" rx="12" class="shape"/><text x="152" y="764" text-anchor="middle" class="act-text">Zahlung verbuchen</text><rect x="147" y="730" width="10" height="10" class="shape"/><text x="161" y="738" text-anchor="start" class="label">Belege</text></g>
+<g id="node-ende"><circle cx="152" cy="840" r="12" class="shape"/><circle cx="152" cy="840" r="7" class="uml-filled"/></g>
+<g id="edge-0"><path d="M152 156 L152 204" class="line" marker-end="url(#m-open)"/></g>
+<g id="edge-1"><path d="M152 254 L152 273 L371 273 L371 302" class="line" marker-end="url(#m-open)"/></g>
+<g id="edge-2"><path d="M371 314 L371 379" class="line" marker-end="url(#m-open)"/></g>
+<g id="edge-3"><path d="M371 429 L371 494" class="line" marker-end="url(#m-open)"/></g>
+<g id="edge-4"><path d="M371 534 L371 582" class="line" marker-end="url(#m-open)"/></g>
+<g id="edge-5"><path d="M371 622 L371 670" class="line" marker-end="url(#m-open)"/></g>
+<g id="edge-6"><path d="M371 682 L371 711 L152 711 L152 730" class="line" marker-end="url(#m-open)"/></g>
+<g id="edge-7"><path d="M152 780 L152 828" class="line" marker-end="url(#m-open)"/></g>
+<g id="edge-8"><path d="M431 409 L447 409 L455 417 L455 401 L463 409 L597 409" class="line" marker-end="url(#m-open)"/></g>
+<g id="edge-9"><path d="M439 514 L455 514 L463 522 L463 506 L471 514 L523 514 L523 437 L597 437" class="line" marker-end="url(#m-open)"/></g>
+</svg>

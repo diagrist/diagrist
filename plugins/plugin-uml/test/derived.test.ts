@@ -2,7 +2,9 @@ import { readdirSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { compareGolden } from '@diagrist/testkit';
 import { describe, expect, it } from 'vitest';
+import { activity } from '../src/activity/kind.js';
 import { sequence } from '../src/sequence/kind.js';
+import { ACTIVITIES } from '../src/spec/activities.js';
 import { claimsOf } from '../src/spec/coverage.js';
 import { INTERACTIONS } from '../src/spec/interactions.js';
 import { type CoveredKind, coverageReport } from '../src/spec/report.js';
@@ -19,6 +21,12 @@ const examplesOf = (kind: string): CoveredKind['examples'] => {
 const KINDS: readonly CoveredKind[] = [
   { kind: sequence, chapter: 'chapter 17, Interactions', catalog: INTERACTIONS, examples: examplesOf('sequence') },
   { kind: usecase, chapter: 'chapter 18, Use Cases', catalog: USE_CASES, examples: examplesOf('usecase') },
+  {
+    kind: activity,
+    chapter: 'chapters 15, Activities, and 16, Actions',
+    catalog: ACTIVITIES,
+    examples: examplesOf('activity'),
+  },
 ];
 
 const report = fileURLToPath(new URL('../docs/spec-coverage.md', import.meta.url));

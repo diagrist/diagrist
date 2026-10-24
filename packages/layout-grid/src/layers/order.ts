@@ -19,7 +19,7 @@ const indexIn = (layers: Layers): Map<string, number> =>
 const at = (pos: ReadonlyMap<string, number>, n: string): number => pos.get(n) ?? 0;
 
 /** Crossings between neighbouring layers, plus the distance of neighbours within one layer. */
-function cost(layers: Layers, adj: Adjacency, layerOf: ReadonlyMap<string, number>): number {
+export function layerCost(layers: Layers, adj: Adjacency, layerOf: ReadonlyMap<string, number>): number {
   const pos = indexIn(layers);
   let total = 0;
   for (const [l, layer] of layers.entries()) {
@@ -52,13 +52,13 @@ function sweep(layers: Layers, adj: Adjacency, layerOf: ReadonlyMap<string, numb
 
 /** Swaps neighbours as long as that lowers the cost. */
 function polish(layers: Layers, adj: Adjacency, layerOf: ReadonlyMap<string, number>): Layers {
-  let current = cost(layers, adj, layerOf);
+  let current = layerCost(layers, adj, layerOf);
   for (let improved = true; improved; ) {
     improved = false;
     for (const layer of layers)
       for (let i = 0; i + 1 < layer.length; i++) {
         swap(layer, i);
-        const next = cost(layers, adj, layerOf);
+        const next = layerCost(layers, adj, layerOf);
         if (next < current) {
           current = next;
           improved = true;
@@ -84,10 +84,10 @@ export function orderLayers(nodes: readonly string[], layerOf: ReadonlyMap<strin
   const layers: Layers = Array.from({ length: count }, () => []);
   for (const n of [...nodes].sort((a, b) => at(start, a) - at(start, b))) layers[layerOf.get(n) ?? 0]?.push(n);
   let best = layers.map((l) => [...l]);
-  let bestCost = cost(best, adj, layerOf);
+  let bestCost = layerCost(best, adj, layerOf);
   for (let i = 0; i < SWEEPS; i++) {
     sweep(layers, adj, layerOf, i % 2 === 0);
-    const c = cost(layers, adj, layerOf);
+    const c = layerCost(layers, adj, layerOf);
     if (c < bestCost) {
       best = layers.map((l) => [...l]);
       bestCost = c;

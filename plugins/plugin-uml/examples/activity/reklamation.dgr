@@ -1,0 +1,33 @@
+# Exercise from the learning platform's activity diagram dojo: exam format with three swimlanes, sample solution.
+diagram activity "Reklamation" subtitle="Guards, Parallelität und drei Bahnen" locale=de
+
+partition kunde "Kunde"
+partition support "Support"
+partition lager "Lager"
+
+initial start in kunde
+action einreichen "Reklamation einreichen" in kunde
+action pruefen "Reklamation prüfen" in support
+decision berechtigt in support
+fork aufspaltung in support
+action ersatz "Ersatzartikel versenden" in lager
+action gutschrift "Gutschrift erstellen" in support
+join synchronisation in support
+action ablehnen "Ablehnung mitteilen" in support
+merge zusammen in support
+action informieren "Kunden informieren" in support
+final ende in support
+
+go start -> einreichen
+go einreichen -> pruefen
+go pruefen -> berechtigt
+go berechtigt -> aufspaltung "berechtigt"
+go berechtigt -> ablehnen "nicht berechtigt"
+go aufspaltung -> ersatz
+go aufspaltung -> gutschrift
+go ersatz -> synchronisation
+go gutschrift -> synchronisation
+go synchronisation -> zusammen
+go ablehnen -> zusammen
+go zusammen -> informieren
+go informieren -> ende

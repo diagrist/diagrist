@@ -1,0 +1,31 @@
+# Notation: one exception handler for two protected actions (UML 2.5.1, 15.5) inside an expansion region.
+# Checking and charging the card throw different exceptions, the same handler action takes both. Its exception pins
+# stand on the left below each other, each at the height of its protected action; the handler grows for them. The
+# keyword of the region stays in its corner, the name stands right of the edge going inside, for lack of room left.
+diagram activity "Karten belasten" subtitle="Gemeinsamer Handler mit Seiten-Pins, Name des Bereichs neben der Kante" locale=de
+
+partition shop "Onlineshop"
+partition zahlung "Zahlungsdienst"
+
+expansion je "Jede hinterlegte Karte nacheinander versuchen" mode=iterative
+
+initial start in shop
+action laden "Karten laden" in shop output="Karten"
+action pruefen "Karte prüfen" in zahlung expansion=je input="Karte"
+action belasten "Karte belasten" in zahlung expansion=je
+object beleg "Beleg" in zahlung expansion=je
+action fehler "Fehler vermerken" in zahlung expansion=je
+action buchen "Zahlung verbuchen" in shop input="Belege"
+final ende in shop
+
+go start -> laden
+go laden => je
+go je => pruefen
+go pruefen -> belasten
+go belasten => beleg
+go beleg => je
+go je => buchen
+go buchen -> ende
+
+handler pruefen -> fehler "Karte ungültig"
+handler belasten -> fehler "Limit erreicht"

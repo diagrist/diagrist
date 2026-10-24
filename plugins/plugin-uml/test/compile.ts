@@ -24,3 +24,13 @@ export const usecaseSource = (name: string): string => readFileSync(new URL(name
 /** Compiles lines of a use case diagram with the UML plugin, adding the header. */
 export const usecase = (...lines: string[]): Compilation =>
   compile(['diagram usecase "Test"', ...lines].join('\n'), { plugins: [umlPlugin] });
+
+export const activityExamples = new URL('../examples/activity/', import.meta.url);
+
+export const activityNames: readonly string[] = readdirSync(activityExamples).filter((f) => f.endsWith('.dgr'));
+
+export const activitySource = (name: string): string => readFileSync(new URL(name, activityExamples), 'utf8');
+
+/** Compiles lines of an activity diagram with the UML plugin, adding the header. */
+export const activity = (...lines: string[]): Compilation =>
+  compile(['diagram activity "Test"', ...lines].join('\n'), { plugins: [umlPlugin] });

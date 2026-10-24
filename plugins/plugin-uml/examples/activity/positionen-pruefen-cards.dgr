@@ -1,0 +1,32 @@
+# Card look of positionen-pruefen.dgr: the same flow, lane heads in the tone of who is responsible, and a tone per
+# action (tone=) drawn as the outline of its card. Expansion nodes, frames, diamonds and start stay UML symbols.
+diagram activity "Auftragspositionen prüfen" subtitle="Expansionsbereich: jede Position eines Auftrags wird parallel geprüft" look=cards locale=de
+
+partition vertrieb "Vertrieb" tone=blue
+partition lager "Lager" tone=teal
+
+expansion pruefung "Positionen prüfen" mode=parallel
+
+initial start in vertrieb
+action erfassen "Auftrag erfassen" in vertrieb output="Positionen"
+action bestand "Bestand prüfen" in lager expansion=pruefung input="Position" tone=blue
+decision da "Ware da?" in lager expansion=pruefung
+action reservieren "Menge reservieren" in lager expansion=pruefung tone=green
+action nachbestellen "Nachbestellen" in lager expansion=pruefung tone=orange
+merge fertig in lager expansion=pruefung
+action pruefen "Ergebnis festhalten" in lager expansion=pruefung output="Ergebnis" tone=teal
+action bestaetigen "Auftrag bestätigen" in vertrieb input="Ergebnisse"
+final ende in vertrieb
+
+go start -> erfassen
+go erfassen => pruefung
+go pruefung => bestand
+go bestand -> da
+go da -> reservieren "ja"
+go da -> nachbestellen else
+go reservieren -> fertig
+go nachbestellen -> fertig
+go fertig -> pruefen
+go pruefen => pruefung
+go pruefung => bestaetigen
+go bestaetigen -> ende
