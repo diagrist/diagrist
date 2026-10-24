@@ -4,26 +4,19 @@ import {
   type EdgeText,
   fitFrames,
   type GridLayout,
-  type GridSpec,
-  grow,
   labelEdges,
   placedOf,
-  placeGrid,
   type Route,
-  routeEdges,
 } from '@diagrist/layout-grid';
 import { decisionStrip, HEADER, type Header, MARGIN, type Strip, stripWidth, type Words } from '@diagrist/parts';
 import { homed } from '../../shared/homed.js';
 import { type NoteArt, noteArts } from '../../shared/notes.js';
 import type { ClassRelation } from '../diagram.js';
 import type { ClassModel } from '../model.js';
-import { classCells } from './cells.js';
 import { endLabels } from './ends.js';
-import { belowTabs, legsAtVertices, type Tether, tethers } from './extras.js';
+import { type Tether, tethers } from './extras.js';
 import { CLASS_FONTS } from './metrics.js';
-import { clearPackageLines } from './package-lines.js';
-import { alignPackages, packageExtents, tabGrowth } from './packages.js';
-import { classGridSpec, edgeId } from './spec.js';
+import { routeClass } from './routed.js';
 
 /** The texts of the picture the layout measures: the title line, and the suffix of open decisions. */
 export type PictureTexts = Pick<Words, 'open'> & {
@@ -59,9 +52,6 @@ export interface ClassLayout {
 
 const right = (r: { x: number; w: number }) => r.x + r.w;
 
-/** Second runs a class diagram allows itself for packages whose tab a line crosses. */
-const GROWTH_PASSES = 3;
-
 /** Name of the relation, and `«import»` or `«access»` below it, for the labelling of `layout-grid`. */
 function texts(routes: readonly Route[], relations: readonly (ClassRelation | undefined)[]): EdgeText[] {
   return routes.flatMap((r, i): EdgeText[] => {
@@ -95,23 +85,7 @@ function marks(m: ClassModel, grid: GridLayout): MarkSpot[] {
  * kind, frames grown around their routes; then association classes, notes, marks and the decision bar.
  */
 export function layoutClass(m: ClassModel, words: PictureTexts): ClassLayout {
-  const cells = classCells(m);
-  const extents = packageExtents(m, cells);
-  const byEdge = new Map(m.diagram.relations.map((r, i) => [edgeId(i), r]));
-  const run = (spec: GridSpec) => {
-    const grid = alignPackages(m, placeGrid(spec), extents);
-    const raw = routeEdges(spec, grid);
-    return { spec, grid, raw, relations: raw.map((r) => byEdge.get(r.edge)) };
-  };
-  let pass = run(classGridSpec(m, cells));
-  for (let i = 0; i < GROWTH_PASSES; i++) {
-    const pads = tabGrowth(m, pass.grid, pass.raw, pass.relations);
-    if (!pads.size) break;
-    pass = run(grow(pass.spec, pads));
-  }
-  const { spec, grid, raw, relations } = pass;
-  const cleared = clearPackageLines(raw, relations, m, grid);
-  const routes = legsAtVertices(belowTabs(cleared, relations, m, grid), relations, m, grid);
+  const { spec, grid, routes, relations } = routeClass(m);
   const named = labelEdges(spec, grid, routes, texts(routes, relations));
   const ends = endLabels(relations, routes, grid, named);
   const labels = [...named, ...ends];

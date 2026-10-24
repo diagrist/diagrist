@@ -58,6 +58,11 @@ function item(text: string, end: End, side: 1 | -1, route: number, shift: number
 const overlaps = (a: Rect, b: Rect, pad: number) =>
   a.x < b.x + b.w + pad && a.x + a.w > b.x - pad && a.y < b.y + b.h + pad && a.y + a.h > b.y - pad;
 
+const within = (a: Rect, b: Rect) => a.x >= b.x && a.y >= b.y && a.x + a.w <= b.x + b.w && a.y + a.h <= b.y + b.h;
+
+/** Does the text lie on the line of a frame, half in and half out? */
+const onFrame = (b: Rect, frame: Rect) => overlaps(b, frame, 0) && !within(b, frame);
+
 /** Does the bounding box of a segment reach into the rectangle widened by `pad`? */
 const hits = (p: Point, q: Point, r: Rect, pad: number) =>
   Math.min(p[0], q[0]) < r.x + r.w + pad &&
@@ -67,7 +72,8 @@ const hits = (p: Point, q: Point, r: Rect, pad: number) =>
 
 /**
  * Multiplicities and roles at both ends of every relation. The multiplicity stands below or right of the line, the
- * role opposite; when the place is taken, both swap sides, and then they move along the line.
+ * role opposite; when the place is taken by a box, a text, a line or the border of a package, both swap sides, and
+ * then they move along the line.
  */
 export function endLabels(
   relations: readonly (ClassRelation | undefined)[],
@@ -79,6 +85,7 @@ export function endLabels(
   const boxes = grid.nodes.map((n) => n.rect);
   const free = (b: Rect) =>
     !boxes.some((n) => overlaps(b, n, 1)) &&
+    !grid.groups.some((g) => onFrame(b, g.rect)) &&
     ![...placed, ...out].some((t) => overlaps(b, t.box, 2)) &&
     !routes.some((o) => o.points.slice(1).some((q, k) => hits(o.points[k] ?? q, q, b, 1)));
   routes.forEach((route, idx) => {

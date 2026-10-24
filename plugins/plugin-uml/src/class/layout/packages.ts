@@ -1,9 +1,9 @@
 import type { Point, Rect } from '@diagrist/core';
-import type { GridLayout, Pads, PlacedGroup, Route } from '@diagrist/layout-grid';
+import type { GridGroup, GridLayout, GridSpec, Pads, PlacedGroup, Route } from '@diagrist/layout-grid';
 import type { ClassRelation } from '../diagram.js';
 import type { ClassModel } from '../model.js';
 import { packagesAround } from '../model.js';
-import type { Cell } from './cells.js';
+import type { Cell } from './blocks.js';
 import { CLASS, tabWidth } from './metrics.js';
 
 /** First and last layer, first and last half column a package covers with its classifiers. */
@@ -44,18 +44,48 @@ export function packageRowGap(extents: ReadonlyMap<string, Extent>, row: number)
 }
 
 /**
- * Packages of one depth line up with the grid: those starting in the same layer share their top edge, those ending in
- * the same layer their bottom edge, however high the classes in them are.
+ * The bottom of each package around its own classes and nested packages. `layout-grid` gives frames with the same
+ * top the same height; a package is as high as its content instead, and lines up by layers only.
  */
-export function alignPackages(m: ClassModel, grid: GridLayout, extents: ReadonlyMap<string, Extent>): GridLayout {
+function ownBottoms(spec: GridSpec, grid: GridLayout): Map<string, number> {
+  const nodes = new Map(grid.nodes.map((n) => [n.id, n.rect.y + n.rect.h]));
+  const out = new Map<string, number>();
+  const bottomOf = (g: GridGroup): number => {
+    const known = out.get(g.id);
+    if (known !== undefined) return known;
+    const inner = [
+      ...g.members.flatMap((id) => nodes.get(id) ?? []),
+      ...spec.groups.filter((c) => c.parent === g.id).map(bottomOf),
+    ];
+    const frame = grid.groups.find((p) => p.id === g.id)?.rect;
+    const bottom = inner.length ? Math.max(...inner) + g.pads.bottom : frame ? frame.y + frame.h : 0;
+    out.set(g.id, bottom);
+    return bottom;
+  };
+  for (const g of spec.groups) bottomOf(g);
+  return out;
+}
+
+/**
+ * Packages of one depth line up with the grid: those starting in the same layer share their top edge, those ending in
+ * the same layer their bottom edge, however high the classes in them are. A package that ends in a layer above its
+ * neighbour's keeps its own height.
+ */
+export function alignPackages(
+  m: ClassModel,
+  spec: GridSpec,
+  grid: GridLayout,
+  extents: ReadonlyMap<string, Extent>,
+): GridLayout {
   const depth = (id: string) => packagesAround(m, id).length;
+  const bottoms = ownBottoms(spec, grid);
   const groups = grid.groups.map((g): PlacedGroup => {
     const e = extents.get(g.id);
     if (!e) return g;
     const peers = (i: 0 | 1) =>
       grid.groups.filter((p) => depth(p.id) === depth(g.id) && extents.get(p.id)?.rows[i] === e.rows[i]);
     const y = Math.min(...peers(0).map((p) => p.rect.y));
-    const end = Math.max(...peers(1).map((p) => p.rect.y + p.rect.h));
+    const end = Math.max(...peers(1).map((p) => bottoms.get(p.id) ?? p.rect.y + p.rect.h));
     return { ...g, rect: { ...g.rect, y, h: end - y } };
   });
   return { ...grid, groups };

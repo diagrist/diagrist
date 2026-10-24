@@ -177,19 +177,21 @@ branches, region frames around their members only, pins on the edge where their 
 Members stay entries (ADR 0003): indented lines in double quotes, written as UML text, with `static` and `abstract`
 as flags; they are the line form of `class`, `interface` and `enum` (ADR 0006).
 
-Thirteen of the predecessor's fifteen examples are under `examples/class`, converted by these rules only. Their
+Fourteen of the predecessor's fifteen examples are under `examples/class`, converted by these rules only. Their
 layout runs on `@diagrist/layout-grid`: the layering of classes and of packages as blocks, the adaptive grid, the
 routes with shared triangles, and the name labels; the kind adds end texts, legs at the vertices of the diamond,
-lines of association classes, package tabs and the second run that widens a package whose tab a line crosses. With
-`locale=de` their geometry is the predecessor's to the pixel where no package is involved, and within a few pixels
-for packages; their descriptions are the predecessor's word for word. The end symbols are the kernel's markers in
-the predecessor's sizes, and a symbol at the start of a line sits on a transparent stub, because the PNG renderer
-turns no marker with `auto-start-reverse`. Italic names and operations are written with `font-style: italic`, which
-the PNG sets in the bundled italic faces of JetBrains Mono. Two examples are left
-out: `pakete-raster` placed its classes by hand, and `pakete-quer` needs the search for an arrangement of four and
-more packages, which is not ported yet. Two examples are golden files (`test/__golden__/class-*.svg`), and geometric
-tests check superclasses above and between their subclasses, shared triangles, the diamond at the whole, association
-classes below their line, n-ary diamonds among their ends, packages around their classes and imports beside the tab.
+lines of association classes, package tabs and the second run that widens a package whose tab a line crosses. From
+four packages on the top level the kind searches arrangements of the package blocks on a rough grid, swapping and
+moving them between layers, and lays out the four most promising until one has no crossing and no line through a
+class (`pakete-quer`). With `locale=de` their geometry is the predecessor's to the pixel where no package is
+involved, and within a few pixels for packages; their descriptions are the predecessor's word for word. The end
+symbols are the kernel's markers in the predecessor's sizes, and a symbol at the start of a line sits on a
+transparent stub, because the PNG renderer turns no marker with `auto-start-reverse`. Italic names and operations are
+written with `font-style: italic`, which the PNG sets in the bundled italic faces of JetBrains Mono. One example is
+left out: `pakete-raster` placed its classes by hand. Two examples are golden files (`test/__golden__/class-*.svg`),
+and geometric tests check superclasses above and between their subclasses, shared triangles, the diamond at the
+whole, association classes below their line, n-ary diamonds among their ends, packages around their classes, imports
+beside the tab, and five packages arranged without crossing lines.
 
 ## State machine diagrams: changes from the predecessor's syntax
 

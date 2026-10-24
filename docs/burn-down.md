@@ -65,7 +65,6 @@ frames and labels are not handed to the placement check, which would report what
 |---|---|---|
 | activity | **No notes.** The predecessor allowed `note "..." on id`; no example used it, and its placement belonged to the generic note layout that use case diagrams replaced. | A `note` statement with a free spot beside its node, as in use case diagrams. |
 | class | **Symbols at the start of a line sit on a stub.** resvg ignores `orient="auto-start-reverse"` and draws no marker on a path without stroke, so a diamond at the whole, the second head of `<->` and the shared triangle of a bundle are the end marker of a short transparent path. | `marker-start` once the renderer turns markers there. |
-| class | **No search for an arrangement of many packages.** From four packages on one level the predecessor tried four layouts (`class-package-arrange.ts`, `package-fit.ts`); without it `pakete-quer` has labels in foreign packages (G400) and is left out. | Port the search and bring the example back. |
 | class | **No grid placed by hand.** `grid` and `at` are gone, as in use case diagrams, so `pakete-raster` and the warning W415 are not carried over. | Only if a diagram needs it. |
 | class | **Packages align per level only.** A parent is not grown again around children that moved. No example nests packages. | Enclose parents after aligning. |
 | class | **Lines on toned packages keep the canvas halo**, a faint light seam on the 7 % tint, where the predecessor tinted it (`halo-<tone>`). | A halo role per surface, shared with C4 and use case cards. |

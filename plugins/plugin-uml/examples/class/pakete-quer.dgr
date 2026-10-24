@@ -1,0 +1,41 @@
+# Five packages of an online shop with relations across them: from four packages on one level the layout searches
+# an arrangement in which linked classes of different packages stand close (swapping and moving the package blocks),
+# and keeps the one with the fewest crossings and shortest lines after trial layouts.
+diagram class "Onlineshop" subtitle="Fünf Pakete mit Querbeziehungen" locale=de
+package web "web"
+package bestellung "bestellwesen"
+package katalog "katalog"
+package zahlung "zahlung"
+package versand "versand"
+class controller "ShopController" in web
+  "+ bestelle(korb : Warenkorb) : void"
+class korb "Warenkorb" in web
+  "- positionen : int"
+class auftrag "Auftrag" in bestellung
+  "- nummer : String"
+  "+ summe() : Geld"
+class position "Position" in bestellung
+  "- menge : int"
+class artikel "Artikel" in katalog
+  "- nummer : String"
+  "- preis : Geld"
+class kategorie "Kategorie" in katalog
+  "- name : String"
+class zahlungsart "Zahlungsart" in zahlung abstract
+  "+ belaste(b : Geld) : void" abstract
+class rechnung "Rechnung" in zahlung
+  "- betrag : Geld"
+class sendung "Sendung" in versand
+  "- trackingId : String"
+class paket "Paketdienst" in versand
+  "+ verschicke(s : Sendung) : void"
+rel controller -> korb "verwaltet" source=1 card=1
+rel controller --> auftrag "erzeugt"
+rel korb -> artikel source=0..* card=0..*
+rel auftrag *-- position source=1 card=1..*
+rel position -> artikel source=0..* card=1
+rel artikel -> kategorie source=0..* card=1
+rel auftrag -- rechnung source=1 card=0..1
+rel rechnung -> zahlungsart source=0..* card=1
+rel auftrag -- sendung source=1 card=0..*
+rel sendung -> paket source=0..* card=1

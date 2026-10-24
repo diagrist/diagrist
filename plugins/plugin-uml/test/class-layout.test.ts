@@ -1,4 +1,5 @@
 import { compile, type Rect } from '@diagrist/core';
+import { segmentsIntersect } from '@diagrist/layout-grid';
 import { describe, expect, it } from 'vitest';
 import { umlPlugin } from '../src/index.js';
 import { classDiagram, classSource } from './compile.js';
@@ -15,7 +16,7 @@ function picture(name: string) {
   const node = (id: string) => a?.nodes.find((n) => n.id === id)?.rect ?? { x: 0, y: 0, w: 0, h: 0 };
   const frame = (id: string) => a?.groups.find((g) => g.id === id)?.rect ?? { x: 0, y: 0, w: 0, h: 0 };
   const edge = (from: string, to: string) => a?.edges.find((e) => e.from === from && e.to === to)?.points ?? [];
-  return { svg: result.svg ?? '', node, frame, edge };
+  return { svg: result.svg ?? '', node, frame, edge, edges: a?.edges ?? [] };
 }
 
 describe('class layout', () => {
@@ -83,6 +84,29 @@ describe('class layout', () => {
     const end = p.edge('service', 'domain').at(-1) ?? [0, 0];
     expect(end[1]).toBe(domain.y + 22);
     expect(end[0]).toBeGreaterThan(domain.x + 72);
+  });
+
+  it('arranges five packages so that linked ones are neighbours, each as high as its content, and no lines cross', () => {
+    const p = picture('pakete-quer');
+    const [web, orders, payment, catalogue, shipping] = [
+      p.frame('web'),
+      p.frame('bestellung'),
+      p.frame('zahlung'),
+      p.frame('katalog'),
+      p.frame('versand'),
+    ];
+    expect(web.y + web.h).toBeLessThan(orders.y);
+    expect(orders.y + orders.h).toBeLessThan(shipping.y);
+    expect(payment.x + payment.w).toBeLessThan(orders.x);
+    expect(orders.x + orders.w).toBeLessThan(catalogue.x);
+    expect([payment.y, catalogue.y]).toEqual([orders.y, orders.y]);
+    expect(payment.y + payment.h).toBeLessThan(orders.y + orders.h);
+    expect(catalogue.y + catalogue.h).toBe(payment.y + payment.h);
+    const pieces = p.edges.map((e) => e.points.slice(1).map((q, k) => [e.points[k] ?? q, q] as const));
+    const crossings = pieces.flatMap((a, i) =>
+      pieces.slice(i + 1).filter((b) => a.some(([p1, p2]) => b.some(([q1, q2]) => segmentsIntersect(p1, p2, q1, q2)))),
+    );
+    expect(crossings).toEqual([]);
   });
 
   it('marks a non-navigable end with an x and a navigable one with an open head', () => {
