@@ -4,6 +4,7 @@ import { markShapes } from '@diagrist/parts';
 import type { ArchitectureLayout } from '../layout/index.js';
 import type { ArchitectureModel } from '../model/types.js';
 import { badgeShapes } from './bodies.js';
+import { paperBadge, paperLabelShapes } from './paper.js';
 import { type Surface, surfacesAt } from './surfaces.js';
 
 /** Routes that have a label, a flow number or a mark, in route order; each gets its group `label-<i>`. */
@@ -38,13 +39,19 @@ export function labelShapes(
   under: readonly Surface[],
 ): Shape[] {
   const accent = (route: number) => model.edges[Number(routes[route]?.edge)]?.step?.accent === true;
+  const paper = model.look === 'paper';
+  const badge = paper ? paperBadge : badgeShapes;
+  const texts = (i: number) => {
+    const own = layout.labels.filter((l) => l.route === i);
+    return paper ? paperLabelShapes(own, under) : own.flatMap((l) => textShapes(l, accent(i), under));
+  };
   const groups = labelledRoutes(layout).map(
     (i): Shape => ({
       kind: 'group',
       id: domId.label(i),
       children: [
-        ...layout.labels.filter((l) => l.route === i).flatMap((l) => textShapes(l, accent(i), under)),
-        ...layout.badges.filter((b) => b.route === i).flatMap((b) => badgeShapes(b.n, b.x, b.y, b.accent)),
+        ...texts(i),
+        ...layout.badges.filter((b) => b.route === i).flatMap((b) => badge(b.n, b.x, b.y, b.accent)),
         ...layout.marks.filter((m) => m.route === i).flatMap((m) => markShapes(m.id, m.x, m.y)),
       ],
     }),

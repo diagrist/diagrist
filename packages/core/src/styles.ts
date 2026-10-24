@@ -95,6 +95,11 @@ export interface Styles {
   /** Class of the `<svg>` element; every rule is scoped below it. */
   readonly root: string;
   readonly fontFamily: string;
+  /**
+   * `none` writes `font-kerning: none` on the root. Layout measures advances without kerning, so a picture in a
+   * proportional face switches it off to be drawn as wide as it was measured (ADR 0022).
+   */
+  readonly fontKerning?: 'none';
   /** Font size of the root, inherited by texts without their own. */
   readonly fontSize: number;
   /** Background colour of the picture. */

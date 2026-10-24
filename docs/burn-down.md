@@ -18,6 +18,7 @@ the crutches that keep the predecessor's bytes are numbered, since they go toget
 | **One marker size per style table.** The kernel's markers share `markerSize`; class diagrams set 18 for the diamond of 16 pixels and draw each symbol in pixels of that size, while use case diagrams draw the triangle 10 long where the predecessor drew 14. | A size per marker. |
 | **The placement check knows no lines.** Edges of every kind are not reported, so a line through a node or under a label goes unseen; activity diagrams also leave out the lines of their lanes. | An outline for polylines on `Placed` (ADR 0020), with the C4 route checks below. |
 | **Ligatures of JetBrains Mono.** Browsers join texts such as `->` in labels, while the layout measured single glyphs. Fixing it changes the bytes of every picture. | `font-variant-ligatures: none` on the root rule, with the second baseline of sequence diagrams. |
+| **Contextual alternates of Inter** (ADR 0022). resvg and browsers turn `->` and `=>` into an arrow glyph, narrower than the advances the table sums, and resvg has no switch for `calt`. Such texts take a little less room than measured, never more. | Read those substitutions from `GSUB` into the packed table, or switch `calt` off once resvg honours `font-feature-settings`. |
 
 ## Layout library (`layout-grid`)
 
@@ -99,6 +100,7 @@ keep it so; they go in the clean-up with a second baseline.
 | **Not ported yet:** the tile flow (`flow=` on groups and in the header), framed groups (`style=`, `line=`, `icon=` on `group`), accents and chips, an own `legend`, end marks of edges (`from-box=` and the like; the scene has no rotated text), and `form=ellipse`. No example uses them. | Each with its tables, a predecessor example and its bytes. |
 | **No layout checks on routes.** The predecessor reported edges through nodes (E204), unroutable edges (E206), crossings (W203), overlapping edges (W206), labels on edges (W207) and lines through heads (W492). | Report routes as placed lines. |
 | **Labels reach into foreign frames.** `radverleih/komponenten`, `soll` and `variante-a` warn (G400, G402) where an edge label reaches into a frame it does not belong to; the pictures show it. | Fixing it changes their bytes. |
+| **The sheet of `look=paper` lives in the plugin.** Kicker above the title, margin notes for decisions, the legend as sentences and the gap behind texts on a line are drawn in `src/layout/paper*.ts` and `src/scene/paper.ts`, measured with the plugin's fonts. | Move them into `parts` when a second plugin draws paper (ADR 0014). |
 | **Edges to a group in a fixed grid run slanted** when the group's middle lies in another row, and their label can cover the start node, as with the predecessor. | Dock at the frame like at a node. |
 
 ## Tools

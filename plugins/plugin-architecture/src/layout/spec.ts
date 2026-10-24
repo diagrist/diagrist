@@ -1,7 +1,7 @@
+import { textWidth } from '@diagrist/core';
 import type { EdgeText, GridColumn, GridGroup, GridMetrics, GridNode, GridSpec, Pads } from '@diagrist/layout-grid';
 import type { ArchEdge, ArchGroup, ArchitectureModel, ArchNode } from '../model/types.js';
-import { fixedWidth, isCircle, nodeHeight, nodeWidth, type Sizing } from './measure.js';
-import { measure } from './metrics.js';
+import { fixedWidth, isCircle, nodeHeight, nodeWidth, type Sizing, secondLine } from './measure.js';
 
 const PERSON_W = 40;
 const PERSON_TEXT_PAD = 16;
@@ -13,7 +13,7 @@ export const detailLine = (e: ArchEdge): string => [e.via, e.schedule, e.volume,
 
 /** Width of a tag such as `CLOSED` at the right of a frame. */
 export const tagWidth = (tag: string, { m }: Sizing): number =>
-  Math.max(TAG_MIN_W, measure(tag, m.fontSize.node, true) + 2 * m.nodePad);
+  Math.max(TAG_MIN_W, textWidth(tag, m.fonts.name) + 2 * m.nodePad);
 
 /** Font size of titles on the side and on cards: a bit larger than a group head. */
 export const headingSize = ({ m }: Sizing): number => m.fontSize.group + HEADING_GROW;
@@ -23,7 +23,7 @@ function pads(g: ArchGroup, model: ArchitectureModel, sizing: Sizing): Pads {
   const m = sizing.m;
   const titled = g.title !== '' && g.heading !== 'side';
   const sides = model.groups.filter((s) => s.heading === 'side' && s.title !== '');
-  const side = Math.max(0, ...sides.map((s) => measure(s.title, headingSize(sizing), true)));
+  const side = Math.max(0, ...sides.map((s) => textWidth(s.title, sizing.m.fonts.heading)));
   return {
     top: titled ? m.groupPadTop : m.groupPadBottom,
     bottom: m.groupPadBottom,
@@ -38,8 +38,8 @@ function column(name: string, model: ArchitectureModel, { m }: Sizing): GridColu
   const others = model.nodes.some((n) => n.keyword !== 'person' && n.at?.col === name);
   if (people.length === 0 || others) return { name };
   const texts = people.flatMap((n) => [
-    measure(n.label, m.fontSize.node, true),
-    n.tech ? measure(n.tech, m.fontSize.note) : 0,
+    textWidth(n.label, m.fonts.name),
+    n.tech ? textWidth(n.tech, secondLine(n, m)) : 0,
   ]);
   return { name, width: Math.max(m.personW, Math.ceil((Math.max(0, ...texts) + PERSON_TEXT_PAD) / m.grid) * m.grid) };
 }
@@ -57,8 +57,8 @@ function gridNode(n: ArchNode, at: NonNullable<ArchNode['at']>, adaptive: boolea
       : circle
         ? { width: measured, exact: true }
         : { width: Math.max(m.nodeW, measured), exact: false };
-  const tech = n.tech ? measure(n.tech, m.fontSize.note) : 0;
-  const caption = { w: Math.max(measure(n.label, m.fontSize.node, true), tech), below: m.fontSize.node + 10 };
+  const tech = n.tech ? textWidth(n.tech, secondLine(n, m)) : 0;
+  const caption = { w: Math.max(textWidth(n.label, m.fonts.name), tech), below: m.fontSize.node + 10 };
   return {
     id: n.id,
     col: at.col,
@@ -102,7 +102,7 @@ function metricsOf({ look, m }: Sizing): GridMetrics {
     portSpread: m.portSpread,
     loopReach: m.loopReach,
     framePad: { top: m.groupPadTop, bottom: m.groupPadBottom, x: m.groupPadX },
-    labelFont: { size: m.fontSize.label },
+    labelFont: m.fonts.label,
     labelLineH: m.labelLineH,
     labelGap: m.labelGap,
     rowOverhang: look === 'cards' ? m.cardIconR : 0,

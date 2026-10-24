@@ -53,7 +53,7 @@ export function clockShapes(at: Spot, detail: string): Shape[] {
   ];
 }
 
-const box = (r: Rect, body: string): Shape => ({ kind: 'rect', ...r, rx: BODY_RX, role: body });
+const box = (r: Rect, body: string, rx: number): Shape => ({ kind: 'rect', ...r, rx, role: body });
 
 function cylinder(r: Rect, body: string, detail: string): Shape[] {
   const top = r.y + DB_RY;
@@ -85,16 +85,22 @@ function folded(r: Rect, body: string, detail: string): Shape[] {
   ];
 }
 
-function windowed(r: Rect, body: string, detail: string): Shape[] {
+function windowed(r: Rect, body: string, detail: string, rx: number): Shape[] {
   const bar = r.y + APP.bar;
   const dots = [0, 1, 2].map(
     (i): Shape => ({ kind: 'circle', cx: r.x + APP.x + i * APP.gap, cy: r.y + APP.bar / 2, r: APP.dot, role: detail }),
   );
-  return [box(r, body), { kind: 'line', x1: r.x, y1: bar, x2: r.x + r.w, y2: bar, role: detail }, ...dots];
+  return [box(r, body, rx), { kind: 'line', x1: r.x, y1: bar, x2: r.x + r.w, y2: bar, role: detail }, ...dots];
 }
 
-/** The body of a node: a box, or the form of `shape`; `detail` draws the inner lines. */
-export function bodyShapes(shape: NodeShape | undefined, r: Rect, body: string, detail: string): Shape[] {
+/** The body of a node: a box with corners of radius `rx`, or the form of `shape`; `detail` draws the inner lines. */
+export function bodyShapes(
+  shape: NodeShape | undefined,
+  r: Rect,
+  body: string,
+  detail: string,
+  rx: number = BODY_RX,
+): Shape[] {
   switch (shape) {
     case 'db':
       return cylinder(r, body, detail);
@@ -102,11 +108,11 @@ export function bodyShapes(shape: NodeShape | undefined, r: Rect, body: string, 
       return folded(r, body, detail);
     case 'queue': {
       const inner = r.x + QUEUE_INSET;
-      return [box(r, body), { kind: 'line', x1: inner, y1: r.y, x2: inner, y2: r.y + r.h, role: detail }];
+      return [box(r, body, rx), { kind: 'line', x1: inner, y1: r.y, x2: inner, y2: r.y + r.h, role: detail }];
     }
     case 'app':
-      return windowed(r, body, detail);
+      return windowed(r, body, detail, rx);
     default:
-      return [box(r, body)];
+      return [box(r, body, rx)];
   }
 }

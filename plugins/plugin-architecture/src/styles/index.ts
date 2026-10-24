@@ -1,40 +1,15 @@
-import {
-  type Font,
-  rule,
-  STANDARD_FONTS,
-  STROKES,
-  type StyleRule,
-  type Styles,
-  standardStyles,
-  textRule,
-} from '@diagrist/core';
+import { rule, STANDARD_FONTS, STROKES, type StyleRule, type Styles, standardStyles, textRule } from '@diagrist/core';
 import { ICONS } from '../icons/index.js';
 import type { FontSizes } from '../layout/metrics.js';
 import { metricsOf } from '../layout/metrics.js';
 import type { Look } from '../model/types.js';
+import { paperStyles } from './paper.js';
 import { ARCHITECTURE_ROLES } from './roles.js';
 import { architectureRules, type Strokes } from './rules.js';
 
 const STANDARD_STROKES: Strokes = { ...STROKES, data: 2.5 };
 const BLOCK_STROKES: Strokes = { ...STANDARD_STROKES, line: 3, accent: 3, emph: 3 };
 const BLOCK_MARKER = 18;
-
-/** Font roles of C4 pictures besides the standard ones: status, replica tag, blocks, card titles. */
-function fontsOf(f: FontSizes): Record<string, Font> {
-  return {
-    title: { size: f.title, weight: 600 },
-    name: { size: f.node, weight: 600 },
-    group: { size: f.group, weight: 600 },
-    label: { size: f.label },
-    note: { size: f.note },
-    badge: { size: f.badge, weight: 700 },
-    mark: { size: f.badge - 1, weight: 700 },
-    replica: { size: f.badge - 1, weight: 700 },
-    block: { size: f.node + 1, weight: 600 },
-    heading: { size: f.group + 4, weight: 600 },
-    large: { size: f.group + 4 },
-  };
-}
 
 /**
  * The base rules blocks draw larger and thicker: the same rules as the standard look, with the measures of the
@@ -60,11 +35,16 @@ function blockBase(f: FontSizes, w: Strokes): StyleRule[] {
   ];
 }
 
-/** The style table of a look: the standard look with the C4 rules and icons; blocks with their larger measures. */
+/**
+ * The style table of a look: the standard look with the C4 rules and icons; blocks with their larger measures, paper
+ * with its own fonts and colours.
+ */
 export function stylesOf(look: Look): Styles {
-  const f = metricsOf(look).fontSize;
+  const m = metricsOf(look);
+  if (look === 'paper') return paperStyles(m);
+  const f = m.fontSize;
   const strokes = look === 'blocks' ? BLOCK_STROKES : STANDARD_STROKES;
-  const base = standardStyles({ roles: ARCHITECTURE_ROLES, rules: architectureRules(f, strokes), fonts: fontsOf(f) });
+  const base = standardStyles({ roles: ARCHITECTURE_ROLES, rules: architectureRules(f, strokes), fonts: m.fonts });
   const styles = { ...base, icons: ICONS };
   if (look !== 'blocks') return styles;
   const bigger = new Map(blockBase(f, strokes).map((r) => [r.name, r]));
@@ -73,6 +53,6 @@ export function stylesOf(look: Look): Styles {
     fontSize: f.group,
     markerSize: BLOCK_MARKER,
     rules: styles.rules.map((r) => bigger.get(r.name) ?? r),
-    fonts: { ...STANDARD_FONTS, ...fontsOf(f) },
+    fonts: { ...STANDARD_FONTS, ...m.fonts },
   };
 }

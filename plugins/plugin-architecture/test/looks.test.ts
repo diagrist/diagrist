@@ -24,6 +24,26 @@ describe('looks', () => {
     expect(svg).toContain('class="block-title">Presentation Layer</text>');
   });
 
+  it('select their fonts: paper sets Inter unkerned, technologies of containers in JetBrains Mono', () => {
+    const svg =
+      diagram(
+        'container look=paper',
+        'system shop "Shop" tech="sells online" at a/main emph',
+        'container db "Orders" tech="PostgreSQL" shape=db at c/main',
+        'edge shop -> db "writes" via=SQL',
+      ).svg ?? '';
+    expect(svg).toMatch(/\.dia \{ font-family: Inter, [^;]+; font-size: 11px; font-kerning: none; \}/);
+    expect(svg).toMatch(/\.label-tech \{ fill: #6f6d68; font-family: "JetBrains Mono"[^;]*; font-size: 9\.5px; \}/);
+    expect(svg).toMatch(
+      /\.label-bold \{ fill: #222220; font-family: Inter[^;]*; font-weight: 600; font-size: 13px; \}/,
+    );
+    expect(svg).toContain('class="label-description">sells online</text>');
+    expect(svg).toContain('class="label-tech">PostgreSQL</text>');
+    expect(svg).toContain('class="shape-core"/>');
+    expect(svg).toContain('fill="#f7f6f3"');
+    expect(svg).not.toContain('<g class="legend">');
+  });
+
   it('keep the same bytes for the same source, whatever was compiled before', () => {
     const first = diagram('context look=cards', ...SHOP).svg;
     compile(source('architecture/cloud.dgr'), { plugins });

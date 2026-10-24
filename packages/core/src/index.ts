@@ -18,6 +18,6 @@ export type { Icon, Marker, MarkerShape, RoleStyle, StyleRule, Styles } from './
 export { MARKER_SHAPES } from './styles.js';
 export type { SvgOptions } from './svg.js';
 export { toSvg } from './svg.js';
-export type { Font } from './text.js';
-export { textWidth } from './text.js';
+export type { Font, Typeface } from './text.js';
+export { FONT_STACKS, textWidth } from './text.js';
 export type { Theme } from './theme.js';

@@ -28,7 +28,8 @@ const FRACTIONS = [0.5, 0.25, 0.75, 0.375, 0.625, 0.125, 0.875];
  * Labels of an adaptive grid move as one block per route: over the segments from the longest, the places in
  * `FRACTIONS`, both sides, the first spot clear of nodes, head strips, sides of passable frames, `fixed` texts,
  * routes and labels placed before. Without one they stay where they are. With `keep`, labels already on a free
- * spot stay there.
+ * spot stay there. With `onLine` a block stands on its own route, centred on the segment, and only other routes
+ * count as in its way.
  */
 export function adaptiveLabels(
   board: Board,
@@ -36,6 +37,7 @@ export function adaptiveLabels(
   routes: readonly Route[],
   fixed: readonly EdgeLabel[],
   keep = false,
+  onLine = false,
 ): EdgeLabel[] {
   const m = board.tree.spec.metrics;
   const blocked: Rect[] = board.layout.nodes.map((n) => memberBounds(n, board.node(n.id)));
@@ -43,10 +45,12 @@ export function adaptiveLabels(
   blocked.push(...headStrips(board.layout.groups, m.framePad.top));
   blocked.push(...board.layout.groups.filter((g) => board.tree.group(g.id)?.passable).flatMap((g) => sides(g.rect)));
   const placed: EdgeLabel[] = [];
-  const clear = (rect: Rect) =>
+  const clear = (rect: Rect, own = -1) =>
     !blocked.some((b) => overlaps(rect, b, 4)) &&
     !placed.some((p) => overlaps(rect, p.box, 4)) &&
-    !routes.some((r) => r.points.slice(1).some((p, i) => segmentHitsRect(r.points[i] as Point, p, rect, 3)));
+    !routes.some(
+      (r, k) => k !== own && r.points.slice(1).some((p, i) => segmentHitsRect(r.points[i] as Point, p, rect, 3)),
+    );
   routes.forEach((r, route) => {
     const items = texts.filter((t) => t.route === route);
     if (!items.length) return;
@@ -66,15 +70,17 @@ export function adaptiveLabels(
       const horizontal = a[1] === b[1];
       if (len < (horizontal ? bounds.w : bounds.h) + 16) continue;
       for (const fraction of FRACTIONS)
-        for (const side of [-1, 1]) {
+        for (const side of onLine ? [0] : [-1, 1]) {
           const x = a[0] + (b[0] - a[0]) * fraction;
           const y = a[1] + (b[1] - a[1]) * fraction;
-          const rect = {
-            ...bounds,
-            x: horizontal ? x - bounds.w / 2 : x + (side < 0 ? -bounds.w - m.labelGap : m.labelGap),
-            y: horizontal ? y + (side < 0 ? -bounds.h - m.labelGap : m.labelGap) : y - bounds.h / 2,
-          };
-          if (clear(rect)) {
+          const rect = onLine
+            ? { ...bounds, x: x - bounds.w / 2, y: y - bounds.h / 2 }
+            : {
+                ...bounds,
+                x: horizontal ? x - bounds.w / 2 : x + (side < 0 ? -bounds.w - m.labelGap : m.labelGap),
+                y: horizontal ? y + (side < 0 ? -bounds.h - m.labelGap : m.labelGap) : y - bounds.h / 2,
+              };
+          if (clear(rect, onLine ? route : -1)) {
             placed.push(...moved(items, rect.x - bounds.x, rect.y - bounds.y));
             return;
           }

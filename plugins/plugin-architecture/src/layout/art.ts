@@ -1,7 +1,6 @@
-import type { Rect, Tone } from '@diagrist/core';
+import { type Rect, type Tone, textWidth } from '@diagrist/core';
 import type { ArchNode } from '../model/types.js';
-import { type BlockForm, blockForm, isCircle, type Sizing, TUBE_MEASURES as TUBE } from './measure.js';
-import { measure } from './metrics.js';
+import { type BlockForm, blockForm, isCircle, type Sizing, secondLine, TUBE_MEASURES as TUBE } from './measure.js';
 
 /** A point where a text or a mark is anchored. */
 export interface Spot {
@@ -131,10 +130,10 @@ function blockParts(n: ArchNode, rect: Rect, { m }: Sizing): Pick<BoxArt, 'block
 export function nodeArt(n: ArchNode, rect: Rect, sizing: Sizing): NodeArt {
   if (n.keyword === 'person') return personArt(rect);
   const m = sizing.m;
-  const techWidth = n.tech !== undefined ? measure(n.tech, m.fontSize.note) : 0;
+  const techWidth = n.tech !== undefined ? textWidth(n.tech, secondLine(n, m)) : 0;
   const clock = { x: rect.x + rect.w - CORNER, y: rect.y + CORNER };
   const noIcon = { x: 0, y: 0, size: m.iconSize };
-  if (sizing.look !== 'plain') {
+  if (sizing.look === 'cards' || sizing.look === 'blocks') {
     const parts = sizing.look === 'cards' ? cardParts(n, rect, sizing) : blockParts(n, rect, sizing);
     const status = { x: parts.tech.x + techWidth / 2 + STATUS_GAP, y: parts.tech.y };
     return { kind: 'box', icon: noIcon, status, clock, replicas: clock, ...parts };

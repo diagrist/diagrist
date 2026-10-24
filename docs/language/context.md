@@ -9,7 +9,7 @@ This page lists everything a `context` diagram may contain. The same grammar is 
 ## The first line
 
 ```text
-diagram context "Title" [subtitle=<text>] [label=<text>] [look=<plain|cards|blocks>] [layout=<adaptive>] [locale=<en|de>]
+diagram context "Title" [subtitle=<text>] [label=<text>] [look=<plain|cards|blocks|paper>] [layout=<adaptive>] [locale=<en|de>]
 ```
 
 Every context diagram starts with this line.
@@ -18,7 +18,7 @@ Every context diagram starts with this line.
 |---|---|---|---|
 | `subtitle=` | attribute | a text in double quotes like `"Order service"` | Second line below the title. |
 | `label=` | attribute | a text in double quotes like `"Order service"` | Name before the title instead of the kind; an empty `label=""` leaves only the title. |
-| `look=` | attribute | one of `plain`, `cards`, `blocks` | `plain` (default) boxes with a legend, `cards` toned icon cards, `blocks` filled blocks as in pattern books. |
+| `look=` | attribute | one of `plain`, `cards`, `blocks`, `paper` | `plain` (default) boxes with a legend, `cards` toned icon cards, `blocks` filled blocks as in pattern books, `paper` a quiet print look: Inter on paper, zones as areas, the core in yellow, decisions in the margin. |
 | `layout=` | attribute | one of `adaptive` | Columns grow to their content and edges find their own way around obstacles; without it the grid is fixed. |
 | `locale=` | attribute | one of `en`, `de` | Language of the texts Diagrist adds to the picture and of the description: `en` (default) or `de`. |
 

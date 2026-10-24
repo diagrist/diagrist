@@ -82,7 +82,8 @@ function styleSheet(styles: Styles, used: ReadonlySet<string>): string {
   const rules = styles.rules
     .filter((rule) => rule.always === true || used.has(rule.name))
     .map((rule) => `  ${root} .${rule.name} { ${rule.declarations} }\n`);
-  return `\n  ${root} { font-family: ${styles.fontFamily}; font-size: ${styles.fontSize}px; }\n${rules.join('')}`;
+  const kerning = styles.fontKerning === undefined ? '' : ` font-kerning: ${styles.fontKerning};`;
+  return `\n  ${root} { font-family: ${styles.fontFamily}; font-size: ${styles.fontSize}px;${kerning} }\n${rules.join('')}`;
 }
 
 /**

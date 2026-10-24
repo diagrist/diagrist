@@ -3,12 +3,16 @@ import { boardOf } from '../route/boxes.js';
 import type { GridSpec } from '../spec.js';
 import { adaptiveLabels } from './adaptive.js';
 import { endLabels } from './ends.js';
+import { onLineTexts } from './on-line.js';
 import { routeTexts } from './text.js';
 import type { EdgeLabel, EdgeText } from './types.js';
 
-/** How labels are placed; `preferFlat` puts the name on the longest horizontal segment, as cards want. */
+/** How labels are placed. */
 export interface LabelOptions {
+  /** Puts the name on the longest horizontal segment, as cards want. */
   readonly preferFlat?: boolean;
+  /** Stands name and detail on the line as one block, which the kind cuts out of the line, as paper wants. */
+  readonly onLine?: boolean;
 }
 
 /**
@@ -26,11 +30,14 @@ export function labelEdges(
   const byEdge = new Map(texts.map((t) => [t.edge, t]));
   const named = routes.flatMap((r, i) => {
     const text = byEdge.get(r.edge);
-    return text ? routeTexts(text, i, routes, spec.metrics, options.preferFlat === true) : [];
+    if (!text) return [];
+    return options.onLine === true
+      ? onLineTexts(text, i, routes, spec.metrics)
+      : routeTexts(text, i, routes, spec.metrics, options.preferFlat === true);
   });
   if (!spec.adaptive) return [...named, ...endLabels(board, routes, byEdge, named)];
   const ends = endLabels(board, routes, byEdge, []);
-  return [...adaptiveLabels(board, named, routes, ends), ...ends];
+  return [...adaptiveLabels(board, named, routes, ends, false, options.onLine === true), ...ends];
 }
 
 /**

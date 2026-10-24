@@ -1,5 +1,6 @@
+import { type Font, textWidth } from '@diagrist/core';
 import type { ArchNode, Look } from '../model/types.js';
-import { type Metrics, measure } from './metrics.js';
+import type { Metrics } from './metrics.js';
 
 /** What measuring needs: the look and its measures. */
 export interface Sizing {
@@ -16,6 +17,8 @@ const BLOCK_MIN: Readonly<Record<BlockForm, number>> = { box: 64, db: 112, pipe:
 const BLOCK_PAD = 8;
 const MARKER_ROOM = 40;
 const STATUS_ROOM = 90;
+/** Room for the status dot after the name in `look=paper`. */
+const DOT_ROOM = 16;
 const TUBE = { top: 20, arrow: 16, gap: 8, body: 34 } as const;
 const DB_EXTRA = 16;
 const TEXT_PAD = 10;
@@ -34,22 +37,34 @@ export function isCircle(n: ArchNode, look: Look): boolean {
   );
 }
 
+/**
+ * What the second line of a node is: a technology on containers and components, as C4 writes it there, and a
+ * description on people, systems and neutral nodes. It names the font role and the text role alike.
+ */
+export const secondLineRole = (n: ArchNode): 'tech' | 'description' =>
+  n.keyword === 'container' || n.keyword === 'component' ? 'tech' : 'description';
+
+/** The font of the second line of a node; the standard look sets technology and description alike. */
+export const secondLine = (n: ArchNode, m: Metrics): Font => m.fonts[secondLineRole(n)];
+
 const roundUp = (value: number, grid: number): number => Math.ceil(value / grid) * grid;
 
 /** The width a node needs for its texts, icon, status and corner marks, on the grid; centred texts in cards and blocks. */
 export function nodeWidth(n: ArchNode, { look, m }: Sizing): number {
-  const f = m.fontSize;
-  const label = measure(n.label, f.node, true);
-  const tech = measure(n.tech ?? '', f.note);
+  const label = textWidth(n.label, m.fonts.name);
+  const tech = textWidth(n.tech ?? '', secondLine(n, m));
   if (look === 'blocks') return roundUp(Math.max(label, tech, 0) + 2 * (m.nodePad + BLOCK_PAD), m.grid);
   if (look === 'cards') {
     if (isCircle(n, look)) return roundUp(Math.max(label, tech, 2 * m.circleR), m.grid);
     return roundUp(Math.max(label, tech, 0) + 2 * m.nodePad, m.grid);
   }
   const icon = n.icon ? m.iconSize + m.iconGap : 0;
-  const marker = n.replicas || n.shape === 'job' ? MARKER_ROOM : 0;
-  const detail = tech + (n.status ? STATUS_ROOM : 0);
-  return roundUp(Math.max(label + marker, detail, 0 - icon) + icon + 2 * m.nodePad, m.grid);
+  const corner = n.replicas || n.shape === 'job' ? MARKER_ROOM : 0;
+  const marker = corner + (look === 'paper' && n.mark ? MARKER_ROOM : 0);
+  const paper = look === 'paper';
+  const dot = paper && n.status ? DOT_ROOM : 0;
+  const detail = tech + (n.status && !paper ? STATUS_ROOM : 0);
+  return roundUp(Math.max(label + marker + dot, detail, 0 - icon) + icon + 2 * m.nodePad, m.grid);
 }
 
 /** The height of a node: `height`, else the row height; in blocks tubes and cylinders are higher, texts lower. */

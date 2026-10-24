@@ -5,9 +5,9 @@ import { initWasm, Resvg } from '@resvg/resvg-wasm';
  * every machine. Every font family and generic family in the SVG falls back to `family`.
  */
 export interface PngFonts {
-  /** Family name inside the font files, e.g. `JetBrains Mono`. */
+  /** Family every other family falls back to, by its name inside the font files, e.g. `JetBrains Mono`. */
   readonly family: string;
-  /** Raw TrueType or OpenType files, typically one per weight. */
+  /** Raw TrueType or OpenType files, typically one per weight; a text naming one of their families is set in it. */
   readonly files: readonly Uint8Array[];
 }
 

@@ -1,7 +1,7 @@
-import type { Point, Rect } from '@diagrist/core';
+import { type Point, type Rect, textWidth } from '@diagrist/core';
 import type { Note } from '../model/types.js';
 import type { Spot } from './art.js';
-import { type Metrics, measure } from './metrics.js';
+import type { Metrics } from './metrics.js';
 
 /** A dashed note above a node, with a tip down to the node: left foot, tip, right foot. */
 export interface NoteArt {
@@ -29,7 +29,7 @@ export function noteArts(
   return notes.flatMap((note): NoteArt[] => {
     const n = note.on === undefined ? undefined : nodes.get(note.on);
     if (!n || note.on === undefined) return [];
-    const w = measure(note.text, f) + 2 * pad;
+    const w = textWidth(note.text, m.fonts.note) + 2 * pad;
     const top = n.y - crest(note.on);
     const right = n.x + n.w;
     const rect = { x: right - base * 2, y: top - lift - height, w, h: height };

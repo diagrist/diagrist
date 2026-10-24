@@ -1,10 +1,11 @@
+import { textWidth } from '@diagrist/core';
 import type { Route } from '@diagrist/layout-grid';
 import { LEGEND, type LegendItem } from '@diagrist/parts';
 import type { EdgeKind } from '../grammar/edges.js';
 import { SHAPES, STATUSES } from '../grammar/elements.js';
 import type { ArchitectureModel, NodeShape, Role } from '../model/types.js';
 import type { Texts } from '../texts/index.js';
-import { type Metrics, measure } from './metrics.js';
+import type { Metrics } from './metrics.js';
 
 /** A swatch stands for a role of frames, a core decision or a life cycle. */
 export type SwatchRole = Role | 'emph' | 'planned' | 'deprecated';
@@ -55,7 +56,7 @@ export function legendItems(
   for (const kind of EDGE_ORDER) if (kinds.has(kind)) out.push(wide({ kind: 'edge', edge: kind }, texts.edges[kind]));
   for (const f of model.flows) {
     const sample = { kind: 'badge', n: f.from, accent: f.accent } as const;
-    out.push(narrow(sample, texts.flow(f.id, f.from, f.to), measure(`(${f.from})`, m.fontSize.note)));
+    out.push(narrow(sample, texts.flow(f.id, f.from, f.to), textWidth(`(${f.from})`, m.fonts.note)));
   }
   const roles = new Set(model.groups.map((g) => g.role));
   for (const role of ROLES) if (roles.has(role)) out.push(wide({ kind: 'swatch', role }, texts.roles[role]));
@@ -66,7 +67,7 @@ export function legendItems(
   for (const shape of SHAPES)
     if (nodes.some((n) => n.shape === shape))
       out.push(wide({ kind: 'shape', shape }, texts.shapes[shape], SHAPE_SAMPLE.w));
-  if (marked) out.push(narrow({ kind: 'mark' }, texts.mark, measure('E1', m.fontSize.note)));
+  if (marked) out.push(narrow({ kind: 'mark' }, texts.mark, textWidth('E1', m.fonts.note)));
   if (nodes.some((n) => n.icon)) out.push({ sample: { kind: 'none' }, sampleWidth: 0, labelDx: 0, text: texts.icon });
   return out;
 }

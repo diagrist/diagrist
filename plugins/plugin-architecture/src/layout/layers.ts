@@ -1,8 +1,8 @@
-import type { Rect } from '@diagrist/core';
+import { type Rect, textWidth } from '@diagrist/core';
 import type { Row } from '@diagrist/layout-grid';
 import type { Layer } from '../model/types.js';
 import type { Segment, Spot } from './art.js';
-import { type Metrics, measure } from './metrics.js';
+import type { Metrics } from './metrics.js';
 
 /** A layer named right of the picture: box, text, leader with arrow, and for the first the shared bracket. */
 export interface LayerArt {
@@ -16,12 +16,16 @@ export interface LayerArt {
   readonly attachment?: Segment;
 }
 
-/** Boxes for the layers right of everything drawn (`contentRight`), joined to the picture by one bracket. */
+/**
+ * Boxes for the layers right of everything drawn (`contentRight`), joined to the picture by one bracket. With
+ * `capitals` the names stand without a box in small capitals, as wide as they are.
+ */
 export function layerArts(
   layers: readonly Layer[],
   rows: readonly Row[],
   contentRight: number,
   m: Metrics,
+  capitals = false,
 ): LayerArt[] {
   const placed = layers
     .flatMap((l) => {
@@ -33,7 +37,9 @@ export function layerArts(
   const last = placed.at(-1);
   if (!first || !last) return [];
   const pad = m.nodePad;
-  const width = Math.max(m.nodeW, ...placed.map((l) => measure(l.label, m.fontSize.note) + 2 * pad));
+  const width = capitals
+    ? Math.max(...placed.map((l) => textWidth(l.label.toUpperCase(), m.fonts.group)))
+    : Math.max(m.nodeW, ...placed.map((l) => textWidth(l.label, m.fonts.note) + 2 * pad));
   const railX = contentRight + pad * 2;
   const x = railX + pad * 3;
   const middle = placed[Math.floor(placed.length / 2)]?.middle ?? first.middle;

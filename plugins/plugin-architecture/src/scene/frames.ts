@@ -3,6 +3,7 @@ import type { PlacedFrame } from '../layout/index.js';
 import type { Look, Role } from '../model/types.js';
 import type { Texts } from '../texts/index.js';
 import { BLOCK_RX, filledShapes } from './blocks.js';
+import { paperFrame } from './paper.js';
 
 const PLAIN_RX = 10;
 const CARD_RX = 8;
@@ -71,7 +72,10 @@ export function frameShapes(frames: readonly PlacedFrame[], look: Look, texts: T
     const children =
       look === 'blocks'
         ? [...blockFrame(f), ...tagShapes(f, true)]
-        : [...(look === 'cards' ? cardFrame(f) : plainFrame(f, texts)), ...tagShapes(f, false)];
+        : [
+            ...(look === 'cards' ? cardFrame(f) : look === 'paper' ? paperFrame(f, texts) : plainFrame(f, texts)),
+            ...tagShapes(f, false),
+          ];
     return { kind: 'group', id: domId.group(f.group.id), children };
   });
 }

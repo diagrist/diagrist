@@ -1,12 +1,13 @@
 import { domId, type Shape } from '@diagrist/core';
 import type { BoxArt, PersonArt } from '../layout/art.js';
-import type { PlacedElement } from '../layout/index.js';
+import type { ArchitectureLayout, PlacedElement } from '../layout/index.js';
 import type { ArchitectureModel, ArchNode, NodeStatus, Role } from '../model/types.js';
 import type { Texts } from '../texts/index.js';
 import { blockShapes } from './blocks.js';
 import { bodyShapes, clockShapes, replicaShapes } from './bodies.js';
 import { cardShapes } from './cards.js';
 import { iconRole } from './icons.js';
+import { bustShapes, paperBoxShapes } from './paper.js';
 
 const STATUS_BODY: Readonly<Record<NodeStatus, string>> = { planned: 'boxPlanned', deprecated: 'boxDeprecated' };
 
@@ -43,18 +44,23 @@ function boxShapes(p: PlacedElement, art: BoxArt, role: Role | undefined, texts:
 }
 
 /** Every element in its group `node-<id>`, drawn in its look. */
-export function nodeShapes(model: ArchitectureModel, nodes: readonly PlacedElement[], texts: Texts): Shape[] {
+export function nodeShapes(model: ArchitectureModel, layout: ArchitectureLayout, texts: Texts): Shape[] {
   const roles = new Map(model.groups.map((g) => [g.id, g.role]));
-  return nodes.map((p): Shape => {
+  const paper = model.look === 'paper';
+  return layout.nodes.map((p): Shape => {
     const art = p.art;
     const children =
       art.kind === 'person'
-        ? personShapes(p.node, art)
-        : art.card
-          ? cardShapes(p, art, art.card, texts)
-          : art.block
-            ? blockShapes(p, art, art.block)
-            : boxShapes(p, art, roles.get(p.node.group ?? ''), texts);
+        ? paper
+          ? bustShapes(p.node, art)
+          : personShapes(p.node, art)
+        : paper
+          ? paperBoxShapes(p, art, layout.sizing.m)
+          : art.card
+            ? cardShapes(p, art, art.card, texts)
+            : art.block
+              ? blockShapes(p, art, art.block)
+              : boxShapes(p, art, roles.get(p.node.group ?? ''), texts);
     return { kind: 'group', id: domId.node(p.node.id), children };
   });
 }

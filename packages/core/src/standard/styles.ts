@@ -1,6 +1,6 @@
 import type { Marker, RoleStyle, StyleRule, Styles } from '../styles.js';
 import { MARKER_SHAPES } from '../styles.js';
-import type { Font } from '../text.js';
+import { FONT_STACKS, type Font } from '../text.js';
 import { COLORS as c, DASH, FONT_FAMILY, FONT_SIZE as f, MARKER_SIZE, STROKES as w } from './palette.js';
 
 /** Names of the font roles every kind of the standard look has. */
@@ -21,9 +21,12 @@ export const STANDARD_FONTS: Readonly<Record<StandardFont, Font>> = {
 export const rule = (name: string, declarations: string, always = false): StyleRule =>
   always ? { name, declarations, always } : { name, declarations };
 
-/** Declarations of a text class: its paint, then weight and size of its font. */
+/**
+ * Declarations of a text class: its paint, then family, weight, size and letter spacing of its font. A font
+ * without `family` leaves the family to the root, as the standard look does.
+ */
 export const textRule = (paint: string, font: Font): string =>
-  `${paint} ${font.weight === undefined ? '' : `font-weight: ${font.weight}; `}font-size: ${font.size}px;`;
+  `${paint} ${font.family === undefined ? '' : `font-family: ${FONT_STACKS[font.family]}; `}${font.weight === undefined ? '' : `font-weight: ${font.weight}; `}font-size: ${font.size}px;${font.letterSpacing === undefined ? '' : ` letter-spacing: ${font.letterSpacing}px;`}`;
 
 const F = STANDARD_FONTS;
 

@@ -20,7 +20,7 @@ function architectureKind(level: Level) {
     model: (reading) => architectureModel(level, reading),
     rules: ARCHITECTURE_RULES,
     layout: (model, { locale }) => {
-      const layout = layoutArchitecture(model, TEXTS[locale]);
+      const layout = layoutArchitecture(model, TEXTS[locale], locale);
       return {
         scene: architectureScene(model, layout, TEXTS[locale], WORDS[locale]),
         styles: stylesOf(model.look),

@@ -1,9 +1,8 @@
-import type { Point, Rect } from '@diagrist/core';
+import { type Point, type Rect, textWidth } from '@diagrist/core';
 import type { ArchGroup } from '../model/types.js';
 import type { Spot } from './art.js';
 import { linesHit } from './geometry.js';
 import type { Sizing } from './measure.js';
-import { measure } from './metrics.js';
 import { headingSize, tagWidth } from './spec.js';
 
 /** Head and tag of a frame, from its finished rectangle. */
@@ -48,14 +47,14 @@ export function frameHead(rect: Rect, g: ArchGroup, sizing: Sizing, lines: reado
     const spot = { x: rect.x + rect.w / 2, y: rect.y + m.groupTitleY + BLOCK_DY };
     return { title: spot, subtitle: spot, titleAnchor: 'middle', ...tag };
   }
-  if (sizing.look === 'plain')
+  if (sizing.look === 'plain' || sizing.look === 'paper')
     return {
       title: { x: rect.x + m.groupTextX, y: rect.y + m.groupTitleY },
       subtitle: { x: rect.x + m.groupTextX, y: rect.y + m.groupSubtitleY },
       ...tag,
     };
   const size = headingSize(sizing);
-  const w = measure(g.title, size, true) + 2 * TITLE_PAD;
+  const w = textWidth(g.title, m.fonts.heading) + 2 * TITLE_PAD;
   const left = { x: rect.x + TITLE_INSET, y: rect.y - size / 2 - 2, w, h: size + 4 };
   const box = linesHit(lines, left, 4) ? { ...left, x: right - TITLE_INSET - w } : left;
   const title = { x: box.x + TITLE_PAD, y: rect.y + size / 2 - 2 };

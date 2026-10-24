@@ -1,3 +1,5 @@
+import { FONT_STACKS } from '../text.js';
+
 /**
  * Colours of the standard look (`aidi-mono` in the predecessor), shared by every plugin that draws with
  * `standardStyles`. A `Theme` passed to `compile` repaints them per rule; these are the defaults it overlays.
@@ -20,8 +22,8 @@ export const STROKES = { line: 1.5, accent: 1.8, shape: 1.5, emph: 2.5, frame: 1
 /** Dash patterns: dashed lines, and the finer pattern of frames and lifelines. */
 export const DASH = { line: '6 4', frame: '4 3' } as const;
 
-/** The font stack of every picture; layout measures with the bundled JetBrains Mono metrics. */
-export const FONT_FAMILY = '"JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace';
+/** The font stack of the standard look; layout measures with the bundled JetBrains Mono metrics. */
+export const FONT_FAMILY: string = FONT_STACKS['jetbrains-mono'];
 
 /** Font sizes in pixels by role; layout measures and the stylesheet sets them with the same numbers. */
 export const FONT_SIZE = { title: 14, node: 12, group: 11, label: 10, note: 10, badge: 10 } as const;

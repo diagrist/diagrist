@@ -9,6 +9,7 @@ import { frameShapes } from './frames.js';
 import { labelledRoutes, labelShapes } from './labels.js';
 import { sampleShapes } from './legend.js';
 import { nodeShapes } from './nodes.js';
+import { paperHeader, paperLayerShapes, sheetShapes } from './paper.js';
 import { surfacesOf } from './surfaces.js';
 
 /** The title line: `label=` replaces the name of the kind, an empty one leaves the title alone. */
@@ -28,16 +29,21 @@ export function architectureScene(
   words: Words,
 ): Scene {
   const under = surfacesOf(layout.frames, model.look);
+  const header =
+    model.look === 'paper'
+      ? paperHeader(model.label ?? texts.kinds[model.level], model.title, model.subtitle)
+      : headerShapes(HEADER, titleOf(model, texts), model.subtitle);
   const children: Shape[] = [
-    ...headerShapes(HEADER, titleOf(model, texts), model.subtitle),
-    ...layerShapes(layout.layers),
+    ...header,
+    ...(model.look === 'paper' ? paperLayerShapes(layout.layers) : layerShapes(layout.layers)),
     ...frameShapes(layout.frames, model.look, texts),
-    ...nodeShapes(model, layout.nodes, texts),
+    ...nodeShapes(model, layout, texts),
     ...noteShapes(layout.notes),
     ...edgeShapes(model, layout.routes, under, layout.sizing.m.markerSize),
     ...labelShapes(model, layout.routes, layout, under),
     ...stripShapes(layout.strip, words),
     ...(layout.legend ? legendShapes(layout.legend, sampleShapes) : []),
+    ...(layout.sheet ? sheetShapes(layout.sheet) : []),
   ];
   return { width: layout.width, height: layout.height, title: model.title, children };
 }
