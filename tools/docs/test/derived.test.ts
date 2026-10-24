@@ -1,17 +1,12 @@
 import { fileURLToPath } from 'node:url';
+import { COMMANDS, GLOBAL_OPTIONS, PLUGINS, SCHEMA_PATH } from '@diagrist/cli/tables';
 import { GRAMMAR_SCHEMA, grammarOf } from '@diagrist/lang';
-import { compareGolden, validateJson } from '@diagrist/testkit';
+import { compareGolden } from '@diagrist/testkit';
 import { describe, expect, it } from 'vitest';
-import { COMMANDS } from '../src/commands/all.js';
-import { GLOBAL_OPTIONS } from '../src/commands/command.js';
-import { coreEngine } from '../src/core-engine.js';
-import { derivedFiles } from '../src/derived/files.js';
-import { SCHEMA_PATH } from '../src/derived/overview.js';
-import { SKILL_PATH } from '../src/derived/skill.js';
-import { SKILL_INTRO } from '../src/derived/skill-intro.js';
-import { specPath } from '../src/derived/spec.js';
-import { PLUGINS } from '../src/plugins.js';
-import { callJson } from './support/memory-io.js';
+import { derivedFiles } from '../src/files.js';
+import { SKILL_PATH } from '../src/skill.js';
+import { SKILL_INTRO } from '../src/skill-intro.js';
+import { specPath } from '../src/spec.js';
 
 const root = fileURLToPath(new URL('../../../', import.meta.url));
 const files = derivedFiles(PLUGINS, COMMANDS);
@@ -36,14 +31,6 @@ describe('the derived files', () => {
 });
 
 describe('the grammar schema', () => {
-  it('validates what `dgr grammar <kind> --json` prints for every kind', async () => {
-    const engine = coreEngine(PLUGINS);
-    for (const kind of kinds) {
-      const { json } = await callJson(['grammar', kind.spec.name], { engine });
-      expect(validateJson(GRAMMAR_SCHEMA, json.grammar)).toEqual([]);
-    }
-  });
-
   it('is published as the schema of the language plus its address', () => {
     const published = JSON.parse(content(SCHEMA_PATH)) as Record<string, unknown>;
     expect(published).toMatchObject({ ...GRAMMAR_SCHEMA, $id: expect.stringContaining(SCHEMA_PATH) });

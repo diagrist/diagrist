@@ -17,6 +17,8 @@
     { "path": "plugins/plugin-uml/test" },
     { "path": "plugins/export-png" },
     { "path": "plugins/export-png/test" },
+    { "path": "tools/docs" },
+    { "path": "tools/docs/test" },
     { "path": "test" }
   ]
 }

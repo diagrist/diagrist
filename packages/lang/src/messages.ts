@@ -4,6 +4,7 @@ import { didYouMean } from './list.js';
 /** Every language Diagrist speaks: messages, picture texts, descriptions and `--locale` (ADR 0002 Nr. 5). */
 export const LOCALES = ['en', 'de'] as const;
 
+/** A language every catalogue has a message in; `formatDiagnostic` phrases each code in each of them. */
 export type Locale = (typeof LOCALES)[number];
 
 type Template = (values: Readonly<Record<string, string>>) => string;

@@ -4,6 +4,7 @@
   "workspaces": {
     ".": { "entry": ["test/architecture/*.test.ts", "test/package/*.ts"], "project": ["*.ts", "test/**/*.ts"] },
     "packages/*": { "project": ["src/**/*.ts", "test/**/*.ts"] },
-    "plugins/*": { "project": ["src/**/*.ts", "test/**/*.ts"] }
+    "plugins/*": { "project": ["src/**/*.ts", "test/**/*.ts"] },
+    "tools/*": { "project": ["src/**/*.ts", "test/**/*.ts"] }
   }
 }

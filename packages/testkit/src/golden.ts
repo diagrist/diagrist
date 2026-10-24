@@ -7,6 +7,7 @@ export type GoldenResult =
   | { status: 'written'; reason: 'missing' | 'update' }
   | { status: 'mismatch'; firstDifference: number; expected: string; actual: string };
 
+/** When `compareGolden` writes the golden file instead of comparing with it. */
 export interface GoldenOptions {
   /** Overwrite the golden file instead of comparing. Defaults to `process.env.UPDATE_GOLDEN === '1'`. */
   update?: boolean;

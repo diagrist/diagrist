@@ -1,5 +1,5 @@
 import type { Grammar, GrammarField, GrammarLine, GrammarStatement } from '@diagrist/lang';
-import { headerLine, isReference, signatureOf } from '../derived/statements.js';
+import { headerLine, isReference, signatureOf } from './signature.js';
 
 const INDENT = '  ';
 

@@ -1,12 +1,11 @@
+import { type Command, commandLine, headerLine, signatureOf, summaryOf } from '@diagrist/cli/tables';
 import type { Kind, Plugin } from '@diagrist/core';
 import { type GrammarField, grammarOf } from '@diagrist/lang';
-import type { Command } from '../commands/command.js';
-import { commandLine, summaryOf } from '../commands/usage.js';
 import { LANGUAGE_BASICS } from './basics.js';
 import { kernelCodes, languageCodes, ruleCodes } from './codes.js';
 import { code, generatedFrom, table } from './markdown.js';
 import { SKILL_INTRO } from './skill-intro.js';
-import { headerLine, placedStatements, signatureOf, whereOf } from './statements.js';
+import { placedStatements, whereOf } from './statements.js';
 
 /** Where the agent skill is checked in, relative to the repository root. */
 export const SKILL_PATH = 'skills/diagrist/SKILL.md';

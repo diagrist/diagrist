@@ -21,6 +21,7 @@ export interface OptionSpec {
   readonly choices?: readonly string[];
 }
 
+/** The options of a command by their long name, without the leading `--`. */
 export type Options = Readonly<Record<string, OptionSpec>>;
 
 export interface Example {
@@ -124,6 +125,7 @@ export const ROOT_OPTIONS: Options = {
   version: { type: 'boolean', doc: 'Print the version of the CLI.' },
 };
 
+/** Every exit code `dgr` can end with, and when; `dgr help` and the reference list them. */
 export const EXIT_CODES: readonly { readonly code: number; readonly doc: string }[] = [
   { code: 0, doc: 'Done: no finding with severity error. Warnings alone do not fail.' },
   { code: 1, doc: 'A finding with severity error, or `fmt --check` found a file that is not formatted.' },

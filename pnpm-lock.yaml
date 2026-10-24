@@ -68,6 +68,12 @@ importers:
         specifier: workspace:*
         version: link:../testkit
 
+  packages/layout-grid:
+    dependencies:
+      '@diagrist/core':
+        specifier: workspace:*
+        version: link:../core
+
   packages/parts:
     dependencies:
       '@diagrist/core':
@@ -76,12 +82,6 @@ importers:
       '@diagrist/lang':
         specifier: workspace:*
         version: link:../lang
-
-  packages/layout-grid:
-    dependencies:
-      '@diagrist/core':
-        specifier: workspace:*
-        version: link:../core
 
   packages/testkit: {}
 
@@ -105,6 +105,22 @@ importers:
       '@diagrist/parts':
         specifier: workspace:*
         version: link:../../packages/parts
+    devDependencies:
+      '@diagrist/testkit':
+        specifier: workspace:*
+        version: link:../../packages/testkit
+
+  tools/docs:
+    dependencies:
+      '@diagrist/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
+      '@diagrist/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      '@diagrist/lang':
+        specifier: workspace:*
+        version: link:../../packages/lang
     devDependencies:
       '@diagrist/testkit':
         specifier: workspace:*

@@ -1,6 +1,7 @@
 # Burn-down
 
-Debt we accept on purpose, each with the reason and what removes it. Strike items when they are done.
+Debt we accept on purpose. Each entry gives the reason and what removes it. An entry is deleted in the change that
+settles it, and that change says so in its description.
 
 ## Byte-identical sequence diagrams (ADR 0008 Nr. 5)
 
@@ -22,10 +23,6 @@ in one clean-up with a second baseline.
 
 ## Waiting for a second user (ADR 0008 Nr. 6)
 
-- ~~Palette, strokes and fonts (`plugins/plugin-uml/src/theme.ts`) move to the kernel with the second plugin.~~
-  Done: `packages/core/src/standard` (ADR 0014).
-- ~~Title header and decision bar (`plugins/plugin-uml/src/shared`) move to a small library then.~~ Done:
-  `packages/parts` (ADR 0014).
 - **Legend mechanics have no plugin yet.** `legendLayout` and `legendShapes` in `packages/parts` are tested against
   the predecessor's `radverleih/kontext.dgr`; C4 is their first user.
 
@@ -43,8 +40,7 @@ They change the SVG of the 15 examples, so they wait for the clean-up with a sec
 
 ## Not derived yet (ADR 0004)
 
-~~JSON schema of the grammar, completion, language spec and agent skill.~~ Done: `GRAMMAR_SCHEMA` and `complete` in
-`lang`, the files from `pnpm docs:generate`. Two pieces remain:
+ADR 0004 asks that a derivative which cannot be generated yet is listed here, with what it waits for.
 
 - **JSON schema of a kind's statements as data.** No command reads or writes statements as JSON yet, so a schema
   of the typed values (`Infer`) would have no user. Clean-up: derive it from the tables when such a command arrives.

@@ -5,6 +5,7 @@ export function usageOf(specs: readonly ArgumentSpec[]): string {
   return specs.map(argumentLabel).join(' ');
 }
 
+/** One argument as written in a usage line: `<file>`, `[kind]` when optional, `<files...>` when many. */
 export function argumentLabel(spec: ArgumentSpec): string {
   if (spec.count === 'many') return `<${spec.name}...>`;
   return spec.count === 'optional' ? `[${spec.name}]` : `<${spec.name}>`;

@@ -6,12 +6,14 @@ import { type LineContext, readLine, report } from './read-line.js';
 import type { Infer, KindSpec, StatementSpec } from './spec.js';
 import { nearest } from './suggest.js';
 
+/** The first line of a diagram, `diagram <kind> "Title"`, read against the header table of its kind. */
 export interface Header {
   readonly title: string;
   readonly attributes: Readonly<Record<string, unknown>>;
   readonly line: number;
 }
 
+/** A diagram read against the tables of its kind: the header, the statements typed from them, and what was wrong. */
 export interface KindReading<S> {
   readonly header?: Header;
   readonly statements: readonly S[];

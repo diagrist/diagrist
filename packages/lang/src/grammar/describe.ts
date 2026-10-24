@@ -11,6 +11,7 @@ export interface Grammar {
   readonly statements: readonly GrammarStatement[];
 }
 
+/** One value of a line as data: an argument, a clause, an attribute or a header field, with its doc. */
 export interface GrammarField {
   readonly name: string;
   readonly doc: string;
@@ -23,6 +24,7 @@ export interface GrammarField {
   readonly refersTo?: readonly string[];
 }
 
+/** One line as data, the shape shared by statements, line forms and the header. */
 export interface GrammarLine {
   readonly doc: string;
   readonly examples: readonly string[];
@@ -32,6 +34,7 @@ export interface GrammarLine {
   readonly flags: readonly { readonly name: string; readonly doc: string }[];
 }
 
+/** A statement as data, with the statements it allows indented below it and its line form. */
 export interface GrammarStatement extends GrammarLine {
   readonly keyword: string;
   readonly children: readonly (GrammarStatement | GrammarReference)[];

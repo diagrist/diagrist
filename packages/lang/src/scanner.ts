@@ -5,8 +5,10 @@ import { type Span, span } from './span.js';
 /** Longest first, so `--|>` wins over `-->` and `--`. `o--` and `*--` are the diamond ends of UML. */
 export const OPERATORS = ['<->', '--|>', '-->', '-|>', '->', 'o--', '*--', '--', '~>', '=>', '='] as const;
 
+/** An operator the scanner recognises; `OPERATORS` is ordered so that a longer operator is tried before its prefix. */
 export type Operator = (typeof OPERATORS)[number];
 
+/** One piece of a line as the scanner splits it, with its span; an attribute keeps key and value apart. */
 export type Token =
   | { readonly kind: 'word'; readonly value: string; readonly span: Span }
   | { readonly kind: 'text'; readonly value: string; readonly span: Span }
@@ -33,6 +35,7 @@ export interface Line {
   readonly comment?: Comment;
 }
 
+/** A file split into lines of tokens, with what could not be scanned. */
 export interface Scan {
   readonly lines: readonly Line[];
   readonly diagnostics: readonly Diagnostic[];

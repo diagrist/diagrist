@@ -1,16 +1,24 @@
-import { code, generatedFrom, table } from '../derived/markdown.js';
-import { DESCRIPTION, PROGRAM_NAMES } from '../manifest.js';
-import { DIAGNOSTIC_FIELDS } from '../report/diagnostics.js';
-import { type Command, EXIT_CODES, GLOBAL_OPTIONS, JSON_ENVELOPE, type Options, ROOT_OPTIONS } from './command.js';
-import { argumentLabel, commandLine, optionLabel, summaryOf } from './usage.js';
+import {
+  argumentLabel,
+  type Command,
+  commandLine,
+  DESCRIPTION,
+  DIAGNOSTIC_FIELDS,
+  EXIT_CODES,
+  GLOBAL_OPTIONS,
+  JSON_ENVELOPE,
+  type Options,
+  optionLabel,
+  PROGRAM_NAMES,
+  ROOT_OPTIONS,
+  summaryOf,
+} from '@diagrist/cli/tables';
+import { code, generatedFrom, table } from './markdown.js';
 
 /** Where the reference is checked in, relative to the repository root. */
 export const REFERENCE_PATH = 'docs/cli.md';
 
-/**
- * The command reference in Markdown, derived from the same tables as `dgr help` (ADR 0004). It is checked in
- * as docs/cli.md with the other derived files (`derivedFiles`).
- */
+/** The command reference in Markdown, derived from the same tables as `dgr help` (ADR 0004). */
 export function reference(commands: readonly Command[]): string {
   return [
     generatedFrom('the command tables in packages/cli/src/commands'),

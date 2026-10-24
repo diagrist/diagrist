@@ -1,5 +1,7 @@
 import { readFileSync } from 'node:fs';
+import { GRAMMAR_SCHEMA } from '@diagrist/lang';
 import { umlPlugin } from '@diagrist/plugin-uml';
+import { validateJson } from '@diagrist/testkit';
 import { describe, expect, it } from 'vitest';
 import { coreEngine } from '../src/core-engine.js';
 import { call, callJson } from './support/memory-io.js';
@@ -39,5 +41,12 @@ describe('the CLI with the real kernel and the UML plugin', () => {
     const grammar = await callJson(['grammar', 'sequence'], { engine });
     expect(grammar.exitCode).toBe(0);
     expect(JSON.stringify(grammar.json)).toContain('"keyword":"msg"');
+  });
+
+  it('prints a grammar for every kind that validates against the published schema', async () => {
+    for (const kind of engine.kinds()) {
+      const { json } = await callJson(['grammar', kind], { engine });
+      expect(validateJson(GRAMMAR_SCHEMA, json.grammar)).toEqual([]);
+    }
   });
 });

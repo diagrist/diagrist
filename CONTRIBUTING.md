@@ -6,7 +6,7 @@ Thanks for helping. Diagrist is built in the open; a few rules keep it clean.
 
 ```sh
 pnpm install          # also activates the git hooks (core.hooksPath = .githooks)
-pnpm check            # lint, typecheck, tests
+pnpm check            # lint, typecheck, tests, dead code (knip)
 ```
 
 The hooks need [gitleaks](https://github.com/gitleaks/gitleaks) on your PATH.

@@ -23,6 +23,7 @@ export interface PlacedNode {
   readonly row: number;
 }
 
+/** A placed frame (`GridGroup`): the rectangle around its member nodes and child frames. */
 export interface PlacedGroup {
   readonly id: string;
   readonly rect: Rect;

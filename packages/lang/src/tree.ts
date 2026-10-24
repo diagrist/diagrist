@@ -3,7 +3,9 @@ import { LANG_CODES } from './messages.js';
 import { type Comment, type Line, scan, type Token } from './scanner.js';
 import type { Span } from './span.js';
 
+/** A positional token of a line: a word, a text or an operator. */
 export type Argument = Exclude<Token, { kind: 'attribute' }>;
+/** A `key=value` token of a line. */
 export type Attribute = Extract<Token, { kind: 'attribute' }>;
 
 /** What every line in the tree has, statement or entry. */
@@ -41,12 +43,14 @@ export interface Entry extends Part {
   readonly textSpan: Span;
 }
 
+/** A whole file as a statement tree, with its comments, so `print` can write it back formatted. */
 export interface Document {
   readonly statements: readonly Statement[];
   /** Comment lines after the last statement. */
   readonly trailingComments: readonly Comment[];
 }
 
+/** What `read` returns: a tree even when the file has errors, and the diagnostics that say where. */
 export interface Reading {
   readonly document: Document;
   readonly diagnostics: readonly Diagnostic[];

@@ -5,11 +5,13 @@ export interface Finding extends Diagnostic {
   readonly message: string;
 }
 
+/** How the engine is asked to compile one source. */
 export interface CompileOptions {
   /** Language of the finding messages. Texts inside the picture follow the `locale` header (ADR 0008). */
   readonly locale: Locale;
 }
 
+/** What the engine gives back for one source: the SVG, or the findings that prevented it, or both. */
 export interface Compilation {
   /** The picture, present exactly when no finding has severity `error`. */
   readonly svg?: string;

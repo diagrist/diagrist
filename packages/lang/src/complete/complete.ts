@@ -12,6 +12,7 @@ export interface Position {
   readonly column: number;
 }
 
+/** What `complete` proposes at a position, and which part of the line an accepted item replaces. */
 export interface Completion {
   /** The word typed so far, which an item replaces; after `key=` only the part behind `=`. Empty at a space. */
   readonly span: Span;

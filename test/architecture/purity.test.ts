@@ -5,7 +5,8 @@ import { lineOf, type Node, parse, sourceFiles } from './source.js';
  * Kernel and plugins must render the same bytes for the same input, in Node, browsers and edge runtimes.
  * Their sources therefore use no clock, no randomness, no console, no timers, no network and no Node APIs.
  * The CLI follows the same rule so its commands run in tests on in-memory input and output; only its host
- * adapters touch the process and the file system.
+ * adapters touch the process and the file system. The workspace tools derive files as strings and leave writing
+ * them to their tests, so they follow it too.
  */
 const PURE_SOURCES = [
   /^packages\/lang\/src\//,
@@ -14,6 +15,7 @@ const PURE_SOURCES = [
   /^packages\/layout-grid\/src\//,
   /^packages\/cli\/src\//,
   /^plugins\/[^/]+\/src\//,
+  /^tools\/[^/]+\/src\//,
 ];
 
 const FORBIDDEN_GLOBALS = new Set([

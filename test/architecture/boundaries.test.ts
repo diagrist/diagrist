@@ -1,7 +1,6 @@
-import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { lineOf, nodes, parse, repository, sourceFiles } from './source.js';
+import { lineOf, manifest, nodes, packageOf, parse, sourceFiles } from './source.js';
 
 /**
  * Package boundaries are derived from each package.json (ADR 0004): a package may import another Diagrist
@@ -43,16 +42,11 @@ describe('package boundaries', () => {
   });
 });
 
-function packageOf(file: string): string | undefined {
-  return /^(packages|plugins)\/[^/]+/.exec(file)?.[0];
-}
-
 function declaredDependencies(root: string, includeDev: boolean): string[] {
-  const manifest = join(repository, root, 'package.json');
-  if (!existsSync(manifest)) return [];
-  const json = JSON.parse(readFileSync(manifest, 'utf8')) as Record<string, Record<string, string> | undefined>;
-  const groups = ['dependencies', 'peerDependencies', ...(includeDev ? ['devDependencies'] : [])];
-  return groups.flatMap((group) => Object.keys(json[group] ?? {}));
+  const { dependencies, peerDependencies, devDependencies } = manifest(root);
+  return [dependencies, peerDependencies, includeDev ? devDependencies : undefined].flatMap((group) =>
+    Object.keys(group ?? {}),
+  );
 }
 
 const SHARED_BUILD_CONFIG = 'tsdown.config.ts';

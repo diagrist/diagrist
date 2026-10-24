@@ -1,6 +1,7 @@
 packages:
   - packages/*
   - plugins/*
+  - tools/*
 
 # Supply chain (pnpm 11). The first three are pnpm defaults, pinned here on purpose.
 minimumReleaseAge: 1440 # install new versions only after 24 hours

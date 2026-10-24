@@ -2,7 +2,7 @@
   "name": "@diagrist/testkit",
   "version": "0.0.0",
   "private": true,
-  "description": "Test helpers for Diagrist plugins: golden files and determinism checks.",
+  "description": "Test helpers for Diagrist packages: golden files and a strict check against the subset of JSON Schema that Diagrist uses.",
   "license": "Apache-2.0",
   "type": "module",
   "exports": {

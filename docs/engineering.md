@@ -1,43 +1,57 @@
 # Engineering principles
 
-How Diagrist is built. Short on purpose; if a rule is not here, prefer what makes the code easier to read.
+How Diagrist is built. This page is short on purpose; where it says nothing, prefer what makes the code easier
+to read. `AGENTS.md` has the practical side: where code lives, the commands, and the rules that fail the build.
 
 ## Working together
 
-- **Small steps, one pull request each.** The description says what changed, why, how it was tested, and what
-  was deliberately left out.
-- **Understand before porting.** Code from the predecessor project is reviewed area by area and taken over,
-  reworked, rewritten or dropped on purpose. Nothing is copied blindly.
-- **Decisions are recorded briefly** in `docs/adr/`: context, decision, consequences, a few lines each.
-- **When in doubt, ask** instead of building on an assumption.
-- **Work in parallel through ports** (ADR 0009). A stream owns its paths, builds against a port that the consumer
-  defines, and joins in a separate small change. Fakes exist only in tests, and only for ports.
+We work in small steps, one pull request each. Its description says what changed, why, how it was tested and
+what was deliberately left out.
+
+Code from the predecessor project is understood before it is ported. It is reviewed area by area and then taken
+over, reworked, rewritten or dropped on purpose; nothing is copied blindly.
+
+Decisions are recorded briefly in `docs/adr/`, with context, decision and consequences in a few lines each. When
+in doubt, ask instead of building on an assumption.
+
+Parallel work goes through ports (ADR 0009). A stream owns its paths, builds against a port that the consumer
+defines, and joins the others in a separate small change. Fakes exist only in tests, and only for ports.
 
 ## Code
 
-- **One source, everything else derived** (ADR 0004). Before writing something by hand, check whether it can be
-  derived from an existing source; if it can, derive it.
-- **Agents first** (ADR 0005). Every statement, attribute and diagnostic tells an agent what is allowed and what
-  happens, with an example.
+There is one source, and everything else is derived from it (ADR 0004). Before writing a list, a type or a doc by
+hand, check whether it can be derived from an existing source; if it can, derive it. Agents come first
+(ADR 0005): every statement, attribute and diagnostic tells an agent what is allowed and what happens, with an
+example.
 
-- **Readable over clever.** Names say what a thing is. A function does one job.
-- **Data in, data out.** No hidden side effects, no global state. Errors are diagnostics (data with line and code),
-  not exceptions.
-- **Deterministic.** Same input, same bytes. No clock, no randomness without a seed, no network.
-- **No abstraction without a second real user.** No code "for later".
-- **Small public API.** Everything exported is documented (TSDoc) and typed explicitly; everything else stays internal.
-- **No comments, only TSDoc.** Names and structure explain the code; when a declaration needs more, it gets a
-  TSDoc block (`/** ... */`). Line and block comments are rejected by `test/architecture/comments.test.ts`.
-  Code, TSDoc, commits and public docs are in English.
-- Files stay small: at most 200 lines. A longer file usually does two things.
-- **Enforced as tests** in `test/architecture`: TSDoc-only comments that say more than the name, purity of kernel,
-  plugins and the CLI outside its host adapters (no clock, randomness, console, Node APIs), package boundaries
-  derived from `package.json`, file size. knip rejects dead code. See `AGENTS.md` for the full list.
+Readable beats clever. Names say what a thing is, and a function does one job. Code takes data in and gives data
+out, with no hidden side effects and no global state. Errors are diagnostics, data with a line and a code, not
+exceptions. Output is deterministic: the same input gives the same bytes, so there is no clock, no randomness
+without a seed and no network.
+
+There is no abstraction without a second real user, and no code "for later". The public API stays small:
+everything exported is typed explicitly and documented with TSDoc, everything else stays internal.
+
+Code has no comments, only TSDoc. Names and structure explain the code; when a declaration needs more, it gets a
+TSDoc block (`/** ... */`). Code, TSDoc, commits and public docs are in English. Files stay at 200 lines or
+less, because a longer file usually does two things.
+
+Most of these rules are tests in `test/architecture`: TSDoc only, and saying more than the name; documented
+public APIs listed name by name; purity of the kernel, the plugins, the tools and the CLI outside its host
+adapters; package boundaries derived from `package.json`; imports that never reach from `src` into `test` and
+form no cycle; file size; no parked tests. knip rejects dead code. `AGENTS.md` lists them all.
 
 ## Tests
 
-- **Test behaviour through the public API**, never internals, so code can be reshaped without rewriting tests.
-- **Every test must be able to catch a bug we can name.** No tests for the trivial.
-- **Golden files sparingly:** a few representative examples per diagram kind. A golden file proves that nothing
-  changed, not that it is right; specific tests next to it check the rules.
-- **Every bug gets a failing test first**, then the fix.
+Tests check behaviour through the public API, never internals, so code can be reshaped without rewriting them.
+Every test must be able to catch a bug we can name; the trivial is not tested.
+
+Golden files are used sparingly, a few representative examples per diagram kind. A golden file proves that
+nothing changed, not that it is right, so specific tests next to it check the rules. Every bug gets a failing
+test first, then the fix.
+
+## Docs
+
+Docs are prose in short paragraphs, tables where they help, no bullet-point soup. A list is for things that
+really are a list, such as steps in order or the crutches in `docs/burn-down.md`; reasons and rules are written
+as sentences. Generated docs are never edited by hand: change their source and run `pnpm docs:generate`.

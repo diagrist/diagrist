@@ -1,4 +1,16 @@
 # packages
 
-Kernel and infrastructure: `lang`, `core`, `parts` (shared pieces of plugins), `layout-*`, `testkit`, `cli`, `lsp`, `mcp`, `diagrist` (meta package).
-See `docs/architecture.md` once written.
+The language, the kernel and the infrastructure around them. Each package has its own `package.json`, and a
+package may import another only if it declares it there; `AGENTS.md` lists what each one holds.
+
+| Package | What it is |
+|---|---|
+| `lang` | Scanner, statement tree, printer, statement tables and diagnostics of the `.dgr` language. |
+| `core` | The kernel: plugin registry, `compile`, scene, text metrics, SVG, placement check and the standard look. |
+| `parts` | Pieces several plugins draw alike: title header, decision bar, legend. |
+| `layout-grid` | Grid layout for plugins: places nodes and frames, routes edges, places labels. |
+| `testkit` | Golden files and a strict JSON Schema check, for tests only. |
+| `cli` | The command line `dgr`. |
+
+Further layout libraries (`layout-*`), a language server (`lsp`), an MCP server (`mcp`) and the meta package
+`diagrist` are planned and will live here too.

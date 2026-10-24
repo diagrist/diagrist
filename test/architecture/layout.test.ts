@@ -1,7 +1,5 @@
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { lineOf, nodes, parse, repository, sourceFiles } from './source.js';
+import { lineOf, manifest, nodes, packageOf, parse, sourceFiles } from './source.js';
 
 /**
  * Layout libraries such as `@diagrist/layout-grid` serve every kind and therefore know none (ADR 0015): they depend
@@ -29,15 +27,12 @@ describe('layout libraries', () => {
   const files = sourceFiles().filter((file) => LIBRARIES.test(file));
 
   it('depend on the kernel only', () => {
-    const roots = [...new Set(files.map((file) => file.split('/').slice(0, 2).join('/')))];
-    const offending = roots.flatMap((root) => {
-      const json = JSON.parse(readFileSync(join(repository, root, 'package.json'), 'utf8')) as {
-        dependencies?: Record<string, string>;
-      };
-      return Object.keys(json.dependencies ?? {})
+    const roots = [...new Set(files.map(packageOf))].filter((root) => root !== undefined);
+    const offending = roots.flatMap((root) =>
+      Object.keys(manifest(root).dependencies ?? {})
         .filter((name) => name !== '@diagrist/core')
-        .map((name) => `${root} depends on ${name}`);
-    });
+        .map((name) => `${root} depends on ${name}`),
+    );
     expect(offending).toEqual([]);
   });
 

@@ -1,8 +1,10 @@
 import { list, nearest } from '@diagrist/lang';
-import { SCHEMA_PATH } from '../derived/overview.js';
 import { problem } from '../messages.js';
 import { type Command, command } from './command.js';
 import { grammarText } from './grammar-text.js';
+
+/** Where the JSON Schema of the grammar is checked in, relative to the repository root; `tools/docs` writes it. */
+export const SCHEMA_PATH = 'schemas/grammar.schema.json';
 
 export const grammar: Command = command({
   name: 'grammar',

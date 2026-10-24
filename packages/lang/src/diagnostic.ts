@@ -1,5 +1,6 @@
 import type { Span } from './span.js';
 
+/** An `error` stops the build and fails `dgr check`; a `warning` is reported and the picture is still drawn. */
 export type Severity = 'error' | 'warning';
 
 /**
@@ -13,6 +14,7 @@ export interface Diagnostic {
   readonly values: Readonly<Record<string, string>>;
 }
 
+/** Builds a diagnostic; `values` fill the slots of its message and default to none. */
 export function diagnostic(
   code: string,
   severity: Severity,

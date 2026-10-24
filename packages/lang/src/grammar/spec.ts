@@ -9,6 +9,7 @@ export interface Arg<N extends string = string, T = unknown, O extends boolean =
   readonly doc: string;
 }
 
+/** A named value of a line: an attribute written `key=value`, a clause, or a field of the header. */
 export interface Attr<T = unknown> {
   readonly value: Value<T>;
   readonly doc: string;
@@ -19,10 +20,12 @@ export function arg<const N extends string, T>(name: N, value: Value<T>, doc: st
   return { name, value, optional: false, doc };
 }
 
+/** An argument that may be left out; it is skipped when the next token does not fit its value. */
 export function optionalArg<const N extends string, T>(name: N, value: Value<T>, doc: string): Arg<N, T, true> {
   return { name, value, optional: true, doc };
 }
 
+/** An attribute, clause or header field with its value type and what it means. */
 export function attr<T>(value: Value<T>, doc: string): Attr<T> {
   return { value, doc };
 }
@@ -40,6 +43,7 @@ export interface LineSpec {
   readonly flags: Readonly<Record<string, string>>;
 }
 
+/** The table of one statement: its keyword, its line, and the statements allowed indented below it. */
 export interface StatementSpec<K extends string = string> extends LineSpec {
   readonly keyword: K;
   readonly children: readonly StatementSpec[];
@@ -47,6 +51,7 @@ export interface StatementSpec<K extends string = string> extends LineSpec {
   readonly lines?: LineSpec;
 }
 
+/** The tables of a diagram kind: its name as written after `diagram`, its header fields, its top-level statements. */
 export interface KindSpec<S extends readonly StatementSpec[] = readonly StatementSpec[]> {
   readonly name: string;
   readonly doc: string;
@@ -63,6 +68,10 @@ type Definition<S> = {
   readonly flags?: Readonly<Record<string, string>>;
 } & S;
 
+/**
+ * Declares a statement table. Left-out parts default to none; the result keeps the literal types of the definition,
+ * so `Infer` can type what `readKind` reads.
+ */
 export function statement<
   const K extends string,
   const D extends Definition<{ readonly children?: readonly StatementSpec[]; readonly lines?: LineSpec }>,
@@ -70,10 +79,12 @@ export function statement<
   return { keyword, children: [], ...complete(definition) } as StatementSpec<K> & Complete<D>;
 }
 
+/** Declares a line form (ADR 0006): the shape of indented lines that start without a keyword. */
 export function lines<const D extends Definition<object>>(definition: D): LineSpec & Complete<D> {
   return complete(definition) as LineSpec & Complete<D>;
 }
 
+/** Declares the tables of a diagram kind; a kind without header fields gets an empty header. */
 export function kind<const S extends readonly StatementSpec[]>(
   name: string,
   definition: { doc: string; header?: Readonly<Record<string, Attr>>; statements: S },

@@ -5,6 +5,7 @@ import type { Argument, Attribute } from '../tree.js';
 /** What can be inserted: a keyword, a clause keyword, `key=`, a flag, an allowed value or a declared id. */
 export type CompletionKind = 'keyword' | 'clause' | 'attribute' | 'flag' | 'value' | 'id';
 
+/** One proposal of `complete`, as an editor lists it. */
 export interface CompletionItem {
   /** The text that replaces the word typed so far. */
   readonly label: string;

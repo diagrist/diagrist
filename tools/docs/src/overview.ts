@@ -1,14 +1,11 @@
+import { SCHEMA_PATH, summaryOf } from '@diagrist/cli/tables';
 import type { Plugin } from '@diagrist/core';
-import { summaryOf } from '../commands/usage.js';
 import { LANGUAGE_BASICS } from './basics.js';
 import { kernelCodes, languageCodes } from './codes.js';
 import { code, generatedFrom, table } from './markdown.js';
 
 /** Where the overview of the language is checked in, relative to the repository root. */
 export const OVERVIEW_PATH = 'docs/language/README.md';
-
-/** Where the JSON Schema of the grammar is checked in, relative to the repository root. */
-export const SCHEMA_PATH = 'schemas/grammar.schema.json';
 
 /**
  * The overview of the language: how every file is written, the kinds with links to their specs, where the grammar

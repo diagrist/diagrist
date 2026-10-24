@@ -14,6 +14,9 @@
       "@diagrist/source": "./src/index.ts",
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
+    },
+    "./tables": {
+      "@diagrist/source": "./src/tables.ts"
     }
   },
   "files": [

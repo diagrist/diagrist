@@ -1,6 +1,7 @@
 /** Why a file could not be read or written. The CLI turns it into a message in the requested locale. */
 export type FileProblem = 'missing' | 'directory' | 'denied' | 'failed';
 
+/** The text of a file read as UTF-8, or why it could not be read. */
 export type FileRead = { readonly text: string } | { readonly problem: FileProblem };
 
 /**

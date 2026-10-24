@@ -5,6 +5,7 @@ export interface Span {
   readonly length: number;
 }
 
+/** A span from 1-based line and column over `length` characters. */
 export function span(line: number, column: number, length: number): Span {
   return { line, column, length };
 }

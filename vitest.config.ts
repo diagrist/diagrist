@@ -2,11 +2,11 @@ import { existsSync, readdirSync } from 'node:fs';
 import { defineConfig } from 'vitest/config';
 
 /**
- * One test project per package under packages/ and plugins/, plus the architecture tests.
+ * One test project per package under packages/, plugins/ and tools/, plus the architecture tests.
  * Defined inline so every project inherits the settings below; projects referenced as folders would not.
  */
 const projectRoots = [
-  ...['packages', 'plugins'].flatMap((group) =>
+  ...['packages', 'plugins', 'tools'].flatMap((group) =>
     existsSync(group)
       ? readdirSync(group, { withFileTypes: true })
           .filter((entry) => entry.isDirectory())

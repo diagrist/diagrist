@@ -2,6 +2,7 @@ import type { Argument } from '../tree.js';
 
 export type TokenKind = Argument['kind'];
 
+/** A token read as a value, or `ok: false` when it does not fit; the caller reports what was expected. */
 export type ValueResult<T> = { readonly ok: true; readonly value: T } | { readonly ok: false };
 
 /**

@@ -1,9 +1,9 @@
+import { headerLine, signatureOf, summaryOf } from '@diagrist/cli/tables';
 import type { Kind } from '@diagrist/core';
 import { type GrammarField, type GrammarLine, grammarOf } from '@diagrist/lang';
-import { summaryOf } from '../commands/usage.js';
 import { ruleCodes } from './codes.js';
 import { code, generatedFrom, table } from './markdown.js';
-import { headerLine, type Placed, placedStatements, signatureOf, whereOf } from './statements.js';
+import { type PlacedStatement, placedStatements, whereOf } from './statements.js';
 
 /** Where the language spec of a kind is checked in, relative to the repository root. */
 export const specPath = (kind: string): string => `docs/language/${kind}.md`;
@@ -49,13 +49,13 @@ export function languageSpec(kind: Kind, plugin: string): string {
 }
 
 /** Where a statement may stand, as a sentence that names every block. */
-function placement(placed: Placed): string {
+function placement(placed: PlacedStatement): string {
   const blocks = placed.parents.map(code).join(', ');
   if (!placed.topLevel) return `Written only inside ${blocks}.`;
   return placed.parents.length > 0 ? `Written at the top level and inside ${blocks}.` : 'Written at the top level.';
 }
 
-function statementSection(placed: Placed): string[] {
+function statementSection(placed: PlacedStatement): string[] {
   const { statement } = placed;
   const children = statement.children.map((child) => code(child.keyword));
   const notes = [placement(placed), ...(children.length > 0 ? [`Indented below it: ${children.join(', ')}.`] : [])];
@@ -117,7 +117,7 @@ function lineSection(head: string, line: GrammarLine, notes = ''): string[] {
 }
 
 /** GitHub's anchor of each statement heading; a keyword described twice gets `-1`, `-2` as GitHub numbers them. */
-function anchorsOf(placed: readonly Placed[]): Map<Placed, string> {
+function anchorsOf(placed: readonly PlacedStatement[]): Map<PlacedStatement, string> {
   const seen = new Map<string, number>();
   return new Map(
     placed.map((p) => {
