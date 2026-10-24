@@ -10,6 +10,15 @@ export const LANG_CODES = {
   missingKeyword: 'L002',
   tabIndent: 'L003',
   duplicateAttribute: 'L004',
+  missingHeader: 'L100',
+  unknownKeyword: 'L101',
+  missingArgument: 'L102',
+  invalidValue: 'L103',
+  unexpectedToken: 'L104',
+  unknownAttribute: 'L105',
+  noLinesHere: 'L106',
+  unknownReference: 'L107',
+  duplicateId: 'L108',
 } as const;
 
 const MESSAGES: Readonly<Record<string, Readonly<Record<Locale, Template>>>> = {
@@ -24,6 +33,47 @@ const MESSAGES: Readonly<Record<string, Readonly<Record<Locale, Template>>>> = {
   L003: {
     en: () => 'Indent with spaces, not tabs.',
     de: () => 'Mit Leerzeichen einrücken, nicht mit Tabs.',
+  },
+  L100: {
+    en: (v) => `A diagram starts with \`diagram ${v.kind} "Title"\`.`,
+    de: (v) => `Ein Diagramm beginnt mit \`diagram ${v.kind} "Titel"\`.`,
+  },
+  L101: {
+    en: (v) =>
+      `Unknown keyword \`${v.found}\` here${v.suggestion ? `; did you mean \`${v.suggestion}\`?` : '.'} Allowed: ${v.allowed}.`,
+    de: (v) =>
+      `Unbekanntes Schlüsselwort \`${v.found}\` an dieser Stelle${v.suggestion ? `; gemeint ist wohl \`${v.suggestion}\`?` : '.'} Erlaubt: ${v.allowed}.`,
+  },
+  L102: {
+    en: (v) => `\`${v.statement}\` needs ${v.name}: ${v.expected}. Example: \`${v.example}\``,
+    de: (v) => `\`${v.statement}\` braucht ${v.name}: ${v.expected}. Beispiel: \`${v.example}\``,
+  },
+  L103: {
+    en: (v) => `\`${v.found}\` is not valid for ${v.name}; expected ${v.expected}.`,
+    de: (v) => `\`${v.found}\` passt nicht zu ${v.name}; erwartet: ${v.expected}.`,
+  },
+  L104: {
+    en: (v) =>
+      `\`${v.found}\` is not expected in \`${v.statement}\`. Allowed after the arguments: ${v.allowed}. Example: \`${v.example}\``,
+    de: (v) =>
+      `\`${v.found}\` ist in \`${v.statement}\` nicht vorgesehen. Erlaubt nach den Argumenten: ${v.allowed}. Beispiel: \`${v.example}\``,
+  },
+  L105: {
+    en: (v) => `\`${v.statement}\` has no attribute \`${v.key}\`. Allowed: ${v.allowed}.`,
+    de: (v) => `\`${v.statement}\` hat kein Attribut \`${v.key}\`. Erlaubt: ${v.allowed}.`,
+  },
+  L106: {
+    en: (v) => `\`${v.statement}\` takes no indented lines without a keyword. Allowed child keywords: ${v.allowed}.`,
+    de: (v) =>
+      `\`${v.statement}\` erlaubt keine eingerückten Zeilen ohne Schlüsselwort. Erlaubte Schlüsselwörter: ${v.allowed}.`,
+  },
+  L107: {
+    en: (v) => `\`${v.found}\` is not declared; ${v.name} must be ${v.expected}. Declared: ${v.known}.`,
+    de: (v) => `\`${v.found}\` ist nicht deklariert; ${v.name} muss sein: ${v.expected}. Deklariert: ${v.known}.`,
+  },
+  L108: {
+    en: (v) => `The id \`${v.found}\` is already declared in line ${v.first}. Ids are unique within a diagram.`,
+    de: (v) => `Die Id \`${v.found}\` ist schon in Zeile ${v.first} deklariert. Ids sind je Diagramm eindeutig.`,
   },
   L004: {
     en: (v) => `Attribute ${v.key} is set twice; the last value wins.`,

@@ -22,7 +22,7 @@ describe('print', () => {
 
   it('keeps comments above, inline and at the end, including aligned continuations', () => {
     const source = '# owned by platform\n#     and audited\nnode api # public\n\n# end';
-    expect(format(source)).toBe(source + '\n');
+    expect(format(source)).toBe(`${source}\n`);
   });
 
   it('quotes texts and attribute values only where needed, escaping quotes and backslashes', () => {
