@@ -38,6 +38,9 @@ importers:
       '@diagrist/core':
         specifier: workspace:*
         version: link:../core
+      '@diagrist/export-png':
+        specifier: workspace:*
+        version: link:../../plugins/export-png
       '@diagrist/lang':
         specifier: workspace:*
         version: link:../lang

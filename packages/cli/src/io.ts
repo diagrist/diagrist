@@ -9,8 +9,11 @@ export type FileRead = { readonly text: string } | { readonly problem: FileProbl
  */
 export interface Io {
   readFile(path: string): Promise<FileRead>;
-  /** Resolves to the problem when writing failed, to `undefined` when the file was written. */
-  writeFile(path: string, text: string): Promise<FileProblem | undefined>;
+  /**
+   * Writes text as UTF-8 or bytes as they are. Resolves to the problem when writing failed, to `undefined` when
+   * the file was written.
+   */
+  writeFile(path: string, content: string | Uint8Array): Promise<FileProblem | undefined>;
   stdout(text: string): void;
   stderr(text: string): void;
 }

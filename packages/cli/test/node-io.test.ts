@@ -6,6 +6,7 @@ import { describe, expect, it } from 'vitest';
 import { run } from '../src/index.js';
 import { nodeIo } from '../src/node-io.js';
 import { fakeEngine } from './support/fake-engine.js';
+import { fakeRaster } from './support/fake-raster.js';
 
 describe('the Node adapter', () => {
   it('lets `dgr fmt` rewrite a real file', async () => {
@@ -13,7 +14,7 @@ describe('the Node adapter', () => {
     writeFileSync(file, 'diagram sequence "Login"\n    participant api "API"\n\n\n\nparticipant db "DB"\n');
     const printed: string[] = [];
     const io = { ...nodeIo(), stdout: (text: string) => void printed.push(text) };
-    expect(await run(['fmt', file], io, fakeEngine())).toBe(0);
+    expect(await run(['fmt', file], io, fakeEngine(), fakeRaster())).toBe(0);
     expect(readFileSync(file, 'utf8')).toBe(
       'diagram sequence "Login"\n  participant api "API"\n\nparticipant db "DB"\n',
     );
@@ -31,10 +32,19 @@ describe('the Node adapter', () => {
     });
     const stderr = new Writable({ write: (_chunk, _encoding, done) => done() });
     const io = nodeIo({ stdout, stderr });
-    expect(await run(['help'], io, fakeEngine())).toBe(0);
+    expect(await run(['help'], io, fakeEngine(), fakeRaster())).toBe(0);
     io.stdout('more\n');
     await new Promise((resolve) => setImmediate(resolve));
     expect(writes).toHaveLength(1);
+  });
+
+  it('writes bytes as they are and text as UTF-8', async () => {
+    const dir = mkdtempSync(join(tmpdir(), 'diagrist-cli-'));
+    const bytes = new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00, 0xff]);
+    expect(await nodeIo().writeFile(join(dir, 'a.png'), bytes)).toBeUndefined();
+    expect(new Uint8Array(readFileSync(join(dir, 'a.png')))).toEqual(bytes);
+    await nodeIo().writeFile(join(dir, 'a.svg'), '<svg>Größe</svg>');
+    expect(readFileSync(join(dir, 'a.svg'), 'utf8')).toBe('<svg>Größe</svg>');
   });
 
   it('reports a missing file and a directory as such', async () => {

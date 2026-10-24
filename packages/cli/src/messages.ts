@@ -17,7 +17,10 @@ export type ProblemName =
   | 'unreadable'
   | 'unwritable'
   | 'unknownKind'
-  | 'commandFirst';
+  | 'commandFirst'
+  | 'invalidScale'
+  | 'scaleWithoutPng'
+  | 'unrenderable';
 
 type TextName =
   | 'formatted'
@@ -97,6 +100,26 @@ const PROBLEMS: Readonly<Record<ProblemName, Texts & { readonly code: string }>>
     code: 'C012',
     en: (v) => `The command comes first, before any option: \`dgr ${v.found} …\`. Example: \`dgr help\``,
     de: (v) => `Der Befehl steht vorn, vor allen Optionen: \`dgr ${v.found} …\`. Beispiel: \`dgr help\``,
+  },
+  invalidScale: {
+    code: 'C013',
+    en: (v) =>
+      `\`--scale ${v.found}\` is not a factor from ${v.min} to ${v.max}; 2 doubles width and height. Example: \`${v.example}\``,
+    de: (v) =>
+      `\`--scale ${v.found}\` ist kein Faktor von ${v.min} bis ${v.max}; 2 verdoppelt Breite und Höhe. Beispiel: \`${v.example}\``,
+  },
+  scaleWithoutPng: {
+    code: 'C014',
+    en: (v) => `\`--scale\` sizes the PNG, so it needs \`--png\`; the SVG has no pixels. Example: \`${v.example}\``,
+    de: (v) =>
+      `\`--scale\` bestimmt die Größe des PNG und braucht deshalb \`--png\`; das SVG hat keine Pixel. Beispiel: \`${v.example}\``,
+  },
+  unrenderable: {
+    code: 'C015',
+    en: (v) =>
+      `Cannot render \`${v.file}\` as PNG (${v.problem}: ${v.detail}), so nothing was written. Without \`--png\` the SVG is still built: \`${v.example}\``,
+    de: (v) =>
+      `\`${v.file}\` lässt sich nicht als PNG zeichnen (${v.problem}: ${v.detail}), daher wurde nichts geschrieben. Ohne \`--png\` entsteht das SVG trotzdem: \`${v.example}\``,
   },
 };
 

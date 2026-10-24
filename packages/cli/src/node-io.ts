@@ -17,8 +17,8 @@ export function nodeIo(streams: Streams = process): Io {
         (text) => ({ text }),
         (error: unknown) => ({ problem: problemOf(error) }),
       ),
-    writeFile: (path, text) =>
-      writeFile(path, text).then(
+    writeFile: (path, content) =>
+      writeFile(path, content).then(
         () => undefined,
         (error: unknown) => problemOf(error),
       ),

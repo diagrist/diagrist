@@ -1,27 +1,32 @@
-import type { Engine, Io } from '../../src/index.js';
+import type { Engine, Io, Raster } from '../../src/index.js';
 import { run } from '../../src/index.js';
 import { fakeEngine } from './fake-engine.js';
+import { fakeRaster } from './fake-raster.js';
+
+/** A file as the in-memory host keeps it: text as written, bytes such as a PNG as they are. */
+type Content = string | Uint8Array;
 
 /** An in-memory host: files in a map, everything printed collected per stream. */
 export interface MemoryHost {
-  readonly files: Map<string, string>;
+  readonly files: Map<string, Content>;
   readonly io: Io;
   readonly stdout: () => string;
   readonly stderr: () => string;
 }
 
 export function memoryHost(files: Record<string, string> = {}): MemoryHost {
-  const contents = new Map(Object.entries(files));
+  const contents = new Map<string, Content>(Object.entries(files));
   const out: string[] = [];
   const err: string[] = [];
   const io: Io = {
     readFile: async (path) => {
-      const text = contents.get(path);
-      return text === undefined ? { problem: 'missing' } : { text };
+      const content = contents.get(path);
+      if (content === undefined) return { problem: 'missing' };
+      return { text: typeof content === 'string' ? content : new TextDecoder().decode(content) };
     },
-    writeFile: async (path, text) => {
+    writeFile: async (path, content) => {
       if (path.startsWith('readonly/')) return 'denied';
-      contents.set(path, text);
+      contents.set(path, content);
       return undefined;
     },
     stdout: (text) => {
@@ -34,20 +39,27 @@ export function memoryHost(files: Record<string, string> = {}): MemoryHost {
   return { files: contents, io, stdout: () => out.join(''), stderr: () => err.join('') };
 }
 
-/** Runs one call against an in-memory host and returns what a caller would observe; the engine is the fake by default. */
+/** What a call runs against besides its arguments: input files and the ports, fakes unless given. */
+interface Setup {
+  files?: Record<string, string>;
+  engine?: Engine;
+  raster?: Raster;
+}
+
+/** Runs one call against an in-memory host and returns what a caller would observe; engine and raster are fakes by default. */
 export async function call(
   argv: readonly string[],
-  options: { files?: Record<string, string>; engine?: Engine } = {},
-): Promise<{ exitCode: number; stdout: string; stderr: string; files: Map<string, string> }> {
+  options: Setup = {},
+): Promise<{ exitCode: number; stdout: string; stderr: string; files: Map<string, Content> }> {
   const host = memoryHost(options.files);
-  const exitCode = await run(argv, host.io, options.engine ?? fakeEngine());
+  const exitCode = await run(argv, host.io, options.engine ?? fakeEngine(), options.raster ?? fakeRaster());
   return { exitCode, stdout: host.stdout(), stderr: host.stderr(), files: host.files };
 }
 
 /** The `--json` document printed on stdout. */
 export async function callJson(
   argv: readonly string[],
-  options: { files?: Record<string, string>; engine?: Engine } = {},
+  options: Setup = {},
 ): Promise<{ exitCode: number; json: Record<string, unknown> }> {
   const result = await call([...argv, '--json'], options);
   return { exitCode: result.exitCode, json: JSON.parse(result.stdout) as Record<string, unknown> };

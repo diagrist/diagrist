@@ -10,7 +10,7 @@ Installed as `dgr` and `diagrist`. Usage: `dgr <command> [arguments] [options]`;
 |---|---|
 | [`fmt`](#dgr-fmt) | Formats .dgr files in place. |
 | [`check`](#dgr-check) | Checks a diagram against the grammar and the rules of its kind and prints every finding. |
-| [`build`](#dgr-build) | Renders a diagram as SVG. |
+| [`build`](#dgr-build) | Renders a diagram as SVG, and with `--png` also as PNG. |
 | [`grammar`](#dgr-grammar) | Shows what a diagram kind allows. |
 | [`help`](#dgr-help) | Explains the commands. |
 
@@ -34,7 +34,7 @@ Without a command:
 |---|---|
 | 0 | Done: no finding with severity error. Warnings alone do not fail. |
 | 1 | A finding with severity error, or `fmt --check` found a file that is not formatted. |
-| 2 | The call cannot be carried out: unknown command or option, missing or extra argument, unreadable or unwritable file. |
+| 2 | The call cannot be carried out: unknown command or option, missing or extra argument, a value out of range, unreadable or unwritable file, a PNG that cannot be rendered. |
 
 ## dgr fmt
 
@@ -102,7 +102,7 @@ With `--json`, besides the fields of every document:
 dgr build <file> [options]
 ```
 
-Renders a diagram as SVG. Nothing is written when the diagram has an error; warnings are printed and do not stop the build.
+Renders a diagram as SVG, and with `--png` also as PNG. Nothing is written when the diagram has an error; warnings are printed and do not stop the build.
 
 | Argument | Meaning |
 |---|---|
@@ -110,7 +110,9 @@ Renders a diagram as SVG. Nothing is written when the diagram has an error; warn
 
 | Option | Meaning |
 |---|---|
-| `-o, --out <file>` | Where to write the SVG. Default: next to the source, with `.svg` instead of `.dgr`. |
+| `-o, --out <file>` | Where to write the SVG. Default: next to the source, with `.svg` instead of `.dgr`. The PNG goes beside the SVG. |
+| `--png` | Also write a PNG with the name of the SVG and `.png`. Rendered without a browser and with the bundled fonts, so the same diagram gives the same bytes on every machine. |
+| `--scale <factor>` | Pixels of the PNG per SVG unit, from 0.25 to 8; 2 doubles width and height. Default: 2. Needs `--png`. |
 
 Examples:
 
@@ -119,6 +121,10 @@ Examples:
 dgr build diagrams/order.dgr
 # Write the SVG somewhere else.
 dgr build diagrams/order.dgr -o site/order.svg
+# Also write diagrams/order.png, twice the size of the SVG.
+dgr build diagrams/order.dgr --png
+# Write the PNG at three times the size of the SVG, e.g. for print.
+dgr build diagrams/order.dgr --png --scale 3
 ```
 
 With `--json`, besides the fields of every document:
@@ -127,6 +133,7 @@ With `--json`, besides the fields of every document:
 |---|---|
 | `file` | The rendered source. |
 | `output` | Path of the written SVG, `null` when nothing was written. |
+| `png` | Path of the written PNG, `null` without `--png` or when nothing was written. |
 | `diagnostics` | All findings, see "Diagnostics". |
 
 ## dgr grammar

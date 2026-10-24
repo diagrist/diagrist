@@ -27,7 +27,12 @@ export async function readSources(io: Io, files: readonly string[], locale: Loca
   return sources;
 }
 
-export async function writeOutput(io: Io, file: string, text: string, locale: Locale): Promise<Problem | undefined> {
-  const failed = await io.writeFile(file, text);
+export async function writeOutput(
+  io: Io,
+  file: string,
+  content: string | Uint8Array,
+  locale: Locale,
+): Promise<Problem | undefined> {
+  const failed = await io.writeFile(file, content);
   return failed === undefined ? undefined : problem('unwritable', { file, reason: say(failed, locale) });
 }
