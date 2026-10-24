@@ -19,7 +19,8 @@
     "noFallthroughCasesInSwitch": true,
 
     // Exported declarations need explicit types: the public API is readable in the code, and declaration
-    // files are emitted without a type check (fast builds with tsdown).
+    // files are emitted without a type check (fast builds with tsdown). Hand-written APIs only: tests and
+    // plugin tables turn it off, because their types are derived from the tables (ADR 0004).
     "isolatedDeclarations": true,
     // No enum, namespace or parameter properties: types can be erased by any tool without rewriting code.
     "erasableSyntaxOnly": true,

@@ -1,4 +1,10 @@
 {
   "files": [],
-  "references": [{ "path": "packages/lang" }, { "path": "packages/testkit" }, { "path": "test" }]
+  "references": [
+    { "path": "packages/lang" },
+    { "path": "packages/lang/test" },
+    { "path": "packages/testkit" },
+    { "path": "packages/testkit/test" },
+    { "path": "test" }
+  ]
 }
