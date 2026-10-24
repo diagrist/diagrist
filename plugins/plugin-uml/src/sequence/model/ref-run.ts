@@ -2,7 +2,7 @@ import { FOUND, LOST, type SequenceEvent } from '../diagram.js';
 import type { SeqGate } from './gates.js';
 
 /**
- * Actual gates on a reference (UML 2.5.1, 17.3) that do not follow it directly: the reference reaches down to
+ * Actual gates on a reference (UML 2.5.1, 17.4.3.5) that do not follow it directly: the reference reaches down to
  * the last message on its edge. Only events beside it may stand in between, touching none of its lifelines
  * and not crossing it; frames, dividers and references end the run.
  */

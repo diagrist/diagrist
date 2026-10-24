@@ -76,8 +76,8 @@ type Open = 0 | 1 | 2 | 3;
 
 /**
  * Ends of a message at height `y` (sender) and `y2` (receiver). A lost message runs right into nothing, a
- * found one comes from the left; their open end is a filled circle (UML 2.5.1, 17.4.3). A gate comes in from
- * the left; a reply to the gate leaves to the left, everything else to the right. A formal gate on a fragment
+ * found one comes from the left; their open end is a filled circle (UML 2.5.1, 17.4.3.1). A gate comes in from
+ * the left; a reply to the gate leaves to the left, everything else to the right. A gate on a fragment
  * lies on the nearer side.
  */
 function ends(

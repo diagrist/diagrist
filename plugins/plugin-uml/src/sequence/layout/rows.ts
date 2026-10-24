@@ -148,7 +148,7 @@ function refRuns(m: SequenceModel): { first: Set<number>; last: Map<number, numb
   return { first, last };
 }
 
-/** Room for the name of a formal gate at the message right before the end of its fragment. */
+/** Room for the name of a fragment gate at the message right before the end of its fragment. */
 function namedGateAbove(m: SequenceModel, i: number, room: number): number {
   const g = m.gates.get(i - 1);
   const f = g?.frame === undefined ? undefined : m.diagram.events[m.frameIds.get(g.frame) ?? -1];

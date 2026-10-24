@@ -125,7 +125,7 @@ export type SequenceEvent =
       readonly span: Span;
     };
 
-/** Time constraints (UML 2.5.1, 8.4): a duration between two named messages, or the time of one. */
+/** Time constraints (UML 2.5.1, 8.5.3.2): a duration between two named messages, or the time of one. */
 export type Constraint =
   | {
       readonly type: 'duration';

@@ -25,7 +25,7 @@ export interface SeqFragment {
   readonly depth: number;
 }
 
-/** A coregion on a lifeline: from `index` to `end` the order of its events is arbitrary (UML 2.5.1, 17.6.3). */
+/** A coregion on a lifeline: from `index` to `end` the order of its events is arbitrary (UML 2.5.1, 17.6.4.10). */
 export interface SeqCoregion {
   readonly kind: 'coregion';
   readonly index: number;

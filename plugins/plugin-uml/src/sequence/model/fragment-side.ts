@@ -23,7 +23,7 @@ function touched(e: SequenceEvent): readonly string[] {
 }
 
 /**
- * Side of a formal gate on a fragment (UML 2.5.1, 17.3): the side of the frame nearer to the message's
+ * Side of a gate on a fragment (UML 2.5.1, 17.4.3.5): the side of the frame nearer to the message's
  * lifeline, counted in lifelines up to the outermost one in the fragment. Missing when the message has no gate
  * on a fragment or both sides are equally far; then the rule of the frame `sd` applies.
  */

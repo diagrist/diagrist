@@ -1,4 +1,6 @@
 import type { Finding } from '@diagrist/core';
+import { implementing } from '../../spec/catalog.js';
+import { INTERACTIONS } from '../../spec/interactions.js';
 import { FOUND, LOST, type MessageEvent, type SequenceEvent } from '../diagram.js';
 import { besideRef, refSpan } from '../model/ref-run.js';
 import type { SequenceModel } from '../model/types.js';
@@ -37,50 +39,59 @@ function gateCase(e: MessageEvent, i: number, m: SequenceModel): string | undefi
   return lifeline >= a && lifeline <= b ? 'covered' : undefined;
 }
 
-export const frameEdgeGate = defineRule(
-  'U454',
-  'error',
-  'A gate links a message with the edge of a reference (actual gate) or a fragment (formal gate), UML 2.5.1, 17.3. At a reference the message comes from a lifeline outside it and follows it, with only events beside it in between; at a fragment it stands inside. The frame name is its own.',
-  (m) =>
-    m.diagram.events.flatMap((e, i): Finding[] => {
-      const named = nameCase(e, i, m);
-      const id = e.type === 'ref' || e.type === 'fragment' ? (e.id ?? '') : '';
-      const gate = e.type === 'message' ? gateCase(e, i, m) : undefined;
-      const frame = m.gates.get(i)?.frame ?? '';
-      return [
-        ...(named ? [{ span: e.span, values: { case: named, frame: id } }] : []),
-        ...(gate ? [{ span: e.span, values: { case: gate, frame } }] : []),
-      ];
-    }),
+export const frameEdgeGate = implementing(
+  { uml: [INTERACTIONS.actualGate, INTERACTIONS.fragmentGate] },
+  defineRule(
+    'U454',
+    'error',
+    'A gate links a message with the edge of a reference (actual gate) or of a combined fragment. At a reference the message comes from a lifeline outside it and follows it, with only events beside it in between; at a fragment it stands inside. The frame name is its own.',
+    (m) =>
+      m.diagram.events.flatMap((e, i): Finding[] => {
+        const named = nameCase(e, i, m);
+        const id = e.type === 'ref' || e.type === 'fragment' ? (e.id ?? '') : '';
+        const gate = e.type === 'message' ? gateCase(e, i, m) : undefined;
+        const frame = m.gates.get(i)?.frame ?? '';
+        return [
+          ...(named ? [{ span: e.span, values: { case: named, frame: id } }] : []),
+          ...(gate ? [{ span: e.span, values: { case: gate, frame } }] : []),
+        ];
+      }),
+  ),
 );
 
-export const frameWithoutGate = defineRule(
-  'U950',
-  'warning',
-  '`id=` on a reference or fragment only serves gates; without a message at its edge it has no effect.',
-  (m) => {
-    const used = new Set([...m.gates.values()].map((g) => g.frame));
-    return [...m.frameIds].flatMap(([id, index]): Finding[] => {
-      const e = m.diagram.events[index];
-      return !used.has(id) && e ? [{ span: e.span, values: { frame: id } }] : [];
-    });
-  },
+export const frameWithoutGate = implementing(
+  { uml: [INTERACTIONS.actualGate, INTERACTIONS.fragmentGate] },
+  defineRule(
+    'U950',
+    'warning',
+    '`id=` on a reference or fragment only serves gates; without a message at its edge it has no effect.',
+    (m) => {
+      const used = new Set([...m.gates.values()].map((g) => g.frame));
+      return [...m.frameIds].flatMap(([id, index]): Finding[] => {
+        const e = m.diagram.events[index];
+        return !used.has(id) && e ? [{ span: e.span, values: { frame: id } }] : [];
+      });
+    },
+  ),
 );
 
-export const gateUsedTwice = defineRule(
-  'U951',
-  'warning',
-  'A gate is a point on the frame with one message per side (UML 2.5.1, 17.3); two messages through the same named gate in the same direction leave open which one is meant.',
-  (m) => {
-    const seen = new Set<string>();
-    const out: Finding[] = [];
-    for (const [i, g] of m.gates) {
-      if (!g.name) continue;
-      const key = `${g.frame ?? ''}\u0000${g.name}\u0000${g.end}`;
-      const e = m.diagram.events[i];
-      if (seen.has(key) && e) out.push({ span: e.span, values: { gate: g.name, frame: g.frame ?? '', end: g.end } });
-      seen.add(key);
-    }
-    return out;
-  },
+export const gateUsedTwice = implementing(
+  { uml: [INTERACTIONS.formalGate, INTERACTIONS.actualGate, INTERACTIONS.fragmentGate] },
+  defineRule(
+    'U951',
+    'warning',
+    'A gate is a point on the frame with one message per side; two messages through the same named gate in the same direction leave open which one is meant.',
+    (m) => {
+      const seen = new Set<string>();
+      const out: Finding[] = [];
+      for (const [i, g] of m.gates) {
+        if (!g.name) continue;
+        const key = `${g.frame ?? ''}\u0000${g.name}\u0000${g.end}`;
+        const e = m.diagram.events[i];
+        if (seen.has(key) && e) out.push({ span: e.span, values: { gate: g.name, frame: g.frame ?? '', end: g.end } });
+        seen.add(key);
+      }
+      return out;
+    },
+  ),
 );

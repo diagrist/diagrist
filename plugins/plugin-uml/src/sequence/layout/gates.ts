@@ -8,9 +8,9 @@ import { labelWidth, type Measured, type SeqCtx } from './text.js';
 import type { SeqMessageArt, SeqShape } from './types.js';
 
 /**
- * Gates on references and fragments (UML 2.5.1, 17.3). A reference with `id=` takes the messages right after
+ * Gates on references and fragments (UML 2.5.1, 17.4.3.5). A reference with `id=` takes the messages right after
  * it at its edge (actual gates), a fragment with `id=` the messages inside it that start or end at its frame
- * (formal gates). Named gates carry their name small at the edge.
+ * (gates of the fragment). Named gates carry their name small at the edge.
  */
 
 /** Length of a lost or found message: as long as its label, at least `lostLen`. */

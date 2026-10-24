@@ -1,7 +1,7 @@
 import { GATE, type SequenceDiagram, type SequenceEvent } from '../diagram.js';
 
 /**
- * One end of a message on a frame (gate, UML 2.5.1, 17.3): `gate` is the frame `sd` of the interaction, the
+ * One end of a message on a frame (gate, UML 2.5.1, 17.4.3.5): `gate` is the frame `sd` of the interaction, the
  * `id` of a reference or fragment is its edge; `.name` after it names the gate.
  */
 export interface SeqGate {

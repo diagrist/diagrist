@@ -91,6 +91,11 @@ ADR 0004 asks that a derivative which cannot be generated yet is listed here, wi
 - **`Infer` stops at recursion and `readKind` casts.** Children of fragments are typed by hand in
   `plugins/plugin-uml/src/sequence/source.ts`, and `readKind` asserts its result type. Clean-up when a second
   recursive kind arrives: carry the child tables in the type.
+- **Spec references are plugin-internal** (ADR 0017). `implementing` in `plugins/plugin-uml/src/spec` keeps the
+  marks on the tables as extra properties that `lang` passes along without knowing them, and reaches agents only
+  as a sentence in the docs. The grammar JSON has no field for them, and the language spec cannot link them.
+  Clean-up when a second plugin cites a standard (BPMN, ArchiMate): a typed, generic field in `lang` for the
+  sections a part implements, emitted by `grammarOf`, and the walker of `src/spec/coverage.ts` moved with it.
 
 ## Found while joining the CLI with the kernel
 

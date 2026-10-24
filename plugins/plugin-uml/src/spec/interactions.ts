@@ -1,0 +1,50 @@
+import type { Catalog } from './catalog.js';
+
+/**
+ * The elements of UML 2.5.1 a sequence diagram can show: chapter 17 (Interactions), plus the constraints and
+ * observations of time from chapter 8 and the comment from chapter 7 that sequence diagrams draw (17.8.1). Sections
+ * are the deepest heading of the specification that defines the element; titles are Diagrist's own words.
+ */
+export const INTERACTIONS = {
+  interaction: { section: '17.2.3.1', title: 'Interaction, drawn as a frame' },
+  executionSpecification: { section: '17.2.3.4', title: 'Execution on a lifeline (activation bar)' },
+  stateInvariant: { section: '17.2.3.5', title: 'State invariant' },
+  lifeline: { section: '17.3.3.1', title: 'Lifeline' },
+  message: { section: '17.4.3.1', title: 'Message' },
+  synchronousCall: { section: '17.4.3.1', title: 'Synchronous call' },
+  asynchronousMessage: { section: '17.4.3.1', title: 'Asynchronous call or signal' },
+  reply: { section: '17.4.3.1', title: 'Reply to a call' },
+  createMessage: { section: '17.4.3.1', title: 'Message that creates a lifeline' },
+  deleteMessage: { section: '17.4.3.1', title: 'Message that deletes a lifeline' },
+  lostMessage: { section: '17.4.3.1', title: 'Lost message, without receiver' },
+  foundMessage: { section: '17.4.3.1', title: 'Found message, without sender' },
+  destruction: { section: '17.4.3.4', title: 'End of a lifeline (destruction)' },
+  formalGate: { section: '17.4.3.5', title: 'Gate on the frame of the interaction' },
+  actualGate: { section: '17.4.3.5', title: 'Gate on an interaction use' },
+  fragmentGate: { section: '17.4.3.5', title: 'Gate on a combined fragment' },
+  generalOrdering: { section: '17.5.3.4', title: 'Order between two occurrences' },
+  interactionOperand: { section: '17.6.3.1', title: 'Operand of a combined fragment' },
+  guard: { section: '17.6.3.2', title: 'Guard of an operand' },
+  combinedFragment: { section: '17.6.3.3', title: 'Combined fragment' },
+  continuation: { section: '17.6.3.5', title: 'Continuation' },
+  alternatives: { section: '17.6.3.7', title: 'Alternatives (`alt`)' },
+  option: { section: '17.6.3.8', title: 'Option (`opt`)' },
+  break: { section: '17.6.3.9', title: 'Break (`break`)' },
+  parallel: { section: '17.6.3.10', title: 'Parallel (`par`)' },
+  weakSequencing: { section: '17.6.3.11', title: 'Weak sequencing (`seq`)' },
+  strictSequencing: { section: '17.6.3.12', title: 'Strict sequencing (`strict`)' },
+  negative: { section: '17.6.3.13', title: 'Invalid traces (`neg`)' },
+  critical: { section: '17.6.3.14', title: 'Critical region (`critical`)' },
+  ignore: { section: '17.6.3.15', title: 'Ignored messages (`ignore`)' },
+  consider: { section: '17.6.3.15', title: 'Considered messages (`consider`)' },
+  assertion: { section: '17.6.3.16', title: 'Assertion (`assert`)' },
+  loop: { section: '17.6.3.17', title: 'Loop (`loop`)' },
+  coregion: { section: '17.6.4.10', title: 'Coregion, unordered events on one lifeline' },
+  interactionUse: { section: '17.7.3.1', title: 'Use of another interaction (`ref`)' },
+  partDecomposition: { section: '17.7.3.2', title: 'Lifeline decomposed into an interaction' },
+  timeObservation: { section: '8.4.3.2', title: 'Observed point in time' },
+  durationObservation: { section: '8.4.3.2', title: 'Observed duration' },
+  timeConstraint: { section: '8.5.3.2', title: 'Time constraint' },
+  durationConstraint: { section: '8.5.3.2', title: 'Duration constraint' },
+  comment: { section: '7.2.3.2', title: 'Comment (note)' },
+} as const satisfies Catalog;

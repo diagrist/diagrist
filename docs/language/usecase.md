@@ -33,11 +33,11 @@ Each statement is one line that starts with its keyword. Statements inside block
 
 | Statement | Where | What it does |
 |---|---|---|
-| [`actor`](#actor) | top level | An actor (UML 2.5.1, 18.1.3): a role outside every subject, drawn as a stick figure with the role below it or, with `kind=system`, as a box with `«actor»` for another system. |
-| [`subject`](#subject) | top level | A subject (UML 2.5.1, 18.1.3): the system the use cases belong to, drawn as a rectangle with its name at the top left around the use cases `in` it. |
-| [`usecase`](#usecase) | top level | A use case (UML 2.5.1, 18.1.3): an ellipse as large as its name inside the subject `in`; names over 18 characters wrap. |
+| [`actor`](#actor) | top level | An actor: a role outside every subject, drawn as a stick figure with the role below it or, with `kind=system`, as a box with `«actor»` for another system. |
+| [`subject`](#subject) | top level | A subject: the system the use cases belong to, drawn as a rectangle with its name at the top left around the use cases `in` it. |
+| [`usecase`](#usecase) | top level | A use case: an ellipse as large as its name inside the subject `in`; names over 18 characters wrap. |
 | [`rel`](#rel) | top level | A relation, read from `from` to `to`. |
-| [`note`](#note) | top level | A comment (UML 2.5.1, 7.2.4) on an actor, a use case or a subject: a box with a folded corner at a free spot nearby, joined to it by a dashed line. |
+| [`note`](#note) | top level | A comment on an actor, a use case or a subject: a box with a folded corner at a free spot nearby, joined to it by a dashed line. |
 | [`adr`](#adr) | top level | An architecture decision in the bar below the picture: question, the chosen option after `=`, and the consequence after `=>`. |
 
 ### `actor`
@@ -46,7 +46,7 @@ Each statement is one line that starts with its keyword. Statements inside block
 actor <id> <label> [kind=<person|system>] [side=<left|right>] [tone=<oneOf>] [mark=<ref>] [emph]
 ```
 
-An actor (UML 2.5.1, 18.1.3): a role outside every subject, drawn as a stick figure with the role below it or, with `kind=system`, as a box with `«actor»` for another system. It has no `in`: actors stand outside the subject. Diagrist puts it left or right of its use cases.
+An actor: a role outside every subject, drawn as a stick figure with the role below it or, with `kind=system`, as a box with `«actor»` for another system. It has no `in`: actors stand outside the subject. Diagrist puts it left or right of its use cases. UML 2.5.1: 18.1.3.1 Actor.
 
 Written at the top level.
 
@@ -54,7 +54,7 @@ Written at the top level.
 |---|---|---|---|
 | `<id>` | argument | an identifier like `api` (letters, digits, `_` and `-`, starting with a letter) | Id that `rel` and `note` use for this actor. |
 | `<label>` | argument | a text in double quotes like `"Order service"` | Name of the role. |
-| `kind=` | attribute | one of `person`, `system` | `person` (default) draws a stick figure, `system` a box with `«actor»`. |
+| `kind=` | attribute | one of `person`, `system` | `person` (default) draws a stick figure, `system` a box with `«actor»`. UML 2.5.1: `system` 18.1.4 Actor as a rectangle with the keyword «actor». |
 | `side=` | attribute | one of `left`, `right` | Side of the subject the actor stands on; without it Diagrist chooses. |
 | `tone=` | attribute | one of `blue`, `indigo`, `purple`, `maroon`, `green`, `teal`, `slate`, `red`, `orange`, `peach`, `sky` | Colour of the figure or box in `look=cards`; without it slate. |
 | `mark=` | attribute | the id of a `adr` declared in this diagram | Id of a decision of the decision bar, such as `E1`; the mark is drawn beside it. |
@@ -73,7 +73,7 @@ actor psp "Payment provider" kind=system side=right
 subject <id> <label> [tone=<oneOf>]
 ```
 
-A subject (UML 2.5.1, 18.1.3): the system the use cases belong to, drawn as a rectangle with its name at the top left around the use cases `in` it.
+A subject: the system the use cases belong to, drawn as a rectangle with its name at the top left around the use cases `in` it. UML 2.5.1: 18.1.3.1 Subject a use case applies to.
 
 Written at the top level.
 
@@ -95,7 +95,7 @@ subject shop "Online shop"
 usecase <id> <label> [in <ref>] [points=<text>] [form=<ellipse|classifier>] [stereotype=<text>] [tone=<oneOf>] [mark=<ref>] [emph]
 ```
 
-A use case (UML 2.5.1, 18.1.3): an ellipse as large as its name inside the subject `in`; names over 18 characters wrap. `points=` lists extension points in a compartment, which `extend` names with `at=`. `form=classifier` draws a rectangle with a small ellipse instead (18.2.4). Diagrist places use cases in columns: included and extending cases right of their base, a special case below its general one.
+A use case: an ellipse as large as its name inside the subject `in`; names over 18 characters wrap. `points=` lists extension points in a compartment, which `extend` names with `at=`. `form=classifier` draws a rectangle with a small ellipse instead. Diagrist places use cases in columns: included and extending cases right of their base, a special case below its general one. UML 2.5.1: 18.1.3.1 Use case.
 
 Written at the top level.
 
@@ -103,10 +103,10 @@ Written at the top level.
 |---|---|---|---|
 | `<id>` | argument | an identifier like `api` (letters, digits, `_` and `-`, starting with a letter) | Id that `rel` and `note` use for this use case. |
 | `<label>` | argument | a text in double quotes like `"Order service"` | Name of the goal, as a verb phrase. |
-| `in <ref>` | clause | the id of a `subject` declared in this diagram | The subject the use case belongs to; without it it stands outside. |
-| `points=` | attribute | a text in double quotes like `"Order service"` | Extension points separated by commas, like `"before checkout, after payment"`. |
-| `form=` | attribute | one of `ellipse`, `classifier` | `ellipse` (default), or `classifier`: a rectangle with an ellipse. |
-| `stereotype=` | attribute | a text in double quotes like `"Order service"` | Stereotype above the name, written without guillemets: `batch` shows `«batch»`. |
+| `in <ref>` | clause | the id of a `subject` declared in this diagram | The subject the use case belongs to; without it it stands outside. UML 2.5.1: 18.1.3.1 Subject a use case applies to. |
+| `points=` | attribute | a text in double quotes like `"Order service"` | Extension points separated by commas, like `"before checkout, after payment"`. UML 2.5.1: 18.1.3.2 Extension point, 18.1.4 Compartment listing the extension points. |
+| `form=` | attribute | one of `ellipse`, `classifier` | `ellipse` (default), or `classifier`: a rectangle with an ellipse. UML 2.5.1: `classifier` 18.1.4 Use case as a rectangle with an ellipse icon. |
+| `stereotype=` | attribute | a text in double quotes like `"Order service"` | Stereotype above the name, written without guillemets: `batch` shows `«batch»`. UML 2.5.1: 18.1.4 Keyword or stereotype above a use case. |
 | `tone=` | attribute | one of `blue`, `indigo`, `purple`, `maroon`, `green`, `teal`, `slate`, `red`, `orange`, `peach`, `sky` | Colour of the outline in `look=cards`; without it slate. |
 | `mark=` | attribute | the id of a `adr` declared in this diagram | Id of a decision of the decision bar, such as `E1`; the mark is drawn beside it. |
 | `emph` | flag |  | Highlights it in the accent colour. |
@@ -130,15 +130,15 @@ Written at the top level.
 | Part | Kind | Value | Meaning |
 |---|---|---|---|
 | `<from>` | argument | the id of a `actor` or `usecase` declared in this diagram | Actor or use case the relation starts at. |
-| `<arrow>` | argument | one of the arrows `--` association between an actor and a use case, `-\|>` generalization from the special to the general actor or use case, hollow triangle at the general one, `-->` include or extend between two use cases, dashed with an open head; needs the flag `include` or `extend` | What kind of relation it is. |
+| `<arrow>` | argument | one of the arrows `--` association between an actor and a use case, `-\|>` generalization from the special to the general actor or use case, hollow triangle at the general one, `-->` include or extend between two use cases, dashed with an open head; needs the flag `include` or `extend` | What kind of relation it is. UML 2.5.1: `--` 18.1.3.1 Association of an actor with a use case; `-\|>` 9.2.3.2 Generalization between actors or between use cases. |
 | `<to>` | argument | the id of a `actor` or `usecase` declared in this diagram | Actor or use case the relation points to. |
 | `[label]` | optional argument | a text in double quotes like `"Order service"` | Name of the relation, shown at the middle of the line. |
-| `source=` | attribute | a UML multiplicity like `1`, `0..1`, `1..*` or `*`, the lower bound not above the upper one | Multiplicity at `from`, on an association only. |
-| `card=` | attribute | a UML multiplicity like `1`, `0..1`, `1..*` or `*`, the lower bound not above the upper one | Multiplicity at `to`, on an association only. |
-| `when=` | attribute | a text in double quotes like `"Order service"` | Condition of an `extend`, written without braces: Diagrist shows `{condition}` in a note. |
-| `at=` | attribute | a text in double quotes like `"Order service"` | Extension points of the extended use case `to`, separated by commas; on an `extend` only. |
-| `include` | flag |  | With `-->`: `from` always includes the behaviour of `to` («include»). |
-| `extend` | flag |  | With `-->`: `from` extends `to` under a condition («extend»). |
+| `source=` | attribute | a UML multiplicity like `1`, `0..1`, `1..*` or `*`, the lower bound not above the upper one | Multiplicity at `from`, on an association only. UML 2.5.1: 18.1.3.1 Multiplicity at an end of that association. |
+| `card=` | attribute | a UML multiplicity like `1`, `0..1`, `1..*` or `*`, the lower bound not above the upper one | Multiplicity at `to`, on an association only. UML 2.5.1: 18.1.3.1 Multiplicity at an end of that association. |
+| `when=` | attribute | a text in double quotes like `"Order service"` | Condition of an `extend`, written without braces: Diagrist shows `{condition}` in a note. UML 2.5.1: 18.1.3.2 Condition of an extend, 18.1.4 Condition and extension points in a note on the extend. |
+| `at=` | attribute | a text in double quotes like `"Order service"` | Extension points of the extended use case `to`, separated by commas; on an `extend` only. UML 2.5.1: 18.1.3.2 Extension point, 18.1.4 Condition and extension points in a note on the extend. |
+| `include` | flag |  | With `-->`: `from` always includes the behaviour of `to` («include»). UML 2.5.1: 18.1.3.3 Include. |
+| `extend` | flag |  | With `-->`: `from` extends `to` under a condition («extend»). UML 2.5.1: 18.1.3.2 Extend. |
 | `emph` | flag |  | Highlights the line in the accent colour. |
 
 The values of `arrow` and what they mean:
@@ -164,7 +164,7 @@ rel voucher --> order extend when="voucher present" at="before checkout"
 note <text> [on <ref>]
 ```
 
-A comment (UML 2.5.1, 7.2.4) on an actor, a use case or a subject: a box with a folded corner at a free spot nearby, joined to it by a dashed line. On a subject it stands outside every subject.
+A comment on an actor, a use case or a subject: a box with a folded corner at a free spot nearby, joined to it by a dashed line. On a subject it stands outside every subject. UML 2.5.1: 7.2.3.2 Comment (note).
 
 Written at the top level.
 
@@ -211,18 +211,18 @@ Besides the codes of the language and the kernel, listed in [the overview](READM
 
 | Code | Severity | What it checks |
 |---|---|---|
-| `U421` | error | `include` and `extend` join two use cases, never an actor (UML 2.5.1, 18.1.3). An actor takes part through an association `--`. |
-| `U422` | error | An association joins an actor with a use case (UML 2.5.1, 18.1.3): not two actors, not two use cases, not an element with itself. |
-| `U423` | error | A generalization joins an actor with an actor or a use case with a use case, never one with itself, and runs in no cycle: the triangle points at the more general one. |
-| `U424` | error | The extension points named by `at=` of an `extend` belong to the extended use case `to` (UML 2.5.1, 18.1.3), and the points of one use case have distinct names. |
-| `U425` | error | A use case includes itself neither directly nor through others (UML 2.5.1, 18.1.3). The arrow points from the base to the included case. |
-| `U426` | error | `-->` names exactly one of the flags `include` and `extend`; `--` and `-\|>` name neither. Multiplicities `source=` and `card=` belong to associations, `when=` and `at=` to `extend`. |
-| `U427` | error | `«include»` and `«extend»` mark relations, `«actor»` an actor and `«subsystem»` a subject. As the stereotype of a use case the picture claims something the model is not. |
-| `U428` | error | A note in a use case diagram is a comment on one element: it names its actor, use case or subject with `on`. |
-| `U920` | warning | UML allows use cases without a subject, but in a diagram with one, exam practice expects every use case inside it. |
-| `U921` | warning | A use case yields a result for an actor. It is reached when an actor takes part in it, or through `include`, `extend` or a generalization from a reached use case; otherwise an association is probably missing. |
-| `U922` | warning | In UML the condition of an `extend` is optional; without it the extension always applies. Exam practice asks for it, and for the extension point when the extended use case has some. |
-| `U923` | warning | An actor without an association or generalization takes part in nothing, and a diagram without actors describes no use of the system. Both are valid UML. |
-| `U924` | warning | Between two use cases behaviour is either always part (`include`) or optional (`extend`), not both; usually one direction is swapped. |
-| `U926` | warning | A subject encloses the use cases of its system. Without one it has no content and is not drawn; a note on it finds no frame. |
+| `U421` | error | `include` and `extend` join two use cases, never an actor. An actor takes part through an association `--`. UML 2.5.1: 18.1.3.3 Include, 18.1.3.2 Extend. |
+| `U422` | error | An association joins an actor with a use case: not two actors, not two use cases, not an element with itself. UML 2.5.1: 18.1.3.1 Association of an actor with a use case. |
+| `U423` | error | A generalization joins an actor with an actor or a use case with a use case, never one with itself, and runs in no cycle: the triangle points at the more general one. UML 2.5.1: 9.2.3.2 Generalization between actors or between use cases. |
+| `U424` | error | The extension points named by `at=` of an `extend` belong to the extended use case `to`, and the points of one use case have distinct names. UML 2.5.1: 18.1.3.2 Extension point, 18.1.3.2 Extend. |
+| `U425` | error | A use case includes itself neither directly nor through others. The arrow points from the base to the included case. UML 2.5.1: 18.1.3.3 Include. |
+| `U426` | error | `-->` names exactly one of the flags `include` and `extend`; `--` and `-\|>` name neither. Multiplicities `source=` and `card=` belong to associations, `when=` and `at=` to `extend`. UML 2.5.1: 18.1.3.3 Include, 18.1.3.2 Extend, 18.1.3.1 Multiplicity at an end of that association, 18.1.3.2 Condition of an extend. |
+| `U427` | error | `«include»` and `«extend»` mark relations, `«actor»` an actor and `«subsystem»` a subject. As the stereotype of a use case the picture claims something the model is not. UML 2.5.1: 18.1.4 Keyword or stereotype above a use case. |
+| `U428` | error | A note in a use case diagram is a comment on one element: it names its actor, use case or subject with `on`. UML 2.5.1: 7.2.3.2 Comment (note). |
+| `U920` | warning | UML allows use cases without a subject, but in a diagram with one, exam practice expects every use case inside it. UML 2.5.1: 18.1.3.1 Subject a use case applies to. |
+| `U921` | warning | A use case yields a result for an actor. It is reached when an actor takes part in it, or through `include`, `extend` or a generalization from a reached use case; otherwise an association is probably missing. UML 2.5.1: 18.1.3.1 Association of an actor with a use case. |
+| `U922` | warning | In UML the condition of an `extend` is optional; without it the extension always applies. Exam practice asks for it, and for the extension point when the extended use case has some. UML 2.5.1: 18.1.3.2 Condition of an extend, 18.1.3.2 Extension point. |
+| `U923` | warning | An actor without an association or generalization takes part in nothing, and a diagram without actors describes no use of the system. Both are valid UML. UML 2.5.1: 18.1.3.1 Actor. |
+| `U924` | warning | Between two use cases behaviour is either always part (`include`) or optional (`extend`), not both; usually one direction is swapped. UML 2.5.1: 18.1.3.3 Include, 18.1.3.2 Extend. |
+| `U926` | warning | A subject encloses the use cases of its system. Without one it has no content and is not drawn; a note on it finds no frame. UML 2.5.1: 18.1.3.1 Subject a use case applies to. |
 | `U927` | warning | `direction=` places several subjects side by side or below each other; with fewer than two it changes nothing. |

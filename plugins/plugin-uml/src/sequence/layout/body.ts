@@ -32,7 +32,7 @@ function lifelineEnd(p: Parts, id: string): number {
   return k >= 0 ? (p.rows.y[k] ?? 0) : p.rows.bottom + p.c.s.lifelineTail;
 }
 
-/** Coregion: square brackets at its top and bottom on the lifeline, ticks pointing inwards (UML 2.5.1, 17.6.3). */
+/** Coregion: square brackets at its top and bottom on the lifeline, ticks pointing inwards (UML 2.5.1, 17.6.4.10). */
 function coregionArts(p: Parts, xs: ReadonlyMap<string, number>): SeqShape[] {
   const { coregionW: w, coregionTick: t } = p.c.s;
   return p.m.coregions.flatMap((k): SeqShape[] => {

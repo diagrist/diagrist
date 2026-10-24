@@ -31,6 +31,14 @@ rel pay -- psp
 The statement tables in `src/sequence/grammar` and `src/usecase/grammar` are the reference; `grammarOf` returns
 them as data and every statement has a doc and an example.
 
+## UML 2.5.1 coverage
+
+Each kind has a catalog of the UML 2.5.1 elements its diagrams can show, in `src/spec`, with the section of the
+specification and a short title in our own words. Statements, arguments, arrows, flags and rules name the elements
+they implement with `implementing`, which also adds the section to their docs (ADR 0017). Which elements are covered
+and which are not follows from these marks alone: [docs/spec-coverage.md](docs/spec-coverage.md) is generated from
+them by `pnpm docs:generate`, with the share per kind and the examples that use each element.
+
 ## Sequence diagrams: changes from the predecessor's syntax
 
 | Before | Now | Why |
@@ -76,29 +84,29 @@ their codes. The use case kind adds U428, a note without the element it belongs 
 
 | Code | Severity | Before | What it checks |
 |---|---|---|---|
-| U400 | error | E400 | Message ends and `over=` lists name declared lifelines. `lang` checks the other references; these can also be gates, so the plugin checks them. |
-| U401 | error | E401 | Inside a fragment, the statements of an operand are indented below its `else` or `and`. A statement at the level of the marker after it would silently join the operand above. |
-| U403 | error | E403 | A reply `-->` answers an open synchronous call in the opposite direction; the model pairs them innermost first. |
-| U404 | error | E404 | Before its creation and after its destruction a lifeline does not exist; each happens at most once (UML 2.5.1, 17.3). |
-| U405 | error | E405 | `deactivate` ends a bar that `activate` started on the same lifeline. |
-| U408 | error | E408 | A lost message has no receiver, a found one no sender (UML 2.5.1, 17.4.3): `lost` only on the right, `found` only on the left, both only on a call or asynchronous message, and neither as a lifeline id. |
-| U450 | error | E450 | A gate links a message with the frame of the interaction (UML 2.5.1, 17.3): `gate` is no lifeline id and stands at one end of a message only, never with `lost`, `found` or a creation. |
-| U451 | error | E451 | `ignore` and `consider` name the messages they ignore or consider (UML 2.5.1, 17.6.3), written as their guard. |
-| U452 | error | E452 | A note and a reference need `over=`, a state invariant needs `on=`: they stand on lifelines (UML 2.5.1, 17.2.4). |
-| U453 | error | E453 | A coregion is the short form of a `par` whose operands hold one event each on the same lifeline (UML 2.5.1, 17.6.3); every message in it is sent or received by that lifeline. The tables allow only `msg`, `activate`, `deactivate` and `note` in it. |
-| U454 | error | E454 | A gate links a message with the edge of a reference (actual gate) or a fragment (formal gate), UML 2.5.1, 17.3. At a reference the message comes from a lifeline outside it and follows it, with only events beside it in between; at a fragment it stands inside. The frame name is its own. |
-| U900 | warning | W400 | UML allows `alt` and `par` with one operand, but `opt` or no fragment says it more clearly. |
-| U901 | warning | W401 | UML allows leaving out the reply; it is still named. Exempt are self calls and calls made while the caller handles a call it answers later: that reply implies the inner call returned. Lost and found messages are U907. |
-| U902 | warning | W402 | A lifeline no message, note or reference touches says nothing; remove it or add what it does. |
-| U903 | warning | W403 | An operand without events draws an empty band; fill it or remove it. |
-| U904 | warning | W404 | In `alt` every operand but the last needs a guard; the last one may stand for `[else]`. |
-| U905 | warning | W405 | `activate` without `deactivate`: the bar reaches to the end of the diagram. |
-| U906 | warning | W406 | A duration runs from the earlier to the later message; swapped, Diagrist still draws it. |
-| U907 | warning | W407 | No reply can follow a lost or found message, so as a synchronous call it would wait forever; use `~>`. |
-| U908 | warning | W408 | `duration=` slopes the arrow. A self call is a loop and a creation ends at the head at its height: there the arrow stays level and the duration is missing from the picture. |
-| U909 | warning | W409 | A coregion with fewer than two messages leaves no order open and says nothing. |
-| U950 | warning | W450 | `id=` on a reference or fragment only serves gates; without a message at its edge it has no effect. |
-| U951 | warning | W451 | A gate is a point on the frame with one message per side (UML 2.5.1, 17.3); two messages through the same named gate in the same direction leave open which one is meant. |
+| U400 | error | E400 | Message ends and `over=` lists name declared lifelines. `lang` checks the other references; these can also be gates, so the plugin checks them. UML 2.5.1: 17.3.3.1 Lifeline. |
+| U401 | error | E401 | Inside a fragment, the statements of an operand are indented below its `else` or `and`. A statement at the level of the marker after it would silently join the operand above. UML 2.5.1: 17.6.3.1 Operand of a combined fragment. |
+| U403 | error | E403 | A reply `-->` answers an open synchronous call in the opposite direction; the model pairs them innermost first. UML 2.5.1: 17.4.3.1 Reply to a call, 17.4.3.1 Synchronous call. |
+| U404 | error | E404 | Before its creation and after its destruction a lifeline does not exist; each happens at most once. UML 2.5.1: 17.4.3.1 Message that creates a lifeline, 17.4.3.4 End of a lifeline (destruction). |
+| U405 | error | E405 | `deactivate` ends a bar that `activate` started on the same lifeline. UML 2.5.1: 17.2.3.4 Execution on a lifeline (activation bar). |
+| U408 | error | E408 | A lost message has no receiver, a found one no sender: `lost` only on the right, `found` only on the left, both only on a call or asynchronous message, and neither as a lifeline id. UML 2.5.1: 17.4.3.1 Lost message, without receiver, 17.4.3.1 Found message, without sender. |
+| U450 | error | E450 | A gate links a message with the frame of the interaction: `gate` is no lifeline id and stands at one end of a message only, never with `lost`, `found` or a creation. UML 2.5.1: 17.4.3.5 Gate on the frame of the interaction. |
+| U451 | error | E451 | `ignore` and `consider` name the messages they ignore or consider, written as their guard. UML 2.5.1: 17.6.3.15 Ignored messages (`ignore`), 17.6.3.15 Considered messages (`consider`). |
+| U452 | error | E452 | A note and a reference need `over=`, a state invariant needs `on=`: they stand on lifelines. UML 2.5.1: 17.2.3.5 State invariant, 17.7.3.1 Use of another interaction (`ref`). |
+| U453 | error | E453 | A coregion is the short form of a `par` whose operands hold one event each on the same lifeline; every message in it is sent or received by that lifeline. The tables allow only `msg`, `activate`, `deactivate` and `note` in it. UML 2.5.1: 17.6.4.10 Coregion, unordered events on one lifeline. |
+| U454 | error | E454 | A gate links a message with the edge of a reference (actual gate) or of a combined fragment. At a reference the message comes from a lifeline outside it and follows it, with only events beside it in between; at a fragment it stands inside. The frame name is its own. UML 2.5.1: 17.4.3.5 Gate on an interaction use, 17.4.3.5 Gate on a combined fragment. |
+| U900 | warning | W400 | UML allows `alt` and `par` with one operand, but `opt` or no fragment says it more clearly. UML 2.5.1: 17.6.3.7 Alternatives (`alt`), 17.6.3.10 Parallel (`par`). |
+| U901 | warning | W401 | UML allows leaving out the reply; it is still named. Exempt are self calls and calls made while the caller handles a call it answers later: that reply implies the inner call returned. Lost and found messages are U907. UML 2.5.1: 17.4.3.1 Synchronous call, 17.4.3.1 Reply to a call. |
+| U902 | warning | W402 | A lifeline no message, note or reference touches says nothing; remove it or add what it does. UML 2.5.1: 17.3.3.1 Lifeline. |
+| U903 | warning | W403 | An operand without events draws an empty band; fill it or remove it. UML 2.5.1: 17.6.3.1 Operand of a combined fragment. |
+| U904 | warning | W404 | In `alt` every operand but the last needs a guard; the last one may stand for `[else]`. UML 2.5.1: 17.6.3.7 Alternatives (`alt`), 17.6.3.2 Guard of an operand. |
+| U905 | warning | W405 | `activate` without `deactivate`: the bar reaches to the end of the diagram. UML 2.5.1: 17.2.3.4 Execution on a lifeline (activation bar). |
+| U906 | warning | W406 | A duration runs from the earlier to the later message; swapped, Diagrist still draws it. UML 2.5.1: 8.5.3.2 Duration constraint. |
+| U907 | warning | W407 | No reply can follow a lost or found message, so as a synchronous call it would wait forever; use `~>`. UML 2.5.1: 17.4.3.1 Lost message, without receiver, 17.4.3.1 Found message, without sender, 17.4.3.1 Synchronous call. |
+| U908 | warning | W408 | `duration=` slopes the arrow. A self call is a loop and a creation ends at the head at its height: there the arrow stays level and the duration is missing from the picture. UML 2.5.1: 8.5.3.2 Duration constraint. |
+| U909 | warning | W409 | A coregion with fewer than two messages leaves no order open and says nothing. UML 2.5.1: 17.6.4.10 Coregion, unordered events on one lifeline. |
+| U950 | warning | W450 | `id=` on a reference or fragment only serves gates; without a message at its edge it has no effect. UML 2.5.1: 17.4.3.5 Gate on an interaction use, 17.4.3.5 Gate on a combined fragment. |
+| U951 | warning | W451 | A gate is a point on the frame with one message per side; two messages through the same named gate in the same direction leave open which one is meant. UML 2.5.1: 17.4.3.5 Gate on the frame of the interaction, 17.4.3.5 Gate on an interaction use, 17.4.3.5 Gate on a combined fragment. |
 
 Checks of the predecessor that the language, the tables or the kernel do now:
 
@@ -116,20 +124,20 @@ Checks of the predecessor that the language, the tables or the kernel do now:
 
 | Code | Severity | Before | What it checks |
 |---|---|---|---|
-| U421 | error | E421 | `include` and `extend` join two use cases, never an actor (UML 2.5.1, 18.1.3). An actor takes part through an association `--`. |
-| U422 | error | E422 | An association joins an actor with a use case (UML 2.5.1, 18.1.3): not two actors, not two use cases, not an element with itself. |
-| U423 | error | E423 | A generalization joins an actor with an actor or a use case with a use case, never one with itself, and runs in no cycle: the triangle points at the more general one. |
-| U424 | error | E424 | The extension points named by `at=` of an `extend` belong to the extended use case `to` (UML 2.5.1, 18.1.3), and the points of one use case have distinct names. |
-| U425 | error | E425 | A use case includes itself neither directly nor through others (UML 2.5.1, 18.1.3). The arrow points from the base to the included case. |
-| U426 | error | E426 | `-->` names exactly one of the flags `include` and `extend`; `--` and `-\|>` name neither. Multiplicities `source=` and `card=` belong to associations, `when=` and `at=` to `extend`. |
-| U427 | error | E427 | `«include»` and `«extend»` mark relations, `«actor»` an actor and `«subsystem»` a subject. As the stereotype of a use case the picture claims something the model is not. |
-| U428 | error | – | A note in a use case diagram is a comment on one element: it names its actor, use case or subject with `on`. |
-| U920 | warning | W420 | UML allows use cases without a subject, but in a diagram with one, exam practice expects every use case inside it. |
-| U921 | warning | W421 | A use case yields a result for an actor. It is reached when an actor takes part in it, or through `include`, `extend` or a generalization from a reached use case; otherwise an association is probably missing. |
-| U922 | warning | W422 | In UML the condition of an `extend` is optional; without it the extension always applies. Exam practice asks for it, and for the extension point when the extended use case has some. |
-| U923 | warning | W423 | An actor without an association or generalization takes part in nothing, and a diagram without actors describes no use of the system. Both are valid UML. |
-| U924 | warning | W424 | Between two use cases behaviour is either always part (`include`) or optional (`extend`), not both; usually one direction is swapped. |
-| U926 | warning | W426 | A subject encloses the use cases of its system. Without one it has no content and is not drawn; a note on it finds no frame. |
+| U421 | error | E421 | `include` and `extend` join two use cases, never an actor. An actor takes part through an association `--`. UML 2.5.1: 18.1.3.3 Include, 18.1.3.2 Extend. |
+| U422 | error | E422 | An association joins an actor with a use case: not two actors, not two use cases, not an element with itself. UML 2.5.1: 18.1.3.1 Association of an actor with a use case. |
+| U423 | error | E423 | A generalization joins an actor with an actor or a use case with a use case, never one with itself, and runs in no cycle: the triangle points at the more general one. UML 2.5.1: 9.2.3.2 Generalization between actors or between use cases. |
+| U424 | error | E424 | The extension points named by `at=` of an `extend` belong to the extended use case `to`, and the points of one use case have distinct names. UML 2.5.1: 18.1.3.2 Extension point, 18.1.3.2 Extend. |
+| U425 | error | E425 | A use case includes itself neither directly nor through others. The arrow points from the base to the included case. UML 2.5.1: 18.1.3.3 Include. |
+| U426 | error | E426 | `-->` names exactly one of the flags `include` and `extend`; `--` and `-\|>` name neither. Multiplicities `source=` and `card=` belong to associations, `when=` and `at=` to `extend`. UML 2.5.1: 18.1.3.3 Include, 18.1.3.2 Extend, 18.1.3.1 Multiplicity at an end of that association, 18.1.3.2 Condition of an extend. |
+| U427 | error | E427 | `«include»` and `«extend»` mark relations, `«actor»` an actor and `«subsystem»` a subject. As the stereotype of a use case the picture claims something the model is not. UML 2.5.1: 18.1.4 Keyword or stereotype above a use case. |
+| U428 | error | – | A note in a use case diagram is a comment on one element: it names its actor, use case or subject with `on`. UML 2.5.1: 7.2.3.2 Comment (note). |
+| U920 | warning | W420 | UML allows use cases without a subject, but in a diagram with one, exam practice expects every use case inside it. UML 2.5.1: 18.1.3.1 Subject a use case applies to. |
+| U921 | warning | W421 | A use case yields a result for an actor. It is reached when an actor takes part in it, or through `include`, `extend` or a generalization from a reached use case; otherwise an association is probably missing. UML 2.5.1: 18.1.3.1 Association of an actor with a use case. |
+| U922 | warning | W422 | In UML the condition of an `extend` is optional; without it the extension always applies. Exam practice asks for it, and for the extension point when the extended use case has some. UML 2.5.1: 18.1.3.2 Condition of an extend, 18.1.3.2 Extension point. |
+| U923 | warning | W423 | An actor without an association or generalization takes part in nothing, and a diagram without actors describes no use of the system. Both are valid UML. UML 2.5.1: 18.1.3.1 Actor. |
+| U924 | warning | W424 | Between two use cases behaviour is either always part (`include`) or optional (`extend`), not both; usually one direction is swapped. UML 2.5.1: 18.1.3.3 Include, 18.1.3.2 Extend. |
+| U926 | warning | W426 | A subject encloses the use cases of its system. Without one it has no content and is not drawn; a note on it finds no frame. UML 2.5.1: 18.1.3.1 Subject a use case applies to. |
 | U927 | warning | W427 | `direction=` places several subjects side by side or below each other; with fewer than two it changes nothing. |
 
 Checks of the predecessor that the language, the tables or the kernel do now:

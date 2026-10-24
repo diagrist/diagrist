@@ -63,7 +63,7 @@ function resolve(k: Constraint, input: RailInputs, ids: ReadonlyMap<string, numb
 }
 
 /**
- * Time constraints (UML 2.5.1, 8.4): a bracket from the first to the second message (`duration`) or a tick at
+ * Time constraints (UML 2.5.1, 8.5.3.2): a bracket from the first to the second message (`duration`) or a tick at
  * the height of one message (`time`), the text outside beside it. The bracket stands left of the lifeline both
  * messages touch when there is room; otherwise mirrored right of the right one of those lifelines, when the
  * rail on the left would cross other lifelines; otherwise at the left edge, where constraints that overlap
