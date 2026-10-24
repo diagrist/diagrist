@@ -37,6 +37,18 @@ describe('icons', () => {
     expect(svg).toContain('.dia .stroke {');
   });
 
+  it('with the predecessor markup keep its bytes: a group scaled into the square, painted by the role', () => {
+    const legacy: Styles = {
+      ...styles,
+      icons: { archive: { size: 24, paths: [], markup: '<rect width="20" height="5" x="2" y="3" rx="1" />' } },
+      roles: { ...styles.roles, line: { classes: [], paint: 'fill="none" stroke="#18181b"' } },
+    };
+    const svg = toSvg(scene({ kind: 'icon', icon: 'archive', x: 62, y: 321, size: 22, role: 'line' }), legacy);
+    expect(svg).toContain(
+      '<g transform="translate(62 321) scale(0.9)" fill="none" stroke="#18181b" data-icon="archive"><rect width="20" height="5" x="2" y="3" rx="1" /></g>',
+    );
+  });
+
   it('that the style table lacks stop the picture with K102 instead of vanishing', () => {
     const [kind] = linesPlugin.kinds;
     if (kind === undefined) return;
@@ -93,5 +105,16 @@ describe('a theme', () => {
     }).svg;
     expect(svg).toContain('.dia .base { fill: red; }');
     expect(svg).toMatch(/<marker id="m-open".*<marker id="m-whole"/);
+  });
+});
+
+describe('inline paint', () => {
+  it('follows the class of a role that carries it, as the predecessor painted its legend rule', () => {
+    const painted: Styles = {
+      ...styles,
+      roles: { rule: { classes: ['line'], paint: 'stroke="#e4e4e7" stroke-width="1"' } },
+    };
+    const svg = toSvg(scene({ kind: 'line', x1: 0, y1: 1, x2: 9, y2: 1, role: 'rule' }), painted);
+    expect(svg).toContain('<line x1="0" y1="1" x2="9" y2="1" class="line" stroke="#e4e4e7" stroke-width="1"/>');
   });
 });

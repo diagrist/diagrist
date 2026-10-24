@@ -97,4 +97,13 @@ describe('checkPlugin', () => {
       'rule T900 has no message in de',
     ]);
   });
+
+  it('lets kinds share a rule, but reports two rules with one code', () => {
+    const [kind] = linesPlugin.kinds;
+    if (kind === undefined) return;
+    const twin = { ...kind, spec: { ...kind.spec, name: 'twin' } };
+    expect(checkPlugin({ ...linesPlugin, kinds: [kind, twin] })).toEqual([]);
+    const other = { ...twin, rules: kind.rules.map((rule) => ({ ...rule })) };
+    expect(checkPlugin({ ...linesPlugin, kinds: [kind, other] })).toEqual(['rule T900 is defined twice']);
+  });
 });

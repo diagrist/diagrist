@@ -1,0 +1,94 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1230 1024" width="1230" height="1024" class="dia" role="img" aria-label="Cloud-Anwendung"><title>Cloud-Anwendung</title><style>
+  .dia { font-family: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 11px; }
+  .dia .shape { fill: #ffffff; stroke: #18181b; stroke-width: 1.5; }
+  .dia .shape-muted { fill: #f4f4f5; stroke: #18181b; stroke-width: 1.5; }
+  .dia .shape-emph { fill: #ffffff; stroke: #18181b; stroke-width: 2.5; }
+  .dia .frame { fill: none; stroke: #a1a1aa; stroke-width: 1; stroke-dasharray: 4 3; }
+  .dia .frame-own { fill: #f4f4f5; fill-opacity: 0.55; stroke: #18181b; stroke-width: 2; }
+  .dia .line { fill: none; stroke: #18181b; stroke-width: 1.5; }
+  .dia .line-accent { fill: none; stroke: #1d4ed8; stroke-width: 1.8; }
+  .dia .dashed { stroke-dasharray: 6 4; }
+  .dia .label { fill: #18181b; font-size: 10px; }
+  .dia .label-accent { fill: #1d4ed8; font-size: 10px; }
+  .dia .label-bold { fill: #18181b; font-weight: 600; font-size: 12px; }
+  .dia .label-title { fill: #18181b; font-weight: 600; font-size: 14px; }
+  .dia .label-group { fill: #18181b; font-weight: 600; font-size: 11px; }
+  .dia .label-note { fill: #52525b; font-size: 10px; }
+  .dia .arrow-open { fill: none; stroke: #18181b; stroke-width: 1.5; }
+  .dia .arrow-filled { fill: #18181b; stroke: none; }
+  .dia .arrow-open-accent { fill: none; stroke: #1d4ed8; stroke-width: 1.8; }
+  .dia .arrow-filled-accent { fill: #1d4ed8; stroke: none; }
+  .dia .halo { paint-order: stroke; stroke: #fafafa; stroke-width: 4px; stroke-linejoin: round; }
+  .dia .badge { fill: #18181b; }
+  .dia .badge-accent { fill: #1d4ed8; }
+  .dia .badge-text { fill: #ffffff; font-weight: 700; font-size: 10px; }
+  .dia .mark { fill: #dbeafe; stroke: #1d4ed8; stroke-width: 1; }
+  .dia .mark-text { fill: #1d4ed8; font-weight: 700; font-size: 9px; }
+  .dia .annotation-box { fill: #f4f4f5; stroke: #a1a1aa; stroke-width: 1; }
+  .dia .annotation-line { fill: none; stroke: #a1a1aa; stroke-width: 1; }
+  .dia .annotation-arrow { fill: #a1a1aa; stroke: none; }
+  .dia .replica { fill: #f4f4f5; stroke: #a1a1aa; stroke-width: 1; }
+  .dia .replica-text { fill: #52525b; font-weight: 700; font-size: 9px; }
+</style><rect width="1230" height="1024" fill="#fafafa"/><defs><marker id="m-open" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto"><path d="M1 1 L11 6 L1 11" class="arrow-open" stroke-linecap="round"/></marker><marker id="m-filled" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto"><path d="M1 1 L11 6 L1 11 Z" class="arrow-filled" stroke-linecap="round"/></marker><marker id="m-open-accent" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto"><path d="M1 1 L11 6 L1 11" class="arrow-open-accent" stroke-linecap="round"/></marker><marker id="m-filled-accent" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto"><path d="M1 1 L11 6 L1 11 Z" class="arrow-filled-accent" stroke-linecap="round"/></marker></defs>
+<text x="32" y="36" class="label-title">Containerdiagramm (C4 L2) · Cloud-Anwendung</text>
+<text x="32" y="52" class="label-note">Drei Dienste, getrennte Datenhaltung und gemeinsame Ereignis-Queue</text>
+<g id="layer-clients"><line x1="948" y1="156" x2="948" y2="844" class="annotation-line"/><line x1="920" y1="588" x2="948" y2="588" class="annotation-line"/><rect x="990" y="137" width="192" height="38" rx="2" class="annotation-box"/><line x1="948" y1="156" x2="983" y2="156" class="annotation-line"/><path d="M983 156 L977 153 L977 159 Z" class="annotation-arrow"/><text x="1086" y="159.5" text-anchor="middle" class="label-note">Clients</text></g>
+<g id="layer-gateway"><rect x="990" y="265" width="192" height="38" rx="2" class="annotation-box"/><line x1="948" y1="284" x2="983" y2="284" class="annotation-line"/><path d="M983 284 L977 281 L977 287 Z" class="annotation-arrow"/><text x="1086" y="287.5" text-anchor="middle" class="label-note">API-Gateway</text></g>
+<g id="layer-business"><rect x="990" y="393" width="192" height="38" rx="2" class="annotation-box"/><line x1="948" y1="412" x2="983" y2="412" class="annotation-line"/><path d="M983 412 L977 409 L977 415 Z" class="annotation-arrow"/><text x="1086" y="415.5" text-anchor="middle" class="label-note">Geschäftslogik</text></g>
+<g id="layer-access"><rect x="990" y="569" width="192" height="38" rx="2" class="annotation-box"/><line x1="948" y1="588" x2="983" y2="588" class="annotation-line"/><path d="M983 588 L977 585 L977 591 Z" class="annotation-arrow"/><text x="1086" y="591.5" text-anchor="middle" class="label-note">Datenzugriff</text></g>
+<g id="layer-data"><rect x="990" y="697" width="192" height="38" rx="2" class="annotation-box"/><line x1="948" y1="716" x2="983" y2="716" class="annotation-line"/><path d="M983 716 L977 713 L977 719 Z" class="annotation-arrow"/><text x="1086" y="719.5" text-anchor="middle" class="label-note">Datenhaltung</text></g>
+<g id="layer-messaging"><rect x="990" y="825" width="192" height="38" rx="2" class="annotation-box"/><line x1="948" y1="844" x2="983" y2="844" class="annotation-line"/><path d="M983 844 L977 841 L977 847 Z" class="annotation-arrow"/><text x="1086" y="847.5" text-anchor="middle" class="label-note">Messaging</text></g>
+<g id="group-cloud"><rect x="24" y="72" width="896" height="824" rx="10" class="frame-own"/><text x="36" y="92" class="label-group">Cloud-Anwendung</text><text x="36" y="105" class="label-note">Gesamtsystem · logische Ebenen, keine Deployment-Zonen</text></g>
+<g id="node-web"><rect x="48" y="128" width="192" height="56" rx="8" class="shape"/><g transform="translate(62 145) scale(0.9)" fill="#18181b" data-icon="vuedotjs"><path d="M24,1.61H14.06L12,5.16,9.94,1.61H0L12,22.39ZM12,14.08,5.16,2.23H9.59L12,6.41l2.41-4.18h4.43Z"/></g><text x="96" y="160" class="label-bold">Web-Client</text></g>
+<g id="node-iot"><rect x="376" y="128" width="192" height="56" rx="8" class="shape"/><g transform="translate(390 145) scale(0.9)" fill="none" stroke="#18181b" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" data-icon="server"><rect width="20" height="8" x="2" y="2" rx="2" ry="2" /> <rect width="20" height="8" x="2" y="14" rx="2" ry="2" /> <line x1="6" x2="6.01" y1="6" y2="6" /> <line x1="6" x2="6.01" y1="18" y2="18" /></g><text x="424" y="160" class="label-bold">IoT-Client</text></g>
+<g id="node-mobile"><rect x="704" y="128" width="192" height="56" rx="8" class="shape"/><g transform="translate(718 145) scale(0.9)" fill="none" stroke="#18181b" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" data-icon="user-round"><circle cx="12" cy="8" r="5" /> <path d="M20 21a8 8 0 0 0-16 0" /></g><text x="752" y="160" class="label-bold">Mobile-Client</text></g>
+<g id="node-gateway"><rect x="48" y="256" width="848" height="56" rx="8" class="shape"/><g transform="translate(62 273) scale(0.9)" fill="none" stroke="#18181b" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" data-icon="shield-check"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" /> <path d="m9 12 2 2 4-4" /></g><text x="96" y="282" class="label-bold">API Gateway</text><text x="96" y="296" class="label-note">Routing · Authentifizierung · HTTPS / JSON</text></g>
+<g id="node-orders"><rect x="48" y="384" width="192" height="56" rx="8" class="shape"/><rect x="213" y="392.5" width="24" height="13" rx="3" class="replica"/><text x="225" y="402.5" text-anchor="middle" class="replica-text">x3</text><text x="62" y="410" class="label-bold">Bestellungen</text><text x="62" y="424" class="label-note">Geschäftslogik</text></g>
+<g id="node-devices"><rect x="376" y="384" width="192" height="56" rx="8" class="shape"/><rect x="541" y="392.5" width="24" height="13" rx="3" class="replica"/><text x="553" y="402.5" text-anchor="middle" class="replica-text">x3</text><text x="390" y="410" class="label-bold">Geräte</text><text x="390" y="424" class="label-note">Geschäftslogik</text></g>
+<g id="node-notify"><rect x="704" y="384" width="192" height="56" rx="8" class="shape"/><rect x="869" y="392.5" width="24" height="13" rx="3" class="replica"/><text x="881" y="402.5" text-anchor="middle" class="replica-text">x3</text><text x="718" y="410" class="label-bold">Benachrichtigung</text><text x="718" y="424" class="label-note">Geschäftslogik</text></g>
+<g id="node-ordersData"><rect x="48" y="560" width="192" height="56" rx="8" class="shape"/><text x="62" y="586" class="label-bold">Bestellzugriff</text><text x="62" y="600" class="label-note">Datenzugriffsdienst</text></g>
+<g id="node-devicesData"><rect x="376" y="560" width="192" height="56" rx="8" class="shape"/><text x="390" y="586" class="label-bold">Gerätezugriff</text><text x="390" y="600" class="label-note">Datenzugriffsdienst</text></g>
+<g id="node-notifyData"><rect x="704" y="560" width="192" height="56" rx="8" class="shape"/><text x="718" y="586" class="label-bold">Nachrichtenzugriff</text><text x="718" y="600" class="label-note">Datenzugriffsdienst</text></g>
+<g id="node-ordersDb"><path d="M48 697 A96 9 0 0 1 240 697 L240 735 A96 9 0 0 1 48 735 Z" class="shape"/><path d="M48 697 A96 9 0 0 0 240 697" class="line"/><text x="62" y="714" class="label-bold">Bestellungen</text><text x="62" y="728" class="label-note">PostgreSQL</text></g>
+<g id="node-devicesDb"><path d="M376 697 A96 9 0 0 1 568 697 L568 735 A96 9 0 0 1 376 735 Z" class="shape"/><path d="M376 697 A96 9 0 0 0 568 697" class="line"/><text x="390" y="714" class="label-bold">Geräte</text><text x="390" y="728" class="label-note">PostgreSQL</text></g>
+<g id="node-notifyDb"><path d="M704 697 A96 9 0 0 1 896 697 L896 735 A96 9 0 0 1 704 735 Z" class="shape"/><path d="M704 697 A96 9 0 0 0 896 697" class="line"/><text x="718" y="714" class="label-bold">Nachrichten</text><text x="718" y="728" class="label-note">PostgreSQL</text></g>
+<g id="node-events"><rect x="48" y="816" width="848" height="56" rx="8" class="shape"/><line x1="56" y1="816" x2="56" y2="872" class="line"/><text x="62" y="842" class="label-bold">Ereignisse</text><text x="62" y="856" class="label-note">Gemeinsame Queue</text></g>
+<g id="edge-0"><path d="M144 184 L144 256" class="line halo"/><path d="M144 184 L144 256" class="line" marker-end="url(#m-filled)"/></g>
+<g id="edge-1"><path d="M472 184 L472 256" class="line halo"/><path d="M472 184 L472 256" class="line" marker-end="url(#m-filled)"/></g>
+<g id="edge-2"><path d="M800 184 L800 256" class="line halo"/><path d="M800 184 L800 256" class="line" marker-end="url(#m-filled)"/></g>
+<g id="edge-3"><path d="M144 312 L144 384" class="line halo"/><path d="M144 312 L144 384" class="line" marker-end="url(#m-filled)"/></g>
+<g id="edge-4"><path d="M472 312 L472 384" class="line halo"/><path d="M472 312 L472 384" class="line" marker-end="url(#m-filled)"/></g>
+<g id="edge-5"><path d="M800 312 L800 384" class="line halo"/><path d="M800 312 L800 384" class="line" marker-end="url(#m-filled)"/></g>
+<g id="edge-6"><path d="M144 440 L144 560" class="line halo"/><path d="M144 440 L144 560" class="line" marker-end="url(#m-filled)"/></g>
+<g id="edge-7"><path d="M472 440 L472 560" class="line halo"/><path d="M472 440 L472 560" class="line" marker-end="url(#m-filled)"/></g>
+<g id="edge-8"><path d="M800 440 L800 560" class="line halo"/><path d="M800 440 L800 560" class="line" marker-end="url(#m-filled)"/></g>
+<g id="edge-9"><path d="M144 616 L144 688" class="line halo"/><path d="M144 616 L144 688" class="line" marker-end="url(#m-filled)"/></g>
+<g id="edge-10"><path d="M472 616 L472 688" class="line halo"/><path d="M472 616 L472 688" class="line" marker-end="url(#m-filled)"/></g>
+<g id="edge-11"><path d="M800 616 L800 688" class="line halo"/><path d="M800 616 L800 688" class="line" marker-end="url(#m-filled)"/></g>
+<g id="edge-12"><path d="M200 440 L200 456 L248 456 L248 800 L144 800 L144 816" class="line halo"/><path d="M200 440 L200 456 L248 456 L248 800 L144 800 L144 816" class="line dashed" marker-end="url(#m-open)"/></g>
+<g id="edge-13"><path d="M528 440 L528 456 L576 456 L576 800 L472 800 L472 816" class="line halo"/><path d="M528 440 L528 456 L576 456 L576 800 L472 800 L472 816" class="line dashed" marker-end="url(#m-open)"/></g>
+<g id="edge-14"><path d="M744 440 L744 456 L696 456 L696 800 L800 800 L800 816" class="line halo"/><path d="M744 440 L744 456 L696 456 L696 800 L800 800 L800 816" class="line dashed" marker-end="url(#m-open)"/></g>
+<g id="label-0"><text x="134" y="224" text-anchor="end" class="label halo">HTTPS</text></g>
+<g id="label-1"><text x="462" y="224" text-anchor="end" class="label halo">HTTPS</text></g>
+<g id="label-2"><text x="790" y="224" text-anchor="end" class="label halo">HTTPS</text></g>
+<g id="label-3"><text x="134" y="352" text-anchor="end" class="label halo">HTTP/JSON</text></g>
+<g id="label-4"><text x="462" y="352" text-anchor="end" class="label halo">HTTP/JSON</text></g>
+<g id="label-5"><text x="790" y="352" text-anchor="end" class="label halo">HTTP/JSON</text></g>
+<g id="label-6"><text x="134" y="504" text-anchor="end" class="label halo">HTTP/JSON</text></g>
+<g id="label-7"><text x="462" y="504" text-anchor="end" class="label halo">HTTP/JSON</text></g>
+<g id="label-8"><text x="790" y="504" text-anchor="end" class="label halo">HTTP/JSON</text></g>
+<g id="label-9"><text x="134" y="656" text-anchor="end" class="label halo">SQL</text></g>
+<g id="label-10"><text x="462" y="656" text-anchor="end" class="label halo">SQL</text></g>
+<g id="label-11"><text x="790" y="656" text-anchor="end" class="label halo">SQL</text></g>
+<g id="label-12"><text x="318" y="626" text-anchor="end" class="label halo">Bestellung</text><text x="318" y="638" text-anchor="end" class="label halo">geändert</text></g>
+<g id="label-13"><text x="658" y="626" text-anchor="end" class="label halo">Gerät</text><text x="658" y="638" text-anchor="end" class="label halo">aktualisiert</text></g>
+<g id="label-14"><text x="686" y="540" text-anchor="end" class="label halo">Nachricht</text><text x="686" y="552" text-anchor="end" class="label halo">versendet</text></g>
+<line x1="32" y1="936" x2="936" y2="936" class="line" stroke="#e4e4e7" stroke-width="1"/>
+<g class="legend"><path d="M32 960 H72" class="line" marker-end="url(#m-filled)"/><text x="84" y="964" class="label-note">synchroner Aufruf</text></g>
+<g class="legend"><path d="M226 960 H266" class="line dashed" marker-end="url(#m-open)"/><text x="278" y="964" class="label-note">asynchrones Domain-Event</text></g>
+<g class="legend"><rect x="462" y="953" width="40" height="14" rx="4" class="frame-own"/><text x="514" y="964" class="label-note">eigenes System</text></g>
+<g class="legend"><rect x="626" y="953.5" width="24" height="13" rx="3" class="replica"/><text x="638" y="963.5" text-anchor="middle" class="replica-text">x3</text><text x="658" y="964" class="label-note">mehrere Instanzen</text></g>
+<g class="legend"><path d="M800 959 A18 9 0 0 1 836 959 L836 961 A18 9 0 0 1 800 961 Z" class="shape"/><path d="M800 959 A18 9 0 0 0 836 959" class="line"/><text x="852" y="964" class="label-note">Datenbank</text></g>
+<g class="legend"><rect x="32" y="974" width="36" height="20" rx="8" class="shape"/><line x1="40" y1="974" x2="40" y2="994" class="line"/><text x="84" y="988" class="label-note">Warteschlange</text></g>
+<g class="legend"><text x="202" y="988" class="label-note">Icon = Technologie oder Rolle des Knotens</text></g>
+</svg>

@@ -1,0 +1,52 @@
+# After https://www.oreilly.com/content/wp-content/uploads/sites/2/2020/01/sapr_0201-033de02069dc10a2339d0b0f32a60ff2.png
+# Mark Richards, Software Architecture Patterns, figure 2-1: mediator topology.
+diagram component "Event Mediator Topology" layout=adaptive look=blocks locale=de
+grid cols p.1,p.2,p.3,p.4,p.5,p.6,p.7,p.8,p.9,p.10
+grid rows event,queue,mediator,channel,m.1,m.2
+# Event, queue and channels equally wide; modules as wide as their text
+style stage width=208
+style pipe shape=queue width=208
+
+group processor1 "Event Processor" own
+group processor2 "Event Processor" own
+group processor3 "Event Processor" own
+group processor4 "Event Processor" own
+group processor5 "Event Processor" own
+
+node event "Event" tone=red style=stage at p.5/event span=p.6
+node queue "Event Queue" style=pipe at p.5/queue span=p.6
+node mediator "Event Mediator" tone=peach height=80 at p.5/mediator span=p.6
+node channel1 "Event Channel" style=pipe at p.1/channel span=p.4
+node channel2 "Event Channel" style=pipe at p.5/channel span=p.6
+node channel3 "Event Channel" style=pipe at p.7/channel span=p.10
+node module111 "module" at p.1/m.1 in processor1
+node module112 "module" at p.2/m.1 in processor1
+node module121 "module" at p.1/m.2 in processor1
+node module122 "module" at p.2/m.2 in processor1
+node module211 "module" at p.3/m.1 in processor2
+node module212 "module" at p.4/m.1 in processor2
+node module221 "module" at p.3/m.2 in processor2
+node module222 "module" at p.4/m.2 in processor2
+node module311 "module" at p.5/m.1 in processor3
+node module312 "module" at p.6/m.1 in processor3
+node module321 "module" at p.5/m.2 in processor3
+node module322 "module" at p.6/m.2 in processor3
+node module411 "module" at p.7/m.1 in processor4
+node module412 "module" at p.8/m.1 in processor4
+node module421 "module" at p.7/m.2 in processor4
+node module422 "module" at p.8/m.2 in processor4
+node module511 "module" at p.9/m.1 in processor5
+node module512 "module" at p.10/m.1 in processor5
+node module521 "module" at p.9/m.2 in processor5
+node module522 "module" at p.10/m.2 in processor5
+
+edge event -> queue
+edge queue -> mediator
+edge mediator -> channel1 bundle=mediator
+edge mediator -> channel2 bundle=mediator
+edge mediator -> channel3 bundle=mediator
+edge channel1 -> processor1 bundle=channel1
+edge channel1 -> processor2 bundle=channel1
+edge channel2 -> processor3
+edge channel3 -> processor4 bundle=channel3
+edge channel3 -> processor5 bundle=channel3

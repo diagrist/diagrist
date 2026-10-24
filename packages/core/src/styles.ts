@@ -8,6 +8,11 @@ export interface RoleStyle {
   readonly marker?: string;
   /** Id of a `Marker` drawn at the start of the path, such as the diamond of a UML composition. */
   readonly markerStart?: string;
+  /**
+   * Presentation attributes written after the class, such as `stroke="#e4e4e7"`. Only for pictures that must keep
+   * the predecessor's bytes, which painted a few shapes inline (docs/burn-down.md); a theme replaces them with the role.
+   */
+  readonly paint?: string;
 }
 
 /** One CSS rule for a class, as declarations like `fill: none; stroke: #18181b;`. */
@@ -76,6 +81,11 @@ export interface Marker {
 export interface Icon {
   readonly size: number;
   readonly paths: readonly string[];
+  /**
+   * The predecessor's inner SVG markup. An icon with it is written as the predecessor wrote it, a `<g transform>`
+   * with the role's `paint` instead of a class, to keep its bytes (docs/burn-down.md); `paths` stay the clean form.
+   */
+  readonly markup?: string;
 }
 /**
  * A plugin's style table (ADR 0008): roles to classes, classes to CSS, fonts by role, arrowheads. The kernel

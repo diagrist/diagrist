@@ -33,8 +33,14 @@ function classesOf(role: string, styles: Styles): readonly string[] {
   return styles.roles[role]?.classes ?? [role];
 }
 
+/** The inline paint of a role, with its leading space; empty for roles styled by class alone. */
+const paintOf = (role: string, styles: Styles): string => {
+  const paint = styles.roles[role]?.paint;
+  return paint === undefined ? '' : ` ${paint}`;
+};
+
 function element(shape: Shape, styles: Styles): string {
-  const cls = (role: string) => `class="${classesOf(role, styles).join(' ')}"`;
+  const cls = (role: string) => `class="${classesOf(role, styles).join(' ')}"${paintOf(role, styles)}`;
   switch (shape.kind) {
     case 'rect':
       return `<rect x="${num(shape.x)}" y="${num(shape.y)}" width="${num(shape.w)}" height="${num(shape.h)}"${shape.rx ? ` rx="${shape.rx}"` : ''} ${cls(shape.role)}/>`;
@@ -54,7 +60,7 @@ function element(shape: Shape, styles: Styles): string {
       return `<text x="${num(shape.x)}" y="${num(shape.y)}"${anchor} ${cls(shape.role)}>${escapeText(shape.text)}</text>`;
     }
     case 'icon':
-      return icon(shape, styles.icons?.[shape.icon], cls(shape.role));
+      return icon(shape, styles.icons?.[shape.icon], cls(shape.role), paintOf(shape.role, styles));
     case 'group': {
       const id = shape.id === undefined ? '' : ` id="${escapeText(shape.id)}"`;
       const role = shape.role === undefined ? '' : ` ${cls(shape.role)}`;
@@ -79,10 +85,15 @@ function styleSheet(styles: Styles, used: ReadonlySet<string>): string {
   return `\n  ${root} { font-family: ${styles.fontFamily}; font-size: ${styles.fontSize}px; }\n${rules.join('')}`;
 }
 
-/** An icon as a nested `<svg>` scaled into its square; an icon without a table entry draws nothing (K102). */
-function icon(shape: Extract<Shape, { kind: 'icon' }>, found: Icon | undefined, cls: string): string {
+/**
+ * An icon as a nested `<svg>` scaled into its square; an icon with the predecessor's `markup` as its `<g transform>`
+ * with the role's paint. An icon without a table entry draws nothing (K102).
+ */
+function icon(shape: Extract<Shape, { kind: 'icon' }>, found: Icon | undefined, cls: string, paint: string): string {
   if (found === undefined) return '';
   const { x, y, size } = shape;
+  if (found.markup !== undefined)
+    return `<g transform="translate(${num(x)} ${num(y)}) scale(${num(size / found.size)})"${paint} data-icon="${escapeText(shape.icon)}">${found.markup}</g>`;
   const paths = found.paths.map((d) => `<path d="${d}"/>`).join('');
   return `<svg x="${num(x)}" y="${num(y)}" width="${num(size)}" height="${num(size)}" viewBox="0 0 ${found.size} ${found.size}" ${cls}>${paths}</svg>`;
 }

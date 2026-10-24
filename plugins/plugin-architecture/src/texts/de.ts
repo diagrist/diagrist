@@ -1,0 +1,49 @@
+import type { Texts } from './index.js';
+
+/** German texts; comparisons with the predecessor run with `locale=de`. */
+export const DE: Texts = {
+  kinds: {
+    context: 'Kontextdiagramm (C4 L1)',
+    container: 'Containerdiagramm (C4 L2)',
+    component: 'Komponentendiagramm (C4 L3)',
+  },
+  edges: {
+    sync: 'synchroner Aufruf',
+    async: 'asynchrones Domain-Event',
+    dependency: 'Abhängigkeit',
+    data: 'Datenfluss',
+    link: 'Verbindung ohne Richtung',
+    duplex: 'Aufruf in beide Richtungen',
+  },
+  roles: { own: 'eigenes System', shared: 'gemeinsame Infrastruktur', external: 'externes System' },
+  status: { planned: 'geplant', deprecated: 'abgelöst' },
+  statusInBox: { planned: 'geplant', deprecated: 'abgeloest' },
+  shapes: { db: 'Datenbank', queue: 'Warteschlange', store: 'Ablage', job: 'Job', app: 'Anwendung' },
+  emph: 'Kernentscheidung',
+  replicas: 'mehrere Instanzen',
+  mark: 'Entscheidung, siehe Leiste',
+  icon: 'Icon = Technologie oder Rolle des Knotens',
+  flow: (id, from, to) => `Flow ${id} (${from}) bis (${to})`,
+  prose: {
+    summary: (title, kind, nodes, groups) => `${title}. ${kind} mit ${nodes} Knoten in ${groups} Gruppen.`,
+    diagram: 'Diagramm',
+    group: 'Gruppe',
+    within: 'in',
+    tag: 'Kennzeichen',
+    ungrouped: 'Ohne Gruppe',
+    layer: 'Ebene',
+    note: 'Notiz an',
+    edge: 'Weitere Kante',
+    markOf: 'Marke',
+    frameAround: 'Rahmen um',
+    instances: (count) => `${count} Instanzen`,
+    kinds: {
+      sync: 'synchron',
+      async: 'asynchron',
+      dependency: 'Abhängigkeit',
+      data: 'Datenfluss',
+      link: 'Verbindung',
+      duplex: 'in beide Richtungen',
+    },
+  },
+};

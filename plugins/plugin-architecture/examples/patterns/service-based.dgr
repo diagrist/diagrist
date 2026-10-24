@@ -1,0 +1,36 @@
+# After https://www.oreilly.com/content/wp-content/uploads/sites/2/2020/01/sapr_0401-c76222a5c30d772d7d8c24463c438ba0.png
+# Mark Richards, Software Architecture Patterns, figure 4-1: service components behind a user interface layer.
+diagram container "Service-Based Architecture" layout=adaptive look=blocks locale=de
+grid cols s.1,s.2,s.3,s.4,s.5,s.6
+grid rows clients,ui,m.1,m.2
+
+style client tone=peach height=80
+
+group interface "" own tone=orange
+group service1 "" own tone=orange
+group service2 "" own tone=orange
+group service3 "" own tone=orange
+group component1 "Service Component" own in service1
+group component2 "Service Component" own in service2
+group component3 "Service Component" own in service3
+
+node client1 "Client Requests" style=client at s.1/clients span=s.2
+node client2 "Client Requests" style=client at s.3/clients span=s.4
+node client3 "Client Requests" style=client at s.5/clients span=s.6
+node ui "User Interface Layer" tone=red height=72 at s.1/ui span=s.6 in interface
+node module11 "module" at s.1/m.1 in component1
+node module12 "module" at s.2/m.1 in component1
+node module13 "module" at s.1/m.2 in component1
+node module14 "module" at s.2/m.2 in component1
+node module21 "module" at s.3/m.1 in component2
+node module22 "module" at s.4/m.1 in component2
+node module31 "module" at s.5/m.1 in component3
+node module32 "module" at s.6/m.1 in component3
+node module33 "module" at s.6/m.2 in component3
+
+edge client1 <-> interface
+edge client2 <-> interface
+edge client3 <-> interface
+edge interface <-> service1
+edge interface <-> service2
+edge interface <-> service3

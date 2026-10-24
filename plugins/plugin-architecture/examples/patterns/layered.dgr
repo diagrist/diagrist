@@ -1,0 +1,33 @@
+# After https://www.oreilly.com/content/wp-content/uploads/sites/2/2020/01/sapr_0102-4d066ea1b22b2730ac3020954a2c944e.png
+# Mark Richards, Software Architecture Patterns, figure 1-2: closed layers.
+diagram component "Layered Architecture" layout=adaptive look=blocks locale=de
+grid cols lane,parts
+grid rows request,presentation,business,persistence,database
+
+style component height=80
+style store shape=db height=96
+
+group presentation "Presentation Layer" own heading=side tag="CLOSED" cover=lane
+group business "Business Layer" own heading=side tag="CLOSED" cover=lane
+group persistence "Persistence Layer" own heading=side tag="CLOSED" cover=lane
+group database "Database Layer" own heading=side tag="CLOSED" cover=lane
+
+node request "Request" form=text at lane/request
+node ui1 "Component" style=component at parts/presentation slot=1/3 in presentation
+node ui2 "Component" style=component at parts/presentation slot=2/3 in presentation
+node ui3 "Component" style=component at parts/presentation slot=3/3 in presentation
+node logic1 "Component" style=component at parts/business slot=1/3 in business
+node logic2 "Component" style=component at parts/business slot=2/3 in business
+node logic3 "Component" style=component at parts/business slot=3/3 in business
+node store1 "Component" style=component at parts/persistence slot=1/3 in persistence
+node store2 "Component" style=component at parts/persistence slot=2/3 in persistence
+node store3 "Component" style=component at parts/persistence slot=3/3 in persistence
+node db1 "" style=store at parts/database slot=1/4 in database
+node db2 "" style=store at parts/database slot=2/4 in database
+node db3 "" style=store at parts/database slot=3/4 in database
+node db4 "" style=store at parts/database slot=4/4 in database
+
+edge request -> presentation lane=lane tone=red
+edge presentation -> business lane=lane tone=red
+edge business -> persistence lane=lane tone=red
+edge persistence -> database lane=lane tone=red

@@ -21,10 +21,45 @@ in one clean-up with a second baseline.
    instead of the font roles of its style table. Clean-up: measure with `FONTS`.
 7. **Card look in code.** `look=cards` changes shapes in `scene/cards.ts`, not only the style table.
 
-## Waiting for a second user (ADR 0008 Nr. 6)
+## Byte-identical C4 diagrams (ADR 0016)
 
-- **Legend mechanics have no plugin yet.** `legendLayout` and `legendShapes` in `packages/parts` are tested against
-  the predecessor's `radverleih/kontext.dgr`; C4 is their first user.
+`plugin-architecture` renders the predecessor's eight C4 examples, and `look=cards` variants of five, byte for
+byte. These crutches keep it so; they go in the clean-up with a second baseline.
+
+1. **Inline paint on a role** (`RoleStyle.paint` in `packages/core/src/styles.ts`). The predecessor painted the
+   legend separator inline (class `line` with `stroke="#e4e4e7" stroke-width="1"`), so role `legendRule` carries
+   that paint. Clean-up: role `legendRule` gets the class `legend-rule` (thin, grey), which the predecessor already
+   used for own legends, and `paint` goes.
+2. **Icons in the predecessor's form** (`Icon.markup`). The kernel draws icons as a nested `<svg>` styled by class;
+   the predecessor wrote `<g transform>` with the markup of Lucide or Simple Icons and inline paint
+   (`icon-<stroke>-<colour>` roles). The icons have no `paths` yet. Clean-up: derive `paths` from the markup, draw
+   the clean form, colour by class, drop `markup`.
+3. **`abgeloest` in German boxes** (`statusInBox` in `plugins/plugin-architecture/src/texts`). Legend and
+   description already write `abgelöst`. Clean-up: one word.
+4. **Blocks restate base rules** (`blockBase` in `plugins/plugin-architecture/src/styles/index.ts`). The standard
+   look has one set of measures; the blocks variant repeats 13 base rules with larger fonts and strokes. Clean-up:
+   the kernel builds the standard look from measures.
+5. **The predecessor's arithmetic.** Measures, heads, flow numbers, marks, layers and the legend follow its order of
+   floating point steps, as `layout-grid` does (ADR 0015).
+
+## C4: left out, or found while porting
+
+- **Not ported yet.** The tile flow (`flow=` on groups and in the header), framed groups (`style=`, `line=`, `icon=`
+  on `group`, with heads inside that move aside for lines and grow the frame through `grow` when they cannot), accents
+  and chips, an own `legend`, end marks of edges (`from-box=` and the like: the scene has no rotated text), and
+  `form=ellipse`. No example of the eight uses them. Each comes with its tables, a predecessor example and its bytes.
+- **Layout checks on routes are gone.** The predecessor reported edges through nodes (E204), unroutable edges
+  (E206), crossings (W203), overlapping edges (W206), labels on edges (W207) and lines through heads (W492). The
+  kernel's placement check knows boxes and texts. Clean-up: report routes as placed lines.
+- **The placement check finds labels in foreign frames.** `radverleih/komponenten`, `soll` and `variante-a` warn
+  (G400, G402) where an edge label reaches into a frame it does not belong to; the pictures show it. Fixing it
+  changes their bytes.
+- **Edges to a group in a fixed grid run slanted** when the group's middle lies in another row, and their label can
+  cover the start node. The predecessor did the same. Clean-up: dock at the frame like at a node.
+- **Grid names are comma-separated** (`grid cols a,b,c`), because a statement cannot take a list of arguments.
+  Clean-up: a variadic last argument in `lang`, then the predecessor's spaces read again.
+- **Two generators of README code tables**, `plugins/plugin-uml/test/codes.ts` and
+  `plugins/plugin-architecture/test/codes.ts`. Clean-up: one in `tools/docs`.
 
 ## Changes that need new bytes (found in the review of 24.10.2026)
 
@@ -56,11 +91,6 @@ ADR 0004 asks that a derivative which cannot be generated yet is listed here, wi
 - **`Infer` stops at recursion and `readKind` casts.** Children of fragments are typed by hand in
   `plugins/plugin-uml/src/sequence/source.ts`, and `readKind` asserts its result type. Clean-up when a second
   recursive kind arrives: carry the child tables in the type.
-- **Legend separator with inline paint.** The predecessor drew the default separator as class `line` with
-  `stroke="#e4e4e7" stroke-width="1"` written on the element, and the separator of an own `legend` as class
-  `legend-rule`. The scene has no attributes besides the role, so `legendShapes` writes role `legendRule` (class
-  `line`) only. Byte-identical `kontext.dgr` needs a decision in the C4 stream: a class for the thin rule
-  (new bytes) or paint on scene shapes.
 
 ## Found while joining the CLI with the kernel
 
