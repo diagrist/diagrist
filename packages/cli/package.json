@@ -1,0 +1,31 @@
+{
+  "name": "@diagrist/cli",
+  "version": "0.0.0",
+  "private": true,
+  "description": "The Diagrist command line: format, check and build .dgr files, and look up the grammar of a kind.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "bin": {
+    "diagrist": "./dist/main.js",
+    "dgr": "./dist/main.js"
+  },
+  "exports": {
+    ".": {
+      "@diagrist/source": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsdown"
+  },
+  "dependencies": {
+    "@diagrist/lang": "workspace:*"
+  },
+  "devDependencies": {
+    "@diagrist/testkit": "workspace:*"
+  }
+}

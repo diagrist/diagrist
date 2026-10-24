@@ -21,6 +21,7 @@ working **on** Diagrist. Read it fully before changing code; details live in `do
 |---|---|
 | `packages/lang` | Scanner, statement tree, printer, statement tables, diagnostics. No Node APIs. |
 | `packages/testkit` | Golden-file comparison for tests. Node only. |
+| `packages/cli` | The command line `dgr` (also `diagrist`). Commands are tables in `src/commands`; the kernel is reached through the `Engine` port. |
 | `plugins/*` | Diagram families, looks, exporters (none yet). |
 | `test/architecture` | Rules enforced as tests: comments, purity, package boundaries, file size. |
 | `docs/adr` | Decisions. Short; read the ones touching your change. |
@@ -32,6 +33,7 @@ pnpm install          # also activates the git hooks
 pnpm check            # lint, typecheck, tests, knip: must be green before every push
 pnpm format           # Biome format and safe fixes
 pnpm exec vitest run --project lang   # one package
+pnpm docs:cli         # regenerate docs/cli.md from the command tables
 ```
 
 ## Rules that fail the build
@@ -39,7 +41,9 @@ pnpm exec vitest run --project lang   # one package
 - **Comments:** TSDoc only (`/** ... */`), and it must say more than the name. No `//`, no `/* */`, hence no
   suppressions either. Make the code explain itself instead.
 - **Purity:** no `Date`, `Math.random`, `console`, timers, `fetch`, `process` or `node:` imports in `packages/lang/src`,
-  `packages/core/src` and `plugins/*/src`. Same input, same bytes.
+  `packages/core/src` and `plugins/*/src`. Same input, same bytes. The same holds for `packages/cli/src`, except that
+  its host adapters `main.ts` and `node-io.ts` may use `process` and `node:` modules, and `node:util` is allowed for
+  `parseArgs`.
 - **Boundaries:** import another `@diagrist/*` package only if it is in your `package.json`; plugins never depend on
   other plugins; relative imports stay inside the package.
 - **Size:** at most 200 lines per source file.

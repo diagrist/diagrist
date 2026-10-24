@@ -13,6 +13,7 @@
     "typecheck": "tsc -b",
     "lint": "biome check .",
     "format": "biome check --write .",
+    "docs:cli": "UPDATE_GOLDEN=1 vitest run --project cli reference",
     "test": "vitest run",
     "check": "pnpm lint && pnpm typecheck && pnpm test && pnpm knip",
     "changeset": "changeset",

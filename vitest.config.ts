@@ -16,9 +16,13 @@ const projectRoots = [
   'test/architecture',
 ];
 
+/** Packages resolve each other through their source (export condition "@diagrist/source"), not dist/. */
+const SOURCE_CONDITIONS = ['@diagrist/source'];
+
 export default defineConfig({
-  /** Packages resolve each other through their source (export condition "@diagrist/source"), not dist/. */
-  resolve: { conditions: ['@diagrist/source'] },
+  resolve: { conditions: SOURCE_CONDITIONS },
+  /** Tests run in the server environment, whose resolver has its own conditions; without them it needs dist/. */
+  ssr: { resolve: { conditions: SOURCE_CONDITIONS } },
   test: {
     projects: projectRoots.map((root) => ({ test: { name: root.split('/').at(-1) ?? root, root } })),
     /** More workers than cores caused timeouts in the predecessor project. */

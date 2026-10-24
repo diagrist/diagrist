@@ -6,6 +6,7 @@ export type { Header, KindReading } from './grammar/read-kind.js';
 export { readKind } from './grammar/read-kind.js';
 export type { Arg, Attr, Infer, KindSpec, LineSpec, StatementSpec } from './grammar/spec.js';
 export { arg, attr, kind, lines, optionalArg, statement } from './grammar/spec.js';
+export { nearest } from './grammar/suggest.js';
 export type { Value, ValueResult } from './grammar/value.js';
 export { arrow, id, number, oneOf, ref, text, word } from './grammar/value.js';
 export type { Locale } from './messages.js';

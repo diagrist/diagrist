@@ -4,8 +4,15 @@ import { lineOf, type Node, parse, sourceFiles } from './source.js';
 /**
  * Kernel and plugins must render the same bytes for the same input, in Node, browsers and edge runtimes.
  * Their sources therefore use no clock, no randomness, no console, no timers, no network and no Node APIs.
+ * The CLI follows the same rule so its commands run in tests on in-memory input and output; only its host
+ * adapters touch the process and the file system.
  */
-const PURE_SOURCES = [/^packages\/lang\/src\//, /^packages\/core\/src\//, /^plugins\/[^/]+\/src\//];
+const PURE_SOURCES = [
+  /^packages\/lang\/src\//,
+  /^packages\/core\/src\//,
+  /^packages\/cli\/src\//,
+  /^plugins\/[^/]+\/src\//,
+];
 
 const FORBIDDEN_GLOBALS = new Set([
   'Date',
@@ -18,17 +25,32 @@ const FORBIDDEN_GLOBALS = new Set([
   'crypto',
 ]);
 
+/** Host adapters: the only files under a pure source that may use `process` and import `node:` modules. */
+const HOST_ADAPTERS = new Set(['packages/cli/src/main.ts', 'packages/cli/src/node-io.ts']);
+
+/** Node modules without host access that pure sources below a path may import: `parseArgs` only reads its input. */
+const PURE_NODE_MODULES: readonly { readonly below: string; readonly module: string }[] = [
+  { below: 'packages/cli/src/', module: 'node:util' },
+];
+
 describe('pure sources', () => {
   it('use no clock, randomness, console, timers, network or Node APIs', () => {
     const offending = sourceFiles()
       .filter((file) => PURE_SOURCES.some((pattern) => pattern.test(file)))
       .flatMap((file) => {
         const { source, program } = parse(file);
-        return impurities(program).map((found) => `${file}:${lineOf(source, found.at)}  ${found.what}`);
+        return impurities(program)
+          .filter((found) => !allowed(file, found.what))
+          .map((found) => `${file}:${lineOf(source, found.at)}  ${found.what}`);
       });
     expect(offending).toEqual([]);
   });
 });
+
+function allowed(file: string, what: string): boolean {
+  if (HOST_ADAPTERS.has(file)) return what === 'process' || what.startsWith('import node:');
+  return PURE_NODE_MODULES.some(({ below, module }) => file.startsWith(below) && what === `import ${module}`);
+}
 
 function impurities(program: unknown): { at: number; what: string }[] {
   const found: { at: number; what: string }[] = [];

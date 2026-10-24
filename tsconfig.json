@@ -5,6 +5,8 @@
     { "path": "packages/lang/test" },
     { "path": "packages/testkit" },
     { "path": "packages/testkit/test" },
+    { "path": "packages/cli" },
+    { "path": "packages/cli/test" },
     { "path": "test" }
   ]
 }

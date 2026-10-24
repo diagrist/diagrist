@@ -33,6 +33,16 @@ importers:
         specifier: ^5.0.5
         version: 5.0.5(@types/node@22.20.5)(vite@8.3.5(@types/node@22.20.5)(jiti@2.7.0)(yaml@2.9.1))
 
+  packages/cli:
+    dependencies:
+      '@diagrist/lang':
+        specifier: workspace:*
+        version: link:../lang
+    devDependencies:
+      '@diagrist/testkit':
+        specifier: workspace:*
+        version: link:../testkit
+
   packages/lang: {}
 
   packages/testkit: {}
