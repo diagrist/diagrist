@@ -15,6 +15,8 @@ export const LANG_CODES = {
   missingKeyword: 'L002',
   tabIndent: 'L003',
   duplicateAttribute: 'L004',
+  notXml: 'L005',
+  tooDeep: 'L006',
   missingHeader: 'L100',
   unknownKeyword: 'L101',
   missingArgument: 'L102',
@@ -87,6 +89,18 @@ const MESSAGES: Readonly<Record<LangCode, Readonly<Record<Locale, Template>>>> =
   L004: {
     en: (v) => `Attribute ${v.key} is set twice; the last value wins.`,
     de: (v) => `Attribut ${v.key} ist doppelt gesetzt; der letzte Wert gilt.`,
+  },
+  L005: {
+    en: (v) =>
+      `The character ${v.found} cannot stand in a diagram: the picture is SVG, and XML has no way to write it. Delete it; tabs, line breaks and every printable character are allowed.`,
+    de: (v) =>
+      `Das Zeichen ${v.found} kann in keinem Diagramm stehen: Das Bild ist SVG, und XML kann es nicht schreiben. Das Zeichen löschen; Tabs, Zeilenumbrüche und alle druckbaren Zeichen sind erlaubt.`,
+  },
+  L006: {
+    en: (v) =>
+      `Statements nest at most ${v.limit} levels deep, and this one would be deeper; it and the lines indented below it are not read. Move it up a level or split the diagram.`,
+    de: (v) =>
+      `Anweisungen lassen sich höchstens ${v.limit} Ebenen tief verschachteln, und diese läge tiefer; sie und die darunter eingerückten Zeilen werden nicht gelesen. Sie eine Ebene höher setzen oder das Diagramm aufteilen.`,
   },
 };
 

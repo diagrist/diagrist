@@ -33,7 +33,7 @@ interface Block {
  * text or a comment it proposes nothing.
  */
 export function complete(source: string, position: Position, kind: KindSpec): Completion {
-  const lines = source.split(/\r?\n/);
+  const lines = source.split(/\r\n?|\n/);
   const before = (lines[position.line - 1] ?? '').slice(0, Math.max(0, position.column - 1));
   const typed = /[^\s"]*$/.exec(before)?.[0] ?? '';
   const equals = typed.indexOf('=');

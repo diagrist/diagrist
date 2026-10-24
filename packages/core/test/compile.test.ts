@@ -50,6 +50,29 @@ describe('compile', () => {
     expect(result.svg).toBeDefined();
   });
 
+  it('reports a plugin that throws as K110 with plugin, kind and the first line of the error, and does not throw', () => {
+    const [lines] = linesPlugin.kinds;
+    if (lines === undefined) return;
+    const layout = () => {
+      throw new RangeError('Maximum call stack size exceeded\n    at bareGuard');
+    };
+    const broken = definePlugin({ ...linesPlugin, name: 'broken', kinds: [{ ...lines, layout }] });
+    const result = compile('diagram lines "x"\nline "a"', { plugins: [broken] });
+    expect(result.svg).toBeUndefined();
+    expect(result.diagnostics).toEqual([
+      {
+        code: 'K110',
+        severity: 'error',
+        span: { line: 1, column: 1, length: 7 },
+        values: { plugin: 'broken', kind: 'lines', error: 'RangeError: Maximum call stack size exceeded' },
+      },
+    ]);
+    const [failed] = result.diagnostics;
+    expect(failed && formatMessage(failed, [broken])).toBe(
+      'The plugin `broken` failed while drawing the kind `lines`: RangeError: Maximum call stack size exceeded. This is a bug, not a mistake in the diagram; please report it with the diagram at https://github.com/diagrist/diagrist/issues.',
+    );
+  });
+
   it('gives the same bytes for the same source', () => {
     expect(compile(source, { plugins: [linesPlugin] }).svg).toBe(compile(source, { plugins: [linesPlugin] }).svg);
   });
@@ -79,6 +102,20 @@ describe('toSvg', () => {
     expect(svg).toContain('.dia .base {');
     expect(svg).toContain('.dia .stroke {');
     expect(svg).toContain('<marker id="m-open"');
+  });
+
+  it('replaces what XML cannot hold, so a text that reaches it another way still gives a parsable SVG', () => {
+    const text = {
+      kind: 'text' as const,
+      x: 0,
+      y: 0,
+      text: 'a\u0001\ud800\uffff\u{1F600}',
+      role: 'line',
+      font: 'body',
+    };
+    const svg = toSvg({ ...scene, title: 'T\u001b', children: [text] }, styles);
+    expect(svg).toContain('aria-label="T\ufffd"');
+    expect(svg).toContain('>a\ufffd\ufffd\ufffd\u{1F600}</text>');
   });
 
   it('escapes texts and leaves the stylesheet out when inline', () => {

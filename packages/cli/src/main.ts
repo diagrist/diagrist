@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import { coreEngine } from './core-engine.js';
+import { crashText } from './crash.js';
 import { nodeIo } from './node-io.js';
 import { nodeWatcher } from './node-watcher.js';
 import { PLUGINS } from './plugins.js';
@@ -16,4 +17,9 @@ const raster = pngRaster(async () => {
   return { toPng, fonts };
 });
 
-process.exitCode = await run(process.argv.slice(2), { io: nodeIo(), engine, raster, watcher: nodeWatcher() });
+try {
+  process.exitCode = await run(process.argv.slice(2), { io: nodeIo(), engine, raster, watcher: nodeWatcher() });
+} catch (error) {
+  process.stderr.write(`${crashText(error)}\n`);
+  process.exitCode = 2;
+}

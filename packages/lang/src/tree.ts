@@ -62,8 +62,15 @@ interface Draft extends Omit<Statement, 'children' | 'entries'> {
 }
 
 /**
+ * How deep statements nest. Every pass over the tree, in the language and in the plugins, recurses into the
+ * children, so a deeper tree could exhaust the stack; no diagram a person reads comes near it.
+ */
+const MAX_DEPTH = 64;
+
+/**
  * Reads the source into a statement tree. A line belongs to the nearest open statement with a smaller
- * indent. The tree is always returned, also when the source has errors, so editors can work on it.
+ * indent. The tree is always returned, also when the source has errors, so editors can work on it. A statement
+ * deeper than `MAX_DEPTH` is reported (L006) and left out of the tree with all lines indented below it.
  */
 export function read(source: string): Reading {
   const scanned = scan(source);
@@ -72,8 +79,11 @@ export function read(source: string): Reading {
   const open: Draft[] = [];
   let pending: Comment[] = [];
   let previousLine = 0;
+  let tooDeep: number | undefined;
 
   for (const line of scanned.lines) {
+    if (tooDeep !== undefined && line.indent >= tooDeep) continue;
+    tooDeep = undefined;
     const blankLineBefore = previousLine > 0 && line.number - previousLine > 1;
     previousLine = line.number;
 
@@ -85,7 +95,10 @@ export function read(source: string): Reading {
     while ((open.at(-1)?.indent ?? -1) >= line.indent) open.pop();
     const parent = open.at(-1);
 
-    if (first.kind === 'word') {
+    if (first.kind === 'word' && open.length >= MAX_DEPTH) {
+      diagnostics.push(diagnostic(LANG_CODES.tooDeep, 'error', first.span, { limit: String(MAX_DEPTH) }));
+      tooDeep = line.indent;
+    } else if (first.kind === 'word') {
       const statement: Draft = {
         ...toPart(line, pending, blankLineBefore, diagnostics),
         keyword: first.value,

@@ -1,3 +1,4 @@
+export { xmlSafe } from './characters.js';
 export type { Completion, Position } from './complete/complete.js';
 export { complete } from './complete/complete.js';
 export type { CompletionItem, CompletionKind } from './complete/line.js';

@@ -54,21 +54,32 @@ export const localeAttribute: Attr<Locale> = attr(
 /**
  * Turns a source into a checked picture. The header names the kind; the plugin that registered it reads the
  * statements against its tables, builds the model, runs its rules and lays out the scene. Pure: same source
- * and plugins, same bytes.
+ * and plugins, same bytes. It does not throw: a plugin that fails is reported as K110, with its error message.
  */
 export function compile(source: string, options: CompileOptions): Compilation {
   const { document, diagnostics: syntax } = read(source);
-  const fallback = 'en' as const;
   const registry = register(options.plugins);
   const name = kindName(document);
   const kind = name === undefined ? undefined : registry.kinds.get(name);
   if (kind === undefined) {
     const found = noKind(document, name, [...registry.kinds.keys()]);
-    return { diagnostics: sorted([...syntax, ...registry.diagnostics, found]), locale: fallback };
+    return { diagnostics: sorted([...syntax, ...registry.diagnostics, found]), locale: FALLBACK };
   }
+  const before = [...syntax, ...registry.diagnostics];
+  try {
+    return compileKind(kind, document, before, options);
+  } catch (error) {
+    return { diagnostics: sorted([...before, failed(kind, options.plugins, document, error)]), locale: FALLBACK };
+  }
+}
+
+const FALLBACK = 'en' as const;
+
+/** The work of the plugin that owns the kind, from reading its statements to the SVG. */
+function compileKind(kind: Kind, document: Document, before: Diagnostic[], options: CompileOptions): Compilation {
   const reading = readKind(kind.spec, document);
-  const locale = LOCALES.find((l) => l === reading.header?.attributes.locale) ?? fallback;
-  const found = [...syntax, ...registry.diagnostics, ...reading.diagnostics];
+  const locale = LOCALES.find((l) => l === reading.header?.attributes.locale) ?? FALLBACK;
+  const found = [...before, ...reading.diagnostics];
   if (hasErrors(found)) return { diagnostics: sorted(found), locale };
   const model = kind.model(reading);
   const checked = sorted([...found, ...runRules(kind, model)]);
@@ -84,6 +95,18 @@ export function compile(source: string, options: CompileOptions): Compilation {
     anchors: drawing.anchors,
     description: kind.describe(model, { locale }),
   };
+}
+
+/**
+ * K110 on the header: which plugin failed on which kind, and what it threw as one line, such as
+ * `RangeError: Maximum call stack size exceeded`. Never the stack, which says nothing to the author of a diagram.
+ */
+function failed(kind: Kind, plugins: readonly Plugin[], document: Document, error: unknown): Diagnostic {
+  const plugin = plugins.find((candidate) => candidate.kinds.includes(kind))?.name ?? '';
+  const at = document.statements[0]?.keywordSpan ?? { line: 1, column: 1, length: 1 };
+  const thrown = error instanceof Error ? `${error.name}: ${error.message}` : typeof error;
+  const [line = ''] = (typeof error === 'string' ? error : thrown).split('\n');
+  return diagnostic(KERNEL_CODES.kindFailed, 'error', at, { kind: kind.spec.name, plugin, error: line });
 }
 
 /**

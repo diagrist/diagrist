@@ -1,3 +1,4 @@
+import { firstNotXml } from './characters.js';
 import { type Diagnostic, diagnostic } from './diagnostic.js';
 import { LANG_CODES } from './messages.js';
 import { type Span, span } from './span.js';
@@ -48,12 +49,13 @@ const unescapeText = (raw: string): string => raw.replace(/\\(["\\])/g, '$1');
 
 /**
  * Splits the source into lines of tokens. It never throws: an unterminated text still becomes a token,
- * reported as L001, so the rest of the file is read and the editor keeps working.
+ * reported as L001, so the rest of the file is read and the editor keeps working. A line ends at LF, CRLF or a lone
+ * CR.
  */
 export function scan(source: string): Scan {
   const lines: Line[] = [];
   const diagnostics: Diagnostic[] = [];
-  source.split(/\r?\n/).forEach((text, index) => {
+  source.split(/\r\n?|\n/).forEach((text, index) => {
     const line = scanLine(text, index + 1, diagnostics);
     if (line) lines.push(line);
   });
@@ -64,6 +66,11 @@ function scanLine(text: string, number: number, diagnostics: Diagnostic[]): Line
   const indent = text.length - text.trimStart().length;
   if (text.slice(0, indent).includes('\t')) {
     diagnostics.push(diagnostic(LANG_CODES.tabIndent, 'warning', span(number, 1, indent)));
+  }
+  const notXml = firstNotXml(text);
+  if (notXml !== undefined) {
+    const at = span(number, notXml.index + 1, 1);
+    diagnostics.push(diagnostic(LANG_CODES.notXml, 'error', at, { found: notXml.found }));
   }
 
   const tokens: Token[] = [];

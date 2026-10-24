@@ -131,7 +131,7 @@ export const EXIT_CODES: readonly { readonly code: number; readonly doc: string 
   { code: 1, doc: 'A finding with severity error, or `fmt --check` found a file that is not formatted.' },
   {
     code: 2,
-    doc: 'The call cannot be carried out: unknown command or option, missing or extra argument, a value out of range, unreadable or unwritable file, a PNG that cannot be rendered.',
+    doc: 'The call cannot be carried out: unknown command or option, missing or extra argument, a value out of range, unreadable or unwritable file, a PNG that cannot be rendered. Also an unexpected error inside dgr, which is a bug and printed in one line on stderr.',
   },
 ];
 

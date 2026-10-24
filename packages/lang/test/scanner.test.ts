@@ -51,4 +51,25 @@ describe('scan', () => {
   it('warns about tabs in the indent', () => {
     expect(scan('\tnode api').diagnostics).toMatchObject([{ code: 'L003', severity: 'warning' }]);
   });
+
+  it('rejects a character XML cannot hold at its column, once per line (L005)', () => {
+    const found = (source: string) =>
+      scan(source).diagnostics.map((d) => [d.code, d.span.line, d.span.column, d.values.found]);
+    expect(found('note "a\u0001b" "\u001b"')).toEqual([['L005', 1, 8, 'U+0001']]);
+    expect(found('note "\ud800"\nnote "\uffff"')).toEqual([
+      ['L005', 1, 7, 'U+D800'],
+      ['L005', 2, 7, 'U+FFFF'],
+    ]);
+    expect(found('note "a\tb \u{1F600} \u0085 \ufeff" # \u00e4')).toEqual([]);
+  });
+
+  it('ends a line at LF, CRLF and a lone CR', () => {
+    const lines = scan('a\nb\r\nc\rd').lines.map((line) => [line.number, line.tokens[0]?.value]);
+    expect(lines).toEqual([
+      [1, 'a'],
+      [2, 'b'],
+      [3, 'c'],
+      [4, 'd'],
+    ]);
+  });
 });

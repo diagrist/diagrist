@@ -62,4 +62,19 @@ describe('entries', () => {
   it('rejects a text line at the top level, where no statement can own it', () => {
     expect(read('"- number : Integer"').diagnostics.map((d) => d.code)).toEqual(['L002']);
   });
+
+  it('reads 64 levels and reports a deeper statement once, leaving it and its lines out (L006)', () => {
+    const nested = (levels: number) => Array.from({ length: levels }, (_, level) => `${'  '.repeat(level)}alt`);
+    const depth = (statements: readonly Statement[]): number =>
+      Math.max(0, ...statements.map((s) => 1 + depth(s.children)));
+    const deepest = read(nested(64).join('\n'));
+    expect(deepest.diagnostics).toEqual([]);
+    expect(depth(deepest.document.statements)).toBe(64);
+    const tooDeep = read([...nested(1500), 'note "after"'].join('\n'));
+    expect(tooDeep.diagnostics).toMatchObject([
+      { code: 'L006', span: { line: 65, column: 129 }, values: { limit: '64' } },
+    ]);
+    expect(depth(tooDeep.document.statements)).toBe(64);
+    expect(tooDeep.document.statements.map((s) => s.keyword)).toEqual(['alt', 'note']);
+  });
 });

@@ -1,6 +1,7 @@
 import { COMMANDS } from './commands/all.js';
 import type { Command, Outcome } from './commands/command.js';
 import { help } from './commands/help.js';
+import { crashText } from './crash.js';
 import type { Engine } from './engine.js';
 import type { Io } from './io.js';
 import { VERSION } from './manifest.js';
@@ -22,14 +23,22 @@ export interface Ports {
 
 /**
  * Runs one call of the CLI and resolves to its exit code: 0 done, 1 a finding with severity error, 2 a wrong
- * call. All input and output goes through `io`, every diagram through `engine`, every PNG through `raster`. With
- * `build --watch` it builds again after each change the `watcher` reports and ends when the watcher does.
+ * call or an unexpected exception, which is printed in one line on stderr. All input and output goes through `io`,
+ * every diagram through `engine`, every PNG through `raster`. With `build --watch` it builds again after each
+ * change the `watcher` reports and ends when the watcher does; an exception in a later build does not end it.
  */
 export async function run(argv: readonly string[], ports: Ports): Promise<number> {
   const parsed = parse(argv, COMMANDS);
   const { io } = ports;
   const audience = { command: commandName(parsed), json: parsed.json, locale: parsed.locale };
-  const once = async (): Promise<number> => deliver(parsed.problem ?? (await perform(parsed, ports)), audience, io);
+  const once = async (): Promise<number> => {
+    try {
+      return deliver(parsed.problem ?? (await perform(parsed, ports)), audience, io);
+    } catch (error) {
+      io.stderr(`${crashText(error, parsed.locale)}\n`);
+      return 2;
+    }
+  };
   const file = watchedFile(parsed);
   if (file === undefined) return once();
   return watch(ports.watcher.changes(file), once, (line) => {

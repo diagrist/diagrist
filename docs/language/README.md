@@ -39,6 +39,8 @@ The language reports these while it reads a file against the tables of its kind:
 | `L002` | A line starts with a keyword, not with {found}. |
 | `L003` | Indent with spaces, not tabs. |
 | `L004` | Attribute {key} is set twice; the last value wins. |
+| `L005` | The character {found} cannot stand in a diagram: the picture is SVG, and XML has no way to write it. Delete it; tabs, line breaks and every printable character are allowed. |
+| `L006` | Statements nest at most {limit} levels deep, and this one would be deeper; it and the lines indented below it are not read. Move it up a level or split the diagram. |
 | `L100` | A diagram starts with `diagram {kind} "Title"`. Registered kinds: {allowed}. Example: `{example}` |
 | `L101` | Unknown keyword `{found}` here; did you mean `{suggestion}`? Allowed: {allowed}. |
 | `L102` | `{statement}` needs {name}: {expected}. Example: `{example}` |
@@ -60,3 +62,4 @@ The kernel reports these about kinds, icons and the placement of what the layout
 | `K100` | No plugin draws the diagram kind `{found}`. Registered kinds: {allowed}. A diagram starts with `diagram <kind> "Title"`. |
 | `K101` | The kind `{kind}` is registered twice, by {plugins}; the first one is used. |
 | `K102` | The picture uses the icon `{icon}`, which the style table does not have. Icons: {known}. |
+| `K110` | The plugin `{plugin}` failed while drawing the kind `{kind}`: {error}. This is a bug, not a mistake in the diagram; please report it with the diagram at https://github.com/diagrist/diagrist/issues. |

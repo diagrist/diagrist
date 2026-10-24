@@ -1,3 +1,4 @@
+import { xmlSafe } from '@diagrist/lang';
 import type { Scene, Shape } from './scene.js';
 import type { Icon, Marker, Styles } from './styles.js';
 
@@ -7,8 +8,9 @@ export interface SvgOptions {
   readonly inline?: boolean;
 }
 
+/** Text as XML content or attribute value: markup escaped, and what XML cannot hold replaced, so the SVG always parses. */
 const escapeText = (text: string): string =>
-  text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  xmlSafe(text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
 /** Coordinates of rectangles, lines and texts: integers as they are, others with one decimal. */
 const num = (n: number): string => (Number.isInteger(n) ? String(n) : n.toFixed(1).replace(/\.0$/, ''));

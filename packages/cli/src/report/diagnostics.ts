@@ -26,14 +26,19 @@ export function diagnosticJson(file: string, finding: Finding): Readonly<Record<
   return { file, code, severity, span, values, message };
 }
 
+/** Control characters but tab, and lone surrogates: a terminal would act on them, such as an escape sequence. */
+const UNPRINTABLE = /(?!\t)[\p{Cc}\p{Cs}]/gu;
+
 /**
  * A diagnostic for people: `file:line:column  code  severity: message`, then the source line with `^` under
- * the span. Tabs before the span are kept in the marker line, so the marker stays aligned.
+ * the span. Tabs before the span are kept in the marker line, so the marker stays aligned. What a terminal would
+ * act on is shown as U+FFFD, one for one, so a source cannot steer the terminal and the marker stays in place.
  */
 export function diagnosticText(file: string, source: string, finding: Finding, locale: Locale): string {
   const { line, column, length } = finding.span;
-  const head = `${file}:${line}:${column}  ${finding.code}  ${say(finding.severity, locale)}: ${finding.message}`;
-  const text = source.split(/\r?\n/)[line - 1];
+  const message = finding.message.replace(UNPRINTABLE, '\uFFFD');
+  const head = `${file}:${line}:${column}  ${finding.code}  ${say(finding.severity, locale)}: ${message}`;
+  const text = source.split(/\r\n?|\n/)[line - 1]?.replace(UNPRINTABLE, '\uFFFD');
   if (text === undefined) return head;
   const before = text.slice(0, column - 1).replace(/[^\t]/g, ' ');
   const width = Math.max(1, Math.min(length, text.length - column + 1));

@@ -6,6 +6,7 @@ export const KERNEL_CODES: {
   readonly unknownKind: 'K100';
   readonly duplicateKind: 'K101';
   readonly unknownIcon: 'K102';
+  readonly kindFailed: 'K110';
   readonly overlap: 'G400';
   readonly outside: 'G401';
   readonly overflow: 'G402';
@@ -14,6 +15,7 @@ export const KERNEL_CODES: {
   unknownKind: 'K100',
   duplicateKind: 'K101',
   unknownIcon: 'K102',
+  kindFailed: 'K110',
   overlap: 'G400',
   outside: 'G401',
   overflow: 'G402',
@@ -55,6 +57,12 @@ const KERNEL: Catalogue = {
       `\`${v.key}\` reaches into the frame \`${v.frame}\` without belonging to it, so the picture says it is part of it. Make \`${v.key}\` a member of \`${v.frame}\`, or split the frame.`,
     de: (v) =>
       `\`${v.key}\` ragt in den Rahmen \`${v.frame}\`, ohne dazuzugehören; das Bild sagt also, es sei ein Teil davon. \`${v.key}\` zum Mitglied von \`${v.frame}\` machen oder den Rahmen teilen.`,
+  },
+  K110: {
+    en: (v) =>
+      `The plugin \`${v.plugin}\` failed while drawing the kind \`${v.kind}\`: ${v.error}. This is a bug, not a mistake in the diagram; please report it with the diagram at https://github.com/diagrist/diagrist/issues.`,
+    de: (v) =>
+      `Das Plugin \`${v.plugin}\` ist beim Zeichnen der Art \`${v.kind}\` gescheitert: ${v.error}. Das ist ein Programmfehler, kein Fehler im Diagramm; bitte mit dem Diagramm melden unter https://github.com/diagrist/diagrist/issues.`,
   },
   K102: {
     en: (v) => `The picture uses the icon \`${v.icon}\`, which the style table does not have. Icons: ${v.known}.`,
