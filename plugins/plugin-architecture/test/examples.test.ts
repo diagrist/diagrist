@@ -7,6 +7,7 @@ import { exampleNames, golden, plugins, source } from './compile.js';
 const sha256 = (text: string) => createHash('sha256').update(text).digest('hex');
 const svgOf = (text: string) => compile(text, { plugins }).svg ?? '';
 const paper = (name: string) => source(name).includes('look=paper');
+const instrument = (name: string) => source(name).includes('look=instrument');
 
 /** Warnings of the kernel's placement check on the predecessor's layouts: labels reaching into other frames. */
 const PLACEMENT: Readonly<Record<string, readonly string[]>> = {
@@ -31,7 +32,7 @@ describe('C4 examples', () => {
 
   it('all render the bytes of the predecessor, checked by a SHA-256 per example', () => {
     const hashes = exampleNames
-      .filter((name) => !paper(name))
+      .filter((name) => !paper(name) && !instrument(name))
       .map((name) => `${sha256(svgOf(source(name)))}  ${name}\n`);
     expect(compareGolden(golden('examples.sha256'), hashes.join(''))).toEqual({ status: 'match' });
   });
@@ -40,6 +41,12 @@ describe('C4 examples', () => {
     const hashes = exampleNames.filter(paper).map((name) => `${sha256(svgOf(source(name)))}  ${name}\n`);
     expect(hashes).toHaveLength(3);
     expect(compareGolden(golden('paper.sha256'), hashes.join(''))).toEqual({ status: 'match' });
+  });
+
+  it('render the reviewed pictures in look=instrument, which has no predecessor', () => {
+    const hashes = exampleNames.filter(instrument).map((name) => `${sha256(svgOf(source(name)))}  ${name}\n`);
+    expect(hashes).toHaveLength(3);
+    expect(compareGolden(golden('instrument.sha256'), hashes.join(''))).toEqual({ status: 'match' });
   });
 
   it('render the bytes of the predecessor in look=cards too', () => {

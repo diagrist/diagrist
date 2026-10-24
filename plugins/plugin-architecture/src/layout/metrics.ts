@@ -1,4 +1,5 @@
 import { FONT_SIZE, type Font } from '@diagrist/core';
+import { INSTRUMENT_METRICS } from '../looks/instrument/metrics.js';
 import type { Look } from '../model/types.js';
 
 /** Font sizes by role, the same numbers the layout measures with and the stylesheet sets. */
@@ -186,12 +187,12 @@ const PAPER: Metrics = {
     large: inter(13),
   },
 };
-
 const LOOK_METRICS: Readonly<Record<Look, Metrics>> = {
   plain: STANDARD,
   cards: STANDARD,
   blocks: BLOCKS,
   paper: PAPER,
+  instrument: INSTRUMENT_METRICS,
 };
 
 /** The measures of a look. */

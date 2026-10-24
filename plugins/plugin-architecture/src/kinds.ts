@@ -4,6 +4,7 @@ import { describeArchitecture } from './describe/index.js';
 import type { Level } from './grammar/elements.js';
 import { architectureSpec } from './grammar/spec.js';
 import { layoutArchitecture } from './layout/index.js';
+import { instrumentDrawing } from './looks/instrument/scene.js';
 import { architectureModel } from './model/build.js';
 import { ARCHITECTURE_RULES } from './rules/index.js';
 import { architectureAnchors, architectureScene } from './scene/index.js';
@@ -20,6 +21,7 @@ function architectureKind(level: Level) {
     model: (reading) => architectureModel(level, reading),
     rules: ARCHITECTURE_RULES,
     layout: (model, { locale }) => {
+      if (model.look === 'instrument') return instrumentDrawing(model, TEXTS[locale], locale);
       const layout = layoutArchitecture(model, TEXTS[locale], locale);
       return {
         scene: architectureScene(model, layout, TEXTS[locale], WORDS[locale]),

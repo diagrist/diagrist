@@ -77,7 +77,8 @@ export function layoutArchitecture(model: ArchitectureModel, texts: Texts, local
   const grid = placeGrid(spec);
   const routes = routeEdges(spec, grid);
   const paper = model.look === 'paper';
-  const found = labelEdges(spec, grid, routes, edgeTexts, { preferFlat: model.look === 'cards', onLine: paper });
+  const onLine = paper || model.look === 'instrument';
+  const found = labelEdges(spec, grid, routes, edgeTexts, { preferFlat: model.look === 'cards', onLine });
   const pl = spec.adaptive ? fitFrames(spec, grid, routes, found) : grid;
   const lines: readonly (readonly Point[])[] = spec.adaptive ? routes.map((r) => r.points) : [];
   const byId = new Map(model.nodes.map((n) => [n.id, n]));
@@ -91,7 +92,7 @@ export function layoutArchitecture(model: ArchitectureModel, texts: Texts, local
   });
   const rects = new Map(pl.nodes.map((p) => [p.id, p.rect]));
   const { badges: numbers, marks: aside } = marksOf(model, routes, rects, m);
-  const { badges, labels } = paper ? seatBadges(numbers, found, routes) : { badges: numbers, labels: found };
+  const { badges, labels } = onLine ? seatBadges(numbers, found, routes) : { badges: numbers, labels: found };
   const marks = paper ? marksInside(aside, model.nodes, rects) : aside;
   const routeRight = Math.max(0, ...routes.flatMap((r) => r.points.map((p) => p[0])));
   const contentRight = Math.max(
