@@ -1,0 +1,63 @@
+<!-- Generated from plugins/plugin-uml/examples/sequence/cache.dgr by `pnpm docs:generate`. Do not edit. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 550 496" width="550" height="496" class="dia" role="img" aria-label="Aktionäre einer Stadt abfragen"><title>Aktionäre einer Stadt abfragen</title><style>
+  .dia { font-family: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 11px; }
+  .dia .shape { fill: #ffffff; stroke: #18181b; stroke-width: 1.5; }
+  .dia .shape-muted { fill: #f4f4f5; stroke: #18181b; stroke-width: 1.5; }
+  .dia .shape-emph { fill: #ffffff; stroke: #18181b; stroke-width: 2.5; }
+  .dia .frame { fill: none; stroke: #a1a1aa; stroke-width: 1; stroke-dasharray: 4 3; }
+  .dia .frame-own { fill: #f4f4f5; fill-opacity: 0.55; stroke: #18181b; stroke-width: 2; }
+  .dia .line { fill: none; stroke: #18181b; stroke-width: 1.5; }
+  .dia .line-accent { fill: none; stroke: #1d4ed8; stroke-width: 1.8; }
+  .dia .dashed { stroke-dasharray: 6 4; }
+  .dia .label { fill: #18181b; font-size: 10px; }
+  .dia .label-accent { fill: #1d4ed8; font-size: 10px; }
+  .dia .label-bold { fill: #18181b; font-weight: 600; font-size: 12px; }
+  .dia .label-title { fill: #18181b; font-weight: 600; font-size: 14px; }
+  .dia .label-group { fill: #18181b; font-weight: 600; font-size: 11px; }
+  .dia .label-note { fill: #52525b; font-size: 10px; }
+  .dia .arrow-open { fill: none; stroke: #18181b; stroke-width: 1.5; }
+  .dia .arrow-filled { fill: #18181b; stroke: none; }
+  .dia .arrow-open-accent { fill: none; stroke: #1d4ed8; stroke-width: 1.8; }
+  .dia .arrow-filled-accent { fill: #1d4ed8; stroke: none; }
+  .dia .halo { paint-order: stroke; stroke: #fafafa; stroke-width: 4px; stroke-linejoin: round; }
+  .dia .badge { fill: #18181b; }
+  .dia .badge-accent { fill: #1d4ed8; }
+  .dia .badge-text { fill: #ffffff; font-weight: 700; font-size: 10px; }
+  .dia .mark { fill: #dbeafe; stroke: #1d4ed8; stroke-width: 1; }
+  .dia .mark-text { fill: #1d4ed8; font-weight: 700; font-size: 9px; }
+  .dia .label-back { fill: #fafafa; stroke: none; }
+  .dia .seq-lifeline { fill: none; stroke: #52525b; stroke-width: 1; stroke-dasharray: 4 3; }
+  .dia .seq-activation { fill: #ffffff; stroke: #18181b; stroke-width: 1; }
+  .dia .seq-frame { fill: none; stroke: #18181b; stroke-width: 1; }
+  .dia .seq-tag { fill: #f4f4f5; stroke: #18181b; stroke-width: 1; }
+  .dia .seq-tag-text { fill: #18181b; font-weight: 700; font-size: 11px; }
+  .dia .seq-guard { fill: #18181b; font-size: 11px; }
+  .dia .seq-separator { fill: none; stroke: #18181b; stroke-width: 1; stroke-dasharray: 6 4; }
+  .dia .seq-message { fill: #18181b; font-size: 11px; }
+</style><rect width="550" height="496" fill="#fafafa"/><defs><marker id="m-open" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto"><path d="M1 1 L11 6 L1 11" class="arrow-open" stroke-linecap="round"/></marker><marker id="m-filled" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto"><path d="M1 1 L11 6 L1 11 Z" class="arrow-filled" stroke-linecap="round"/></marker><marker id="m-open-accent" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto"><path d="M1 1 L11 6 L1 11" class="arrow-open-accent" stroke-linecap="round"/></marker><marker id="m-filled-accent" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto"><path d="M1 1 L11 6 L1 11 Z" class="arrow-filled-accent" stroke-linecap="round"/></marker></defs>
+<text x="32" y="36" class="label-title">Sequenzdiagramm (UML) · Aktionäre einer Stadt abfragen</text>
+<text x="32" y="52" class="label-note">Cache-Treffer oder Datenbankzugriff</text>
+<line x1="80" y1="120" x2="80" y2="464" class="seq-lifeline"/>
+<line x1="305" y1="120" x2="305" y2="464" class="seq-lifeline"/>
+<line x1="470" y1="120" x2="470" y2="464" class="seq-lifeline"/>
+<rect x="299" y="157" width="12" height="285" class="seq-activation"/>
+<rect x="305" y="224" width="12" height="45" class="seq-activation"/>
+<rect x="464" y="348" width="12" height="43" class="seq-activation"/>
+<rect x="246" y="173" width="252" height="226" class="seq-frame"/>
+<path d="M246 173 H289 V186 L282 193 H246 Z" class="seq-tag"/>
+<text x="254" y="187" text-anchor="start" class="seq-tag-text">alt</text>
+<rect x="318" y="176" width="112" height="14" class="label-back"/>
+<text x="321" y="187" text-anchor="start" class="seq-guard">[Daten im Cache]</text>
+<line x1="246" y1="295" x2="498" y2="295" class="seq-separator"/>
+<rect x="318" y="297" width="152" height="14" class="label-back"/>
+<text x="321" y="308" text-anchor="start" class="seq-guard">[Daten nicht im Cache]</text>
+<g id="edge-0"><path d="M80 157 L299 157" class="line" marker-end="url(#m-filled)"/><rect x="97" y="141" width="185" height="14" class="label-back"/><text x="189.5" y="152" text-anchor="middle" class="seq-message">GET /shareholders?city=Köln</text></g>
+<g id="edge-1"><path d="M311 210 L347 210 L347 230 L317 230" class="line" marker-end="url(#m-filled)"/><rect x="352" y="213" width="99" height="14" class="label-back"/><text x="355" y="224" text-anchor="start" class="seq-message">getCache(city)</text></g>
+<g id="edge-2"><path d="M317 263 L347 263 L347 283 L311 283" class="line dashed" marker-end="url(#m-open)"/><rect x="352" y="266" width="33" height="14" class="label-back"/><text x="355" y="277" text-anchor="start" class="seq-message">data</text></g>
+<g id="edge-3"><path d="M311 348 L464 348" class="line" marker-end="url(#m-filled)"/><rect x="341.5" y="332" width="92" height="14" class="label-back"/><text x="387.5" y="343" text-anchor="middle" class="seq-message">getData(city)</text></g>
+<g id="edge-4"><path d="M464 385 L311 385" class="line dashed" marker-end="url(#m-open)"/><rect x="371" y="369" width="33" height="14" class="label-back"/><text x="387.5" y="380" text-anchor="middle" class="seq-message">data</text></g>
+<g id="edge-5"><path d="M299 436 L80 436" class="line dashed" marker-end="url(#m-open)"/><rect x="123.5" y="420" width="132" height="14" class="label-back"/><text x="189.5" y="431" text-anchor="middle" class="seq-message">Response 200 {data}</text></g>
+<g id="node-app"><rect x="32" y="84" width="96" height="36" class="shape"/><text x="80" y="106" text-anchor="middle" class="label-bold">:App</text></g>
+<g id="node-ws"><rect x="251" y="84" width="108" height="36" class="shape"/><text x="305" y="106" text-anchor="middle" class="label-bold">:WebService</text></g>
+<g id="node-db"><rect x="422" y="84" width="96" height="36" class="shape"/><text x="470" y="106" text-anchor="middle" class="label-bold">:Database</text></g>
+</svg>

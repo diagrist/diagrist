@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { coreEngine } from './core-engine.js';
 import { nodeIo } from './node-io.js';
+import { nodeWatcher } from './node-watcher.js';
 import { PLUGINS } from './plugins.js';
 import { pngRaster } from './png-raster.js';
 import { run } from './run.js';
@@ -15,4 +16,4 @@ const raster = pngRaster(async () => {
   return { toPng, fonts };
 });
 
-process.exitCode = await run(process.argv.slice(2), nodeIo(), engine, raster);
+process.exitCode = await run(process.argv.slice(2), { io: nodeIo(), engine, raster, watcher: nodeWatcher() });

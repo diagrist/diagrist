@@ -102,7 +102,7 @@ With `--json`, besides the fields of every document:
 dgr build <file> [options]
 ```
 
-Renders a diagram as SVG, and with `--png` also as PNG. Nothing is written when the diagram has an error; warnings are printed and do not stop the build.
+Renders a diagram as SVG, and with `--png` also as PNG. Nothing is written when the diagram has an error; warnings are printed and do not stop the build. With `--watch` it builds again after every change of the source.
 
 | Argument | Meaning |
 |---|---|
@@ -113,6 +113,7 @@ Renders a diagram as SVG, and with `--png` also as PNG. Nothing is written when 
 | `-o, --out <file>` | Where to write the SVG. Default: next to the source, with `.svg` instead of `.dgr`. The PNG goes beside the SVG. |
 | `--png` | Also write a PNG with the name of the SVG and `.png`. Rendered without a browser and with the bundled fonts, so the same diagram gives the same bytes on every machine. |
 | `--scale <factor>` | Pixels of the PNG per SVG unit, from 0.25 to 8; 2 doubles width and height. Default: 2. Needs `--png`. |
+| `--watch` | Build, then build again each time the source changes, until Ctrl+C. Each build prints what it wrote and its findings, with `--json` one document per build. Errors in the diagram and a source that is gone for a moment do not end the watch; only a call refused at the first build does. Ends with the exit code of the last build. |
 
 Examples:
 
@@ -125,6 +126,8 @@ dgr build diagrams/order.dgr -o site/order.svg
 dgr build diagrams/order.dgr --png
 # Write the PNG at three times the size of the SVG, e.g. for print.
 dgr build diagrams/order.dgr --png --scale 3
+# Write SVG and PNG again on every save.
+dgr build diagrams/order.dgr --png --watch
 ```
 
 With `--json`, besides the fields of every document:

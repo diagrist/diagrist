@@ -29,6 +29,8 @@ type TextName =
   | 'allFormatted'
   | 'wrote'
   | 'noFindings'
+  | 'watching'
+  | 'changed'
   | 'error'
   | 'warning'
   | FileProblem;
@@ -137,6 +139,8 @@ const TEXTS: Readonly<Record<TextName, Texts>> = {
   },
   wrote: { en: (v) => `wrote ${v.file}`, de: (v) => `geschrieben: ${v.file}` },
   noFindings: { en: (v) => `${v.file}: no findings`, de: (v) => `${v.file}: keine Befunde` },
+  watching: { en: (v) => `watching ${v.file}, Ctrl+C ends`, de: (v) => `beobachte ${v.file}, Strg+C beendet` },
+  changed: { en: (v) => `changed ${v.file}`, de: (v) => `geändert: ${v.file}` },
   error: { en: () => 'error', de: () => 'Fehler' },
   warning: { en: () => 'warning', de: () => 'Warnung' },
   missing: { en: () => 'no such file', de: () => 'Datei nicht gefunden' },

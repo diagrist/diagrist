@@ -6,7 +6,7 @@ import { pngBeside, pngScale, renderPng, SCALE, SCALED_EXAMPLE } from './png.js'
 
 export const build: Command = command({
   name: 'build',
-  doc: 'Renders a diagram as SVG, and with `--png` also as PNG. Nothing is written when the diagram has an error; warnings are printed and do not stop the build.',
+  doc: 'Renders a diagram as SVG, and with `--png` also as PNG. Nothing is written when the diagram has an error; warnings are printed and do not stop the build. With `--watch` it builds again after every change of the source.',
   arguments: [{ name: 'file', count: 'one', doc: 'The .dgr file to render.' }],
   options: {
     out: {
@@ -24,12 +24,17 @@ export const build: Command = command({
       value: 'factor',
       doc: `Pixels of the PNG per SVG unit, from ${SCALE.min} to ${SCALE.max}; 2 doubles width and height. Default: ${SCALE.standard}. Needs \`--png\`.`,
     },
+    watch: {
+      type: 'boolean',
+      doc: 'Build, then build again each time the source changes, until Ctrl+C. Each build prints what it wrote and its findings, with `--json` one document per build. Errors in the diagram and a source that is gone for a moment do not end the watch; only a call refused at the first build does. Ends with the exit code of the last build.',
+    },
   },
   examples: [
     { command: 'dgr build diagrams/order.dgr', doc: 'Write diagrams/order.svg.' },
     { command: 'dgr build diagrams/order.dgr -o site/order.svg', doc: 'Write the SVG somewhere else.' },
     { command: 'dgr build diagrams/order.dgr --png', doc: 'Also write diagrams/order.png, twice the size of the SVG.' },
     { command: SCALED_EXAMPLE, doc: 'Write the PNG at three times the size of the SVG, e.g. for print.' },
+    { command: 'dgr build diagrams/order.dgr --png --watch', doc: 'Write SVG and PNG again on every save.' },
   ],
   json: {
     file: 'The rendered source.',

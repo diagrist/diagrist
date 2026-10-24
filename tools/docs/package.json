@@ -2,7 +2,7 @@
   "name": "@diagrist/docs",
   "version": "0.0.0",
   "private": true,
-  "description": "Generates the files derived from the tables: the CLI reference, the language spec, the grammar schema and the agent skill. A workspace tool, never built or published.",
+  "description": "Generates the files derived from the tables: the CLI reference, the language spec, the grammar schema, the agent skill and the pictures of the README. A workspace tool, never built or published.",
   "license": "Apache-2.0",
   "type": "module",
   "dependencies": {

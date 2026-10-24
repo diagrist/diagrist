@@ -2,6 +2,7 @@ import type { Engine, Io, Raster } from '../../src/index.js';
 import { run } from '../../src/index.js';
 import { fakeEngine } from './fake-engine.js';
 import { fakeRaster } from './fake-raster.js';
+import { type ScriptedWatcher, scriptedWatcher } from './fake-watcher.js';
 
 /** A file as the in-memory host keeps it: text as written, bytes such as a PNG as they are. */
 type Content = string | Uint8Array;
@@ -44,16 +45,33 @@ interface Setup {
   files?: Record<string, string>;
   engine?: Engine;
   raster?: Raster;
+  /** For `--watch`: each entry edits the files, `null` deletes one, and is then reported as one change. */
+  changes?: readonly Readonly<Record<string, string | null>>[];
 }
 
 /** Runs one call against an in-memory host and returns what a caller would observe; engine and raster are fakes by default. */
 export async function call(
   argv: readonly string[],
   options: Setup = {},
-): Promise<{ exitCode: number; stdout: string; stderr: string; files: Map<string, Content> }> {
+): Promise<{
+  exitCode: number;
+  stdout: string;
+  stderr: string;
+  files: Map<string, Content>;
+  watcher: ScriptedWatcher;
+}> {
   const host = memoryHost(options.files);
-  const exitCode = await run(argv, host.io, options.engine ?? fakeEngine(), options.raster ?? fakeRaster());
-  return { exitCode, stdout: host.stdout(), stderr: host.stderr(), files: host.files };
+  const watcher = scriptedWatcher((options.changes ?? []).map((edits) => () => edit(host.files, edits)));
+  const engine = options.engine ?? fakeEngine();
+  const exitCode = await run(argv, { io: host.io, engine, raster: options.raster ?? fakeRaster(), watcher });
+  return { exitCode, stdout: host.stdout(), stderr: host.stderr(), files: host.files, watcher };
+}
+
+function edit(files: Map<string, Content>, edits: Readonly<Record<string, string | null>>): void {
+  for (const [path, text] of Object.entries(edits)) {
+    if (text === null) files.delete(path);
+    else files.set(path, text);
+  }
 }
 
 /** The `--json` document printed on stdout. */

@@ -45,12 +45,14 @@ const LOCALE_METHODS = new Set([
 
 /**
  * Host adapters: the only files under a pure source that may use `process` and import `node:` modules. Each is
- * the Node entry of its package and is never imported by the pure code beside it: the CLI's process and files,
- * and `@diagrist/export-png/node`, which reads resvg's WebAssembly module and the kernel's fonts from disk.
+ * the Node entry of its package and is never imported by the pure code beside it: the CLI's process, files and
+ * file watcher, and `@diagrist/export-png/node`, which reads resvg's WebAssembly module and the kernel's fonts
+ * from disk.
  */
 const HOST_ADAPTERS = new Set([
   'packages/cli/src/main.ts',
   'packages/cli/src/node-io.ts',
+  'packages/cli/src/node-watcher.ts',
   'plugins/export-png/src/node.ts',
 ]);
 
