@@ -23,5 +23,9 @@ export default defineConfig({
     projects: projectRoots.map((root) => ({ test: { name: root.split('/').at(-1) ?? root, root } })),
     /** More workers than cores caused timeouts in the predecessor project. */
     maxWorkers: '50%',
+    /** A test that passes only on a second try is a bug, not bad luck. */
+    retry: 0,
+    /** A forgotten `.only` must not silently skip the rest of the suite in CI. */
+    allowOnly: !process.env.CI,
   },
 });
