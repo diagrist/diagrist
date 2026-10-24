@@ -10,6 +10,8 @@ How Diagrist is built. Short on purpose; if a rule is not here, prefer what make
   reworked, rewritten or dropped on purpose. Nothing is copied blindly.
 - **Decisions are recorded briefly** in `docs/adr/`: context, decision, consequences, a few lines each.
 - **When in doubt, ask** instead of building on an assumption.
+- **Work in parallel through ports** (ADR 0009). A stream owns its paths, builds against a port that the consumer
+  defines, and joins in a separate small change. Fakes exist only in tests, and only for ports.
 
 ## Code
 

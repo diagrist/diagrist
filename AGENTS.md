@@ -59,6 +59,16 @@ pnpm exec vitest run --project lang   # one package
 5. **English** in code, TSDoc, commits and docs.
 6. **No Effect** (ADR 0007).
 
+## Working in parallel
+
+Several agents may work at once, each in its own git worktree and branch (ADR 0009).
+
+- Before starting, state three things: the paths you own, the port you build against, where you join.
+- Define ports at the consumer, as narrow interfaces with data in and out. Use fakes only in tests, only for ports.
+- Change shared files (`pnpm-lock.yaml`, root `tsconfig.json`, `knip.json`, `vitest.config.ts`) only additively;
+  they are the expected merge points.
+- Joining two streams is its own change, with a test that runs the real pieces together.
+
 ## Do not
 
 - Copy code from the predecessor project without reviewing it; migration happens area by area.
