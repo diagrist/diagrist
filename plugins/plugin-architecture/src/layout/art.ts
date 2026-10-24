@@ -139,7 +139,7 @@ export function nodeArt(n: ArchNode, rect: Rect, sizing: Sizing): NodeArt {
     return { kind: 'box', icon: noIcon, status, clock, replicas: clock, ...parts };
   }
   const ix = rect.x + m.nodePad;
-  const tx = n.icon !== undefined ? ix + m.iconSize + m.iconGap : ix;
+  const tx = n.icon !== undefined || sizing.look === 'panel' ? ix + m.iconSize + m.iconGap : ix;
   const ty = rect.y + rect.h / 2 + (n.tech !== undefined ? m.labelDyTech : m.labelDy);
   return {
     kind: 'box',

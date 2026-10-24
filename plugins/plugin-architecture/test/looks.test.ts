@@ -44,6 +44,25 @@ describe('looks', () => {
     expect(svg).not.toContain('<g class="legend">');
   });
 
+  it('select their fonts and parties: panel sets Geist, protocols in Geist Mono, a dot by the role of the group', () => {
+    const svg =
+      diagram(
+        'container look=panel',
+        'group shop "Shop" own',
+        'system pay "Payments" tech="pays" at a/main',
+        'container db "Orders" tech="PostgreSQL" shape=db at c/top in shop emph',
+        'edge pay -> db "writes" via=SQL',
+      ).svg ?? '';
+    expect(svg).toMatch(/\.dia \{ font-family: Geist, [^;]+; font-size: 11px; font-kerning: none; \}/);
+    expect(svg).toMatch(/\.pill-detail \{ fill: #8792a2; font-family: "Geist Mono"[^;]*; font-size: 10px; \}/);
+    expect(svg).toContain('class="pill-detail">SQL</text>');
+    expect(svg).toMatch(/<circle cx="[\d.]+" cy="[\d.]+" r="5" class="party-none"\/>/);
+    expect(svg).toMatch(/<circle cx="[\d.]+" cy="[\d.]+" r="5" class="party-own"\/>/);
+    expect(svg).toContain('<filter id="f-focus"');
+    expect(svg).toMatch(/\.card-focus \{ [^}]*filter: url\(#f-focus\); \}/);
+    expect(svg).toMatch(/<path d="M[^"]* Q[^"]*" class="line"/);
+  });
+
   it('keep the same bytes for the same source, whatever was compiled before', () => {
     const first = diagram('context look=cards', ...SHOP).svg;
     compile(source('architecture/cloud.dgr'), { plugins });

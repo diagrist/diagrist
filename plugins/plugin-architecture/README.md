@@ -36,6 +36,7 @@ has (`grammar`, `model`, `rules`, `messages`, `layout`, `scene`, `describe`, `te
 | `cards` | White cards with a toned icon circle, stores as circles with their name below, replicas as a stack. No legend. |
 | `blocks` | Filled blocks with shadows and large text, as pattern books draw them: tubes, cylinders, layer bands with side titles and tags. A variant with its own measures (ADR 0010), no legend. |
 | `paper` | A quiet print look with its own fonts and measures (ADR 0022): names and texts in Inter, technologies of containers and components in JetBrains Mono, warm paper, the own system's zone as an area without border, the `emph` element in yellow, status as a dot, open arrowheads, texts standing on their line, decisions as notes in the right margin and the legend as one sentence below a hairline. |
+| `panel` | Depth and colour, with its own fonts and measures (ADR 0022): names and texts in Geist, protocols and flow numbers in Geist Mono, white cards with a soft shadow on a dotted ground, groups as panels without border, a colour dot or a coloured icon for the party (own system, shared, external, people), the `emph` card in front with a deeper shadow, filled arrowheads on lines with rounded corners, labels as pills on their line, and the legend and the decisions as cards below the picture. |
 
 Layout runs on `@diagrist/layout-grid` (ADR 0015): the plugin measures its nodes and frames, the library places,
 routes and labels them, and with `layout=adaptive` grows frames around their routes. Heads, flow numbers, marks,
@@ -59,8 +60,9 @@ predecessor ran on routes (E204, E206, W203, W206, W207, W492).
 
 The eight C4 examples under `examples/` are the predecessor's, converted by the rules above; three more
 (`*-paper.dgr`) draw `radverleih/kontext`, `radverleih/komponenten` and `architecture/cloud` in `look=paper`, without
-findings, and their hashes are in `test/__golden__/paper.sha256`. With `locale=de` all of
-them render the predecessor's SVG and PNG byte for byte; `test/__golden__/examples.sha256` holds the predecessor's
+findings, and their hashes are in `test/__golden__/paper.sha256`; the `*-panel.dgr` do the same in `look=panel`
+(`test/__golden__/panel.sha256`), and the context diagram there adds two groups, since panels show who owns what.
+With `locale=de` all the others render the predecessor's SVG and PNG byte for byte; `test/__golden__/examples.sha256` holds the predecessor's
 SHA-256 of each picture, and three of them are golden files. `look=cards` variants of the five plain examples match
 the predecessor too (`test/__golden__/cards.sha256`). The crutches that keep the bytes are listed in
 `docs/burn-down.md`.

@@ -46,3 +46,10 @@ of the kernel package (Inter's two faces add about 830 kB of font files and 22 k
 alternates, which turn `->` into an arrow, cannot be switched off in resvg, so such texts take a little less room
 than measured; `docs/burn-down.md` lists it. `look=plain` keeps its bytes, and whether `paper` becomes the default
 of C4 is decided separately.
+
+`look=panel` is the second look and adds Geist and Geist Mono (about 400 kB of font files and 11 kB of tables).
+It also needs soft shadows, which a class cannot draw alone: a style table may now carry `shadows`, filters of
+`feDropShadow` that its rules name with `filter: url(#f-<id>)`. They are paint like markers, so they belong to the
+style table and a theme keeps them. Each filter costs the rasterizer time in proportion to its region, so the
+region grows a shape only as far as its shadows reach from the smallest shape it falls on, and a look gives
+shadows only to what stands in front.

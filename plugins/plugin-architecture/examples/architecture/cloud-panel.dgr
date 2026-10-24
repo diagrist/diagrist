@@ -1,0 +1,42 @@
+# The cloud application of cloud.dgr in look=panel: three services, separate data, one event queue.
+diagram container "Cloud-Anwendung" subtitle="Drei Dienste, getrennte Datenhaltung und gemeinsame Ereignis-Queue" layout=adaptive look=panel locale=de
+grid cols web,iot,mobile
+grid rows clients,gateway,business,access,data,messaging
+layer clients "Clients"
+layer gateway "API-Gateway"
+layer business "Geschäftslogik"
+layer access "Datenzugriff"
+layer data "Datenhaltung"
+layer messaging "Messaging"
+
+group cloud "Cloud-Anwendung" own team="Gesamtsystem · logische Ebenen, keine Deployment-Zonen"
+node web "Web-Client" icon=vuedotjs at web/clients in cloud
+node iot "IoT-Client" icon=server at iot/clients in cloud
+node mobile "Mobile-Client" icon=user-round at mobile/clients in cloud
+node gateway "API Gateway" tech="Routing · Authentifizierung · HTTPS / JSON" icon=shield-check at web/gateway span=mobile in cloud
+node orders "Bestellungen" tech="Geschäftslogik" replicas=3 at web/business in cloud
+node devices "Geräte" tech="Geschäftslogik" replicas=3 at iot/business in cloud
+node notify "Benachrichtigung" tech="Geschäftslogik" replicas=3 at mobile/business in cloud
+node ordersData "Bestellzugriff" tech="Datenzugriffsdienst" at web/access in cloud
+node devicesData "Gerätezugriff" tech="Datenzugriffsdienst" at iot/access in cloud
+node notifyData "Nachrichtenzugriff" tech="Datenzugriffsdienst" at mobile/access in cloud
+node ordersDb "Bestellungen" tech="PostgreSQL" shape=db at web/data in cloud
+node devicesDb "Geräte" tech="PostgreSQL" shape=db at iot/data in cloud
+node notifyDb "Nachrichten" tech="PostgreSQL" shape=db at mobile/data in cloud
+node events "Ereignisse" tech="Gemeinsame Queue" shape=queue at web/messaging span=mobile in cloud
+
+edge web -> gateway via=HTTPS
+edge iot -> gateway via=HTTPS
+edge mobile -> gateway via=HTTPS
+edge gateway -> orders via=HTTP/JSON
+edge gateway -> devices via=HTTP/JSON
+edge gateway -> notify via=HTTP/JSON
+edge orders -> ordersData via=HTTP/JSON
+edge devices -> devicesData via=HTTP/JSON
+edge notify -> notifyData via=HTTP/JSON
+edge ordersData -> ordersDb via=SQL
+edge devicesData -> devicesDb via=SQL
+edge notifyData -> notifyDb via=SQL
+edge orders ~> events "Bestellung geändert"
+edge devices ~> events "Gerät aktualisiert"
+edge notify ~> events "Nachricht versendet"

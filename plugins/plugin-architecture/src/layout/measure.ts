@@ -58,9 +58,9 @@ export function nodeWidth(n: ArchNode, { look, m }: Sizing): number {
     if (isCircle(n, look)) return roundUp(Math.max(label, tech, 2 * m.circleR), m.grid);
     return roundUp(Math.max(label, tech, 0) + 2 * m.nodePad, m.grid);
   }
-  const icon = n.icon ? m.iconSize + m.iconGap : 0;
+  const icon = n.icon || look === 'panel' ? m.iconSize + m.iconGap : 0;
   const corner = n.replicas || n.shape === 'job' ? MARKER_ROOM : 0;
-  const marker = corner + (look === 'paper' && n.mark ? MARKER_ROOM : 0);
+  const marker = corner + ((look === 'paper' || look === 'panel') && n.mark ? MARKER_ROOM : 0);
   const paper = look === 'paper';
   const dot = paper && n.status ? DOT_ROOM : 0;
   const detail = tech + (n.status && !paper ? STATUS_ROOM : 0);

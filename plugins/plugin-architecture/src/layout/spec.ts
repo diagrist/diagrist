@@ -103,6 +103,7 @@ function metricsOf({ look, m }: Sizing): GridMetrics {
     loopReach: m.loopReach,
     framePad: { top: m.groupPadTop, bottom: m.groupPadBottom, x: m.groupPadX },
     labelFont: m.fonts.label,
+    ...(m.detailFont ? { detailFont: m.detailFont } : {}),
     labelLineH: m.labelLineH,
     labelGap: m.labelGap,
     rowOverhang: look === 'cards' ? m.cardIconR : 0,

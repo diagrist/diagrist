@@ -19,6 +19,7 @@ the crutches that keep the predecessor's bytes are numbered, since they go toget
 | **The placement check knows no lines.** Edges of every kind are not reported, so a line through a node or under a label goes unseen; activity diagrams also leave out the lines of their lanes. | An outline for polylines on `Placed` (ADR 0020), with the C4 route checks below. |
 | **Ligatures of JetBrains Mono.** Browsers join texts such as `->` in labels, while the layout measured single glyphs. Fixing it changes the bytes of every picture. | `font-variant-ligatures: none` on the root rule, with the second baseline of sequence diagrams. |
 | **Contextual alternates of Inter** (ADR 0022). resvg and browsers turn `->` and `=>` into an arrow glyph, narrower than the advances the table sums, and resvg has no switch for `calt`. Such texts take a little less room than measured, never more. | Read those substitutions from `GSUB` into the packed table, or switch `calt` off once resvg honours `font-feature-settings`. |
+| **Ligatures of Geist.** resvg joins `ff` and `ffl` (Zugriff, offline) into one glyph, narrower than the advances, and ignores `font-variant-ligatures` as it ignores `font-feature-settings`. Like Inter's arrows, never wider than measured. | The same clean-up as Inter's alternates. |
 
 ## Layout library (`layout-grid`)
 
@@ -101,6 +102,8 @@ keep it so; they go in the clean-up with a second baseline.
 | **No layout checks on routes.** The predecessor reported edges through nodes (E204), unroutable edges (E206), crossings (W203), overlapping edges (W206), labels on edges (W207) and lines through heads (W492). | Report routes as placed lines. |
 | **Labels reach into foreign frames.** `radverleih/komponenten`, `soll` and `variante-a` warn (G400, G402) where an edge label reaches into a frame it does not belong to; the pictures show it. | Fixing it changes their bytes. |
 | **The sheet of `look=paper` lives in the plugin.** Kicker above the title, margin notes for decisions, the legend as sentences and the gap behind texts on a line are drawn in `src/layout/paper*.ts` and `src/scene/paper.ts`, measured with the plugin's fonts. | Move them into `parts` when a second plugin draws paper (ADR 0014). |
+| **The shelf of `look=panel` lives in the plugin.** Legend card, decision cards and the party dots are drawn in `src/looks/panel`, measured with the plugin's fonts. | Move them into `parts` when a second plugin draws panels (ADR 0014). |
+| **Event names stand in the label font.** `look=panel` would set an event such as `dokument.erzeugt` in Geist Mono, but `layout-grid` measures every edge name with one font; only the second line (`via=`) has its own (`detailFont`). | A font per edge text in `layout-grid`, chosen by the kind. |
 | **Edges to a group in a fixed grid run slanted** when the group's middle lies in another row, and their label can cover the start node, as with the predecessor. | Dock at the frame like at a node. |
 
 ## Tools

@@ -1,4 +1,5 @@
 import { FONT_SIZE, type Font } from '@diagrist/core';
+import { PANEL_METRICS } from '../looks/panel/metrics.js';
 import type { Look } from '../model/types.js';
 
 /** Font sizes by role, the same numbers the layout measures with and the stylesheet sets. */
@@ -12,8 +13,8 @@ export interface FontSizes {
 }
 
 /**
- * The measures of a C4 picture in one look, as the predecessor's theme `aidi-mono` had them: the grid, boxes,
- * gaps, pads of frames and node insides. `blocks` packs larger text into higher boxes.
+ * The measures of a C4 picture in one look, as the predecessor's theme `aidi-mono` had them: grid, boxes, gaps,
+ * frame pads, node insides. `blocks` packs larger text into higher boxes; `detailFont` sets edge protocols apart.
  */
 export interface Metrics {
   readonly grid: number;
@@ -53,6 +54,7 @@ export interface Metrics {
   readonly fontSize: FontSizes;
   /** The fonts of the look by role: layout measures with them, the stylesheet sets them (ADR 0022). */
   readonly fonts: Readonly<Record<FontRole, Font>>;
+  readonly detailFont?: Font;
 }
 
 /**
@@ -186,13 +188,12 @@ const PAPER: Metrics = {
     large: inter(13),
   },
 };
-
 const LOOK_METRICS: Readonly<Record<Look, Metrics>> = {
   plain: STANDARD,
   cards: STANDARD,
   blocks: BLOCKS,
   paper: PAPER,
+  panel: PANEL_METRICS,
 };
-
 /** The measures of a look. */
 export const metricsOf = (look: Look): Metrics => LOOK_METRICS[look];

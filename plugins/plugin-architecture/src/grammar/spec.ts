@@ -6,14 +6,14 @@ import { ELEMENT_TABLES, LEVEL_ELEMENTS, type Level } from './elements.js';
 import { grid, group, layer, noteTable, style } from './frames.js';
 
 /** The looks of the picture; `plain` is the default. */
-export const LOOKS = ['plain', 'cards', 'blocks', 'paper'] as const;
+export const LOOKS = ['plain', 'cards', 'blocks', 'paper', 'panel'] as const;
 
 const header = {
   subtitle: attr(text(), 'Second line below the title.'),
   label: attr(text(), 'Name before the title instead of the kind; an empty `label=""` leaves only the title.'),
   look: attr(
     oneOf(LOOKS),
-    '`plain` (default) boxes with a legend, `cards` toned icon cards, `blocks` filled blocks as in pattern books, `paper` a quiet print look: Inter on paper, zones as areas, the core in yellow, decisions in the margin.',
+    '`plain` (default) boxes with a legend, `cards` toned icon cards, `blocks` filled blocks as in pattern books, `paper` a quiet print look: Inter on paper, zones as areas, the core in yellow, decisions in the margin. `panel` white cards with soft shadows on panels without border, a colour dot for the party, labels as pills, legend and decisions as cards.',
   ),
   layout: attr(
     oneOf(['adaptive']),
