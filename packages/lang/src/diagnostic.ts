@@ -12,6 +12,11 @@ export interface Diagnostic {
   readonly severity: Severity;
   readonly span: Span;
   readonly values: Readonly<Record<string, string>>;
+  /**
+   * The variant whose picture the finding is about, when a file draws several pictures and the finding holds in
+   * some of them only. Absent for findings about the file itself and for the base picture.
+   */
+  readonly picture?: string;
 }
 
 /** Builds a diagnostic; `values` fill the slots of its message and default to none. */

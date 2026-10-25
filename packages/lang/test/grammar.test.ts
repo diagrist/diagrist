@@ -76,7 +76,7 @@ describe('readKind', () => {
     const [found] = readAs(sequence, 'diagram sequence "x"', 'participnt api').diagnostics;
     expect(found?.code).toBe('L101');
     expect(found && formatDiagnostic(found)).toBe(
-      'Unknown keyword `participnt` here; did you mean `participant`? Allowed: `participant`, `msg`, `alt`.',
+      'Unknown keyword `participnt` here; did you mean `participant`? Allowed: `participant`, `msg`, `alt`, `use`, `variant`.',
     );
   });
 

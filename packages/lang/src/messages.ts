@@ -1,5 +1,6 @@
 import type { Diagnostic } from './diagnostic.js';
 import { didYouMean } from './list.js';
+import { VARIANT_MESSAGES } from './variants/messages.js';
 
 /** Every language Diagrist speaks: messages, picture texts, descriptions and `--locale` (ADR 0002 Nr. 5). */
 export const LOCALES = ['en', 'de'] as const;
@@ -7,7 +8,8 @@ export const LOCALES = ['en', 'de'] as const;
 /** A language every catalogue has a message in; `formatDiagnostic` phrases each code in each of them. */
 export type Locale = (typeof LOCALES)[number];
 
-type Template = (values: Readonly<Record<string, string>>) => string;
+/** A message template: the values of a diagnostic in, its text out. */
+export type Template = (values: Readonly<Record<string, string>>) => string;
 
 /** Diagnostic codes of the language itself. Plugins register their own codes with their own prefix. */
 export const LANG_CODES = {
@@ -26,9 +28,22 @@ export const LANG_CODES = {
   noLinesHere: 'L106',
   unknownReference: 'L107',
   duplicateId: 'L108',
+  useFirst: 'L109',
+  useOtherKind: 'L110',
+  useCycle: 'L111',
+  dropNoMatch: 'L112',
+  dropAmbiguous: 'L113',
+  droppedReference: 'L114',
+  emptySet: 'L115',
+  laterBase: 'L116',
+  redeclared: 'L117',
+  missingFile: 'L118',
+  forbiddenPath: 'L119',
+  useTooDeep: 'L120',
 } as const;
 
-type LangCode = (typeof LANG_CODES)[keyof typeof LANG_CODES];
+/** A code of the language, such as `L101`. */
+export type LangCode = (typeof LANG_CODES)[keyof typeof LANG_CODES];
 
 /** One text per code and locale; the type makes a code without a text in every locale a compile error. */
 const MESSAGES: Readonly<Record<LangCode, Readonly<Record<Locale, Template>>>> = {
@@ -102,6 +117,7 @@ const MESSAGES: Readonly<Record<LangCode, Readonly<Record<Locale, Template>>>> =
     de: (v) =>
       `Anweisungen lassen sich höchstens ${v.limit} Ebenen tief verschachteln, und diese läge tiefer; sie und die darunter eingerückten Zeilen werden nicht gelesen. Sie eine Ebene höher setzen oder das Diagramm aufteilen.`,
   },
+  ...VARIANT_MESSAGES,
 };
 
 /** Renders a diagnostic of the language as text. A code that is not the language's own falls back to the code. */

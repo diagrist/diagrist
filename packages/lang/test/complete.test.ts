@@ -27,7 +27,17 @@ describe('complete', () => {
   });
 
   it('offers the top-level keywords at the top level, not those of a block', () => {
-    expect(labels(at(sequence, ...login, '|'))).toEqual(['participant', 'msg', 'alt']);
+    expect(labels(at(sequence, ...login, '|'))).toEqual(['participant', 'msg', 'alt', 'use', 'variant']);
+  });
+
+  it('offers the kind’s statements, set and drop inside a variant', () => {
+    expect(labels(at(sequence, ...login, 'variant v "V"', '  |'))).toEqual([
+      'participant',
+      'msg',
+      'alt',
+      'set',
+      'drop',
+    ]);
   });
 
   it('offers the children of the enclosing block, found by indentation', () => {

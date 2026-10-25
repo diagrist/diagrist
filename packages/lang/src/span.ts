@@ -3,6 +3,8 @@ export interface Span {
   readonly line: number;
   readonly column: number;
   readonly length: number;
+  /** The file the place is in, when it is not the file being compiled but one it reached through `use`. */
+  readonly file?: string;
 }
 
 /** A span from 1-based line and column over `length` characters. */

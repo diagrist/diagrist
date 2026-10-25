@@ -2,6 +2,7 @@ import type { Diagnostic } from '../diagnostic.js';
 import { list } from '../list.js';
 import { LANG_CODES } from '../messages.js';
 import type { Document, Entry, Statement } from '../tree.js';
+import { checkIds } from './ids.js';
 import { type LineContext, readLine, report } from './read-line.js';
 import type { Infer, KindSpec, StatementSpec } from './spec.js';
 import { nearest } from './suggest.js';
@@ -20,14 +21,24 @@ export interface KindReading<S> {
   readonly diagnostics: readonly Diagnostic[];
 }
 
+/** What `unfold` tells `readKind` about a variant's picture. */
+export interface ReadOptions {
+  /** Ids a variant dropped, with the variant: a reference to one of them is L114 instead of L107. */
+  readonly dropped?: ReadonlyMap<string, string>;
+}
+
+/** Keywords every kind allows at the top level besides its own, resolved by `unfold` before a picture is read. */
+export const FILE_KEYWORDS: readonly string[] = ['use', 'variant'];
+
 /**
  * Reads a statement tree as a diagram of one kind. Every statement is checked against the kind's tables;
  * ids must be unique and references must point to declared ids. Statements with errors are left out, their
- * diagnostics explain why.
+ * diagnostics explain why. A file with `use` or `variant` is read through `unfold`, which calls this per picture.
  */
 export function readKind<S extends readonly StatementSpec[]>(
   kind: KindSpec<S>,
   document: Document,
+  options: ReadOptions = {},
 ): KindReading<Infer<S[number]>> {
   const context: LineContext = { diagnostics: [], references: [], declarations: [] };
   const [first, ...rest] = document.statements;
@@ -37,8 +48,9 @@ export function readKind<S extends readonly StatementSpec[]>(
       kind: kind.name,
     });
   }
-  const statements = readStatements(kind.statements, header === undefined ? document.statements : rest, context);
-  checkIds(context);
+  const body = header === undefined ? document.statements : rest;
+  const statements = readStatements(kind.statements, body, context, undefined, FILE_KEYWORDS);
+  checkIds(context, options.dropped ?? new Map());
   const diagnostics = [...context.diagnostics].sort(
     (a, b) => a.span.line - b.span.line || a.span.column - b.span.column,
   );
@@ -81,6 +93,7 @@ function readStatements(
   statements: readonly Statement[],
   context: LineContext,
   parent?: StatementSpec,
+  alsoAllowed: readonly string[] = [],
 ): Record<string, unknown>[] {
   const values: Record<string, unknown>[] = [];
   for (const statement of statements) {
@@ -91,7 +104,7 @@ function readStatements(
     } else if (parent?.lines === undefined) {
       report(context, LANG_CODES.unknownKeyword, statement.keywordSpan, {
         found: statement.keyword,
-        allowed: list(specs.map((s) => s.keyword)),
+        allowed: list([...specs.map((s) => s.keyword), ...alsoAllowed]),
         suggestion:
           nearest(
             statement.keyword,
@@ -117,6 +130,7 @@ function readStatement(
       tokens: statement.arguments,
       attributes: statement.attributes,
       line: statement.line,
+      ...originOf(statement),
     },
     context,
   );
@@ -149,6 +163,7 @@ function readLineForms(spec: StatementSpec, statement: Statement, context: LineC
         tokens: [{ kind: 'word', value: line.keyword, span: line.keywordSpan }, ...line.arguments],
         attributes: line.attributes,
         line: line.line,
+        ...originOf(line),
       },
       context,
     ),
@@ -163,6 +178,7 @@ function readLineForms(spec: StatementSpec, statement: Statement, context: LineC
         tokens: [{ kind: 'text', value: entry.text, span: entry.textSpan }, ...entry.arguments],
         attributes: entry.attributes,
         line: entry.line,
+        ...originOf(entry),
       },
       context,
     ),
@@ -172,23 +188,4 @@ function readLineForms(spec: StatementSpec, statement: Statement, context: LineC
     .sort((a, b) => (a.line as number) - (b.line as number));
 }
 
-function checkIds(context: LineContext): void {
-  const first = new Map<string, number>();
-  for (const declaration of context.declarations) {
-    const line = first.get(declaration.id);
-    if (line === undefined) first.set(declaration.id, declaration.line);
-    else report(context, LANG_CODES.duplicateId, declaration.span, { found: declaration.id, first: String(line) });
-  }
-  for (const reference of context.references) {
-    const targets = reference.value.refersTo ?? [];
-    const known = context.declarations.filter((d) => targets.includes(d.keyword)).map((d) => d.id);
-    if (!known.includes(reference.found)) {
-      report(context, LANG_CODES.unknownReference, reference.span, {
-        name: reference.name,
-        found: reference.found,
-        expected: reference.value.expected,
-        known: list(known.slice(0, 20)),
-      });
-    }
-  }
-}
+const originOf = (part: Statement | Entry) => (part.origin === undefined ? {} : { origin: part.origin });

@@ -29,7 +29,7 @@ diagram state "Title"
 
 ## Statements
 
-Each statement is one line that starts with its keyword. Statements inside blocks are indented below them.
+Each statement is one line that starts with its keyword. Statements inside blocks are indented below them. Like every kind, `state` also has `use`, `variant`, `set` and `drop`, described in [the overview](README.md#statements-of-every-kind).
 
 | Statement | Where | What it does |
 |---|---|---|

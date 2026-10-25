@@ -51,6 +51,11 @@ export interface Kind<M = unknown, S extends readonly StatementSpec[] = readonly
   layout(model: M, context: KindContext): Drawing;
   /** Alt text: the diagram in sentences, in the locale of the context. */
   describe(model: M, context: KindContext): string;
+  /**
+   * Whether the kind draws diff pictures (ADR 0021): a variant with `diff` then reaches it with every line's
+   * `origin`, its removed lines included. Without it such a variant is K103.
+   */
+  readonly diff?: true;
 }
 
 /**
@@ -63,6 +68,7 @@ export function defineKind<M, const S extends readonly StatementSpec[]>(kind: {
   readonly rules: readonly Rule<M>[];
   readonly layout: (model: M, context: KindContext) => Drawing;
   readonly describe: (model: M, context: KindContext) => string;
+  readonly diff?: true;
 }): Kind<M, S> {
   return kind;
 }

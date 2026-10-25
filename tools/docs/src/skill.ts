@@ -4,8 +4,9 @@ import { type Command, commandLine, headerLine, signatureOf, summaryOf } from 'd
 import { LANGUAGE_BASICS } from './basics.js';
 import { kernelCodes, languageCodes, ruleCodes } from './codes.js';
 import { code, generatedFrom, table } from './markdown.js';
+import { ownStatements, SHARED_BASICS, sharedStatements } from './shared.js';
 import { SKILL_INTRO } from './skill-intro.js';
-import { placedStatements, whereOf } from './statements.js';
+import { type PlacedStatement, placedStatements, whereOf } from './statements.js';
 
 /** Where the agent skill is checked in, relative to the repository root. */
 export const SKILL_PATH = 'skills/diagrist/SKILL.md';
@@ -40,6 +41,11 @@ export function agentSkill(plugins: readonly Plugin[], commands: readonly Comman
     ),
     '',
     ...kinds.flatMap(kindReference),
+    '## Statements of every kind',
+    '',
+    ...SHARED_BASICS.flatMap((paragraph) => [paragraph, '']),
+    ...statementTable(sharedStatements(plugins)),
+    '',
     '## Diagnostic codes',
     '',
     'The letter of a code names who reports it. Messages show values as `{name}`; in `--json` they are the `values` of the diagnostic. These come from the language:',
@@ -55,7 +61,7 @@ export function agentSkill(plugins: readonly Plugin[], commands: readonly Comman
 
 /** One kind in short: its first line, every statement with signature, purpose and example, its arrows and codes. */
 function kindReference(kind: Kind): string[] {
-  const grammar = grammarOf(kind.spec);
+  const grammar = ownStatements(grammarOf(kind.spec));
   const placed = placedStatements(grammar);
   const withMeanings = placed.flatMap(({ statement }) =>
     statement.arguments
@@ -71,15 +77,7 @@ function kindReference(kind: Kind): string[] {
     signatureOf(`diagram ${grammar.kind} "Title"`, headerLine(grammar)),
     '```',
     '',
-    ...table(
-      ['Line', 'Where', 'What it does', 'Example'],
-      placed.map(({ statement, ...where }) => [
-        code(signatureOf(statement.keyword, statement)),
-        whereOf({ statement, ...where }),
-        summaryOf(statement.doc),
-        code(statement.examples[0] ?? statement.keyword),
-      ]),
-    ),
+    ...statementTable(placed),
     '',
     ...withMeanings.flatMap(({ keyword, meanings }) => [
       `The arrows of ${code(keyword)}: ${Object.entries(meanings)
@@ -92,4 +90,17 @@ function kindReference(kind: Kind): string[] {
     ...table(['Code', 'Severity', 'What it checks'], ruleCodes(kind)),
     '',
   ];
+}
+
+/** Statements as one table row each: signature, where they stand, what they do, an example. */
+function statementTable(placed: readonly PlacedStatement[]): string[] {
+  return table(
+    ['Line', 'Where', 'What it does', 'Example'],
+    placed.map(({ statement, ...where }) => [
+      code(signatureOf(statement.keyword, statement)),
+      whereOf({ statement, ...where }),
+      summaryOf(statement.doc),
+      code(statement.examples[0] ?? statement.keyword),
+    ]),
+  );
 }

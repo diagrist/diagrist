@@ -1,4 +1,5 @@
 import { read } from '../tree.js';
+import { SHARED_KEYWORDS, sharedStatements } from '../variants/tables.js';
 import { type LineContext, readLine } from './read-line.js';
 import type { Attr, KindSpec, LineSpec, StatementSpec } from './spec.js';
 import type { Value } from './value.js';
@@ -51,17 +52,19 @@ export interface GrammarReference {
 }
 
 /**
- * The grammar of a kind as data. Every table is described in full exactly once, at the shallowest place it occurs
- * (top-level statements first); every other occurrence is a `GrammarReference`. Recursive tables such as nested
- * fragments stay finite, and the size grows with the number of tables, not with how often they are reused.
+ * The grammar of a kind as data, with `use` and `variant` after the kind's own statements, since every kind has them
+ * (ADR 0021). Every table is described in full exactly once, at the shallowest place it occurs (top-level statements
+ * first); every other occurrence is a `GrammarReference`. Recursive tables such as nested fragments stay finite, and
+ * the size grows with the number of tables, not with how often they are reused.
  */
 export function grammarOf(kind: KindSpec): Grammar {
-  const home = homes(kind.statements);
+  const statements = [...kind.statements, ...sharedStatements(kind)];
+  const home = homes(statements);
   return {
     kind: kind.name,
     doc: kind.doc,
     header: fields(kind.header),
-    statements: kind.statements.map((spec, i) => describeFully(spec, `/statements/${i}`, home)),
+    statements: statements.map((spec, i) => describeFully(spec, `/statements/${i}`, home)),
   };
 }
 
@@ -140,6 +143,9 @@ export function checkKind(kind: KindSpec): string[] {
   need(`kind ${kind.name}`, kind.doc);
   for (const [name, attribute] of Object.entries(kind.header)) need(`header attribute ${name}=`, attribute.doc);
 
+  for (const spec of kind.statements)
+    if (SHARED_KEYWORDS.includes(spec.keyword))
+      problems.push(`statement ${spec.keyword} takes a keyword every kind has`);
   const visit = (spec: LineSpec, where: string, keyword?: string): void => {
     need(where, spec.doc);
     for (const a of spec.arguments) need(`${where}, argument ${a.name}`, a.doc);

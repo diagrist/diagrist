@@ -32,6 +32,8 @@ describe('the three C4 levels', () => {
       'flow',
       'note',
       'adr',
+      'use',
+      'variant',
     ]);
     expect(keywords('container').filter((k) => !keywords('context').includes(k))).toEqual(['container']);
     expect(keywords('component').filter((k) => !keywords('context').includes(k))).toEqual(['container', 'component']);

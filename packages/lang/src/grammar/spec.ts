@@ -1,4 +1,5 @@
 import type { Span } from '../span.js';
+import type { Origin } from '../tree.js';
 import type { Value } from './value.js';
 
 /** One positional value of a line, in order. */
@@ -121,6 +122,8 @@ type LineValues<S> = (S extends { arguments: infer A } ? ArgValues<A> : Record<n
   readonly flags: S extends { flags: infer F } ? { readonly [K in keyof F]: boolean } : Record<never, never>;
   readonly line: number;
   readonly span: Span;
+  /** Where the line comes from in a variant's picture (ADR 0021); absent means `base`. */
+  readonly origin?: Origin;
 };
 
 /** The typed value of a statement, derived from its spec (ADR 0004): no hand-written types or builders. */

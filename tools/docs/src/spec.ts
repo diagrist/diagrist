@@ -3,6 +3,7 @@ import { article, either, type GrammarField, type GrammarLine, grammarOf } from 
 import { headerLine, signatureOf, summaryOf } from 'diagrist/tables';
 import { ruleCodes } from './codes.js';
 import { code, generatedFrom, table } from './markdown.js';
+import { ownStatements, SHARED_ANCHOR } from './shared.js';
 import { type PlacedStatement, placedStatements, whereOf } from './statements.js';
 
 /** Where the language spec of a kind is checked in, relative to the repository root. */
@@ -14,7 +15,7 @@ export const specPath = (kind: string): string => `docs/language/${kind}.md`;
  * arrow, where it may stand, and the diagnostic codes of the kind.
  */
 export function languageSpec(kind: Kind, plugin: string): string {
-  const grammar = grammarOf(kind.spec);
+  const grammar = ownStatements(grammarOf(kind.spec));
   const placed = placedStatements(grammar);
   const anchors = anchorsOf(placed);
   return [
@@ -31,7 +32,7 @@ export function languageSpec(kind: Kind, plugin: string): string {
     ...lineSection(`diagram ${grammar.kind} "Title"`, headerLine(grammar)),
     '## Statements',
     '',
-    'Each statement is one line that starts with its keyword. Statements inside blocks are indented below them.',
+    `Each statement is one line that starts with its keyword. Statements inside blocks are indented below them. Like every kind, \`${grammar.kind}\` also has \`use\`, \`variant\`, \`set\` and \`drop\`, described in [the overview](README.md#${SHARED_ANCHOR}).`,
     '',
     ...table(
       ['Statement', 'Where', 'What it does'],
@@ -55,7 +56,8 @@ function placement(placed: PlacedStatement): string {
   return placed.parents.length > 0 ? `Written at the top level and inside ${blocks}.` : 'Written at the top level.';
 }
 
-function statementSection(placed: PlacedStatement): string[] {
+/** A statement in full: heading, signature, doc, where it stands, its parts and examples. */
+export function statementSection(placed: PlacedStatement): string[] {
   const { statement } = placed;
   const children = statement.children.map((child) => code(child.keyword));
   const notes = [placement(placed), ...(children.length > 0 ? [`Indented below it: ${children.join(', ')}.`] : [])];

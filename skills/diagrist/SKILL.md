@@ -442,6 +442,21 @@ The rules of `component` report these codes:
 | `A710` | warning | An edge says what happens: a label or a protocol (`via=`). |
 | `A801` | warning | A decision of the bar has a mark in the picture, on an element or a step (`mark=`). |
 
+## Statements of every kind
+
+Every kind also has `use`, `variant`, `set` and `drop`. A file holds one base picture and any number of variants: a `variant` block repeats only the lines that differ, so as-is and to-be, phases or option A and B stay one source. A statement of the kind inside a variant adds a line, `set` changes the clauses, attributes and flags of a declared line, `drop` removes one. `from` builds a variant on one declared above it, and `diff` draws it as a comparison with what it builds on, if the kind can (C4 can).
+
+Where a line goes: `set` keeps the line in its place, and a line declared again after its `drop` takes the dropped line’s place. A new line goes before the next line of its keyword that the variant declares again, otherwise after the last line of its keyword, so lines keep the order they are written in. The grid and `at` are inherited, so an element keeps its cell in every picture.
+
+`use "file.dgr"` puts the lines and variants of another file of the same kind before the file’s own, so a decision paper can build on a shared base. Paths are relative to the file, stay inside the folder `dgr` runs in and name no hidden file. `dgr build` writes the base as `<file>.svg` and each variant as `<file>.<variant>.svg`; `--variant` builds one.
+
+| Line | Where | What it does | Example |
+|---|---|---|---|
+| `use <file>` | top level | Puts the statements and variants of another `.dgr` file of the same kind before this file's own, as if they were written here, so a variant may build on them. | `use "radverleih.dgr"` |
+| `variant <id> <title> [from <ref>] [subtitle=<text>] [diff]` | top level | One more picture from the same base, written as the lines that differ: a statement of the kind adds a line, `set` changes one and `drop` removes one. | `variant target "Target 2027" subtitle="For review" diff` |
+| `set <id>` | inside `variant` | Changes the line that declares `id`, where it stands. | `set db tech="PostgreSQL 17"` |
+| `drop <keyword> [arguments]` | inside `variant` | Removes one line of the picture: its keyword and as many of its first arguments as make it unique, matched from the left. | `drop node portal` |
+
 ## Diagnostic codes
 
 The letter of a code names who reports it. Messages show values as `{name}`; in `--json` they are the `values` of the diagnostic. These come from the language:
@@ -463,6 +478,18 @@ The letter of a code names who reports it. Messages show values as `{name}`; in 
 | `L106` | `{statement}` takes no indented lines without a keyword. Allowed child keywords: {allowed}. |
 | `L107` | `{found}` is not declared; {name} must be {expected}. Declared: {known}. |
 | `L108` | The id `{found}` is already declared in line {first}. Ids are unique within a diagram. |
+| `L109` | `use` stands directly after the header, before `{found}` in line {line}. Example: `use "base.dgr"` |
+| `L110` | `{file}` is a `{found}` diagram; `use` in a `{kind}` diagram needs a `{kind}` diagram. |
+| `L111` | `{file}` uses itself through {chain}. Remove one `use`. |
+| `L112` | `drop {found}` matches no line of the picture `{variant}` builds on. Lines with keyword `{keyword}`: {known}. Example: `{example}` |
+| `L113` | `drop {found}` matches the lines {lines}. Add arguments until exactly one matches, for example `{example}`. |
+| `L114` | `{id}` is dropped in variant `{variant}`, but {name} of this line still refers to it. Drop this line too, or keep `{id}`. |
+| `L115` | `set {id}` changes nothing. Write at least one attribute, clause or flag of `{keyword}`: {allowed}. Example: `set {id} {example}` |
+| `L116` | `variant {found}` builds on `{from}`, which is declared later in line {line}. Declare `{from}` first. |
+| `L117` | `{found}` is already declared in line {first}. In a variant, change it with `set {found} ...` or remove it with `drop {keyword} {found}`. |
+| `L118` | `{file}` was not handed over, so it cannot be read. Hosts read every file a diagram needs before they compile it; `dgr` does so and reports C018 when it cannot. |
+| `L119` | `{found}` is no allowed path: {case}. A path is relative to the diagram, stays inside the folder `dgr` runs in and names no hidden file or folder. Example: `"../shared/base.dgr"` |
+| `L120` | `{file}` would be the {depth}th file in a chain of `use`, and a chain holds at most {max}. Use the file that holds the lines directly, such as `use "../shared/base.dgr"`. |
 
 These come from the kernel:
 
@@ -475,4 +502,5 @@ These come from the kernel:
 | `K100` | No plugin draws the diagram kind `{found}`. Registered kinds: {allowed}. A diagram starts with `diagram <kind> "Title"`. |
 | `K101` | The kind `{kind}` is registered twice, by {plugins}; the first one is used. |
 | `K102` | The picture uses the icon `{icon}`, which the style table does not have. Icons: {known}. |
+| `K103` | The kind `{kind}` draws no diff pictures; remove `diff` from `variant {variant}`. Kinds with diff pictures: {allowed}. |
 | `K110` | The plugin `{plugin}` failed while drawing the kind `{kind}`: {error}. This is a bug, not a mistake in the diagram; please report it with the diagram at https://github.com/diagrist/diagrist/issues. |

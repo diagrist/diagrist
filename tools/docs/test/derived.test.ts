@@ -1,5 +1,5 @@
 import { fileURLToPath } from 'node:url';
-import { either, GRAMMAR_SCHEMA, grammarOf } from '@diagrist/lang';
+import { either, GRAMMAR_SCHEMA, grammarOf, SHARED_KEYWORDS } from '@diagrist/lang';
 import { compareGolden } from '@diagrist/testkit';
 import { COMMANDS, GLOBAL_OPTIONS, PLUGINS, SCHEMA_PATH } from 'diagrist/tables';
 import { describe, expect, it } from 'vitest';
@@ -30,6 +30,13 @@ describe('the derived files', () => {
   });
 });
 
+describe('the overview of the language', () => {
+  it('describes the statements every kind has once', () => {
+    const overview = content('docs/language/README.md');
+    expect(SHARED_KEYWORDS.filter((k) => !overview.includes(`### \`${k}\``))).toEqual([]);
+  });
+});
+
 describe('the grammar schema', () => {
   it('is published as the schema of the language plus its address', () => {
     const published = JSON.parse(content(SCHEMA_PATH)) as Record<string, unknown>;
@@ -43,7 +50,8 @@ describe('the language spec of a kind', () => {
     (name, kind) => {
       const spec = content(specPath(name));
       const keywords = JSON.stringify(grammarOf(kind.spec)).match(/"keyword":"[^"]+"/g) ?? [];
-      const missing = [...new Set(keywords.map((k) => k.slice(11, -1)))].filter((k) => !spec.includes(`### \`${k}\``));
+      const own = [...new Set(keywords.map((k) => k.slice(11, -1)))].filter((k) => !SHARED_KEYWORDS.includes(k));
+      const missing = own.filter((k) => !spec.includes(`### \`${k}\``));
       expect(missing).toEqual([]);
       expect(kind.rules.filter((rule) => !spec.includes(`| \`${rule.code}\` |`)).map((rule) => rule.code)).toEqual([]);
     },

@@ -3,6 +3,7 @@ import { LANG_CODES } from '../messages.js';
 import { scan, type Token } from '../scanner.js';
 import { type Span, span } from '../span.js';
 import { type Document, read } from '../tree.js';
+import { sharedStatements } from '../variants/tables.js';
 import { declaredIds } from './ids.js';
 import { type CompletionItem, type IdsOf, lineItems } from './line.js';
 
@@ -46,7 +47,8 @@ export function complete(source: string, position: Position, kind: KindSpec): Co
   const tokens = scan(before.slice(0, before.length - typed.length)).lines[0]?.tokens ?? [];
   const above = read(lines.slice(0, position.line - 1).join('\n')).document;
   const idsOf = declaredIds(kind, read(source).document.statements);
-  const items = itemsAt(kind, above, before.length - before.trimStart().length, tokens, typed, idsOf);
+  const withShared = { ...kind, statements: [...kind.statements, ...sharedStatements(kind)] };
+  const items = itemsAt(withShared, above, before.length - before.trimStart().length, tokens, typed, idsOf);
   const seen = new Set<string>();
   const fitting = items.filter(
     (item) => item.label.startsWith(prefix) && !seen.has(item.label) && seen.add(item.label),

@@ -2,7 +2,7 @@ import { type Diagnostic, diagnostic } from '../diagnostic.js';
 import { list } from '../list.js';
 import { LANG_CODES } from '../messages.js';
 import { type Span, span } from '../span.js';
-import type { Argument, Attribute } from '../tree.js';
+import type { Argument, Attribute, Origin } from '../tree.js';
 import type { LineSpec } from './spec.js';
 import type { Value } from './value.js';
 
@@ -35,12 +35,14 @@ export interface LineInput {
   readonly tokens: readonly Argument[];
   readonly attributes: readonly Attribute[];
   readonly line: number;
+  readonly origin?: Origin;
 }
 
 /** Reads one line against its spec. Returns the values, or nothing when the line has errors. */
 export function readLine(spec: LineSpec, input: LineInput, context: LineContext): Record<string, unknown> | undefined {
   const found = context.diagnostics.length;
   const values: Record<string, unknown> = { line: input.line, span: input.start };
+  if (input.origin !== undefined) values.origin = input.origin;
   const next = readArguments(spec, input, values, context);
   values.flags = Object.fromEntries(Object.keys(spec.flags).map((flag) => [flag, false]));
   values.clauses = readTail(spec, input, next, values.flags as Record<string, boolean>, context);
@@ -82,6 +84,21 @@ function readArguments(
       });
       index++;
     }
+  }
+  return index;
+}
+
+/**
+ * How many of `tokens` the arguments of `spec` take, read the way `readLine` reads them: a token that fits is taken,
+ * an optional argument that does not fit is skipped, a required one takes the token anyway and is reported there.
+ */
+export function argumentEnd(spec: LineSpec, tokens: readonly Argument[]): number {
+  let index = 0;
+  for (const argument of spec.arguments) {
+    const token = tokens[index];
+    if (token === undefined) break;
+    const fits = argument.value.tokens.includes(token.kind) && argument.value.read(token.value).ok;
+    if (fits || !argument.optional) index++;
   }
   return index;
 }

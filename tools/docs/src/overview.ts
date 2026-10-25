@@ -3,6 +3,8 @@ import { SCHEMA_PATH, summaryOf } from 'diagrist/tables';
 import { LANGUAGE_BASICS } from './basics.js';
 import { kernelCodes, languageCodes } from './codes.js';
 import { code, generatedFrom, table } from './markdown.js';
+import { SHARED_BASICS, sharedStatements } from './shared.js';
+import { statementSection } from './spec.js';
 
 /** Where the overview of the language is checked in, relative to the repository root. */
 export const OVERVIEW_PATH = 'docs/language/README.md';
@@ -28,6 +30,10 @@ export function languageOverview(plugins: readonly Plugin[]): string {
       kinds.map(({ plugin, spec }) => [`[${code(spec.name)}](${spec.name}.md)`, code(plugin), summaryOf(spec.doc)]),
     ),
     '',
+    '## Statements of every kind',
+    '',
+    ...SHARED_BASICS.flatMap((paragraph) => [paragraph, '']),
+    ...sharedStatements(plugins).flatMap(statementSection),
     '## The grammar as data',
     '',
     `\`dgr grammar <kind> --json\` prints the grammar of a kind as data, derived from the same tables as these pages. It validates against the JSON Schema [\`${SCHEMA_PATH}\`](../../${SCHEMA_PATH}). Editors and the language server ask \`complete\` from \`@diagrist/lang\` what may be written at a position; it reads the same tables.`,

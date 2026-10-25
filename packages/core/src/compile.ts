@@ -8,18 +8,20 @@ import {
   LOCALES,
   type Locale,
   list,
+  type Need,
   oneOf,
   read,
-  readKind,
+  unfold,
 } from '@diagrist/lang';
 import type { Anchors } from './anchors.js';
-import { checkDrawing } from './drawing.js';
+import { mergeFindings } from './findings.js';
 import { KERNEL_CODES } from './messages.js';
+import { type DrawnPicture, drawPicture } from './picture.js';
 import type { Kind, Plugin } from './plugin.js';
-import { toSvg } from './svg.js';
-import { applyTheme, type Theme } from './theme.js';
+import { register } from './registry.js';
+import type { Theme } from './theme.js';
 
-/** What `compile` may draw and how: the registered plugins and whether the SVG is inline. */
+/** What `compile` may draw and how: the registered plugins, the files the source needs, and whether the SVG is inline. */
 export interface CompileOptions {
   /** The plugins whose kinds may be drawn; nothing else is known to the kernel. */
   readonly plugins: readonly Plugin[];
@@ -27,11 +29,15 @@ export interface CompileOptions {
   readonly inline?: boolean;
   /** Laid over the style table of the drawn kind, such as a corporate design; see `Theme`. */
   readonly theme?: Theme;
+  /** Path of the source relative to the folder the host runs in; paths the source names are resolved against it. */
+  readonly path?: string;
+  /** Texts of the files the source needs (`Compilation.needs`), by their path. */
+  readonly files?: Readonly<Record<string, string>>;
 }
 
 /**
- * The result of `compile`. Picture, anchors and description are present exactly when no diagnostic is an error.
- * Diagnostics are data; `formatMessage` phrases them in any locale.
+ * The result of `compile`. Picture, anchors and description of the base are present exactly when no diagnostic is
+ * an error. Diagnostics are data; `formatMessage` phrases them in any locale.
  */
 export interface Compilation {
   readonly diagnostics: readonly Diagnostic[];
@@ -40,6 +46,13 @@ export interface Compilation {
   readonly svg?: string;
   readonly anchors?: Anchors;
   readonly description?: string;
+  /** The base picture first, then one per variant of the file (ADR 0021), each drawn when it has no error. */
+  readonly pictures: readonly DrawnPicture[];
+  /**
+   * Every file the source reads, with the place that names it. A host reads those `files` lacks and compiles again;
+   * a missing one is L118 until it does.
+   */
+  readonly needs: readonly Need[];
 }
 
 /**
@@ -52,9 +65,10 @@ export const localeAttribute: Attr<Locale> = attr(
 );
 
 /**
- * Turns a source into a checked picture. The header names the kind; the plugin that registered it reads the
- * statements against its tables, builds the model, runs its rules and lays out the scene. Pure: same source
- * and plugins, same bytes. It does not throw: a plugin that fails is reported as K110, with its error message.
+ * Turns a source into checked pictures. The header names the kind; `use` and variants are unfolded into one reading
+ * per picture, and the plugin that registered the kind builds each model, runs its rules and lays out the scene.
+ * Pure: same source, files and plugins, same bytes. It does not throw: a plugin that fails is reported as K110, with
+ * its error message.
  */
 export function compile(source: string, options: CompileOptions): Compilation {
   const { document, diagnostics: syntax } = read(source);
@@ -63,39 +77,47 @@ export function compile(source: string, options: CompileOptions): Compilation {
   const kind = name === undefined ? undefined : registry.kinds.get(name);
   if (kind === undefined) {
     const found = noKind(document, name, [...registry.kinds.keys()]);
-    return { diagnostics: sorted([...syntax, ...registry.diagnostics, found]), locale: FALLBACK };
+    return { ...nothing(FALLBACK), diagnostics: sorted([...syntax, ...registry.diagnostics, found]) };
   }
   const before = [...syntax, ...registry.diagnostics];
   try {
     return compileKind(kind, document, before, options);
   } catch (error) {
-    return { diagnostics: sorted([...before, failed(kind, options.plugins, document, error)]), locale: FALLBACK };
+    const found = failed(kind, options.plugins, document, error);
+    return { ...nothing(FALLBACK), diagnostics: sorted([...before, found]) };
   }
 }
 
 const FALLBACK = 'en' as const;
 
-/** The work of the plugin that owns the kind, from reading its statements to the SVG. */
+/** The work of the plugin that owns the kind, from unfolding the file to the SVG of every picture. */
 function compileKind(kind: Kind, document: Document, before: Diagnostic[], options: CompileOptions): Compilation {
-  const reading = readKind(kind.spec, document);
-  const locale = LOCALES.find((l) => l === reading.header?.attributes.locale) ?? FALLBACK;
-  const found = [...before, ...reading.diagnostics];
-  if (hasErrors(found)) return { diagnostics: sorted(found), locale };
-  const model = kind.model(reading);
-  const checked = sorted([...found, ...runRules(kind, model)]);
-  if (hasErrors(checked)) return { diagnostics: checked, locale };
-  const drawing = kind.layout(model, { locale });
-  const styles = applyTheme(drawing.styles, options.theme);
-  const drawn = sorted([...checked, ...checkDrawing(drawing, styles)]);
-  if (hasErrors(drawn)) return { diagnostics: drawn, locale };
+  const unfolded = unfold(kind.spec, document, {
+    ...(options.path === undefined ? {} : { path: options.path }),
+    ...(options.files === undefined ? {} : { files: options.files }),
+  });
+  const [base] = unfolded.pictures;
+  const locale = LOCALES.find((l) => l === base?.reading.header?.attributes.locale) ?? FALLBACK;
+  const file = [...before, ...unfolded.diagnostics];
+  const withDiff = options.plugins.flatMap((p) => p.kinds.filter((k) => k.diff === true).map((k) => k.spec.name));
+  const pictures = unfolded.pictures.map((picture) =>
+    drawPicture(kind, picture, { locale, blocked: hasErrors(file), withDiff, options }),
+  );
+  const diagnostics = sorted(mergeFindings(file, pictures));
+  const [drawn] = pictures;
+  const clean = !hasErrors(diagnostics) && drawn !== undefined;
   return {
-    diagnostics: drawn,
+    diagnostics,
     locale,
-    svg: toSvg(drawing.scene, styles, options.inline === true ? { inline: true } : {}),
-    anchors: drawing.anchors,
-    description: kind.describe(model, { locale }),
+    ...(clean && drawn.svg !== undefined ? { svg: drawn.svg } : {}),
+    ...(clean && drawn.anchors !== undefined ? { anchors: drawn.anchors } : {}),
+    ...(clean && drawn.description !== undefined ? { description: drawn.description } : {}),
+    pictures: pictures.map(({ diagnostics: _, ...picture }) => picture),
+    needs: unfolded.needs,
   };
 }
+
+const nothing = (locale: Locale) => ({ locale, pictures: [], needs: [] });
 
 /**
  * K110 on the header: which plugin failed on which kind, and what it threw as one line, such as
@@ -125,37 +147,6 @@ function kindName(document: Document): string | undefined {
   const [head] = document.statements;
   const [name] = head?.keyword === 'diagram' ? head.arguments : [];
   return name?.kind === 'word' ? name.value : undefined;
-}
-
-/** Kinds by name. A kind registered twice keeps its first plugin and is reported. */
-function register(plugins: readonly Plugin[]): { kinds: Map<string, Kind>; diagnostics: Diagnostic[] } {
-  const kinds = new Map<string, Kind>();
-  const owners = new Map<string, string[]>();
-  for (const plugin of plugins)
-    for (const kind of plugin.kinds) {
-      if (!kinds.has(kind.spec.name)) kinds.set(kind.spec.name, kind);
-      owners.set(kind.spec.name, [...(owners.get(kind.spec.name) ?? []), plugin.name]);
-    }
-  const diagnostics = [...owners]
-    .filter(([, names]) => names.length > 1)
-    .map(([kind, names]) =>
-      diagnostic(
-        KERNEL_CODES.duplicateKind,
-        'warning',
-        { line: 1, column: 1, length: 1 },
-        {
-          kind,
-          plugins: names.map((n) => `\`${n}\``).join(', '),
-        },
-      ),
-    );
-  return { kinds, diagnostics };
-}
-
-function runRules(kind: Kind, model: unknown): Diagnostic[] {
-  return kind.rules.flatMap((rule) =>
-    rule.check(model).map((finding) => diagnostic(rule.code, rule.severity, finding.span, { ...finding.values })),
-  );
 }
 
 const hasErrors = (diagnostics: readonly Diagnostic[]): boolean => diagnostics.some((d) => d.severity === 'error');

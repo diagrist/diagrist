@@ -8,6 +8,12 @@ export type Argument = Exclude<Token, { kind: 'attribute' }>;
 /** A `key=value` token of a line. */
 export type Attribute = Extract<Token, { kind: 'attribute' }>;
 
+/**
+ * Where a line of a picture comes from, compared with the picture it builds on (ADR 0021): unchanged, added by the
+ * variant, changed by `set` or by declaring it again, or dropped and kept only so a diff picture can show it.
+ */
+export type Origin = 'base' | 'added' | 'changed' | 'removed';
+
 /** What every line in the tree has, statement or entry. */
 interface Part {
   readonly arguments: readonly Argument[];
@@ -18,6 +24,8 @@ interface Part {
   readonly blankLineBefore: boolean;
   readonly line: number;
   readonly indent: number;
+  /** Set by `unfold` on the lines of a diff picture (`variant ... diff`); any other line has none and is `base`. */
+  readonly origin?: Origin;
 }
 
 /**

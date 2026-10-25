@@ -7,6 +7,7 @@ export const KERNEL_CODES: {
   readonly duplicateKind: 'K101';
   readonly unknownIcon: 'K102';
   readonly kindFailed: 'K110';
+  readonly noDiff: 'K103';
   readonly overlap: 'G400';
   readonly outside: 'G401';
   readonly overflow: 'G402';
@@ -16,6 +17,7 @@ export const KERNEL_CODES: {
   duplicateKind: 'K101',
   unknownIcon: 'K102',
   kindFailed: 'K110',
+  noDiff: 'K103',
   overlap: 'G400',
   outside: 'G401',
   overflow: 'G402',
@@ -63,6 +65,12 @@ const KERNEL: Catalogue = {
       `The plugin \`${v.plugin}\` failed while drawing the kind \`${v.kind}\`: ${v.error}. This is a bug, not a mistake in the diagram; please report it with the diagram at https://github.com/diagrist/diagrist/issues.`,
     de: (v) =>
       `Das Plugin \`${v.plugin}\` ist beim Zeichnen der Art \`${v.kind}\` gescheitert: ${v.error}. Das ist ein Programmfehler, kein Fehler im Diagramm; bitte mit dem Diagramm melden unter https://github.com/diagrist/diagrist/issues.`,
+  },
+  K103: {
+    en: (v) =>
+      `The kind \`${v.kind}\` draws no diff pictures; remove \`diff\` from \`variant ${v.variant}\`. Kinds with diff pictures: ${v.allowed}.`,
+    de: (v) =>
+      `Die Art \`${v.kind}\` zeichnet keine Vergleichsbilder; \`diff\` aus \`variant ${v.variant}\` entfernen. Arten mit Vergleichsbild: ${v.allowed}.`,
   },
   K102: {
     en: (v) => `The picture uses the icon \`${v.icon}\`, which the style table does not have. Icons: ${v.known}.`,
