@@ -1,19 +1,30 @@
-import type { Placed } from '@diagrist/core';
+import type { Placed, Rect } from '@diagrist/core';
+import { bottom, right } from './geometry.js';
 import type { EdgeLabel } from './label/types.js';
 import type { GridLayout, Route } from './layout.js';
 import { homeOf, type Tree, treeOf } from './place/extent.js';
 import type { GridSpec } from './spec.js';
 
+/** Something a kind drew on a route besides its texts, such as the number of a step, and the rectangle it covers. */
+export interface RouteMark {
+  /** Index of the route. */
+  readonly route: number;
+  readonly rect: Rect;
+}
+
 /**
  * What the grid placed, for the kernel's placement check (ADR 0010): frames and nodes as boxes inside their frames,
- * ellipses and circles (whose rectangle is their square) with their outline, labels as texts keyed `<edge>.label.<n>` inside the innermost frame holding
- * both ends of their edge, which `fitFrames` grows around them. Spans come from the spec.
+ * ellipses and circles (whose rectangle is their square) with their outline, labels as texts keyed
+ * `<edge>.label.<n>` inside the innermost frame holding both ends of their edge, which `fitFrames` grows around
+ * them, and marks on routes as texts keyed `<edge>.number`. A mark sits near the start of its edge, so it belongs to
+ * the innermost frame around the start that holds it, else to the frame of both ends. Spans come from the spec.
  */
 export function placedOf(
   spec: GridSpec,
   layout: GridLayout,
   routes: readonly Route[] = [],
   labels: readonly EdgeLabel[] = [],
+  marks: readonly RouteMark[] = [],
 ): Placed[] {
   const tree = treeOf(spec);
   const span = (source: Placed['span']) => (source ? { span: source } : {});
@@ -39,7 +50,18 @@ export function placedOf(
     const frame = e && sharedFrame(tree, e.from, e.to);
     return [{ key: `${edge}.label.${n}`, kind: 'text', rect: l.box, ...within(frame), ...span(e?.source) }];
   });
-  return [...groups, ...nodes, ...texts];
+  const holds = (id: string, r: Rect) => {
+    const g = layout.groups.find((x) => x.id === id)?.rect;
+    return g !== undefined && r.x >= g.x && r.y >= g.y && right(r) <= right(g) && bottom(r) <= bottom(g);
+  };
+  const numbers = marks.flatMap((m): Placed[] => {
+    const edge = routes[m.route]?.edge;
+    const e = spec.edges.find((x) => x.id === edge);
+    if (edge === undefined || !e) return [];
+    const frame = framesAround(tree, e.from).find((id) => holds(id, m.rect)) ?? sharedFrame(tree, e.from, e.to);
+    return [{ key: `${edge}.number`, kind: 'text', rect: m.rect, ...within(frame), ...span(e.source) }];
+  });
+  return [...groups, ...nodes, ...texts, ...numbers];
 }
 
 /** Frames around an end, innermost first: the node's frame and its parents, or the frame itself and its parents. */

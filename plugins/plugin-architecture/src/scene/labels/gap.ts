@@ -1,8 +1,7 @@
 import type { Shape } from '@diagrist/core';
 import type { EdgeLabel } from '@diagrist/layout-grid';
+import { TEXT_GAP as GAP } from '../../layout/marks.js';
 import { type Surface, surfacesAt } from '../surfaces.js';
-
-const GAP = { x: 4, y: 2 } as const;
 
 /**
  * The texts of one route on a gap (`edgeText.ground: gap`): first a rectangle in the colour of the ground, which

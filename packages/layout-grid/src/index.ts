@@ -12,6 +12,8 @@ export {
 export { grow } from './grow.js';
 export { type LabelOptions, labelEdges, placeLabels } from './label/index.js';
 export { cheapest, type Occupancy, occupancy } from './label/occupancy.js';
+export type { OnLine } from './label/on-line.js';
+export { type SeatMark, type SeatOptions, seatMarks } from './label/seat.js';
 export { segmentMeetsEllipse, segmentMeetsRect, segmentsIntersect } from './label/segment.js';
 export type { EdgeLabel, EdgeText, EndText } from './label/types.js';
 export { wrapTwo } from './label/wrap.js';
@@ -24,6 +26,6 @@ export { positions } from './layers/positions.js';
 export type { Column, GridLayout, PlacedGroup, PlacedNode, Route, RouteShape, Row } from './layout.js';
 export { fitFrames, type RouteLabel } from './place/fit.js';
 export { placeGrid } from './place/index.js';
-export { placedOf } from './placed.js';
+export { placedOf, type RouteMark } from './placed.js';
 export { routeEdges } from './route/index.js';
 export type { GridColumn, GridEdge, GridGroup, GridMetrics, GridNode, GridRow, GridSpec, Pads } from './spec.js';

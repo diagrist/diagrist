@@ -10,6 +10,7 @@ import {
   type Route,
   right,
   routeEdges,
+  seatMarks,
 } from '@diagrist/layout-grid';
 import { decisionStrip, type Legend, legendLayout, type Sheet, type Strip, sheetOf, WORDS } from '@diagrist/parts';
 import { lookOf } from '../looks/index.js';
@@ -21,9 +22,8 @@ import { type NodeArt, nodeArt } from './art.js';
 import { type FrameHead, frameHead } from './heads.js';
 import { type LayerArt, layerArts } from './layers.js';
 import { legendItems, type Sample } from './legend.js';
-import { type Badge, type Mark, marksOf } from './marks.js';
+import { type Badge, type Mark, marksInside, marksOf, NUMBER_ROOM, NUMBER_SIZE, TEXT_GAP } from './marks.js';
 import { type NoteArt, noteArts } from './notes.js';
-import { marksInside, seatBadges } from './seat.js';
 import { legendSentences } from './sentence.js';
 import { gridSpecOf } from './spec.js';
 
@@ -75,8 +75,8 @@ export function layoutArchitecture(model: ArchitectureModel, texts: Texts, local
   const { spec, texts: edgeTexts } = gridSpecOf(model, look);
   const grid = placeGrid(spec);
   const routes = routeEdges(spec, grid);
-  const onLine = o.edgeText.place === 'onLine';
-  const found = labelEdges(spec, grid, routes, edgeTexts, { preferFlat: o.edgeText.flat, onLine });
+  const onLine = o.edgeText.place === 'onLine' ? { onLine: { pad: TEXT_GAP, avoid: [] } } : {};
+  const found = labelEdges(spec, grid, routes, edgeTexts, { preferFlat: o.edgeText.flat, ...onLine });
   const pl = spec.adaptive ? fitFrames(spec, grid, routes, found) : grid;
   const lines: readonly (readonly Point[])[] = spec.adaptive ? routes.map((r) => r.points) : [];
   const byId = new Map(model.nodes.map((n) => [n.id, n]));
@@ -90,8 +90,12 @@ export function layoutArchitecture(model: ArchitectureModel, texts: Texts, local
   });
   const rects = new Map(pl.nodes.map((p) => [p.id, p.rect]));
   const { badges: numbers, marks: aside } = marksOf(model, routes, rects, m);
-  const seated = o.numbers.seat === 'seated';
-  const { badges, labels } = seated ? seatBadges(numbers, found, routes) : { badges: numbers, labels: found };
+  const size = NUMBER_SIZE[o.numbers.form];
+  const { marks: badges, labels } =
+    o.numbers.seat === 'seated'
+      ? seatMarks(numbers, found, routes, { r: size.w / 2, room: NUMBER_ROOM })
+      : { marks: numbers, labels: found };
+  const numbered = badges.map((b) => ({ route: b.route, rect: { x: b.x - size.w / 2, y: b.y - size.h / 2, ...size } }));
   const marks = o.marks === 'inside' ? marksInside(aside, model.nodes, rects) : aside;
   const routeRight = Math.max(0, ...routes.flatMap((r) => r.points.map((p) => p[0])));
   const contentRight = Math.max(
@@ -144,6 +148,6 @@ export function layoutArchitecture(model: ArchitectureModel, texts: Texts, local
     ...(sheet ? { sheet } : {}),
     width: sheet?.width ?? width,
     height: sheet?.height ?? (legend ? Math.max(strip.bottom + m.legendReserve, legend.bottom) : body + m.margin),
-    placed: placedOf(spec, pl, routes, labels),
+    placed: placedOf(spec, pl, routes, labels, numbered),
   };
 }

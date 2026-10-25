@@ -1,7 +1,7 @@
 {
   "name": "@diagrist/parts",
   "version": "0.0.0",
-  "description": "Pieces several Diagrist plugins draw alike: title header, decision bar, legend, picture words.",
+  "description": "Pieces several Diagrist plugins draw alike: title header, decision bar, legends, margin notes, picture words.",
   "keywords": [
     "diagrist",
     "diagrams-as-code",
