@@ -1,6 +1,7 @@
 import type { Shape } from '@diagrist/core';
+import { NUMBER_SIZE } from '../../layout/marks.js';
 
-const BADGE_R = 7.5;
+const BADGE_R = NUMBER_SIZE.disc.w / 2;
 const BADGE_DY = 3.3;
 
 /** A flow number as its digit in a small disc (`numbers.form: disc`), centred on (x, y). */

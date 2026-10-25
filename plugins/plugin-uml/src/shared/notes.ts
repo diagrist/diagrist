@@ -1,12 +1,10 @@
-import { type Point, type Rect, STANDARD_FONTS, textWidth } from '@diagrist/core';
+import { type Point, type Rect, STANDARD_FONTS } from '@diagrist/core';
 import { type EdgeLabel, type GridLayout, overlaps, type Route } from '@diagrist/layout-grid';
+import { type NoteGeometry, noteGeometry } from '@diagrist/parts';
 
-/** A dashed note above an element, with a tip down to it: left foot, tip, right foot. */
-export interface NoteArt {
+/** A dashed note above an element, with a tip down to it, measured in the note font. */
+export interface NoteArt extends NoteGeometry {
   readonly text: string;
-  readonly rect: Rect;
-  readonly at: { readonly x: number; readonly y: number };
-  readonly tail: readonly Point[];
   /** Id of the element the note is on. */
   readonly on: string;
 }
@@ -18,34 +16,12 @@ export interface NoteSource {
 }
 
 const F = STANDARD_FONTS.note;
-/** Measures after the note font (10 px: pad 10, height 26, lift 22, tip base 14). */
-const PAD = F.size;
-const HEIGHT = Math.round(2.6 * F.size);
-const LIFT = Math.round(2.2 * F.size);
-const BASE = Math.round(1.4 * F.size);
 
 const hits = (p: Point, q: Point, r: Rect, pad: number) =>
   Math.min(p[0], q[0]) < r.x + r.w + pad &&
   Math.max(p[0], q[0]) > r.x - pad &&
   Math.min(p[1], q[1]) < r.y + r.h + pad &&
   Math.max(p[1], q[1]) > r.y - pad;
-
-/** A note above the element, or below it with the tip up. */
-function placed(n: Rect, w: number, above: boolean): Pick<NoteArt, 'rect' | 'tail'> {
-  const right = n.x + n.w;
-  const rect = { x: right - BASE * 2, y: above ? n.y - LIFT - HEIGHT : n.y + n.h + LIFT, w, h: HEIGHT };
-  const foot = rect.x + BASE;
-  const edge = above ? rect.y + HEIGHT : rect.y;
-  const tip = above ? n.y : n.y + n.h;
-  return {
-    rect,
-    tail: [
-      [foot - BASE / 2, edge],
-      [right - BASE * 3, tip],
-      [foot + BASE / 2, edge],
-    ],
-  };
-}
 
 /**
  * Notes stand above their element, their left edge a little left of its right edge; where elements, labels or lines
@@ -64,11 +40,9 @@ export function noteArts(
   return notes.flatMap((note): NoteArt[] => {
     const n = note.on === undefined ? undefined : grid.nodes.find((x) => x.id === note.on)?.rect;
     if (!n || note.on === undefined) return [];
-    const w = textWidth(note.text, F) + 2 * PAD;
-    const above = placed(n, w, true);
-    const below = placed(n, w, false);
+    const above = noteGeometry(n, note.text, F);
+    const below = noteGeometry(n, note.text, F, { below: true });
     const place = blocked(above.rect) && !blocked(below.rect) ? below : above;
-    const at = { x: place.rect.x + PAD, y: place.rect.y + HEIGHT / 2 + F.size / 2 - 1 };
-    return [{ text: note.text, ...place, at, on: note.on }];
+    return [{ text: note.text, ...place, on: note.on }];
   });
 }

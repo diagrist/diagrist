@@ -1,6 +1,7 @@
 import type { Rect } from '@diagrist/core';
 import { longestSegment, pointAlong, polylineLength, type Route } from '@diagrist/layout-grid';
-import type { ArchitectureModel } from '../model/types.js';
+import type { LookOptions } from '../looks/look.js';
+import type { ArchitectureModel, ArchNode } from '../model/types.js';
 import type { Metrics } from './metrics.js';
 
 /** A flow number on its edge, centred on (x, y). */
@@ -19,6 +20,16 @@ export interface Mark {
   readonly y: number;
   readonly route?: number;
 }
+
+/** The size of a flow number by `numbers.form`: `(3)` on a rounded plate, or the digit in a disc. */
+export const NUMBER_SIZE: Readonly<Record<LookOptions['numbers']['form'], { readonly w: number; readonly h: number }>> =
+  { plate: { w: 24, h: 16 }, disc: { w: 15, h: 15 } };
+
+/** How far the gap behind texts on a line reaches beyond them to the sides and up and down (`ground: gap`). */
+export const TEXT_GAP = { x: 4, y: 2 } as const;
+
+/** The room a seated flow number keeps from the texts on its line, beyond its radius. */
+export const NUMBER_ROOM = 6;
 
 const MARK_BACK = 24;
 const MARK_ASIDE = 24;
@@ -54,4 +65,26 @@ export function marksOf(
     if (n.mark && rect) marks.push({ id: n.mark, x: rect.x + rect.w + CORNER_DX, y: rect.y - CORNER_DY });
   }
   return { badges, marks };
+}
+
+/** Where a decision mark stands inside the top right corner of its node, left of a replica tag. */
+const CORNER = { dx: 20, dy: 13, replicas: 30 } as const;
+
+/**
+ * Decision marks at nodes move into the top right corner of their box, where the width of the box keeps room for
+ * them, so they never meet a line or a text outside; marks at edges stay.
+ */
+export function marksInside(
+  marks: readonly Mark[],
+  nodes: readonly ArchNode[],
+  rects: ReadonlyMap<string, Rect>,
+): Mark[] {
+  return marks.map((mark) => {
+    if (mark.route !== undefined) return mark;
+    const node = nodes.find((n) => n.mark === mark.id && rects.has(n.id));
+    const r = node && rects.get(node.id);
+    if (!node || !r) return mark;
+    const shift = node.replicas !== undefined || node.shape === 'job' ? CORNER.replicas : 0;
+    return { ...mark, x: r.x + r.w - CORNER.dx - shift, y: r.y + CORNER.dy };
+  });
 }

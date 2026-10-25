@@ -34,7 +34,7 @@ const one = (...classes: string[]): RoleStyle => ({ classes });
 export const UML_BOX_RULES: readonly StyleRule[] = [
   CARD_RULES.card,
   CARD_RULES.shadow,
-  rule('note-box', `fill: ${c.canvas}; stroke: ${c.note}; stroke-width: ${w.frame}; stroke-dasharray: ${DASH.frame};`),
+  CARD_RULES.noteBox,
   CARD_RULES.noteTail,
   rule('entity-rule', `stroke: ${c.grid}; stroke-width: ${w.frame};`),
   ...TONE_NAMES.map((tone) => rule(`tone-${tone}`, `fill: ${TONES[tone]};`)),

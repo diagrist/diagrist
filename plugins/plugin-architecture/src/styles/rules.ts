@@ -1,4 +1,5 @@
 import { COLORS as c, DASH, rule, STROKES, type StyleRule, TONE_NAMES, TONES, textRule } from '@diagrist/core';
+import { sharedRules } from '@diagrist/parts';
 import type { LookFonts } from '../looks/look.js';
 
 /** Stroke widths by what is drawn; `blocks` draws lines, accents and emphasis thicker. */
@@ -29,6 +30,7 @@ const bold = (size: number) => ({ size, weight: 600 });
 export function architectureRules(fonts: LookFonts, w: Strokes, changes: readonly StyleRule[]): StyleRule[] {
   const f = { node: fonts.name.size, note: fonts.note.size, badge: fonts.badge.size, group: fonts.group.size };
   const tones = TONE_NAMES.map((t) => [t, TONES[t]] as const);
+  const shared = sharedRules(w.frame);
   return [
     rule('annotation-box', `fill: ${c.fillMuted}; stroke: ${c.border}; stroke-width: ${w.frame};`),
     rule('annotation-line', `fill: none; stroke: ${c.border}; stroke-width: ${w.frame};`),
@@ -46,8 +48,8 @@ export function architectureRules(fonts: LookFonts, w: Strokes, changes: readonl
     rule('label-status', `fill: ${c.note}; font-size: ${f.note}px; font-style: italic;`),
     rule('replica', `fill: ${c.fillMuted}; stroke: ${c.border}; stroke-width: ${w.frame};`),
     rule('replica-text', textRule(`fill: ${c.note};`, { size: f.badge - 1, weight: 700 })),
-    rule('card', `fill: ${c.fill}; stroke: ${c.grid}; stroke-width: ${w.frame};`),
-    rule('card-shadow', `fill: ${c.grid}; stroke: none;`),
+    shared.card,
+    shared.shadow,
     rule('card-frame', `fill: none; stroke: ${c.border}; stroke-width: ${w.frame};`),
     rule(
       'card-frame-dashed',
@@ -55,11 +57,8 @@ export function architectureRules(fonts: LookFonts, w: Strokes, changes: readonl
     ),
     rule('card-frame-dotted', `fill: none; stroke: ${c.border}; stroke-width: ${w.frame}; stroke-dasharray: 1 3;`),
     rule('knockout', `fill: ${c.canvas}; stroke: none;`),
-    rule(
-      'note-box',
-      `fill: ${c.canvas}; stroke: ${c.note}; stroke-width: ${w.frame}; stroke-dasharray: ${DASH.frame};`,
-    ),
-    rule('note-tail', `fill: none; stroke: ${c.note}; stroke-width: ${w.frame}; stroke-dasharray: ${DASH.frame};`),
+    shared.noteBox,
+    shared.noteTail,
     rule('label-group-large', `fill: ${c.note}; font-size: ${f.group + 4}px;`),
     rule('block-edge', `stroke: ${c.stroke}; stroke-width: ${w.emph};`),
     rule('block-shadow', `fill: ${c.border}; fill-opacity: 0.45; stroke: none;`),

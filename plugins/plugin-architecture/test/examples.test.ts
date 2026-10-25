@@ -18,15 +18,19 @@ const hashLines = (pictures: readonly { picture: string; svg: string }[]) =>
   pictures.map(({ picture, svg }) => `${sha256(svg)}  ${picture}\n`).join('');
 
 /**
- * Warnings of the kernel's placement check: labels reaching into other frames, as the predecessor placed them, and
- * in the diff pictures labels of removed and kept edges between the same two boxes.
+ * Warnings of the kernel's placement check: labels reaching into other frames, as the predecessor placed them, in
+ * the diff pictures labels of removed and kept edges between the same two boxes, and flow numbers standing on the
+ * border of the frame their edge leaves (docs/burn-down.md).
  */
 const PLACEMENT: Readonly<Record<string, readonly string[]>> = {
-  'radverleih/komponenten.dgr': ['G400'],
+  'radverleih/komponenten.dgr': ['G400', 'G400'],
+  'radverleih/komponenten-paper.dgr': ['G400'],
   'radverleih/radverleih.dgr': [
     'G400 soll',
     'G400 soll',
     'G400',
+    'G400 soll',
+    'G400 soll',
     'G400 soll',
     'G400 soll',
     'G400 soll',
@@ -35,8 +39,10 @@ const PLACEMENT: Readonly<Record<string, readonly string[]>> = {
     'G400 a',
     'G400 a',
     'G400 a',
+    'G400 a',
+    'G400 a',
   ],
-  'radverleih/entscheidung.dgr': ['G400', 'G400 b', 'G400 b', 'G400 b', 'G400 b'],
+  'radverleih/entscheidung.dgr': ['G400', 'G400 b', 'G400 b', 'G400 b', 'G400 b', 'G400 b', 'G400 b'],
 };
 
 /** The SHA-256 of the files `radverleih.dgr` replaced, as `main` rendered them, plain and in `look=cards`. */

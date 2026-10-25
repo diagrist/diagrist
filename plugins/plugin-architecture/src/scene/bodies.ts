@@ -1,8 +1,9 @@
 import type { Rect, Shape } from '@diagrist/core';
 import type { Spot } from '../layout/art.js';
+import { NUMBER_SIZE } from '../layout/marks.js';
 import type { NodeShape } from '../model/types.js';
 
-const BADGE = { w: 24, h: 16, rx: 8 } as const;
+const BADGE = { ...NUMBER_SIZE.plate, rx: 8 } as const;
 const REPLICA = { w: 24, h: 13, rx: 3 } as const;
 const TEXT_DY = 3.5;
 /** Corner radius of a body without its own, such as the shape samples of the legend. */

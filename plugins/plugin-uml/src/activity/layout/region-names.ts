@@ -1,4 +1,5 @@
-import type { Rect } from '@diagrist/core';
+import { type Rect, STANDARD_FONTS } from '@diagrist/core';
+import { wrap as greedy } from '@diagrist/parts';
 import { ACT, SIZE, widthOf } from './metrics.js';
 import type { Placement } from './place.js';
 import type { ActivityText, RegionArt } from './regions.js';
@@ -54,24 +55,13 @@ function widest(band: Rect, blocked: readonly Stretch[]): number {
   return Math.max(best, band.x + band.w - INSET - x);
 }
 
-/** Words in order into lines up to width `max`. */
-function greedy(text: string, max: number): string[] {
-  const lines: string[] = [];
-  for (const word of text.split(' ')) {
-    const last = lines.at(-1);
-    if (last !== undefined && widthOf.label(`${last} ${word}`) <= max) lines[lines.length - 1] = `${last} ${word}`;
-    else lines.push(word);
-  }
-  return lines;
-}
-
 /** The name wrapped into as few lines of about equal length as can be, each at most `max` wide. */
 function wrap(text: string, max: number): string[] | undefined {
   const longest = Math.max(...text.split(' ').map(widthOf.label));
   for (let n = 2; n <= MAX_LINES; n++) {
     const target = Math.min(max, Math.max(longest, widthOf.label(text) / n));
     for (const slack of [1, 1.15, 1.3]) {
-      const lines = greedy(text, Math.min(max, target * slack));
+      const lines = greedy(text, Math.min(max, target * slack), STANDARD_FONTS.label);
       if (lines.length <= n && lines.every((l) => widthOf.label(l) <= max))
         return lines.length >= 2 ? lines : undefined;
     }
