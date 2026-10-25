@@ -11,7 +11,7 @@ export function noteShapes(notes: readonly NoteArt[]): Shape[] {
       children: [
         { kind: 'rect', ...n.rect, rx: BOX_RX, role: 'noteBox' },
         { kind: 'path', d: n.tail.map(([x, y], i) => `${i === 0 ? 'M' : 'L'}${x} ${y}`).join(' '), role: 'noteTail' },
-        { kind: 'text', ...n.text, text: n.content, role: 'noteText', font: 'note' },
+        { kind: 'text', ...n.at, text: n.text, role: 'noteText', font: 'note' },
       ],
     }),
   );

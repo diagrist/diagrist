@@ -1,4 +1,5 @@
 import type { Route } from '@diagrist/layout-grid';
+import { joinedSights } from '@diagrist/parts';
 import type { EdgeKind } from '../grammar/edges.js';
 import { SHAPES, STATUSES } from '../grammar/elements.js';
 import type { ArchitectureModel, Role } from '../model/types.js';
@@ -9,22 +10,11 @@ import { CHANGES } from './diff.js';
 const EDGE_ORDER: readonly EdgeKind[] = ['sync', 'async', 'dependency', 'data', 'link', 'duplex'];
 const ROLES: readonly Role[] = ['own', 'shared', 'external'];
 
-/** Pairs of what is seen and what it means; meanings of the same sight join with `/`, in their order. */
-function joined(pairs: readonly (readonly [string, string])[]): string[] {
-  const bySight = new Map<string, string[]>();
-  for (const [sight, meaning] of pairs) {
-    const meanings = bySight.get(sight) ?? [];
-    if (!meanings.includes(meaning)) meanings.push(meaning);
-    bySight.set(sight, meanings);
-  }
-  return [...bySight].map(([sight, meanings]) => `${sight}: ${meanings.join(' / ')}`);
-}
-
 /**
- * The legend as sentences (`legend: sentence`): what the picture shows, in the order of the standard legend, each as
- * the sight and its meaning, such as `Gestrichelt: asynchrones Domain-Event.`
+ * The sentences of the legend (`legend: sentence`), which `sheetOf` of `parts` sets: what the picture shows, in the
+ * order of the standard legend, each as the sight and its meaning, such as `Gestrichelt: asynchrones Domain-Event.`
  */
-export function sentenceLegend(
+export function legendSentences(
   model: ArchitectureModel,
   routes: readonly Route[],
   marked: boolean,
@@ -39,7 +29,7 @@ export function sentenceLegend(
     ...ROLES.filter((r) => roles.has(r)).map((r): [string, string] => [words.roles[r], texts.roles[r]]),
   ];
   const sentences = [
-    ...joined(pairs),
+    ...joinedSights(pairs),
     ...model.flows.map((f) => words.flow(f.id, f.from, f.to, f.accent)),
     ...(nodes.some((n) => n.emph) ? [`${words.emph}: ${texts.emph}`] : []),
     ...STATUSES.filter((s) => nodes.some((n) => n.status === s)).map((s) => `${words.status[s]}: ${texts.status[s]}`),

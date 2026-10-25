@@ -9,6 +9,7 @@ const one = (...classes: string[]): RoleStyle => ({ classes });
 export const PART_ROLES: Readonly<Record<string, RoleStyle>> = {
   title: one('label-title'),
   subtitle: one('label-note'),
+  kicker: one('label-group'),
   mark: one('mark'),
   markText: one('mark-text'),
   stripHeading: one('label-group'),
@@ -16,6 +17,10 @@ export const PART_ROLES: Readonly<Record<string, RoleStyle>> = {
   decisionOpen: one('frame'),
   decisionChoice: one('label-bold'),
   decisionNote: one('label-note'),
+  marginRule: one('line'),
+  marginId: one('label-bold'),
+  marginText: one('label-note'),
+  marginChoice: one('label-bold'),
   legendRule: one('line'),
   legend: one('legend'),
   legendText: one('label-note'),

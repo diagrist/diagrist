@@ -1,5 +1,5 @@
 import { STANDARD_FONTS, textWidth } from '@diagrist/core';
-import { MARGIN, type Spot } from '../sheet.js';
+import { MARGIN, type Spot } from '../sheet/header.js';
 import type { Decision } from './adr.js';
 
 /** One card of the decision bar, with the baselines of its three texts. */

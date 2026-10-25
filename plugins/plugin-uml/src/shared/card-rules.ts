@@ -1,6 +1,5 @@
 import {
   COLORS as c,
-  DASH,
   rule,
   STANDARD_FONTS,
   type StyleRule,
@@ -9,24 +8,21 @@ import {
   textRule,
   STROKES as w,
 } from '@diagrist/core';
+import { sharedRules } from '@diagrist/parts';
 
 /** Tinted areas of the card look: opacity of fill and outline. */
 const TINT = { fill: 0.07, stroke: 0.45 } as const;
 
 /**
- * CSS rules of the card look and of the dashed tail of a note that several UML kinds write alike. Each kind's
- * stylesheet places them where the predecessor wrote them, so the order of its rules, and with it its bytes, stays.
+ * CSS rules of the card look and of the dashed note that several UML kinds write alike, the card and note rules of
+ * `parts` among them. Each kind's stylesheet places them where the predecessor wrote them, so the order of its rules,
+ * and with it its bytes, stays.
  */
 export const CARD_RULES = {
-  card: rule('card', `fill: ${c.fill}; stroke: ${c.grid}; stroke-width: ${w.frame};`),
-  shadow: rule('card-shadow', `fill: ${c.grid}; stroke: none;`),
+  ...sharedRules(w.frame),
   box: rule('card-box', `fill: ${c.fill}; stroke: ${c.border}; stroke-width: ${w.frame};`),
   name: rule('card-head-text', textRule('fill: #ffffff;', STANDARD_FONTS.name)),
   stereo: rule('card-head-sub', textRule('fill: #ffffff; fill-opacity: 0.85;', STANDARD_FONTS.note)),
-  noteTail: rule(
-    'note-tail',
-    `fill: none; stroke: ${c.note}; stroke-width: ${w.frame}; stroke-dasharray: ${DASH.frame};`,
-  ),
 } as const;
 
 /** A tinted area per tone of the card look, `tint-<tone>`: the tone faint inside, stronger on the outline. */

@@ -1,5 +1,5 @@
 import { STANDARD_FONTS, textWidth } from '@diagrist/core';
-import { MARGIN, type Spot } from '../sheet.js';
+import { MARGIN, type Spot } from '../sheet/header.js';
 
 /**
  * Measures of legend samples in the standard look: a wide sample (a line, a swatch) and where the text after it

@@ -1,5 +1,5 @@
 import { type Anchors, domId, type Scene, type Shape } from '@diagrist/core';
-import { legendShapes, stripShapes, type Words } from '@diagrist/parts';
+import { legendShapes, sheetShapes, stripShapes, type Words } from '@diagrist/parts';
 import type { ArchitectureLayout } from '../layout/index.js';
 import type { ArchitectureModel } from '../model/types.js';
 import type { Texts } from '../texts/index.js';
@@ -11,7 +11,6 @@ import { layerShapes } from './layers.js';
 import { sampleShapes } from './legend.js';
 import { nodeShapes } from './nodes/index.js';
 import { noteShapes } from './notes.js';
-import { sheetShapes } from './sheet.js';
 import { surfacesOf } from './surfaces.js';
 
 /**
