@@ -41,16 +41,16 @@ const SAME: Readonly<Record<string, (source: string) => string>> = {
 };
 
 describe.each([...examples])('a %s diagram', (_kind, source) => {
-  const drawn = engine.compile(source, { locale: 'en' }).svg;
+  const drawn = engine.compile(source, { locale: 'en' }).pictures[0]?.svg;
 
   it.each(Object.entries(ADVERSARIAL))('with %s gives findings or an SVG that XML can read', (_case, change) => {
     const result = engine.compile(change(source), { locale: 'en' });
     expect(result.diagnostics.map((d) => d.code)).not.toContain('K110');
-    expect(NOT_XML.test(result.svg ?? '')).toBe(false);
+    expect(NOT_XML.test(result.pictures[0]?.svg ?? '')).toBe(false);
   });
 
   it.each(Object.entries(SAME))('written with %s draws the same picture', (_case, change) => {
-    expect(engine.compile(change(source), { locale: 'en' }).svg).toBe(drawn);
+    expect(engine.compile(change(source), { locale: 'en' }).pictures[0]?.svg).toBe(drawn);
   });
 });
 

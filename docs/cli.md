@@ -9,8 +9,8 @@ Installed as `dgr` and `diagrist`. Usage: `dgr <command> [arguments] [options]`;
 | Command | What it does |
 |---|---|
 | [`fmt`](#dgr-fmt) | Formats .dgr files in place. |
-| [`check`](#dgr-check) | Checks a diagram against the grammar and the rules of its kind and prints every finding. |
-| [`build`](#dgr-build) | Renders a diagram as SVG, and with `--png` also as PNG. |
+| [`check`](#dgr-check) | Checks a diagram against the grammar and the rules of its kind and prints every finding, those about one picture of a file with variants marked with the variant. |
+| [`build`](#dgr-build) | Renders a diagram as SVG, and with `--png` also as PNG: the base picture as `<file>.svg` and each variant as `<file>.<variant>.svg`. |
 | [`grammar`](#dgr-grammar) | Shows what a diagram kind allows. |
 | [`help`](#dgr-help) | Explains the commands. |
 
@@ -74,7 +74,7 @@ With `--json`, besides the fields of every document:
 dgr check <file> [options]
 ```
 
-Checks a diagram against the grammar and the rules of its kind and prints every finding. Writes nothing.
+Checks a diagram against the grammar and the rules of its kind and prints every finding, those about one picture of a file with variants marked with the variant. Writes nothing.
 
 | Argument | Meaning |
 |---|---|
@@ -102,7 +102,7 @@ With `--json`, besides the fields of every document:
 dgr build <file> [options]
 ```
 
-Renders a diagram as SVG, and with `--png` also as PNG. Nothing is written when the diagram has an error; warnings are printed and do not stop the build. With `--watch` it builds again after every change of the source.
+Renders a diagram as SVG, and with `--png` also as PNG: the base picture as `<file>.svg` and each variant as `<file>.<variant>.svg`. Nothing is written when the diagram has an error; warnings are printed and do not stop the build. With `--watch` it builds again after every change of the source or of a file it uses.
 
 | Argument | Meaning |
 |---|---|
@@ -110,15 +110,16 @@ Renders a diagram as SVG, and with `--png` also as PNG. Nothing is written when 
 
 | Option | Meaning |
 |---|---|
-| `-o, --out <file>` | Where to write the SVG. Default: next to the source, with `.svg` instead of `.dgr`. The PNG goes beside the SVG. |
+| `-o, --out <file>` | Where to write the SVG of a diagram with one picture, or of the one `--variant` picks. Default: next to the source, with `.svg` instead of `.dgr`. The PNG goes beside the SVG. |
+| `--variant <id>` | Build only the picture of this variant, as `<file>.<id>.svg` or where `-o` says. |
 | `--png` | Also write a PNG with the name of the SVG and `.png`. Rendered without a browser and with the bundled fonts, so the same diagram gives the same bytes on every machine. |
 | `--scale <factor>` | Pixels of the PNG per SVG unit, from 0.25 to 8; 2 doubles width and height. Default: 2. Needs `--png`. |
-| `--watch` | Build, then build again each time the source changes, until Ctrl+C. Each build prints what it wrote and its findings, with `--json` one document per build. Errors in the diagram and a source that is gone for a moment do not end the watch; only a call refused at the first build does. Ends with the exit code of the last build. |
+| `--watch` | Build, then build again each time the source or a file it uses changes, until Ctrl+C. Each build prints what it wrote and its findings, with `--json` one document per build. Errors in the diagram and a source that is gone for a moment do not end the watch; only a call refused at the first build does. Ends with the exit code of the last build. |
 
 Examples:
 
 ```sh
-# Write diagrams/order.svg.
+# Write diagrams/order.svg, and one SVG per variant beside it.
 dgr build diagrams/order.dgr
 # Write the SVG somewhere else.
 dgr build diagrams/order.dgr -o site/order.svg
@@ -126,6 +127,8 @@ dgr build diagrams/order.dgr -o site/order.svg
 dgr build diagrams/order.dgr --png
 # Write the PNG at three times the size of the SVG, e.g. for print.
 dgr build diagrams/order.dgr --png --scale 3
+# Write only diagrams/order.next.svg.
+dgr build diagrams/order.dgr --variant next
 # Write SVG and PNG again on every save.
 dgr build diagrams/order.dgr --png --watch
 ```
@@ -135,8 +138,9 @@ With `--json`, besides the fields of every document:
 | Field | Meaning |
 |---|---|
 | `file` | The rendered source. |
-| `output` | Path of the written SVG, `null` when nothing was written. |
-| `png` | Path of the written PNG, `null` without `--png` or when nothing was written. |
+| `output` | Path of the first written SVG, the base unless `--variant` picks another; `null` when nothing was written. |
+| `png` | Path of the PNG beside `output`, `null` without `--png` or when nothing was written. |
+| `pictures` | Every picture asked for: `{ variant, output, png }`, `variant` `null` for the base, the paths `null` when nothing was written. |
 | `diagnostics` | All findings, see "Diagnostics". |
 
 ## dgr grammar
@@ -217,7 +221,8 @@ The fields of each command are listed in its section.
 
 | Field | Meaning |
 |---|---|
-| `file` | Path of the source as given on the command line. |
+| `file` | Path of the file the finding is in: the source as given on the command line, or a file it uses. |
+| `picture` | Only for a finding about one picture of a file with variants: the id of the variant. |
 | `code` | Stable code such as `L001`; the prefix names the package or plugin that reports it. |
 | `severity` | `error` (exit code 1) or `warning`. |
 | `span` | `{ line, column, length }`: 1-based line and column, length in characters. |

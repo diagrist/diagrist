@@ -1,5 +1,6 @@
-import { readFile, writeFile } from 'node:fs/promises';
-import type { FileProblem, Io } from './io.js';
+import { readFile, realpath, stat, writeFile } from 'node:fs/promises';
+import { sep } from 'node:path';
+import type { FileProblem, FileRead, Io, ReadLimits } from './io.js';
 
 /** The two output streams of the host; `process` has them, tests pass their own. */
 export interface Streams {
@@ -7,16 +8,16 @@ export interface Streams {
   readonly stderr: NodeJS.WritableStream;
 }
 
-/** The host as Node sees it: files relative to the working directory, and the process's output streams. */
-export function nodeIo(streams: Streams = process): Io {
+/**
+ * The host as Node sees it: files relative to the working directory, and the process's output streams. Files a
+ * diagram names are read only inside `root`, the working directory unless a test names another.
+ */
+export function nodeIo(streams: Streams = process, root: string = process.cwd()): Io {
   const stdout = untilClosed(streams.stdout);
   const stderr = untilClosed(streams.stderr);
   return {
-    readFile: (path) =>
-      readFile(path, 'utf8').then(
-        (text) => ({ text }),
-        (error: unknown) => ({ problem: problemOf(error) }),
-      ),
+    readFile: (path, limits) =>
+      readWithin(path, root, limits).catch((error: unknown) => ({ problem: problemOf(error) })),
     writeFile: (path, content) =>
       writeFile(path, content).then(
         () => undefined,
@@ -25,6 +26,16 @@ export function nodeIo(streams: Streams = process): Io {
     stdout,
     stderr,
   };
+}
+
+/** Reads a file; with limits only when its real path lies in the real `root` and it is small enough. */
+async function readWithin(path: string, root: string, limits: ReadLimits | undefined): Promise<FileRead> {
+  if (limits !== undefined) {
+    const [real, folder] = await Promise.all([realpath(path), realpath(root)]);
+    if (!real.startsWith(folder.endsWith(sep) ? folder : `${folder}${sep}`)) return { problem: 'outside' };
+    if ((await stat(real)).size > limits.maxBytes) return { problem: 'tooLarge' };
+  }
+  return { text: await readFile(path, 'utf8') };
 }
 
 /**

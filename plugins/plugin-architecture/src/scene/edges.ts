@@ -65,7 +65,8 @@ export function edgeShapes(
   return routes.flatMap((r, i): Shape[] => {
     const e = edgeOf(r);
     if (!e) return [];
-    const role = `edge-${e.kind}${e.step?.accent ? '-accent' : ''}`;
+    const change = e.origin === 'added' || e.origin === 'removed' ? `-${e.origin}` : '';
+    const role = `edge-${e.kind}${change || (e.step?.accent ? '-accent' : '')}`;
     const halo = model.adaptive
       ? halos(routes, i, edgeOf).flatMap((p): Shape[] => [
           { kind: 'path', d: pathOf(p), role: 'edgeHalo' },

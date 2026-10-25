@@ -58,12 +58,17 @@ export function bustShapes(n: ArchNode, art: PersonArt): Shape[] {
   ];
 }
 
-/** A box on paper: white with a fine outline, the core in yellow, status as a dot after the name. */
+/**
+ * A box on paper: white with a fine outline, the core in yellow, status as a dot after the name; in a diff picture an
+ * added box with a heavy outline and a removed one dotted. The core keeps its yellow when it is new; its tag says so.
+ */
 export function paperBoxShapes(p: PlacedElement, art: BoxArt, m: Metrics): Shape[] {
   const n = p.node;
   const shift = n.shape === 'db' ? DB_SHIFT : 0;
   const at = (spot: { x: number; y: number }) => ({ x: spot.x, y: spot.y + shift });
-  const out: Shape[] = bodyShapes(n.shape, p.rect, n.emph ? 'boxEmph' : 'box', 'detail', NODE_RX);
+  const change = n.origin === 'added' ? 'boxAdded' : n.origin === 'removed' ? 'boxRemoved' : 'box';
+  const body = n.emph && n.origin !== 'removed' ? 'boxEmph' : change;
+  const out: Shape[] = bodyShapes(n.shape, p.rect, body, 'detail', NODE_RX);
   if (n.shape === 'job') out.push(...clockShapes(art.clock, 'detail'));
   if (n.replicas !== undefined) out.push(...replicaShapes(`x${n.replicas}`, art.replicas));
   if (n.icon)

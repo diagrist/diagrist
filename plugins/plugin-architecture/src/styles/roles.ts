@@ -18,11 +18,14 @@ export const EDGE_LOOK: Readonly<
   duplex: { line: 'line', dashed: false, head: 'filled' },
 };
 
-/** Roles of edges, `edge-<kind>` and `edge-<kind>-accent`, with their arrowheads. */
+/**
+ * Roles of edges, `edge-<kind>` and `edge-<kind>-accent`, with their arrowheads, and those of a diff picture (ADR
+ * 0021): `edge-<kind>-added` thick in the accent colour, `edge-<kind>-removed` thin, grey and dotted.
+ */
 function edgeRoles(): Record<string, RoleStyle> {
   return Object.fromEntries(
-    Object.entries(EDGE_LOOK).flatMap(([kind, look]) =>
-      [false, true].map((accent): [string, RoleStyle] => {
+    Object.entries(EDGE_LOOK).flatMap(([kind, look]) => [
+      ...[false, true].map((accent): [string, RoleStyle] => {
         const line = accent ? `${look.line}-accent` : look.line;
         const marker = look.head && (accent ? `${look.head}-accent` : look.head);
         return [
@@ -30,7 +33,9 @@ function edgeRoles(): Record<string, RoleStyle> {
           { classes: look.dashed ? [line, 'dashed'] : [line], ...(marker ? { marker } : {}) },
         ];
       }),
-    ),
+      [`edge-${kind}-added`, { classes: ['line-added'], ...(look.head ? { marker: `${look.head}-accent` } : {}) }],
+      [`edge-${kind}-removed`, { classes: ['line-removed'], ...(look.head ? { marker: look.head } : {}) }],
+    ]),
   );
 }
 
@@ -62,6 +67,14 @@ export const ARCHITECTURE_ROLES: Readonly<Record<string, RoleStyle>> = {
   boxEmph: r('shape-emph'),
   boxPlanned: r('shape-planned'),
   boxDeprecated: r('shape-deprecated'),
+  boxAdded: r('shape-added'),
+  boxRemoved: r('shape-removed'),
+  diffTagAdded: r('diff-tag-added'),
+  diffTagAddedText: r('diff-tag-text-light'),
+  diffTagRemoved: r('diff-tag-removed'),
+  diffTagRemovedText: r('diff-tag-text-removed'),
+  diffTagChanged: r('diff-tag-changed'),
+  diffTagChangedText: r('diff-tag-text-accent'),
   detail: r('line'),
   detailDeprecated: r('line-deprecated'),
   name: r('label-bold'),

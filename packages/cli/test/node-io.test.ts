@@ -1,4 +1,4 @@
-import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { Writable } from 'node:stream';
@@ -58,5 +58,19 @@ describe('the Node adapter', () => {
     expect(await io.readFile(join(dir, 'missing.dgr'))).toEqual({ problem: 'missing' });
     expect(await io.readFile(dir)).toEqual({ problem: 'directory' });
     expect(await io.writeFile(dir, 'x')).toBe('directory');
+  });
+
+  it('reads a file a diagram names only inside its root, links followed, and up to the limit', async () => {
+    const root = mkdtempSync(join(tmpdir(), 'diagrist-cli-'));
+    const elsewhere = mkdtempSync(join(tmpdir(), 'diagrist-cli-'));
+    writeFileSync(join(elsewhere, 'secret.dgr'), 'x');
+    mkdirSync(join(root, 'd'));
+    writeFileSync(join(root, 'd', 'base.dgr'), 'diagram');
+    symlinkSync(join(elsewhere, 'secret.dgr'), join(root, 'd', 'link.dgr'));
+    const io = nodeIo(process, root);
+    expect(await io.readFile(join(root, 'd', 'base.dgr'), { maxBytes: 100 })).toEqual({ text: 'diagram' });
+    expect(await io.readFile(join(root, 'd', 'link.dgr'), { maxBytes: 100 })).toEqual({ problem: 'outside' });
+    expect(await io.readFile(join(root, 'd', 'link.dgr'))).toEqual({ text: 'x' });
+    expect(await io.readFile(join(root, 'd', 'base.dgr'), { maxBytes: 3 })).toEqual({ problem: 'tooLarge' });
   });
 });

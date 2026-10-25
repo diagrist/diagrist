@@ -7,7 +7,10 @@ import { type ScriptedWatcher, scriptedWatcher } from './fake-watcher.js';
 /** A file as the in-memory host keeps it: text as written, bytes such as a PNG as they are. */
 type Content = string | Uint8Array;
 
-/** An in-memory host: files in a map, everything printed collected per stream. */
+/**
+ * An in-memory host: files in a map, everything printed collected per stream. A file below `linked/` stands for a
+ * link that leads outside the working folder, so reading it with limits is `outside`.
+ */
 export interface MemoryHost {
   readonly files: Map<string, Content>;
   readonly io: Io;
@@ -20,9 +23,11 @@ export function memoryHost(files: Record<string, string> = {}): MemoryHost {
   const out: string[] = [];
   const err: string[] = [];
   const io: Io = {
-    readFile: async (path) => {
+    readFile: async (path, limits) => {
       const content = contents.get(path);
       if (content === undefined) return { problem: 'missing' };
+      if (limits !== undefined && path.startsWith('linked/')) return { problem: 'outside' };
+      if (limits !== undefined && content.length > limits.maxBytes) return { problem: 'tooLarge' };
       return { text: typeof content === 'string' ? content : new TextDecoder().decode(content) };
     },
     writeFile: async (path, content) => {

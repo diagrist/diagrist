@@ -26,13 +26,15 @@ function edgeOf(e: Line, index: number, styles: Styles, step: Step | undefined):
       lane: a.lane,
       tone: a.tone ?? styles.get(a.style ?? '')?.tone,
       step,
+      origin: e.origin,
     }),
   };
 }
 
 /**
  * All edges in drawing order: the steps of the flows in source order, numbered across all flows, then the free
- * edges. The numbers are made here once; legend and description read them from the model.
+ * edges. The numbers are made here once; legend and description read them from the model. A step a diff picture
+ * shows as removed gets no number, so the others keep theirs.
  */
 export function edgesOf(
   flows: readonly Of<'flow'>[],
@@ -41,14 +43,16 @@ export function edgesOf(
 ): { edges: ArchEdge[]; flows: Flow[] } {
   const edges: ArchEdge[] = [];
   const ranges: Flow[] = [];
+  let numbered = 0;
   for (const f of flows) {
     const accent = f.flags.accent;
-    const from = edges.length + 1;
+    const from = numbered + 1;
     for (const line of f.lines) {
-      const n = edges.length + 1;
-      edges.push(edgeOf(line, edges.length, styles, { flow: f.id, n, accent }));
+      const gone = line.origin === 'removed';
+      if (!gone) numbered++;
+      edges.push(edgeOf(line, edges.length, styles, gone ? undefined : { flow: f.id, n: numbered, accent }));
     }
-    if (edges.length >= from) ranges.push({ id: f.id, accent, from, to: edges.length });
+    if (numbered >= from) ranges.push({ id: f.id, accent, from, to: numbered });
   }
   for (const e of free) edges.push(edgeOf(e, edges.length, styles, undefined));
   return { edges, flows: ranges };

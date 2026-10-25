@@ -1,11 +1,11 @@
-import { say } from '../messages.js';
-import { diagnosticJson, diagnosticText, hasError } from '../report/diagnostics.js';
+import { diagnosticJson, diagnosticLines, hasError } from '../report/diagnostics.js';
+import { say } from '../say.js';
 import { type Command, command } from './command.js';
-import { readSource } from './files.js';
+import { compileSource, readSource } from './files.js';
 
 export const check: Command = command({
   name: 'check',
-  doc: 'Checks a diagram against the grammar and the rules of its kind and prints every finding. Writes nothing.',
+  doc: 'Checks a diagram against the grammar and the rules of its kind and prints every finding, those about one picture of a file with variants marked with the variant. Writes nothing.',
   arguments: [{ name: 'file', count: 'one', doc: 'The .dgr file to check.' }],
   options: {},
   examples: [
@@ -19,8 +19,10 @@ export const check: Command = command({
   async run({ arguments: { file }, io, engine, locale }) {
     const source = await readSource(io, file, locale);
     if ('problem' in source) return source;
-    const diagnostics = [...source.notices, ...engine.compile(source.text, { locale }).diagnostics];
-    const lines = diagnostics.map((d) => diagnosticText(file, source.text, d, locale));
+    const compiled = await compileSource(io, engine, source, locale);
+    if ('problem' in compiled) return compiled;
+    const diagnostics = [...source.notices, ...compiled.compilation.diagnostics];
+    const lines = diagnosticLines(file, source.text, compiled.files, diagnostics, locale);
     return {
       exitCode: hasError(diagnostics) ? 1 : 0,
       json: { file, diagnostics: diagnostics.map((d) => diagnosticJson(file, d)) },

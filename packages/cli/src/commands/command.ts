@@ -48,6 +48,8 @@ export interface Outcome {
   readonly json: Readonly<Record<string, unknown>>;
   /** The output for people, printed on stdout. */
   readonly text: string;
+  /** Files besides the named one that the result was built from, such as those a diagram uses; `--watch` watches them. */
+  readonly watch?: readonly string[];
 }
 
 /** What every command gets from `run` besides its arguments and options. */

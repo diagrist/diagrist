@@ -1,6 +1,4 @@
 import { type Locale, didYouMean as suggest } from '@diagrist/lang';
-import type { Finding } from './engine.js';
-import type { FileProblem } from './io.js';
 
 type Template = (values: Readonly<Record<string, string>>) => string;
 type Texts = Readonly<Record<Locale, Template>>;
@@ -20,20 +18,10 @@ export type ProblemName =
   | 'commandFirst'
   | 'invalidScale'
   | 'scaleWithoutPng'
-  | 'unrenderable';
-
-type TextName =
-  | 'formatted'
-  | 'unformatted'
-  | 'invalid'
-  | 'allFormatted'
-  | 'wrote'
-  | 'noFindings'
-  | 'watching'
-  | 'changed'
-  | 'error'
-  | 'warning'
-  | FileProblem;
+  | 'unrenderable'
+  | 'unknownVariant'
+  | 'outWithPictures'
+  | 'unreadableNeed';
 
 /**
  * Why a call cannot be carried out (exit code 2). Each message says what was found, what is allowed and gives
@@ -123,30 +111,24 @@ const PROBLEMS: Readonly<Record<ProblemName, Texts & { readonly code: string }>>
     de: (v) =>
       `\`${v.file}\` lässt sich nicht als PNG zeichnen (${v.problem}: ${v.detail}), daher wurde nichts geschrieben. Ohne \`--png\` entsteht das SVG trotzdem: \`${v.example}\``,
   },
-};
-
-/** Status lines of the human output. They carry no code: `--json` reports the same facts as fields. */
-const TEXTS: Readonly<Record<TextName, Texts>> = {
-  formatted: { en: (v) => `formatted ${v.file}`, de: (v) => `formatiert: ${v.file}` },
-  unformatted: { en: (v) => `not formatted: ${v.file}`, de: (v) => `nicht formatiert: ${v.file}` },
-  invalid: {
-    en: (v) => `left unchanged because of errors: ${v.file}`,
-    de: (v) => `wegen Fehlern unverändert: ${v.file}`,
+  unknownVariant: {
+    code: 'C016',
+    en: (v) => `\`${v.found}\` is no variant of \`${v.file}\`. Variants: ${v.allowed}. Example: \`${v.example}\``,
+    de: (v) =>
+      `\`${v.found}\` ist keine Variante von \`${v.file}\`. Varianten: ${v.allowed}. Beispiel: \`${v.example}\``,
   },
-  allFormatted: {
-    en: (v) => `already formatted: ${v.count} of ${v.count} files`,
-    de: (v) => `bereits formatiert: ${v.count} von ${v.count} Dateien`,
+  outWithPictures: {
+    code: 'C017',
+    en: (v) =>
+      `\`-o\` names one file, but \`${v.file}\` has ${v.count} pictures (the base and ${v.allowed}). Build one with \`--variant\`, or leave \`-o\` out and the pictures go next to the source. Example: \`${v.example}\``,
+    de: (v) =>
+      `\`-o\` nennt eine Datei, aber \`${v.file}\` hat ${v.count} Bilder (die Basis und ${v.allowed}). Eines mit \`--variant\` bauen oder \`-o\` weglassen, dann landen die Bilder neben der Quelle. Beispiel: \`${v.example}\``,
   },
-  wrote: { en: (v) => `wrote ${v.file}`, de: (v) => `geschrieben: ${v.file}` },
-  noFindings: { en: (v) => `${v.file}: no findings`, de: (v) => `${v.file}: keine Befunde` },
-  watching: { en: (v) => `watching ${v.file}, Ctrl+C ends`, de: (v) => `beobachte ${v.file}, Strg+C beendet` },
-  changed: { en: (v) => `changed ${v.file}`, de: (v) => `geändert: ${v.file}` },
-  error: { en: () => 'error', de: () => 'Fehler' },
-  warning: { en: () => 'warning', de: () => 'Warnung' },
-  missing: { en: () => 'no such file', de: () => 'Datei nicht gefunden' },
-  directory: { en: () => 'it is a directory', de: () => 'das ist ein Verzeichnis' },
-  denied: { en: () => 'permission denied', de: () => 'keine Berechtigung' },
-  failed: { en: () => 'the system refused', de: () => 'das System hat abgelehnt' },
+  unreadableNeed: {
+    code: 'C018',
+    en: (v) => `Cannot read \`${v.file}\`, named in line ${v.line} of \`${v.source}\`: ${v.reason}.`,
+    de: (v) => `\`${v.file}\`, genannt in Zeile ${v.line} von \`${v.source}\`, lässt sich nicht lesen: ${v.reason}.`,
+  },
 };
 
 /** A call that cannot be carried out, as data: the name selects the message, the values fill it. */
@@ -165,28 +147,4 @@ export function codeOf(found: Problem): string {
 
 export function formatProblem(found: Problem, locale: Locale): string {
   return PROBLEMS[found.problem][locale](found.values);
-}
-
-export function say(name: TextName, locale: Locale, values: Readonly<Record<string, string>> = {}): string {
-  return TEXTS[name][locale](values);
-}
-
-/** Last day the old extension `.dia` is read: one year after ADR 0002, see ADR 0012. */
-export const LEGACY_EXTENSION_UNTIL = '2027-10-24';
-
-const LEGACY: Texts = {
-  en: (v) =>
-    `\`${v.file}\` has the old extension \`.dia\`, which is read until ${v.until} only. Rename it to \`${v.renamed}\`.`,
-  de: (v) =>
-    `\`${v.file}\` hat die alte Endung \`.dia\`, die nur bis ${v.until} gelesen wird. In \`${v.renamed}\` umbenennen.`,
-};
-
-/**
- * The notice ADR 0002 Nr. 6 promises for a `.dia` file: a warning C100 on the file, so the call still succeeds.
- * The code stands for the file, not for a line, and is stable like the refusal codes.
- */
-export function legacyExtension(file: string, locale: Locale): Finding {
-  const values = { file, renamed: `${file.slice(0, -'.dia'.length)}.dgr`, until: LEGACY_EXTENSION_UNTIL };
-  const span = { line: 1, column: 1, length: 0 };
-  return { code: 'C100', severity: 'warning', span, values, message: LEGACY[locale](values) };
 }

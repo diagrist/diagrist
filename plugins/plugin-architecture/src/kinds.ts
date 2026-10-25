@@ -12,7 +12,7 @@ import { TEXTS } from './texts/index.js';
 
 /**
  * One C4 level as a kind: the shared tables with the level's elements, model, rules, layout on `layout-grid`,
- * the style table of its look, and a description.
+ * the style table of its look, and a description. Each level draws diff pictures (ADR 0021).
  */
 function architectureKind(level: Level) {
   return defineKind({
@@ -29,6 +29,7 @@ function architectureKind(level: Level) {
       };
     },
     describe: (model, { locale }) => describeArchitecture(model, TEXTS[locale], WORDS[locale]),
+    diff: true,
   });
 }
 

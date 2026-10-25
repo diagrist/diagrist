@@ -9,13 +9,21 @@ import type { Engine } from './engine.js';
 export function coreEngine(plugins: readonly Plugin[]): Engine {
   const kinds = plugins.flatMap((plugin) => plugin.kinds);
   return {
-    compile(source, { locale }) {
-      const compilation = compile(source, { plugins });
+    compile(source, { locale, path, files }) {
+      const compilation = compile(source, {
+        plugins,
+        ...(path === undefined ? {} : { path }),
+        ...(files === undefined ? {} : { files }),
+      });
       const diagnostics = compilation.diagnostics.map((found) => ({
         ...found,
         message: formatMessage(found, plugins, locale),
       }));
-      return compilation.svg === undefined ? { diagnostics } : { svg: compilation.svg, diagnostics };
+      const pictures = compilation.pictures.map(({ variant, svg }) => ({
+        ...(variant === undefined ? {} : { variant }),
+        ...(svg === undefined ? {} : { svg }),
+      }));
+      return { pictures, diagnostics, needs: compilation.needs };
     },
     kinds: () => kinds.map((kind) => kind.spec.name),
     grammar: (name) => {

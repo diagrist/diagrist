@@ -7,10 +7,10 @@ import {
   kind,
   optionalArg,
   read,
-  readKind,
   ref,
   statement,
   text,
+  unfold,
 } from '@diagrist/lang';
 import type { Engine } from '../../src/index.js';
 
@@ -37,20 +37,28 @@ const sequence = kind('sequence', {
 });
 
 /**
- * A stand-in for the kernel with one real kind: it reads and checks with the language's tables, so its
- * findings are real diagnostics, and its picture is a fixed SVG naming the diagram.
+ * A stand-in for the kernel with one real kind: it reads, unfolds and checks with the language's tables, so its
+ * findings, pictures and needs are real, and each picture is a fixed SVG naming its title.
  */
 export function fakeEngine(): Engine {
   return {
-    compile: (source, { locale }) => {
+    compile: (source, { locale, path, files }) => {
       const reading = read(source);
-      const checked = readKind(sequence, reading.document);
-      const diagnostics = [...reading.diagnostics, ...checked.diagnostics].map((found) => ({
-        ...found,
-        message: formatDiagnostic(found, locale),
-      }));
+      const unfolded = unfold(sequence, reading.document, { ...(path ? { path } : {}), ...(files ? { files } : {}) });
+      const found = [
+        ...reading.diagnostics,
+        ...unfolded.diagnostics,
+        ...unfolded.pictures.flatMap((p) =>
+          p.reading.diagnostics.map((d) => (p.variant ? { ...d, picture: p.variant } : d)),
+        ),
+      ];
+      const diagnostics = found.map((d) => ({ ...d, message: formatDiagnostic(d, locale) }));
       const failed = diagnostics.some((d) => d.severity === 'error');
-      return failed ? { diagnostics } : { svg: `<svg>${checked.header?.title ?? ''}</svg>`, diagnostics };
+      const pictures = unfolded.pictures.map((p) => ({
+        ...(p.variant ? { variant: p.variant } : {}),
+        ...(failed ? {} : { svg: `<svg>${p.reading.header?.title ?? ''}</svg>` }),
+      }));
+      return { pictures, diagnostics, needs: unfolded.needs };
     },
     kinds: () => [sequence.name],
     grammar: (name) => (name === sequence.name ? grammarOf(sequence) : undefined),

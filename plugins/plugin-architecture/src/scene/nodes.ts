@@ -1,11 +1,13 @@
 import { domId, type Shape } from '@diagrist/core';
 import type { BoxArt, PersonArt } from '../layout/art.js';
+import { changeOf } from '../layout/diff.js';
 import type { ArchitectureLayout, PlacedElement } from '../layout/index.js';
 import type { ArchitectureModel, ArchNode, NodeStatus, Role } from '../model/types.js';
 import type { Texts } from '../texts/index.js';
 import { blockShapes } from './blocks.js';
 import { bodyShapes, clockShapes, replicaShapes } from './bodies.js';
 import { cardShapes } from './cards.js';
+import { changeTagShapes } from './diff.js';
 import { iconRole } from './icons.js';
 import { bustShapes, paperBoxShapes } from './paper.js';
 
@@ -24,12 +26,19 @@ function personShapes(n: ArchNode, art: PersonArt): Shape[] {
   ];
 }
 
-/** A plain box: body by status, emphasis and role, its shape, clock, replicas, icon and texts. */
+/** The body of a plain box: a change of a diff picture first, then status, emphasis and role. */
+function bodyOf(n: ArchNode, muted: boolean): string {
+  const change = changeOf(n.origin);
+  if (change === 'removed' || change === 'added') return change === 'added' ? 'boxAdded' : 'boxRemoved';
+  return n.status ? STATUS_BODY[n.status] : n.emph ? 'boxEmph' : muted ? 'boxMuted' : 'box';
+}
+
+/** A plain box: body by change, status, emphasis and role, its shape, clock, replicas, icon and texts. */
 function boxShapes(p: PlacedElement, art: BoxArt, role: Role | undefined, texts: Texts): Shape[] {
   const n = p.node;
   const muted = role === 'shared';
-  const old = n.status === 'deprecated';
-  const body = n.status ? STATUS_BODY[n.status] : n.emph ? 'boxEmph' : muted ? 'boxMuted' : 'box';
+  const old = n.status === 'deprecated' || n.origin === 'removed';
+  const body = bodyOf(n, muted);
   const detail = old ? 'detailDeprecated' : 'detail';
   const out: Shape[] = bodyShapes(n.shape, p.rect, body, detail);
   if (n.shape === 'job') out.push(...clockShapes(art.clock, detail));
@@ -43,7 +52,7 @@ function boxShapes(p: PlacedElement, art: BoxArt, role: Role | undefined, texts:
   return out;
 }
 
-/** Every element in its group `node-<id>`, drawn in its look. */
+/** Every element in its group `node-<id>`, drawn in its look; in a diff picture with the tag of its change. */
 export function nodeShapes(model: ArchitectureModel, layout: ArchitectureLayout, texts: Texts): Shape[] {
   const roles = new Map(model.groups.map((g) => [g.id, g.role]));
   const paper = model.look === 'paper';
@@ -61,6 +70,8 @@ export function nodeShapes(model: ArchitectureModel, layout: ArchitectureLayout,
             : art.block
               ? blockShapes(p, art, art.block)
               : boxShapes(p, art, roles.get(p.node.group ?? ''), texts);
-    return { kind: 'group', id: domId.node(p.node.id), children };
+    const change = changeOf(p.node.origin);
+    const tag = change === undefined ? [] : changeTagShapes(change, p.rect.x, p.rect.y);
+    return { kind: 'group', id: domId.node(p.node.id), children: [...children, ...tag] };
   });
 }

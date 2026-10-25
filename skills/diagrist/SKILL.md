@@ -28,8 +28,8 @@ Every command takes `--json` for one JSON document on stdout. The commands:
 | Command | What it does |
 |---|---|
 | `dgr fmt <files...> [options]` | Formats .dgr files in place. |
-| `dgr check <file> [options]` | Checks a diagram against the grammar and the rules of its kind and prints every finding. |
-| `dgr build <file> [options]` | Renders a diagram as SVG, and with `--png` also as PNG. |
+| `dgr check <file> [options]` | Checks a diagram against the grammar and the rules of its kind and prints every finding, those about one picture of a file with variants marked with the variant. |
+| `dgr build <file> [options]` | Renders a diagram as SVG, and with `--png` also as PNG: the base picture as `<file>.svg` and each variant as `<file>.<variant>.svg`. |
 | `dgr grammar [kind] [options]` | Shows what a diagram kind allows. |
 | `dgr help [command] [options]` | Explains the commands. |
 

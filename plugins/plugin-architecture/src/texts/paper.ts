@@ -1,5 +1,6 @@
 import type { Locale } from '@diagrist/lang';
 import type { EdgeKind } from '../grammar/edges.js';
+import type { Change } from '../layout/diff.js';
 import type { NodeShape, NodeStatus, Role } from '../model/types.js';
 
 /**
@@ -11,6 +12,8 @@ export interface PaperWords {
   readonly roles: Readonly<Record<Role, string>>;
   readonly status: Readonly<Record<NodeStatus, string>>;
   readonly shapes: Readonly<Record<NodeShape, string>>;
+  /** How a diff picture shows each change (ADR 0021). */
+  readonly changes: Readonly<Record<Change, string>>;
   readonly emph: string;
   readonly replicas: string;
   readonly icon: string;
@@ -31,6 +34,7 @@ const EN: PaperWords = {
   roles: { own: 'Grey area', shared: 'Fine frame', external: 'Fine frame' },
   status: { planned: 'Green dot', deprecated: 'Red dot' },
   shapes: { db: 'Cylinder', queue: 'Double left edge', store: 'Folded corner', job: 'Clock', app: 'Window bar' },
+  changes: { added: 'Heavy outline and +', removed: 'Dotted and ×', changed: '~' },
   emph: 'Yellow',
   replicas: 'x3',
   icon: 'Icons: technology or role of the element',
@@ -51,6 +55,7 @@ const DE: PaperWords = {
   roles: { own: 'Graue Fläche', shared: 'Feiner Rahmen', external: 'Feiner Rahmen' },
   status: { planned: 'Grüner Punkt', deprecated: 'Roter Punkt' },
   shapes: { db: 'Zylinder', queue: 'Doppelte Kante links', store: 'Eselsohr', job: 'Uhr', app: 'Fensterleiste' },
+  changes: { added: 'Kräftiger Rand und +', removed: 'Gepunktet und ×', changed: '~' },
   emph: 'Gelb',
   replicas: 'x3',
   icon: 'Symbole: Technologie oder Rolle des Elements',

@@ -1,6 +1,7 @@
 import type { Locale } from '@diagrist/lang';
 import type { EdgeKind } from '../grammar/edges.js';
 import type { Level } from '../grammar/elements.js';
+import type { Change } from '../layout/diff.js';
 import type { NodeShape, NodeStatus, Role } from '../model/types.js';
 import { DE } from './de.js';
 import { EN } from './en.js';
@@ -25,6 +26,8 @@ export interface Texts {
    */
   readonly statusInBox: Readonly<Record<NodeStatus, string>>;
   readonly shapes: Readonly<Record<NodeShape, string>>;
+  /** The changes of a diff picture (ADR 0021), in the legend and as the start of a sentence of the description. */
+  readonly changes: Readonly<Record<Change, string>>;
   readonly emph: string;
   readonly replicas: string;
   readonly mark: string;

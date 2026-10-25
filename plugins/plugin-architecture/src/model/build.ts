@@ -41,6 +41,7 @@ function nodeOf(s: Element, styles: ReadonlyMap<string, Style>): ArchNode {
       height: a.height,
       tone: a.tone,
       form: a.form,
+      origin: s.origin,
     }),
   };
 }

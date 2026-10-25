@@ -1,6 +1,7 @@
 import { textWidth } from '@diagrist/core';
 import type { EdgeText, GridColumn, GridGroup, GridMetrics, GridNode, GridSpec, Pads } from '@diagrist/layout-grid';
 import type { ArchEdge, ArchGroup, ArchitectureModel, ArchNode } from '../model/types.js';
+import { signedLabel } from './diff.js';
 import { fixedWidth, isCircle, nodeHeight, nodeWidth, type Sizing, secondLine } from './measure.js';
 
 const PERSON_W = 40;
@@ -122,9 +123,10 @@ export function gridSpecOf(model: ArchitectureModel, sizing: Sizing): { spec: Gr
   }));
   const texts = model.edges.map((e): EdgeText => {
     const detail = detailLine(e);
+    const name = signedLabel(e.label, e.origin);
     return {
       edge: String(e.index),
-      ...(e.label ? { name: e.label } : {}),
+      ...(name ? { name } : {}),
       ...(detail ? { detail } : {}),
       accent: e.step?.accent === true,
     };

@@ -1,5 +1,5 @@
 import type { Tone } from '@diagrist/core';
-import type { Span } from '@diagrist/lang';
+import type { Origin, Span } from '@diagrist/lang';
 import type { Decision } from '@diagrist/parts';
 import type { EdgeKind } from '../grammar/edges.js';
 import type { ElementKeyword, FORMS, Level, SHAPES, STATUSES } from '../grammar/elements.js';
@@ -35,6 +35,8 @@ export interface ArchNode {
   readonly height?: number;
   readonly tone?: Tone;
   readonly form?: NodeForm;
+  /** In a diff picture (ADR 0021): whether the element is new, changed or gone; absent means unchanged. */
+  readonly origin?: Origin;
   readonly source: Span;
 }
 
@@ -78,7 +80,10 @@ export interface ArchEdge {
   readonly bundle?: string;
   readonly lane?: string;
   readonly tone?: Tone;
+  /** A step of a flow; a step a diff picture shows as removed has none, so the numbers stay those of the variant. */
   readonly step?: Step;
+  /** In a diff picture (ADR 0021): whether the edge is new, changed or gone; absent means unchanged. */
+  readonly origin?: Origin;
   readonly source: Span;
 }
 

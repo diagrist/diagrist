@@ -19,6 +19,7 @@ export const EN: Texts = {
   status: { planned: 'planned', deprecated: 'deprecated' },
   statusInBox: { planned: 'planned', deprecated: 'deprecated' },
   shapes: { db: 'database', queue: 'queue', store: 'store', job: 'job', app: 'application' },
+  changes: { added: 'added', removed: 'removed', changed: 'changed' },
   emph: 'core decision',
   replicas: 'several instances',
   mark: 'decision, see the bar',

@@ -88,7 +88,8 @@ const PAPER_MARKERS: readonly Marker[] = [
 ];
 
 /** The rules of `look=paper`; a rule with the name of a standard one replaces it, the rest are its own. */
-function paperRules({ fonts: f }: Metrics): StyleRule[] {
+function paperRules(m: Metrics): StyleRule[] {
+  const f = m.fonts;
   const c = PAPER;
   const line = (color: string, width: number) => `fill: none; stroke: ${color}; stroke-width: ${width};`;
   const halo = (color: string) =>
@@ -138,6 +139,27 @@ function paperRules({ fonts: f }: Metrics): StyleRule[] {
     rule('margin-id', textRule(`fill: ${c.ink};`, { ...f.label, weight: 600 })),
     rule('margin-text', textRule(`fill: ${c.ink2};`, f.label)),
     rule('margin-choice', textRule(`fill: ${c.ink};`, f.label)),
+    ...paperDiffRules(m),
+  ];
+}
+
+/**
+ * A diff picture on paper (ADR 0021) in the sheet's own inks, no new colour and never the yellow of the core: added
+ * in ink and heavy, removed dotted in the outline grey, every tag a small paper box with its sign.
+ */
+function paperDiffRules({ fonts: f }: Metrics): StyleRule[] {
+  const c = PAPER;
+  return [
+    rule('shape-added', `fill: ${c.node}; stroke: ${c.ink}; stroke-width: 2.5;`),
+    rule('shape-removed', `fill: ${c.paper}; stroke: ${c.outline}; stroke-width: 1; stroke-dasharray: 2 3;`),
+    rule('line-added', `fill: none; stroke: ${c.ink}; stroke-width: 2.5;`),
+    rule('line-removed', `fill: none; stroke: ${c.outline}; stroke-width: 1; stroke-dasharray: 2 3;`),
+    rule('diff-tag-added', `fill: ${c.ink}; stroke: none;`),
+    rule('diff-tag-removed', `fill: ${c.paper}; stroke: ${c.outline}; stroke-width: 1;`),
+    rule('diff-tag-changed', `fill: ${c.node}; stroke: ${c.ink}; stroke-width: 1;`),
+    rule('diff-tag-text-light', textRule(`fill: ${c.paper};`, { ...f.badge, weight: 700 })),
+    rule('diff-tag-text-removed', textRule(`fill: ${c.ink2};`, { ...f.badge, weight: 700 })),
+    rule('diff-tag-text-accent', textRule(`fill: ${c.ink};`, { ...f.badge, weight: 700 })),
   ];
 }
 

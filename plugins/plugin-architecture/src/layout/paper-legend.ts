@@ -4,6 +4,7 @@ import { SHAPES, STATUSES } from '../grammar/elements.js';
 import type { ArchitectureModel, Role } from '../model/types.js';
 import type { Texts } from '../texts/index.js';
 import type { PaperWords } from '../texts/paper.js';
+import { CHANGES } from './diff.js';
 
 const EDGE_ORDER: readonly EdgeKind[] = ['sync', 'async', 'dependency', 'data', 'link', 'duplex'];
 const ROLES: readonly Role[] = ['own', 'shared', 'external'];
@@ -42,6 +43,9 @@ export function paperLegend(
     ...model.flows.map((f) => words.flow(f.id, f.from, f.to, f.accent)),
     ...(nodes.some((n) => n.emph) ? [`${words.emph}: ${texts.emph}`] : []),
     ...STATUSES.filter((s) => nodes.some((n) => n.status === s)).map((s) => `${words.status[s]}: ${texts.status[s]}`),
+    ...CHANGES.filter((c) => [...nodes, ...model.edges].some((x) => x.origin === c)).map(
+      (c) => `${words.changes[c]}: ${texts.changes[c]}`,
+    ),
     ...(nodes.some((n) => n.replicas !== undefined) ? [`${words.replicas}: ${texts.replicas}`] : []),
     ...SHAPES.filter((s) => nodes.some((n) => n.shape === s)).map((s) => `${words.shapes[s]}: ${texts.shapes[s]}`),
     ...(marked ? [words.mark] : []),

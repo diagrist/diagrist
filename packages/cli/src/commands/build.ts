@@ -1,19 +1,25 @@
-import { say } from '../messages.js';
-import { diagnosticJson, diagnosticText, hasError } from '../report/diagnostics.js';
+import { diagnosticJson, diagnosticLines, hasError } from '../report/diagnostics.js';
+import { say } from '../say.js';
 import { type Command, command } from './command.js';
-import { readSource, writeOutput } from './files.js';
+import { compileSource, readSource, writeOutput } from './files.js';
+import { planPictures } from './pictures.js';
 import { pngBeside, pngScale, renderPng, SCALE, SCALED_EXAMPLE } from './png.js';
 
 export const build: Command = command({
   name: 'build',
-  doc: 'Renders a diagram as SVG, and with `--png` also as PNG. Nothing is written when the diagram has an error; warnings are printed and do not stop the build. With `--watch` it builds again after every change of the source.',
+  doc: 'Renders a diagram as SVG, and with `--png` also as PNG: the base picture as `<file>.svg` and each variant as `<file>.<variant>.svg`. Nothing is written when the diagram has an error; warnings are printed and do not stop the build. With `--watch` it builds again after every change of the source or of a file it uses.',
   arguments: [{ name: 'file', count: 'one', doc: 'The .dgr file to render.' }],
   options: {
     out: {
       type: 'string',
       short: 'o',
       value: 'file',
-      doc: 'Where to write the SVG. Default: next to the source, with `.svg` instead of `.dgr`. The PNG goes beside the SVG.',
+      doc: 'Where to write the SVG of a diagram with one picture, or of the one `--variant` picks. Default: next to the source, with `.svg` instead of `.dgr`. The PNG goes beside the SVG.',
+    },
+    variant: {
+      type: 'string',
+      value: 'id',
+      doc: 'Build only the picture of this variant, as `<file>.<id>.svg` or where `-o` says.',
     },
     png: {
       type: 'boolean',
@@ -26,20 +32,24 @@ export const build: Command = command({
     },
     watch: {
       type: 'boolean',
-      doc: 'Build, then build again each time the source changes, until Ctrl+C. Each build prints what it wrote and its findings, with `--json` one document per build. Errors in the diagram and a source that is gone for a moment do not end the watch; only a call refused at the first build does. Ends with the exit code of the last build.',
+      doc: 'Build, then build again each time the source or a file it uses changes, until Ctrl+C. Each build prints what it wrote and its findings, with `--json` one document per build. Errors in the diagram and a source that is gone for a moment do not end the watch; only a call refused at the first build does. Ends with the exit code of the last build.',
     },
   },
   examples: [
-    { command: 'dgr build diagrams/order.dgr', doc: 'Write diagrams/order.svg.' },
+    { command: 'dgr build diagrams/order.dgr', doc: 'Write diagrams/order.svg, and one SVG per variant beside it.' },
     { command: 'dgr build diagrams/order.dgr -o site/order.svg', doc: 'Write the SVG somewhere else.' },
     { command: 'dgr build diagrams/order.dgr --png', doc: 'Also write diagrams/order.png, twice the size of the SVG.' },
     { command: SCALED_EXAMPLE, doc: 'Write the PNG at three times the size of the SVG, e.g. for print.' },
+    { command: 'dgr build diagrams/order.dgr --variant next', doc: 'Write only diagrams/order.next.svg.' },
     { command: 'dgr build diagrams/order.dgr --png --watch', doc: 'Write SVG and PNG again on every save.' },
   ],
   json: {
     file: 'The rendered source.',
-    output: 'Path of the written SVG, `null` when nothing was written.',
-    png: 'Path of the written PNG, `null` without `--png` or when nothing was written.',
+    output:
+      'Path of the first written SVG, the base unless `--variant` picks another; `null` when nothing was written.',
+    png: 'Path of the PNG beside `output`, `null` without `--png` or when nothing was written.',
+    pictures:
+      'Every picture asked for: `{ variant, output, png }`, `variant` `null` for the base, the paths `null` when nothing was written.',
     diagnostics: 'All findings, see "Diagnostics".',
   },
   async run({ arguments: { file }, options, io, engine, raster, locale }) {
@@ -47,34 +57,45 @@ export const build: Command = command({
     if (typeof scale === 'object') return scale;
     const source = await readSource(io, file, locale);
     if ('problem' in source) return source;
-    const compiled = engine.compile(source.text, { locale });
-    const { svg } = compiled;
-    const diagnostics = [...source.notices, ...compiled.diagnostics];
-    const written: string[] = [];
-    if (svg !== undefined && !hasError(diagnostics)) {
-      const output = options.out ?? svgBeside(file);
-      const picture = scale === undefined ? undefined : await renderPng(raster, svg, file, scale);
-      if (picture !== undefined && !(picture instanceof Uint8Array)) return picture;
-      const files: [string, string | Uint8Array][] = [[output, svg]];
-      if (picture !== undefined) files.push([pngBeside(output), picture]);
-      for (const [path, content] of files) {
-        const failed = await writeOutput(io, path, content, locale);
-        if (failed) return failed;
-        written.push(path);
+    const compiled = await compileSource(io, engine, source, locale);
+    if ('problem' in compiled) return compiled;
+    const planned = planPictures(file, compiled.compilation.pictures, options.variant, options.out);
+    if ('problem' in planned) return planned;
+    const diagnostics = [...source.notices, ...compiled.compilation.diagnostics];
+    const contents: [string, string | Uint8Array][] = [];
+    if (!hasError(diagnostics)) {
+      for (const { picture, output } of planned) {
+        if (picture.svg === undefined) continue;
+        const png = scale === undefined ? undefined : await renderPng(raster, picture.svg, file, scale);
+        if (png !== undefined && !(png instanceof Uint8Array)) return png;
+        contents.push([output, picture.svg]);
+        if (png !== undefined) contents.push([pngBeside(output), png]);
       }
     }
-    const lines = diagnostics.map((d) => diagnosticText(file, source.text, d, locale));
-    lines.push(...written.map((path) => say('wrote', locale, { file: path })));
-    const [output = null, png = null] = written;
+    for (const [path, content] of contents) {
+      const failed = await writeOutput(io, path, content, locale);
+      if (failed) return failed;
+    }
+    const written = new Set(contents.map(([path]) => path));
+    const pictures = planned.map(({ picture, output }) => ({
+      variant: picture.variant ?? null,
+      output: written.has(output) ? output : null,
+      png: written.has(pngBeside(output)) ? pngBeside(output) : null,
+    }));
+    const lines = diagnosticLines(file, source.text, compiled.files, diagnostics, locale);
+    lines.push(...contents.map(([path]) => say('wrote', locale, { file: path })));
+    const first = pictures[0];
     return {
-      exitCode: output === null ? 1 : 0,
-      json: { file, output, png, diagnostics: diagnostics.map((d) => diagnosticJson(file, d)) },
+      exitCode: written.size === 0 ? 1 : 0,
+      json: {
+        file,
+        output: first?.output ?? null,
+        png: first?.png ?? null,
+        pictures,
+        diagnostics: diagnostics.map((d) => diagnosticJson(file, d)),
+      },
       text: lines.join('\n'),
+      watch: Object.keys(compiled.files),
     };
   },
 });
-
-/** `diagrams/order.dgr` becomes `diagrams/order.svg`; the legacy `.dia` is replaced the same way. */
-function svgBeside(file: string): string {
-  return `${file.replace(/\.(dgr|dia)$/, '')}.svg`;
-}

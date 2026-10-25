@@ -65,7 +65,8 @@ describe('help', () => {
         argv.join(' '),
       ).toEqual([]);
     }
-    const { json } = await callJson(['check', 'a.dgr'], { files: { 'a.dgr': `${LOGIN}msg api -> x\n` }, engine });
+    const variant = `${LOGIN}variant v "V"\n  msg api -> x\n`;
+    const { json } = await callJson(['check', 'a.dgr'], { files: { 'a.dgr': variant }, engine });
     const [first] = json.diagnostics as Record<string, unknown>[];
     expect(Object.keys(first ?? {}).sort()).toEqual(Object.keys(DIAGNOSTIC_FIELDS).sort());
   });

@@ -36,6 +36,7 @@ export function architectureRules(f: FontSizes, w: Strokes): StyleRule[] {
     rule('line-data', `fill: none; stroke: ${c.stroke}; stroke-width: ${w.data};`),
     rule('line-data-accent', `fill: none; stroke: ${c.accent}; stroke-width: ${w.data};`),
     rule('line-deprecated', `fill: none; stroke: ${c.border}; stroke-width: ${w.line};`),
+    ...diffRules(f, w),
     rule('label-deprecated', textRule(`fill: ${c.border};`, bold(f.node))),
     rule('label-status', `fill: ${c.note}; font-size: ${f.note}px; font-style: italic;`),
     rule('replica', `fill: ${c.fillMuted}; stroke: ${c.border}; stroke-width: ${w.frame};`),
@@ -77,5 +78,27 @@ export function architectureRules(f: FontSizes, w: Strokes): StyleRule[] {
         `fill: none; stroke: ${color}; stroke-opacity: ${TINT.fill}; stroke-width: ${w.halo}px; stroke-linejoin: round;`,
       ),
     ),
+  ];
+}
+
+/**
+ * Rules of a diff picture (ADR 0021). Each change differs in more than colour: added boxes and edges are thick, removed
+ * ones dashed or dotted and grey, and every tag carries its sign.
+ */
+function diffRules(f: FontSizes, w: Strokes): StyleRule[] {
+  return [
+    rule('shape-added', `fill: ${c.fill}; stroke: ${c.accent}; stroke-width: ${w.emph + 0.5};`),
+    rule(
+      'shape-removed',
+      `fill: ${c.fillMuted}; stroke: ${c.border}; stroke-width: ${w.shape}; stroke-dasharray: ${DASH.line};`,
+    ),
+    rule('line-added', `fill: none; stroke: ${c.accent}; stroke-width: ${w.emph + 0.5};`),
+    rule('line-removed', `fill: none; stroke: ${c.border}; stroke-width: ${w.line}; stroke-dasharray: 2 4;`),
+    rule('diff-tag-added', `fill: ${c.accent}; stroke: none;`),
+    rule('diff-tag-removed', `fill: ${c.note}; stroke: none;`),
+    rule('diff-tag-changed', `fill: ${c.fill}; stroke: ${c.accent}; stroke-width: ${w.frame * 1.5};`),
+    rule('diff-tag-text-light', textRule('fill: #ffffff;', { size: f.badge, weight: 700 })),
+    rule('diff-tag-text-removed', textRule('fill: #ffffff;', { size: f.badge, weight: 700 })),
+    rule('diff-tag-text-accent', textRule(`fill: ${c.accent};`, { size: f.badge, weight: 700 })),
   ];
 }

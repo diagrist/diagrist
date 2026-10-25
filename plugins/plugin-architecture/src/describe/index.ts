@@ -1,4 +1,5 @@
 import type { Words } from '@diagrist/parts';
+import { CHANGES } from '../layout/diff.js';
 import type { ArchEdge, ArchGroup, ArchitectureModel, ArchNode } from '../model/types.js';
 import type { Texts } from '../texts/index.js';
 
@@ -33,7 +34,10 @@ function namer(model: ArchitectureModel, t: Texts): { name: (id: string) => stri
   return { name, group };
 }
 
-/** The diagram in sentences, in the locale of `t`: groups, elements, layers, flows step by step, edges, decisions. */
+/**
+ * The diagram in sentences, in the locale of `t`: groups, elements, layers, flows step by step, edges, decisions, and
+ * in a diff picture one sentence per change naming what was added, removed and changed.
+ */
 export function describeArchitecture(model: ArchitectureModel, t: Texts, words: Words): string {
   const p = t.prose;
   const { name, group } = namer(model, t);
@@ -67,10 +71,18 @@ export function describeArchitecture(model: ArchitectureModel, t: Texts, words: 
     }
   }
   for (const n of model.notes) lines.push(`${p.note} ${name(n.on ?? '')}: ${n.text}.`);
-  for (const e of model.edges.filter((x) => x.step === undefined)) {
+  for (const e of model.edges.filter((x) => x.step === undefined && x.origin !== 'removed')) {
     const text = edgeText(e);
     lines.push(`${p.edge}: ${name(e.from)} ${arrowOf(e)} ${name(e.to)}${text ? `: ${text}` : ''}.`);
   }
   lines.push(...model.decisions.map(words.decision));
+  for (const change of CHANGES) {
+    const named = [
+      ...model.nodes.filter((n) => n.origin === change).map((n) => n.label),
+      ...model.edges.filter((e) => e.origin === change).map((e) => `${name(e.from)} ${arrowOf(e)} ${name(e.to)}`),
+    ];
+    const word = t.changes[change];
+    if (named.length > 0) lines.push(`${word.charAt(0).toUpperCase()}${word.slice(1)}: ${named.join(', ')}.`);
+  }
   return lines.join('\n');
 }

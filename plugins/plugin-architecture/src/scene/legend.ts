@@ -2,6 +2,7 @@ import type { Shape } from '@diagrist/core';
 import { type LegendEntry, markShapes } from '@diagrist/parts';
 import { type Sample, SHAPE_SAMPLE, type SwatchRole } from '../layout/legend.js';
 import { badgeShapes, bodyShapes, clockShapes, replicaShapes } from './bodies.js';
+import { changeTagShapes } from './diff.js';
 
 const SWATCH = { w: 40, h: 14, rx: 4 } as const;
 const SWATCH_ROLE: Readonly<Record<SwatchRole, string>> = {
@@ -43,6 +44,11 @@ export function sampleShapes(entry: LegendEntry<Sample>): readonly Shape[] {
       return badgeShapes(sample.n, x, y, sample.accent);
     case 'mark':
       return markShapes('E1', x, y);
+    case 'change': {
+      const role = sample.change === 'added' ? 'boxAdded' : sample.change === 'removed' ? 'boxRemoved' : 'box';
+      const box = { kind: 'rect', x, y: y - SWATCH.h / 2, w: SWATCH.w, h: SWATCH.h, rx: SWATCH.rx, role } as const;
+      return [box, ...changeTagShapes(sample.change, x + SWATCH.w / 2, y)];
+    }
     case 'none':
       return [];
   }

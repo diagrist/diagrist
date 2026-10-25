@@ -5,11 +5,12 @@ import { crashText } from './crash.js';
 import type { Engine } from './engine.js';
 import type { Io } from './io.js';
 import { VERSION } from './manifest.js';
-import { type Problem, say } from './messages.js';
+import type { Problem } from './messages.js';
 import { type Parsed, parse } from './parse.js';
 import type { Raster } from './raster.js';
 import { deliver } from './report/output.js';
-import { watch, watchedFile } from './watch.js';
+import { say } from './say.js';
+import { type Changes, changesOf, watch, watchedFile } from './watch.js';
 import type { Watcher } from './watcher.js';
 
 /** The ports a call reaches everything outside the CLI through (ADR 0009); `main.ts` wires in the real ones. */
@@ -31,19 +32,27 @@ export async function run(argv: readonly string[], ports: Ports): Promise<number
   const parsed = parse(argv, COMMANDS);
   const { io } = ports;
   const audience = { command: commandName(parsed), json: parsed.json, locale: parsed.locale };
+  const file = watchedFile(parsed);
+  const changes: Changes | undefined = file === undefined ? undefined : changesOf(ports.watcher, file);
   const once = async (): Promise<number> => {
     try {
-      return deliver(parsed.problem ?? (await perform(parsed, ports)), audience, io);
+      const answer = parsed.problem ?? (await perform(parsed, ports));
+      if (!('problem' in answer)) changes?.add(answer.watch ?? []);
+      return deliver(answer, audience, io);
     } catch (error) {
       io.stderr(`${crashText(error, parsed.locale)}\n`);
       return 2;
     }
   };
-  const file = watchedFile(parsed);
-  if (file === undefined) return once();
-  return watch(ports.watcher.changes(file), once, (line) => {
-    if (!parsed.json) io.stdout(`${say(line, parsed.locale, { file })}\n`);
-  });
+  if (file === undefined || changes === undefined) return once();
+  return watch(
+    changes,
+    once,
+    (line, changed) => {
+      if (!parsed.json) io.stdout(`${say(line, parsed.locale, { file: changed })}\n`);
+    },
+    file,
+  );
 }
 
 async function perform(parsed: Parsed, { io, engine, raster }: Ports): Promise<Outcome | Problem> {

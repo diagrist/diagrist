@@ -16,6 +16,20 @@ export const source = (name: string): string => readFileSync(new URL(name, examp
 export const plugins = [architecturePlugin];
 
 /**
+ * Compiles an example, or its text when given, with every file it uses, read from the examples folder the way `dgr`
+ * reads them: compile, read what it needs, compile again.
+ */
+export function compileExample(name: string, text: string = source(name)): Compilation {
+  const files: Record<string, string> = {};
+  for (;;) {
+    const compiled = compile(text, { plugins, path: name, files });
+    const missing = compiled.needs.filter((need) => !Object.hasOwn(files, need.path));
+    if (missing.length === 0) return compiled;
+    for (const need of missing) files[need.path] = source(need.path);
+  }
+}
+
+/**
  * Compiles a diagram from its lines, adding the header and a small grid unless the lines bring one. `head` is the
  * level with header attributes after it, such as `container layout=adaptive`.
  */

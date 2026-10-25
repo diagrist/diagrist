@@ -5,6 +5,7 @@ import type { EdgeKind } from '../grammar/edges.js';
 import { SHAPES, STATUSES } from '../grammar/elements.js';
 import type { ArchitectureModel, NodeShape, Role } from '../model/types.js';
 import type { Texts } from '../texts/index.js';
+import { CHANGES, type Change } from './diff.js';
 import type { Metrics } from './metrics.js';
 
 /** A swatch stands for a role of frames, a core decision or a life cycle. */
@@ -18,6 +19,7 @@ export type Sample =
   | { readonly kind: 'replicas' }
   | { readonly kind: 'badge'; readonly n: number; readonly accent: boolean }
   | { readonly kind: 'mark' }
+  | { readonly kind: 'change'; readonly change: Change }
   | { readonly kind: 'none' };
 
 const ROLES: readonly Role[] = ['own', 'shared', 'external'];
@@ -41,7 +43,7 @@ const narrow = (sample: Sample, text: string, sampleWidth: number): LegendItem<S
 
 /**
  * What the legend explains: only what the picture shows, in a fixed order: kinds of edges, flows, roles of frames,
- * core decision, life cycle, replicas, shapes, decision marks, icons.
+ * core decision, life cycle, changes of a diff picture, replicas, shapes, decision marks, icons.
  */
 export function legendItems(
   model: ArchitectureModel,
@@ -63,6 +65,9 @@ export function legendItems(
   if (nodes.some((n) => n.emph)) out.push(wide({ kind: 'swatch', role: 'emph' }, texts.emph));
   for (const status of STATUSES)
     if (nodes.some((n) => n.status === status)) out.push(wide({ kind: 'swatch', role: status }, texts.status[status]));
+  const origins = new Set([...nodes.map((n) => n.origin), ...model.edges.map((e) => e.origin)]);
+  for (const change of CHANGES)
+    if (origins.has(change)) out.push(wide({ kind: 'change', change }, texts.changes[change]));
   if (nodes.some((n) => n.replicas !== undefined)) out.push(narrow({ kind: 'replicas' }, texts.replicas, 0));
   for (const shape of SHAPES)
     if (nodes.some((n) => n.shape === shape))
