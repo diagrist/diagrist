@@ -45,8 +45,12 @@ to the C4 model and to the name of a look.
    decision notes, the sentence legend and the sheet arithmetic go to `parts`; seated flow numbers (both
    directions, reported as placed), texts on a line that keep clear of given rectangles, and a reserved docking
    stretch on `GridNode` go to `layout-grid`. They take fonts and rectangles, never a model or a look, so a kind
-   that is not C4 can draw them. In this step they stay in the plugin under the names of what they are
-   (`layout/sheet.ts`, `seat.ts`, `sentence.ts`, `scene/labels/gap.ts`).
+   that is not C4 can draw them. The first step kept them in the plugin; the second moved them: `kickerShapes`,
+   `sheetOf` with the margin notes and the sentence legend, `joinedSights`, `wrap`, `fit`, the note geometry and the
+   card and note rules to `parts`, `seatMarks`, numbers in `placedOf`, `onLine` with `pad` and `avoid` and
+   `detailFont` to `layout-grid`. Two things stay as they were, because changing them moves bytes: seated numbers
+   keep the predecessor's test of a spot on lines running left or up, and the gap behind texts on a line stays in
+   the plugin, which paints it from the C4 surfaces.
 6. **Font tables stay in the kernel, font files may leave it.** `textWidth` stays pure and measures from the bundled
    tables; the TrueType files can move to `@diagrist/fonts-<family>` packages, which PNG export resolves for the
    families a picture names, in a pull request of their own.
