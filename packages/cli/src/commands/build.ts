@@ -7,7 +7,7 @@ import { pngBeside, pngScale, renderPng, SCALE, SCALED_EXAMPLE } from './png.js'
 
 export const build: Command = command({
   name: 'build',
-  doc: 'Renders a diagram as SVG, and with `--png` also as PNG: the base picture as `<file>.svg` and each variant as `<file>.<variant>.svg`. Nothing is written when the diagram has an error; warnings are printed and do not stop the build. With `--watch` it builds again after every change of the source or of a file it uses.',
+  doc: 'Renders a diagram as SVG, and with `--png` also as PNG: the base picture as `<file>.svg` and each variant as `<file>.<variant>.svg`. Nothing is written when the diagram has an error; warnings are printed and do not stop the build. With `--watch` it builds again after every change of the source or of a file it reads, through `use` or a value naming a file.',
   arguments: [{ name: 'file', count: 'one', doc: 'The .dgr file to render.' }],
   options: {
     out: {
@@ -32,7 +32,7 @@ export const build: Command = command({
     },
     watch: {
       type: 'boolean',
-      doc: 'Build, then build again each time the source or a file it uses changes, until Ctrl+C. Each build prints what it wrote and its findings, with `--json` one document per build. Errors in the diagram and a source that is gone for a moment do not end the watch; only a call refused at the first build does. Ends with the exit code of the last build.',
+      doc: 'Build, then build again each time the source or a file it reads changes, until Ctrl+C. Each build prints what it wrote and its findings, with `--json` one document per build. Errors in the diagram and a source that is gone for a moment do not end the watch; only a call refused at the first build does. Ends with the exit code of the last build.',
     },
   },
   examples: [

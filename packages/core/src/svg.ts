@@ -1,5 +1,5 @@
 import { xmlSafe } from '@diagrist/lang';
-import type { Scene, Shape } from './scene.js';
+import type { Scene, Shape, TextRun } from './scene.js';
 import type { Icon, Marker, Styles } from './styles.js';
 
 /** How `toSvg` writes the document. */
@@ -59,7 +59,10 @@ function element(shape: Shape, styles: Styles): string {
       return `<circle cx="${num(shape.cx)}" cy="${num(shape.cy)}" r="${shape.r}" ${cls(shape.role)}/>`;
     case 'text': {
       const anchor = shape.anchor ? ` text-anchor="${shape.anchor}"` : '';
-      return `<text x="${num(shape.x)}" y="${num(shape.y)}"${anchor} ${cls(shape.role)}>${escapeText(shape.text)}</text>`;
+      const { runs } = shape;
+      const content = runs === undefined ? escapeText(shape.text) : runs.map((run) => runOf(run, cls)).join('');
+      const space = runs !== undefined && LOST_SPACE.test(shape.text) ? ' xml:space="preserve"' : '';
+      return `<text x="${num(shape.x)}" y="${num(shape.y)}"${anchor}${space} ${cls(shape.role)}>${content}</text>`;
     }
     case 'icon':
       return icon(shape, styles.icons?.[shape.icon], cls(shape.role), paintOf(shape.role, styles));
@@ -71,9 +74,18 @@ function element(shape: Shape, styles: Styles): string {
   }
 }
 
+/** Whitespace that SVG would strip or collapse in a text unless it is told to keep it: at either end, or in a row. */
+const LOST_SPACE = /^\s|\s$|\s\s|[^\S ]/;
+
+/** A run as a `<tspan>` with the classes of its role, or as plain text in the role of its text. */
+const runOf = (run: TextRun, cls: (role: string) => string): string =>
+  run.role === undefined ? escapeText(run.text) : `<tspan ${cls(run.role)}>${escapeText(run.text)}</tspan>`;
+
 function usedClasses(shapes: readonly Shape[], styles: Styles, into: Set<string> = new Set()): Set<string> {
   for (const shape of shapes) {
     if (shape.role !== undefined) for (const name of classesOf(shape.role, styles)) into.add(name);
+    if (shape.kind === 'text')
+      for (const run of shape.runs ?? []) for (const name of classesOf(run.role ?? shape.role, styles)) into.add(name);
     if (shape.kind === 'group') usedClasses(shape.children, styles, into);
   }
   return into;

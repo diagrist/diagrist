@@ -1,7 +1,7 @@
 import { read } from '../tree.js';
 import { SHARED_KEYWORDS, sharedStatements } from '../variants/tables.js';
 import { type LineContext, readLine } from './read-line.js';
-import type { Attr, KindSpec, LineSpec, StatementSpec } from './spec.js';
+import { type Attr, type KindSpec, LINE_KEYS, type LineSpec, STATEMENT_KEYS, type StatementSpec } from './spec.js';
 import type { Value } from './value.js';
 
 /** The grammar of a kind as plain data, for agents, tools, the spec and the JSON schema (ADR 0004, ADR 0005). */
@@ -133,7 +133,8 @@ function field(name: string, doc: string, value: Value<unknown>): GrammarField {
 
 /**
  * Checks a kind's tables against ADR 0005: everything is documented, every statement and line form has an
- * example, and every example reads without diagnostics. Returns one message per problem.
+ * example, and every example reads without diagnostics. An argument may not take a name the read values give every
+ * line (`LINE_KEYS`) or statement (`STATEMENT_KEYS`), which would overwrite it silently. One message per problem.
  */
 export function checkKind(kind: KindSpec): string[] {
   const problems: string[] = [];
@@ -148,7 +149,10 @@ export function checkKind(kind: KindSpec): string[] {
       problems.push(`statement ${spec.keyword} takes a keyword every kind has`);
   const visit = (spec: LineSpec, where: string, keyword?: string): void => {
     need(where, spec.doc);
+    const reserved = keyword === undefined ? LINE_KEYS : [...LINE_KEYS, ...STATEMENT_KEYS];
     for (const a of spec.arguments) need(`${where}, argument ${a.name}`, a.doc);
+    for (const a of spec.arguments.filter((a) => reserved.includes(a.name)))
+      problems.push(`${where}, argument ${a.name} takes a name reserved for the read values: ${reserved.join(', ')}`);
     for (const [name, c] of Object.entries(spec.clauses)) need(`${where}, clause ${name}`, c.doc);
     for (const [name, a] of Object.entries(spec.attributes)) need(`${where}, attribute ${name}=`, a.doc);
     for (const [name, doc] of Object.entries(spec.flags)) need(`${where}, flag ${name}`, doc);

@@ -102,7 +102,7 @@ With `--json`, besides the fields of every document:
 dgr build <file> [options]
 ```
 
-Renders a diagram as SVG, and with `--png` also as PNG: the base picture as `<file>.svg` and each variant as `<file>.<variant>.svg`. Nothing is written when the diagram has an error; warnings are printed and do not stop the build. With `--watch` it builds again after every change of the source or of a file it uses.
+Renders a diagram as SVG, and with `--png` also as PNG: the base picture as `<file>.svg` and each variant as `<file>.<variant>.svg`. Nothing is written when the diagram has an error; warnings are printed and do not stop the build. With `--watch` it builds again after every change of the source or of a file it reads, through `use` or a value naming a file.
 
 | Argument | Meaning |
 |---|---|
@@ -114,7 +114,7 @@ Renders a diagram as SVG, and with `--png` also as PNG: the base picture as `<fi
 | `--variant <id>` | Build only the picture of this variant, as `<file>.<id>.svg` or where `-o` says. |
 | `--png` | Also write a PNG with the name of the SVG and `.png`. Rendered without a browser and with the bundled fonts, so the same diagram gives the same bytes on every machine. |
 | `--scale <factor>` | Pixels of the PNG per SVG unit, from 0.25 to 8; 2 doubles width and height. Default: 2. Needs `--png`. |
-| `--watch` | Build, then build again each time the source or a file it uses changes, until Ctrl+C. Each build prints what it wrote and its findings, with `--json` one document per build. Errors in the diagram and a source that is gone for a moment do not end the watch; only a call refused at the first build does. Ends with the exit code of the last build. |
+| `--watch` | Build, then build again each time the source or a file it reads changes, until Ctrl+C. Each build prints what it wrote and its findings, with `--json` one document per build. Errors in the diagram and a source that is gone for a moment do not end the watch; only a call refused at the first build does. Ends with the exit code of the last build. |
 
 Examples:
 

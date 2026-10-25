@@ -1,5 +1,5 @@
 import type { Diagnostic } from '../diagnostic.js';
-import { readKind } from '../grammar/read-kind.js';
+import { type ReadOptions, readKind } from '../grammar/read-kind.js';
 import type { Infer, KindSpec, StatementSpec } from '../grammar/spec.js';
 import type { Statement } from '../tree.js';
 import { changedBlock, declaredId, tagged } from './lines.js';
@@ -18,6 +18,7 @@ export function pictureOf<S extends readonly StatementSpec[]>(
   variant: Statement,
   id: string,
   slots: readonly Slot[],
+  files: Pick<ReadOptions, 'path' | 'files'>,
 ): Picture<Infer<S[number]>> {
   const head = headerOf(header, variant);
   const kept = slots.filter((s) => s.dropped === undefined);
@@ -32,11 +33,11 @@ export function pictureOf<S extends readonly StatementSpec[]>(
   const plain = readKind(
     kind,
     { statements: [head, ...kept.map((s) => tagged(s.statement, 'base'))], trailingComments: [] },
-    { dropped },
+    { ...files, dropped },
   );
   const diff = variant.arguments.slice(2).find((t) => t.kind === 'word' && t.value === 'diff')?.span;
   if (diff === undefined) return { variant: id, reading: plain };
-  const drawn = readKind(kind, { statements: [head, ...slots.map(lineOf)], trailingComments: [] });
+  const drawn = readKind(kind, { statements: [head, ...slots.map(lineOf)], trailingComments: [] }, files);
   const seen = new Set(plain.diagnostics.map(keyOf));
   const diagnostics = [...plain.diagnostics, ...drawn.diagnostics.filter((d) => !seen.has(keyOf(d)))];
   return { variant: id, diff, reading: { ...drawn, diagnostics } };

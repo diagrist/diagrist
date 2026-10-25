@@ -23,7 +23,15 @@ export interface Value<T> {
   readonly refersTo?: readonly string[];
   /** Whether the value declares an id that references can point to. */
   readonly declaresId?: boolean;
+  /** Whether the value names a file whose text the line needs, read through the host like `use` (see `file`). */
+  readonly readsFile?: true;
   read(raw: string): ValueResult<T>;
+}
+
+/** A file a line names through a `file()` value: its path relative to the folder the host runs in, and its text. */
+export interface FileText {
+  readonly path: string;
+  readonly text: string;
 }
 
 const IDENTIFIER = /^[\p{L}_][\p{L}\p{N}_-]*$/u;
@@ -61,6 +69,24 @@ export function text(): Value<string> {
 /** A single word without quotes, such as a path or a version. */
 export function word(): Value<string> {
   return { type: 'word', expected: 'a single word without quotes', tokens: ['word'], read: ok };
+}
+
+/**
+ * A file whose text the line needs, such as the source a code excerpt shows, written as a path relative to the
+ * diagram. It is read the way `use` reads (ADR 0021, ADR 0025): `readKind` checks the path with `resolvePath` (L119),
+ * lists the file in the needs of the reading for the host to hand over, and gives the kind its `FileText`, or reports
+ * L118 while the host has not. Read alone, outside a whole diagram, as examples are, it keeps the path as written and
+ * an empty text.
+ */
+export function file(): Value<FileText> {
+  return {
+    type: 'file',
+    expected:
+      'a path in double quotes, relative to the diagram, like `"src/OrderService.java"`; it stays inside the folder `dgr` runs in and names no hidden file or folder',
+    tokens: ['text'],
+    readsFile: true,
+    read: (raw) => (raw === '' ? fail : ok({ path: raw, text: '' })),
+  };
 }
 
 /** One word out of a fixed list. */

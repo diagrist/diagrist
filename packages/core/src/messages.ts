@@ -8,6 +8,7 @@ export const KERNEL_CODES: {
   readonly unknownIcon: 'K102';
   readonly kindFailed: 'K110';
   readonly noDiff: 'K103';
+  readonly runs: 'K104';
   readonly overlap: 'G400';
   readonly outside: 'G401';
   readonly overflow: 'G402';
@@ -18,6 +19,7 @@ export const KERNEL_CODES: {
   unknownIcon: 'K102',
   kindFailed: 'K110',
   noDiff: 'K103',
+  runs: 'K104',
   overlap: 'G400',
   outside: 'G401',
   overflow: 'G402',
@@ -71,6 +73,12 @@ const KERNEL: Catalogue = {
       `The kind \`${v.kind}\` draws no diff pictures; remove \`diff\` from \`variant ${v.variant}\`. Kinds with diff pictures: ${v.allowed}.`,
     de: (v) =>
       `Die Art \`${v.kind}\` zeichnet keine Vergleichsbilder; \`diff\` aus \`variant ${v.variant}\` entfernen. Arten mit Vergleichsbild: ${v.allowed}.`,
+  },
+  K104: {
+    en: (v) =>
+      `A text of the picture reads \`${v.text}\`, but its runs read \`${v.runs}\`. This is a bug of the plugin, not a mistake in the diagram: the runs of a text join to its text.`,
+    de: (v) =>
+      `Ein Text des Bildes lautet \`${v.text}\`, seine Teilstücke aber \`${v.runs}\`. Das ist ein Fehler des Plugins, kein Fehler im Diagramm: die Teilstücke eines Textes ergeben zusammen seinen Text.`,
   },
   K102: {
     en: (v) => `The picture uses the icon \`${v.icon}\`, which the style table does not have. Icons: ${v.known}.`,

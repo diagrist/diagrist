@@ -2,6 +2,7 @@ import type { Diagnostic } from '../diagnostic.js';
 import { list } from '../list.js';
 import { LANG_CODES } from '../messages.js';
 import type { Document, Entry, Statement } from '../tree.js';
+import type { FileSource, Need } from './files.js';
 import { checkIds } from './ids.js';
 import { type LineContext, readLine, report } from './read-line.js';
 import type { Infer, KindSpec, StatementSpec } from './spec.js';
@@ -19,12 +20,18 @@ export interface KindReading<S> {
   readonly header?: Header;
   readonly statements: readonly S[];
   readonly diagnostics: readonly Diagnostic[];
+  /** The files the `file()` values of the statements name, for the host to hand over (ADR 0025). */
+  readonly needs: readonly Need[];
 }
 
-/** What `unfold` tells `readKind` about a variant's picture. */
+/** What `unfold` tells `readKind`: the ids a variant dropped, where the file lies and the files handed over. */
 export interface ReadOptions {
   /** Ids a variant dropped, with the variant: a reference to one of them is L114 instead of L107. */
   readonly dropped?: ReadonlyMap<string, string>;
+  /** Path of the file relative to the folder the host runs in, which `file()` paths are resolved against. */
+  readonly path?: string;
+  /** Texts of the files `file()` values name, by the paths of `KindReading.needs`; a missing one is L118. */
+  readonly files?: Readonly<Record<string, string>>;
 }
 
 /** Keywords every kind allows at the top level besides its own, resolved by `unfold` before a picture is read. */
@@ -40,21 +47,20 @@ export function readKind<S extends readonly StatementSpec[]>(
   document: Document,
   options: ReadOptions = {},
 ): KindReading<Infer<S[number]>> {
-  const context: LineContext = { diagnostics: [], references: [], declarations: [] };
+  const files: FileSource = { from: options.path ?? 'diagram.dgr', texts: options.files ?? {}, needs: [] };
+  const context: LineContext = { diagnostics: [], references: [], declarations: [], files };
   const [first, ...rest] = document.statements;
   const header = first !== undefined ? readHeader(kind, first, context) : undefined;
-  if (header === undefined) {
-    report(context, LANG_CODES.missingHeader, first?.keywordSpan ?? { line: 1, column: 1, length: 1 }, {
-      kind: kind.name,
-    });
-  }
+  const at = first?.keywordSpan ?? { line: 1, column: 1, length: 1 };
+  if (header === undefined) report(context, LANG_CODES.missingHeader, at, { kind: kind.name });
   const body = header === undefined ? document.statements : rest;
   const statements = readStatements(kind.statements, body, context, undefined, FILE_KEYWORDS);
   checkIds(context, options.dropped ?? new Map());
   const diagnostics = [...context.diagnostics].sort(
     (a, b) => a.span.line - b.span.line || a.span.column - b.span.column,
   );
-  return { ...(header ? { header } : {}), statements: statements as Infer<S[number]>[], diagnostics };
+  const typed = statements as Infer<S[number]>[];
+  return { ...(header ? { header } : {}), statements: typed, diagnostics, needs: files.needs };
 }
 
 function readHeader(kind: KindSpec, statement: Statement, context: LineContext): Header | undefined {

@@ -503,4 +503,5 @@ These come from the kernel:
 | `K101` | The kind `{kind}` is registered twice, by {plugins}; the first one is used. |
 | `K102` | The picture uses the icon `{icon}`, which the style table does not have. Icons: {known}. |
 | `K103` | The kind `{kind}` draws no diff pictures; remove `diff` from `variant {variant}`. Kinds with diff pictures: {allowed}. |
+| `K104` | A text of the picture reads `{text}`, but its runs read `{runs}`. This is a bug of the plugin, not a mistake in the diagram: the runs of a text join to its text. |
 | `K110` | The plugin `{plugin}` failed while drawing the kind `{kind}`: {error}. This is a bug, not a mistake in the diagram; please report it with the diagram at https://github.com/diagrist/diagrist/issues. |

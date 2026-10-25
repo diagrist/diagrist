@@ -3,28 +3,16 @@ import { list } from '../list.js';
 import { LANG_CODES } from '../messages.js';
 import { type Span, span } from '../span.js';
 import type { Argument, Attribute, Origin } from '../tree.js';
+import type { FileSource } from './files.js';
 import type { LineSpec } from './spec.js';
-import type { Value } from './value.js';
-
-/** A value that refers to an id, checked once the whole diagram is read. */
-export interface Reference {
-  readonly name: string;
-  readonly found: string;
-  readonly value: Value<unknown>;
-  readonly span: Span;
-}
-
-export interface Declaration {
-  readonly id: string;
-  readonly keyword: string;
-  readonly line: number;
-  readonly span: Span;
-}
+import { type Declaration, type Reference, track } from './track.js';
 
 export interface LineContext {
   readonly diagnostics: Diagnostic[];
   readonly references: Reference[];
   readonly declarations: Declaration[];
+  /** Where `file()` values are read from; without it, as for examples, they keep the path as written. */
+  readonly files?: FileSource;
 }
 
 export interface LineInput {
@@ -64,8 +52,7 @@ function readArguments(
         ? argument.value.read(token.value)
         : { ok: false as const };
     if (token !== undefined && result.ok) {
-      values[argument.name] = result.value;
-      track(argument.name, argument.value, token.value, token.span, input, context);
+      values[argument.name] = track(argument.name, argument.value, result.value, token, input, context);
       index++;
     } else if (argument.optional) {
       values[argument.name] = undefined;
@@ -123,8 +110,7 @@ function readTail(
     if (clause !== undefined && value !== undefined) {
       const result = clause.value.tokens.includes(value.kind) ? clause.value.read(value.value) : { ok: false as const };
       if (result.ok) {
-        clauses[token.value] = result.value;
-        track(token.value, clause.value, value.value, value.span, input, context);
+        clauses[token.value] = track(token.value, clause.value, result.value, value, input, context);
       } else {
         report(context, LANG_CODES.invalidValue, value.span, {
           name: token.value,
@@ -159,8 +145,7 @@ function readAttributes(spec: LineSpec, input: LineInput, context: LineContext):
     }
     const result = definition.value.read(attribute.value);
     if (result.ok) {
-      attributes[attribute.key] = result.value;
-      track(`${attribute.key}=`, definition.value, attribute.value, attribute.span, input, context);
+      attributes[attribute.key] = track(`${attribute.key}=`, definition.value, result.value, attribute, input, context);
     } else {
       report(context, LANG_CODES.invalidValue, attribute.span, {
         name: `${attribute.key}=`,
@@ -170,21 +155,6 @@ function readAttributes(spec: LineSpec, input: LineInput, context: LineContext):
     }
   }
   return attributes;
-}
-
-/** Records ids and references of arguments, clauses and attributes alike, so all are checked after reading. */
-function track(
-  name: string,
-  value: Value<unknown>,
-  raw: string,
-  at: Span,
-  input: LineInput,
-  context: LineContext,
-): void {
-  if (value.declaresId === true) {
-    context.declarations.push({ id: raw, keyword: input.keyword, line: input.line, span: at });
-  }
-  if (value.refersTo !== undefined) context.references.push({ name, found: raw, value, span: at });
 }
 
 function endOf(input: LineInput): Span {

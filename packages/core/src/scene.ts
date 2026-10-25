@@ -38,6 +38,12 @@ export type Shape =
       /** Font role, a key of `Styles.fonts`: what size and weight the text was measured with. */
       readonly font: string;
       readonly anchor?: 'start' | 'middle' | 'end';
+      /**
+       * Parts of `text` with roles of their own, such as the tokens of highlighted code (ADR 0025), written as
+       * `<tspan>` in one line. Their texts joined are `text` (K104 otherwise), so the placement check, descriptions and
+       * tests read one line, and its spaces are kept as written. Measure them with `runsWidth`.
+       */
+      readonly runs?: readonly TextRun[];
     }
   | {
       readonly kind: 'icon';
@@ -56,6 +62,14 @@ export type Shape =
       readonly role?: string;
       readonly children: readonly Shape[];
     };
+
+/** A part of a text line with its own style role; a run without one is written in the role of its text. */
+export interface TextRun {
+  readonly text: string;
+  readonly role?: string;
+  /** Font role it was measured with, a key of `Styles.fonts`; the font of its text when left out. */
+  readonly font?: string;
+}
 
 /** A finished picture: size, accessible title and shapes in drawing order. */
 export interface Scene {

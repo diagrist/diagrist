@@ -58,15 +58,26 @@ const FACES: Readonly<
  * Kerning is not counted, so pictures in a proportional face switch it off (ADR 0022); letter spacing is.
  */
 export function textWidth(text: string, font: Font): number {
-  const face = FACES[font.family ?? 'jetbrains-mono'];
-  const advance = (font.weight ?? 0) >= BOLD ? face.bold : face.regular;
-  const scale = (1 / face.unitsPerEm) * font.size;
-  const spacing = font.letterSpacing ?? 0;
+  return runsWidth([{ text, font }]);
+}
+
+/**
+ * Width of one line set in parts, such as the runs of highlighted code (ADR 0025), each in its own font: one sum
+ * over every glyph of every part, rounded up once at the end, so a line in a single part is exactly as wide as
+ * `textWidth` measures it.
+ */
+export function runsWidth(runs: readonly { readonly text: string; readonly font: Font }[]): number {
   let width = 0;
-  for (const char of text) {
-    const units = advance(char.codePointAt(0) ?? 0);
-    if (units !== 0) width += units * scale;
-    if (spacing !== 0) width += spacing;
+  for (const { text, font } of runs) {
+    const face = FACES[font.family ?? 'jetbrains-mono'];
+    const advance = (font.weight ?? 0) >= BOLD ? face.bold : face.regular;
+    const scale = (1 / face.unitsPerEm) * font.size;
+    const spacing = font.letterSpacing ?? 0;
+    for (const char of text) {
+      const units = advance(char.codePointAt(0) ?? 0);
+      if (units !== 0) width += units * scale;
+      if (spacing !== 0) width += spacing;
+    }
   }
   return Math.ceil(width);
 }

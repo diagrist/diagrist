@@ -1,4 +1,5 @@
 import { type Diagnostic, diagnostic } from '../diagnostic.js';
+import type { Need } from '../grammar/files.js';
 import { type KindReading, readKind } from '../grammar/read-kind.js';
 import { type LineContext, readLine } from '../grammar/read-line.js';
 import type { Infer, KindSpec, StatementSpec } from '../grammar/spec.js';
@@ -8,7 +9,7 @@ import type { Document, Statement } from '../tree.js';
 import { mergeVariant, type Slot } from './merge.js';
 import { pictureOf } from './picture.js';
 import { sharedStatements } from './tables.js';
-import { gather, type Need } from './uses.js';
+import { gather } from './uses.js';
 
 /** One picture a file draws: the base, or one of its own variants, read against the kind's tables. */
 export interface Picture<S> {
@@ -22,14 +23,17 @@ export interface Picture<S> {
 /** What `unfold` makes of a file: its pictures, the files it needs, and the findings about `use` and variants. */
 export interface Unfolding<S> {
   readonly pictures: readonly Picture<S>[];
-  /** Every file the diagram reads, also those `files` already had, so a host knows what to hand over. */
+  /**
+   * Every file the diagram reads, also those `files` already had, so a host knows what to hand over: the used files,
+   * then the files of `file()` values (ADR 0025).
+   */
   readonly needs: readonly Need[];
   readonly diagnostics: readonly Diagnostic[];
 }
 
 /** Where the file is and the texts of the files it needs, by the paths of `Unfolding.needs`. */
 export interface UnfoldOptions {
-  /** Path of the file relative to the folder the host runs in; `use` paths are resolved against it. */
+  /** Path of the file relative to the folder the host runs in; `use` and `file()` paths are resolved against it. */
   readonly path?: string;
   readonly files?: Readonly<Record<string, string>>;
 }
@@ -46,12 +50,13 @@ export function unfold<S extends readonly StatementSpec[]>(
 ): Unfolding<Infer<S[number]>> {
   const [header, ...body] = document.statements;
   const path = options.path ?? 'diagram.dgr';
-  const gathered = gather(kind, body, options.files ?? {}, [path]);
+  const files = options.files ?? {};
+  const gathered = gather(kind, body, files, [path]);
   const diagnostics = [...gathered.diagnostics];
   const lines = header === undefined ? gathered.base : [header, ...gathered.base];
   const base: Slot[] = gathered.base.map((statement) => ({ statement, origin: 'base' }));
   const pictures: Picture<Infer<S[number]>>[] = [
-    { reading: readKind(kind, { statements: lines, trailingComments: [] }) },
+    { reading: readKind(kind, { statements: lines, trailingComments: [] }, { path, files }) },
   ];
   const built = new Map<string, Slot[]>();
   const all = gathered.variants.map((v) => v.statement);
@@ -66,9 +71,18 @@ export function unfold<S extends readonly StatementSpec[]>(
       head.id,
       merged.slots.filter((s) => s.dropped === undefined),
     );
-    if (own && header !== undefined) pictures.push(pictureOf(kind, header, statement, head.id, merged.slots));
+    if (own && header !== undefined)
+      pictures.push(pictureOf(kind, header, statement, head.id, merged.slots, { path, files }));
   }
-  return { pictures, needs: gathered.needs, diagnostics };
+  return { pictures, needs: needsOf(gathered.needs, pictures), diagnostics };
+}
+
+/** The files `use` reads, then those `file()` values name in any picture, each path once. */
+function needsOf(used: readonly Need[], pictures: readonly Picture<unknown>[]): Need[] {
+  const needs = [...used];
+  for (const need of pictures.flatMap((p) => p.reading.needs))
+    if (!needs.some((n) => n.path === need.path)) needs.push(need);
+  return needs;
 }
 
 /** The first line of a variant: its id, unique among variants (L108), and the variant it builds on (L107, L116). */

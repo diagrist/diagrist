@@ -1,4 +1,5 @@
 import { type Diagnostic, diagnostic } from '../diagnostic.js';
+import type { Need } from '../grammar/files.js';
 import { type LineContext, readLine } from '../grammar/read-line.js';
 import type { KindSpec } from '../grammar/spec.js';
 import { LANG_CODES } from '../messages.js';
@@ -10,12 +11,6 @@ import { USE } from './tables.js';
 
 /** How many files a chain of `use` may hold, the compiled file included, so a host never reads without end. */
 const MAX_USE_CHAIN = 16;
-
-/** A file a diagram needs to be read, by its path relative to the host's folder, and the place that asks for it. */
-export interface Need {
-  readonly path: string;
-  readonly span: Span;
-}
 
 /** A variant block with whether it is the compiled file's own, which makes it a picture of that file. */
 export interface VariantLine {
