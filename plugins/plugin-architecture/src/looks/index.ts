@@ -1,15 +1,19 @@
 import type { ArchitectureModel } from '../model/types.js';
 import { BLOCKS } from './blocks.js';
 import { CARDS } from './cards.js';
+import { COLUMNS } from './columns.js';
 import type { Look } from './look.js';
 import { PAPER } from './paper.js';
 import { PLAIN } from './plain.js';
 
 /** The looks of C4 pictures by name, in the order the docs list them (ADR 0023). */
-export const LOOKS = { plain: PLAIN, cards: CARDS, blocks: BLOCKS, paper: PAPER } as const satisfies Record<
-  string,
-  Look
->;
+export const LOOKS = {
+  plain: PLAIN,
+  cards: CARDS,
+  blocks: BLOCKS,
+  paper: PAPER,
+  columns: COLUMNS,
+} as const satisfies Record<string, Look>;
 
 /** The name of a look, as `look=` takes it. */
 export type LookName = keyof typeof LOOKS;

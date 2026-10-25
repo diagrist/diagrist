@@ -6,7 +6,10 @@ import { compileExample, exampleNames, golden, plugins, source } from './compile
 
 const sha256 = (text: string) => createHash('sha256').update(text).digest('hex');
 const svgOf = (text: string) => compile(text, { plugins }).svg ?? '';
-const paper = (name: string) => source(name).includes('look=paper');
+/** The examples drawn in a look without predecessor, which keep their own hashes. */
+const OWN_LOOKS = ['paper', 'columns'] as const;
+const inLook = (look: string) => (name: string) => source(name).includes(`look=${look}`);
+const ownLook = (name: string) => OWN_LOOKS.some((look) => inLook(look)(name));
 
 /** Every picture of an example as `dir/name.dgr` or `dir/name.dgr#variant`, with its SVG. */
 const picturesOf = (name: string, text?: string) =>
@@ -84,14 +87,14 @@ describe('C4 examples', () => {
   });
 
   it('all render the reviewed bytes, checked by a SHA-256 per picture', () => {
-    const hashes = hashLines(exampleNames.filter((name) => !paper(name)).flatMap((name) => picturesOf(name)));
+    const hashes = hashLines(exampleNames.filter((name) => !ownLook(name)).flatMap((name) => picturesOf(name)));
     expect(compareGolden(golden('examples.sha256'), hashes)).toEqual({ status: 'match' });
   });
 
-  it('render the reviewed pictures in look=paper, which has no predecessor', () => {
-    const hashes = exampleNames.filter(paper).map((name) => `${sha256(svgOf(source(name)))}  ${name}\n`);
+  it.each(OWN_LOOKS)('render the reviewed pictures in look=%s, which has no predecessor', (look) => {
+    const hashes = exampleNames.filter(inLook(look)).map((name) => `${sha256(svgOf(source(name)))}  ${name}\n`);
     expect(hashes).toHaveLength(3);
-    expect(compareGolden(golden('paper.sha256'), hashes.join(''))).toEqual({ status: 'match' });
+    expect(compareGolden(golden(`${look}.sha256`), hashes.join(''))).toEqual({ status: 'match' });
   });
 
   it('render the bytes of the predecessor in look=cards too', () => {

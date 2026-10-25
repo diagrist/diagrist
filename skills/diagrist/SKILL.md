@@ -328,7 +328,7 @@ The rules of `state` report these codes:
 A C4 system context diagram (level 1): the system as one box, the people who use it and the systems around it, placed in a named grid. Full reference: `dgr grammar context`.
 
 ```text
-diagram context "Title" [subtitle=<text>] [label=<text>] [look=<plain|cards|blocks|paper>] [layout=<adaptive>] [locale=<en|de>]
+diagram context "Title" [subtitle=<text>] [label=<text>] [look=<plain|cards|blocks|paper|columns>] [decisions=<right|below|auto>] [layout=<adaptive>] [locale=<en|de>]
 ```
 
 | Line | Where | What it does | Example |
@@ -367,7 +367,7 @@ The rules of `context` report these codes:
 A C4 container diagram (level 2): the applications and data stores of a system, grouped by responsibility, placed in a named grid. Full reference: `dgr grammar container`.
 
 ```text
-diagram container "Title" [subtitle=<text>] [label=<text>] [look=<plain|cards|blocks|paper>] [layout=<adaptive>] [locale=<en|de>]
+diagram container "Title" [subtitle=<text>] [label=<text>] [look=<plain|cards|blocks|paper|columns>] [decisions=<right|below|auto>] [layout=<adaptive>] [locale=<en|de>]
 ```
 
 | Line | Where | What it does | Example |
@@ -407,7 +407,7 @@ The rules of `container` report these codes:
 A C4 component diagram (level 3): the components inside a container and what they depend on, placed in a named grid. Full reference: `dgr grammar component`.
 
 ```text
-diagram component "Title" [subtitle=<text>] [label=<text>] [look=<plain|cards|blocks|paper>] [layout=<adaptive>] [locale=<en|de>]
+diagram component "Title" [subtitle=<text>] [label=<text>] [look=<plain|cards|blocks|paper|columns>] [decisions=<right|below|auto>] [layout=<adaptive>] [locale=<en|de>]
 ```
 
 | Line | Where | What it does | Example |

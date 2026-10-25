@@ -9,7 +9,7 @@ This page lists everything a `context` diagram may contain. The same grammar is 
 ## The first line
 
 ```text
-diagram context "Title" [subtitle=<text>] [label=<text>] [look=<plain|cards|blocks|paper>] [layout=<adaptive>] [locale=<en|de>]
+diagram context "Title" [subtitle=<text>] [label=<text>] [look=<plain|cards|blocks|paper|columns>] [decisions=<right|below|auto>] [layout=<adaptive>] [locale=<en|de>]
 ```
 
 Every context diagram starts with this line.
@@ -18,7 +18,8 @@ Every context diagram starts with this line.
 |---|---|---|---|
 | `subtitle=` | attribute | a text in double quotes like `"Order service"` | Second line below the title. |
 | `label=` | attribute | a text in double quotes like `"Order service"` | Name before the title instead of the kind; an empty `label=""` leaves only the title. |
-| `look=` | attribute | one of `plain`, `cards`, `blocks`, `paper` | `plain` (default) boxes with a legend, `cards` toned icon cards, `blocks` filled blocks as in pattern books, `paper` a quiet print look: Inter on paper, zones as areas, the core in yellow, decisions in the margin. |
+| `look=` | attribute | one of `plain`, `cards`, `blocks`, `paper`, `columns` | `plain` (default) boxes with a legend, `cards` toned icon cards, `blocks` filled blocks as in pattern books, `paper` a quiet print look: Inter on paper, zones as areas, the core in yellow, decisions in the margin, `columns` a technical sheet: columns in bands under grey heads, names in the top edge of square boxes, the focus flow heavy. |
+| `decisions=` | attribute | one of `right`, `below`, `auto` | Where a look that writes decisions as notes sets them: `right` (default) in a column beside the picture, `below` side by side under it, `auto` below once the picture is wider than 1,100 pixels, as a printed page needs. |
 | `layout=` | attribute | one of `adaptive` | Columns grow to their content and edges find their own way around obstacles; without it the grid is fixed. |
 | `locale=` | attribute | one of `en`, `de` | Language of the texts Diagrist adds to the picture and of the description: `en` (default) or `de`. |
 

@@ -12,20 +12,22 @@ import {
   routeEdges,
   seatMarks,
 } from '@diagrist/layout-grid';
-import { decisionStrip, type Legend, legendLayout, type Sheet, type Strip, sheetOf, WORDS } from '@diagrist/parts';
+import { decisionStrip, type Legend, legendLayout, type Sheet, type Strip } from '@diagrist/parts';
 import { lookOf } from '../looks/index.js';
 import type { Look } from '../looks/look.js';
 import type { ArchGroup, ArchitectureModel, ArchNode } from '../model/types.js';
+import { BAND_WORDS } from '../texts/bands.js';
 import type { Texts } from '../texts/index.js';
-import { SENTENCE_WORDS } from '../texts/sentence.js';
 import { type NodeArt, nodeArt } from './art.js';
+import { type BandSheet, bandFrameOf, bandSheetOf } from './bands/index.js';
+import { type Context, contextOf } from './focus.js';
 import { type FrameHead, frameHead } from './heads.js';
 import { type LayerArt, layerArts } from './layers.js';
 import { legendItems, type Sample } from './legend.js';
-import { type Badge, type Mark, marksInside, marksOf, NUMBER_ROOM, NUMBER_SIZE, TEXT_GAP } from './marks.js';
+import { type Badge, type Mark, markRect, marksInside, marksOf, NUMBER_ROOM, NUMBER_SIZE, TEXT_GAP } from './marks.js';
 import { type NoteArt, noteArts } from './notes.js';
-import { legendSentences } from './sentence.js';
-import { gridSpecOf } from './spec.js';
+import { sheetFor } from './sheet.js';
+import { crestOf, gridSpecOf } from './spec.js';
 
 /** An element in the picture with everything inside it. */
 export interface PlacedElement {
@@ -53,6 +55,10 @@ export interface ArchitectureLayout {
   readonly badges: readonly Badge[];
   readonly marks: readonly Mark[];
   readonly layers: readonly LayerArt[];
+  /** Heads of column and row bands, with `groups.form: band` and `layers: bands`; empty in other looks. */
+  readonly bands: BandSheet;
+  /** What `focus: dim` greys; empty in every other look. */
+  readonly context: Context;
   readonly notes: readonly NoteArt[];
   readonly strip: Strip;
   /** Only with `legend: strip`; other looks explain themselves through icons and colours, or in sentences. */
@@ -72,7 +78,8 @@ export interface ArchitectureLayout {
 export function layoutArchitecture(model: ArchitectureModel, texts: Texts, locale: Locale): ArchitectureLayout {
   const look = lookOf(model);
   const { metrics: m, options: o } = look;
-  const { spec, texts: edgeTexts } = gridSpecOf(model, look);
+  const frame = bandFrameOf(model, look);
+  const { spec, texts: edgeTexts } = gridSpecOf(frame.model, look, frame);
   const grid = placeGrid(spec);
   const routes = routeEdges(spec, grid);
   const onLine = o.edgeText.place === 'onLine' ? { onLine: { pad: TEXT_GAP, avoid: [] } } : {};
@@ -93,10 +100,16 @@ export function layoutArchitecture(model: ArchitectureModel, texts: Texts, local
   const size = NUMBER_SIZE[o.numbers.form];
   const { marks: badges, labels } =
     o.numbers.seat === 'seated'
-      ? seatMarks(numbers, found, routes, { r: size.w / 2, room: NUMBER_ROOM })
+      ? seatMarks(numbers, found, routes, {
+          r: size.w / 2,
+          room: NUMBER_ROOM,
+          predecessor: look.crutches?.predecessorSeat === true,
+        })
       : { marks: numbers, labels: found };
   const numbered = badges.map((b) => ({ route: b.route, rect: { x: b.x - size.w / 2, y: b.y - size.h / 2, ...size } }));
   const marks = o.marks === 'inside' ? marksInside(aside, model.nodes, rects) : aside;
+  const signs = [...numbered.map((b) => b.rect), ...marks.map(markRect)];
+  const bands = bandSheetOf(frame, { grid: pl, routes, labels, signs }, texts, BAND_WORDS[locale], look);
   const routeRight = Math.max(0, ...routes.flatMap((r) => r.points.map((p) => p[0])));
   const contentRight = Math.max(
     routeRight,
@@ -104,8 +117,11 @@ export function layoutArchitecture(model: ArchitectureModel, texts: Texts, local
     ...pl.nodes.map((n) => right(n.rect)),
   );
   const layers = layerArts(model.layers, pl.rows, contentRight, look);
-  const crests = new Map(spec.nodes.map((n) => [n.id, n.crest ?? 0]));
-  const notes = noteArts(model.notes, rects, (id) => crests.get(id) ?? 0, look.fonts.note);
+  const crest = (id: string) => {
+    const node = byId.get(id);
+    return node ? crestOf(node, look) : 0;
+  };
+  const notes = noteArts(model.notes, rects, crest, look.fonts.note);
   const strip = decisionStrip(o.decisions === 'bar' ? model.decisions : [], pl.bottom, pl.width);
   const legend =
     o.legend === 'strip'
@@ -118,21 +134,9 @@ export function layoutArchitecture(model: ArchitectureModel, texts: Texts, local
     ...notes.map((n) => right(n.rect)),
   ];
   const width = Math.max(pl.width, ...beside.map((x) => x + m.marginX));
-  const sentences = o.legend === 'sentence';
-  const sheet =
-    o.decisions === 'notes' || sentences
-      ? sheetOf({
-          decisions: o.decisions === 'notes' ? model.decisions : [],
-          sentences: sentences ? legendSentences(model, routes, marks.length > 0, texts, SENTENCE_WORDS[locale]) : [],
-          top: Math.min(...pl.groups.map((g) => g.rect.y), ...pl.nodes.map((n) => n.rect.y)),
-          right: width - m.marginX,
-          bottom: body,
-          width,
-          margin: m.margin,
-          open: WORDS[locale].open,
-          font: look.fonts.label,
-        })
-      : undefined;
+  const context = contextOf(model, look);
+  const content = { grid: pl, routes, frames: frames.map((f) => f.group), marked: marks.length > 0, context };
+  const sheet = sheetFor(model, look, { ...content, width, bottom: body }, texts, locale);
   return {
     look,
     nodes,
@@ -142,6 +146,8 @@ export function layoutArchitecture(model: ArchitectureModel, texts: Texts, local
     badges,
     marks,
     layers,
+    bands,
+    context,
     notes,
     strip,
     ...(legend ? { legend } : {}),

@@ -31,6 +31,16 @@ export const TEXT_GAP = { x: 4, y: 2 } as const;
 /** The room a seated flow number keeps from the texts on its line, beyond its radius. */
 export const NUMBER_ROOM = 6;
 
+/** The size of a decision mark, which `markShapes` of `parts` draws centred on its spot. */
+const MARK_SIZE = { w: 24, h: 14 } as const;
+
+/** The rectangle a decision mark takes, for what keeps clear of it. */
+export const markRect = (k: Mark): Rect => ({
+  x: k.x - MARK_SIZE.w / 2,
+  y: k.y - MARK_SIZE.h / 2,
+  ...MARK_SIZE,
+});
+
 const MARK_BACK = 24;
 const MARK_ASIDE = 24;
 const CORNER_DX = 20;

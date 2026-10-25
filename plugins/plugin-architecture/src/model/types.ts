@@ -121,6 +121,8 @@ export interface ArchitectureModel {
   readonly label?: string;
   /** The name of the look; `lookOf` turns it into the look, nothing else reads it (ADR 0023). */
   readonly look: LookName;
+  /** Where decision notes stand (`decisions=`): beside the picture, below it, or below once it is wide. */
+  readonly decisionsAt: 'right' | 'below' | 'auto';
   readonly adaptive: boolean;
   readonly cols: readonly string[];
   readonly rows: readonly string[];

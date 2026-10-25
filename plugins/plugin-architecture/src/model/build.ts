@@ -81,6 +81,7 @@ export function architectureModel(level: Level, reading: KindReading<Architectur
     level,
     title: reading.header?.title ?? '',
     look: (header.look as LookName | undefined) ?? DEFAULT_LOOK,
+    decisionsAt: (header.decisions as ArchitectureModel['decisionsAt'] | undefined) ?? 'right',
     adaptive: header.layout === 'adaptive',
     cols: names('cols'),
     rows: names('rows'),

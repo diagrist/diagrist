@@ -9,11 +9,15 @@ import { panelShapes } from './panel.js';
 
 const TAG_RX = 2;
 
-/** How each value of `groups.form` draws a frame without its tag. */
+/**
+ * How each value of `groups.form` draws a frame without its tag; with `band` the frames that head a band are drawn by
+ * the band sheet and leave the grid, the others are frames.
+ */
 const FORMS: Readonly<Record<LookOptions['groups']['form'], (f: PlacedFrame, look: Look, texts: Texts) => Shape[]>> = {
   frame: frameFormShapes,
   area: areaShapes,
   panel: panelShapes,
+  band: frameFormShapes,
 };
 
 /** The tag of a frame at its right: a filled red block on a panel, a red box with a border else. */

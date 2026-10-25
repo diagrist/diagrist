@@ -20,6 +20,10 @@ export interface SentenceWords {
   /** A flow by its id and step numbers; `bold` when it is drawn as the focus. */
   readonly flow: (id: string, from: number, to: number, bold: boolean) => string;
   readonly mark: string;
+  /** The mark when the decisions stand below the picture. */
+  readonly markBelow: string;
+  /** What the context of `focus: dim` looks like and means. */
+  readonly context: string;
 }
 
 const EN: SentenceWords = {
@@ -41,6 +45,8 @@ const EN: SentenceWords = {
   flow: (id, from, to, bold) =>
     `${from === to ? `Step ${from}` : `Steps ${from} to ${to}`}${bold ? ', drawn darker' : ''}: flow ${id}`,
   mark: 'E1: decision in the margin',
+  markBelow: 'E1: decision below the picture',
+  context: 'Grey: in no flow',
 };
 
 const DE: SentenceWords = {
@@ -62,6 +68,8 @@ const DE: SentenceWords = {
   flow: (id, from, to, bold) =>
     `${from === to ? `Schritt ${from}` : `Schritte ${from} bis ${to}`}${bold ? ', dunkler gezeichnet' : ''}: Flow ${id}`,
   mark: 'E1: Entscheidung am Rand',
+  markBelow: 'E1: Entscheidung unter dem Bild',
+  context: 'Grau: in keinem Flow',
 };
 
 /** The words of the sentence legend by locale; the type makes a missing locale a compile error. */

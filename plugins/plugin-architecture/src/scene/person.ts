@@ -36,8 +36,6 @@ function bustShapes(n: ArchNode, art: PersonArt): Shape[] {
   ];
 }
 
-/** How each value of `person` draws a person. */
-export const PEOPLE: Readonly<Record<LookOptions['person'], (n: ArchNode, art: PersonArt) => Shape[]>> = {
-  figure: figureShapes,
-  bust: bustShapes,
-};
+/** How each value of `person` draws a person as a figure; `box` draws a person as a box and never reaches here. */
+export const PEOPLE = (person: LookOptions['person']): ((n: ArchNode, art: PersonArt) => Shape[]) =>
+  person === 'bust' ? bustShapes : figureShapes;

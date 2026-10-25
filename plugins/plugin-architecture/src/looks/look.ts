@@ -1,6 +1,8 @@
 import type { Font, Marker, RoleStyle, StyleRule } from '@diagrist/core';
+import type { Locale } from '@diagrist/lang';
 import type { FontRole, Metrics } from '../layout/metrics.js';
 import type { Strokes } from '../styles/rules.js';
+import type { SentenceWords } from '../texts/sentence.js';
 
 /** A font of a look: the kernel's font, and whether texts of the role are set in capitals, as tracked small caps. */
 export interface LookFont extends Font {
@@ -19,16 +21,24 @@ export interface LookOptions {
   readonly header: 'inline' | 'kicker';
   /** The family of node art: outlined boxes, cards with an icon circle on the top edge, filled blocks. */
   readonly nodes: 'box' | 'card' | 'block';
-  /** A stick figure, or head and shoulders. */
-  readonly person: 'figure' | 'bust';
+  /**
+   * The name of a box inside it, or cut into its top edge as a tab, with icon and second line centred below; a tab
+   * reserves its stretch of the edge, and shapes become their icon in a square box.
+   */
+  readonly nodeName: 'inside' | 'tab';
+  /** A stick figure, head and shoulders, or a box like every other element. */
+  readonly person: 'figure' | 'bust' | 'box';
   /** Status as an italic word after the second line and a dashed or grey box, or as a dot after the name. */
   readonly status: 'word' | 'dot';
+  /** Replicas of a box or card as a tag such as `x3` in the corner, or as outlines stacked behind it. */
+  readonly replicas: 'tag' | 'stack';
   readonly groups: {
     /**
      * `frame`: a rounded outline, title and team always written. `area`: zones with square corners, texts only where
-     * given, and the own system an area that texts on it take the colour of. `panel`: an opaque filled area.
+     * given, and the own system an area that texts on it take the colour of. `panel`: an opaque filled area. `band`:
+     * a frame that fills a band of grid columns becomes the grey head of that band, the others are drawn as `frame`.
      */
-    readonly form: 'frame' | 'area' | 'panel';
+    readonly form: 'frame' | 'area' | 'panel' | 'band';
     /** Title at the top left corner, standing on the frame line, or centred at the top. */
     readonly head: 'corner' | 'onLine' | 'centre';
   };
@@ -48,8 +58,16 @@ export interface LookOptions {
   };
   /** Decision marks at nodes outside the top right corner, or inside it, where the box keeps room for them. */
   readonly marks: 'aside' | 'inside';
-  /** Layers right of the picture as boxes with arrows, or as a fine bracket with their names in the group font. */
-  readonly layers: 'boxes' | 'bracket';
+  /**
+   * A flow marked `accent` is drawn darker and the rest left alone, or in addition every element no flow touches and
+   * every edge in no flow is drawn as context, greyed.
+   */
+  readonly focus: 'accent' | 'dim';
+  /**
+   * Layers right of the picture as boxes with arrows, as a fine bracket with their names in the group font, or as
+   * grey bands at the left, each as high as its row.
+   */
+  readonly layers: 'boxes' | 'bracket' | 'bands';
   /** Rows of samples below the decision bar, sentences under a hairline, or none. */
   readonly legend: 'strip' | 'sentence' | 'none';
   /** Decisions as cards in a bar below the picture, or as notes in the right margin. */
@@ -75,6 +93,8 @@ export interface Paint {
   readonly markers?: readonly Marker[];
   /** Only rules a picture uses reach its stylesheet, also those the standard look writes always (ADR 0008 Nr. 5). */
   readonly usedOnly?: boolean;
+  /** How the sentence legend names what this paint shows differently, such as the colour of emphasis, by locale. */
+  readonly sights?: Readonly<Record<Locale, Partial<SentenceWords>>>;
 }
 
 /** A look of C4 pictures as a value (ADR 0023): a one-line doc, measures, fonts by role, paint and options. */
@@ -85,7 +105,19 @@ export interface Look {
   readonly fonts: LookFonts;
   readonly paint: Paint;
   readonly options: LookOptions;
+  /**
+   * What a look keeps of the predecessor for its bytes until its own fixes (docs/burn-down.md): its test of the spot
+   * of a seated flow number on lines running left or up.
+   */
+  readonly crutches?: { readonly predecessorSeat: boolean };
 }
 
 /** A text as a font of the look sets it: in capitals when the font says so, measured and drawn alike. */
 export const cased = (text: string, font: LookFont): string => (font.caps === true ? text.toUpperCase() : text);
+
+/** A font of the bundled Inter at `size`, regular or at `weight`. */
+export const inter = (size: number, weight?: number): Font => ({
+  size,
+  family: 'inter',
+  ...(weight ? { weight } : {}),
+});

@@ -36,6 +36,7 @@ has (`grammar`, `model`, `rules`, `messages`, `layout`, `scene`, `describe`, `te
 | `cards` | White cards with a toned icon circle, stores as circles with their name below, replicas as a stack. No legend. |
 | `blocks` | Filled blocks with shadows and large text, as pattern books draw them: tubes, cylinders, layer bands with side titles and tags. A variant with its own measures (ADR 0010), no legend. |
 | `paper` | A quiet print look with its own fonts and measures (ADR 0022): names and texts in Inter, technologies of containers and components in JetBrains Mono, warm paper, the own system's zone as an area without border, the `emph` element in yellow, status as a dot, open arrowheads, texts standing on their line, decisions as notes in the right margin and the legend as one sentence below a hairline. |
+| `columns` | A technical sheet in the fonts of `paper` on white: grid columns grouped into bands under grey heads that name the frame, the people, the focus or the neighbours in them, layers as grey bands at the left, square boxes with the name cut into the top edge and icon and second line centred inside, people as boxes, the `emph` element in a blue frame, the accent flow heavy with filled numbers, and with an accent flow whatever no flow touches greyed. |
 
 Each look is one value in `src/looks/` (ADR 0023): measures, fonts by role, paint, and a few named options such as
 `nodes`, `groups`, `edgeText` or `legend`, whose values are drawn by one piece of code each. Layout and scene read
@@ -62,8 +63,9 @@ predecessor ran on routes (E204, E206, W203, W206, W207, W492).
 ## Examples and byte identity
 
 The eight C4 examples under `examples/` are the predecessor's, converted by the rules above; three more
-(`*-paper.dgr`) draw `radverleih/kontext`, `radverleih/komponenten` and `architecture/cloud` in `look=paper`, without
-findings, and their hashes are in `test/__golden__/paper.sha256`. With `locale=de` all of
+each (`*-paper.dgr`, `*-columns.dgr`) draw `radverleih/kontext`, `radverleih/komponenten` and `architecture/cloud` in
+`look=paper` and `look=columns`, without findings, and their hashes are in `test/__golden__/paper.sha256` and
+`columns.sha256`. With `locale=de` all of
 them render the predecessor's SVG and PNG byte for byte; `test/__golden__/examples.sha256` holds the predecessor's
 SHA-256 of each picture, and three of them are golden files. `look=cards` variants of the five plain examples match
 the predecessor too (`test/__golden__/cards.sha256`). The crutches that keep the bytes are listed in

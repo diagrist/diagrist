@@ -1,7 +1,8 @@
 import { type Rect, type Tone, textWidth } from '@diagrist/core';
 import type { Look } from '../looks/look.js';
 import type { ArchNode } from '../model/types.js';
-import { type BlockForm, blockForm, isCircle, secondLine, TUBE_MEASURES as TUBE } from './measure.js';
+import { type BlockForm, blockForm, isCircle, isFigure, secondLine, TUBE_MEASURES as TUBE } from './measure.js';
+import { type TabArt, tabParts } from './tab.js';
 
 /** A point where a text or a mark is anchored. */
 export interface Spot {
@@ -56,6 +57,8 @@ export interface BoxArt {
   readonly replicas: Spot;
   readonly card?: CardArt;
   readonly block?: BlockArt;
+  /** With `nodeName: tab`: the name cut into the top edge, icon and second line centred below. */
+  readonly tab?: TabArt;
 }
 
 /** Where everything inside a node stands; the scene only draws it. */
@@ -102,7 +105,7 @@ function cardParts(n: ArchNode, rect: Rect, look: Look): Pick<BoxArt, 'card' | '
   const top = n.icon !== undefined ? m.cardIconR : 0;
   const lines = n.tech !== undefined ? m.nodeLineH : 0;
   const labelY = rect.y + top + (rect.h - top - lines) / 2 + m.labelDy;
-  const layers = n.replicas !== undefined ? Math.min(n.replicas - 1, 2) : 0;
+  const layers = n.replicas !== undefined && look.options.replicas === 'stack' ? Math.min(n.replicas - 1, 2) : 0;
   const stack = Array.from({ length: layers }, (_, i) => {
     const k = (layers - i) * m.stackOffset;
     return { ...rect, x: rect.x + k, y: rect.y + k };
@@ -134,7 +137,7 @@ function blockParts(n: ArchNode, rect: Rect, look: Look): Pick<BoxArt, 'block' |
  * `dbTextShift`, below the front of its lid.
  */
 export function nodeArt(n: ArchNode, rect: Rect, look: Look): NodeArt {
-  if (n.keyword === 'person') return personArt(rect);
+  if (isFigure(n, look)) return personArt(rect);
   const m = look.metrics;
   const family = look.options.nodes;
   const techWidth = n.tech !== undefined ? textWidth(n.tech, secondLine(n, look.fonts)) : 0;
@@ -144,6 +147,11 @@ export function nodeArt(n: ArchNode, rect: Rect, look: Look): NodeArt {
     const parts = family === 'card' ? cardParts(n, rect, look) : blockParts(n, rect, look);
     const status = { x: parts.tech.x + techWidth / 2 + STATUS_GAP, y: parts.tech.y };
     return { kind: 'box', icon: noIcon, status, clock, replicas: clock, ...parts };
+  }
+  if (look.options.nodeName === 'tab') {
+    const { tab, label, tech, icon } = tabParts(n, rect, look, secondLine(n, look.fonts));
+    const status = { x: label.x, y: label.y };
+    return { kind: 'box', tab, label, tech, icon: { ...icon, size: m.iconSize }, status, clock, replicas: clock };
   }
   const shift = n.shape === 'db' ? m.dbTextShift : 0;
   const ix = rect.x + m.nodePad;

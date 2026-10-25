@@ -14,6 +14,10 @@ const header = {
   subtitle: attr(text(), 'Second line below the title.'),
   label: attr(text(), 'Name before the title instead of the kind; an empty `label=""` leaves only the title.'),
   look: attr(oneOf(LOOK_NAMES), `${LOOK_NAMES.map(lookEntry).join(', ')}.`),
+  decisions: attr(
+    oneOf(['right', 'below', 'auto']),
+    'Where a look that writes decisions as notes sets them: `right` (default) in a column beside the picture, `below` side by side under it, `auto` below once the picture is wider than 1,100 pixels, as a printed page needs.',
+  ),
   layout: attr(
     oneOf(['adaptive']),
     'Columns grow to their content and edges find their own way around obstacles; without it the grid is fixed.',

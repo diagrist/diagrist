@@ -50,7 +50,10 @@ to the C4 model and to the name of a look.
    card and note rules to `parts`, `seatMarks`, numbers in `placedOf`, `onLine` with `pad` and `avoid` and
    `detailFont` to `layout-grid`. Two things stay as they were, because changing them moves bytes: seated numbers
    keep the predecessor's test of a spot on lines running left or up, and the gap behind texts on a line stays in
-   the plugin, which paints it from the C4 surfaces.
+   the plugin, which paints it from the C4 surfaces. The third step brought `look=columns` and with it a reserved
+   stretch of a side on `GridNode` (`reserve`), which its names in the top edge and the icons of cards share, notes
+   in a row below the picture (`decisions=`), and the right test of a seated number, which paper turns off for its
+   bytes (`crutches`).
 6. **Font tables stay in the kernel, font files may leave it.** `textWidth` stays pure and measures from the bundled
    tables; the TrueType files can move to `@diagrist/fonts-<family>` packages, which PNG export resolves for the
    families a picture names, in a pull request of their own.

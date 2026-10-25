@@ -1,6 +1,6 @@
 import type { Font, Shape } from '@diagrist/core';
 import type { Decision } from '../decisions/adr.js';
-import { decisionNotes } from '../decisions/notes.js';
+import { decisionNotes, decisionRow } from '../decisions/notes.js';
 import { sentenceLegend } from '../legend/sentence.js';
 import { MARGIN } from './header.js';
 import type { Hairline, SheetText } from './texts.js';
@@ -19,6 +19,8 @@ export interface SheetInput {
   readonly margin: number;
   /** The decisions to set as margin notes; none leaves the column out. */
   readonly decisions: readonly Decision[];
+  /** Where the notes stand: in a column right of the content, the default, or side by side below it. */
+  readonly notes?: 'right' | 'below';
   /** Who still decides an open question, phrased in the picture's language. */
   readonly open: (who: string) => string;
   /** The legend as sentences, each ending in its full stop; none leaves the legend out. */
@@ -38,17 +40,23 @@ export interface Sheet {
 /** Gap above the legend sentences, and room below the last of them. */
 const BELOW = { gap: 40, after: 32 } as const;
 
+/** The notes of the decisions where `notes` puts them, or none. */
+function notesOf(input: SheetInput) {
+  const { decisions, font, open } = input;
+  if (decisions.length === 0) return undefined;
+  if (input.notes !== 'below') return decisionNotes(decisions, { right: input.right, top: input.top }, font, open);
+  const at = { left: MARGIN, top: input.bottom + BELOW.gap, width: input.width - 2 * MARGIN };
+  return decisionRow(decisions, at, font, open);
+}
+
 /**
- * The sheet: decisions as notes in a column right of everything drawn, which widens the picture, and below the
- * content and the notes a hairline over the full width with the legend as sentences. The height ends below the
- * last sentence, or `margin` below the content without sentences.
+ * The sheet: decisions as notes in a column right of everything drawn, which widens the picture, or side by side
+ * below the content, and below content and notes a hairline over the full width with the legend as sentences. The
+ * height ends below the last sentence, or `margin` below the content without sentences.
  */
 export function sheetOf(input: SheetInput): Sheet {
   const { font } = input;
-  const notes =
-    input.decisions.length > 0
-      ? decisionNotes(input.decisions, { right: input.right, top: input.top }, font, input.open)
-      : undefined;
+  const notes = notesOf(input);
   const width = Math.max(input.width, notes ? notes.right + MARGIN : 0);
   const ruleY = Math.max(input.bottom, notes?.bottom ?? 0) + BELOW.gap;
   const legend = sentenceLegend(input.sentences, ruleY, width, font);

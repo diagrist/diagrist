@@ -3,7 +3,8 @@ import type { EdgeText, GridColumn, GridGroup, GridMetrics, GridNode, GridSpec, 
 import type { Look } from '../looks/look.js';
 import type { ArchEdge, ArchGroup, ArchitectureModel, ArchNode } from '../model/types.js';
 import { signedLabel } from './diff.js';
-import { fixedWidth, isCircle, nodeHeight, nodeWidth, secondLine } from './measure.js';
+import { fixedWidth, isCircle, isFigure, nodeHeight, nodeWidth, secondLine } from './measure.js';
+import { tabStretch } from './tab.js';
 
 const PERSON_W = 40;
 const PERSON_TEXT_PAD = 16;
@@ -35,9 +36,10 @@ function pads(g: ArchGroup, model: ArchitectureModel, look: Look): Pads {
 }
 
 /** A column of only people is as wide as their longest text, at least `personW`. */
-function column(name: string, model: ArchitectureModel, { metrics: m, fonts }: Look): GridColumn {
-  const people = model.nodes.filter((n) => n.keyword === 'person' && n.at?.col === name);
-  const others = model.nodes.some((n) => n.keyword !== 'person' && n.at?.col === name);
+function column(name: string, model: ArchitectureModel, look: Look): GridColumn {
+  const { metrics: m, fonts } = look;
+  const people = model.nodes.filter((n) => isFigure(n, look) && n.at?.col === name);
+  const others = model.nodes.some((n) => !isFigure(n, look) && n.at?.col === name);
   if (people.length === 0 || others) return { name };
   const texts = people.flatMap((n) => [
     textWidth(n.label, fonts.name),
@@ -46,13 +48,28 @@ function column(name: string, model: ArchitectureModel, { metrics: m, fonts }: L
   return { name, width: Math.max(m.personW, Math.ceil((Math.max(0, ...texts) + PERSON_TEXT_PAD) / m.grid) * m.grid) };
 }
 
+/** The radius of the icon circle a card wears on the middle of its top edge, or 0. */
+export const crestOf = (n: ArchNode, look: Look): number =>
+  look.options.nodes === 'card' && n.icon && !isCircle(n, look) && !isFigure(n, look) ? look.metrics.cardIconR : 0;
+
+/**
+ * The stretches of a node's sides no edge docks on: the name in the top edge with `nodeName: tab`, and below a card's
+ * icon circle, there in an adaptive grid only, as the predecessor kept it free (docs/burn-down.md).
+ */
+function reserveOf(n: ArchNode, adaptive: boolean, look: Look): GridNode['reserve'] {
+  const tab = tabStretch(n, look);
+  if (tab) return { top: tab };
+  const crest = crestOf(n, look);
+  return crest > 0 && adaptive ? { top: { from: -crest, to: crest, origin: 'middle' } } : undefined;
+}
+
 function gridNode(n: ArchNode, at: NonNullable<ArchNode['at']>, adaptive: boolean, look: Look): GridNode {
   const { metrics: m, fonts } = look;
-  const cards = look.options.nodes === 'card';
+  const reserve = reserveOf(n, adaptive, look);
   const circle = isCircle(n, look);
   const own = look.options.nodes === 'block' || n.height !== undefined ? nodeHeight(n, look) : undefined;
   const fixed = adaptive ? fixedWidth(n, look) : undefined;
-  const width = n.keyword === 'person' ? PERSON_W : circle ? 2 * m.circleR : fixed;
+  const width = isFigure(n, look) ? PERSON_W : circle ? 2 * m.circleR : fixed;
   const measured = nodeWidth(n, look);
   const demand =
     fixed !== undefined
@@ -74,7 +91,7 @@ function gridNode(n: ArchNode, at: NonNullable<ArchNode['at']>, adaptive: boolea
     demand,
     shape: circle ? 'circle' : 'box',
     ...(circle ? { caption: { ...caption, below: caption.below + (n.tech ? m.nodeLineH : 0) } } : {}),
-    ...(cards && n.icon && !circle && n.keyword !== 'person' ? { crest: m.cardIconR } : {}),
+    ...(reserve ? { reserve } : {}),
     source: n.source,
   };
 }
@@ -90,8 +107,14 @@ function gridGroup(g: ArchGroup, model: ArchitectureModel, look: Look): GridGrou
   };
 }
 
+/** Where the grid starts: the top of its first row, and the room left of it besides the margin. */
+export interface GridStart {
+  readonly firstRowY: number;
+  readonly indent: number;
+}
+
 /** The measures `layout-grid` takes; the icon circle of a card on the top edge overhangs its row. */
-function gridMetricsOf({ metrics: m, fonts, options }: Look): GridMetrics {
+function gridMetricsOf({ metrics: m, fonts, options }: Look, start: GridStart): GridMetrics {
   return {
     grid: m.grid,
     nodeW: m.nodeW,
@@ -100,7 +123,8 @@ function gridMetricsOf({ metrics: m, fonts, options }: Look): GridMetrics {
     subColGap: m.subColGap,
     rowGap: m.rowGap,
     marginX: m.marginX,
-    firstRowY: m.firstRowY,
+    firstRowY: start.firstRowY,
+    ...(start.indent > 0 ? { indent: start.indent } : {}),
     margin: m.margin,
     laneGap: m.laneGap,
     portSpread: m.portSpread,
@@ -113,8 +137,15 @@ function gridMetricsOf({ metrics: m, fonts, options }: Look): GridMetrics {
   };
 }
 
-/** The grid of a model as `layout-grid` takes it, and the texts of its edges; edge ids are their indices. */
-export function gridSpecOf(model: ArchitectureModel, look: Look): { spec: GridSpec; texts: EdgeText[] } {
+/**
+ * The grid of a model as `layout-grid` takes it, starting where `start` says, and the texts of its edges; edge ids
+ * are their indices.
+ */
+export function gridSpecOf(
+  model: ArchitectureModel,
+  look: Look,
+  start: GridStart = { firstRowY: look.metrics.firstRowY, indent: 0 },
+): { spec: GridSpec; texts: EdgeText[] } {
   const nodes = model.nodes.flatMap((n) => (n.at ? [gridNode(n, n.at, model.adaptive, look)] : []));
   const edges = model.edges.map((e) => ({
     id: String(e.index),
@@ -140,7 +171,7 @@ export function gridSpecOf(model: ArchitectureModel, look: Look): { spec: GridSp
     nodes,
     groups: model.groups.map((g) => gridGroup(g, model, look)),
     edges,
-    metrics: gridMetricsOf(look),
+    metrics: gridMetricsOf(look, start),
     adaptive: model.adaptive,
   };
   return { spec, texts };

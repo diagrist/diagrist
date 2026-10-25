@@ -34,10 +34,11 @@ const bracketShapes = (l: LayerArt, look: Look): Shape[] => [
   },
 ];
 
-/** How each value of `layers` draws a layer. */
+/** How each value of `layers` draws a layer right of the picture; `bands` are drawn by the band sheet at the left. */
 const LAYERS: Readonly<Record<LookOptions['layers'], (l: LayerArt, look: Look) => Shape[]>> = {
   boxes: boxShapes,
   bracket: bracketShapes,
+  bands: () => [],
 };
 
 /** Each layer in its group `layer-<row>`, the first with the bracket, drawn as `layers` of the look says. */

@@ -1,6 +1,7 @@
 import { textWidth } from '@diagrist/core';
 import type { Look, LookFont, LookFonts } from '../looks/look.js';
 import type { ArchNode } from '../model/types.js';
+import { tabWidth } from './tab.js';
 
 /** How a node of the `block` family is drawn: a filled box, a lying tube, a standing cylinder, or only its name. */
 export type BlockForm = 'box' | 'pipe' | 'db' | 'text';
@@ -36,6 +37,9 @@ export function isCircle(n: ArchNode, look: Look): boolean {
   );
 }
 
+/** A person drawn as a figure, by `person`; with `person: box` a person is a box like every other element. */
+export const isFigure = (n: ArchNode, look: Look): boolean => n.keyword === 'person' && look.options.person !== 'box';
+
 /**
  * What the second line of a node is: a technology on containers and components, as C4 writes it there, and a
  * description on people, systems and neutral nodes. It names the font role and the text role alike.
@@ -61,8 +65,9 @@ export function nodeWidth(n: ArchNode, look: Look): number {
     if (isCircle(n, look)) return roundUp(Math.max(label, tech, 2 * m.circleR), m.grid);
     return roundUp(Math.max(label, tech, 0) + 2 * m.nodePad, m.grid);
   }
+  if (o.nodeName === 'tab') return roundUp(tabWidth(n, look, tech), m.grid);
   const icon = n.icon ? m.iconSize + m.iconGap : 0;
-  const corner = n.replicas || n.shape === 'job' ? MARKER_ROOM : 0;
+  const corner = (n.replicas && o.replicas === 'tag') || n.shape === 'job' ? MARKER_ROOM : 0;
   const marker = corner + (o.marks === 'inside' && n.mark ? MARKER_ROOM : 0);
   const dot = o.status === 'dot' && n.status ? DOT_ROOM : 0;
   const detail = tech + (n.status && o.status === 'word' ? STATUS_ROOM : 0);

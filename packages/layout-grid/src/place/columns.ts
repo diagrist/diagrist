@@ -12,7 +12,7 @@ const prefix = (name: string): string => name.split('.')[0] ?? name;
 export function columns(tree: Tree): { cols: Column[]; width: number } {
   const m = tree.spec.metrics;
   const cols: Column[] = [];
-  let x = m.marginX;
+  let x = m.marginX + (m.indent ?? 0);
   tree.spec.cols.forEach((c, i) => {
     const prev = tree.spec.cols[i - 1];
     if (prev) x += prefix(prev.name) === prefix(c.name) ? m.subColGap : m.colGap;

@@ -10,14 +10,18 @@ import { bodyShapes, clockShapes, replicaShapes } from '../bodies.js';
 import { iconRole } from '../icons.js';
 
 const STATUS_BODY: Readonly<Record<NodeStatus, string>> = { planned: 'boxPlanned', deprecated: 'boxDeprecated' };
-const STATUS_DOT: Readonly<Record<NodeStatus, string>> = { planned: 'statusPlanned', deprecated: 'statusDeprecated' };
+/** The roles of the status dot (`status: dot`). */
+export const STATUS_DOT: Readonly<Record<NodeStatus, string>> = {
+  planned: 'statusPlanned',
+  deprecated: 'statusDeprecated',
+};
 const DOT = { r: 3.5, gap: 9, rise: 4.5 } as const;
 
 /**
  * The body of a box: a removed one first, then an added one (`boxEmphAdded` when it is also the core, which a look
  * may keep as the core), the status where the look draws it as a word, emphasis and a muted role.
  */
-function bodyOf(p: PlacedElement, muted: boolean, statusBody: boolean): string {
+export function bodyOf(p: PlacedElement, muted: boolean, statusBody: boolean): string {
   const n = p.node;
   const change = changeOf(n.origin);
   if (change === 'removed') return 'boxRemoved';
@@ -39,7 +43,8 @@ export function boxShapes(p: PlacedElement, art: BoxArt, role: Role | undefined,
   const detail = old ? 'detailDeprecated' : 'detail';
   const out: Shape[] = bodyShapes(n.shape, p.rect, bodyOf(p, muted, word), detail, look.metrics.nodeRx);
   if (n.shape === 'job') out.push(...clockShapes(art.clock, detail));
-  if (n.replicas !== undefined) out.push(...replicaShapes(`x${n.replicas}`, art.replicas));
+  if (n.replicas !== undefined && look.options.replicas === 'tag')
+    out.push(...replicaShapes(`x${n.replicas}`, art.replicas));
   if (n.icon)
     out.push({ kind: 'icon', icon: n.icon, ...art.icon, role: iconRole(n.icon, muted || old ? 'muted' : 'ink') });
   out.push({ kind: 'text', ...art.label, text: n.label, role: old ? 'nameDeprecated' : 'name', font: 'name' });

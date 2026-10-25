@@ -2,6 +2,7 @@ import type { Rect } from '@diagrist/core';
 import { bottom, cy, OPPOSITE, right, type Side, union } from '../geometry.js';
 import type { PortRequest } from './adaptive-ports.js';
 import type { Board, Box } from './boxes.js';
+import { reservedOn } from './reserve.js';
 import type { Routed } from './routed.js';
 
 /**
@@ -31,10 +32,13 @@ function sideToward(hub: Rect, leaves: readonly Rect[]): Side | undefined {
   return undefined;
 }
 
-/** A branch entering a node from above lands left of its crest instead of on it. */
-export function crestOf(board: Board, box: Box, side: Side): { cx: number; r: number } | undefined {
-  const crest = side === 'top' ? board.node(box.id)?.crest : undefined;
-  return crest === undefined ? undefined : { cx: box.rect.x + box.rect.w / 2, r: crest };
+/**
+ * Where a branch reaching a leaf from above or below docks: in the middle, or where that side is reserved, left of the
+ * stretch by half its length.
+ */
+function leafAt(board: Board, leaf: Box, side: Side): number {
+  const stretch = reservedOn(board.node(leaf.id), leaf.rect, side);
+  return stretch ? stretch[0] - (stretch[1] - stretch[0]) / 2 : leaf.rect.x + leaf.rect.w / 2;
 }
 
 export function bundlePlans(routes: readonly Routed[], board: Board): BundlePlan[] {
@@ -65,9 +69,7 @@ export function bundlePlans(routes: readonly Routed[], board: Board): BundlePlan
       center: true,
     };
     const leafRequests = leaves.map((l): PortRequest => {
-      const crest = crestOf(board, l, OPPOSITE[side]);
-      const at =
-        side === 'left' || side === 'right' ? cy(l.rect) : crest ? crest.cx - 2 * crest.r : l.rect.x + l.rect.w / 2;
+      const at = side === 'left' || side === 'right' ? cy(l.rect) : leafAt(board, l, OPPOSITE[side]);
       return { id: l.id, rect: l.rect, other: hub.rect, side: OPPOSITE[side], center: true, at };
     });
     return [{ name, members, fanIn, hub, leaves, side, hubRequest, leafRequests }];

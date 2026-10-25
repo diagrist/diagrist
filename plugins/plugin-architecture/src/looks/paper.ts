@@ -1,9 +1,6 @@
-import type { Font } from '@diagrist/core';
 import { STANDARD } from '../layout/metrics.js';
 import { PAPER_PAINT } from '../styles/paper.js';
-import type { Look } from './look.js';
-
-const inter = (size: number, weight?: number): Font => ({ size, family: 'inter', ...(weight ? { weight } : {}) });
+import { inter, type Look } from './look.js';
 
 /**
  * A quiet print look: names and texts in Inter and only technologies in JetBrains Mono, at the sizes of a printed
@@ -50,14 +47,18 @@ export const PAPER: Look = {
   options: {
     header: 'kicker',
     nodes: 'box',
+    nodeName: 'inside',
     person: 'bust',
     status: 'dot',
+    replicas: 'tag',
     groups: { form: 'area', head: 'corner' },
     edgeText: { place: 'onLine', flat: false, ground: 'gap' },
     numbers: { seat: 'seated', form: 'disc' },
     marks: 'inside',
+    focus: 'accent',
     layers: 'bracket',
     legend: 'sentence',
     decisions: 'notes',
   },
+  crutches: { predecessorSeat: true },
 };

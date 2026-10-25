@@ -18,7 +18,8 @@ export interface LayerArt {
 
 /**
  * Boxes for the layers right of everything drawn (`contentRight`), joined to the picture by one bracket. With
- * `layers: bracket` the names stand without a box in the group font, as wide as they are.
+ * `layers: bracket` the names stand without a box in the group font, as wide as they are; `layers: bands` draws
+ * none here, the band sheet sets them at the left.
  */
 export function layerArts(
   layers: readonly Layer[],
@@ -35,7 +36,7 @@ export function layerArts(
     .sort((a, b) => a.middle - b.middle);
   const [first] = placed;
   const last = placed.at(-1);
-  if (!first || !last) return [];
+  if (!first || !last || look.options.layers === 'bands') return [];
   const pad = m.nodePad;
   const width =
     look.options.layers === 'bracket'

@@ -3,7 +3,9 @@ import { legendShapes, sheetShapes, stripShapes, type Words } from '@diagrist/pa
 import type { ArchitectureLayout } from '../layout/index.js';
 import type { ArchitectureModel } from '../model/types.js';
 import type { Texts } from '../texts/index.js';
+import { bandShapes } from './bands.js';
 import { edgeShapes } from './edges.js';
+import { dimmed } from './focus.js';
 import { frameShapes } from './groups/index.js';
 import { HEADERS } from './header.js';
 import { labelledRoutes, labelShapes } from './labels/index.js';
@@ -14,9 +16,9 @@ import { noteShapes } from './notes.js';
 import { surfacesOf } from './surfaces.js';
 
 /**
- * The picture in drawing order: header, layers, frames, elements, notes, edges, labels with flow numbers and
- * marks, decision bar, legend, margin notes. Each piece is drawn as the options of the layout's look say; shapes
- * carry roles, and the style table of the look paints them.
+ * The picture in drawing order: header, band heads, layers, frames, elements, notes, edges, labels with flow numbers
+ * and marks, decision bar, legend, margin notes. Each piece is drawn as the options of the layout's look say; shapes
+ * carry roles, and the style table of the look paints them, the context of `focus: dim` as a whole.
  */
 export function architectureScene(
   model: ArchitectureModel,
@@ -28,6 +30,7 @@ export function architectureScene(
   const under = surfacesOf(layout.frames, look.options.groups.form);
   const children: Shape[] = [
     ...HEADERS[look.options.header](model, texts, look),
+    ...bandShapes(layout.bands),
     ...layerShapes(layout.layers, look),
     ...frameShapes(layout.frames, look, texts),
     ...nodeShapes(model, layout, texts),
@@ -38,7 +41,7 @@ export function architectureScene(
     ...(layout.legend ? legendShapes(layout.legend, sampleShapes) : []),
     ...(layout.sheet ? sheetShapes(layout.sheet) : []),
   ];
-  return { width: layout.width, height: layout.height, title: model.title, children };
+  return { width: layout.width, height: layout.height, title: model.title, children: dimmed(children, model, layout) };
 }
 
 /** Where nodes, frames and edges are, by the DOM ids of their groups, for embeddings such as animations. */

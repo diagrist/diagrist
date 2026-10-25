@@ -1,6 +1,6 @@
 import type { Shape } from '@diagrist/core';
 import type { PlacedFrame } from '../../layout/index.js';
-import type { Look } from '../../looks/look.js';
+import { cased, type Look } from '../../looks/look.js';
 import type { Role } from '../../model/types.js';
 import type { Texts } from '../../texts/index.js';
 
@@ -32,7 +32,7 @@ export function frameFormShapes(f: PlacedFrame, look: Look, texts: Texts): Shape
   const team = g.team ?? (g.role ? texts.roles[g.role] : '');
   return [
     outline,
-    { kind: 'text', ...head.title, text: g.title, role: 'frameTitle', font: 'group' },
+    { kind: 'text', ...head.title, text: cased(g.title, look.fonts.group), role: 'frameTitle', font: 'group' },
     { kind: 'text', ...head.subtitle, text: team, role: 'frameTeam', font: 'note' },
   ];
 }

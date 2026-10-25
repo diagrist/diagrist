@@ -2,7 +2,8 @@ import type { Rect } from '@diagrist/core';
 import { bottom, cx, right, type Side } from '../geometry.js';
 import type { PortRequest } from './adaptive-ports.js';
 import type { Board, Box } from './boxes.js';
-import { type BundlePlan, crestOf } from './bundle.js';
+import type { BundlePlan } from './bundle.js';
+import { reservedOn } from './reserve.js';
 import type { Routed } from './routed.js';
 import { ellipseOf } from './snap.js';
 
@@ -39,10 +40,10 @@ function laneAt(board: Board, r: Routed, side: Side): { at?: number } {
   return col && (side === 'top' || side === 'bottom') ? { at: col.x + col.w / 2 } : {};
 }
 
-/** Below the crest of a node the top edge stays free. */
-function crestZone(board: Board, box: Box, side: Side, gap: number): [number, number] | undefined {
-  const c = crestOf(board, box, side);
-  return c ? [c.cx - c.r - gap, c.cx + c.r + gap] : undefined;
+/** The reserved stretch of a side, widened by `gap`: ends dock beside it. */
+function reservedZone(board: Board, box: Box, side: Side, gap: number): [number, number] | undefined {
+  const stretch = reservedOn(board.node(box.id), box.rect, side);
+  return stretch ? [stretch[0] - gap, stretch[1] + gap] : undefined;
 }
 
 /**
@@ -58,17 +59,21 @@ function fixedZone(routes: readonly Routed[], box: Box, side: Side, gap: number)
   return [Math.min(...along) - gap, Math.max(...along) + gap];
 }
 
-/** Vertically overlapping pairs share the part to keep free, so the edge stays straight. */
+/**
+ * Vertically overlapping pairs share the part to keep free, so the edge stays straight; where the left of it lies
+ * outside one of the two, both dock right of it.
+ */
 function zones(board: Board, a: Box, b: Box, s: readonly [Side, Side], gap: number) {
-  const za = crestZone(board, a, s[0], gap);
-  const zb = crestZone(board, b, s[1], gap);
+  const za = reservedZone(board, a, s[0], gap);
+  const zb = reservedZone(board, b, s[1], gap);
   const vertical = s[0] === 'top' || s[0] === 'bottom';
   const shared = vertical && b.rect.x < right(a.rect) && a.rect.x < right(b.rect);
   if (!shared) return { from: za, to: zb };
   const both = [za, zb].filter((z): z is [number, number] => z !== undefined);
-  const hull: [number, number] | undefined = both.length
-    ? [Math.min(...both.map((z) => z[0])), Math.max(...both.map((z) => z[1]))]
-    : undefined;
+  if (both.length === 0) return { from: undefined, to: undefined };
+  const lo = Math.max(a.rect.x, b.rect.x) + gap;
+  const start = Math.min(...both.map((z) => z[0]));
+  const hull: [number, number] = [start < lo ? Number.NEGATIVE_INFINITY : start, Math.max(...both.map((z) => z[1]))];
   return { from: hull, to: hull };
 }
 
@@ -98,10 +103,10 @@ export function plansOf(
     const isGroup = (box: Box) => box.id.startsWith('group:');
     const long = !isGroup(a) && !isGroup(b) && Math.abs(b.rowIndex - a.rowIndex) > 1;
     const [fromSide, toSide] = r.edge.sides?.[attempt] ?? sides(a.rect, b.rect, long, mode, board.layout.gutters.cols);
-    const crest = zones(board, a, b, [fromSide, toSide], gap);
+    const reserved = zones(board, a, b, [fromSide, toSide], gap);
     const free = {
-      from: crest.from ?? fixedZone(routes, a, fromSide, gap),
-      to: crest.to ?? fixedZone(routes, b, toSide, gap),
+      from: reserved.from ?? fixedZone(routes, a, fromSide, gap),
+      to: reserved.to ?? fixedZone(routes, b, toSide, gap),
     };
     const at = laneAt(board, r, fromSide);
     return {

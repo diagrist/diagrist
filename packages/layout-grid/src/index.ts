@@ -28,4 +28,14 @@ export { fitFrames, type RouteLabel } from './place/fit.js';
 export { placeGrid } from './place/index.js';
 export { placedOf, type RouteMark } from './placed.js';
 export { routeEdges } from './route/index.js';
-export type { GridColumn, GridEdge, GridGroup, GridMetrics, GridNode, GridRow, GridSpec, Pads } from './spec.js';
+export type {
+  GridColumn,
+  GridEdge,
+  GridGroup,
+  GridMetrics,
+  GridNode,
+  GridRow,
+  GridSpec,
+  Pads,
+  Stretch,
+} from './spec.js';

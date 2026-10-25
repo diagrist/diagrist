@@ -30,6 +30,8 @@ export interface GridMetrics {
   /** Left and right margin of the grid, and the top of the first row. */
   readonly marginX: number;
   readonly firstRowY: number;
+  /** Room left of the grid besides `marginX`, for what a kind sets there, such as heads of rows. */
+  readonly indent?: number;
   /** Margin below the content, for the bottom when frames fit around routes. */
   readonly margin: number;
   /** Distance between parallel lines in one gap, also the clearance the router keeps around obstacles. */
@@ -68,6 +70,16 @@ export interface GridRow {
 }
 
 /**
+ * A stretch along a side, `from` and `to` pixels along it, counted from its left or top end, or with `middle` from
+ * its middle, for a stretch that stays centred however wide the grid makes the node.
+ */
+export interface Stretch {
+  readonly from: number;
+  readonly to: number;
+  readonly origin?: 'middle';
+}
+
+/**
  * A node with the measures its kind has already taken. Without own width or height it fills its place; with them
  * it stands in the middle of it.
  */
@@ -97,8 +109,11 @@ export interface GridNode {
   readonly shape?: 'box' | 'ellipse' | 'circle';
   /** A text hanging below the node, as wide as `w` and `below` deep: frames enclose it, labels keep off it. */
   readonly caption?: { readonly w: number; readonly below: number };
-  /** Radius of a circle on the middle of the top edge, such as the icon of a card; edges keep clear of it. */
-  readonly crest?: number;
+  /**
+   * Stretches of the sides that no edge docks on, such as the name cut into the top edge of a box or the icon circle
+   * on a card. Ends keep `laneGap` beside a stretch where the side has room; an end that finds none stays.
+   */
+  readonly reserve?: Readonly<Partial<Record<Side, Stretch>>>;
   /** Where the node comes from, handed on to the kernel's placement check. */
   readonly source?: Placed['span'];
 }

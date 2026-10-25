@@ -4,6 +4,7 @@ import type { RouteShape } from '../layout.js';
 import type { GridEdge } from '../spec.js';
 import { type Board, type Box, boxOf, obstaclesFor } from './boxes.js';
 import { assignPorts, type Ends, portPoint } from './ports.js';
+import { clearReserved } from './reserve.js';
 import type { Routed } from './routed.js';
 import { chooseShape, type Lane } from './shape.js';
 
@@ -85,9 +86,9 @@ function edgePoints(
 }
 
 /**
- * Routes of a fixed grid in the order of the edges: shape and sides per edge, ports spread per side, and each Z on
- * its own lane in its gap, the next one `laneGap` further. A route the kind laid itself counts as a loop: it keeps
- * its port, and the adaptive router leaves it as it is.
+ * Routes of a fixed grid in the order of the edges: shape and sides per edge, ports spread per side and moved off
+ * reserved stretches, and each Z on its own lane in its gap, the next one `laneGap` further. A route the kind laid
+ * itself counts as a loop: it keeps its port, and the adaptive router leaves it as it is.
  */
 export function gridRoutes(board: Board): Routed[] {
   const m = board.tree.spec.metrics;
@@ -98,7 +99,8 @@ export function gridRoutes(board: Board): Routed[] {
     used.set(key, count + 1);
     return lane.at + count * m.laneGap * lane.dir;
   };
-  return assignPorts(plans(board), endsOf, m.portSpread).map((p): Routed => {
+  const ported = clearReserved(assignPorts(plans(board), endsOf, m.portSpread), board.node, m.laneGap);
+  return ported.map((p): Routed => {
     const start = portPoint(p.a.rect, p.fromSide, p.port.from);
     const end = portPoint(p.b.rect, p.toSide, p.port.to);
     const lane = p.lane ? { axis: p.lane.axis, at: nextLane(p.lane) } : undefined;
