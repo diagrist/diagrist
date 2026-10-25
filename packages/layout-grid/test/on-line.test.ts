@@ -45,6 +45,15 @@ describe('seated marks', () => {
     expect(up.labels).toEqual([text({ x: 94, w: 12, y: 160, h: 40 })]);
   });
 
+  it('keep their radius from the start on lines running left or up, as on lines running right or down', () => {
+    const left = seated(route([240, 100], [100, 100]), { x: 200, y: 100 }, { x: 180, y: 94, w: 40, h: 12 });
+    expect(left.marks[0]?.x).toBe(166.5);
+    const up = seated(route([100, 240], [100, 100]), { x: 100, y: 200 }, { x: 94, y: 180, w: 12, h: 40 });
+    expect(up.marks[0]?.y).toBe(166.5);
+    const right = seated(route([60, 100], [200, 100]), { x: 100, y: 100 }, { x: 80, y: 94, w: 40, h: 12 });
+    expect(right.marks[0]?.x).toBe(133.5);
+  });
+
   it('go next to the start on a short segment and push the texts behind them, and leave marks clear of texts', () => {
     const short = seated(route([60, 100], [120, 100]), { x: 90, y: 100 }, { x: 70, y: 94, w: 40, h: 12 });
     expect(short.marks[0]?.x).toBe(69.5);

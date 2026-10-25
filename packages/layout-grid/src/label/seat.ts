@@ -37,8 +37,7 @@ const moved = (l: EdgeLabel, along: 0 | 1, by: number): EdgeLabel =>
 /**
  * Marks that would sit under the texts standing on their line move along their segment, to the side of the texts
  * that faces the start of the segment, else to the other side. A spot counts when the mark keeps its radius from the
- * start and twice that from the end, which the arrowhead takes; on a segment running left or up the test keeps the
- * predecessor's arithmetic, which measures both distances on the wrong side (docs/burn-down.md). Where neither side
+ * start and twice that from the end, which the arrowhead takes, whichever way the segment runs. Where neither side
  * holds, the mark goes next to the start and the texts move behind it. Other fields of a mark are kept.
  */
 export function seatMarks<M extends SeatMark>(
@@ -62,7 +61,7 @@ export function seatMarks<M extends SeatMark>(
     const high = low + (along === 0 ? box.w : box.h);
     const before = sign > 0 ? low - ROOM - R : high + ROOM + R;
     const after = sign > 0 ? high + ROOM + R : low - ROOM - R;
-    const fits = (v: number) => (v - a[along] - R) * sign >= 0 && (c[along] - v - 2 * R) * sign >= 0;
+    const fits = (v: number) => (v - a[along]) * sign - R >= 0 && (c[along] - v) * sign - 2 * R >= 0;
     const spot = [before, after].find(fits);
     const at = spot ?? a[along] + sign * (R + 2);
     if (spot === undefined) {
