@@ -1,22 +1,22 @@
 import type { Point, Rect, Shape, Tone } from '@diagrist/core';
 import type { PlacedFrame } from '../layout/index.js';
-import type { Look } from '../model/types.js';
+import type { LookOptions } from '../looks/look.js';
 
-/** A toned frame or a zone of `look=paper`: labels and line halos on it take its colour instead of the canvas. */
+/** A toned frame or the zone of an own system's area: labels and line halos on it take its colour, not the canvas. */
 export interface Surface {
   readonly rect: Rect;
   readonly tone: Tone | 'zone';
 }
 
-/** The surface of a frame: its tone, in paper also the zone of an own system. */
-function surfaceOf(f: PlacedFrame, look: Look): Surface[] {
+/** The surface of a frame: its tone, in the form `area` also the zone of an own system. */
+function surfaceOf(f: PlacedFrame, form: LookOptions['groups']['form']): Surface[] {
   if (f.group.tone) return [{ rect: f.rect, tone: f.group.tone }];
-  return look === 'paper' && f.group.role === 'own' ? [{ rect: f.rect, tone: 'zone' }] : [];
+  return form === 'area' && f.group.role === 'own' ? [{ rect: f.rect, tone: 'zone' }] : [];
 }
 
-/** Toned frames, outer first; in blocks frames are opaque areas and need none. */
-export const surfacesOf = (frames: readonly PlacedFrame[], look: Look): Surface[] =>
-  look === 'blocks' ? [] : frames.flatMap((f) => surfaceOf(f, look));
+/** Toned frames, outer first; panels are opaque areas and need none. */
+export const surfacesOf = (frames: readonly PlacedFrame[], form: LookOptions['groups']['form']): Surface[] =>
+  form === 'panel' ? [] : frames.flatMap((f) => surfaceOf(f, form));
 
 /** The surfaces a point lies on, in drawing order. */
 export const surfacesAt = (all: readonly Surface[], x: number, y: number): Surface[] =>

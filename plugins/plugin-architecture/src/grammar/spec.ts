@@ -1,20 +1,19 @@
 import { localeAttribute } from '@diagrist/core';
 import { attr, type Infer, kind, oneOf, text } from '@diagrist/lang';
 import { adr } from '@diagrist/parts';
+import { DEFAULT_LOOK, LOOK_NAMES, LOOKS, type LookName } from '../looks/index.js';
 import { edgeTables } from './edges.js';
 import { ELEMENT_TABLES, LEVEL_ELEMENTS, type Level } from './elements.js';
 import { grid, group, layer, noteTable, style } from './frames.js';
 
-/** The looks of the picture; `plain` is the default. */
-export const LOOKS = ['plain', 'cards', 'blocks', 'paper'] as const;
+/** A look in the doc of `look=`: its name, `(default)` after the default, and what it draws. */
+const lookEntry = (name: LookName): string =>
+  `\`${name}\`${name === DEFAULT_LOOK ? ' (default)' : ''} ${LOOKS[name].doc}`;
 
 const header = {
   subtitle: attr(text(), 'Second line below the title.'),
   label: attr(text(), 'Name before the title instead of the kind; an empty `label=""` leaves only the title.'),
-  look: attr(
-    oneOf(LOOKS),
-    '`plain` (default) boxes with a legend, `cards` toned icon cards, `blocks` filled blocks as in pattern books, `paper` a quiet print look: Inter on paper, zones as areas, the core in yellow, decisions in the margin.',
-  ),
+  look: attr(oneOf(LOOK_NAMES), `${LOOK_NAMES.map(lookEntry).join(', ')}.`),
   layout: attr(
     oneOf(['adaptive']),
     'Columns grow to their content and edges find their own way around obstacles; without it the grid is fixed.',

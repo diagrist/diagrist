@@ -3,7 +3,7 @@ import type { EdgeKind } from '../grammar/edges.js';
 import { SHAPES, STATUSES } from '../grammar/elements.js';
 import type { ArchitectureModel, Role } from '../model/types.js';
 import type { Texts } from '../texts/index.js';
-import type { PaperWords } from '../texts/paper.js';
+import type { SentenceWords } from '../texts/sentence.js';
 import { CHANGES } from './diff.js';
 
 const EDGE_ORDER: readonly EdgeKind[] = ['sync', 'async', 'dependency', 'data', 'link', 'duplex'];
@@ -21,15 +21,15 @@ function joined(pairs: readonly (readonly [string, string])[]): string[] {
 }
 
 /**
- * The legend of `look=paper` as sentences: what the picture shows, in the order of the standard legend, each as
+ * The legend as sentences (`legend: sentence`): what the picture shows, in the order of the standard legend, each as
  * the sight and its meaning, such as `Gestrichelt: asynchrones Domain-Event.`
  */
-export function paperLegend(
+export function sentenceLegend(
   model: ArchitectureModel,
   routes: readonly Route[],
   marked: boolean,
   texts: Texts,
-  words: PaperWords,
+  words: SentenceWords,
 ): string[] {
   const nodes = model.nodes;
   const kinds = new Set(routes.map((r) => model.edges[Number(r.edge)]?.kind));

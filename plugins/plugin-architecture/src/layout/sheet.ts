@@ -1,7 +1,7 @@
 import { type Font, textWidth } from '@diagrist/core';
 import { type Decision, MARGIN } from '@diagrist/parts';
+import type { Look } from '../looks/look.js';
 import type { Segment } from './art.js';
-import type { Metrics } from './metrics.js';
 
 /** A line of text of the sheet, with the role that paints it and the font role it was measured with. */
 export interface SheetText {
@@ -11,8 +11,11 @@ export interface SheetText {
   readonly role: 'marginId' | 'marginText' | 'marginChoice' | 'legendText';
 }
 
-/** What `look=paper` draws around the picture: decisions as notes in the right margin, the legend as sentences. */
-export interface PaperSheet {
+/**
+ * What a look draws around the picture with `decisions: notes` or `legend: sentence`: decisions as notes in the right
+ * margin, the legend as sentences below a hairline.
+ */
+export interface Sheet {
   readonly rules: readonly Segment[];
   readonly texts: readonly SheetText[];
   readonly width: number;
@@ -75,11 +78,11 @@ function marginNotes(
 }
 
 /**
- * The sheet of `look=paper`: decisions as notes in a column right of everything drawn, instead of a framed bar
- * below; below the picture a hairline over the full width and the legend as sentences, wrapped to that width.
+ * The sheet: decisions as notes in a column right of everything drawn, instead of a framed bar below; below the
+ * picture a hairline over the full width and the legend as sentences, wrapped to that width.
  */
-export function paperSheet(input: SheetInput, m: Metrics): PaperSheet {
-  const font = m.fonts.label;
+export function sheetOf(input: SheetInput, look: Look): Sheet {
+  const font = look.fonts.label;
   const x = input.right + COLUMN.gap;
   const notes = input.decisions.length > 0 ? marginNotes(input, x, font) : { rules: [], texts: [], bottom: 0 };
   const width = Math.max(input.width, notes.rules.length > 0 ? x + COLUMN.width + MARGIN : 0);
@@ -89,7 +92,7 @@ export function paperSheet(input: SheetInput, m: Metrics): PaperSheet {
     (text, i): SheetText => ({ x: MARGIN, y: ruleY + LEGEND.first + i * LEGEND.line, text, role: 'legendText' }),
   );
   const rules = lines.length > 0 ? [{ x1: MARGIN, y1: ruleY, x2: width - MARGIN, y2: ruleY }] : [];
-  const last = legend.at(-1)?.y ?? ruleY - LEGEND.gap + m.margin;
+  const last = legend.at(-1)?.y ?? ruleY - LEGEND.gap + look.metrics.margin;
   return {
     rules: [...notes.rules, ...rules],
     texts: [...notes.texts, ...legend],

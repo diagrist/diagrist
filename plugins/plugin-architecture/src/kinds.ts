@@ -23,7 +23,7 @@ function architectureKind(level: Level) {
       const layout = layoutArchitecture(model, TEXTS[locale], locale);
       return {
         scene: architectureScene(model, layout, TEXTS[locale], WORDS[locale]),
-        styles: stylesOf(model.look),
+        styles: stylesOf(layout.look),
         anchors: architectureAnchors(model, layout),
         placed: layout.placed,
       };

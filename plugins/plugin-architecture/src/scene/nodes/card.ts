@@ -1,14 +1,17 @@
 import type { Shape } from '@diagrist/core';
-import type { BoxArt, CardArt } from '../layout/art.js';
-import type { PlacedElement } from '../layout/index.js';
-import type { Texts } from '../texts/index.js';
-import { iconRole } from './icons.js';
+import type { BoxArt, CardArt } from '../../layout/art.js';
+import type { PlacedElement } from '../../layout/index.js';
+import type { Texts } from '../../texts/index.js';
+import { iconRole } from '../icons.js';
 
 const CARD_RX = 6;
 const SHADOW_DY = 2;
 const CIRCLE_ICON = 0.9;
 
-/** A node in `look=cards`: cards with a soft shadow, stacked for replicas, a toned circle with a white icon, centred texts. */
+/**
+ * A node of the `card` family: cards with a soft shadow, stacked for replicas, a toned circle with a white icon,
+ * centred texts.
+ */
 export function cardShapes(p: PlacedElement, art: BoxArt, card: CardArt, texts: Texts): Shape[] {
   const n = p.node;
   const body = n.status === 'planned' ? 'boxPlanned' : n.status === 'deprecated' ? 'boxDeprecated' : 'card';

@@ -1,8 +1,8 @@
 import type { Rect, Shape, Tone } from '@diagrist/core';
-import type { BlockArt, BoxArt } from '../layout/art.js';
-import type { PlacedElement } from '../layout/index.js';
+import type { BlockArt, BoxArt } from '../../layout/art.js';
+import type { PlacedElement } from '../../layout/index.js';
 
-/** Corner radius of blocks and frames in `look=blocks`. */
+/** Corner radius of blocks. */
 export const BLOCK_RX = 10;
 const SHADOW = 5;
 const DB_RY = 12;
@@ -50,7 +50,9 @@ function cylinder(r: Rect, tone: Tone): Shape[] {
   ];
 }
 
-/** A node in `look=blocks`: a filled box, tube or cylinder with a shadow, or only its name; texts in the middle. */
+/**
+ * A node of the `block` family: a filled box, tube or cylinder with a shadow, or only its name; texts in the middle.
+ */
 export function blockShapes(p: PlacedElement, art: BoxArt, block: BlockArt): Shape[] {
   const n = p.node;
   const body =

@@ -1,8 +1,8 @@
 import { type Rect, textWidth } from '@diagrist/core';
 import type { Row } from '@diagrist/layout-grid';
+import { cased, type Look } from '../looks/look.js';
 import type { Layer } from '../model/types.js';
 import type { Segment, Spot } from './art.js';
-import type { Metrics } from './metrics.js';
 
 /** A layer named right of the picture: box, text, leader with arrow, and for the first the shared bracket. */
 export interface LayerArt {
@@ -18,15 +18,15 @@ export interface LayerArt {
 
 /**
  * Boxes for the layers right of everything drawn (`contentRight`), joined to the picture by one bracket. With
- * `capitals` the names stand without a box in small capitals, as wide as they are.
+ * `layers: bracket` the names stand without a box in the group font, as wide as they are.
  */
 export function layerArts(
   layers: readonly Layer[],
   rows: readonly Row[],
   contentRight: number,
-  m: Metrics,
-  capitals = false,
+  look: Look,
 ): LayerArt[] {
+  const { metrics: m, fonts } = look;
   const placed = layers
     .flatMap((l) => {
       const row = rows.find((r) => r.name === l.row);
@@ -37,13 +37,14 @@ export function layerArts(
   const last = placed.at(-1);
   if (!first || !last) return [];
   const pad = m.nodePad;
-  const width = capitals
-    ? Math.max(...placed.map((l) => textWidth(l.label.toUpperCase(), m.fonts.group)))
-    : Math.max(m.nodeW, ...placed.map((l) => textWidth(l.label, m.fonts.note) + 2 * pad));
+  const width =
+    look.options.layers === 'bracket'
+      ? Math.max(...placed.map((l) => textWidth(cased(l.label, fonts.group), fonts.group)))
+      : Math.max(m.nodeW, ...placed.map((l) => textWidth(l.label, fonts.note) + 2 * pad));
   const railX = contentRight + pad * 2;
   const x = railX + pad * 3;
   const middle = placed[Math.floor(placed.length / 2)]?.middle ?? first.middle;
-  const height = m.fontSize.note + pad * 2;
+  const height = fonts.note.size + pad * 2;
   return placed.map((l, i) => {
     const rect = { x, y: l.middle - height / 2, w: width, h: height };
     const tip = x - pad / 2;
@@ -52,7 +53,7 @@ export function layerArts(
       row: l.row,
       label: l.label,
       rect,
-      text: { x: x + width / 2, y: rect.y + rect.h / 2 + m.fontSize.note * 0.35 },
+      text: { x: x + width / 2, y: rect.y + rect.h / 2 + fonts.note.size * 0.35 },
       leader: { x1: railX, x2: tip, y1: l.middle, y2: l.middle },
       arrow: `M${tip} ${l.middle} L${tip - size} ${l.middle - size / 2} L${tip - size} ${l.middle + size / 2} Z`,
       ...(i === 0

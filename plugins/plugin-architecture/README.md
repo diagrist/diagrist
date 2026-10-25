@@ -37,6 +37,10 @@ has (`grammar`, `model`, `rules`, `messages`, `layout`, `scene`, `describe`, `te
 | `blocks` | Filled blocks with shadows and large text, as pattern books draw them: tubes, cylinders, layer bands with side titles and tags. A variant with its own measures (ADR 0010), no legend. |
 | `paper` | A quiet print look with its own fonts and measures (ADR 0022): names and texts in Inter, technologies of containers and components in JetBrains Mono, warm paper, the own system's zone as an area without border, the `emph` element in yellow, status as a dot, open arrowheads, texts standing on their line, decisions as notes in the right margin and the legend as one sentence below a hairline. |
 
+Each look is one value in `src/looks/` (ADR 0023): measures, fonts by role, paint, and a few named options such as
+`nodes`, `groups`, `edgeText` or `legend`, whose values are drawn by one piece of code each. Layout and scene read
+the options, never the name of a look, and `look=` with its doc is derived from the registry `src/looks/index.ts`.
+
 Layout runs on `@diagrist/layout-grid` (ADR 0015): the plugin measures its nodes and frames, the library places,
 routes and labels them, and with `layout=adaptive` grows frames around their routes. Heads, flow numbers, marks,
 layers, notes, the decision bar and the legend are drawn by the plugin and `@diagrist/parts`.

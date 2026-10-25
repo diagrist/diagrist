@@ -1,0 +1,10 @@
+import type { Shape } from '@diagrist/core';
+
+const BADGE_R = 7.5;
+const BADGE_DY = 3.3;
+
+/** A flow number as its digit in a small disc (`numbers.form: disc`), centred on (x, y). */
+export const discShapes = (n: number, x: number, y: number): Shape[] => [
+  { kind: 'circle', cx: x, cy: y, r: BADGE_R, role: 'badge' },
+  { kind: 'text', x, y: y + BADGE_DY, text: String(n), role: 'badgeText', font: 'badge', anchor: 'middle' },
+];

@@ -2,9 +2,10 @@ import type { KindReading } from '@diagrist/lang';
 import { decisionOf } from '@diagrist/parts';
 import type { Level } from '../grammar/elements.js';
 import type { ArchitectureStatement } from '../grammar/spec.js';
+import { DEFAULT_LOOK, type LookName } from '../looks/index.js';
 import { compact } from './compact.js';
 import { edgesOf } from './edges.js';
-import type { ArchGroup, ArchitectureModel, ArchNode, Look, Role } from './types.js';
+import type { ArchGroup, ArchitectureModel, ArchNode, Role } from './types.js';
 
 type Of<K extends ArchitectureStatement['keyword']> = Extract<ArchitectureStatement, { keyword: K }>;
 type Element = Of<'person' | 'system' | 'container' | 'component' | 'node'>;
@@ -79,7 +80,7 @@ export function architectureModel(level: Level, reading: KindReading<Architectur
   return {
     level,
     title: reading.header?.title ?? '',
-    look: (header.look as Look | undefined) ?? 'plain',
+    look: (header.look as LookName | undefined) ?? DEFAULT_LOOK,
     adaptive: header.layout === 'adaptive',
     cols: names('cols'),
     rows: names('rows'),

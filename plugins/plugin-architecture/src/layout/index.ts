@@ -10,20 +10,20 @@ import {
   routeEdges,
 } from '@diagrist/layout-grid';
 import { decisionStrip, type Legend, legendLayout, type Strip, WORDS } from '@diagrist/parts';
+import { lookOf } from '../looks/index.js';
+import type { Look } from '../looks/look.js';
 import type { ArchGroup, ArchitectureModel, ArchNode } from '../model/types.js';
 import type { Texts } from '../texts/index.js';
-import { PAPER_WORDS } from '../texts/paper.js';
+import { SENTENCE_WORDS } from '../texts/sentence.js';
 import { type NodeArt, nodeArt } from './art.js';
 import { type FrameHead, frameHead } from './heads.js';
 import { type LayerArt, layerArts } from './layers.js';
 import { legendItems, type Sample } from './legend.js';
 import { type Badge, type Mark, marksOf } from './marks.js';
-import type { Sizing } from './measure.js';
-import { metricsOf } from './metrics.js';
 import { type NoteArt, noteArts } from './notes.js';
-import { type PaperSheet, paperSheet } from './paper.js';
-import { paperLegend } from './paper-legend.js';
-import { marksInside, seatBadges } from './paper-marks.js';
+import { marksInside, seatBadges } from './seat.js';
+import { sentenceLegend } from './sentence.js';
+import { type Sheet, sheetOf } from './sheet.js';
 import { gridSpecOf } from './spec.js';
 
 /** An element in the picture with everything inside it. */
@@ -42,7 +42,8 @@ export interface PlacedFrame {
 
 /** Where everything of a C4 picture stands; the scene only draws it. */
 export interface ArchitectureLayout {
-  readonly sizing: Sizing;
+  /** The look the layout measured with, which the scene draws in. */
+  readonly look: Look;
   readonly nodes: readonly PlacedElement[];
   /** Parents first, the order to draw them in. */
   readonly frames: readonly PlacedFrame[];
@@ -53,10 +54,10 @@ export interface ArchitectureLayout {
   readonly layers: readonly LayerArt[];
   readonly notes: readonly NoteArt[];
   readonly strip: Strip;
-  /** Only in `look=plain`; cards and blocks explain themselves through icons and colours. */
+  /** Only with `legend: strip`; other looks explain themselves through icons and colours, or in sentences. */
   readonly legend?: Legend<Sample>;
-  /** Only in `look=paper`: decisions in the margin and the legend as sentences, instead of `strip` and `legend`. */
-  readonly sheet?: PaperSheet;
+  /** Only with `decisions: notes` or `legend: sentence`: notes in the margin, the legend as sentences. */
+  readonly sheet?: Sheet;
   readonly width: number;
   readonly height: number;
   readonly placed: readonly Placed[];
@@ -71,40 +72,43 @@ const bottom = (r: Rect): number => r.y + r.h;
  * bar and the legend.
  */
 export function layoutArchitecture(model: ArchitectureModel, texts: Texts, locale: Locale): ArchitectureLayout {
-  const sizing: Sizing = { look: model.look, m: metricsOf(model.look) };
-  const m = sizing.m;
-  const { spec, texts: edgeTexts } = gridSpecOf(model, sizing);
+  const look = lookOf(model);
+  const { metrics: m, options: o } = look;
+  const { spec, texts: edgeTexts } = gridSpecOf(model, look);
   const grid = placeGrid(spec);
   const routes = routeEdges(spec, grid);
-  const paper = model.look === 'paper';
-  const found = labelEdges(spec, grid, routes, edgeTexts, { preferFlat: model.look === 'cards', onLine: paper });
+  const onLine = o.edgeText.place === 'onLine';
+  const found = labelEdges(spec, grid, routes, edgeTexts, { preferFlat: o.edgeText.flat, onLine });
   const pl = spec.adaptive ? fitFrames(spec, grid, routes, found) : grid;
   const lines: readonly (readonly Point[])[] = spec.adaptive ? routes.map((r) => r.points) : [];
   const byId = new Map(model.nodes.map((n) => [n.id, n]));
   const nodes = pl.nodes.flatMap((p) => {
     const node = byId.get(p.id);
-    return node ? [{ node, rect: p.rect, art: nodeArt(node, p.rect, sizing) }] : [];
+    return node ? [{ node, rect: p.rect, art: nodeArt(node, p.rect, look) }] : [];
   });
   const frames = pl.groups.flatMap((p) => {
     const group = model.groups.find((g) => g.id === p.id);
-    return group ? [{ group, rect: p.rect, head: frameHead(p.rect, group, sizing, lines) }] : [];
+    return group ? [{ group, rect: p.rect, head: frameHead(p.rect, group, look, lines) }] : [];
   });
   const rects = new Map(pl.nodes.map((p) => [p.id, p.rect]));
   const { badges: numbers, marks: aside } = marksOf(model, routes, rects, m);
-  const { badges, labels } = paper ? seatBadges(numbers, found, routes) : { badges: numbers, labels: found };
-  const marks = paper ? marksInside(aside, model.nodes, rects) : aside;
+  const seated = o.numbers.seat === 'seated';
+  const { badges, labels } = seated ? seatBadges(numbers, found, routes) : { badges: numbers, labels: found };
+  const marks = o.marks === 'inside' ? marksInside(aside, model.nodes, rects) : aside;
   const routeRight = Math.max(0, ...routes.flatMap((r) => r.points.map((p) => p[0])));
   const contentRight = Math.max(
     routeRight,
     ...pl.groups.map((g) => right(g.rect)),
     ...pl.nodes.map((n) => right(n.rect)),
   );
-  const layers = layerArts(model.layers, pl.rows, contentRight, m, paper);
+  const layers = layerArts(model.layers, pl.rows, contentRight, look);
   const crest = (id: string) => crestOf(nodes, id, m.cardIconR);
-  const notes = noteArts(model.notes, rects, crest, m);
-  const strip = decisionStrip(paper ? [] : model.decisions, pl.bottom, pl.width);
-  const items = legendItems(model, routes, marks.length > 0, texts, m);
-  const legend = model.look === 'plain' ? legendLayout(items, strip.bottom, pl.width) : undefined;
+  const notes = noteArts(model.notes, rects, crest, look.fonts.note);
+  const strip = decisionStrip(o.decisions === 'bar' ? model.decisions : [], pl.bottom, pl.width);
+  const legend =
+    o.legend === 'strip'
+      ? legendLayout(legendItems(model, routes, marks.length > 0, texts, look.fonts.note), strip.bottom, pl.width)
+      : undefined;
   const noteBottom = Math.max(0, ...notes.map((n) => bottom(n.rect) + m.groupPadBottom));
   const body = strip.cards.length > 0 ? strip.bottom : Math.max(pl.bottom, noteBottom);
   const beside = [
@@ -112,22 +116,24 @@ export function layoutArchitecture(model: ArchitectureModel, texts: Texts, local
     ...notes.map((n) => right(n.rect)),
   ];
   const width = Math.max(pl.width, ...beside.map((x) => x + m.marginX));
-  const sheet = paper
-    ? paperSheet(
-        {
-          decisions: model.decisions,
-          sentences: paperLegend(model, routes, marks.length > 0, texts, PAPER_WORDS[locale]),
-          top: Math.min(...pl.groups.map((g) => g.rect.y), ...pl.nodes.map((n) => n.rect.y)),
-          right: width - m.marginX,
-          bottom: body,
-          width,
-          open: WORDS[locale].open,
-        },
-        m,
-      )
-    : undefined;
+  const sentences = o.legend === 'sentence';
+  const sheet =
+    o.decisions === 'notes' || sentences
+      ? sheetOf(
+          {
+            decisions: o.decisions === 'notes' ? model.decisions : [],
+            sentences: sentences ? sentenceLegend(model, routes, marks.length > 0, texts, SENTENCE_WORDS[locale]) : [],
+            top: Math.min(...pl.groups.map((g) => g.rect.y), ...pl.nodes.map((n) => n.rect.y)),
+            right: width - m.marginX,
+            bottom: body,
+            width,
+            open: WORDS[locale].open,
+          },
+          look,
+        )
+      : undefined;
   return {
-    sizing,
+    look,
     nodes,
     frames,
     routes,

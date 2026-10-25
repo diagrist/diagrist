@@ -1,5 +1,5 @@
-import { COLORS as c, DASH, rule, type StyleRule, TONE_NAMES, TONES, textRule } from '@diagrist/core';
-import type { FontSizes } from '../layout/metrics.js';
+import { COLORS as c, DASH, rule, STROKES, type StyleRule, TONE_NAMES, TONES, textRule } from '@diagrist/core';
+import type { LookFonts } from '../looks/look.js';
 
 /** Stroke widths by what is drawn; `blocks` draws lines, accents and emphasis thicker. */
 export interface Strokes {
@@ -13,16 +13,21 @@ export interface Strokes {
   readonly halo: number;
 }
 
+/** The strokes of the standard look, with data flows thicker than calls. */
+export const STANDARD_STROKES: Strokes = { ...STROKES, data: 2.5 };
+
 /** Fill and border opacity of toned frames, and of the halo a label keeps on them. */
 const TINT = { fill: 0.07, stroke: 0.45 } as const;
 
 const bold = (size: number) => ({ size, weight: 600 });
 
 /**
- * The rules C4 adds after the base rules, in the predecessor's order. Only rules whose class the picture uses reach
- * the stylesheet, so pictures without these means keep their bytes.
+ * The rules C4 adds after the base rules, in the predecessor's order, with the rules of a diff picture (`changes`) in
+ * their place. Only rules whose class the picture uses reach the stylesheet, so pictures without these means keep
+ * their bytes. Sizes are those of the look's fonts.
  */
-export function architectureRules(f: FontSizes, w: Strokes): StyleRule[] {
+export function architectureRules(fonts: LookFonts, w: Strokes, changes: readonly StyleRule[]): StyleRule[] {
+  const f = { node: fonts.name.size, note: fonts.note.size, badge: fonts.badge.size, group: fonts.group.size };
   const tones = TONE_NAMES.map((t) => [t, TONES[t]] as const);
   return [
     rule('annotation-box', `fill: ${c.fillMuted}; stroke: ${c.border}; stroke-width: ${w.frame};`),
@@ -36,7 +41,7 @@ export function architectureRules(f: FontSizes, w: Strokes): StyleRule[] {
     rule('line-data', `fill: none; stroke: ${c.stroke}; stroke-width: ${w.data};`),
     rule('line-data-accent', `fill: none; stroke: ${c.accent}; stroke-width: ${w.data};`),
     rule('line-deprecated', `fill: none; stroke: ${c.border}; stroke-width: ${w.line};`),
-    ...diffRules(f, w),
+    ...changes,
     rule('label-deprecated', textRule(`fill: ${c.border};`, bold(f.node))),
     rule('label-status', `fill: ${c.note}; font-size: ${f.note}px; font-style: italic;`),
     rule('replica', `fill: ${c.fillMuted}; stroke: ${c.border}; stroke-width: ${w.frame};`),
@@ -82,10 +87,11 @@ export function architectureRules(f: FontSizes, w: Strokes): StyleRule[] {
 }
 
 /**
- * Rules of a diff picture (ADR 0021). Each change differs in more than colour: added boxes and edges are thick, removed
- * ones dashed or dotted and grey, and every tag carries its sign.
+ * Rules of a diff picture in the standard look (ADR 0021). Each change differs in more than colour: added boxes and
+ * edges are thick, removed ones dashed or dotted and grey, and every tag carries its sign.
  */
-function diffRules(f: FontSizes, w: Strokes): StyleRule[] {
+export function standardChanges(fonts: LookFonts, w: Strokes): StyleRule[] {
+  const f = { badge: fonts.badge.size };
   return [
     rule('shape-added', `fill: ${c.fill}; stroke: ${c.accent}; stroke-width: ${w.emph + 0.5};`),
     rule(

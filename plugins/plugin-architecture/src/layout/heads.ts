@@ -1,17 +1,17 @@
 import { type Point, type Rect, textWidth } from '@diagrist/core';
+import type { Look } from '../looks/look.js';
 import type { ArchGroup } from '../model/types.js';
 import type { Spot } from './art.js';
 import { linesHit } from './geometry.js';
-import type { Sizing } from './measure.js';
 import { headingSize, tagWidth } from './spec.js';
 
 /** Head and tag of a frame, from its finished rectangle. */
 export interface FrameHead {
   readonly title: Spot;
   readonly subtitle: Spot;
-  /** In `look=cards`: the ground the title stands on, cut out of the frame line. */
+  /** With the head `onLine`: the ground the title stands on, cut out of the frame line. */
   readonly titleBox?: Rect;
-  /** In `look=blocks`: the title stands in the middle at the top. */
+  /** With the head `centre`: the title stands in the middle at the top. */
   readonly titleAnchor?: 'middle';
   /** A tag at the right, in the vertical middle. */
   readonly tag?: { readonly rect: Rect; readonly text: Spot };
@@ -23,14 +23,16 @@ const SIDE_DY = 1;
 const BLOCK_DY = 4;
 
 /**
- * Where the head of a frame stands: top left, on the side for `heading=side`, in the middle in blocks, on the frame
- * line in cards, moving to the right end of the line when one of `lines` ends at the title.
+ * Where the head of a frame stands: on the side for `heading=side`, else as `groups.head` of the look says: top left,
+ * in the middle at the top, or on the frame line, moving to the right end of the line when one of `lines` ends at
+ * the title.
  */
-export function frameHead(rect: Rect, g: ArchGroup, sizing: Sizing, lines: readonly (readonly Point[])[]): FrameHead {
-  const m = sizing.m;
+export function frameHead(rect: Rect, g: ArchGroup, look: Look, lines: readonly (readonly Point[])[]): FrameHead {
+  const m = look.metrics;
+  const head = look.options.groups.head;
   const right = rect.x + rect.w;
   const middle = rect.y + rect.h / 2;
-  const tw = g.tag ? tagWidth(g.tag, sizing) : 0;
+  const tw = g.tag ? tagWidth(g.tag, look) : 0;
   const tag = g.tag
     ? {
         tag: {
@@ -43,18 +45,18 @@ export function frameHead(rect: Rect, g: ArchGroup, sizing: Sizing, lines: reado
     const spot = { x: rect.x + m.groupPadX, y: middle + m.labelDy + SIDE_DY };
     return { title: spot, subtitle: spot, ...tag };
   }
-  if (sizing.look === 'blocks') {
+  if (head === 'centre') {
     const spot = { x: rect.x + rect.w / 2, y: rect.y + m.groupTitleY + BLOCK_DY };
     return { title: spot, subtitle: spot, titleAnchor: 'middle', ...tag };
   }
-  if (sizing.look === 'plain' || sizing.look === 'paper')
+  if (head === 'corner')
     return {
       title: { x: rect.x + m.groupTextX, y: rect.y + m.groupTitleY },
       subtitle: { x: rect.x + m.groupTextX, y: rect.y + m.groupSubtitleY },
       ...tag,
     };
-  const size = headingSize(sizing);
-  const w = textWidth(g.title, m.fonts.heading) + 2 * TITLE_PAD;
+  const size = headingSize(look);
+  const w = textWidth(g.title, look.fonts.heading) + 2 * TITLE_PAD;
   const left = { x: rect.x + TITLE_INSET, y: rect.y - size / 2 - 2, w, h: size + 4 };
   const box = linesHit(lines, left, 4) ? { ...left, x: right - TITLE_INSET - w } : left;
   const title = { x: box.x + TITLE_PAD, y: rect.y + size / 2 - 2 };

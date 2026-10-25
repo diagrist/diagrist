@@ -1,26 +1,23 @@
 import { type Anchors, domId, type Scene, type Shape } from '@diagrist/core';
-import { HEADER, headerShapes, imageTitle, legendShapes, stripShapes, type Words } from '@diagrist/parts';
+import { legendShapes, stripShapes, type Words } from '@diagrist/parts';
 import type { ArchitectureLayout } from '../layout/index.js';
 import type { ArchitectureModel } from '../model/types.js';
 import type { Texts } from '../texts/index.js';
 import { edgeShapes } from './edges.js';
-import { layerShapes, noteShapes } from './extras.js';
-import { frameShapes } from './frames.js';
-import { labelledRoutes, labelShapes } from './labels.js';
+import { frameShapes } from './groups/index.js';
+import { HEADERS } from './header.js';
+import { labelledRoutes, labelShapes } from './labels/index.js';
+import { layerShapes } from './layers.js';
 import { sampleShapes } from './legend.js';
-import { nodeShapes } from './nodes.js';
-import { paperHeader, paperLayerShapes, sheetShapes } from './paper.js';
+import { nodeShapes } from './nodes/index.js';
+import { noteShapes } from './notes.js';
+import { sheetShapes } from './sheet.js';
 import { surfacesOf } from './surfaces.js';
 
-/** The title line: `label=` replaces the name of the kind, an empty one leaves the title alone. */
-function titleOf(model: ArchitectureModel, texts: Texts): string {
-  const kind = model.label ?? texts.kinds[model.level];
-  return kind ? imageTitle(kind, model.title) : model.title;
-}
-
 /**
- * The picture in drawing order: title, layers, frames, elements, notes, edges, labels with flow numbers and
- * marks, decision bar, legend. Shapes carry roles; the style table of the look paints them.
+ * The picture in drawing order: header, layers, frames, elements, notes, edges, labels with flow numbers and
+ * marks, decision bar, legend, margin notes. Each piece is drawn as the options of the layout's look say; shapes
+ * carry roles, and the style table of the look paints them.
  */
 export function architectureScene(
   model: ArchitectureModel,
@@ -28,18 +25,15 @@ export function architectureScene(
   texts: Texts,
   words: Words,
 ): Scene {
-  const under = surfacesOf(layout.frames, model.look);
-  const header =
-    model.look === 'paper'
-      ? paperHeader(model.label ?? texts.kinds[model.level], model.title, model.subtitle)
-      : headerShapes(HEADER, titleOf(model, texts), model.subtitle);
+  const { look } = layout;
+  const under = surfacesOf(layout.frames, look.options.groups.form);
   const children: Shape[] = [
-    ...header,
-    ...(model.look === 'paper' ? paperLayerShapes(layout.layers) : layerShapes(layout.layers)),
-    ...frameShapes(layout.frames, model.look, texts),
+    ...HEADERS[look.options.header](model, texts, look),
+    ...layerShapes(layout.layers, look),
+    ...frameShapes(layout.frames, look, texts),
     ...nodeShapes(model, layout, texts),
     ...noteShapes(layout.notes),
-    ...edgeShapes(model, layout.routes, under, layout.sizing.m.markerSize),
+    ...edgeShapes(model, layout.routes, under, look.metrics.markerSize),
     ...labelShapes(model, layout.routes, layout, under),
     ...stripShapes(layout.strip, words),
     ...(layout.legend ? legendShapes(layout.legend, sampleShapes) : []),

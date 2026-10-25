@@ -1,7 +1,6 @@
-import { FONT_SIZE, type Font } from '@diagrist/core';
-import type { Look } from '../model/types.js';
+import type { Font } from '@diagrist/core';
 
-/** Font sizes by role, the same numbers the layout measures with and the stylesheet sets. */
+/** Font sizes by role, from which `standardFonts` makes the fonts of a look set in one face. */
 export interface FontSizes {
   readonly title: number;
   readonly node: number;
@@ -13,7 +12,8 @@ export interface FontSizes {
 
 /**
  * The measures of a C4 picture in one look, as the predecessor's theme `aidi-mono` had them: the grid, boxes,
- * gaps, pads of frames and node insides. `blocks` packs larger text into higher boxes.
+ * gaps, pads of frames and node insides, and the corner radii of boxes and frames. Font sizes are those of the
+ * look's fonts.
  */
 export interface Metrics {
   readonly grid: number;
@@ -50,9 +50,12 @@ export interface Metrics {
   readonly circleR: number;
   readonly stackOffset: number;
   readonly shadowDy: number;
-  readonly fontSize: FontSizes;
-  /** The fonts of the look by role: layout measures with them, the stylesheet sets them (ADR 0022). */
-  readonly fonts: Readonly<Record<FontRole, Font>>;
+  /** Corner radius of a box of the `box` family. */
+  readonly nodeRx: number;
+  /** Corner radius of a frame and of a panel. */
+  readonly frameRx: number;
+  /** How far icon and texts in a cylinder move down, below the front of its lid. */
+  readonly dbTextShift: number;
 }
 
 /**
@@ -74,8 +77,8 @@ export type FontRole =
   | 'heading'
   | 'large';
 
-/** The fonts of the standard look at sizes `f`, all in its one face. */
-function standardFonts(f: FontSizes): Record<FontRole, Font> {
+/** The fonts of a look set in the standard face at sizes `f`, as plain, cards and blocks are. */
+export function standardFonts(f: FontSizes): Record<FontRole, Font> {
   return {
     title: { size: f.title, weight: 600 },
     name: { size: f.node, weight: 600 },
@@ -93,7 +96,8 @@ function standardFonts(f: FontSizes): Record<FontRole, Font> {
   };
 }
 
-const STANDARD: Metrics = {
+/** The measures of the standard look, which every look spreads and changes where it differs. */
+export const STANDARD: Metrics = {
   grid: 8,
   nodeW: 192,
   nodeH: 56,
@@ -128,71 +132,7 @@ const STANDARD: Metrics = {
   circleR: 24,
   stackOffset: 7,
   shadowDy: 2,
-  fontSize: FONT_SIZE,
-  fonts: standardFonts(FONT_SIZE),
+  nodeRx: 8,
+  frameRx: 10,
+  dbTextShift: 0,
 };
-
-const BLOCK_SIZES: FontSizes = { title: 16, node: 19, group: 16, label: 14, note: 14, badge: 12 };
-
-/** Blocks pack sub-modules tightly, with large text, high boxes and strong lines, as pattern books draw them. */
-const BLOCKS: Metrics = {
-  ...STANDARD,
-  subColGap: 24,
-  nodeH: 64,
-  nodeLineH: 20,
-  labelDy: 7,
-  laneGap: 36,
-  markerSize: 18,
-  fontSize: BLOCK_SIZES,
-  fonts: standardFonts(BLOCK_SIZES),
-};
-
-const PAPER_SIZES: FontSizes = { title: 15, node: 13, group: 9.5, label: 10.5, note: 11, badge: 9.5 };
-const inter = (size: number, weight?: number): Font => ({ size, family: 'inter', ...(weight ? { weight } : {}) });
-
-/**
- * Paper sets names and texts in Inter and only technologies in JetBrains Mono, at the sizes of a printed page;
- * small capitals are tracked. Boxes, rows and columns keep the standard grid, so a picture keeps its arrangement.
- */
-const PAPER: Metrics = {
-  ...STANDARD,
-  firstRowY: 144,
-  markerSize: 8,
-  nodePad: 16,
-  iconSize: 18,
-  iconGap: 10,
-  nodeLineH: 16,
-  labelDy: 5,
-  labelDyTech: -3,
-  labelGap: 8,
-  labelLineH: 14,
-  groupTextX: 16,
-  groupTitleY: 24,
-  groupSubtitleY: 40,
-  fontSize: PAPER_SIZES,
-  fonts: {
-    title: inter(15, 600),
-    name: inter(13, 600),
-    group: { ...inter(9.5, 600), letterSpacing: 0.7 },
-    label: inter(10.5),
-    note: inter(11),
-    description: inter(11),
-    tech: { size: 9.5, family: 'jetbrains-mono' },
-    badge: inter(9.5, 600),
-    mark: inter(9.5, 600),
-    replica: { size: 9, family: 'jetbrains-mono' },
-    block: inter(14, 600),
-    heading: inter(13, 600),
-    large: inter(13),
-  },
-};
-
-const LOOK_METRICS: Readonly<Record<Look, Metrics>> = {
-  plain: STANDARD,
-  cards: STANDARD,
-  blocks: BLOCKS,
-  paper: PAPER,
-};
-
-/** The measures of a look. */
-export const metricsOf = (look: Look): Metrics => LOOK_METRICS[look];

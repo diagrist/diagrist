@@ -3,7 +3,7 @@ import type { EdgeLabel, Route } from '@diagrist/layout-grid';
 import type { ArchNode } from '../model/types.js';
 import type { Badge, Mark } from './marks.js';
 
-/** Radius of a flow number on paper and the room it keeps from the texts on its line. */
+/** Radius of a flow number in a disc and the room it keeps from the texts on its line. */
 const R = 7.5;
 const ROOM = 6;
 

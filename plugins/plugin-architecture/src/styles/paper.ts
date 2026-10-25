@@ -1,19 +1,6 @@
-import {
-  FONT_STACKS,
-  MARKER_SHAPES,
-  type Marker,
-  type RoleStyle,
-  rule,
-  STROKES,
-  type StyleRule,
-  type Styles,
-  standardStyles,
-  textRule,
-} from '@diagrist/core';
-import { ICONS } from '../icons/index.js';
-import type { Metrics } from '../layout/metrics.js';
-import { ARCHITECTURE_ROLES } from './roles.js';
-import { architectureRules, type Strokes } from './rules.js';
+import { MARKER_SHAPES, type Marker, type RoleStyle, rule, STROKES, type StyleRule, textRule } from '@diagrist/core';
+import type { LookFonts, Paint } from '../looks/look.js';
+import type { Strokes } from './rules.js';
 
 const PAPER_STROKES: Strokes = { ...STROKES, line: 1, accent: 1.5, data: 2, shape: 1, emph: 1.5, frame: 1 };
 
@@ -43,21 +30,28 @@ const iconPaint = (name: 'ink' | 'muted', color: string): Record<string, RoleSty
 });
 
 /**
- * Roles `look=paper` draws differently from the standard look: the core in yellow, status as a dot, zones as areas,
- * the second line as a description or a technology, the sheet's own kicker, legend sentence and margin notes.
+ * Roles `look=paper` draws differently from the standard look: the core in yellow, also when it is new, zones as
+ * areas, the second line as a description or a technology, the sheet's own kicker, legend sentence and margin notes.
+ * Paper mutes nothing: shared and deprecated boxes keep the outline, name and icon ink of the others, status and
+ * diff tags say the rest.
  */
 const PAPER_ROLES: Readonly<Record<string, RoleStyle>> = {
   boxEmph: r('shape-core'),
+  boxEmphAdded: r('shape-core'),
   boxPlanned: r('shape'),
   boxDeprecated: r('shape'),
   boxMuted: r('shape'),
   detail: r('shape-detail'),
+  detailDeprecated: r('shape-detail'),
+  nameDeprecated: r('label-bold'),
   description: r('label-description'),
   tech: r('label-tech'),
   head: r('person'),
   limb: r('person'),
   frame: r('zone-open'),
   frameOwn: r('zone'),
+  frameShared: r('zone-open'),
+  frameExternal: r('zone-open'),
   statusPlanned: r('dot-planned'),
   statusDeprecated: r('dot-deprecated'),
   kicker: r('label-group'),
@@ -76,7 +70,7 @@ const PAPER_ROLES: Readonly<Record<string, RoleStyle>> = {
   'label-halo-zone': r('label', 'halo-zone'),
   'label-accent-halo-zone': r('label', 'halo-zone'),
   ...iconPaint('ink', PAPER.ink2),
-  ...iconPaint('muted', PAPER.outline),
+  ...iconPaint('muted', PAPER.ink2),
 };
 
 /** Every arrowhead open and thin, in the colour of its line. */
@@ -88,8 +82,7 @@ const PAPER_MARKERS: readonly Marker[] = [
 ];
 
 /** The rules of `look=paper`; a rule with the name of a standard one replaces it, the rest are its own. */
-function paperRules(m: Metrics): StyleRule[] {
-  const f = m.fonts;
+function paperRules(f: LookFonts): StyleRule[] {
   const c = PAPER;
   const line = (color: string, width: number) => `fill: none; stroke: ${color}; stroke-width: ${width};`;
   const halo = (color: string) =>
@@ -139,7 +132,6 @@ function paperRules(m: Metrics): StyleRule[] {
     rule('margin-id', textRule(`fill: ${c.ink};`, { ...f.label, weight: 600 })),
     rule('margin-text', textRule(`fill: ${c.ink2};`, f.label)),
     rule('margin-choice', textRule(`fill: ${c.ink};`, f.label)),
-    ...paperDiffRules(m),
   ];
 }
 
@@ -147,7 +139,7 @@ function paperRules(m: Metrics): StyleRule[] {
  * A diff picture on paper (ADR 0021) in the sheet's own inks, no new colour and never the yellow of the core: added
  * in ink and heavy, removed dotted in the outline grey, every tag a small paper box with its sign.
  */
-function paperDiffRules({ fonts: f }: Metrics): StyleRule[] {
+function paperChanges(f: LookFonts): StyleRule[] {
   const c = PAPER;
   return [
     rule('shape-added', `fill: ${c.node}; stroke: ${c.ink}; stroke-width: 2.5;`),
@@ -164,28 +156,17 @@ function paperDiffRules({ fonts: f }: Metrics): StyleRule[] {
 }
 
 /**
- * The style table of `look=paper`: the C4 table of the standard look with the paper roles and rules laid over it,
- * the root in unkerned Inter (ADR 0022), open arrowheads, and only the rules a picture uses in its stylesheet.
+ * The paint of `look=paper`: the paper roles and rules laid over the C4 table of the standard look, the root in
+ * unkerned Inter (ADR 0022) on warm paper, open arrowheads, and only the rules a picture uses in its stylesheet.
  */
-export function paperStyles(m: Metrics): Styles {
-  const base = standardStyles({
-    roles: { ...ARCHITECTURE_ROLES, ...PAPER_ROLES },
-    rules: architectureRules(m.fontSize, PAPER_STROKES),
-    fonts: m.fonts,
-  });
-  const own = paperRules(m);
-  const replaced = new Map(own.map((r) => [r.name, r]));
-  const known = new Set(base.rules.map((r) => r.name));
-  const rules = base.rules.map(({ name, declarations }) => replaced.get(name) ?? { name, declarations });
-  return {
-    ...base,
-    fontFamily: FONT_STACKS.inter,
-    fontKerning: 'none',
-    fontSize: m.fontSize.note,
-    canvas: PAPER.paper,
-    markerSize: m.markerSize,
-    markers: PAPER_MARKERS,
-    rules: [...rules, ...own.filter((r) => !known.has(r.name))],
-    icons: ICONS,
-  };
-}
+export const PAPER_PAINT: Paint = {
+  strokes: PAPER_STROKES,
+  roles: PAPER_ROLES,
+  rules: paperRules,
+  changes: paperChanges,
+  root: 'note',
+  fontKerning: 'none',
+  canvas: PAPER.paper,
+  markers: PAPER_MARKERS,
+  usedOnly: true,
+};

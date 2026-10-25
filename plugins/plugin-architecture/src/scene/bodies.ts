@@ -5,7 +5,7 @@ import type { NodeShape } from '../model/types.js';
 const BADGE = { w: 24, h: 16, rx: 8 } as const;
 const REPLICA = { w: 24, h: 13, rx: 3 } as const;
 const TEXT_DY = 3.5;
-/** Corner radius of a plain box. */
+/** Corner radius of a body without its own, such as the shape samples of the legend. */
 export const BODY_RX = 8;
 const DB_RY = 9;
 const QUEUE_INSET = 8;

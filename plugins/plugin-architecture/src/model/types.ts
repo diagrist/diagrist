@@ -3,10 +3,9 @@ import type { Origin, Span } from '@diagrist/lang';
 import type { Decision } from '@diagrist/parts';
 import type { EdgeKind } from '../grammar/edges.js';
 import type { ElementKeyword, FORMS, Level, SHAPES, STATUSES } from '../grammar/elements.js';
-import type { LOOKS } from '../grammar/spec.js';
 import type { Place, SpanEnd } from '../grammar/values.js';
+import type { LookName } from '../looks/index.js';
 
-export type Look = (typeof LOOKS)[number];
 export type NodeShape = (typeof SHAPES)[number];
 export type NodeStatus = (typeof STATUSES)[number];
 export type NodeForm = (typeof FORMS)[number];
@@ -120,7 +119,8 @@ export interface ArchitectureModel {
   readonly title: string;
   readonly subtitle?: string;
   readonly label?: string;
-  readonly look: Look;
+  /** The name of the look; `lookOf` turns it into the look, nothing else reads it (ADR 0023). */
+  readonly look: LookName;
   readonly adaptive: boolean;
   readonly cols: readonly string[];
   readonly rows: readonly string[];

@@ -4,10 +4,10 @@ import type { Change } from '../layout/diff.js';
 import type { NodeShape, NodeStatus, Role } from '../model/types.js';
 
 /**
- * How the legend sentence of `look=paper` names what the picture shows, before the colon that explains it. The
+ * How the sentence legend (`legend: sentence`) names what the picture shows, before the colon that explains it. The
  * meanings come from the plugin's `Texts`, so both legends say the same.
  */
-export interface PaperWords {
+export interface SentenceWords {
   readonly edges: Readonly<Record<EdgeKind, string>>;
   readonly roles: Readonly<Record<Role, string>>;
   readonly status: Readonly<Record<NodeStatus, string>>;
@@ -22,7 +22,7 @@ export interface PaperWords {
   readonly mark: string;
 }
 
-const EN: PaperWords = {
+const EN: SentenceWords = {
   edges: {
     sync: 'Solid line',
     async: 'Dashed',
@@ -43,7 +43,7 @@ const EN: PaperWords = {
   mark: 'E1: decision in the margin',
 };
 
-const DE: PaperWords = {
+const DE: SentenceWords = {
   edges: {
     sync: 'Durchgezogen',
     async: 'Gestrichelt',
@@ -64,5 +64,5 @@ const DE: PaperWords = {
   mark: 'E1: Entscheidung am Rand',
 };
 
-/** The words of the paper legend by locale; the type makes a missing locale a compile error. */
-export const PAPER_WORDS: Readonly<Record<Locale, PaperWords>> = { en: EN, de: DE };
+/** The words of the sentence legend by locale; the type makes a missing locale a compile error. */
+export const SENTENCE_WORDS: Readonly<Record<Locale, SentenceWords>> = { en: EN, de: DE };
