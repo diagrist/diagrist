@@ -1,22 +1,26 @@
 import { describe, expect, it } from 'vitest';
-import { lineOf, type Node, parse, sourceFiles } from './source.js';
+import { lineOf, manifest, type Node, packageOf, parse, sourceFiles } from './source.js';
 
 /**
  * Kernel and plugins must render the same bytes for the same input, in Node, browsers and edge runtimes.
  * Their sources therefore use no clock, no randomness, no console, no timers, no network and no Node APIs.
  * The CLI follows the same rule so its commands run in tests on in-memory input and output; only its host
  * adapters touch the process and the file system. The workspace tools derive files as strings and leave writing
- * them to their tests, so they follow it too.
+ * them to their tests, so they follow it too. The rule holds for the `src` of every package, read from the
+ * workspace, except a package that runs only in tests: one the others take as a dev dependency and never as a
+ * dependency, such as the testkit, which reads golden files from disk.
  */
-const PURE_SOURCES = [
-  /^packages\/lang\/src\//,
-  /^packages\/core\/src\//,
-  /^packages\/parts\/src\//,
-  /^packages\/layout-grid\/src\//,
-  /^packages\/cli\/src\//,
-  /^plugins\/[^/]+\/src\//,
-  /^tools\/[^/]+\/src\//,
-];
+const roots = [...new Set(sourceFiles().map(packageOf))].filter((root) => root !== undefined);
+const dependedOn = (field: 'dependencies' | 'devDependencies'): Set<string> =>
+  new Set(roots.flatMap((root) => Object.keys(manifest(root)[field] ?? {})));
+const TEST_ONLY = new Set(
+  roots.filter((root) => {
+    const name = manifest(root).name ?? '';
+    return dependedOn('devDependencies').has(name) && !dependedOn('dependencies').has(name);
+  }),
+);
+const PURE_ROOTS = roots.filter((root) => !TEST_ONLY.has(root));
+const isPure = (file: string): boolean => PURE_ROOTS.some((root) => file.startsWith(`${root}/src/`));
 
 const FORBIDDEN_GLOBALS = new Set([
   'Date',
@@ -62,9 +66,16 @@ const PURE_NODE_MODULES: readonly { readonly below: string; readonly module: str
 ];
 
 describe('pure sources', () => {
+  it('are the sources of every package but the ones only tests use', () => {
+    expect(PURE_ROOTS).toEqual(
+      expect.arrayContaining(['packages/lang', 'packages/cli', 'plugins/export-png', 'tools/docs']),
+    );
+    expect([...TEST_ONLY]).toEqual(['packages/testkit']);
+  });
+
   it('use no clock, randomness, console, timers, network, Node APIs or locale of the runtime', () => {
     const offending = sourceFiles()
-      .filter((file) => PURE_SOURCES.some((pattern) => pattern.test(file)))
+      .filter(isPure)
       .flatMap((file) => {
         const { source, program } = parse(file);
         return impurities(program)

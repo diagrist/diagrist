@@ -1,0 +1,13 @@
+{
+  "extends": "../../../tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": "..",
+    "outDir": "../.tsbuild/test",
+    "emitDeclarationOnly": true,
+    "isolatedDeclarations": false,
+    "resolveJsonModule": true,
+    "types": ["node"]
+  },
+  "include": ["."],
+  "references": [{ "path": ".." }]
+}

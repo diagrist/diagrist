@@ -115,6 +115,13 @@ keep it so; they go in the clean-up with a second baseline.
 | **Columns lists no steps.** The predecessor's draft of `look=columns` listed every step beside the picture; the list only helps when edges carry no text in the picture, which an author would have to ask for. | A word like `labels=aside` once someone needs it; the list then names steps by their texts only. |
 | **Paper's arrowheads are not open.** `look=paper` writes only the rules a picture uses (`usedOnly`), and the kernel counts the classes of shapes, not of markers, so `arrow-open` and `arrow-open-accent` never reach the stylesheet and the hooks are drawn as filled black triangles. | Count marker classes as used, or write the rules a look's markers name; this changes paper's bytes, so with the next change that rewrites them, such as paper becoming the default. |
 
+## Code (`code`)
+
+| Debt | Clean-up |
+|---|---|
+| **Shiki still looks at the clock.** `vscode-textmate` calls `Date.now()` once per line even with `tokenizeTimeLimit: 0` and only ignores the result, and it reads `process.env.VSCODE_TEXTMATE_DEBUG` when it loads, which turns on logging and nothing else. The purity test reads only our sources; `packages/code/test/highlight.test.ts` proves the runs do not depend on the clock. | Upstream: skip the clock when the limit is 0. |
+| **`symbol` knows braces, not syntax.** A declaration is the line whose tokens the grammar marks as declaring the name, and its end the brace that closes it, so `symbol` works for Java and Kotlin and finds nothing in SQL, YAML, JSON or XML. | A selection by key path for YAML and JSON, or by tag for XML, when a diagram needs one. |
+
 ## Tools
 
 | Debt | Clean-up |

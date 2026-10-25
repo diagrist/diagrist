@@ -1,0 +1,51 @@
+{
+  "name": "@diagrist/code",
+  "version": "0.0.0",
+  "description": "Highlighted source code for Diagrist kinds: lines of text runs with roles, a style table for them, and excerpts by symbol, region or lines.",
+  "keywords": [
+    "diagrist",
+    "diagrams-as-code",
+    "diagram",
+    "syntax-highlighting",
+    "code",
+    "shiki"
+  ],
+  "homepage": "https://github.com/diagrist/diagrist/tree/main/packages/code#readme",
+  "bugs": "https://github.com/diagrist/diagrist/issues",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/diagrist/diagrist.git",
+    "directory": "packages/code"
+  },
+  "license": "Apache-2.0",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "@diagrist/source": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "GRAMMARS.md",
+    "NOTICE"
+  ],
+  "engines": {
+    "node": ">=22.11"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "scripts": {
+    "build": "tsdown"
+  },
+  "dependencies": {
+    "@diagrist/core": "workspace:*",
+    "@diagrist/lang": "workspace:*",
+    "@shikijs/engine-javascript": "4.5.0",
+    "@shikijs/primitive": "4.5.0"
+  }
+}

@@ -9,6 +9,7 @@ package may import another only if it declares it there; `AGENTS.md` lists what 
 | `core` | The kernel: plugin registry, `compile`, scene, text metrics, SVG, placement check and the standard look. |
 | `parts` | Pieces several plugins draw alike: title header, decision bar, legend. |
 | `layout-grid` | Grid layout for plugins: places nodes and frames, routes edges, places labels. |
+| `code` | Highlighted source for kinds that show code: lines of text runs with roles, their style table, excerpts by symbol, region or lines. |
 | `testkit` | Golden files and a strict JSON Schema check, for tests only. |
 | `cli` | The command line `dgr`. |
 

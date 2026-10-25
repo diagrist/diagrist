@@ -46,6 +46,29 @@ Simple Icons
                CC0 covers the drawings, not the trademarks they show.
   Source:      https://simpleicons.org, https://github.com/simple-icons/simple-icons
 
+Grammars
+========
+
+TextMate grammars of Java, SQL, JSON and XML (Visual Studio Code)
+  Shipped in:  @diagrist/code, src/grammars/*.json in the repository, bundled
+               into its code
+  Copyright:   2015 - present Microsoft Corporation
+  Licence:     MIT License, full text in GRAMMARS.md of @diagrist/code
+  Source:      https://github.com/microsoft/vscode, by way of the npm package
+               tm-grammars 1.32.22; commits and checksums in GRAMMARS.md
+
+TextMate grammar of Kotlin (vscode-kotlin)
+  Shipped in:  @diagrist/code, as above
+  Copyright:   2016 George Fraser, 2018 fwcd
+  Licence:     MIT License, full text in GRAMMARS.md of @diagrist/code
+  Source:      https://github.com/fwcd/vscode-kotlin, by way of tm-grammars
+
+TextMate grammar of YAML (yaml.tmbundle)
+  Shipped in:  @diagrist/code, as above
+  Licence:     the TextMate bundle licence (permission to copy, use, modify,
+               sell and distribute), text in GRAMMARS.md of @diagrist/code
+  Source:      https://github.com/textmate/yaml.tmbundle, by way of tm-grammars
+
 
 Dependencies installed from npm
 ===============================
@@ -57,3 +80,9 @@ their own licence files.
   Used by:     @diagrist/export-png, to render PNG from SVG
   Licence:     Mozilla Public License 2.0
   Source:      https://github.com/yisibl/resvg-js
+
+Shiki 4.5.0: @shikijs/primitive and @shikijs/engine-javascript
+  Used by:     @diagrist/code, to split code into tokens with the JavaScript
+               regular expression engine, without WebAssembly
+  Licence:     MIT License
+  Source:      https://github.com/shikijs/shiki

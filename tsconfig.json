@@ -10,6 +10,8 @@
     { "path": "packages/parts/test" },
     { "path": "packages/layout-grid" },
     { "path": "packages/layout-grid/test" },
+    { "path": "packages/code" },
+    { "path": "packages/code/test" },
     { "path": "packages/testkit/test" },
     { "path": "packages/cli" },
     { "path": "packages/cli/test" },

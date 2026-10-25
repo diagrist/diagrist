@@ -24,6 +24,7 @@ working **on** Diagrist. Read it fully before changing code. The principles behi
 | `packages/core` | The kernel: plugin registry, `compile`, scene, text metrics, SVG, placement check, and the standard look (`src/standard`: palette, strokes, font roles, base rules) that themes overlay (ADR 0014). No Node APIs. |
 | `packages/parts` | Pieces several plugins draw alike: title header in both forms, decision bar with the `adr` table, legend mechanics, the sheet with margin notes and sentence legend, `wrap`, note geometry, card and note rules, their roles and words (ADR 0014, 0023). No Node APIs, no kinds. |
 | `packages/layout-grid` | Grid layout library for plugins: places measured nodes and frames, routes edges, places labels, layers graphs (ADR 0015). Depends on `core` only, knows no kind. |
+| `packages/code` | Highlighted source code for kinds that show it (ADR 0025): Shiki's JavaScript regex engine with the grammars of Java, Kotlin, SQL, YAML, JSON and XML vendored in `src/grammars` (provenance in `GRAMMARS.md`), lines of text runs with roles, a style table that paints them, and excerpts by `symbol`, `region` or `lines`. Depends on `core` and `lang`, knows no kind. |
 | `packages/testkit` | Golden-file comparison and a strict JSON Schema check for tests. Node only. |
 | `packages/cli` | The command line `dgr` (also `diagrist`). Commands are tables in `src/commands`; the kernel is reached through the `Engine` port. Published as `diagrist`. `src/tables.ts` hands the tables to `tools/docs` as `diagrist/tables`, a subpath that resolves inside the workspace only and that `publishConfig.exports` leaves out of the tarball. |
 | `plugins/plugin-uml` | UML kinds `sequence`, `usecase`, `activity`, `class`, `state`, each in `src/<kind>` with the same folders, its words in `describe/` and its own entry `@diagrist/plugin-uml/<kind>` (ADR 0024); pieces two kinds share in `src/shared`, the UML 2.5.1 catalogs in `src/spec`. |
@@ -64,7 +65,7 @@ Most rules are tests in `test/architecture`, and their failures name the offendi
 | Rule | What the build rejects |
 |---|---|
 | Comments | Anything but TSDoc (`/** ... */`), and TSDoc that only repeats the name. No `//`, no `/* */`, hence no suppressions either: make the code explain itself. |
-| Purity | `Date`, `Math.random`, `console`, timers, `fetch`, `Intl`, `localeCompare` and the other `toLocale…` methods, `process` and `node:` imports in the `src` of `lang`, `core`, `parts`, `layout-grid`, every plugin and every tool. Same input, same bytes. |
+| Purity | `Date`, `Math.random`, `console`, timers, `fetch`, `Intl`, `localeCompare` and the other `toLocale…` methods, `process` and `node:` imports in the `src` of every package but the testkit, which only tests use. Same input, same bytes. |
 | Purity of the CLI | The same in `packages/cli/src`, except that its host adapters `main.ts`, `node-io.ts` and `node-watcher.ts` may use `process` and `node:` modules, and `node:util` is allowed for `parseArgs`. |
 | Host entries | A plugin that needs the disk keeps it in one Node entry, listed in the test. So far that is `plugins/export-png/src/node.ts`, published as `@diagrist/export-png/node`. |
 | Boundaries | Importing a `@diagrist/*` package that your `package.json` does not declare, a plugin depending on another plugin, and relative imports that leave the package. |

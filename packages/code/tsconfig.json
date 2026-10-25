@@ -1,0 +1,11 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": ".",
+    "outDir": ".tsbuild",
+    "emitDeclarationOnly": true,
+    "resolveJsonModule": true
+  },
+  "include": ["src", "src/grammars/*.json"],
+  "references": [{ "path": "../lang" }, { "path": "../core" }]
+}
