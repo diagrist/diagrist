@@ -19,6 +19,8 @@
     { "path": "plugins/plugin-uml/test" },
     { "path": "plugins/plugin-architecture" },
     { "path": "plugins/plugin-architecture/test" },
+    { "path": "plugins/plugin-code" },
+    { "path": "plugins/plugin-code/test" },
     { "path": "plugins/export-png" },
     { "path": "plugins/export-png/test" },
     { "path": "tools/docs" },

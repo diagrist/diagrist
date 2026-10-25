@@ -1,0 +1,7 @@
+# One method, read from the source file when the picture is built. Marks explain the lines that carry the design.
+diagram code "Überweisung einreichen" subtitle="TransferService.submit, so wie der Code heute aussieht" locale=de
+
+source submit "TransferService.submit" src="TransferService.java" symbol=submit
+  mark 27-30 "Idempotenz: ein zweiter Aufruf mit demselben Schlüssel liefert die erste Überweisung zurück."
+  mark 31 "Das Tageslimit wird vor dem Buchen geprüft, synchron und lokal."
+  mark 34 "Das Event geht in derselben Transaktion in die Outbox, nicht direkt an Kafka."

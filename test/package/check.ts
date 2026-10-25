@@ -1,8 +1,8 @@
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { cpSync, existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join, resolve } from 'node:path';
+import { basename, dirname, join, resolve } from 'node:path';
 import { staleFiles } from './dist.ts';
 
 /** The fields of a package.json that name built files. */
@@ -17,20 +17,11 @@ interface Manifest {
 /** The export condition that resolves to `src/` inside the workspace; it never names a published file. */
 const SOURCE = '@diagrist/source';
 
-/** One example per diagram plugin, with the hash file its tests keep the SVG's SHA-256 in, and its line there. */
+/** One example per diagram plugin, with the hash file its tests keep the SVG's SHA-256 in under the same path. */
 const PICTURES = [
-  {
-    plugin: 'plugins/plugin-uml',
-    example: 'sequence/oauth-pkce.dgr',
-    hashes: 'sequence-examples.sha256',
-    listed: 'sequence/oauth-pkce.dgr',
-  },
-  {
-    plugin: 'plugins/plugin-architecture',
-    example: 'architecture/cloud.dgr',
-    hashes: 'examples.sha256',
-    listed: 'architecture/cloud.dgr',
-  },
+  { plugin: 'plugins/plugin-uml', example: 'sequence/oauth-pkce.dgr', hashes: 'sequence-examples.sha256' },
+  { plugin: 'plugins/plugin-architecture', example: 'architecture/cloud.dgr', hashes: 'examples.sha256' },
+  { plugin: 'plugins/plugin-code', example: 'ueberweisung/aufruf.dgr', hashes: 'examples.sha256' },
 ] as const;
 
 const EXAMPLES = readdirSync('plugins', { recursive: true, encoding: 'utf8' })
@@ -135,21 +126,26 @@ function smoke(project: string, version: string): string[] {
   ].filter((problem) => problem !== '');
 }
 
-/** Builds one example; its SVG must hash as its plugin's tests say, and with `png` a PNG of twice its size follows. */
+/**
+ * Builds one example from a copy of its folder in the project, where `dgr` may read the files it names; its SVG must
+ * hash as its plugin's tests say, and with `png` a PNG of twice its size follows.
+ */
 function pictureProblem(
   run: (args: readonly string[]) => { status: number | null },
   project: string,
   picture: (typeof PICTURES)[number],
   png: boolean,
 ): string {
-  const source = resolve(picture.plugin, 'examples', picture.example);
+  const folder = join(picture.plugin, 'examples', dirname(picture.example));
+  const copy = join('examples', picture.plugin, dirname(picture.example));
+  cpSync(folder, join(project, copy), { recursive: true });
   const out = join(project, `${picture.example.replace(/\W/g, '-')}.svg`);
-  const built = run(['build', source, '-o', out, ...(png ? ['--png'] : [])]);
+  const built = run(['build', join(copy, basename(picture.example)), '-o', out, ...(png ? ['--png'] : [])]);
   if (built.status !== 0 || !existsSync(out)) return `dgr build ${picture.example} failed`;
   const svg = readFileSync(out, 'utf8');
   const hashes = readFileSync(join(picture.plugin, 'test', '__golden__', picture.hashes), 'utf8').split('\n');
   const hash = createHash('sha256').update(svg).digest('hex');
-  if (!hashes.includes(`${hash}  ${picture.listed}`)) return `dgr build ${picture.example} differs from its hash`;
+  if (!hashes.includes(`${hash}  ${picture.example}`)) return `dgr build ${picture.example} differs from its hash`;
   return png ? pngProblem(svg, out.replace(/\.svg$/, '.png')) : '';
 }
 

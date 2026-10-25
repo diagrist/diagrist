@@ -1,0 +1,11 @@
+# From a call to what it calls, across files and languages: Java to Java to SQL.
+diagram code "Vom Aufruf zur Tabelle" subtitle="Wohin das Event aus submit geht, alle Karten aus den Quelldateien" locale=de
+
+source submit "TransferService.submit" src="TransferService.java" symbol=submit
+  mark 34 "Das Event geht an die Outbox."
+source publish "Outbox.publish" src="Outbox.java" region=publish
+  mark 19-22 "Eine Zeile in derselben Transaktion wie die Buchung."
+source table "outbox_entry" src="outbox.sql" region=table
+
+link submit 34 -> publish "outbox.publish(event)"
+link publish 19 -> table "INSERT"

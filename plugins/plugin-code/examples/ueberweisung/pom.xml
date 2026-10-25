@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+  <artifactId>payments</artifactId>
+  <dependencies>
+    <!-- #region kafka -->
+    <dependency>
+      <groupId>org.springframework.kafka</groupId>
+      <artifactId>spring-kafka</artifactId>
+    </dependency>
+    <!-- #endregion -->
+  </dependencies>
+</project>

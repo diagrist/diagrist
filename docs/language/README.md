@@ -22,6 +22,7 @@ Each kind has its own page with every statement, its parts, examples and the cod
 | [`context`](context.md) | `architecture` | A C4 system context diagram (level 1): the system as one box, the people who use it and the systems around it, placed in a named grid. |
 | [`container`](container.md) | `architecture` | A C4 container diagram (level 2): the applications and data stores of a system, grouped by responsibility, placed in a named grid. |
 | [`component`](component.md) | `architecture` | A C4 component diagram (level 3): the components inside a container and what they depend on, placed in a named grid. |
+| [`code`](code.md) | `code` | A code diagram: excerpts of real source files as highlighted cards, one below the other, with marked lines, numbered notes below each card and arrows from a call to what it calls. |
 
 ## Statements of every kind
 

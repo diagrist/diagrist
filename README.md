@@ -32,6 +32,7 @@ Each kind comes from a plugin, and each has a page with every statement, its exa
 | [`context`](docs/language/context.md) | [`plugin-architecture`](plugins/plugin-architecture/README.md) | C4 system context diagram (level 1) |
 | [`container`](docs/language/container.md) | `plugin-architecture` | C4 container diagram (level 2) |
 | [`component`](docs/language/component.md) | `plugin-architecture` | C4 component diagram (level 3) |
+| [`code`](docs/language/code.md) | [`plugin-code`](plugins/plugin-code/README.md) | Excerpts of source files as highlighted cards, with marks, notes and links |
 
 UML diagrams are laid out by Diagrist itself. C4 diagrams place their elements in a named grid that the file
 declares, so the author decides what stands next to what.

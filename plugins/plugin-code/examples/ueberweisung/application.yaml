@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: payments
+# #region relay
+outbox:
+  relay:
+    interval: 500ms
+    batch-size: 100
+    topic: payments.transfer-events
+# #endregion
+limits:
+  daily-default: 10000.00
+  currency: EUR

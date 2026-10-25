@@ -18,6 +18,7 @@ describe('the plugins the CLI ships with', () => {
   it('lists every kind of every shipped plugin', async () => {
     const { json } = await callJson(['grammar'], { engine });
     const listed = JSON.stringify(json);
-    for (const kind of ['sequence', 'usecase', 'context', 'container', 'component']) expect(listed).toContain(kind);
+    for (const kind of ['sequence', 'usecase', 'context', 'container', 'component', 'code'])
+      expect(listed).toContain(kind);
   });
 });

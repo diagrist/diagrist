@@ -6,12 +6,15 @@ import { call } from './support/memory-io.js';
 
 const plugins = new URL('../../../plugins/', import.meta.url);
 
-/** Every example file of every plugin, as `plugin-uml/examples/state/freigabe.dgr`. */
-const examples = readdirSync(plugins, { recursive: true, encoding: 'utf8' })
-  .filter((path) => /^[^/]+\/examples\/.+\.dgr$/.test(path))
+/** Every file below the examples of every plugin, the source files that code diagrams read included. */
+const sources = readdirSync(plugins, { recursive: true, encoding: 'utf8' })
+  .filter((path) => /^[^/]+\/examples\/.+\.\w+$/.test(path))
   .sort();
 
-const files = Object.fromEntries(examples.map((path) => [path, readFileSync(new URL(path, plugins), 'utf8')]));
+/** Every example of every plugin, as `plugin-uml/examples/state/freigabe.dgr`. */
+const examples = sources.filter((path) => path.endsWith('.dgr'));
+
+const files = Object.fromEntries(sources.map((path) => [path, readFileSync(new URL(path, plugins), 'utf8')]));
 const engine = coreEngine(PLUGINS);
 
 /**

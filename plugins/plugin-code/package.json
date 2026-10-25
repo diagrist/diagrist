@@ -1,0 +1,53 @@
+{
+  "name": "@diagrist/plugin-code",
+  "version": "0.0.0",
+  "description": "Code diagrams for Diagrist: excerpts of real source files as highlighted cards, with marked lines, notes and arrows from a call to what it calls.",
+  "keywords": [
+    "diagrist",
+    "diagrams-as-code",
+    "diagram",
+    "source-code",
+    "syntax-highlighting",
+    "documentation"
+  ],
+  "homepage": "https://github.com/diagrist/diagrist/tree/main/plugins/plugin-code#readme",
+  "bugs": "https://github.com/diagrist/diagrist/issues",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/diagrist/diagrist.git",
+    "directory": "plugins/plugin-code"
+  },
+  "license": "Apache-2.0",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "@diagrist/source": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "NOTICE"
+  ],
+  "engines": {
+    "node": ">=22.11"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "scripts": {
+    "build": "tsdown"
+  },
+  "dependencies": {
+    "@diagrist/code": "workspace:*",
+    "@diagrist/core": "workspace:*",
+    "@diagrist/lang": "workspace:*",
+    "@diagrist/parts": "workspace:*"
+  },
+  "devDependencies": {
+    "@diagrist/testkit": "workspace:*"
+  }
+}

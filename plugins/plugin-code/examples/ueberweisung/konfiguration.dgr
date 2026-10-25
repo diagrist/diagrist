@@ -1,0 +1,6 @@
+# Configuration next to the build file: the relay's settings and the dependency it needs, each cut by a region.
+diagram code "Outbox-Relay" subtitle="Was der Relay braucht: Einstellungen und Abhängigkeit" locale=de
+
+source relay "outbox.relay" src="application.yaml" region=relay
+  mark 7 "Alle 500 ms holt der Relay bis zu 100 offene Zeilen."
+source kafka "spring-kafka" src="pom.xml" region=kafka

@@ -1,0 +1,6 @@
+# The class zoomed out: signatures and annotations stay, bodies fold, the numbers are those of the file.
+diagram code "TransferService" subtitle="Herausgezoomt: was die Klasse anbietet und mit welchen Transaktionen" locale=de
+
+source cls "TransferService" src="TransferService.java" outline
+  mark 25-26 "Schreibt: eine Transaktion pro Überweisung."
+  mark 38-39 "Liest nur."

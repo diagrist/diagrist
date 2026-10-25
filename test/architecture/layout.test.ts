@@ -18,8 +18,9 @@ const ELEMENTS = ['lifeline', 'swimlane', 'transition', 'pseudostate', 'generali
 /**
  * Keywords of the tables that are also the neutral packages' own words or plain English, so they say nothing about a
  * kind there: the scene's nodes, edges, frames, groups, notes and styles, the grid's layers and flows, the decision
- * bar that `parts` draws for every kind with its `adr` table, the CSS class, the alt text of a picture, a package of
- * npm, the queue of a path search, the `and` and `else` of a sentence, and the like.
+ * bar that `parts` draws for every kind with its `adr` table and its marks, the CSS class, the alt text of a picture, a
+ * package of npm, the queue of a path search, the `and` and `else` of a sentence, the code of a diagnostic, the source
+ * a picture is compiled from, a link in a document, and the like.
  */
 const GENERAL = new Set([
   'adr',
@@ -28,6 +29,7 @@ const GENERAL = new Set([
   'break',
   'choice',
   'class',
+  'code',
   'context',
   'decision',
   'edge',
@@ -40,7 +42,9 @@ const GENERAL = new Set([
   'group',
   'join',
   'layer',
+  'link',
   'loop',
+  'mark',
   'merge',
   'node',
   'note',
@@ -48,6 +52,7 @@ const GENERAL = new Set([
   'package',
   'queue',
   'ref',
+  'source',
   'style',
   'system',
   'time',

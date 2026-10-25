@@ -120,6 +120,8 @@ keep it so; they go in the clean-up with a second baseline.
 | Debt | Clean-up |
 |---|---|
 | **Shiki still looks at the clock.** `vscode-textmate` calls `Date.now()` once per line even with `tokenizeTimeLimit: 0` and only ignores the result, and it reads `process.env.VSCODE_TEXTMATE_DEBUG` when it loads, which turns on logging and nothing else. The purity test reads only our sources; `packages/code/test/highlight.test.ts` proves the runs do not depend on the clock. | Upstream: skip the clock when the limit is 0. |
+| **The paper colours exist twice.** `plugins/plugin-code/src/styles.ts` repeats the ink, paper and outline colours of the C4 sheet `paper` by value, since plugins may not import each other. | Take them from `parts` or the standard look once the looks refactor of C4 moves the paper palette there. |
+| **Badges of marks that start on one line overlap.** Each mark's badge sits at the first line of its band, so two marks starting on the same line draw two badges in one spot. No example does it. | Stack such badges to the left, or refuse the second mark. |
 | **`symbol` knows braces, not syntax.** A declaration is the line whose tokens the grammar marks as declaring the name, and its end the brace that closes it, so `symbol` works for Java and Kotlin and finds nothing in SQL, YAML, JSON or XML. | A selection by key path for YAML and JSON, or by tag for XML, when a diagram needs one. |
 
 ## Tools
