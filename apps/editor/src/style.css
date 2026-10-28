@@ -1,0 +1,195 @@
+* {
+  box-sizing: border-box;
+}
+html,
+body {
+  height: 100%;
+  margin: 0;
+}
+body {
+  font:
+    14px / 1.4 system-ui,
+    -apple-system,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
+  color: #212529;
+  background: #f8f9fa;
+  display: flex;
+  flex-direction: column;
+}
+button,
+select,
+textarea {
+  font: inherit;
+}
+button,
+select {
+  padding: 4px 10px;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  background: #fff;
+  color: inherit;
+  cursor: pointer;
+}
+button:hover {
+  background: #e9ecef;
+}
+
+.bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-bottom: 1px solid #dee2e6;
+  background: #fff;
+}
+.brand {
+  margin-right: 12px;
+}
+.spacer {
+  flex: 1;
+}
+
+.split {
+  flex: 1;
+  display: grid;
+  grid-template-columns: minmax(320px, 2fr) 3fr;
+  min-height: 0;
+}
+.left {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  border-right: 1px solid #dee2e6;
+  background: #fff;
+}
+.editor {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+.editor .cm-editor {
+  height: 100%;
+  font-size: 13px;
+}
+.editor .cm-scroller {
+  font-family: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+  font-variant-ligatures: none;
+}
+.right {
+  min-height: 0;
+  overflow: auto;
+}
+
+.preview {
+  padding: 24px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+.preview svg {
+  max-width: 100%;
+  height: auto;
+  background: #fff;
+  box-shadow: 0 0 0 1px #dee2e6;
+}
+.preview.stale svg {
+  opacity: 0.45;
+}
+
+.findings {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  max-height: 30%;
+  overflow: auto;
+  border-top: 1px solid #dee2e6;
+}
+.findings:empty {
+  display: none;
+}
+.findings li {
+  padding: 4px 12px;
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 12px;
+  cursor: pointer;
+}
+.findings li.error {
+  color: #b02a37;
+}
+.findings li.warning {
+  color: #997404;
+}
+.findings li:hover {
+  background: #f1f3f5;
+}
+
+dialog {
+  width: min(640px, 92vw);
+  border: 1px solid #ced4da;
+  border-radius: 6px;
+  padding: 20px;
+}
+dialog h2 {
+  margin: 0 0 8px;
+  font-size: 18px;
+}
+dialog label {
+  display: block;
+  margin: 12px 0 4px;
+  color: #495057;
+}
+dialog textarea {
+  display: block;
+  width: 100%;
+  margin-top: 4px;
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 12px;
+  word-break: break-all;
+}
+dialog .note {
+  color: #6c757d;
+  font-size: 13px;
+}
+dialog .actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-top: 16px;
+}
+
+body.embed {
+  background: #fff;
+}
+.preview.fit {
+  flex: 1;
+  padding: 0;
+  align-items: center;
+  min-height: 0;
+}
+.preview.fit svg {
+  width: 100%;
+  height: 100%;
+  max-height: 100vh;
+  box-shadow: none;
+}
+.embed .findings {
+  max-height: none;
+  border: 0;
+  padding: 12px;
+}
+.edit-link {
+  position: fixed;
+  right: 6px;
+  bottom: 4px;
+  font-size: 11px;
+  color: #6c757d;
+  text-decoration: none;
+  background: rgba(255, 255, 255, 0.85);
+  padding: 1px 4px;
+  border-radius: 3px;
+}
+.edit-link:hover {
+  color: #212529;
+}

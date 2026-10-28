@@ -1,0 +1,28 @@
+{
+  "name": "@diagrist/editor",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Live editor for Diagrist at cloud.diagrist.com: compiles in the browser, keeps the source in the URL fragment.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -p tsconfig.json && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@codemirror/language": "^6.13.1",
+    "@codemirror/lint": "^6.9.7",
+    "@codemirror/state": "^6.7.6",
+    "@diagrist/core": "workspace:*",
+    "@diagrist/export-png": "workspace:*",
+    "@diagrist/plugin-architecture": "workspace:*",
+    "@diagrist/plugin-code": "workspace:*",
+    "@diagrist/plugin-uml": "workspace:*",
+    "@resvg/resvg-wasm": "2.6.2",
+    "codemirror": "^6.0.2"
+  },
+  "devDependencies": {
+    "vite": "^8.3.5"
+  }
+}
