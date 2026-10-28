@@ -2,7 +2,7 @@
 
 Diagrist turns text (`.dgr`) into checked, deterministic diagrams. This file is the entry point for coding agents
 working **on** Diagrist. Read it fully before changing code. The principles behind it are in
-`docs/engineering.md`, the decisions in `docs/adr/`.
+`docs/engineering.md`, the decisions in `docs/adr/`, and what Diagrist draws and refuses to draw in `docs/scope.md`.
 
 ## Glossary
 

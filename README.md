@@ -162,6 +162,7 @@ node packages/cli/dist/main.js build diagrams/order.dgr --png
 | The command line: commands, options, exit codes, JSON output | [`docs/cli.md`](docs/cli.md) |
 | UML 2.5.1 coverage of the UML kinds | [`plugins/plugin-uml/docs/spec-coverage.md`](plugins/plugin-uml/docs/spec-coverage.md) |
 | How the code is organised and the rules it follows | [`AGENTS.md`](AGENTS.md), [`docs/engineering.md`](docs/engineering.md) |
+| What Diagrist draws, how it may look, what it refuses | [`docs/scope.md`](docs/scope.md) |
 | Why it is built this way | [`docs/adr`](docs/adr) |
 | Debt we accept on purpose | [`docs/burn-down.md`](docs/burn-down.md) |
 | How a release is cut, and what is published | [`docs/release`](docs/release/README.md) |
