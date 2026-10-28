@@ -22,11 +22,11 @@ more look or one more styling knob, and the product drifts toward a drawing tool
    `deployment`; `code`; and the new `phases`, `decision` and `requirements`. `landscape`, `domain`, `flowchart`
    and `er` wait for a real diagram. As-is and to-be, focus, film strips, variant comparisons and zoom-level sheets
    are modes and compositions of these kinds, built on `variant` (ADR 0021), not kinds.
-3. **Three looks, and a look never reinterprets the model.** `paper` is proposed as the default of every non-UML kind (pending the owner's decision), `plain`
-   and `columns` are opt-in, `cards` and `blocks` receive no new kinds. A look changes fonts, measures, paint and
+3. **Three looks, and a look never reinterprets the model.** `plain` is the default of every non-UML kind (the owner's decision of
+   28.10.2026) and is improved toward the visual principles of point 4; `paper` and `columns` are opt-in, `cards` and `blocks` receive no new kinds. A look changes fonts, measures, paint and
    values of named options; it never changes which elements exist, where they sit, which flow is accented, what a
    status means or what a label says. A theme changes paint only. UML kinds keep the specification look and take only
-   the sheet from `paper`.
+   the sheet (kicker, title, status line) from the C4 looks.
 4. **Visual principles are checks.** One emphasis per picture, colour only with a legend entry and at most four
    tones, every distinction surviving greyscale, a legend whenever more than one edge kind or any status, tone or
    diff appears, focus by dimming never by removal, a title with kind and status line, names never in capitals, no
@@ -45,5 +45,5 @@ more look or one more styling knob, and the product drifts toward a drawing tool
 Requests for a new kind are answered with the rule in point 2, requests for a new look with point 3, and requests
 for a knob with point 1. The next work is ordered by the owner's needs: the `flow` extensions and `focus=` on C4,
 then `deployment`, `phases`, `decision` and `requirements` with the two missing layout families and the strip,
-each on `paper`. `docs/scope.md` carries the catalogue and the checkable rules; the rules become tests and
+each in `plain` first. `docs/scope.md` carries the catalogue and the checkable rules; the rules become tests and
 diagnostic codes as the kinds arrive, and `docs/burn-down.md` lists what is accepted on the way.

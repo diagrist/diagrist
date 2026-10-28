@@ -58,7 +58,7 @@ a graphics tool's job.
 | 9 | A legend that draws the real symbols, and a footer with name of the view, purpose, author and date, make a picture usable outside the document it was made for. | fintech-19, people-01, bigtech-20, concepts-15, people-18, cloud-09 | The legend is generated from what the picture uses (lines, statuses, tones) and is mandatory as soon as there is more than one edge kind; the header gains a status and date line (kicker) that every kind draws. | look, parts |
 | 10 | Groups that cross each other are unreadable as frames; one axis as columns and one as rows reads at once, and zones can be a floor or a tab instead of yet another frame. | cloud-06 (counter), cloud-18, cloud-01, cloud-12, cloud-02, cloud-17, bigtech-19, concepts-21 | Deployment is a grid whose columns are zones and whose rows are tiers; a zone is a frame, an area or a caption, chosen by the look; nesting deeper than two frames is a warning. | layout |
 | 11 | Dense is fine when the set is small and consistent: short codes in the node plus a legend, replicas as a stack, counts as brackets or dots, never the same icon twelve times. | cloud-09, cloud-10, fintech-06, concepts-19, people-21, fintech-11; counter-examples cloud-05, bigtech-09, fintech-09 | `replicas=` draws a stack; a picture with more than about forty nodes and no groups gets a finding that asks for domains; identical siblings are not drawn, they are counted. | check, layout |
-| 12 | The tool's default is the benchmark: an unchanged Mermaid look in a prominent post reads as generic, missing labels or edges through titles read as broken. | bigtech-01, cloud-19, cloud-20, people-16 (counter); bigtech-15, cloud-14, fintech-05, concepts-22 (model) | `paper` is proposed as the default of every non-UML kind (the owner decides, see ADR 0027); every label is a real `<text>` and a test proves each label of the model is in the SVG; lines join the placement check so an edge through a label or a group head is a finding. | look, check |
+| 12 | The tool's default is the benchmark: an unchanged Mermaid look in a prominent post reads as generic, missing labels or edges through titles read as broken. | bigtech-01, cloud-19, cloud-20, people-16 (counter); bigtech-15, cloud-14, fintech-05, concepts-22 (model) | `plain` stays the default and is improved toward these lessons (the owner's decision of 28.10.2026, ADR 0027); every label is a real `<text>` and a test proves each label of the model is in the SVG; lines join the placement check so an edge through a label or a group head is a finding. | look, check |
 
 Two things the collection shows that are not Diagrist's job. The hand-drawn pictures (people-03, bigtech-13,
 cloud-16, people-21, fintech-14, people-06) say "this is provisional, argue with me"; that message is real, but
@@ -161,14 +161,13 @@ Three looks are enough for the long term, and each future kind picks its values 
 
 | Look | Role | Why it stays |
 |---|---|---|
-| `paper` | proposed default of every non-UML kind, pending the owner's decision: C4, deployment, phases, decision, requirements, code | the quietest look, prints in greyscale without loss, Inter is bundled, one emphasis (the yellow core), decisions as margin notes; the review named it the new standard, and `plugin-code` already takes its colours |
-| `plain` | opt-in: JetBrains Mono everywhere, strip legend, decision bar | byte-identical to the predecessor, the goldens and the README pictures depend on it, and it is honest in a terminal and a FigJam screenshot |
+| `plain` | default of every non-UML kind (owner's decision, 28.10.2026): JetBrains Mono, strip legend, decision bar | the look the owner prefers; honest in a terminal, a git diff and a FigJam screenshot. It is improved toward the lessons above (one main path and a quiet context, colour only with a legend entry, focus by dimming), which moves its goldens once, on purpose, with a visible comparison |
+| `paper` | opt-in: Inter, warm paper, one yellow core, decisions as margin notes | the quietest look for printed decision papers; `plugin-code` takes its colours |
 | `columns` | opt-in after its fixes: column heads, layer bands, names in the top edge | the only look that solves the layer bar and reads as a technical sheet; a second real user of the option set |
 
-`cards` and `blocks` stay as values for the pictures that use them but receive no new kinds; when the goldens move
-to `paper` they become candidates for removal. `panel` and `instrument` stay parked branches; `instrument` may come
+`cards` and `blocks` stay as values for the pictures that use them but receive no new kinds; they stay frozen. `panel` and `instrument` stay parked branches; `instrument` may come
 back as the look of `phases` and `decision` if those kinds want a face, with the corrections the review listed. UML
-kinds keep the look of the specification by the owner's decision; what they take from `paper` is only the sheet
+kinds keep the look of the specification by the owner's decision; what they take from the C4 looks is only the sheet
 (kicker, title, status line) so a document reads as one set.
 
 ### Principles a look must satisfy, as checkable rules
