@@ -1,0 +1,54 @@
+# Radverleih, C4 level 2. The base is today's state; `soll` is the target picture, drawn as a comparison with
+# today, and `a` is option A for the decision paper, built on the target picture (see entscheidung.dgr).
+diagram container "Radverleih heute" subtitle="Arbeitsstand 02.10.2026, Ist-Zustand" locale=de
+grid cols client,own.1,own.2,vendor
+grid rows top,main,data
+
+group verleih "Radverleih"         own      team="Team Ausleihe"
+group vendor  "Stationshersteller" external team="Wartungsvertrag"
+
+person fahrerin "Fahrerin"         tech="App-Nutzerin"                                         at client/main
+node app        "App"              tech="iOS und Android"          icon=smartphone at own.1/main  in verleih
+node backend    "Backend"          tech="Kotlin, Ktor"             icon=server     at own.2/main  in verleih
+node db         "Datenbank"        tech="PostgreSQL"               icon=postgresql at own.2/data  in verleih
+node schloesser "Schlösser"        tech="Firmware des Herstellers" icon=lock       at vendor/top  in vendor
+node portal     "Herstellerportal" tech="HTTP-API, Polling"        icon=globe      at vendor/main in vendor
+
+flow ausleihe accent
+  fahrerin -> app        "Rad wählen"
+  app      -> backend    "entsperren" via=HTTPS/JSON
+  backend  -> portal     "Befehl" via=HTTP
+  portal   -> schloesser "öffnen" via=Funk
+
+flow status primary
+  backend -> db "Fahrten speichern"
+
+variant soll "Radverleih, Zielbild 2027" subtitle="Arbeitsstand 02.10.2026, Zielbild zur Abstimmung" diff
+  drop grid rows
+  grid rows top,main,data,batch
+  group infra "Plattform" shared team="Betrieb, gemeinsam genutzt"
+  set portal tech="HTTP-API, Altweg" status=deprecated
+  set backend replicas=2
+  node broker   "MQTT-Broker"   tech="Stationsnachrichten" shape=queue at own.2/top in infra mark=E1 emph
+  node prognose "Akku-Prognose" tech="Bedarf je Station" shape=job status=planned at own.2/batch in verleih
+  drop flow status
+  flow status primary
+    schloesser ~> broker  "Zustand melden" via=MQTT
+    broker     ~> backend "Zustand konsumieren"
+    backend    -> db      "Fahrten speichern"
+  edge prognose => db "Fahrten auswerten" schedule="täglich 02:00" volume="40k"
+  adr E1 "Wie erfahren wir vom Zustand der Räder?" = "Die Schlösser melden sich selbst" => "Das Polling beim Hersteller entfällt."
+
+variant a "Variante A: Schlösser direkt über MQTT" subtitle="Arbeitsstand 02.10.2026, Entwurf zur Diskussion" from soll
+  drop node prognose
+  drop edge prognose => db
+  drop flow ausleihe
+  flow ausleihe accent
+    fahrerin -> app        "Rad wählen"
+    app      -> backend    "entsperren" via=HTTPS/JSON mark=E2
+    backend  -> broker     "Befehl senden" via=MQTT
+    broker   -> schloesser "öffnen" via=MQTT mark=E3
+  drop adr E1
+  adr E1 "Wie erfahren wir vom Zustand der Räder?" = "Die Schlösser melden sich selbst"     => "Das Polling beim Hersteller entfällt."
+  adr E2 "Wer entscheidet über das Entsperren?"    = "Das Backend, nach Prüfung des Kontos" => "Die App schickt nur den Wunsch."
+  adr E3 "Wie erreicht der Befehl das Schloss?"    = "Direkt über den eigenen Broker"       => "Braucht Zugangsdaten je Schloss." open="Team Ausleihe"

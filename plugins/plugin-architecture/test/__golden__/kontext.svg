@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 816" width="960" height="816" class="dia" role="img" aria-label="Radverleih im Systemkontext"><title>Radverleih im Systemkontext</title><style>
+  .dia { font-family: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 11px; }
+  .dia .shape { fill: #ffffff; stroke: #18181b; stroke-width: 1.5; }
+  .dia .shape-muted { fill: #f4f4f5; stroke: #18181b; stroke-width: 1.5; }
+  .dia .shape-emph { fill: #ffffff; stroke: #18181b; stroke-width: 2.5; }
+  .dia .frame { fill: none; stroke: #a1a1aa; stroke-width: 1; stroke-dasharray: 4 3; }
+  .dia .frame-own { fill: #f4f4f5; fill-opacity: 0.55; stroke: #18181b; stroke-width: 2; }
+  .dia .line { fill: none; stroke: #18181b; stroke-width: 1.5; }
+  .dia .line-accent { fill: none; stroke: #1d4ed8; stroke-width: 1.8; }
+  .dia .dashed { stroke-dasharray: 6 4; }
+  .dia .label { fill: #18181b; font-size: 10px; }
+  .dia .label-accent { fill: #1d4ed8; font-size: 10px; }
+  .dia .label-bold { fill: #18181b; font-weight: 600; font-size: 12px; }
+  .dia .label-title { fill: #18181b; font-weight: 600; font-size: 14px; }
+  .dia .label-group { fill: #18181b; font-weight: 600; font-size: 11px; }
+  .dia .label-note { fill: #52525b; font-size: 10px; }
+  .dia .arrow-open { fill: none; stroke: #18181b; stroke-width: 1.5; }
+  .dia .arrow-filled { fill: #18181b; stroke: none; }
+  .dia .arrow-open-accent { fill: none; stroke: #1d4ed8; stroke-width: 1.8; }
+  .dia .arrow-filled-accent { fill: #1d4ed8; stroke: none; }
+  .dia .halo { paint-order: stroke; stroke: #fafafa; stroke-width: 4px; stroke-linejoin: round; }
+  .dia .badge { fill: #18181b; }
+  .dia .badge-accent { fill: #1d4ed8; }
+  .dia .badge-text { fill: #ffffff; font-weight: 700; font-size: 10px; }
+  .dia .mark { fill: #dbeafe; stroke: #1d4ed8; stroke-width: 1; }
+  .dia .mark-text { fill: #1d4ed8; font-weight: 700; font-size: 9px; }
+</style><rect width="960" height="816" fill="#fafafa"/><defs><marker id="m-open" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto"><path d="M1 1 L11 6 L1 11" class="arrow-open" stroke-linecap="round"/></marker><marker id="m-filled" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto"><path d="M1 1 L11 6 L1 11 Z" class="arrow-filled" stroke-linecap="round"/></marker><marker id="m-open-accent" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto"><path d="M1 1 L11 6 L1 11" class="arrow-open-accent" stroke-linecap="round"/></marker><marker id="m-filled-accent" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto"><path d="M1 1 L11 6 L1 11 Z" class="arrow-filled-accent" stroke-linecap="round"/></marker></defs>
+<text x="32" y="36" class="label-title">Kontextdiagramm (C4 L1) · Radverleih im Systemkontext</text>
+<text x="32" y="52" class="label-note">Arbeitsstand 02.10.2026, Entwurf zur Diskussion</text>
+<g id="node-fahrerin"><circle cx="152" cy="309" r="9" class="shape"/><line x1="152" y1="318" x2="152" y2="342" class="line"/><line x1="137" y1="326" x2="167" y2="326" class="line"/><line x1="152" y1="342" x2="140" y2="358" class="line"/><line x1="152" y1="342" x2="164" y2="358" class="line"/><text x="152" y="374" text-anchor="middle" class="label-bold">Fahrerin</text><text x="152" y="388" text-anchor="middle" class="label-note">leiht per App, zahlt pro Minute</text></g>
+<g id="node-service"><circle cx="152" cy="485" r="9" class="shape"/><line x1="152" y1="494" x2="152" y2="518" class="line"/><line x1="137" y1="502" x2="167" y2="502" class="line"/><line x1="152" y1="518" x2="140" y2="534" class="line"/><line x1="152" y1="518" x2="164" y2="534" class="line"/><text x="152" y="550" text-anchor="middle" class="label-bold">Servicekraft</text><text x="152" y="564" text-anchor="middle" class="label-note">verteilt und repariert Räder</text></g>
+<g id="node-verleih"><rect x="392" y="304" width="192" height="56" rx="8" class="shape-emph"/><text x="406" y="330" class="label-bold">Radverleih</text><text x="406" y="344" class="label-note">App, Ausleihe, Abrechnung</text></g>
+<g id="node-stationen"><rect x="720" y="128" width="192" height="56" rx="8" class="shape"/><text x="734" y="154" class="label-bold">Stationen</text><text x="734" y="168" class="label-note">Schlösser und Ladepunkte</text></g>
+<g id="node-zahlung"><rect x="720" y="304" width="192" height="56" rx="8" class="shape"/><text x="734" y="330" class="label-bold">Zahlungsanbieter</text><text x="734" y="344" class="label-note">Karte und Lastschrift</text></g>
+<g id="node-karten"><rect x="720" y="480" width="192" height="56" rx="8" class="shape"/><text x="734" y="506" class="label-bold">Kartendienst</text><text x="734" y="520" class="label-note">Standorte und Routen</text></g>
+<g id="edge-0"><path d="M172 332 L392 332" class="line-accent" marker-end="url(#m-filled-accent)"/></g>
+<g id="edge-1"><path d="M480 304 L480 148 L720 148" class="line-accent" marker-end="url(#m-filled-accent)"/></g>
+<g id="edge-2"><path d="M584 332 L720 332" class="line-accent" marker-end="url(#m-filled-accent)"/></g>
+<g id="edge-3"><path d="M720 164 L496 164 L496 304" class="line dashed" marker-end="url(#m-open)"/></g>
+<g id="edge-4"><path d="M480 360 L480 508 L172 508" class="line" marker-end="url(#m-filled)"/></g>
+<g id="edge-5"><path d="M496 360 L496 508 L720 508" class="line" marker-end="url(#m-filled)"/></g>
+<g id="label-0"><text x="282" y="322" text-anchor="middle" class="label-accent halo">entsperrt ein Rad</text><text x="282" y="350" text-anchor="middle" class="label-accent halo">App</text><rect x="188" y="324" width="24" height="16" rx="8" class="badge-accent"/><text x="200" y="335.5" text-anchor="middle" class="badge-text">(1)</text></g>
+<g id="label-1"><text x="600" y="138" text-anchor="middle" class="label-accent halo">öffnet das Schloss · MQTT</text><rect x="496" y="140" width="24" height="16" rx="8" class="badge-accent"/><text x="508" y="151.5" text-anchor="middle" class="badge-text">(2)</text></g>
+<g id="label-2"><text x="652" y="322" text-anchor="middle" class="label-accent halo">bucht die Fahrt ab</text><text x="652" y="350" text-anchor="middle" class="label-accent halo">HTTPS</text><rect x="600" y="324" width="24" height="16" rx="8" class="badge-accent"/><text x="612" y="335.5" text-anchor="middle" class="badge-text">(3)</text></g>
+<g id="label-3"><text x="608" y="182" text-anchor="middle" class="label halo">meldet Akkustand · MQTT</text><rect x="680" y="156" width="24" height="16" rx="8" class="badge"/><text x="692" y="167.5" text-anchor="middle" class="badge-text">(4)</text></g>
+<g id="label-4"><text x="326" y="498" text-anchor="middle" class="label halo">plant Einsätze · App</text><rect x="440" y="500" width="24" height="16" rx="8" class="badge"/><text x="452" y="511.5" text-anchor="middle" class="badge-text">(5)</text></g>
+<g id="label-5"><text x="608" y="498" text-anchor="middle" class="label halo">zeigt freie Räder · HTTPS</text></g>
+<rect x="592" y="295" width="24" height="14" rx="3" class="mark"/>
+<text x="604" y="305.5" text-anchor="middle" class="mark-text">E1</text>
+<text x="32" y="596" class="label-group">Entscheidungen (Marken im Bild)</text>
+<rect x="32" y="608" width="896" height="78" rx="8" class="shape"/>
+<text x="44" y="628" class="label-note">E1  Wer steuert die Schlösser?</text>
+<text x="44" y="648" class="label-bold">Der Radverleih selbst</text>
+<text x="44" y="666" class="label-note">Sperrlogik und Firmware-Stand bleiben in einer Hand.</text>
+<line x1="32" y1="728" x2="928" y2="728" class="line" stroke="#e4e4e7" stroke-width="1"/>
+<g class="legend"><path d="M32 752 H72" class="line" marker-end="url(#m-filled)"/><text x="84" y="756" class="label-note">synchroner Aufruf</text></g>
+<g class="legend"><path d="M226 752 H266" class="line dashed" marker-end="url(#m-open)"/><text x="278" y="756" class="label-note">asynchrones Domain-Event</text></g>
+<g class="legend"><rect x="450" y="744" width="24" height="16" rx="8" class="badge-accent"/><text x="462" y="755.5" text-anchor="middle" class="badge-text">(1)</text><text x="482" y="756" class="label-note">Flow ausleihe (1) bis (3)</text></g>
+<g class="legend"><rect x="660" y="744" width="24" height="16" rx="8" class="badge"/><text x="672" y="755.5" text-anchor="middle" class="badge-text">(4)</text><text x="692" y="756" class="label-note">Flow wartung (4) bis (5)</text></g>
+<g class="legend"><rect x="32" y="769" width="40" height="14" rx="4" class="shape-emph"/><text x="84" y="780" class="label-note">Kernentscheidung</text></g>
+<g class="legend"><rect x="208" y="769" width="24" height="14" rx="3" class="mark"/><text x="220" y="779.5" text-anchor="middle" class="mark-text">E1</text><text x="240" y="780" class="label-note">Entscheidung, siehe Leiste</text></g>
+</svg>

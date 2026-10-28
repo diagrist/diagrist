@@ -37,8 +37,8 @@ room, calls `grow` and places again, with its own limit. Head growth of framed g
 flow numbers and marks stay in the plugins and in `parts`. So do the automatic use case grid and the probe layouts.
 
 The algorithms keep the predecessor's order of floating point steps, so the same input gives the same numbers. A
-throwaway comparison fed the predecessor's measures for fifteen C4 examples (among them `radverleih/kontext`,
-`radverleih/komponenten` and `architecture/cloud`) into both and found no difference in any column, row, node, frame,
+throwaway comparison fed the predecessor's measures for fifteen C4 examples (among them
+`architecture/cloud` and the pattern examples) into both and found no difference in any column, row, node, frame,
 route or label; layering and straight lines matched for the class and use case examples.
 
 ## Consequences

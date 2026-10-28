@@ -111,13 +111,13 @@ Written only inside `variant`.
 | Part | Kind | Value | Meaning |
 |---|---|---|---|
 | `<keyword>` | argument | a single word without quotes | The keyword of the line, such as `node`. |
-| `[arguments]` | optional argument | the first words, texts and operators of the line as written, such as `doc -> portal` | Its first arguments as written, as many as make it unique. |
+| `[arguments]` | optional argument | the first words, texts and operators of the line as written, such as `backend -> portal` | Its first arguments as written, as many as make it unique. |
 
 Examples:
 
 ```dgr
 drop node portal
-drop edge doc -> portal
+drop edge backend -> portal
 drop grid rows
 ```
 

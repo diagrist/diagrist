@@ -118,7 +118,7 @@ Written at the top level.
 Examples:
 
 ```dgr
-group backend "Backend" own team="Spring Boot · Team Radverleih"
+group backend "Backend" own team="Kotlin · Team Ausleihe"
 group api "API" own in backend
 ```
 

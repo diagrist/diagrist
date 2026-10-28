@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { LEGEND, type LegendItem, legendLayout, legendShapes, markShapes, PART_ROLES } from '../src/index.js';
 
 /**
- * The legend of the predecessor's `radverleih/kontext.dgr` (952 pixels wide, legend from y = 736), the reference C4
+ * The legend of the predecessor's C4 context example (952 pixels wide, legend from y = 736), the reference C4
  * renders byte-identical to: two edges, two flow badges, a swatch and a decision mark. Badge widths are those of
  * `(1)` and `(3)`, marks those of their text, as the predecessor measured them.
  */

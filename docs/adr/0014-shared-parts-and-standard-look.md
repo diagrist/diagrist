@@ -24,7 +24,7 @@ out rows of samples and texts, while the plugin chooses the entries and draws th
 
 A piece moves out of a plugin only when a second plugin needs it, as these do now. The move changes no bytes: the
 15 sequence examples keep their SVG, PNG, descriptions and diagnostics, and the legend reproduces the predecessor's
-placement in `radverleih/kontext.dgr`.
+placement in its C4 context example.
 
 ## Consequences
 

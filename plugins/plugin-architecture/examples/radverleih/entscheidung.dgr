@@ -1,0 +1,14 @@
+# Decision paper on the unlock path. It uses radverleih.dgr and adds option B, built on option A there and drawn
+# as a comparison with it: only how the command reaches the lock changes.
+diagram container "Radverleih, Entscheidung Entsperrweg" subtitle="Arbeitsstand 02.10.2026, zur Entscheidung" locale=de
+use "radverleih.dgr"
+
+variant b "Variante B: Befehl über das Herstellerportal" subtitle="Arbeitsstand 02.10.2026, Vergleich mit Variante A" from a diff
+  drop flow ausleihe
+  flow ausleihe accent
+    fahrerin -> app        "Rad wählen"
+    app      -> backend    "entsperren" via=HTTPS/JSON mark=E2
+    backend  -> portal     "Befehl" via=Webhook mark=E3
+    portal   -> schloesser "öffnen" via=Funk
+  drop adr E3
+  adr E3 "Wie erreicht der Befehl das Schloss?" = "Weiter über das Herstellerportal" => "Keine Zugangsdaten bei uns, dafür eine Abhängigkeit mehr." open="Team Ausleihe"

@@ -1,0 +1,24 @@
+# Radverleih, C4 level 1, in look=paper: the same context as kontext.dgr, set for a decision paper.
+diagram context "Radverleih im Systemkontext" subtitle="Arbeitsstand 02.10.2026, Entwurf zur Diskussion" look=paper locale=de
+grid cols people,core,partners
+grid rows top,main,bottom
+
+person fahrerin  "Fahrerin"         tech="leiht per App, zahlt pro Minute" at people/main
+person service   "Servicekraft"     tech="verteilt und repariert Räder"    at people/bottom
+system verleih   "Radverleih"       tech="App, Ausleihe, Abrechnung"       at core/main emph mark=E1
+system stationen "Stationen"        tech="Schlösser und Ladepunkte"        at partners/top
+system zahlung   "Zahlungsanbieter" tech="Karte und Lastschrift"           at partners/main
+system karten    "Kartendienst"     tech="Standorte und Routen"            at partners/bottom
+
+flow ausleihe accent
+  fahrerin -> verleih   "entsperrt ein Rad" via=App
+  verleih  -> stationen "öffnet das Schloss" via=MQTT
+  verleih  -> zahlung   "bucht die Fahrt ab" via=HTTPS
+
+flow wartung primary
+  stationen ~> verleih "meldet Akkustand" via=MQTT
+  verleih   -> service "plant Einsätze" via=App
+
+edge verleih -> karten "zeigt freie Räder" via=HTTPS
+
+adr E1 "Wer steuert die Schlösser?" = "Der Radverleih selbst" => "Sperrlogik und Firmware-Stand bleiben in einer Hand."

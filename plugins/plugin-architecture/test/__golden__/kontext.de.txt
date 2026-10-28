@@ -1,0 +1,11 @@
+Radverleih im Systemkontext. Kontextdiagramm (C4 L1) mit 6 Knoten in 0 Gruppen.
+Ohne Gruppe: Fahrerin, Servicekraft, Radverleih, Stationen, Zahlungsanbieter, Kartendienst.
+Flow ausleihe:
+  (1) Fahrerin → Radverleih: entsperrt ein Rad, App [synchron]
+  (2) Radverleih → Stationen: öffnet das Schloss, MQTT [synchron]
+  (3) Radverleih → Zahlungsanbieter: bucht die Fahrt ab, HTTPS [synchron]
+Flow wartung:
+  (4) Stationen → Radverleih: meldet Akkustand, MQTT [asynchron]
+  (5) Radverleih → Servicekraft: plant Einsätze, App [synchron]
+Weitere Kante: Radverleih → Kartendienst: zeigt freie Räder, HTTPS.
+E1 Wer steuert die Schlösser? Gewählt: Der Radverleih selbst. Sperrlogik und Firmware-Stand bleiben in einer Hand.

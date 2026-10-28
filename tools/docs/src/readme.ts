@@ -10,7 +10,10 @@ export interface ReadmeExample {
 /** One small, real example per diagram plugin, shown in the README with its picture. */
 export const README_EXAMPLES: readonly ReadmeExample[] = [
   { source: 'plugins/plugin-uml/examples/sequence/cache.dgr', image: 'docs/images/sequence-cache.svg' },
-  { source: 'plugins/plugin-architecture/examples/radverleih/kontext.dgr', image: 'docs/images/context-radverleih.svg' },
+  {
+    source: 'plugins/plugin-architecture/examples/radverleih/kontext.dgr',
+    image: 'docs/images/context-radverleih.svg',
+  },
 ];
 
 /**

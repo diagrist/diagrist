@@ -6,7 +6,7 @@ Date: 2026-10-24. Status: accepted, decided by Claude in Noel's absence, reversi
 ## Context
 
 The owner draws work states: as-is and to-be, the phases of a new vertical, option A against option B for a
-decision paper. Each was a file, and `radverleih/soll.dgr` and `variante-a.dgr` repeated the same grid, groups and
+decision paper. Each was a file, and a target picture and an option repeated the same grid, groups and
 nodes, which breaks ADR 0004 for the most common task. PlantUML has `!include`, D2 scenarios, Structurizr and LikeC4
 a model with views. Diagrist must never get a macro language or computation in files, and rendering must stay pure
 and offline. The C4 grid places elements by hand, so a view that merely filters a model would leave holes, and the
@@ -22,8 +22,8 @@ value of comparing pictures is that elements stay where they are.
 2. **The merge is a transformation of the statement tree** in `lang` (`unfold`), next to `readKind`. It keeps two
    orders: `set` changes a line where it stands, a line declared again after its `drop` takes the dropped line's
    place, and a new line goes before the next line of its keyword the variant declares again, else after the last
-   line of its keyword. With this rule the old `soll.dgr` and `variante-a.dgr` come out of `radverleih.dgr` byte for
-   byte. In a diff picture every line carries its origin (`base`, `added`, `changed`, `removed`) on the tree and on
+   line of its keyword. With this rule a target picture and an option written as variants come out byte for
+   byte as the files written out by hand. In a diff picture every line carries its origin (`base`, `added`, `changed`, `removed`) on the tree and on
    the typed values; a restated block compares its indented lines one by one, so an unchanged flow step stays
    `base`. A picture without `diff` carries none and reads exactly like the file written out by hand.
 3. **Every base is a picture.** `compile` returns the base and one picture per own variant; variants of a used file
@@ -48,12 +48,12 @@ value of comparing pictures is that elements stay where they are.
 The draft proposed a separate `compileAll` and an `Engine.uses`; `compile` with `needs` and `files` does both and
 serves file values of other kinds too. The codes L118 to L120 were added for hosts that do not hand a file over, for
 paths and for the depth of a chain. The draft tagged origins in every variant; they are now only in diff pictures, so
-no kind can draw a comparison by accident. Option B lives in the decision paper rather than in `radverleih.dgr`, so it
+no kind can draw a comparison by accident. Option B lives in the decision paper rather than in the container file, so it
 exists once.
 
 ## Consequences
 
-The radverleih examples are one container file with the as-is base, the target picture `soll` drawn as a diff and
+The bike rental examples (`radverleih`) are one container file with the as-is base, the target picture `soll` drawn as a diff and
 option `a`, and a decision paper that uses it and draws option `b` as a diff against `a`. Files without variants keep their output names and bytes. An agent learns three verbs with
 table-driven diagnostics instead of a filter language, and `dgr grammar` and the JSON schema carry them. The
 `Engine` port and the JSON of `build` gain a list of pictures. Nothing in a file computes, and nothing is read from
