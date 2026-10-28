@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="referrer" content="no-referrer" />
+    <title>Diagrist Editor</title>
+    <link rel="icon" href="data:," />
+  </head>
+  <body>
+    <header class="bar" id="bar">
+      <strong class="brand">Diagrist</strong>
+      <span class="spacer"></span>
+      <button id="share" type="button">Link kopieren</button>
+      <button id="embed" type="button">Einbetten</button>
+      <button id="svg" type="button">SVG</button>
+      <button id="png" type="button">PNG</button>
+      <button id="dgr" type="button">.dgr</button>
+    </header>
+    <main class="split">
+      <section class="left">
+        <div id="editor" class="editor"></div>
+        <ul id="findings" class="findings" aria-live="polite"></ul>
+      </section>
+      <section class="right">
+        <div id="preview" class="preview"></div>
+      </section>
+    </main>
+    <dialog id="embed-dialog">
+      <form method="dialog">
+        <h2>Einbetten</h2>
+        <p>Confluence: <code>/iframe</code> eingeben, die Adresse einfügen und eine Höhe setzen.</p>
+        <label>Adresse für das iframe
+          <textarea id="embed-url" rows="3" readonly></textarea>
+        </label>
+        <label>HTML
+          <textarea id="embed-html" rows="4" readonly></textarea>
+        </label>
+        <p class="note" id="embed-size"></p>
+        <p class="note">Die Quelle steht im Link hinter dem <code>#</code>. Diesen Teil schickt der Browser nie an einen Server, das Diagramm wird im Browser gezeichnet.</p>
+        <div class="actions">
+          <button type="button" id="copy-url">Adresse kopieren</button>
+          <button type="button" id="copy-html">HTML kopieren</button>
+          <button type="submit" value="close">Schließen</button>
+        </div>
+      </form>
+    </dialog>
+    <script type="module" src="/src/editor.ts"></script>
+  </body>
+</html>
