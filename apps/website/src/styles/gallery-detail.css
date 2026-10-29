@@ -1,4 +1,4 @@
-/* The window of an example in the gallery, and the colours of its source in the light and the dark theme. */
+/* The window of an example in the gallery, the page held still behind it, and the colours of its source in the light and the dark theme. */
 .detail {
   margin: auto;
   width: min(80rem, 96vw);
@@ -189,4 +189,12 @@
     border-left: 0;
     border-top: 1px solid var(--sl-color-hairline);
   }
+}
+:root:has(.detail[open]) {
+  overflow: hidden;
+  scrollbar-gutter: stable;
+}
+.detail-picture,
+.detail-source {
+  overscroll-behavior: contain;
 }
