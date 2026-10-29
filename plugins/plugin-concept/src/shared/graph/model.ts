@@ -28,6 +28,8 @@ export interface Graph {
   readonly links: ReadonlyMap<string, LinkDecl>;
   readonly items: readonly Item[];
   readonly relations: readonly Relation[];
+  /** How the items stand: a column per type, or layers along the relations; left out, columns for several types. */
+  readonly arrange?: 'columns' | 'layers';
 }
 
 /** The words the graph picture adds itself: the statuses in its legend. */

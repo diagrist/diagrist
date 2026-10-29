@@ -503,7 +503,7 @@ The rules of `matrix` report these codes:
 A picture of a business concept with its own vocabulary: the file declares types of things and types of relations with their rules, then writes items and relations, which are checked against the declarations. A vocabulary file named with `use=`, or one of the plugin such as `terms` or `roles`, brings the declarations of a subject. Full reference: `dgr grammar concept`.
 
 ```text
-diagram concept "Title" [subtitle=<text>] [vocabulary=<terms|roles>] [use=<file>] [locale=<en|de>]
+diagram concept "Title" [subtitle=<text>] [vocabulary=<terms|roles>] [arrange=<columns|layers>] [use=<file>] [locale=<en|de>]
 ```
 
 | Line | Where | What it does | Example |

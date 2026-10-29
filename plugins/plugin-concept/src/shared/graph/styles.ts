@@ -55,6 +55,8 @@ const ROLES: Readonly<Record<string, RoleStyle>> = {
   name: one('label-bold'),
   entry: one('item-entry'),
   edgeLabel: one('label', 'halo'),
+  head: one('label-group'),
+  headRule: one('head-rule'),
 };
 
 /** Hollow heads for broader terms and wholes, filled with the canvas so the line ends at their outline. */
@@ -76,6 +78,7 @@ export const GRAPH_STYLES: Styles = (() => {
       rule('item-detail', `fill: none; stroke: ${c.stroke}; stroke-width: ${STROKES.shape};`),
       rule('item-rule', `fill: none; stroke: ${c.grid}; stroke-width: 1; stroke-dasharray: ${DASH.frame};`),
       rule('item-entry', textRule(`fill: ${c.note};`, F.entry)),
+      rule('head-rule', `fill: none; stroke: ${c.border}; stroke-width: 1;`),
     ],
     fonts: F,
   });

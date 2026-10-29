@@ -16,9 +16,9 @@ function alongUsed(y: number, x1: number, x2: number, used: readonly (readonly P
 }
 
 /**
- * The route drawn by hand between two boxes one above the other: out of the middle of one side, across halfway
- * between them, into the middle of the facing side. The crossing moves by `gap` while it runs along another route;
- * undefined when the ends do not face each other or a box stands in the way.
+ * The route drawn by hand between two boxes one above the other or side by side: out of the middle of one side,
+ * across halfway between them, into the middle of the facing side. The crossing moves by `gap` while it runs along
+ * another route; undefined when the ends do not face each other or a box stands in the way.
  */
 export function zRoute(
   start: Point,
@@ -29,20 +29,24 @@ export function zRoute(
   gap: number,
 ): Point[] | undefined {
   const [fromSide, toSide] = sides;
-  if (!vertical(fromSide) || !vertical(toSide) || fromSide === toSide) return undefined;
-  const down = fromSide === 'bottom';
-  if (down ? start[1] + 2 * gap > end[1] : start[1] - 2 * gap < end[1]) return undefined;
-  if (start[0] === end[0]) return undefined;
-  const top = Math.min(start[1], end[1]) + gap;
-  const bottom = Math.max(start[1], end[1]) - gap;
-  const middle = (start[1] + end[1]) / 2;
-  const tries = [0, 1, -1, 2, -2].map((k) => middle + k * gap).filter((y) => y >= top && y <= bottom);
+  if (vertical(fromSide) !== vertical(toSide) || fromSide === toSide) return undefined;
+  const flip = !vertical(fromSide);
+  const swap = ([x, y]: Point): Point => (flip ? [y, x] : [x, y]);
+  const [s, e] = [swap(start), swap(end)];
+  const forward = fromSide === 'bottom' || fromSide === 'right';
+  if (forward ? s[1] + 2 * gap > e[1] : s[1] - 2 * gap < e[1]) return undefined;
+  if (s[0] === e[0]) return undefined;
+  const low = Math.min(s[1], e[1]) + gap;
+  const high = Math.max(s[1], e[1]) - gap;
+  const middle = (s[1] + e[1]) / 2;
+  const tries = [0, 1, -1, 2, -2].map((k) => middle + k * gap).filter((y) => y >= low && y <= high);
+  const laid = used.map((points) => points.map(swap));
   for (const y of tries) {
-    const points: Point[] = [start, [start[0], y], [end[0], y], end];
+    const points = [s, [s[0], y], [e[0], y], e].map((p) => swap(p as Point));
     const free = points
       .slice(1)
       .every((q, i) => !blocks.some((rect) => segmentHitsRect(points[i] as Point, q, rect, gap / 2)));
-    if (free && !alongUsed(y, start[0], end[0], used, gap)) return points;
+    if (free && !alongUsed(y, s[0], e[0], laid, gap)) return points;
   }
   return undefined;
 }

@@ -43,10 +43,16 @@ function lowest(layer: Map<string, number>, last: readonly string[]): Map<string
   return new Map([...layer].map(([n, l]) => [n, last.includes(n) ? Math.max(l, deepest + 1) : l]));
 }
 
-function single(graph: LayerGraph): Layered {
+function layersOf(graph: LayerGraph): Map<string, number> {
+  const fixed = graph.fixed;
+  if (fixed !== undefined) return new Map(graph.nodes.map((n) => [n, fixed.get(n) ?? 0]));
   const ranked = acyclic(graph.nodes, graph.edges);
   const side = graph.edges.filter((e) => e.rank === 0 && e.from !== e.to);
-  const layerOf = compact(lowest(assignLayers(graph.nodes, ranked, side), graph.last ?? []));
+  return compact(lowest(assignLayers(graph.nodes, ranked, side), graph.last ?? []));
+}
+
+function single(graph: LayerGraph): Layered {
+  const layerOf = layersOf(graph);
   const adj = neighbours(graph);
   const layers = wrap(orderLayers(graph.nodes, layerOf, adj, graph.thorough === true), graph.maxPerLayer);
   const wrapped = new Map(layers.flatMap((layer, l) => layer.map((n) => [n, l] as const)));
@@ -72,6 +78,7 @@ export function layerGraph(graph: LayerGraph): Layered {
       maxPerLayer: graph.maxPerLayer,
       last: graph.last ?? [],
       ...(graph.thorough === true ? { thorough: true } : {}),
+      ...(graph.fixed === undefined ? {} : { fixed: graph.fixed }),
     });
     const width = Math.max(...part.position.values()) + 1;
     if (x > 0 && x + width > graph.maxPerLayer) {

@@ -46,6 +46,10 @@ export const conceptSpec = kind('concept', {
       oneOf(VOCABULARY_NAMES),
       'Declarations of the plugin the file builds on: `terms` (terms with definitions, broader and narrower, parts, synonyms) or `roles` (roles, who reports to whom, who stands in for whom).',
     ),
+    arrange: attr(
+      oneOf(['columns', 'layers']),
+      'How the items stand: `columns`, a column per type in the order of their declaration, so a relation reads from left to right as a sentence; or `layers` along the relations. Without it, columns when the items are of more than one type.',
+    ),
     use: attr(
       file(),
       'A vocabulary file the picture builds on, such as `"iks.vocab.dgr"`: its types and links come first, after those of `vocabulary=`.',

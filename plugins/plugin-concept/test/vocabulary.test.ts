@@ -40,7 +40,7 @@ describe('vocabulary files', () => {
     expect(codes(result)).toEqual([]);
     expect(result.anchors?.nodes.map((n) => n.id)).toEqual(['prozess', 'risiko', 'kontrolle', 'rolle']);
     expect(result.svg).toContain('verantwortet: genau eine');
-    expect(result.svg).not.toContain('legendRule');
+    expect(result.svg).not.toContain('class="legend"');
     expect(result.description).toContain('Rolle verantwortet: Kontrolle (genau eine je Kontrolle).');
   });
 

@@ -383,3 +383,18 @@ plugin are now vocabulary sources read the same way, with `de=` for the German n
 the same pictures to the byte. A vocabulary drawn on its own shows each type in its shape and each link as a line
 with its rules in words. A link from a type to itself becomes an entry of that type, and the picture has no legend,
 since it is the legend of the pictures that use it.
+
+A picture of several types stands in columns. The owner found the layered placement of a picture of risks and
+controls unreadable, with too many corners, no hierarchy and no story. So a concept picture whose items are of
+more than one type now gives each type a column, in the order of their declaration, under a head that names it.
+The vocabulary is written in the order its story is told, such as process, risk, control and role. Related items
+stand level, so most relations run straight across. An item with two partners stands between them, and the
+relations from one item to two of the next column fork from a shared trunk that carries their text once. Of an
+order and its mirror, which cross alike, the one that keeps the first column in the order written wins. The legend
+leaves out what the heads and the lines already say. A picture of one type, such as terms or roles, stays layered,
+and `arrange=columns|layers` overrides the choice.
+
+`layout-grid` gains what this needs, and nothing a kind names. `LayerGraph.fixed` gives the layer of each node,
+and `thorough` searches harder for an order without crossings. `GridSpec.ports: 'centred'` lets lines leave and
+enter boxes in the middle of a side and bend halfway between them. All three are opt-in, so the pictures of the
+other kinds keep their bytes.

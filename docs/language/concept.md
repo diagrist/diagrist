@@ -9,7 +9,7 @@ This page lists everything a `concept` diagram may contain. The same grammar is 
 ## The first line
 
 ```text
-diagram concept "Title" [subtitle=<text>] [vocabulary=<terms|roles>] [use=<file>] [locale=<en|de>]
+diagram concept "Title" [subtitle=<text>] [vocabulary=<terms|roles>] [arrange=<columns|layers>] [use=<file>] [locale=<en|de>]
 ```
 
 Every concept diagram starts with this line.
@@ -18,6 +18,7 @@ Every concept diagram starts with this line.
 |---|---|---|---|
 | `subtitle=` | attribute | a text in double quotes like `"Order service"` | Second line below the title. |
 | `vocabulary=` | attribute | one of `terms`, `roles` | Declarations of the plugin the file builds on: `terms` (terms with definitions, broader and narrower, parts, synonyms) or `roles` (roles, who reports to whom, who stands in for whom). |
+| `arrange=` | attribute | one of `columns`, `layers` | How the items stand: `columns`, a column per type in the order of their declaration, so a relation reads from left to right as a sentence; or `layers` along the relations. Without it, columns when the items are of more than one type. |
 | `use=` | attribute | a path in double quotes, relative to the diagram, like `"src/OrderService.java"`; it stays inside the folder `dgr` runs in and names no hidden file or folder | A vocabulary file the picture builds on, such as `"iks.vocab.dgr"`: its types and links come first, after those of `vocabulary=`. |
 | `locale=` | attribute | one of `en`, `de` | Language of the texts Diagrist adds to the picture and of the description: `en` (default) or `de`. |
 

@@ -71,6 +71,10 @@ export function graphScene(layout: GraphLayout, model: Graph, title: string): Sc
   const labels = layout.labels.map(
     (l): Shape => ({ kind: 'text', x: l.x, y: l.y, text: l.text, role: 'edgeLabel', font: 'label', anchor: l.anchor }),
   );
+  const heads = layout.heads.flatMap((h): Shape[] => [
+    { kind: 'text', x: h.x, y: h.y, text: h.text, role: 'head', font: 'group', anchor: 'middle' },
+    { kind: 'line', x1: h.rule.x1, y1: h.rule.y, x2: h.rule.x2, y2: h.rule.y, role: 'headRule' },
+  ]);
   const legend =
     layout.legend.entries.length > 0 ? legendShapes(layout.legend, (e) => sampleShapes(e.sample, e.at.x, e.at.y)) : [];
   return {
@@ -79,6 +83,7 @@ export function graphScene(layout: GraphLayout, model: Graph, title: string): Sc
     title,
     children: [
       ...headerShapes(HEADER, title, model.subtitle),
+      ...heads,
       ...lines,
       ...layout.items.map(itemShapes),
       ...labels,

@@ -20,7 +20,7 @@ export const vocabularyKind = defineKind({
     const words = VOCABULARY_WORDS[locale];
     const title = imageTitle(words.kind, model.title);
     const graph = graphOf(model, locale, words);
-    const layout = layoutGraph(graph, words, title, locale, { legend: false });
+    const layout = layoutGraph(graph, words, title, locale, { legend: false, heads: false });
     return {
       scene: graphScene(layout, graph, title),
       styles: GRAPH_STYLES,

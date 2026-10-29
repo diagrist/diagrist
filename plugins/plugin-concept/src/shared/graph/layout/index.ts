@@ -44,22 +44,38 @@ export interface GraphLayout {
   readonly lines: readonly PlacedLine[];
   readonly labels: readonly EdgeLabel[];
   readonly legend: Legend<Sample>;
+  /** The heads above the columns, each centred on its column with a rule as wide as the column below it. */
+  readonly heads: readonly PlacedHead[];
   readonly width: number;
   readonly height: number;
   readonly placed: readonly Placed[];
 }
 
+/** A head above a column: its text centred at `x` on the baseline `y`, and the rule below it from `x1` to `x2`. */
+export interface PlacedHead {
+  readonly text: string;
+  readonly x: number;
+  readonly y: number;
+  readonly rule: { readonly x1: number; readonly x2: number; readonly y: number };
+  readonly rect: Rect;
+}
+
 /** Room between the content and the legend below it. */
 const LEGEND_GAP = 40;
 
-/** The legend's samples: the types, links and statuses the picture uses, in the order of their declarations. */
-function samples(m: Graph): Sample[] {
+/**
+ * The legend's samples: the types, links and statuses the picture uses, in the order of their declarations. A
+ * picture in columns says the rest itself: the heads name the types, and a link that is not `bare` stands on its line.
+ */
+function samples(m: Graph, headed: boolean): Sample[] {
   const types = new Set(m.items.map((i) => i.type));
   const links = new Set(drawn(m).map(([r]) => r.link));
   const statuses = (['planned', 'deprecated'] as const).filter((s) => m.items.some((i) => i.status === s));
   return [
-    ...[...m.types.values()].filter((t) => types.has(t.id)).map((type): Sample => ({ kind: 'type', type })),
-    ...[...m.links.values()].filter((l) => links.has(l.id)).map((link): Sample => ({ kind: 'link', link })),
+    ...[...m.types.values()].filter((t) => types.has(t.id) && !headed).map((type): Sample => ({ kind: 'type', type })),
+    ...[...m.links.values()]
+      .filter((l) => links.has(l.id) && (l.bare || !headed))
+      .map((link): Sample => ({ kind: 'link', link })),
     ...statuses.map((status): Sample => ({ kind: 'status', status })),
   ];
 }
@@ -68,29 +84,46 @@ const legendText = (s: Sample, locale: Locale, w: GraphWords): string =>
   s.kind === 'type' ? s.type.label[locale] : s.kind === 'link' ? s.link.label[locale] : w.status[s.status];
 
 /** Placed, routed and labelled; a second time with room on the left when a label stands left of the margin. */
-function placed(m: Graph, locale: Locale, indent = 0) {
-  const at = graphGrid(m, locale, indent);
+function placed(m: Graph, locale: Locale, headed: boolean, indent = 0) {
+  const at = graphGrid(m, locale, indent, headed);
   const grid = placeGrid(at.spec);
   const routes = routeEdges(at.spec, grid);
   const labels = labelEdges(at.spec, grid, routes, at.texts);
   const left = Math.min(MARGIN, ...labels.map((l) => l.box.x));
-  if (left < MARGIN && indent === 0) return placed(m, locale, Math.ceil((MARGIN - left) / 8) * 8);
+  if (left < MARGIN && indent === 0) return placed(m, locale, headed, Math.ceil((MARGIN - left) / 8) * 8);
   return { ...at, grid, routes, labels };
 }
 
 /**
  * Lays out a graph picture on `layout-grid`: items measured and layered, placed in an adaptive grid, lines routed
- * and labelled, then the legend of what the picture uses below it, unless `options` leave it out.
+ * and labelled, then the heads of the columns and the legend of what the picture does not say itself, unless
+ * `options` leave them out.
  */
 export function layoutGraph(
   m: Graph,
   w: GraphWords,
   title: string,
   locale: Locale,
-  options: { readonly legend: boolean } = { legend: true },
+  options: { readonly legend: boolean; readonly heads: boolean } = { legend: true, heads: true },
 ): GraphLayout {
-  const { spec, boxes, grid, routes, labels } = placed(m, locale);
+  const { spec, boxes, grid, routes, labels, heads: named } = placed(m, locale, options.heads);
   const fitted = fitFrames(spec, grid, routes, labels);
+  const top = fitted.rows[0]?.y ?? 0;
+  const heads = named.flatMap((h): PlacedHead[] => {
+    const col = fitted.cols.find((c) => c.name === h.col);
+    if (!col) return [];
+    const x = col.x + col.w / 2;
+    const w = textWidth(h.text, F.group);
+    return [
+      {
+        text: h.text,
+        x,
+        y: top - 18,
+        rule: { x1: col.x, x2: col.x + col.w, y: top - 10 },
+        rect: { x: x - w / 2, y: top - 29, w, h: 14 },
+      },
+    ];
+  });
   const byId = new Map(m.items.map((i) => [i.id, i]));
   const items = fitted.nodes.flatMap((p): PlacedItem[] => {
     const item = byId.get(p.id);
@@ -113,7 +146,7 @@ export function layoutGraph(
   );
   const width = Math.ceil(right);
   const bottom = Math.max(fitted.bottom, ...labels.map((l) => l.box.y + l.box.h + MARGIN));
-  const entries = (options.legend ? samples(m) : []).map((sample) => ({
+  const entries = (options.legend ? samples(m, heads.length > 0) : []).map((sample) => ({
     sample,
     sampleWidth: LEGEND.sampleWidth,
     labelDx: LEGEND.labelDx,
@@ -125,8 +158,12 @@ export function layoutGraph(
     lines,
     labels,
     legend,
+    heads,
     width,
     height: Math.ceil(entries.length > 0 ? legend.bottom : bottom),
-    placed: placedOf(spec, fitted, routes, labels),
+    placed: [
+      ...placedOf(spec, fitted, routes, labels),
+      ...heads.map((h, i): Placed => ({ key: `head-${i}`, kind: 'text', rect: h.rect })),
+    ],
   };
 }
