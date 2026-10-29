@@ -37,7 +37,7 @@ short variants, the grammar of every kind as `/grammar/<kind>.json` and the skil
 
 The site builds from `dist` of the packages, so its build runs `pnpm build` first. A change to a table changes the
 site in the same pull request. The site is English; German can follow with Starlight's i18n. The gallery at `/gallery/` draws
-every example under `plugins/*/examples` at build time and loads one into the live editor, which is embedded in the
-page; the editor therefore allows diagrist.com to frame it. Examples that read other files open as a picture only,
-since the editor has no files. The start page keeps examples of its own in `apps/website/src/examples`. Versioned
+every example under `plugins/*/examples` at build time, filters them by kind and opens each in a window with its
+source and a link to the live editor, the way D2's example gallery does; the editor is not framed, so it keeps
+`frame-ancestors 'none'`. Examples that read other files get no editor link, since the editor has no files. The start page keeps examples of its own in `apps/website/src/examples`. Versioned
 docs wait for 1.0.
