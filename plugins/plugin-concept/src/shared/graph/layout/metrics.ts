@@ -7,19 +7,21 @@ import { widestText } from './edges.js';
 export const GRAPH_FONTS = {
   ...STANDARD_FONTS,
   entry: { size: 10 },
+  head: { size: 10, weight: 700, letterSpacing: 0.8 },
 } as const satisfies Readonly<Record<string, Font>>;
 
 /** Measures of items, in pixels: widths a name wraps to, pads, line heights, the room of a figure. */
 export const ITEM = {
   minW: 120,
   maxW: 216,
-  minH: 44,
-  padX: 12,
-  padY: 10,
+  minH: 48,
+  padX: 14,
+  padY: 12,
   nameLine: 15,
   entryLine: 13,
   entryGap: 8,
   figure: 20,
+  bar: 8,
   fold: 10,
   lid: 8,
   perLayer: 5,
@@ -35,7 +37,7 @@ export const GAP = { col: 56, label: 12 } as const;
  */
 export const HEAD = {
   room: 32,
-  rowGap: 16,
+  rowGap: 28,
   colGap: (all: readonly EdgeText[], fans: boolean): number =>
     Math.max(72, Math.ceil((fans ? 2 : 1) * (widestText(all) + 2 * GAP.label) + 16)),
 } as const;
@@ -78,10 +80,10 @@ export interface ItemBox {
 
 const widest = (lines: readonly string[], font: Font) => Math.max(0, ...lines.map((l) => textWidth(l, font)));
 
-/** Measures an item: its name and entries wrapped to at most `ITEM.maxW`, its box at least `ITEM.minW` wide. */
-export function measureItem(label: string, entries: readonly string[], figure: boolean): ItemBox {
+/** Measures an item, with room on the left for a figure and a bar: its name and entries wrapped to at most `ITEM.maxW`, its box at least `ITEM.minW` wide. */
+export function measureItem(label: string, entries: readonly string[], figure: boolean, bar = false): ItemBox {
   const F = GRAPH_FONTS;
-  const indent = figure ? ITEM.figure : 0;
+  const indent = (figure ? ITEM.figure : 0) + (bar ? ITEM.bar : 0);
   const inner = ITEM.maxW - 2 * ITEM.padX - indent;
   const name = wrap(label, inner, F.name);
   const lines = entries.flatMap((e) => wrap(e, inner, F.entry));

@@ -45,7 +45,7 @@ describe('concept pictures in columns', () => {
     const result = concept('locale=de', ...CONTROLS);
     const xs = ['antrag', 'ausfall', 'scoring', 'berater'].map((id) => rectOf(result, id).x);
     expect(xs).toEqual([...xs].sort((a, b) => a - b));
-    for (const head of ['Prozess', 'Risiko', 'Kontrolle', 'Rolle']) expect(result.svg).toContain(`>${head}<`);
+    for (const head of ['PROZESS', 'RISIKO', 'KONTROLLE', 'ROLLE']) expect(result.svg).toContain(`>${head}<`);
     expect(result.diagnostics).toEqual([]);
   });
 
@@ -104,5 +104,15 @@ describe('concept pictures in columns', () => {
     const layered = concept('arrange=layers locale=de', ...CONTROLS);
     expect(layered.svg).toContain('class="legend"');
     expect(rectOf(layered, 'berater').y).toBeLessThan(rectOf(layered, 'abgleich').y);
+  });
+
+  it('give each type a muted tone for the bars of its items and the head of its column, its own with tone=', () => {
+    const result = concept('locale=de', ...CONTROLS);
+    expect(result.svg).toContain('g-bar-blue');
+    expect(result.svg).toContain('g-head-teal');
+    const own = concept('locale=de', ...CONTROLS.with(0, 'type prozess "Prozess" shape=round tone=plum'));
+    expect(own.svg).toContain('g-head-plum');
+    const layered = concept('arrange=layers locale=de', ...CONTROLS);
+    expect(layered.svg).not.toContain('g-bar-');
   });
 });

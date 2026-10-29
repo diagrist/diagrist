@@ -1,12 +1,21 @@
 import type { Locale } from '@diagrist/lang';
 import { type GridNode, layerGraph } from '@diagrist/layout-grid';
 import type { Graph } from '../model.js';
+import { TYPE_TONE_NAMES, type TypeTone } from '../palette.js';
 import { columnEdges } from './column-edges.js';
 import { type Cells, edgesOf } from './edges.js';
 import { FIRST_ROW, graphMetrics, HEAD, type ItemBox } from './metrics.js';
 
 /** The types the items use, in the order of their declaration: the order the columns tell the story in. */
 export const usedTypes = (m: Graph): string[] => [...m.types.keys()].filter((t) => m.items.some((i) => i.type === t));
+
+/** The tone of each type in columns: its own, else the next of `TYPE_TONES` by column; none in layers. */
+export function tonesOf(m: Graph): ReadonlyMap<string, TypeTone> {
+  if (!inColumns(m)) return new Map();
+  return new Map(
+    usedTypes(m).map((t, k) => [t, m.types.get(t)?.tone ?? (TYPE_TONE_NAMES[k % TYPE_TONE_NAMES.length] as TypeTone)]),
+  );
+}
 
 /** Whether the items stand in a column per type: as asked, or when they are of more than one type. */
 export const inColumns = (m: Graph): boolean =>
@@ -26,6 +35,7 @@ export function columnsGrid(
   headed: boolean,
 ): Cells {
   const types = usedTypes(m);
+  const tones = tonesOf(m);
   const fixed = new Map(m.items.map((i) => [i.id, Math.max(0, types.indexOf(i.type))]));
   const relations = edgesOf(m);
   const { layers, position } = layerGraph({
@@ -86,6 +96,12 @@ export function columnsGrid(
       rowGap: HEAD.rowGap,
       indent,
     },
-    heads: headed ? types.map((t, k) => ({ col: `k${k + 1}`, text: m.types.get(t)?.label[locale] ?? t })) : [],
+    heads: headed
+      ? types.map((t, k) => ({
+          col: `k${k + 1}`,
+          text: (m.types.get(t)?.label[locale] ?? t).toUpperCase(),
+          tone: tones.get(t) ?? 'slate',
+        }))
+      : [],
   };
 }

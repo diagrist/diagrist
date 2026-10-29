@@ -6,8 +6,29 @@ import type { Graph } from '../model.js';
 import { lineRole } from '../styles.js';
 import { outline, outlineRole } from './shapes.js';
 
+/** The bar of an item's tone: its width, and how far it stays inside a square or a rounded end. */
+const BAR = { w: 3, edge: { x: 4, y: 8 }, round: { x: 10, y: 12 } } as const;
+
 const pathOf = (points: readonly Point[]): string =>
   points.map(([x, y], i) => `${i === 0 ? 'M' : 'L'} ${x} ${y}`).join(' ');
+
+/** The bar in the tone of an item's type, inside its left edge and clear of a rounded end. */
+function barOf(p: PlacedItem): Shape[] {
+  if (p.tone === undefined) return [];
+  const inset = p.type?.shape === 'round' ? BAR.round : BAR.edge;
+  const { x, y, h } = p.rect;
+  return [
+    {
+      kind: 'rect',
+      x: x + inset.x,
+      y: y + inset.y,
+      w: BAR.w,
+      h: h - 2 * inset.y,
+      rx: BAR.w / 2,
+      role: `bar-${p.tone}`,
+    },
+  ];
+}
 
 /** An item: its outline, its name centred, and below a hairline its entries from the left. */
 function itemShapes(p: PlacedItem): Shape {
@@ -47,7 +68,7 @@ function itemShapes(p: PlacedItem): Shape {
   return {
     kind: 'group',
     id: domId.node(p.item.id),
-    children: [...outline(p.type?.shape ?? 'box', rect, outlineRole(p.item.status)), ...names, ...below],
+    children: [...outline(p.type?.shape ?? 'box', rect, outlineRole(p.item.status)), ...barOf(p), ...names, ...below],
   };
 }
 
@@ -72,8 +93,23 @@ export function graphScene(layout: GraphLayout, model: Graph, title: string): Sc
     (l): Shape => ({ kind: 'text', x: l.x, y: l.y, text: l.text, role: 'edgeLabel', font: 'label', anchor: l.anchor }),
   );
   const heads = layout.heads.flatMap((h): Shape[] => [
-    { kind: 'text', x: h.x, y: h.y, text: h.text, role: 'head', font: 'group', anchor: 'middle' },
-    { kind: 'line', x1: h.rule.x1, y1: h.rule.y, x2: h.rule.x2, y2: h.rule.y, role: 'headRule' },
+    {
+      kind: 'text',
+      x: h.x,
+      y: h.y,
+      text: h.text,
+      role: h.tone ? `head-${h.tone}` : 'head',
+      font: 'head',
+      anchor: 'middle',
+    },
+    {
+      kind: 'line',
+      x1: h.rule.x1,
+      y1: h.rule.y,
+      x2: h.rule.x2,
+      y2: h.rule.y,
+      role: h.tone ? `headRule-${h.tone}` : 'headRule',
+    },
   ]);
   const verbs = layout.verbs.flatMap((v): Shape[] => [
     { kind: 'text', x: v.x, y: v.y, text: v.text, role: 'verb', font: 'label', anchor: 'middle' },

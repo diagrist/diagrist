@@ -12,6 +12,8 @@ import {
 import { LEGEND, type Legend, legendLayout, MARGIN } from '@diagrist/parts';
 import type { LinkDecl, TypeDecl } from '../../declarations.js';
 import type { Graph, GraphWords, Item, Relation } from '../model.js';
+import type { TypeTone } from '../palette.js';
+import { tonesOf } from './columns.js';
 import { type PlacedHead, type PlacedVerb, placeHeads } from './heads.js';
 import { GRAPH_FONTS as F, type ItemBox } from './metrics.js';
 import { drawn, edgeId, graphGrid } from './spec.js';
@@ -28,6 +30,8 @@ export interface PlacedItem {
   readonly type?: TypeDecl;
   readonly rect: Rect;
   readonly box: ItemBox;
+  /** The tone of its type's bar, in a picture in columns. */
+  readonly tone?: TypeTone;
 }
 
 /** A line in the picture: its route and the link that decides how it is drawn. */
@@ -105,12 +109,14 @@ export function layoutGraph(
   const row = placeHeads(fitted, named, verbs, m.links);
   const heads = row.heads;
   const byId = new Map(m.items.map((i) => [i.id, i]));
+  const tones = tonesOf(m);
   const items = fitted.nodes.flatMap((p): PlacedItem[] => {
     const item = byId.get(p.id);
     const box = boxes.get(p.id);
     if (!item || !box) return [];
     const type = m.types.get(item.type);
-    return [{ item, ...(type ? { type } : {}), rect: p.rect, box }];
+    const tone = tones.get(item.type);
+    return [{ item, ...(type ? { type } : {}), ...(tone ? { tone } : {}), rect: p.rect, box }];
   });
   const byEdge = new Map(drawn(m).map(([relation, index]) => [edgeId(index), { relation, index }]));
   const lines = routes.flatMap((route): PlacedLine[] => {

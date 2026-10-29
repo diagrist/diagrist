@@ -2,11 +2,14 @@ import type { Placed, Rect } from '@diagrist/core';
 import { textWidth } from '@diagrist/core';
 import type { GridLayout } from '@diagrist/layout-grid';
 import type { LinkDecl } from '../../declarations.js';
+import type { TypeTone } from '../palette.js';
 import type { ColumnHead, ColumnVerb } from './edges.js';
 import { GRAPH_FONTS as F } from './metrics.js';
 
 /** A head above a column: its text centred at `x` on the baseline `y`, and the rule below it from `x1` to `x2`. */
 export interface PlacedHead {
+  /** The tone of the type a head names; a verb has none. */
+  readonly tone?: TypeTone;
   readonly text: string;
   readonly x: number;
   readonly y: number;
@@ -33,7 +36,7 @@ export function placeHeads(
   links: ReadonlyMap<string, LinkDecl>,
 ): { readonly heads: PlacedHead[]; readonly verbs: PlacedVerb[]; readonly placed: Placed[] } {
   const top = fitted.rows[0]?.y ?? 0;
-  const at = (text: string, x: number, x1: number, x2: number, font: typeof F.group | typeof F.label) => {
+  const at = (text: string, x: number, x1: number, x2: number, font: typeof F.head | typeof F.label) => {
     const w = textWidth(text, font);
     return {
       text,
@@ -46,7 +49,7 @@ export function placeHeads(
   const col = (name: string) => fitted.cols.find((c) => c.name === name);
   const placedHeads = heads.flatMap((h): PlacedHead[] => {
     const c = col(h.col);
-    return c ? [at(h.text, c.x + c.w / 2, c.x, c.x + c.w, F.group)] : [];
+    return c ? [{ ...at(h.text, c.x + c.w / 2, c.x, c.x + c.w, F.head), tone: h.tone }] : [];
   });
   const placedVerbs = verbs.flatMap((v): PlacedVerb[] => {
     const [a, b, link] = [col(v.left), col(v.right), links.get(v.link)];

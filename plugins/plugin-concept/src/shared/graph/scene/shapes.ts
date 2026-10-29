@@ -40,7 +40,7 @@ export function outline(shape: ShapeName, r: Rect, role: string, scale = 1): Sha
       { kind: 'path', d: `M ${n(right - f)} ${n(y)} V ${n(y + f)} H ${n(right)}`, role: 'itemDetail' },
     ];
   }
-  const box: Shape = { kind: 'rect', x, y, w, h, rx: 3 * scale, role };
+  const box: Shape = { kind: 'rect', x, y, w, h, rx: 6 * scale, role };
   if (shape !== 'person') return [box];
   const cx = x + (ITEM.padX + 4) * scale;
   const cy = y + h / 2;
