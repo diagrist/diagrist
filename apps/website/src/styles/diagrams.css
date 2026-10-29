@@ -1,0 +1,61 @@
+/*
+ * The faces the kernel measures text with (packages/core/fonts, SIL Open Font License 1.1). Without them the
+ * browser falls back to other fonts and texts run out of their boxes.
+ */
+@font-face {
+  font-family: "JetBrains Mono";
+  font-weight: 400;
+  font-style: normal;
+  src: url("../../../../packages/core/fonts/JetBrainsMono-Regular.ttf") format("truetype");
+}
+@font-face {
+  font-family: "JetBrains Mono";
+  font-weight: 700;
+  font-style: normal;
+  src: url("../../../../packages/core/fonts/JetBrainsMono-Bold.ttf") format("truetype");
+}
+@font-face {
+  font-family: "JetBrains Mono";
+  font-weight: 400;
+  font-style: italic;
+  src: url("../../../../packages/core/fonts/JetBrainsMono-Italic.ttf") format("truetype");
+}
+@font-face {
+  font-family: "JetBrains Mono";
+  font-weight: 700;
+  font-style: italic;
+  src: url("../../../../packages/core/fonts/JetBrainsMono-BoldItalic.ttf") format("truetype");
+}
+@font-face {
+  font-family: "Inter";
+  font-weight: 400;
+  font-style: normal;
+  src: url("../../../../packages/core/fonts/Inter-Regular.ttf") format("truetype");
+}
+@font-face {
+  font-family: "Inter";
+  font-weight: 600;
+  font-style: normal;
+  src: url("../../../../packages/core/fonts/Inter-SemiBold.ttf") format("truetype");
+}
+
+/* A picture keeps the white sheet it was drawn on, also in the dark theme, and scrolls when it is wider. */
+.dgr-picture {
+  overflow-x: auto;
+  background: #fff;
+  border: 1px solid var(--sl-color-gray-5);
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+}
+.dgr-picture svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin-inline: auto;
+}
+.dgr-figure {
+  margin-block: 1.5rem 0.5rem;
+}
+.dgr-open {
+  font-size: var(--sl-text-sm);
+}

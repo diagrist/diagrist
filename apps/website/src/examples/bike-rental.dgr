@@ -1,0 +1,24 @@
+# Bike rental, C4 level 1: the system as a black box with the people who use it and the systems around it.
+diagram context "Bike rental" subtitle="System context, draft for discussion"
+grid cols people,core,partners
+grid rows top,main,bottom
+
+person rider    "Rider"            tech="rents by app, pays per minute"  at people/main
+person service  "Service crew"     tech="moves and repairs bikes"        at people/bottom
+system rental   "Bike rental"      tech="app, rides, billing"            at core/main emph mark=E1
+system stations "Stations"         tech="locks and chargers"             at partners/top
+system payments "Payment provider" tech="card and direct debit"          at partners/main
+system maps     "Map service"      tech="locations and routes"           at partners/bottom
+
+flow ride accent
+  rider  -> rental   "unlocks a bike" via=App
+  rental -> stations "opens the lock" via=MQTT
+  rental -> payments "charges the ride" via=HTTPS
+
+flow upkeep primary
+  stations ~> rental  "reports battery levels" via=MQTT
+  rental   -> service "plans jobs" via=App
+
+edge rental -> maps "shows free bikes" via=HTTPS
+
+adr E1 "Who controls the locks?" = "The rental itself" => "Lock logic and firmware stay in one hand."

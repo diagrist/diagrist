@@ -1,0 +1,74 @@
+---
+title: Diagrist
+description: Diagrams as code, checked like code. A strict text language for UML and C4 diagrams that people and coding agents write, check and review like code.
+template: splash
+editUrl: false
+hero:
+  tagline: Diagrams as code, checked like code.
+  actions:
+    - text: Get started
+      link: /docs/getting-started/
+      icon: right-arrow
+    - text: Open the editor
+      link: https://live.diagrist.com/
+      icon: external
+      variant: minimal
+    - text: GitHub
+      link: https://github.com/diagrist/diagrist
+      icon: github
+      variant: minimal
+---
+
+import { Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
+import Diagram from '../../components/Diagram.astro';
+import bikeRental from '../../examples/bike-rental.dgr?raw';
+import signIn from '../../examples/sign-in.dgr?raw';
+
+Diagrist turns small text files (`.dgr`) into diagrams. The language is strict on purpose: every statement,
+argument and attribute is listed in a table, a check names what it found and what is allowed, and the same file
+always gives the same SVG, byte for byte. So a diagram can be reviewed, diffed and fixed like code, by people
+who keep diagrams next to their code in git and by coding agents.
+
+<Diagram source={signIn} name="sign-in.dgr" />
+
+<CardGrid>
+  <Card title="Strict on purpose" icon="approve-check">
+    A mistake is reported with its position, a stable code and what would be correct. Rules check the meaning
+    too, such as a call that never gets a reply.
+  </Card>
+  <Card title="Same file, same picture" icon="document">
+    The output is deterministic down to the byte, so a picture only changes in a pull request when its source
+    does.
+  </Card>
+  <Card title="Made for agents" icon="rocket">
+    The grammar of every kind and every finding come as JSON, and an agent skill tells an agent how to look
+    things up, write, check and fix.
+  </Card>
+  <Card title="Stays on your machine" icon="laptop">
+    The command line runs locally. The live editor compiles in your browser and keeps the source in the address,
+    so no diagram reaches a server.
+  </Card>
+</CardGrid>
+
+## UML, C4 and code
+
+The UML kinds are laid out by Diagrist itself. C4 diagrams place their elements in a named grid that the file
+declares, so the author decides what stands next to what; a `flow` numbers the steps of a path, and an `adr`
+explains a mark in a bar below the picture.
+
+<Diagram source={bikeRental} name="bike-rental.dgr" />
+
+A mistake looks like this:
+
+```text
+order.dgr:4:29  L105  error: `participant` has no attribute `stereotyp`. Allowed: `stereotype=`, `tone=`.
+  participant pay ":Payments" stereotyp="external"
+                              ^^^^^^^^^^^^^^^^^^^^
+```
+
+<CardGrid>
+  <LinkCard title="Getting started" description="Build Diagrist, write a first file, check and build it." href="/docs/getting-started/" />
+  <LinkCard title="The language" description="How a file is written, every kind, every diagnostic code." href="/docs/language/" />
+  <LinkCard title="Live editor and embedding" description="Write in the browser, embed a diagram in Confluence." href="/docs/editor/" />
+  <LinkCard title="For agents" description="Grammar and findings as JSON, the agent skill, llms.txt." href="/docs/agents/" />
+</CardGrid>

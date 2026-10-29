@@ -1,0 +1,26 @@
+---
+import { Code, TabItem, Tabs } from '@astrojs/starlight/components';
+import { editorLink, renderDgr } from '../lib/render.js';
+
+/** A diagram drawn at build time, with its source beside it and a link that opens it in the editor. */
+interface Props {
+  readonly source: string;
+  readonly name: string;
+}
+
+const { source, name } = Astro.props;
+const { svg, description } = renderDgr(source, name);
+---
+
+<Tabs>
+  <TabItem label="Picture">
+    <figure class="dgr-figure not-content">
+      <div class="dgr-picture" set:html={svg} />
+      {description && <figcaption class="sr-only">{description}</figcaption>}
+    </figure>
+  </TabItem>
+  <TabItem label="Source">
+    <Code code={source} lang="dgr" title={name} />
+  </TabItem>
+</Tabs>
+<p class="dgr-open"><a href={editorLink(source)}>Open in the editor ↗</a></p>
