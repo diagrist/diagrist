@@ -61,6 +61,7 @@
   min-height: 0;
 }
 .detail-picture {
+  overscroll-behavior: contain;
   display: grid;
   place-items: center;
   overflow: auto;
@@ -86,6 +87,7 @@
   max-height: none;
 }
 .detail-source {
+  overscroll-behavior: contain;
   margin: 0;
   overflow: auto;
   padding: 1rem 1.25rem;
@@ -193,8 +195,4 @@
 :root:has(.detail[open]) {
   overflow: hidden;
   scrollbar-gutter: stable;
-}
-.detail-picture,
-.detail-source {
-  overscroll-behavior: contain;
 }
