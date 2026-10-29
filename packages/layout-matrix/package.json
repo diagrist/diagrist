@@ -1,0 +1,46 @@
+{
+  "name": "@diagrist/layout-matrix",
+  "version": "0.0.0",
+  "description": "Table layout for Diagrist kinds: heads across the top, heads down the side, bands between them, and cells of equal width.",
+  "keywords": [
+    "diagrist",
+    "diagrams-as-code",
+    "diagram",
+    "layout",
+    "table-layout"
+  ],
+  "homepage": "https://github.com/diagrist/diagrist/tree/main/packages/layout-matrix#readme",
+  "bugs": "https://github.com/diagrist/diagrist/issues",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/diagrist/diagrist.git",
+    "directory": "packages/layout-matrix"
+  },
+  "license": "Apache-2.0",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "@diagrist/source": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "NOTICE"
+  ],
+  "engines": {
+    "node": ">=22.11"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "scripts": {
+    "build": "tsdown"
+  },
+  "dependencies": {
+    "@diagrist/core": "workspace:*"
+  }
+}
