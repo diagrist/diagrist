@@ -1,0 +1,54 @@
+{
+  "name": "@diagrist/plugin-concept",
+  "version": "0.0.0",
+  "description": "Pictures of a business concept for Diagrist: the kind matrix, two declared sets and a scale whose rules are checked, such as RACI, CRUD and coverage.",
+  "keywords": [
+    "diagrist",
+    "diagrams-as-code",
+    "diagram",
+    "raci",
+    "crud-matrix",
+    "traceability",
+    "business-concept"
+  ],
+  "homepage": "https://github.com/diagrist/diagrist/tree/main/plugins/plugin-concept#readme",
+  "bugs": "https://github.com/diagrist/diagrist/issues",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/diagrist/diagrist.git",
+    "directory": "plugins/plugin-concept"
+  },
+  "license": "Apache-2.0",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "@diagrist/source": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "NOTICE"
+  ],
+  "engines": {
+    "node": ">=22.11"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "scripts": {
+    "build": "tsdown"
+  },
+  "dependencies": {
+    "@diagrist/core": "workspace:*",
+    "@diagrist/lang": "workspace:*",
+    "@diagrist/layout-matrix": "workspace:*",
+    "@diagrist/parts": "workspace:*"
+  },
+  "devDependencies": {
+    "@diagrist/testkit": "workspace:*"
+  }
+}

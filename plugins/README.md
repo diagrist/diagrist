@@ -5,7 +5,8 @@ plugin would use. Plugins depend on the kernel and its libraries, never on each 
 
 So far there are `plugin-uml` (UML sequence, use case, activity, class and state machine diagrams),
 `plugin-architecture` (C4 context, container and component diagrams), `plugin-code` (excerpts of source files as
-highlighted cards) and `export-png` (PNG from the kernel's SVG).
+highlighted cards), `plugin-concept` (matrices of two sets and a scale with its rules) and `export-png` (PNG from
+the kernel's SVG).
 Planned are, among others, `look-sketch`, `export-figjam` and `export-mermaid`.
 
 The two diagram plugins are built alike: statement tables in `grammar`, checks in `rules` with their texts in

@@ -124,6 +124,9 @@ importers:
       '@diagrist/plugin-code':
         specifier: workspace:*
         version: link:../../plugins/plugin-code
+      '@diagrist/plugin-concept':
+        specifier: workspace:*
+        version: link:../../plugins/plugin-concept
       '@diagrist/plugin-uml':
         specifier: workspace:*
         version: link:../../plugins/plugin-uml
@@ -164,6 +167,12 @@ importers:
         version: link:../testkit
 
   packages/layout-grid:
+    dependencies:
+      '@diagrist/core':
+        specifier: workspace:*
+        version: link:../core
+
+  packages/layout-matrix:
     dependencies:
       '@diagrist/core':
         specifier: workspace:*
@@ -219,6 +228,25 @@ importers:
       '@diagrist/lang':
         specifier: workspace:*
         version: link:../../packages/lang
+      '@diagrist/parts':
+        specifier: workspace:*
+        version: link:../../packages/parts
+    devDependencies:
+      '@diagrist/testkit':
+        specifier: workspace:*
+        version: link:../../packages/testkit
+
+  plugins/plugin-concept:
+    dependencies:
+      '@diagrist/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      '@diagrist/lang':
+        specifier: workspace:*
+        version: link:../../packages/lang
+      '@diagrist/layout-matrix':
+        specifier: workspace:*
+        version: link:../../packages/layout-matrix
       '@diagrist/parts':
         specifier: workspace:*
         version: link:../../packages/parts

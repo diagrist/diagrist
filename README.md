@@ -33,6 +33,7 @@ Each kind comes from a plugin, and each has a page with every statement, its exa
 | [`container`](docs/language/container.md) | `plugin-architecture` | C4 container diagram (level 2) |
 | [`component`](docs/language/component.md) | `plugin-architecture` | C4 component diagram (level 3) |
 | [`code`](docs/language/code.md) | [`plugin-code`](plugins/plugin-code/README.md) | Excerpts of source files as highlighted cards, with marks, notes and links |
+| [`matrix`](docs/language/matrix.md) | [`plugin-concept`](plugins/plugin-concept/README.md) | Columns, rows and a scale whose rules are checked: RACI, CRUD, coverage |
 
 UML diagrams are laid out by Diagrist itself. C4 diagrams place their elements in a named grid that the file
 declares, so the author decides what stands next to what.
@@ -163,6 +164,7 @@ node packages/cli/dist/main.js build diagrams/order.dgr --png
 | UML 2.5.1 coverage of the UML kinds | [`plugins/plugin-uml/docs/spec-coverage.md`](plugins/plugin-uml/docs/spec-coverage.md) |
 | How the code is organised and the rules it follows | [`AGENTS.md`](AGENTS.md), [`docs/engineering.md`](docs/engineering.md) |
 | What Diagrist draws, how it may look, what it refuses | [`docs/scope.md`](docs/scope.md) |
+| Pictures of a business concept: the kinds `concept` and `matrix` (proposed) | [`docs/concept-and-matrix.md`](docs/concept-and-matrix.md) |
 | Why it is built this way | [`docs/adr`](docs/adr) |
 | Debt we accept on purpose | [`docs/burn-down.md`](docs/burn-down.md) |
 | How a release is cut, and what is published | [`docs/release`](docs/release/README.md) |
