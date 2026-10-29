@@ -5,6 +5,8 @@ export interface VocabularyWords extends GraphWords {
   readonly kind: string;
   /** At least one, at most one, or exactly one relation for every item of a type. */
   readonly count: (count: 'each' | 'single' | 'one', type: string) => string;
+  /** How many relations of a link every item of a type needs, as an entry of the type: "at least one". */
+  readonly needs: (count: 'each' | 'single' | 'one') => string;
   readonly acyclic: string;
   /** The entry of a type that asks every item for an entry of its own. */
   readonly explain: string;

@@ -17,6 +17,8 @@ export interface LayerGraph {
   readonly edges: readonly LayerEdge[];
   readonly maxPerLayer: number;
   readonly last?: readonly string[];
+  /** Searches harder for an order without crossings: for pictures where every crossing shows, at more cost in time. */
+  readonly thorough?: boolean;
 }
 
 /** Layers from top to bottom and a position per node in half columns; neighbours in a layer stand at least 1 apart. */

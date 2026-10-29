@@ -1,7 +1,8 @@
+import { STANDARD_FONTS, textWidth } from '@diagrist/core';
 import type { Locale } from '@diagrist/lang';
 import { type EdgeText, type GridEdge, type GridNode, type GridSpec, layerGraph } from '@diagrist/layout-grid';
 import type { Graph, Relation } from '../model.js';
-import { FIRST_ROW, graphMetrics, ITEM, type ItemBox, measureItem } from './metrics.js';
+import { FIRST_ROW, GAP, graphMetrics, ITEM, type ItemBox, measureItem } from './metrics.js';
 
 /** Id of the edge of the relation at `index` in source order. */
 export const edgeId = (index: number): string => `rel-${index}`;
@@ -12,6 +13,15 @@ export function drawn(m: Graph): (readonly [Relation, number])[] {
   return m.relations.flatMap((r, i) =>
     ids.has(r.from) && ids.has(r.to) && r.from !== r.to && m.links.has(r.link) ? [[r, i] as const] : [],
   );
+}
+
+/**
+ * Gap between half columns: a label stands beside the line it names, so two lines in one gap need half the widest
+ * label each, at least `GAP.col`.
+ */
+function columnGap(texts: readonly EdgeText[]): number {
+  const widest = Math.max(0, ...texts.map((t) => textWidth(t.name ?? '', STANDARD_FONTS.label)));
+  return Math.max(GAP.col, Math.ceil(widest / 2 + GAP.label));
 }
 
 /** A grid of layers and its edge texts, with every item measured. */
@@ -37,7 +47,12 @@ export function graphGrid(m: Graph, locale: Locale, indent = 0): GraphGrid {
       rank: link?.beside === true ? (0 as const) : (1 as const),
     };
   });
-  const { layers, position } = layerGraph({ nodes: m.items.map((i) => i.id), edges, maxPerLayer: ITEM.perLayer });
+  const { layers, position } = layerGraph({
+    nodes: m.items.map((i) => i.id),
+    edges,
+    maxPerLayer: ITEM.perLayer,
+    thorough: true,
+  });
   const cells = new Map(
     layers.flatMap((layer, row) =>
       layer.map((id) => [id, { row, cross: Math.round(2 * (position.get(id) ?? 0)) }] as const),
@@ -78,8 +93,9 @@ export function graphGrid(m: Graph, locale: Locale, indent = 0): GraphGrid {
       nodes,
       groups: [],
       edges: gridEdges,
-      metrics: { ...graphMetrics(m.subtitle ? FIRST_ROW.subtitle : FIRST_ROW.title), indent },
+      metrics: { ...graphMetrics(m.subtitle ? FIRST_ROW.subtitle : FIRST_ROW.title, columnGap(texts)), indent },
       adaptive: true,
+      ports: 'centred',
     },
     texts,
     boxes,

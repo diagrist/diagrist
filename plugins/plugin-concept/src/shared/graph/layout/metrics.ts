@@ -24,16 +24,22 @@ export const ITEM = {
   perLayer: 5,
 } as const;
 
+/** The least gap between columns, and the room a label keeps to the line beside it. */
+export const GAP = { col: 56, label: 12 } as const;
+
 /** Where the grid starts below the title line, with and without a subtitle. */
 export const FIRST_ROW = { subtitle: 104, title: 88 } as const;
 
-/** The measures `layout-grid` lays a graph picture out with: an adaptive grid of layers, orthogonal lines. */
-export const graphMetrics = (firstRowY: number): GridMetrics => ({
+/**
+ * The measures `layout-grid` lays a graph picture out with: an adaptive grid of layers, orthogonal lines, and columns
+ * `colGap` apart, which the caller widens so labels beside the lines have room.
+ */
+export const graphMetrics = (firstRowY: number, colGap: number = GAP.col): GridMetrics => ({
   grid: 8,
   nodeW: ITEM.minW,
   nodeH: ITEM.minH,
-  colGap: 56,
-  subColGap: 56,
+  colGap,
+  subColGap: colGap,
   rowGap: 72,
   marginX: MARGIN,
   firstRowY,

@@ -55,4 +55,26 @@ describe('concept layout', () => {
     expect(concept('', 'type t "T"', 'item a "A" is t').svg).toContain('node-a');
     expect(concept('').svg).toBeDefined();
   });
+
+  it('leaves and enters items in the middle of their sides, and bends halfway between the layers', () => {
+    const result = concept(
+      '',
+      'type t "T"',
+      'link l "führt zu" from=t to=t',
+      'item a "Ein langer Name für das obere Element" is t',
+      'item b "B" is t',
+      'item c "C" is t',
+      'rel a l b',
+      'rel a l c',
+    );
+    const [first, second] = result.anchors?.edges ?? [];
+    const a = rectOf(result, 'a');
+    const b = rectOf(result, 'b');
+    expect(first?.points.at(-1)).toEqual([b.x + b.w / 2, b.y]);
+    const middle = a.x + a.w / 2;
+    const [left, right] = [first?.points[0]?.[0] ?? 0, second?.points[0]?.[0] ?? 0];
+    expect(left).toBeLessThan(middle);
+    expect(right - middle).toBeCloseTo(middle - left);
+    expect(first?.points).toHaveLength(4);
+  });
 });

@@ -8,6 +8,7 @@ export const EN: VocabularyWords = {
   status: { planned: 'planned', deprecated: 'deprecated' },
   count: (count, type) =>
     `${count === 'each' ? 'at least one' : count === 'single' ? 'at most one' : 'exactly one'} per ${type}`,
+  needs: (count) => (count === 'each' ? 'at least one' : count === 'single' ? 'at most one' : 'exactly one'),
   acyclic: 'no cycles',
   explain: 'every item needs an entry',
   diagram: (title, types, links) =>

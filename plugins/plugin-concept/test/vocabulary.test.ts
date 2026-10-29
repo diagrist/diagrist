@@ -35,11 +35,11 @@ describe('vocabulary files', () => {
     expect(result.diagnostics.find((d) => d.code === 'M113')?.values).toMatchObject({ vocabulary: 'bank/v.dgr' });
   });
 
-  it('draw themselves: a type per item, a line per link with its rules, no legend', () => {
+  it('draw themselves: a type per item, a line per link, what a link asks of a type as its entry, no legend', () => {
     const result = compileExample('bank/iks.vocab.dgr');
     expect(codes(result)).toEqual([]);
     expect(result.anchors?.nodes.map((n) => n.id)).toEqual(['prozess', 'risiko', 'kontrolle', 'rolle']);
-    expect(result.svg).toContain('genau eine je Kontrolle');
+    expect(result.svg).toContain('verantwortet: genau eine');
     expect(result.svg).not.toContain('legendRule');
     expect(result.description).toContain('Rolle verantwortet: Kontrolle (genau eine je Kontrolle).');
   });
