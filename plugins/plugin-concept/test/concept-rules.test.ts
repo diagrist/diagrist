@@ -1,6 +1,6 @@
-import type { Compilation } from '@diagrist/core';
+import { type Compilation, formatMessage } from '@diagrist/core';
 import { describe, expect, it } from 'vitest';
-import { codes, concept } from './compile.js';
+import { codes, concept, plugins } from './compile.js';
 
 const found = (result: Compilation) => result.diagnostics.filter((d) => d.severity === 'error');
 const errors = (result: Compilation) => found(result).map((d) => d.code);
@@ -116,5 +116,22 @@ describe('concept rules', () => {
     const roles = ['item a "A" is role', 'item b "B" is role', 'item c "C" is role'];
     expect(codes(concept('vocabulary=roles', ...roles, 'rel a reports-to b', 'rel a reports-to c'))).toEqual(['M116']);
     expect(codes(concept('vocabulary=roles', ...roles, 'rel a reports-to b', 'rel c deputy c'))).toEqual(['M118']);
+  });
+});
+
+describe('concept messages', () => {
+  it('names the type whose items need a relation, in German', () => {
+    const result = concept(
+      'locale=de',
+      'type risiko "Risiko"',
+      'type kontrolle "Kontrolle"',
+      'link mindert "mindert" from=kontrolle to=risiko each=to',
+      'item r "R" is risiko',
+      'item k "K" is kontrolle',
+    );
+    const m115 = result.diagnostics.find((d) => d.code === 'M115');
+    expect(m115 && formatMessage(m115, plugins, 'de')).toBe(
+      'Zu `r` führt keine Beziehung `mindert`; die Verbindung verlangt für jedes `risiko` mindestens eine.',
+    );
   });
 });

@@ -51,7 +51,7 @@ function countRule(code: string, which: 'each' | 'single', fails: (n: number) =>
               .filter((item) => link[side].includes(item.type) && fails(n.get(item.id) ?? 0))
               .map((item) => ({
                 span: item.span,
-                values: { item: item.id, link: link.id, side, count: String(n.get(item.id) ?? 0) },
+                values: { item: item.id, type: item.type, link: link.id, side, count: String(n.get(item.id) ?? 0) },
               }));
           });
       }),

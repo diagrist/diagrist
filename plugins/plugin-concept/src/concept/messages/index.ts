@@ -42,15 +42,15 @@ export const CONCEPT_MESSAGES: Catalogue = {
   },
   M115: {
     en: (v) =>
-      `\`${v.item}\` has no relation \`${v.link}\`; the link asks every such item for at least one ${v.side === 'from' ? 'from it' : 'to it'}.`,
+      `${v.side === 'from' ? `No relation \`${v.link}\` starts at` : `No relation \`${v.link}\` ends at`} \`${v.item}\`; the link asks every \`${v.type}\` for at least one.`,
     de: (v) =>
-      `\`${v.item}\` hat keine Beziehung \`${v.link}\`; die Verbindung verlangt von jedem solchen Element mindestens eine ${v.side === 'from' ? 'von ihm aus' : 'zu ihm hin'}.`,
+      `${v.side === 'from' ? `Von \`${v.item}\` geht keine Beziehung \`${v.link}\` aus` : `Zu \`${v.item}\` führt keine Beziehung \`${v.link}\``}; die Verbindung verlangt für jedes \`${v.type}\` mindestens eine.`,
   },
   M116: {
     en: (v) =>
-      `\`${v.item}\` has ${v.count} relations \`${v.link}\` ${v.side === 'from' ? 'from it' : 'to it'}; the link allows at most one.`,
+      `${v.count} relations \`${v.link}\` ${v.side === 'from' ? 'start at' : 'end at'} \`${v.item}\`; the link allows every \`${v.type}\` at most one.`,
     de: (v) =>
-      `\`${v.item}\` hat ${v.count} Beziehungen \`${v.link}\` ${v.side === 'from' ? 'von ihm aus' : 'zu ihm hin'}; die Verbindung erlaubt höchstens eine.`,
+      `${v.side === 'from' ? `Von \`${v.item}\` gehen ${v.count} Beziehungen \`${v.link}\` aus` : `Zu \`${v.item}\` führen ${v.count} Beziehungen \`${v.link}\``}; die Verbindung erlaubt jedem \`${v.type}\` höchstens eine.`,
   },
   M117: {
     en: (v) => `The relations \`${v.link}\` run in a circle: ${v.items}. The link is \`acyclic\`; remove one of them.`,
