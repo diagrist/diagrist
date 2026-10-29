@@ -67,7 +67,7 @@ type term "Term" de="Begriff" explain
 ### `link`
 
 ```text
-link <id> <label> [from=<type-names>] [to=<type-names>] [line=<solid|dashed|dotted>] [head=<arrow|open|triangle|diamond|none>] [each=<from|to|both>] [single=<from|to|both>] [de=<text>] [acyclic] [upward] [beside] [bare]
+link <id> <label> [from=<type-names>] [to=<type-names>] [line=<solid|dashed|dotted>] [head=<arrow|open|triangle|diamond|none>] [each=<from|to|both>] [single=<from|to|both>] [back=<text>] [de=<text>] [acyclic] [upward] [beside] [bare]
 ```
 
 A type of relation between items of the types it lists. Every relation names its link, and the declared rules are checked: which types it joins, how many relations each item needs, and whether chains may loop.
@@ -84,6 +84,7 @@ Written at the top level.
 | `head=` | attribute | one of `arrow`, `open`, `triangle`, `diamond`, `none` | The head at the second item: `arrow` (default), `open`, `triangle` and `diamond` hollow, or `none`. |
 | `each=` | attribute | one of `from`, `to`, `both` | Every item of a `from` type, of a `to` type, or of both, has at least one such relation. |
 | `single=` | attribute | one of `from`, `to`, `both` | Every item of a `from` type, of a `to` type, or of both, has at most one such relation. |
+| `back=` | attribute | a text in double quotes like `"Order service"` | What the relation says read backwards, from the second item to the first, such as `"gemindert durch"` for `mindert`. A picture in columns then draws every line from left to right and writes this where the link points against the reading. |
 | `de=` | attribute | a text in double quotes like `"Order service"` | Its name in German, for pictures with `locale=de`; without it the label stands in every locale. |
 | `acyclic` | flag |  | No chain of such relations leads back to where it started. |
 | `upward` | flag |  | The second item stands above the first, as a broader term above a narrower one or a lead above a team. |

@@ -2,7 +2,7 @@ import type { Locale } from '@diagrist/lang';
 import { type EdgeText, type GridNode, type GridSpec, layerGraph } from '@diagrist/layout-grid';
 import type { Graph } from '../model.js';
 import { columnsGrid, inColumns } from './columns.js';
-import { type Cells, type ColumnHead, edgeId, edgesOf, texts, widestText } from './edges.js';
+import { type Cells, type ColumnHead, type ColumnVerb, edgeId, edgesOf, texts, widestText } from './edges.js';
 import { FIRST_ROW, GAP, graphMetrics, ITEM, type ItemBox, measureItem } from './metrics.js';
 
 export { edgeId, edgesOf as drawn } from './edges.js';
@@ -67,6 +67,7 @@ function layersGrid(m: Graph, locale: Locale, boxes: ReadonlyMap<string, ItemBox
     texts: labelled,
     metrics: { ...graphMetrics(m.subtitle ? FIRST_ROW.subtitle : FIRST_ROW.title, columnGap(labelled)), indent },
     heads: [],
+    verbs: [],
   };
 }
 
@@ -76,6 +77,7 @@ export interface GraphGrid {
   readonly texts: readonly EdgeText[];
   readonly boxes: ReadonlyMap<string, ItemBox>;
   readonly heads: readonly ColumnHead[];
+  readonly verbs: readonly ColumnVerb[];
 }
 
 /**
@@ -102,5 +104,6 @@ export function graphGrid(m: Graph, locale: Locale, indent = 0, headed = true): 
     texts: cells.texts,
     boxes,
     heads: cells.heads,
+    verbs: cells.verbs,
   };
 }

@@ -56,6 +56,7 @@ const ROLES: Readonly<Record<string, RoleStyle>> = {
   entry: one('item-entry'),
   edgeLabel: one('label', 'halo'),
   head: one('label-group'),
+  verb: one('label'),
   headRule: one('head-rule'),
 };
 

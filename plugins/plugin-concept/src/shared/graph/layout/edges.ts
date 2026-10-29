@@ -33,6 +33,14 @@ export interface ColumnHead {
   readonly text: string;
 }
 
+/** A verb in the head row between two neighbouring columns, standing for every line between them. */
+export interface ColumnVerb {
+  readonly left: string;
+  readonly right: string;
+  readonly text: string;
+  readonly link: string;
+}
+
 /** What an arrangement hands the grid: columns, rows, nodes and edges, the texts on the lines, heads of columns. */
 export interface Cells {
   readonly cols: readonly GridColumn[];
@@ -42,4 +50,5 @@ export interface Cells {
   readonly texts: readonly EdgeText[];
   readonly metrics: GridMetrics;
   readonly heads: readonly ColumnHead[];
+  readonly verbs: readonly ColumnVerb[];
 }

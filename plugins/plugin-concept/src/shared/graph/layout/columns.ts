@@ -1,7 +1,8 @@
 import type { Locale } from '@diagrist/lang';
-import { type GridEdge, type GridNode, layerGraph, type Side } from '@diagrist/layout-grid';
+import { type GridNode, layerGraph } from '@diagrist/layout-grid';
 import type { Graph } from '../model.js';
-import { type Cells, edgesOf, texts } from './edges.js';
+import { columnEdges } from './column-edges.js';
+import { type Cells, edgesOf } from './edges.js';
 import { FIRST_ROW, graphMetrics, HEAD, type ItemBox } from './metrics.js';
 
 /** The types the items use, in the order of their declaration: the order the columns tell the story in. */
@@ -14,9 +15,8 @@ export const inColumns = (m: Graph): boolean =>
 /**
  * The grid of a graph picture in columns: one column per type in the order of the declarations, and in each column
  * the items ordered so related items stand side by side, an item with two partners in a row between theirs. Of an
- * order and its mirror, which cross alike, the one that keeps the first column in the order written wins. A
- * relation runs across from column to column, straight where the partners stand level; the relations from one item
- * to several of the next column share a trunk, which carries their text once.
+ * order and its mirror, which cross alike, the one that keeps the first column in the order written wins. The items
+ * of a column are as wide as its widest, so the columns read as a table; the lines are `columnEdges`.
  */
 export function columnsGrid(
   m: Graph,
@@ -45,6 +45,8 @@ export function columnsGrid(
   const between = (c: number) => c % 2 === 1 && taken.has(c - 1) && taken.has(c + 1);
   const crosses = [...taken].filter((c) => !between(c)).sort((a, b) => a - b);
   const row = (c: number) => `r${crosses.indexOf(c) + 1}`;
+  const widths = new Map<number, number>();
+  for (const [id, cell] of at) widths.set(cell.col, Math.max(widths.get(cell.col) ?? 0, boxes.get(id)?.w ?? 0));
   const metrics = graphMetrics(m.subtitle ? FIRST_ROW.subtitle : FIRST_ROW.title, 0);
   const nodes = m.items.flatMap((item): GridNode[] => {
     const cell = at.get(item.id);
@@ -57,7 +59,7 @@ export function columnsGrid(
         ...(between(cell.cross)
           ? { row: row(cell.cross - 1), to: { row: row(cell.cross + 1) }, rowHeight: 0 }
           : { row: row(cell.cross) }),
-        width: box.w,
+        width: widths.get(cell.col) ?? box.w,
         height: box.h,
         shape: 'box',
         source: item.span,
@@ -65,40 +67,22 @@ export function columnsGrid(
     ];
   });
   const column = (id: string) => at.get(id)?.col ?? 0;
-  const edges = relations.map(([r, i]): GridEdge => {
-    const ahead = column(r.to) >= column(r.from);
-    const pair: readonly [Side, Side] = ahead ? ['right', 'left'] : ['left', 'right'];
-    const fan = relations.filter(([o]) => o.from === r.from && column(o.to) === column(r.to)).length > 1;
-    return {
-      id: `rel-${i}`,
-      from: r.from,
-      to: r.to,
-      sides: Array.from({ length: 6 }, () => pair),
-      ...(fan ? { bundle: `${r.from}>${column(r.to)}` } : {}),
-      source: r.span,
-    };
-  });
-  const fans = edges.some((e) => e.bundle !== undefined);
-  const trunk = new Map<string, string>();
-  const labelled = texts(m, locale).filter((t) => {
-    const bundle = edges.find((e) => e.id === t.edge)?.bundle;
-    if (bundle === undefined) return true;
-    const key = `${bundle}:${t.name ?? ''}`;
-    if (trunk.has(key)) return false;
-    trunk.set(key, t.edge);
-    return true;
-  });
+  const lines = columnEdges(m, locale, column, headed);
   return {
     cols: types.map((_, k) => ({ name: `k${k + 1}`, width: 0 })),
     rows: crosses.map((c) => ({ name: row(c) })),
     nodes,
-    edges,
-    texts: labelled,
+    edges: lines.edges,
+    texts: lines.texts,
+    verbs: lines.verbs,
     metrics: {
       ...metrics,
       firstRowY: metrics.firstRowY + (headed ? HEAD.room : 0),
-      colGap: HEAD.colGap(labelled, fans),
-      subColGap: HEAD.colGap(labelled, fans),
+      colGap: HEAD.colGap([...lines.texts, ...lines.verbs.map((v) => ({ edge: v.left, name: v.text }))], lines.forks),
+      subColGap: HEAD.colGap(
+        [...lines.texts, ...lines.verbs.map((v) => ({ edge: v.left, name: v.text }))],
+        lines.forks,
+      ),
       rowGap: HEAD.rowGap,
       indent,
     },

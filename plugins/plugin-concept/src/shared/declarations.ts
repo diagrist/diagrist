@@ -33,6 +33,8 @@ export interface TypeDecl {
 export interface LinkDecl {
   readonly id: string;
   readonly label: Label;
+  /** What the relation says read from the second item back to the first, for pictures that read in one direction. */
+  readonly back?: Label;
   readonly from: readonly string[];
   readonly to: readonly string[];
   readonly line: LineName;

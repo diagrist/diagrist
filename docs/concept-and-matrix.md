@@ -398,3 +398,11 @@ and `arrange=columns|layers` overrides the choice.
 and `thorough` searches harder for an order without crossings. `GridSpec.ports: 'centred'` lets lines leave and
 enter boxes in the middle of a side and bend halfway between them. All three are opt-in, so the pictures of the
 other kinds keep their bytes.
+
+A picture in columns reads in one direction. A link may say what it means backwards with `back=`, such as
+`mindert` with `back="gemindert durch"`. Where such a link points against the reading, its line runs from left to
+right and says the backward text, so every row reads as one sentence: process, "birgt" risk, "gemindert durch"
+control, "verantwortet von" role. Where all lines between two neighbouring columns are of one link, the head row
+says its verb once between the two heads on an arrow, and the lines are silent; a relation with a text of its own
+still says it on its line. The items of a column are as wide as its widest, so the columns read as a table, and
+lines that join two items into one share a trunk as forks do.

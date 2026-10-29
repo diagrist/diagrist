@@ -53,6 +53,10 @@ export const linkStatement = statement('link', {
       oneOf(ENDS),
       'Every item of a `from` type, of a `to` type, or of both, has at most one such relation.',
     ),
+    back: attr(
+      text(),
+      'What the relation says read backwards, from the second item to the first, such as `"gemindert durch"` for `mindert`. A picture in columns then draws every line from left to right and writes this where the link points against the reading.',
+    ),
     de: german,
   },
   flags: {
@@ -82,6 +86,7 @@ export const typeOf = (s: TypeLine, origin: Origin): TypeDecl => ({
 export const linkOf = (s: LinkLine, origin: Origin): LinkDecl => ({
   id: s.id,
   label: labelOf(s),
+  ...(s.attributes.back === undefined ? {} : { back: { en: s.attributes.back, de: s.attributes.back } }),
   from: s.attributes.from ?? [],
   to: s.attributes.to ?? [],
   line: s.attributes.line ?? 'solid',

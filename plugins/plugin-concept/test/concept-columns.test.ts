@@ -17,8 +17,8 @@ const CONTROLS = [
   'type kontrolle "Kontrolle" shape=doc',
   'type rolle "Rolle" shape=person',
   'link birgt "birgt" from=prozess to=risiko',
-  'link mindert "mindert" from=kontrolle to=risiko',
-  'link verantwortet "verantwortet" from=rolle to=kontrolle',
+  'link mindert "mindert" back="gemindert durch" from=kontrolle to=risiko',
+  'link verantwortet "verantwortet" back="verantwortet von" from=rolle to=kontrolle',
   'item antrag "Antrag prüfen" is prozess',
   'item auszahlung "Auszahlen" is prozess',
   'item ausfall "Ausfall" is risiko',
@@ -65,11 +65,38 @@ describe('concept pictures in columns', () => {
     expect(rectOf(result, 'antrag').y).toBeLessThan(rectOf(result, 'auszahlung').y);
   });
 
-  it('fork from one item to two on a shared trunk that carries the text once', () => {
+  it('fork from one item to two on a shared trunk, and join two into one the same way', () => {
     const result = concept('locale=de', ...CONTROLS);
     const forks = (result.anchors?.edges ?? []).filter((e) => e.from === 'antrag');
     expect(forks.map((e) => e.points[0])).toEqual([forks[0]?.points[0], forks[0]?.points[0]]);
-    expect(result.svg?.match(/>birgt</g)).toHaveLength(2);
+    const joins = (result.anchors?.edges ?? []).filter((e) => e.from === 'marktfolge');
+    expect(joins.map((e) => e.points.at(-1))).toEqual([joins[0]?.points.at(-1), joins[0]?.points.at(-1)]);
+  });
+
+  it('read from left to right: a link with back= runs the other way and says it backwards', () => {
+    const result = concept('locale=de', ...CONTROLS);
+    for (const edge of result.anchors?.edges ?? []) {
+      const [first, last] = [edge.points[0]?.[0] ?? 0, edge.points.at(-1)?.[0] ?? 0];
+      expect(last).toBeGreaterThan(first);
+    }
+    const ahead = concept('locale=de', ...CONTROLS.map((l) => l.replace(/ back="[^"]*"/, '')));
+    const scoring = ahead.anchors?.edges.find((e) => e.from === 'scoring');
+    expect(scoring?.points.at(-1)?.[0]).toBeLessThan(scoring?.points[0]?.[0] ?? 0);
+  });
+
+  it('say a verb all lines between two columns share once between their heads, not on every line', () => {
+    const result = concept('locale=de', ...CONTROLS);
+    for (const verb of ['birgt', 'gemindert durch', 'verantwortet von'])
+      expect(result.svg?.match(new RegExp(`>${verb}<`, 'g'))).toHaveLength(1);
+    const own = concept('locale=de', ...CONTROLS, 'rel auszahlung birgt ausfall "selten"');
+    expect(own.svg).toContain('>selten<');
+    expect(own.svg?.match(/>birgt</g)).toHaveLength(1);
+  });
+
+  it('make the items of a column as wide as its widest', () => {
+    const result = concept('locale=de', ...CONTROLS);
+    expect(rectOf(result, 'ausfall').w).toBe(rectOf(result, 'konto').w);
+    expect(rectOf(result, 'berater').w).toBe(rectOf(result, 'marktfolge').w);
   });
 
   it('leave out of the legend what the heads and the lines say, and stand in layers when asked to', () => {

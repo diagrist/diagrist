@@ -75,6 +75,14 @@ export function graphScene(layout: GraphLayout, model: Graph, title: string): Sc
     { kind: 'text', x: h.x, y: h.y, text: h.text, role: 'head', font: 'group', anchor: 'middle' },
     { kind: 'line', x1: h.rule.x1, y1: h.rule.y, x2: h.rule.x2, y2: h.rule.y, role: 'headRule' },
   ]);
+  const verbs = layout.verbs.flatMap((v): Shape[] => [
+    { kind: 'text', x: v.x, y: v.y, text: v.text, role: 'verb', font: 'label', anchor: 'middle' },
+    {
+      kind: 'path',
+      d: `M ${v.rule.x1} ${v.rule.y} L ${v.rule.x2} ${v.rule.y}`,
+      role: lineRole(v.link.line, v.link.head),
+    },
+  ]);
   const legend =
     layout.legend.entries.length > 0 ? legendShapes(layout.legend, (e) => sampleShapes(e.sample, e.at.x, e.at.y)) : [];
   return {
@@ -84,6 +92,7 @@ export function graphScene(layout: GraphLayout, model: Graph, title: string): Sc
     children: [
       ...headerShapes(HEADER, title, model.subtitle),
       ...heads,
+      ...verbs,
       ...lines,
       ...layout.items.map(itemShapes),
       ...labels,

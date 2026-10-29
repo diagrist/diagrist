@@ -12,6 +12,7 @@ import {
 import { LEGEND, type Legend, legendLayout, MARGIN } from '@diagrist/parts';
 import type { LinkDecl, TypeDecl } from '../../declarations.js';
 import type { Graph, GraphWords, Item, Relation } from '../model.js';
+import { type PlacedHead, type PlacedVerb, placeHeads } from './heads.js';
 import { GRAPH_FONTS as F, type ItemBox } from './metrics.js';
 import { drawn, edgeId, graphGrid } from './spec.js';
 
@@ -46,18 +47,11 @@ export interface GraphLayout {
   readonly legend: Legend<Sample>;
   /** The heads above the columns, each centred on its column with a rule as wide as the column below it. */
   readonly heads: readonly PlacedHead[];
+  /** The verbs between the heads, each standing for every line between its two columns. */
+  readonly verbs: readonly PlacedVerb[];
   readonly width: number;
   readonly height: number;
   readonly placed: readonly Placed[];
-}
-
-/** A head above a column: its text centred at `x` on the baseline `y`, and the rule below it from `x1` to `x2`. */
-export interface PlacedHead {
-  readonly text: string;
-  readonly x: number;
-  readonly y: number;
-  readonly rule: { readonly x1: number; readonly x2: number; readonly y: number };
-  readonly rect: Rect;
 }
 
 /** Room between the content and the legend below it. */
@@ -106,24 +100,10 @@ export function layoutGraph(
   locale: Locale,
   options: { readonly legend: boolean; readonly heads: boolean } = { legend: true, heads: true },
 ): GraphLayout {
-  const { spec, boxes, grid, routes, labels, heads: named } = placed(m, locale, options.heads);
+  const { spec, boxes, grid, routes, labels, heads: named, verbs } = placed(m, locale, options.heads);
   const fitted = fitFrames(spec, grid, routes, labels);
-  const top = fitted.rows[0]?.y ?? 0;
-  const heads = named.flatMap((h): PlacedHead[] => {
-    const col = fitted.cols.find((c) => c.name === h.col);
-    if (!col) return [];
-    const x = col.x + col.w / 2;
-    const w = textWidth(h.text, F.group);
-    return [
-      {
-        text: h.text,
-        x,
-        y: top - 18,
-        rule: { x1: col.x, x2: col.x + col.w, y: top - 10 },
-        rect: { x: x - w / 2, y: top - 29, w, h: 14 },
-      },
-    ];
-  });
+  const row = placeHeads(fitted, named, verbs, m.links);
+  const heads = row.heads;
   const byId = new Map(m.items.map((i) => [i.id, i]));
   const items = fitted.nodes.flatMap((p): PlacedItem[] => {
     const item = byId.get(p.id);
@@ -159,11 +139,9 @@ export function layoutGraph(
     labels,
     legend,
     heads,
+    verbs: row.verbs,
     width,
     height: Math.ceil(entries.length > 0 ? legend.bottom : bottom),
-    placed: [
-      ...placedOf(spec, fitted, routes, labels),
-      ...heads.map((h, i): Placed => ({ key: `head-${i}`, kind: 'text', rect: h.rect })),
-    ],
+    placed: [...placedOf(spec, fitted, routes, labels), ...row.placed],
   };
 }
