@@ -1,0 +1,208 @@
+---
+import { catalog, LOOKS } from '../../lib/catalog.js';
+
+/**
+ * The catalog: every element, shape, icon, tone, arrow, flow, frame and card form of the C4 kinds as a tile, one page
+ * per look. A working overview with its own layout, not a page of the docs; everything on it comes from the tables.
+ */
+export function getStaticPaths() {
+  return LOOKS.map((look, i) => ({ params: { look: i === 0 ? undefined : look }, props: { look } }));
+}
+
+const { look } = Astro.props as { look: string };
+const sections = catalog(look);
+const count = sections.reduce((sum, s) => sum + s.tiles.length, 0);
+const hrefOf = (l: string) => (l === LOOKS[0] ? '/catalog/' : `/catalog/${l}/`);
+const inline = (text: string) =>
+  text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/`([^`]+)`/g, '<code>$1</code>');
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Catalog · {look} · Diagrist</title>
+    <meta name="description" content={`Every element, shape, icon, tone and arrow of the C4 kinds in look=${look}.`} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  </head>
+  <body>
+    <header class="bar">
+      <div class="bar-row">
+        <a class="brand" href="/">Diagrist</a>
+        <span class="crumb">Catalog</span>
+        <nav class="looks" aria-label="Look">
+          {LOOKS.map((l) => <a href={hrefOf(l)} aria-current={l === look ? 'page' : undefined}>{l}</a>)}
+        </nav>
+        <span class="links"><a href="/gallery/">Gallery</a><a href="/docs/language/">Language</a></span>
+      </div>
+      <nav class="jump" aria-label="Sections">
+        {sections.map((s) => <a href={`#${s.id}`}>{s.title} <span>{s.tiles.length}</span></a>)}
+      </nav>
+    </header>
+    <main>
+      <p class="lead">
+        {count} tiles of the C4 kinds in <code>look={look}</code>, drawn from their tables when the site was built. Each tile
+        shows the line a file writes; a click opens it in the live editor.
+      </p>
+      {
+        sections.map((s) => (
+          <section id={s.id}>
+            <h2>{s.title}</h2>
+            <p class="doc" set:html={inline(s.doc)} />
+            <div class:list={['tiles', { wide: s.wide }]}>
+              {s.tiles.map((t) => (
+                <a class="tile" href={t.editor} target="_blank" rel="noopener" title={t.source}>
+                  <span class="picture" set:html={t.svg} />
+                  <span class="name">{t.name}</span>
+                  <code class="line">{t.line}</code>
+                </a>
+              ))}
+            </div>
+          </section>
+        ))
+      }
+    </main>
+  </body>
+</html>
+
+<style is:global>
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    margin: 0;
+    font: 14px/1.45 system-ui, -apple-system, 'Segoe UI', sans-serif;
+    color: #1f2328;
+    background: #f6f7f9;
+  }
+  code {
+    font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+    font-size: 12px;
+  }
+  .bar {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: #fff;
+    border-bottom: 1px solid #d0d7de;
+  }
+  .bar-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.5rem 1.25rem;
+  }
+  .brand {
+    font-weight: 700;
+    color: inherit;
+    text-decoration: none;
+  }
+  .crumb {
+    color: #59636e;
+  }
+  .looks {
+    display: flex;
+    border: 1px solid #d0d7de;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .looks a {
+    padding: 0.2rem 0.7rem;
+    color: #1f2328;
+    text-decoration: none;
+    border-left: 1px solid #d0d7de;
+  }
+  .looks a:first-child {
+    border-left: 0;
+  }
+  .looks a[aria-current='page'] {
+    background: #0969da;
+    color: #fff;
+  }
+  .links {
+    margin-left: auto;
+    display: flex;
+    gap: 1rem;
+  }
+  a {
+    color: #0969da;
+  }
+  .jump {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 1rem;
+    padding: 0.3rem 1.25rem 0.5rem;
+    font-size: 13px;
+  }
+  .jump a {
+    text-decoration: none;
+  }
+  .jump span {
+    color: #59636e;
+  }
+  main {
+    padding: 0.5rem 1.25rem 3rem;
+  }
+  .lead,
+  .doc {
+    color: #59636e;
+    max-width: 60rem;
+  }
+  section {
+    scroll-margin-top: 6rem;
+  }
+  h2 {
+    margin: 1.75rem 0 0.25rem;
+    font-size: 18px;
+  }
+  .tiles {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(10.5rem, 1fr));
+    gap: 0.6rem;
+  }
+  .tiles.wide {
+    grid-template-columns: repeat(auto-fill, minmax(20rem, 1fr));
+  }
+  .tile {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    padding: 0.4rem;
+    background: #fff;
+    border: 1px solid #d0d7de;
+    border-radius: 6px;
+    color: inherit;
+    text-decoration: none;
+  }
+  .tile:hover,
+  .tile:focus-visible {
+    border-color: #0969da;
+    outline: 1px solid #0969da;
+  }
+  .picture {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 7rem;
+  }
+  .wide .picture {
+    height: 8rem;
+  }
+  .picture svg {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+  }
+  .name {
+    font-weight: 600;
+  }
+  .line {
+    color: #59636e;
+    overflow-wrap: anywhere;
+  }
+</style>

@@ -34,6 +34,7 @@ export default defineConfig({
           items: [
             { label: 'Getting started', slug: 'docs/getting-started' },
             { label: 'Gallery', link: '/gallery/' },
+            { label: 'Catalog', link: '/catalog/' },
             {
               label: 'Live editor ↗',
               link: 'https://live.diagrist.com/',
