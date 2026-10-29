@@ -12,6 +12,7 @@
     { "path": "../../packages/lang" },
     { "path": "../../packages/core" },
     { "path": "../../packages/parts" },
+    { "path": "../../packages/layout-grid" },
     { "path": "../../packages/layout-matrix" }
   ]
 }

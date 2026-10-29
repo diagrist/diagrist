@@ -6,7 +6,7 @@ import { compileExample, exampleNames } from './compile.js';
 const sha256 = (text: string) => createHash('sha256').update(text).digest('hex');
 const golden = (name: string): string => new URL(`__golden__/${name}`, import.meta.url).pathname;
 
-describe('matrix examples', () => {
+describe('examples', () => {
   it.each(exampleNames)('%s renders without findings, twice to the same bytes', (name) => {
     const first = compileExample(name);
     expect(first.diagnostics).toEqual([]);
@@ -30,6 +30,23 @@ describe('matrix examples', () => {
         'Schaden regulieren: durchführend Stationsteam; verantwortlich Stationsteam; konsultiert Kundenservice; informiert Buchhaltung.',
         'Mahnung senden: durchführend Buchhaltung; verantwortlich Buchhaltung; informiert Kundenservice.',
         'Anmerkung 1 zu Schaden regulieren: Bei Schäden über 500 Euro entscheidet die Versicherung mit.',
+      ].join(' '),
+    );
+  });
+
+  it('describes a concept picture in German: its types with their items, then a sentence per relation', () => {
+    expect(compileExample('radverleih/belege.dgr').description).toBe(
+      [
+        'Konzept „Ausleihe: wer erzeugt welchen Beleg“ mit 8 Elementen von 3 Typen.',
+        'Rolle: Kunde, Stationsteam.',
+        'Aufgabe: Rad ausleihen, Rad zurückgeben, Schaden prüfen.',
+        'Beleg: Mietvertrag, Rückgabequittung, Schadensprotokoll.',
+        'Kunde führt aus: Rad ausleihen.',
+        'Kunde führt aus: Rad zurückgeben.',
+        'Stationsteam führt aus: Schaden prüfen.',
+        'Rad ausleihen erzeugt: Mietvertrag.',
+        'Rad zurückgeben erzeugt: Rückgabequittung.',
+        'Schaden prüfen erzeugt: Schadensprotokoll.',
       ].join(' '),
     );
   });

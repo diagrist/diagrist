@@ -41,6 +41,7 @@ const GENERAL = new Set([
   'go',
   'grid',
   'group',
+  'item',
   'join',
   'layer',
   'link',
@@ -58,6 +59,7 @@ const GENERAL = new Set([
   'style',
   'system',
   'time',
+  'type',
 ]);
 
 const LIBRARIES = /^packages\/layout-[^/]+\/src\//;

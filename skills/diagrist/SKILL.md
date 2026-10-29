@@ -1,6 +1,6 @@
 ---
 name: diagrist
-description: Write, change, check and render Diagrist diagrams, text files ending in .dgr that the dgr command line turns into checked SVG and PNG pictures. Use it when a diagram such as a sequence, usecase, activity, class, state, context, container, component, code or matrix diagram is wanted as code, when a .dgr file is created or edited, or when dgr reports a code such as L101 or U403.
+description: Write, change, check and render Diagrist diagrams, text files ending in .dgr that the dgr command line turns into checked SVG and PNG pictures. Use it when a diagram such as a sequence, usecase, activity, class, state, context, container, component, code, matrix or concept diagram is wanted as code, when a .dgr file is created or edited, or when dgr reports a code such as L101 or U403.
 ---
 
 <!-- Generated from the command tables, the statement tables of every kind and the diagnostic catalogues by `pnpm docs:generate`. Do not edit. -->
@@ -497,6 +497,40 @@ The rules of `matrix` report these codes:
 | `M106` | error | Under `cover=` every row, every column or both hold at least one value; `scale=cover` asks for both, so a requirement no building block meets and a building block that meets none show up. |
 | `M107` | error | The rows of a group stand one after another, since its band stands above its first row only. |
 | `M600` | warning | A matrix has at most 12 columns and 40 rows; a larger one no longer fits a page and is read better as two. |
+
+## Kind `concept`
+
+A picture of a business concept with its own vocabulary: the file declares types of things and types of relations with their rules, then writes items and relations, which are checked against the declarations. A vocabulary of the plugin brings the declarations of a common picture, such as `terms` or `roles`. Full reference: `dgr grammar concept`.
+
+```text
+diagram concept "Title" [subtitle=<text>] [vocabulary=<terms|roles>] [locale=<en|de>]
+```
+
+| Line | Where | What it does | Example |
+|---|---|---|---|
+| `type <id> <label> [shape=<box\|round\|person\|store\|doc>] [explain]` | top level | A type of thing the picture shows, such as a role, a task or a document. | `type rolle "Rolle" shape=person` |
+| `link <id> <label> [from=<type-names>] [to=<type-names>] [line=<solid\|dashed\|dotted>] [head=<arrow\|open\|triangle\|diamond\|none>] [each=<from\|to\|both>] [single=<from\|to\|both>] [acyclic] [upward] [beside] [bare]` | top level | A type of relation between items of the types it lists. | `link fuehrt "führt aus" from=rolle to=aufgabe each=to` |
+| `item <id> <label> [is <type-name>] [status=<planned\|deprecated>]` | top level | One thing of a declared type. | `item kunde "Kunde" is rolle` |
+| `rel <from> <link> <to> [label]` | top level | One relation of a declared link from one item to another, written as a sentence: `rel kunde fuehrt ausleihen`. | `rel kunde fuehrt ausleihen` |
+
+The rules of `concept` report these codes:
+
+| Code | Severity | What it checks |
+|---|---|---|
+| `M110` | error | An item names its type with `is`, and the type is declared with `type` or by the vocabulary of the header. |
+| `M111` | error | A relation names a link declared with `link` or by the vocabulary of the header. |
+| `M112` | error | A link lists the types it joins with `from=` and `to=`, each a declared type. |
+| `M113` | error | The file adds types and links to its vocabulary, but does not declare one of the vocabulary again. |
+| `M114` | error | A relation joins items of the types its link lists in `from=` and `to=`. |
+| `M115` | error | Every item of the types a link counts with `each=` has at least one relation of that link. |
+| `M116` | error | Every item of the types a link counts with `single=` has at most one relation of that link. |
+| `M117` | error | Relations of an `acyclic` link never lead back to where they started, such as a term that is a kind of itself. |
+| `M118` | error | A relation joins two different items; a role that stands in for itself or a term that is part of itself says nothing. |
+| `M119` | error | Every item of an `explain` type has at least one indented entry, such as the definition of a term. |
+| `M610` | warning | A type or link the file declares is used by an item or relation; an unused one is a slip or left over. |
+| `M611` | warning | A picture shows at most 6 types; with more, shapes no longer tell them apart at a glance. Split it. |
+| `M612` | warning | Where links are declared, every item takes part in a relation; an item without one stands in the picture unexplained. |
+| `M613` | warning | Of two terms that mean the same, one is the term in use and the other is marked `status=deprecated`. |
 
 ## Statements of every kind
 

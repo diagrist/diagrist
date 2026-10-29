@@ -21,3 +21,7 @@ export const matrix = (header: string, ...lines: string[]): Compilation =>
   compile([`diagram matrix "Test" ${header}`.trimEnd(), ...lines].join('\n'), { plugins });
 
 export const codes = (result: Compilation): string[] => result.diagnostics.map((d) => d.code);
+
+/** A concept picture of a few lines below a header with the given attributes, such as `vocabulary=terms`. */
+export const concept = (header: string, ...lines: string[]): Compilation =>
+  compile([`diagram concept "Test" ${header}`.trimEnd(), ...lines].join('\n'), { plugins });
