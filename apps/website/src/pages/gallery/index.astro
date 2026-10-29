@@ -1,0 +1,176 @@
+---
+import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
+import { examples, groups } from '../../lib/gallery.js';
+
+/** The gallery: the live editor on top, every example of the repository below it, a click loads one into the editor. */
+const all = examples();
+const first = all.find((example) => example.editor !== undefined);
+const editor = 'https://live.diagrist.com/';
+---
+
+<StarlightPage
+  frontmatter={{
+    title: 'Gallery',
+    description: `Every example of the Diagrist repository, ${all.length} diagrams of UML, C4 and code, with the live editor to change them.`,
+    template: 'splash',
+    editUrl: false,
+  }}
+>
+  <p>
+    Every example of the repository, drawn when the site was built. Click one to load it into the editor and change
+    it; the picture follows as you type. Most examples are written in German, with <code>locale=de</code> in the header.
+  </p>
+
+  <div class="not-content gallery-editor" id="editor-panel">
+    <div class="gallery-bar">
+      <strong id="current">{first?.title}</strong>
+      <a id="open-tab" href={first?.editor ?? editor} target="_blank" rel="noopener">Open in a new tab ↗</a>
+    </div>
+    <iframe
+      id="editor"
+      src={first?.editor ?? editor}
+      title="Diagrist live editor"
+      allow="clipboard-write"
+      loading="lazy"></iframe>
+  </div>
+
+  {
+    groups(all).map((group) => (
+      <section>
+        <h2 id={group.name}>{group.name}</h2>
+        <p class="gallery-plugin">
+          <code>{group.plugin}</code>, {group.examples.length} examples
+        </p>
+        <div class="not-content gallery-grid">
+          {group.examples.map((example) => (
+            <article class="gallery-card">
+              {example.editor === undefined ? (
+                <a class="gallery-pick" href={`/gallery/${example.slug}.svg`} target="_blank" rel="noopener">
+                  <img src={`/gallery/${example.slug}.svg`} alt={example.title} loading="lazy" />
+                  <span class="gallery-title">{example.title}</span>
+                </a>
+              ) : (
+                <button class="gallery-pick" type="button" data-editor={example.editor} data-title={example.title}>
+                  <img src={`/gallery/${example.slug}.svg`} alt={example.title} loading="lazy" />
+                  <span class="gallery-title">{example.title}</span>
+                </button>
+              )}
+              <p class="gallery-meta">
+                <code>{example.kind}</code> · {example.file}
+              </p>
+              <p class="gallery-links">
+                {example.editor === undefined ? (
+                  <span>Reads other files, build it with <code>dgr</code></span>
+                ) : (
+                  <a href={example.editor} target="_blank" rel="noopener">
+                    Editor in a new tab ↗
+                  </a>
+                )}
+                <a href={example.github} target="_blank" rel="noopener">
+                  Source ↗
+                </a>
+              </p>
+            </article>
+          ))}
+        </div>
+      </section>
+    ))
+  }
+</StarlightPage>
+
+<script>
+  /** A click on an example loads its source into the editor above and points the new-tab link at it. */
+  const frame = document.querySelector<HTMLIFrameElement>('#editor');
+  const panel = document.querySelector<HTMLElement>('#editor-panel');
+  const current = document.querySelector<HTMLElement>('#current');
+  const tab = document.querySelector<HTMLAnchorElement>('#open-tab');
+  for (const button of document.querySelectorAll<HTMLButtonElement>('button[data-editor]')) {
+    button.addEventListener('click', () => {
+      const url = button.dataset.editor ?? '';
+      if (frame === null || tab === null || current === null || panel === null) return;
+      frame.src = url;
+      tab.href = url;
+      current.textContent = button.dataset.title ?? '';
+      panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  }
+</script>
+
+<style>
+  .gallery-editor {
+    margin-block: 1.5rem 2.5rem;
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 0.5rem;
+    overflow: hidden;
+    scroll-margin-top: calc(var(--sl-nav-height) + 1rem);
+  }
+  .gallery-bar {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.5rem 0.75rem;
+    background: var(--sl-color-gray-6);
+    font-size: var(--sl-text-sm);
+  }
+  .gallery-editor iframe {
+    display: block;
+    width: 100%;
+    height: max(32rem, 75vh);
+    border: 0;
+    background: #fff;
+  }
+  .gallery-plugin {
+    color: var(--sl-color-gray-3);
+  }
+  .gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+    gap: 1rem;
+    margin-block: 1rem 2rem;
+  }
+  .gallery-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 0.5rem;
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 0.5rem;
+    font-size: var(--sl-text-sm);
+  }
+  .gallery-pick {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--sl-color-white);
+    font: inherit;
+    text-align: start;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .gallery-pick img {
+    width: 100%;
+    height: 12rem;
+    object-fit: contain;
+    background: #fff;
+    border-radius: 0.25rem;
+  }
+  .gallery-pick:hover img,
+  .gallery-pick:focus-visible img {
+    outline: 2px solid var(--sl-color-accent);
+  }
+  .gallery-title {
+    font-weight: 600;
+  }
+  .gallery-meta {
+    color: var(--sl-color-gray-3);
+  }
+  .gallery-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 1rem;
+    margin-top: auto;
+  }
+</style>

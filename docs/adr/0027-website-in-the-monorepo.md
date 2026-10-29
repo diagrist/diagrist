@@ -36,6 +36,8 @@ short variants, the grammar of every kind as `/grammar/<kind>.json` and the skil
 ## Consequences
 
 The site builds from `dist` of the packages, so its build runs `pnpm build` first. A change to a table changes the
-site in the same pull request. The site is English; German can follow with Starlight's i18n. The examples under
-`plugins/*/examples` are not shown as a gallery; the start page has examples of its own in `apps/website/src/examples`.
-Versioned docs wait for 1.0.
+site in the same pull request. The site is English; German can follow with Starlight's i18n. The gallery at `/gallery/` draws
+every example under `plugins/*/examples` at build time and loads one into the live editor, which is embedded in the
+page; the editor therefore allows diagrist.com to frame it. Examples that read other files open as a picture only,
+since the editor has no files. The start page keeps examples of its own in `apps/website/src/examples`. Versioned
+docs wait for 1.0.

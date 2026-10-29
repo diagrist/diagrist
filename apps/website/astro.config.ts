@@ -33,6 +33,12 @@ export default defineConfig({
           label: 'Start',
           items: [
             { label: 'Getting started', slug: 'docs/getting-started' },
+            { label: 'Gallery', link: '/gallery/' },
+            {
+              label: 'Live editor ↗',
+              link: 'https://live.diagrist.com/',
+              attrs: { target: '_blank', rel: 'noopener' },
+            },
             { label: 'Live editor and embedding', slug: 'docs/editor' },
             { label: 'For agents', slug: 'docs/agents' },
           ],
