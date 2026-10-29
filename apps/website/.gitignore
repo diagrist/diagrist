@@ -1,0 +1,5 @@
+dist
+.astro
+# Copied from docs/ by src/lib/repo-docs.ts before every build.
+src/content/docs/docs/language/
+src/content/docs/docs/cli.md

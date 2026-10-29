@@ -1,0 +1,12 @@
+# A user signs in: the app asks the auth service, which answers with a token or an error.
+diagram sequence "Sign in" subtitle="Valid or invalid credentials"
+actor user "User"
+participant app ":App"
+participant auth ":AuthService"
+msg user -> app "open()"
+msg app -> auth "login(name, password)"
+alt "valid"
+  msg auth --> app "token"
+  else "invalid"
+    msg auth --> app "error"
+msg app --> user "page"
