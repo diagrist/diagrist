@@ -25,7 +25,7 @@ async function show(): Promise<void> {
   if (source === undefined) {
     preview.innerHTML = '';
     findings.replaceChildren(
-      Object.assign(document.createElement('li'), { textContent: 'Kein Diagramm in der Adresse.' }),
+      Object.assign(document.createElement('li'), { textContent: 'No diagram in the address.' }),
     );
     return;
   }
