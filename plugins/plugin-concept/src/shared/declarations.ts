@@ -1,5 +1,4 @@
 import type { Locale, Span } from '@diagrist/lang';
-import type { TypeTone } from './graph/palette.js';
 
 /** How the items of a type are drawn. */
 export const SHAPES = ['box', 'round', 'person', 'store', 'doc'] as const;
@@ -26,8 +25,6 @@ export interface TypeDecl {
   readonly id: string;
   readonly label: Label;
   readonly shape: ShapeName;
-  /** The tone of its items' bar and its column's head; left out, the column picks one. */
-  readonly tone?: TypeTone;
   readonly explain: boolean;
   readonly origin: Origin;
 }

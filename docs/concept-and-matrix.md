@@ -371,7 +371,7 @@ The owner read a concept report on where `concept` goes next and decided three t
 |---|---|
 | A vocabulary becomes a file of its own, `diagram vocabulary`, that a picture names with `use=` in its header | plugins and templates can provide vocabularies later; `terms` and `roles` become vocabulary files the plugin ships, and a vocabulary can be drawn as a picture of its own |
 | Views are fixed pictures, not interactive | one source gives several pictures of how a diagram is built: every area closed, one area opened in place among closed neighbours, or the overview with a lens on one area beside its inside. Relations are written once, at the step they belong to, and the closed area derives them |
-| The look stays as it is for now | the standard look of `belege.dgr` and of a picture of risks and controls is the style to keep; tones, icons and bands per type come later |
+| The look stays as it is for now | the standard look of `belege.dgr` and of a picture of risks and controls is the style to keep; tones, icons and bands per type come later. Two tries at a lighter look on the same day, tinted cards with coloured bars and then pale fills in a sans face, read worse than the standard look and were taken back |
 
 The order is: the vocabulary as a file; frames with `in`, the inside of an item as a block, and the views `closed` and `open=`; lanes inside and the lens; properties with scales and the rules `distinct`, `needs`, `reach` and `within`; then `context-map` and `capability` as vocabulary files. Each is one pull request.
 
@@ -406,13 +406,3 @@ control, "verantwortet von" role. Where all lines between two neighbouring colum
 says its verb once between the two heads on an arrow, and the lines are silent; a relation with a text of its own
 still says it on its line. The items of a column are as wide as its widest, so the columns read as a table, and
 lines that join two items into one share a trunk as forks do.
-
-Graph pictures have a lighter look of their own, which leads the eye by contrast and proximity rather than by
-lines. The owner rejected a first try with coloured bars and spaced capitals: composition, hierarchy and contrast
-make a picture readable, not more strokes. All texts are in the sans face. In columns, the first column tells the
-story and stands as bare, strong text at the start of its rows. The other columns are cards without a border, in a
-pale tint of their type from `blue`, `amber`, `teal`, `plum` and `slate`, which a type picks with `tone=`. The heads
-above them are small and grey, the verbs between the heads lighter still, and the lines a light grey with small
-heads. The rows that follow one item of the first column stand close, and the usual room parts them from the next,
-so the stories group without a line. A name with entries below it is a heading in the semibold face. Pictures of
-one type stay white and grey.

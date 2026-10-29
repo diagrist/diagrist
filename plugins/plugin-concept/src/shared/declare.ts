@@ -1,6 +1,5 @@
 import { arg, attr, type Infer, id, oneOf, statement, text } from '@diagrist/lang';
 import { ENDS, HEADS, LINES, type LinkDecl, type Origin, SHAPES, type TypeDecl } from './declarations.js';
-import { TYPE_TONE_NAMES } from './graph/palette.js';
 import { typeList } from './values.js';
 
 const german = attr(
@@ -20,10 +19,6 @@ export const typeStatement = statement('type', {
     shape: attr(
       oneOf(SHAPES),
       'How its items are drawn: `box` (default), `round` corners, `person` with a figure, `store` as a cylinder, `doc` with a folded corner.',
-    ),
-    tone: attr(
-      oneOf(TYPE_TONE_NAMES),
-      'The muted tone of the bar on its items and of the head of its column, when the picture stands in columns: `blue`, `amber`, `teal`, `plum` or `slate`. Without it the columns take them in this order.',
     ),
     de: german,
   },
@@ -83,7 +78,6 @@ export const typeOf = (s: TypeLine, origin: Origin): TypeDecl => ({
   id: s.id,
   label: labelOf(s),
   shape: s.attributes.shape ?? 'box',
-  ...(s.attributes.tone === undefined ? {} : { tone: s.attributes.tone }),
   explain: s.flags.explain,
   origin,
 });

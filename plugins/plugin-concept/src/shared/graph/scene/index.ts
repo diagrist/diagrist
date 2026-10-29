@@ -4,38 +4,50 @@ import type { GraphLayout, PlacedItem, Sample } from '../layout/index.js';
 import { ITEM } from '../layout/metrics.js';
 import type { Graph } from '../model.js';
 import { lineRole } from '../styles.js';
-import { cardRole, outline, outlineRole } from './shapes.js';
+import { outline, outlineRole } from './shapes.js';
 
 const pathOf = (points: readonly Point[]): string =>
   points.map(([x, y], i) => `${i === 0 ? 'M' : 'L'} ${x} ${y}`).join(' ');
 
-/** Lines of text from `x` downwards from `top`, `step` apart, the first baseline `lift` below `top`. */
-const textLines = (lines: readonly string[], x: number, top: number, step: number, lift: number, role: string) =>
-  lines.map((text, i): Shape => ({ kind: 'text', x, y: top + i * step + lift, text, role, font: role }));
-
-/**
- * An item: its shape in the tone of its type, its name and below it its entries, all from the left. An item that
- * leads a row of the story is its text alone, stronger, at the edge of its column.
- */
+/** An item: its outline, its name centred, and below a hairline its entries from the left. */
 function itemShapes(p: PlacedItem): Shape {
   const { rect, box } = p;
-  const line = box.lead ? ITEM.leadLine : ITEM.nameLine;
   const entries = box.entries.length > 0;
-  const body = box.name.length * line + (entries ? ITEM.entryGap + box.entries.length * ITEM.entryLine : 0);
+  const body = box.name.length * ITEM.nameLine + (entries ? ITEM.entryGap + box.entries.length * ITEM.entryLine : 0);
   const top = rect.y + (rect.h - body) / 2;
-  const round = p.type?.shape === 'round' ? ITEM.padX / 2 : 0;
-  const left = rect.x + (box.lead ? 0 : ITEM.padX + round) + box.indent;
-  const role = box.lead ? 'lead' : entries ? 'heading' : 'name';
-  const below = top + box.name.length * line + ITEM.entryGap;
-  const shape = box.lead ? [] : outline(p.type?.shape ?? 'box', rect, cardRole(p.item.status, p.tone));
+  const left = rect.x + ITEM.padX + box.indent;
+  const middle = entries ? left : rect.x + box.indent + (rect.w - box.indent) / 2;
+  const names = box.name.map(
+    (text, i): Shape => ({
+      kind: 'text',
+      x: middle,
+      y: top + i * ITEM.nameLine + 11,
+      text,
+      role: 'name',
+      font: 'name',
+      ...(entries ? {} : { anchor: 'middle' as const }),
+    }),
+  );
+  const ruleY = top + box.name.length * ITEM.nameLine + ITEM.entryGap / 2;
+  const below = entries
+    ? [
+        { kind: 'line', x1: left, y1: ruleY, x2: rect.x + rect.w - ITEM.padX, y2: ruleY, role: 'itemRule' } as const,
+        ...box.entries.map(
+          (text, i): Shape => ({
+            kind: 'text',
+            x: left,
+            y: ruleY + ITEM.entryGap / 2 + i * ITEM.entryLine + 9,
+            text,
+            role: 'entry',
+            font: 'entry',
+          }),
+        ),
+      ]
+    : [];
   return {
     kind: 'group',
     id: domId.node(p.item.id),
-    children: [
-      ...shape,
-      ...textLines(box.name, left, top, line, line - 4, role),
-      ...textLines(box.entries, left, below, ITEM.entryLine, ITEM.entryLine - 3, 'entry'),
-    ],
+    children: [...outline(p.type?.shape ?? 'box', rect, outlineRole(p.item.status)), ...names, ...below],
   };
 }
 
@@ -59,17 +71,18 @@ export function graphScene(layout: GraphLayout, model: Graph, title: string): Sc
   const labels = layout.labels.map(
     (l): Shape => ({ kind: 'text', x: l.x, y: l.y, text: l.text, role: 'edgeLabel', font: 'label', anchor: l.anchor }),
   );
-  const heads = [...layout.heads, ...layout.verbs].map(
-    (h, i): Shape => ({
-      kind: 'text',
-      x: h.x,
-      y: h.y,
-      text: h.text,
-      role: i < layout.heads.length ? 'head' : 'verb',
-      font: i < layout.heads.length ? 'head' : 'label',
-      anchor: h.anchor,
-    }),
-  );
+  const heads = layout.heads.flatMap((h): Shape[] => [
+    { kind: 'text', x: h.x, y: h.y, text: h.text, role: 'head', font: 'group', anchor: 'middle' },
+    { kind: 'line', x1: h.rule.x1, y1: h.rule.y, x2: h.rule.x2, y2: h.rule.y, role: 'headRule' },
+  ]);
+  const verbs = layout.verbs.flatMap((v): Shape[] => [
+    { kind: 'text', x: v.x, y: v.y, text: v.text, role: 'verb', font: 'label', anchor: 'middle' },
+    {
+      kind: 'path',
+      d: `M ${v.rule.x1} ${v.rule.y} L ${v.rule.x2} ${v.rule.y}`,
+      role: lineRole(v.link.line, v.link.head),
+    },
+  ]);
   const legend =
     layout.legend.entries.length > 0 ? legendShapes(layout.legend, (e) => sampleShapes(e.sample, e.at.x, e.at.y)) : [];
   return {
@@ -79,6 +92,7 @@ export function graphScene(layout: GraphLayout, model: Graph, title: string): Sc
     children: [
       ...headerShapes(HEADER, title, model.subtitle),
       ...heads,
+      ...verbs,
       ...lines,
       ...layout.items.map(itemShapes),
       ...labels,

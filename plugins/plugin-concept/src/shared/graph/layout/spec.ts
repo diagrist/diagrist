@@ -1,9 +1,9 @@
 import type { Locale } from '@diagrist/lang';
 import { type EdgeText, type GridNode, type GridSpec, layerGraph } from '@diagrist/layout-grid';
 import type { Graph } from '../model.js';
-import { columnsGrid, inColumns, usedTypes } from './columns.js';
-import { type Cells, type ColumnHead, type ColumnVerb, edgeId, edgesOf, texts } from './edges.js';
-import { FIRST_ROW, GAP, graphMetrics, ITEM, type ItemBox, measureItem, widestText } from './metrics.js';
+import { columnsGrid, inColumns } from './columns.js';
+import { type Cells, type ColumnHead, type ColumnVerb, edgeId, edgesOf, texts, widestText } from './edges.js';
+import { FIRST_ROW, GAP, graphMetrics, ITEM, type ItemBox, measureItem } from './metrics.js';
 
 export { edgeId, edgesOf as drawn } from './edges.js';
 
@@ -86,11 +86,8 @@ export interface GraphGrid {
  * carry the label of the relation, else of the link unless `bare`.
  */
 export function graphGrid(m: Graph, locale: Locale, indent = 0, headed = true): GraphGrid {
-  const lead = inColumns(m) && headed ? usedTypes(m)[0] : undefined;
   const boxes = new Map(
-    m.items.map(
-      (i) => [i.id, measureItem(i.label, i.entries, m.types.get(i.type)?.shape === 'person', i.type === lead)] as const,
-    ),
+    m.items.map((i) => [i.id, measureItem(i.label, i.entries, m.types.get(i.type)?.shape === 'person')] as const),
   );
   const cells = inColumns(m) ? columnsGrid(m, locale, boxes, indent, headed) : layersGrid(m, locale, boxes, indent);
   return {

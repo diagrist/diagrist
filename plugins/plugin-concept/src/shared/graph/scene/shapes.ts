@@ -6,10 +6,6 @@ import { ITEM } from '../layout/metrics.js';
 export const outlineRole = (status: 'planned' | 'deprecated' | undefined): string =>
   status === 'planned' ? 'itemPlanned' : status === 'deprecated' ? 'itemDeprecated' : 'item';
 
-/** Role of an item's shape: by its status, else the card in the tone of its type, else the neutral card. */
-export const cardRole = (status: 'planned' | 'deprecated' | undefined, tone: string | undefined): string =>
-  status !== undefined ? outlineRole(status) : tone !== undefined ? `card-${tone}` : 'item';
-
 const n = (v: number) => Math.round(v * 100) / 100;
 
 /**
@@ -44,7 +40,7 @@ export function outline(shape: ShapeName, r: Rect, role: string, scale = 1): Sha
       { kind: 'path', d: `M ${n(right - f)} ${n(y)} V ${n(y + f)} H ${n(right)}`, role: 'itemDetail' },
     ];
   }
-  const box: Shape = { kind: 'rect', x, y, w, h, rx: 8 * scale, role };
+  const box: Shape = { kind: 'rect', x, y, w, h, rx: 3 * scale, role };
   if (shape !== 'person') return [box];
   const cx = x + (ITEM.padX + 4) * scale;
   const cy = y + h / 2;

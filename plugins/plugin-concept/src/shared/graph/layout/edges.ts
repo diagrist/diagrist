@@ -1,3 +1,4 @@
+import { STANDARD_FONTS, textWidth } from '@diagrist/core';
 import type { Locale } from '@diagrist/lang';
 import type { EdgeText, GridColumn, GridEdge, GridMetrics, GridNode, GridRow } from '@diagrist/layout-grid';
 import type { Graph, Relation } from '../model.js';
@@ -21,6 +22,10 @@ export function texts(m: Graph, locale: Locale): EdgeText[] {
     return name === undefined ? [] : [{ edge: edgeId(i), name }];
   });
 }
+
+/** Width of the widest text on a line. */
+export const widestText = (all: readonly EdgeText[]): number =>
+  Math.max(0, ...all.map((t) => textWidth(t.name ?? '', STANDARD_FONTS.label)));
 
 /** A head above a column, naming the type of its items. */
 export interface ColumnHead {

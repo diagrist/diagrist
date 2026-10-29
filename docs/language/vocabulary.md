@@ -37,7 +37,7 @@ Each statement is one line that starts with its keyword. Statements inside block
 ### `type`
 
 ```text
-type <id> <label> [shape=<box|round|person|store|doc>] [tone=<blue|amber|teal|plum|slate>] [de=<text>] [explain]
+type <id> <label> [shape=<box|round|person|store|doc>] [de=<text>] [explain]
 ```
 
 A type of thing the picture shows, such as a role, a task or a document. Every item names its type with `is`, and the legend shows each type in use with its shape.
@@ -49,7 +49,6 @@ Written at the top level.
 | `<id>` | argument | an identifier like `api` (letters, digits, `_` and `-`, starting with a letter) | Id that `is` of the items and `from=` and `to=` of the links name. |
 | `<label>` | argument | a text in double quotes like `"Order service"` | Name of the type in the legend. |
 | `shape=` | attribute | one of `box`, `round`, `person`, `store`, `doc` | How its items are drawn: `box` (default), `round` corners, `person` with a figure, `store` as a cylinder, `doc` with a folded corner. |
-| `tone=` | attribute | one of `blue`, `amber`, `teal`, `plum`, `slate` | The muted tone of the bar on its items and of the head of its column, when the picture stands in columns: `blue`, `amber`, `teal`, `plum` or `slate`. Without it the columns take them in this order. |
 | `de=` | attribute | a text in double quotes like `"Order service"` | Its name in German, for pictures with `locale=de`; without it the label stands in every locale. |
 | `explain` | flag |  | Every item of the type has at least one indented entry, such as a definition. |
 

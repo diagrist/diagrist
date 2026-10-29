@@ -1,40 +1,23 @@
 import { type Font, STANDARD_FONTS, textWidth } from '@diagrist/core';
 import type { EdgeText, GridMetrics } from '@diagrist/layout-grid';
 import { MARGIN, wrap } from '@diagrist/parts';
+import { widestText } from './edges.js';
 
-const sans = (size: number, weight?: number): Font => ({ size, family: 'inter', ...(weight ? { weight } : {}) });
-
-/**
- * Font roles of graph pictures, all in the sans face: the title, the names of items, the stronger names of the
- * first column that tells the story, the entries, the texts on lines, and the heads of columns.
- */
+/** Font roles of graph pictures besides the standard ones: the entries below an item's name. */
 export const GRAPH_FONTS = {
   ...STANDARD_FONTS,
-  title: sans(15, 600),
-  note: sans(11),
-  name: sans(12),
-  heading: sans(12, 600),
-  lead: sans(13, 600),
-  entry: sans(11),
-  label: sans(11),
-  head: sans(11, 600),
+  entry: { size: 10 },
 } as const satisfies Readonly<Record<string, Font>>;
-
-/** Width of the widest text on a line. */
-export const widestText = (all: readonly EdgeText[]): number =>
-  Math.max(0, ...all.map((t) => textWidth(t.name ?? '', GRAPH_FONTS.label)));
 
 /** Measures of items, in pixels: widths a name wraps to, pads, line heights, the room of a figure. */
 export const ITEM = {
   minW: 120,
   maxW: 216,
-  minH: 40,
+  minH: 44,
   padX: 12,
   padY: 10,
-  nameLine: 16,
-  leadLine: 17,
-  leadGap: 12,
-  entryLine: 14,
+  nameLine: 15,
+  entryLine: 13,
   entryGap: 8,
   figure: 20,
   fold: 10,
@@ -78,8 +61,8 @@ export const graphMetrics = (firstRowY: number, colGap: number = GAP.col): GridM
   portSpread: 12,
   loopReach: 24,
   framePad: { top: 32, bottom: 16, x: 16 },
-  labelFont: GRAPH_FONTS.label,
-  labelLineH: 14,
+  labelFont: STANDARD_FONTS.label,
+  labelLineH: 12,
   labelGap: 6,
 });
 
@@ -91,30 +74,20 @@ export interface ItemBox {
   readonly entries: readonly string[];
   /** Room left of the texts, for the figure of a person. */
   readonly indent: number;
-  /** The item leads a row of the story: drawn as its text alone, without a shape. */
-  readonly lead: boolean;
 }
 
 const widest = (lines: readonly string[], font: Font) => Math.max(0, ...lines.map((l) => textWidth(l, font)));
 
-/**
- * Measures an item, with room on the left for a figure: its name and entries wrapped to at most `ITEM.maxW`, its box
- * at least `ITEM.minW` wide, its name a heading when entries follow. An item that leads a row of the story is its
- * text alone, in the stronger font, with room after it before its lines start.
- */
-export function measureItem(label: string, entries: readonly string[], figure: boolean, lead = false): ItemBox {
+/** Measures an item: its name and entries wrapped to at most `ITEM.maxW`, its box at least `ITEM.minW` wide. */
+export function measureItem(label: string, entries: readonly string[], figure: boolean): ItemBox {
   const F = GRAPH_FONTS;
-  const font = lead ? F.lead : entries.length > 0 ? F.heading : F.name;
-  const indent = figure && !lead ? ITEM.figure : 0;
-  const pad = lead ? 0 : ITEM.padX;
-  const inner = ITEM.maxW - 2 * pad - indent;
-  const name = wrap(label, inner, font);
+  const indent = figure ? ITEM.figure : 0;
+  const inner = ITEM.maxW - 2 * ITEM.padX - indent;
+  const name = wrap(label, inner, F.name);
   const lines = entries.flatMap((e) => wrap(e, inner, F.entry));
-  const text = Math.max(widest(name, font), widest(lines, F.entry));
-  const line = lead ? ITEM.leadLine : ITEM.nameLine;
-  const body = name.length * line + (lines.length > 0 ? ITEM.entryGap + lines.length * ITEM.entryLine : 0);
-  if (lead) return { w: Math.ceil(text + ITEM.leadGap), h: Math.ceil(body), name, entries: lines, indent, lead };
-  const w = Math.max(ITEM.minW, Math.ceil(text + 2 * pad + indent));
+  const text = Math.max(widest(name, F.name), widest(lines, F.entry));
+  const w = Math.max(ITEM.minW, Math.ceil(text + 2 * ITEM.padX + indent));
+  const body = name.length * ITEM.nameLine + (lines.length > 0 ? ITEM.entryGap + lines.length * ITEM.entryLine : 0);
   const h = Math.max(ITEM.minH, Math.ceil(body + 2 * ITEM.padY));
-  return { w: Math.ceil(w / 8) * 8, h: Math.ceil(h / 4) * 4, name, entries: lines, indent, lead };
+  return { w: Math.ceil(w / 8) * 8, h: Math.ceil(h / 4) * 4, name, entries: lines, indent };
 }

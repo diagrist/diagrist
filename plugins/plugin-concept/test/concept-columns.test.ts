@@ -105,25 +105,4 @@ describe('concept pictures in columns', () => {
     expect(layered.svg).toContain('class="legend"');
     expect(rectOf(layered, 'berater').y).toBeLessThan(rectOf(layered, 'abgleich').y);
   });
-
-  it('lead each row with the bare text of the first column, and give the other columns a pale tint by type', () => {
-    const result = concept('locale=de', ...CONTROLS);
-    expect(result.svg).toContain('g-lead');
-    expect(result.svg).not.toContain('g-card-blue');
-    expect(result.svg).toContain('g-card-amber');
-    expect(result.svg).toContain('g-card-teal');
-    const own = concept('locale=de', ...CONTROLS.with(1, 'type risiko "Risiko" tone=plum'));
-    expect(own.svg).toContain('g-card-plum');
-    const layered = concept('arrange=layers locale=de', ...CONTROLS);
-    expect(layered.svg).not.toContain('g-card-');
-    expect(layered.svg).not.toContain('g-lead');
-  });
-
-  it('stand the rows of one item of the first column close, and part them from the rows of the next', () => {
-    const result = concept('locale=de', ...CONTROLS);
-    const [a, b, c] = ['betrug', 'ausfall', 'konto'].map((id) => rectOf(result, id));
-    const within = (b?.y ?? 0) - ((a?.y ?? 0) + (a?.h ?? 0));
-    const apart = (c?.y ?? 0) - ((b?.y ?? 0) + (b?.h ?? 0));
-    expect(apart).toBeGreaterThan(2 * within);
-  });
 });
