@@ -17,12 +17,6 @@ export const MEASURES = {
 /** Where the table starts below the title line, with and without a subtitle. */
 const TOP = { subtitle: 76, title: 60 } as const;
 
-/** A head with its wrapped lines. */
-export interface HeadText {
-  readonly key: string;
-  readonly lines: readonly string[];
-}
-
 /** A note below the table: its number's centre and its wrapped lines with their baselines. */
 export interface PlacedNote {
   readonly note: Note;
