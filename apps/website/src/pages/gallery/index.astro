@@ -11,7 +11,7 @@ const editor = 'https://live.diagrist.com/';
 <StarlightPage
   frontmatter={{
     title: 'Gallery',
-    description: `Every example of the Diagrist repository, ${all.length} diagrams of UML, C4, code and matrices, with the live editor to change them.`,
+    description: `Every example of the Diagrist repository, ${all.length} diagrams of UML, C4, code, matrices and concept pictures, with the live editor to change them.`,
     template: 'splash',
     editUrl: false,
   }}
@@ -37,7 +37,7 @@ const editor = 'https://live.diagrist.com/';
   {
     groups(all).map((group) => (
       <section>
-        <h2 id={group.name}>{group.name}</h2>
+        <h2 id={`${group.plugin.replace(/^plugin-/, "")}-${group.name}`}>{group.name}</h2>
         <p class="gallery-plugin">
           <code>{group.plugin}</code>, {group.examples.length} examples
         </p>

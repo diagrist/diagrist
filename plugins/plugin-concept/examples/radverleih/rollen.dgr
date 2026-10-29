@@ -1,0 +1,15 @@
+diagram concept "Radverleih: Rollen" vocabulary=roles locale=de
+item leitung "Betriebsleitung" is role
+item station "Stationsleitung" is role
+item technik "Leitung Technik" is role
+item team "Stationsteam" is role
+item werkstatt "Werkstatt" is role
+item service "Kundenservice" is role
+
+rel station reports-to leitung
+rel technik reports-to leitung
+rel team reports-to station
+rel werkstatt reports-to technik
+rel service reports-to leitung
+rel technik deputy station
+rel service deputy team

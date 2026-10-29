@@ -1,0 +1,22 @@
+diagram concept "Radverleih: Begriffe" vocabulary=terms locale=de
+item rad "Rad" is term
+  "Fahrzeug, das der Verleih an Kunden vermietet"
+item ebike "E-Bike" is term
+  "Rad mit Motor und Akku"
+item lastenrad "Lastenrad" is term
+  "Rad mit Ladefläche für Einkäufe und Kinder"
+item akku "Akku" is term
+  "Wechselbare Batterie eines E-Bikes"
+item miete "Miete" is term
+  "Vertrag über die Nutzung eines Rads für eine Zeit"
+item ausleihe "Ausleihe" is term status=deprecated
+  "Älteres Wort für Miete, nicht mehr verwenden"
+item station "Station" is term
+  "Ort, an dem Räder abgeholt und zurückgegeben werden"
+
+rel ebike is-a rad
+rel lastenrad is-a rad
+rel akku part-of ebike
+rel miete relates rad "betrifft"
+rel miete relates station "beginnt an"
+rel ausleihe same-as miete

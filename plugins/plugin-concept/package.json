@@ -45,6 +45,7 @@
   "dependencies": {
     "@diagrist/core": "workspace:*",
     "@diagrist/lang": "workspace:*",
+    "@diagrist/layout-grid": "workspace:*",
     "@diagrist/layout-matrix": "workspace:*",
     "@diagrist/parts": "workspace:*"
   },

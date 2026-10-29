@@ -345,3 +345,32 @@ Step 2 is built. Where the code asked for something else than the draft above, t
 The codes are `M100` to `M107` for errors and `M600` for the warning about size (ADR 0011: one letter per plugin,
 warnings from 600 on, as `S600` of `plugin-code`). Several values in one cell are drawn as one text in the order of
 the scale, `R/A`.
+
+Step 4 is built as well: the kind `concept` with `type`, `link`, `item` and `rel`, the declared rules, the legend
+from the declarations, and the vocabularies `terms` and `roles`.
+
+| Draft | Built | Why |
+|---|---|---|
+| An undeclared type or link is `L107` from `lang` | `M110` and `M111` of the kind, with the nearest declared id | a vocabulary's declarations stand in no line, so the language cannot resolve `is` or the link of a `rel`; the kind knows both sources. |
+| Layered or `grid` placement | layered only | the layered picture needs nothing new from `layout-grid`; named cells come when a picture has to be compared cell by cell. |
+| `shape=frame`, `in <ref>`, the unit of `roles` as a frame | not yet | frames around layered items need their members to stand together, which the layering does not promise; they come with the tiles of `capability` (step 6). |
+| `tone=` on types, `scale` and `rate=` on items | not yet | shape and line carry every distinction so far, and the scale on items belongs to `capability`. |
+| `starts=` and `ends=` badges | not yet | they come with `context-map` (step 5). |
+| Two links of the same look were not foreseen | the flags `upward`, `beside` and `bare` on `link` | `upward` puts a broader term above the narrower and a lead above the team, `beside` stands a deputy or a synonym next to the other, `bare` leaves the label off a line whose head already tells it apart, as `is-a` does. |
+| `M113` for every declaration given twice | only for a declaration the vocabulary already has | the language reports an id the file declares twice (`L108`) before the kind sees it. |
+| A role that is its own deputy, a rule of `roles` | `M118` for every link: a relation joins two different items | a term that is part of itself or a task that creates itself says nothing either. |
+
+The codes of `concept` are `M110` to `M119` for errors and `M610` to `M613` for warnings. Each kind has its own
+entry point only once a host asks to load one without the other; until then the root registers both.
+
+## Next steps, decided on 29.10.2026
+
+The owner read a concept report on where `concept` goes next and decided three things.
+
+| Decision | Consequence |
+|---|---|
+| A vocabulary becomes a file of its own, `diagram vocabulary`, that a picture names with `use=` in its header | plugins and templates can provide vocabularies later; `terms` and `roles` become vocabulary files the plugin ships, and a vocabulary can be drawn as a picture of its own |
+| Views are fixed pictures, not interactive | one source gives several pictures of how a diagram is built: every area closed, one area opened in place among closed neighbours, or the overview with a lens on one area beside its inside. Relations are written once, at the step they belong to, and the closed area derives them |
+| The look stays as it is for now | the standard look of `belege.dgr` and of a picture of risks and controls is the style to keep; tones, icons and bands per type come later |
+
+The order is: the vocabulary as a file; frames with `in`, the inside of an item as a block, and the views `closed` and `open=`; lanes inside and the lens; properties with scales and the rules `distinct`, `needs`, `reach` and `within`; then `context-map` and `capability` as vocabulary files. Each is one pull request.

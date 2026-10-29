@@ -250,6 +250,9 @@ importers:
       '@diagrist/lang':
         specifier: workspace:*
         version: link:../../packages/lang
+      '@diagrist/layout-grid':
+        specifier: workspace:*
+        version: link:../../packages/layout-grid
       '@diagrist/layout-matrix':
         specifier: workspace:*
         version: link:../../packages/layout-matrix

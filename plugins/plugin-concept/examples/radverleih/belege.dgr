@@ -1,0 +1,22 @@
+diagram concept "Ausleihe: wer erzeugt welchen Beleg" locale=de
+type rolle "Rolle" shape=person
+type aufgabe "Aufgabe" shape=round
+type beleg "Beleg" shape=doc
+link fuehrt "führt aus" from=rolle to=aufgabe each=to
+link erzeugt "erzeugt" from=aufgabe to=beleg each=to single=to
+
+item kunde "Kunde" is rolle
+item station "Stationsteam" is rolle
+item ausleihen "Rad ausleihen" is aufgabe
+item zurueck "Rad zurückgeben" is aufgabe
+item pruefen "Schaden prüfen" is aufgabe
+item vertrag "Mietvertrag" is beleg
+item quittung "Rückgabequittung" is beleg
+item protokoll "Schadensprotokoll" is beleg
+
+rel kunde fuehrt ausleihen
+rel kunde fuehrt zurueck
+rel station fuehrt pruefen
+rel ausleihen erzeugt vertrag
+rel zurueck erzeugt quittung
+rel pruefen erzeugt protokoll
