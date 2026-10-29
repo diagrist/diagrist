@@ -22,6 +22,7 @@ const PICTURES = [
   { plugin: 'plugins/plugin-uml', example: 'sequence/oauth-pkce.dgr', hashes: 'sequence-examples.sha256' },
   { plugin: 'plugins/plugin-architecture', example: 'architecture/cloud.dgr', hashes: 'examples.sha256' },
   { plugin: 'plugins/plugin-code', example: 'ueberweisung/aufruf.dgr', hashes: 'examples.sha256' },
+  { plugin: 'plugins/plugin-concept', example: 'radverleih/zustaendigkeiten.dgr', hashes: 'examples.sha256' },
 ] as const;
 
 const EXAMPLES = readdirSync('plugins', { recursive: true, encoding: 'utf8' })

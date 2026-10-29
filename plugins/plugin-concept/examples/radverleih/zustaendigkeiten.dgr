@@ -1,0 +1,25 @@
+# Who does, approves, is asked and is told, for the rental and what follows it.
+diagram matrix "Ausleihe: Zuständigkeiten" subtitle="Wer führt aus, wer verantwortet, wer wird gefragt, wer informiert" scale=raci locale=de
+col kunde "Kunde"
+col station "Stationsteam"
+col support "Kundenservice"
+col finanzen "Buchhaltung"
+
+group vorgang "Vorgang"
+row ausleihen "Rad ausleihen" in vorgang
+  kunde R
+  station A
+row zurueck "Rad zurückgeben" in vorgang
+  kunde R
+  station A
+  support I
+group nachlauf "Nachlauf"
+row schaden "Schaden regulieren" in nachlauf
+  station R,A
+  support C
+  finanzen I
+row mahnung "Mahnung senden" in nachlauf
+  finanzen R,A
+  support I
+
+note "Bei Schäden über 500 Euro entscheidet die Versicherung mit." on schaden

@@ -328,3 +328,20 @@ files.
 | 4 | Scales and constraints of the file in the first matrix, or only the scales of the plugin? | scales of the plugin first (step 2), the file's own in step 3 |
 | 5 | Should `does` of ADR 0028 gain `raci=`, so a matrix can be derived from a C4 file? | later, after step 3, once both exist |
 | 6 | Cells as a line form `station R,A`, or as a statement `cell station R,A`? | the line form; a row reads like a list of who does what |
+
+## Deviations
+
+Step 2 is built. Where the code asked for something else than the draft above, this section says what and why.
+
+| Draft | Built | Why |
+|---|---|---|
+| One entry per kind, `@diagrist/plugin-concept/matrix` | one entry, the root | ADR 0024 cuts entries per kind to keep a host from loading kinds it does not draw; with one kind the subpath would repeat the root. It comes with `concept`. |
+| A warning for a declared value that no cell uses | no warning for the scales of the plugin; the legend lists the values in use and those with a rule | a RACI matrix without C or I is normal, so the warning would fire on most matrices. It belongs to the scales of the file (step 3), where an unused value is a slip. |
+| `group` bands rows that belong together | the rows of a group stand one after another, else M107 | a band stands above its first row only; rows of a group spread over the table would leave some outside their band. |
+| A missing `scale=` is not covered | M100, an error that lists the scales | the header table has no required fields, and without a scale no cell can be read. |
+| Look `plain` | the standard look of the kernel | `plain` belongs to `plugin-architecture`, which a plugin may not import; the standard look is what the UML kinds draw with, sets the letters in its mono face, and a theme repaints it like every other kind. |
+| `cover=<rows\|cols\|both>` | as drafted; `scale=raci` and `scale=crud` cover nothing unless asked | as drafted. |
+
+The codes are `M100` to `M107` for errors and `M600` for the warning about size (ADR 0011: one letter per plugin,
+warnings from 600 on, as `S600` of `plugin-code`). Several values in one cell are drawn as one text in the order of
+the scale, `R/A`.

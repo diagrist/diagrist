@@ -1,0 +1,25 @@
+# Which use case creates, reads, updates and deletes which business object.
+diagram matrix "Radverleih: Anwendungsfälle und Geschäftsobjekte" scale=crud locale=de
+col konto "Kundenkonto"
+col rad "Rad"
+col vertrag "Mietvertrag"
+col rechnung "Rechnung"
+
+row registrieren "Registrieren"
+  konto C
+row einsetzen "Rad in Betrieb nehmen"
+  rad C
+row ausleihen "Rad ausleihen"
+  konto R
+  rad R,U
+  vertrag C
+row zurueckgeben "Rad zurückgeben"
+  rad U
+  vertrag R,U
+  rechnung C
+row abrechnen "Monat abrechnen"
+  vertrag R
+  rechnung R,U
+row kuendigen "Konto kündigen"
+  konto R,D
+  vertrag R

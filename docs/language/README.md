@@ -23,6 +23,7 @@ Each kind has its own page with every statement, its parts, examples and the cod
 | [`container`](container.md) | `architecture` | A C4 container diagram (level 2): the applications and data stores of a system, grouped by responsibility, placed in a named grid. |
 | [`component`](component.md) | `architecture` | A C4 component diagram (level 3): the components inside a container and what they depend on, placed in a named grid. |
 | [`code`](code.md) | `code` | A code diagram: excerpts of real source files as highlighted cards, one below the other, with marked lines, numbered notes below each card and arrows from a call to what it calls. |
+| [`matrix`](matrix.md) | `concept` | A matrix: columns, rows and one scale, with the values of the scale in the cells. |
 
 ## Statements of every kind
 

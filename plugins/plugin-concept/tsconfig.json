@@ -1,0 +1,17 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": ".",
+    "outDir": ".tsbuild",
+    "emitDeclarationOnly": true,
+    // Statement values are typed by `Infer` from the tables (ADR 0004); writing them out again would repeat them.
+    "isolatedDeclarations": false
+  },
+  "include": ["src"],
+  "references": [
+    { "path": "../../packages/lang" },
+    { "path": "../../packages/core" },
+    { "path": "../../packages/parts" },
+    { "path": "../../packages/layout-matrix" }
+  ]
+}
