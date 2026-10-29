@@ -1,4 +1,4 @@
-# 27. The website diagrist.com in the monorepo, built from the generated docs
+# 32. The website diagrist.com in the monorepo, built from the generated docs
 
 Date: 2026-10-29. Status: accepted, decided by Noel. Builds on ADR 0004, 0005 and 0009.
 
