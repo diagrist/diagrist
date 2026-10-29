@@ -56,6 +56,9 @@ importers:
       '@diagrist/plugin-code':
         specifier: workspace:*
         version: link:../../plugins/plugin-code
+      '@diagrist/plugin-concept':
+        specifier: workspace:*
+        version: link:../../plugins/plugin-concept
       '@diagrist/plugin-uml':
         specifier: workspace:*
         version: link:../../plugins/plugin-uml
@@ -90,6 +93,9 @@ importers:
       '@diagrist/plugin-code':
         specifier: workspace:*
         version: link:../../plugins/plugin-code
+      '@diagrist/plugin-concept':
+        specifier: workspace:*
+        version: link:../../plugins/plugin-concept
       '@diagrist/plugin-uml':
         specifier: workspace:*
         version: link:../../plugins/plugin-uml

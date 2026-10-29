@@ -3,10 +3,11 @@ import { deflateRawSync } from 'node:zlib';
 import { compile, formatMessage, type Plugin } from '@diagrist/core';
 import { architecturePlugin } from '@diagrist/plugin-architecture';
 import { codePlugin } from '@diagrist/plugin-code';
+import { conceptPlugin } from '@diagrist/plugin-concept';
 import { umlPlugin } from '@diagrist/plugin-uml';
 
 /** The plugins of the site, the same as the editor's: every kind the docs describe can be drawn. */
-export const plugins: readonly Plugin[] = [umlPlugin, architecturePlugin, codePlugin];
+export const plugins: readonly Plugin[] = [umlPlugin, architecturePlugin, codePlugin, conceptPlugin];
 
 /** The live editor; a link carries the source in the fragment, which browsers never send to a server. */
 const EDITOR = 'https://live.diagrist.com/';
