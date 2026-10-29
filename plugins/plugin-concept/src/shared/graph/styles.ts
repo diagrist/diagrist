@@ -11,8 +11,8 @@ import {
   textRule,
 } from '@diagrist/core';
 import { PART_ROLES } from '@diagrist/parts';
-import { HEADS, type HeadName, LINES, type LineName } from './declarations.js';
-import { CONCEPT_FONTS as F } from './layout/metrics.js';
+import { HEADS, type HeadName, LINES, type LineName } from '../declarations.js';
+import { GRAPH_FONTS as F } from './layout/metrics.js';
 
 const one = (...classes: string[]): RoleStyle => ({ classes });
 
@@ -64,10 +64,10 @@ const MARKERS: readonly Marker[] = [
 ];
 
 /**
- * The style table of concept pictures: the standard look, items as white shapes in ink, planned ones dashed and
+ * The style table of graph pictures: the standard look, items as white shapes in ink, planned ones dashed and
  * deprecated ones muted, the entries in the note colour, and the lines in ink with the heads of their links.
  */
-export const CONCEPT_STYLES: Styles = (() => {
+export const GRAPH_STYLES: Styles = (() => {
   const base = standardStyles({
     roles: ROLES,
     rules: [

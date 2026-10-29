@@ -1,99 +1,81 @@
-import type { KindReading, Span } from '@diagrist/lang';
-import type { LinkDecl, TypeDecl } from './declarations.js';
+import type { Diagnostic, FileText, KindReading, Span } from '@diagrist/lang';
+import type { LinkDecl, TypeDecl } from '../shared/declarations.js';
+import type { Graph } from '../shared/graph/model.js';
+import { VOCABULARIES, type VocabularyName } from '../shared/vocabularies.js';
+import { declarationsOf, readVocabulary } from '../shared/vocabulary.js';
 import type { ConceptStatement } from './grammar/spec.js';
-import { VOCABULARIES, type VocabularyName } from './vocabularies.js';
+
+export type { Item, Relation } from '../shared/graph/model.js';
 
 type Of<K extends ConceptStatement['keyword']> = Extract<ConceptStatement, { keyword: K }>;
 
-/** One thing of a declared type, with its entries. */
-export interface Item {
-  readonly id: string;
-  readonly label: string;
-  readonly type: string;
-  readonly status?: 'planned' | 'deprecated';
-  readonly entries: readonly string[];
-  readonly span: Span;
-}
-
-/** One relation between two items, by its link. */
-export interface Relation {
-  readonly from: string;
-  readonly link: string;
-  readonly to: string;
-  readonly label?: string;
+/** The vocabulary file named with `use=`: its path, and the first finding of the language about it, if any. */
+export interface Used {
+  readonly path: string;
+  readonly problem?: Diagnostic;
+  /** The `use=` of the header, which a finding about the file points at. */
   readonly span: Span;
 }
 
 /** A concept picture as rules, layout and description see it. */
-export interface ConceptModel {
-  readonly title: string;
-  readonly subtitle?: string;
+export interface ConceptModel extends Graph {
   readonly vocabulary?: VocabularyName;
-  /** The declarations in force: the vocabulary's first, then the file's that do not repeat one of them. */
-  readonly types: ReadonlyMap<string, TypeDecl>;
-  readonly links: ReadonlyMap<string, LinkDecl>;
-  /** Declarations of the file whose id the vocabulary declares already; the language reports those of the file twice. */
-  readonly repeated: readonly { readonly id: string; readonly what: 'type' | 'link'; readonly span: Span }[];
-  readonly items: readonly Item[];
-  readonly relations: readonly Relation[];
+  readonly used?: Used;
+  /** Declarations of the file whose id a vocabulary declares already; the language reports those of the file twice. */
+  readonly repeated: readonly {
+    readonly id: string;
+    readonly what: 'type' | 'link';
+    readonly by: string;
+    readonly span: Span;
+  }[];
 }
 
 const of = <K extends ConceptStatement['keyword']>(reading: KindReading<ConceptStatement>, keyword: K): Of<K>[] =>
   reading.statements.filter((s): s is Of<K> => s.keyword === keyword);
 
-const typeOf = (s: Of<'type'>): TypeDecl => ({
-  id: s.id,
-  label: { en: s.label, de: s.label },
-  shape: s.attributes.shape ?? 'box',
-  explain: s.flags.explain,
-  origin: { file: s.span },
-});
+type Repeat = ConceptModel['repeated'][number];
 
-const linkOf = (s: Of<'link'>): LinkDecl => ({
-  id: s.id,
-  label: { en: s.label, de: s.label },
-  from: s.attributes.from ?? [],
-  to: s.attributes.to ?? [],
-  line: s.attributes.line ?? 'solid',
-  head: s.attributes.head ?? 'arrow',
-  ...(s.attributes.each === undefined ? {} : { each: s.attributes.each }),
-  ...(s.attributes.single === undefined ? {} : { single: s.attributes.single }),
-  acyclic: s.flags.acyclic,
-  upward: s.flags.upward,
-  beside: s.flags.beside,
-  bare: s.flags.bare,
-  origin: { file: s.span },
-});
-
-/** Declarations by id, the first of an id winning; the later ones are handed to `repeat`. */
-function declare<D extends { readonly id: string; readonly origin: TypeDecl['origin'] }>(
-  decls: readonly D[],
-  repeat: (d: D) => void,
-): Map<string, D> {
+/** Declarations by id, the first of an id winning; a later one of the file is handed to `repeat` with the first. */
+function declare<D extends TypeDecl | LinkDecl>(decls: readonly D[], repeat: (d: D, first: D) => void): Map<string, D> {
   const out = new Map<string, D>();
   for (const d of decls) {
-    if (out.has(d.id)) repeat(d);
-    else out.set(d.id, d);
+    const first = out.get(d.id);
+    if (first === undefined) out.set(d.id, d);
+    else repeat(d, first);
   }
   return out;
 }
 
-/** Reads the declarations of the vocabulary and the file, the items with their entries, and the relations. */
+const HEADER_SPAN = (line: number): Span => ({ line, column: 1, length: 'diagram'.length });
+
+/**
+ * Reads the declarations in force, the vocabulary of the plugin first, then the file of `use=`, then the file's own;
+ * the items with their entries; and the relations.
+ */
 export function conceptModel(reading: KindReading<ConceptStatement>): ConceptModel {
   const attributes = reading.header?.attributes ?? {};
   const vocabulary = attributes.vocabulary as VocabularyName | undefined;
-  const base = vocabulary === undefined ? { types: [], links: [] } : VOCABULARIES[vocabulary];
-  const repeated: { id: string; what: 'type' | 'link'; span: Span }[] = [];
-  const repeat = (what: 'type' | 'link') => (d: TypeDecl | LinkDecl) => {
-    if ('file' in d.origin) repeated.push({ id: d.id, what, span: d.origin.file });
+  const file = attributes.use as FileText | undefined;
+  const shipped = vocabulary === undefined ? { types: [], links: [] } : VOCABULARIES[vocabulary];
+  const fromFile = file === undefined ? undefined : readVocabulary(file.text, file.path);
+  const own = declarationsOf(
+    reading.statements.filter((s): s is Of<'type' | 'link'> => s.keyword === 'type' || s.keyword === 'link'),
+  );
+  const repeated: Repeat[] = [];
+  const repeat = (what: 'type' | 'link') => (d: TypeDecl | LinkDecl, first: TypeDecl | LinkDecl) => {
+    if ('file' in d.origin && 'vocabulary' in first.origin)
+      repeated.push({ id: d.id, what, by: first.origin.vocabulary, span: d.origin.file });
   };
-  const types = declare([...base.types, ...of(reading, 'type').map(typeOf)], repeat('type'));
-  const links = declare([...base.links, ...of(reading, 'link').map(linkOf)], repeat('link'));
+  const types = declare([...shipped.types, ...(fromFile?.types ?? []), ...own.types], repeat('type'));
+  const links = declare([...shipped.links, ...(fromFile?.links ?? []), ...own.links], repeat('link'));
   const subtitle = attributes.subtitle;
+  const problem = fromFile?.diagnostics.find((d) => d.severity === 'error');
+  const span = HEADER_SPAN(reading.header?.line ?? 1);
   return {
     title: reading.header?.title ?? '',
     ...(typeof subtitle === 'string' ? { subtitle } : {}),
     ...(vocabulary === undefined ? {} : { vocabulary }),
+    ...(file === undefined ? {} : { used: { path: file.path, span, ...(problem ? { problem } : {}) } }),
     types,
     links,
     repeated,

@@ -10,11 +10,10 @@ import {
   routeEdges,
 } from '@diagrist/layout-grid';
 import { LEGEND, type Legend, legendLayout, MARGIN } from '@diagrist/parts';
-import type { LinkDecl, TypeDecl } from '../declarations.js';
-import type { ConceptModel, Item, Relation } from '../model.js';
-import type { ConceptWords } from '../texts/words.js';
-import { CONCEPT_FONTS as F, type ItemBox } from './metrics.js';
-import { conceptGrid, drawn, edgeId } from './spec.js';
+import type { LinkDecl, TypeDecl } from '../../declarations.js';
+import type { Graph, GraphWords, Item, Relation } from '../model.js';
+import { GRAPH_FONTS as F, type ItemBox } from './metrics.js';
+import { drawn, edgeId, graphGrid } from './spec.js';
 
 /** What the legend shows a sample of: a type with its shape, a link with its line and head, or a status. */
 export type Sample =
@@ -40,7 +39,7 @@ export interface PlacedLine {
 }
 
 /** Everything the scene draws, in picture pixels. */
-export interface ConceptLayout {
+export interface GraphLayout {
   readonly items: readonly PlacedItem[];
   readonly lines: readonly PlacedLine[];
   readonly labels: readonly EdgeLabel[];
@@ -54,7 +53,7 @@ export interface ConceptLayout {
 const LEGEND_GAP = 40;
 
 /** The legend's samples: the types, links and statuses the picture uses, in the order of their declarations. */
-function samples(m: ConceptModel): Sample[] {
+function samples(m: Graph): Sample[] {
   const types = new Set(m.items.map((i) => i.type));
   const links = new Set(drawn(m).map(([r]) => r.link));
   const statuses = (['planned', 'deprecated'] as const).filter((s) => m.items.some((i) => i.status === s));
@@ -65,18 +64,32 @@ function samples(m: ConceptModel): Sample[] {
   ];
 }
 
-const legendText = (s: Sample, locale: Locale, w: ConceptWords): string =>
+const legendText = (s: Sample, locale: Locale, w: GraphWords): string =>
   s.kind === 'type' ? s.type.label[locale] : s.kind === 'link' ? s.link.label[locale] : w.status[s.status];
 
+/** Placed, routed and labelled; a second time with room on the left when a label stands left of the margin. */
+function placed(m: Graph, locale: Locale, indent = 0) {
+  const at = graphGrid(m, locale, indent);
+  const grid = placeGrid(at.spec);
+  const routes = routeEdges(at.spec, grid);
+  const labels = labelEdges(at.spec, grid, routes, at.texts);
+  const left = Math.min(MARGIN, ...labels.map((l) => l.box.x));
+  if (left < MARGIN && indent === 0) return placed(m, locale, Math.ceil((MARGIN - left) / 8) * 8);
+  return { ...at, grid, routes, labels };
+}
+
 /**
- * Lays out a concept picture on `layout-grid`: items measured and layered, placed in an adaptive grid, lines routed
- * and labelled, then the legend of what the picture uses below it.
+ * Lays out a graph picture on `layout-grid`: items measured and layered, placed in an adaptive grid, lines routed
+ * and labelled, then the legend of what the picture uses below it, unless `options` leave it out.
  */
-export function layoutConcept(m: ConceptModel, w: ConceptWords, title: string, locale: Locale): ConceptLayout {
-  const { spec, texts, boxes } = conceptGrid(m, locale);
-  const grid = placeGrid(spec);
-  const routes = routeEdges(spec, grid);
-  const labels = labelEdges(spec, grid, routes, texts);
+export function layoutGraph(
+  m: Graph,
+  w: GraphWords,
+  title: string,
+  locale: Locale,
+  options: { readonly legend: boolean } = { legend: true },
+): GraphLayout {
+  const { spec, boxes, grid, routes, labels } = placed(m, locale);
   const fitted = fitFrames(spec, grid, routes, labels);
   const byId = new Map(m.items.map((i) => [i.id, i]));
   const items = fitted.nodes.flatMap((p): PlacedItem[] => {
@@ -100,7 +113,7 @@ export function layoutConcept(m: ConceptModel, w: ConceptWords, title: string, l
   );
   const width = Math.ceil(right);
   const bottom = Math.max(fitted.bottom, ...labels.map((l) => l.box.y + l.box.h + MARGIN));
-  const entries = samples(m).map((sample) => ({
+  const entries = (options.legend ? samples(m) : []).map((sample) => ({
     sample,
     sampleWidth: LEGEND.sampleWidth,
     labelDx: LEGEND.labelDx,

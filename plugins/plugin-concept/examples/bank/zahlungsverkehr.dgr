@@ -1,0 +1,15 @@
+diagram concept "Zahlungsverkehr: Risiken und Kontrollen" subtitle="Auslandszahlungen" use="iks.vocab.dgr" locale=de
+item auslandszahlung "Auslandszahlung ausführen" is prozess
+item betrug "Zahlung an falschen Empfänger" is risiko
+item sanktion "Empfänger auf Sanktionsliste" is risiko
+item vieraugen "Freigabe im Vier-Augen-Prinzip" is kontrolle
+item screening "Sanktionsprüfung vor Ausführung" is kontrolle
+item zv "Leitung Zahlungsverkehr" is rolle
+item compliance "Compliance" is rolle
+
+rel auslandszahlung birgt betrug
+rel auslandszahlung birgt sanktion
+rel vieraugen mindert betrug
+rel screening mindert sanktion
+rel zv verantwortet vieraugen
+rel compliance verantwortet screening

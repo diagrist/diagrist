@@ -374,3 +374,12 @@ The owner read a concept report on where `concept` goes next and decided three t
 | The look stays as it is for now | the standard look of `belege.dgr` and of a picture of risks and controls is the style to keep; tones, icons and bands per type come later |
 
 The order is: the vocabulary as a file; frames with `in`, the inside of an item as a block, and the views `closed` and `open=`; lanes inside and the lens; properties with scales and the rules `distinct`, `needs`, `reach` and `within`; then `context-map` and `capability` as vocabulary files. Each is one pull request.
+
+The vocabulary as a file is built. `diagram vocabulary` declares `type` and `link` with the same tables as
+`concept`, and a concept picture names the file with `use="…"` in its header. The file is read the way `use` and
+`file()` read (ADR 0021, ADR 0025), so the CLI and the website hand it over, and the live editor cannot. A file
+that does not read cleanly is `M120`, which names its first finding. The vocabularies `terms` and `roles` of the
+plugin are now vocabulary sources read the same way, with `de=` for the German name of a type or link, and give
+the same pictures to the byte. A vocabulary drawn on its own shows each type in its shape and each link as a line
+with its rules in words. A link from a type to itself becomes an entry of that type, and the picture has no legend,
+since it is the legend of the pictures that use it.

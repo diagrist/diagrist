@@ -1,8 +1,8 @@
 import { type Anchors, domId, type Point, type Scene, type Shape } from '@diagrist/core';
 import { HEADER, headerShapes, legendShapes } from '@diagrist/parts';
-import type { ConceptLayout, PlacedItem, Sample } from '../layout/index.js';
+import type { GraphLayout, PlacedItem, Sample } from '../layout/index.js';
 import { ITEM } from '../layout/metrics.js';
-import type { ConceptModel } from '../model.js';
+import type { Graph } from '../model.js';
 import { lineRole } from '../styles.js';
 import { outline, outlineRole } from './shapes.js';
 
@@ -60,7 +60,7 @@ function sampleShapes(sample: Sample, x: number, y: number): Shape[] {
 }
 
 /** The title, the lines below the items, the items, the labels of the lines, the legend. */
-export function conceptScene(layout: ConceptLayout, model: ConceptModel, title: string): Scene {
+export function graphScene(layout: GraphLayout, model: Graph, title: string): Scene {
   const lines = layout.lines.map(
     (l): Shape => ({
       kind: 'group',
@@ -88,7 +88,7 @@ export function conceptScene(layout: ConceptLayout, model: ConceptModel, title: 
 }
 
 /** Items as nodes and relations as edges, by the DOM ids of their groups. */
-export function conceptAnchors(layout: ConceptLayout): Anchors {
+export function graphAnchors(layout: GraphLayout): Anchors {
   return {
     width: layout.width,
     height: layout.height,

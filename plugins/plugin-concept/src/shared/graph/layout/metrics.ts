@@ -2,8 +2,8 @@ import { type Font, STANDARD_FONTS, textWidth } from '@diagrist/core';
 import type { GridMetrics } from '@diagrist/layout-grid';
 import { MARGIN, wrap } from '@diagrist/parts';
 
-/** Font roles of concept pictures besides the standard ones: the entries below an item's name. */
-export const CONCEPT_FONTS = {
+/** Font roles of graph pictures besides the standard ones: the entries below an item's name. */
+export const GRAPH_FONTS = {
   ...STANDARD_FONTS,
   entry: { size: 10 },
 } as const satisfies Readonly<Record<string, Font>>;
@@ -27,8 +27,8 @@ export const ITEM = {
 /** Where the grid starts below the title line, with and without a subtitle. */
 export const FIRST_ROW = { subtitle: 104, title: 88 } as const;
 
-/** The measures `layout-grid` lays a concept picture out with: an adaptive grid of layers, orthogonal lines. */
-export const conceptMetrics = (firstRowY: number): GridMetrics => ({
+/** The measures `layout-grid` lays a graph picture out with: an adaptive grid of layers, orthogonal lines. */
+export const graphMetrics = (firstRowY: number): GridMetrics => ({
   grid: 8,
   nodeW: ITEM.minW,
   nodeH: ITEM.minH,
@@ -61,7 +61,7 @@ const widest = (lines: readonly string[], font: Font) => Math.max(0, ...lines.ma
 
 /** Measures an item: its name and entries wrapped to at most `ITEM.maxW`, its box at least `ITEM.minW` wide. */
 export function measureItem(label: string, entries: readonly string[], figure: boolean): ItemBox {
-  const F = CONCEPT_FONTS;
+  const F = GRAPH_FONTS;
   const indent = figure ? ITEM.figure : 0;
   const inner = ITEM.maxW - 2 * ITEM.padX - indent;
   const name = wrap(label, inner, F.name);

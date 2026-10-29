@@ -1,13 +1,13 @@
 import type { Locale } from '@diagrist/lang';
 import { type EdgeText, type GridEdge, type GridNode, type GridSpec, layerGraph } from '@diagrist/layout-grid';
-import type { ConceptModel, Relation } from '../model.js';
-import { conceptMetrics, FIRST_ROW, ITEM, type ItemBox, measureItem } from './metrics.js';
+import type { Graph, Relation } from '../model.js';
+import { FIRST_ROW, graphMetrics, ITEM, type ItemBox, measureItem } from './metrics.js';
 
 /** Id of the edge of the relation at `index` in source order. */
 export const edgeId = (index: number): string => `rel-${index}`;
 
 /** The relations drawn: both items there, two different ones, and a declared link; with their index. */
-export function drawn(m: ConceptModel): (readonly [Relation, number])[] {
+export function drawn(m: Graph): (readonly [Relation, number])[] {
   const ids = new Set(m.items.map((i) => i.id));
   return m.relations.flatMap((r, i) =>
     ids.has(r.from) && ids.has(r.to) && r.from !== r.to && m.links.has(r.link) ? [[r, i] as const] : [],
@@ -15,18 +15,18 @@ export function drawn(m: ConceptModel): (readonly [Relation, number])[] {
 }
 
 /** A grid of layers and its edge texts, with every item measured. */
-export interface ConceptGrid {
+export interface GraphGrid {
   readonly spec: GridSpec;
   readonly texts: readonly EdgeText[];
   readonly boxes: ReadonlyMap<string, ItemBox>;
 }
 
 /**
- * The grid of a concept picture: the items layered along their relations, the second item of a relation below the
+ * The grid of a graph picture: the items layered along their relations, the second item of a relation below the
  * first, above it for an `upward` link and beside it for a `beside` one, in half columns so an item can stand between two others. Each item has
  * its own measures; the lines are orthogonal and carry the label of the relation, else of the link unless `bare`.
  */
-export function conceptGrid(m: ConceptModel, locale: Locale): ConceptGrid {
+export function graphGrid(m: Graph, locale: Locale, indent = 0): GraphGrid {
   const relations = drawn(m);
   const edges = relations.map(([r]) => {
     const link = m.links.get(r.link);
@@ -78,7 +78,7 @@ export function conceptGrid(m: ConceptModel, locale: Locale): ConceptGrid {
       nodes,
       groups: [],
       edges: gridEdges,
-      metrics: conceptMetrics(m.subtitle ? FIRST_ROW.subtitle : FIRST_ROW.title),
+      metrics: { ...graphMetrics(m.subtitle ? FIRST_ROW.subtitle : FIRST_ROW.title), indent },
       adaptive: true,
     },
     texts,

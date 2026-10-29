@@ -1,6 +1,6 @@
 ---
 name: diagrist
-description: Write, change, check and render Diagrist diagrams, text files ending in .dgr that the dgr command line turns into checked SVG and PNG pictures. Use it when a diagram such as a sequence, usecase, activity, class, state, context, container, component, code, matrix or concept diagram is wanted as code, when a .dgr file is created or edited, or when dgr reports a code such as L101 or U403.
+description: Write, change, check and render Diagrist diagrams, text files ending in .dgr that the dgr command line turns into checked SVG and PNG pictures. Use it when a diagram such as a sequence, usecase, activity, class, state, context, container, component, code, matrix, concept or vocabulary diagram is wanted as code, when a .dgr file is created or edited, or when dgr reports a code such as L101 or U403.
 ---
 
 <!-- Generated from the command tables, the statement tables of every kind and the diagnostic catalogues by `pnpm docs:generate`. Do not edit. -->
@@ -500,16 +500,16 @@ The rules of `matrix` report these codes:
 
 ## Kind `concept`
 
-A picture of a business concept with its own vocabulary: the file declares types of things and types of relations with their rules, then writes items and relations, which are checked against the declarations. A vocabulary of the plugin brings the declarations of a common picture, such as `terms` or `roles`. Full reference: `dgr grammar concept`.
+A picture of a business concept with its own vocabulary: the file declares types of things and types of relations with their rules, then writes items and relations, which are checked against the declarations. A vocabulary file named with `use=`, or one of the plugin such as `terms` or `roles`, brings the declarations of a subject. Full reference: `dgr grammar concept`.
 
 ```text
-diagram concept "Title" [subtitle=<text>] [vocabulary=<terms|roles>] [locale=<en|de>]
+diagram concept "Title" [subtitle=<text>] [vocabulary=<terms|roles>] [use=<file>] [locale=<en|de>]
 ```
 
 | Line | Where | What it does | Example |
 |---|---|---|---|
-| `type <id> <label> [shape=<box\|round\|person\|store\|doc>] [explain]` | top level | A type of thing the picture shows, such as a role, a task or a document. | `type rolle "Rolle" shape=person` |
-| `link <id> <label> [from=<type-names>] [to=<type-names>] [line=<solid\|dashed\|dotted>] [head=<arrow\|open\|triangle\|diamond\|none>] [each=<from\|to\|both>] [single=<from\|to\|both>] [acyclic] [upward] [beside] [bare]` | top level | A type of relation between items of the types it lists. | `link fuehrt "führt aus" from=rolle to=aufgabe each=to` |
+| `type <id> <label> [shape=<box\|round\|person\|store\|doc>] [de=<text>] [explain]` | top level | A type of thing the picture shows, such as a role, a task or a document. | `type rolle "Rolle" shape=person` |
+| `link <id> <label> [from=<type-names>] [to=<type-names>] [line=<solid\|dashed\|dotted>] [head=<arrow\|open\|triangle\|diamond\|none>] [each=<from\|to\|both>] [single=<from\|to\|both>] [de=<text>] [acyclic] [upward] [beside] [bare]` | top level | A type of relation between items of the types it lists. | `link fuehrt "führt aus" from=rolle to=aufgabe each=to` |
 | `item <id> <label> [is <type-name>] [status=<planned\|deprecated>]` | top level | One thing of a declared type. | `item kunde "Kunde" is rolle` |
 | `rel <from> <link> <to> [label]` | top level | One relation of a declared link from one item to another, written as a sentence: `rel kunde fuehrt ausleihen`. | `rel kunde fuehrt ausleihen` |
 
@@ -517,8 +517,9 @@ The rules of `concept` report these codes:
 
 | Code | Severity | What it checks |
 |---|---|---|
-| `M110` | error | An item names its type with `is`, and the type is declared with `type` or by the vocabulary of the header. |
-| `M111` | error | A relation names a link declared with `link` or by the vocabulary of the header. |
+| `M120` | error | The vocabulary file of `use=` reads without errors, since a picture cannot build on declarations that are broken. |
+| `M110` | error | An item names its type with `is`, and the type is declared with `type`, by the vocabulary file of `use=` or by the vocabulary of `vocabulary=`. |
+| `M111` | error | A relation names a link declared with `link`, by the vocabulary file of `use=` or by the vocabulary of `vocabulary=`. |
 | `M112` | error | A link lists the types it joins with `from=` and `to=`, each a declared type. |
 | `M113` | error | The file adds types and links to its vocabulary, but does not declare one of the vocabulary again. |
 | `M114` | error | A relation joins items of the types its link lists in `from=` and `to=`. |
@@ -531,6 +532,25 @@ The rules of `concept` report these codes:
 | `M611` | warning | A picture shows at most 6 types; with more, shapes no longer tell them apart at a glance. Split it. |
 | `M612` | warning | Where links are declared, every item takes part in a relation; an item without one stands in the picture unexplained. |
 | `M613` | warning | Of two terms that mean the same, one is the term in use and the other is marked `status=deprecated`. |
+
+## Kind `vocabulary`
+
+A vocabulary of a business subject: the types of things and the types of relations between them, with the rules each relation keeps. A concept picture names the file with `use=` and writes only items and relations; drawn on its own, the vocabulary shows its types and links as a picture of the subject. Full reference: `dgr grammar vocabulary`.
+
+```text
+diagram vocabulary "Title" [subtitle=<text>] [locale=<en|de>]
+```
+
+| Line | Where | What it does | Example |
+|---|---|---|---|
+| `type <id> <label> [shape=<box\|round\|person\|store\|doc>] [de=<text>] [explain]` | top level | A type of thing the picture shows, such as a role, a task or a document. | `type rolle "Rolle" shape=person` |
+| `link <id> <label> [from=<type-names>] [to=<type-names>] [line=<solid\|dashed\|dotted>] [head=<arrow\|open\|triangle\|diamond\|none>] [each=<from\|to\|both>] [single=<from\|to\|both>] [de=<text>] [acyclic] [upward] [beside] [bare]` | top level | A type of relation between items of the types it lists. | `link fuehrt "führt aus" from=rolle to=aufgabe each=to` |
+
+The rules of `vocabulary` report these codes:
+
+| Code | Severity | What it checks |
+|---|---|---|
+| `M112` | error | A link lists the types it joins with `from=` and `to=`, each a declared type. |
 
 ## Statements of every kind
 
