@@ -46,7 +46,7 @@ const inline = (text: string) =>
     <main>
       <p class="lead">
         {count} tiles of the C4 kinds in <code>look={look}</code>, drawn from their tables when the site was built. Each tile
-        shows the line a file writes; a click opens it in the live editor.
+        shows the line a file writes; a click shows it larger with its whole source, and the editor link opens it to try.
       </p>
       {
         sections.map((s) => (
@@ -55,19 +55,90 @@ const inline = (text: string) =>
             <p class="doc" set:html={inline(s.doc)} />
             <div class:list={['tiles', { wide: s.wide }]}>
               {s.tiles.map((t) => (
-                <a class="tile" href={t.editor} target="_blank" rel="noopener" title={t.source}>
-                  <span class="picture" set:html={t.svg} />
-                  <span class="name">{t.name}</span>
-                  <code class="line">{t.line}</code>
-                </a>
+                <article class="tile">
+                  <button class="open" type="button" data-source={t.source} data-editor={t.editor} data-section={s.title}>
+                    <span class="picture" set:html={t.svg} />
+                    <span class="name">{t.name}</span>
+                    <code class="line">{t.line}</code>
+                  </button>
+                  <a class="editor" href={t.editor} target="_blank" rel="noopener">
+                    Editor ↗
+                  </a>
+                </article>
               ))}
             </div>
           </section>
         ))
       }
     </main>
+    <dialog id="zoom" aria-labelledby="zoom-name">
+      <div class="zoom-head">
+        <div>
+          <span class="zoom-section" id="zoom-section"></span>
+          <strong id="zoom-name"></strong>
+        </div>
+        <span class="zoom-actions">
+          <span class="zoom-hint">← → to browse</span>
+          <a id="zoom-editor" href="/" target="_blank" rel="noopener">Open in the live editor ↗</a>
+          <button type="button" id="zoom-close" aria-label="Close" autofocus>✕</button>
+        </span>
+      </div>
+      <div class="zoom-picture" id="zoom-picture"></div>
+      <code class="zoom-line" id="zoom-line"></code>
+      <pre id="zoom-source"></pre>
+    </dialog>
   </body>
 </html>
+
+<script>
+  /**
+   * A click on a tile shows it larger in a dialog with its whole source and the editor link; the arrow keys move to
+   * the neighbouring tiles of the same section, Escape or a click beside the dialog closes it.
+   */
+  const dialog = document.querySelector<HTMLDialogElement>('#zoom');
+  const editor = document.querySelector<HTMLAnchorElement>('#zoom-editor');
+  const tiles = [...document.querySelectorAll<HTMLButtonElement>('button.open')];
+  let shown = -1;
+
+  /** How much larger than drawn a tile may grow, so a single box does not fill the screen. */
+  const ZOOM = 2.5;
+
+  function fill(id: string, text: string): void {
+    const target = document.querySelector<HTMLElement>(`#${id}`);
+    if (target !== null) target.textContent = text;
+  }
+
+  function show(index: number): void {
+    const tile = tiles[index];
+    const picture = document.querySelector<HTMLElement>('#zoom-picture');
+    if (dialog === null || editor === null || picture === null || tile === undefined) return;
+    shown = index;
+    fill('zoom-section', tile.dataset.section ?? '');
+    fill('zoom-name', tile.querySelector('.name')?.textContent ?? '');
+    fill('zoom-line', tile.querySelector('.line')?.textContent ?? '');
+    fill('zoom-source', tile.dataset.source ?? '');
+    picture.innerHTML = tile.querySelector('.picture')?.innerHTML ?? '';
+    const svg = picture.querySelector('svg');
+    if (svg !== null) svg.style.maxWidth = `${Number(svg.getAttribute('width')) * ZOOM}px`;
+    editor.href = tile.dataset.editor ?? '/';
+    if (!dialog.open) dialog.showModal();
+  }
+
+  tiles.forEach((tile, i) => {
+    tile.addEventListener('click', () => show(i));
+  });
+  document.querySelector('#zoom-close')?.addEventListener('click', () => dialog?.close());
+  dialog?.addEventListener('click', (event) => {
+    if (event.target === dialog) dialog.close();
+  });
+  dialog?.addEventListener('keydown', (event) => {
+    const step = event.key === 'ArrowRight' ? 1 : event.key === 'ArrowLeft' ? -1 : 0;
+    const next = tiles[shown + step];
+    if (step === 0 || next === undefined || next.dataset.section !== tiles[shown]?.dataset.section) return;
+    event.preventDefault();
+    show(shown + step);
+  });
+</script>
 
 <style is:global>
   * {
@@ -168,20 +239,104 @@ const inline = (text: string) =>
     grid-template-columns: repeat(auto-fill, minmax(20rem, 1fr));
   }
   .tile {
-    display: flex;
-    flex-direction: column;
-    gap: 0.2rem;
-    padding: 0.4rem;
+    position: relative;
     background: #fff;
     border: 1px solid #d0d7de;
     border-radius: 6px;
-    color: inherit;
-    text-decoration: none;
   }
   .tile:hover,
-  .tile:focus-visible {
+  .tile:focus-within {
     border-color: #0969da;
     outline: 1px solid #0969da;
+  }
+  .open {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    width: 100%;
+    padding: 0.4rem 0.4rem 1.6rem;
+    border: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+    text-align: start;
+    cursor: zoom-in;
+  }
+  .editor {
+    position: absolute;
+    right: 0.5rem;
+    bottom: 0.35rem;
+    font-size: 12px;
+    text-decoration: none;
+  }
+  .editor:hover {
+    text-decoration: underline;
+  }
+  dialog {
+    width: min(70rem, 94vw);
+    max-height: 92vh;
+    padding: 0;
+    border: 1px solid #d0d7de;
+    border-radius: 8px;
+    box-shadow: 0 12px 40px rgb(0 0 0 / 0.25);
+  }
+  dialog::backdrop {
+    background: rgb(15 20 25 / 0.55);
+  }
+  .zoom-head {
+    position: sticky;
+    top: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.6rem 1rem;
+    border-bottom: 1px solid #d0d7de;
+    background: #fff;
+  }
+  .zoom-section {
+    margin-right: 0.5rem;
+    color: #59636e;
+  }
+  .zoom-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  .zoom-hint {
+    color: #59636e;
+    font-size: 12px;
+  }
+  #zoom-close {
+    padding: 0.15rem 0.5rem;
+    border: 1px solid #d0d7de;
+    border-radius: 6px;
+    background: #f6f7f9;
+    cursor: pointer;
+  }
+  .zoom-picture {
+    display: flex;
+    justify-content: center;
+    padding: 1rem;
+    background: #f6f7f9;
+  }
+  .zoom-picture svg {
+    width: 100%;
+    height: auto;
+    max-height: 55vh;
+  }
+  .zoom-line {
+    display: block;
+    padding: 0.6rem 1rem 0;
+    color: #59636e;
+  }
+  dialog pre {
+    margin: 0.5rem 1rem 1rem;
+    padding: 0.75rem;
+    overflow: auto;
+    border-radius: 6px;
+    background: #f6f7f9;
+    font-size: 12px;
   }
   .picture {
     display: flex;
