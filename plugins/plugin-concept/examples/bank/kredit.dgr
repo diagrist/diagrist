@@ -1,0 +1,21 @@
+diagram concept "Kreditvergabe: Risiken und Kontrollen" subtitle="Privatkredite" use="iks.vocab.dgr" locale=de
+item antrag "Kreditantrag prüfen" is prozess
+item auszahlung "Kredit auszahlen" is prozess
+item bonitaet "Kunde kann nicht zurückzahlen" is risiko
+item betrug "Gefälschte Gehaltsnachweise" is risiko
+item doppelt "Auszahlung auf falsches Konto" is risiko
+item scoring "Bonitätsprüfung mit Scoring" is kontrolle
+item nachweise "Abgleich der Nachweise mit dem Konto" is kontrolle
+item freigabe "Freigabe der Auszahlung durch die Marktfolge" is kontrolle
+item berater "Kundenberater" is rolle
+item marktfolge "Marktfolge" is rolle
+
+rel antrag birgt bonitaet
+rel antrag birgt betrug
+rel auszahlung birgt doppelt
+rel scoring mindert bonitaet
+rel nachweise mindert betrug
+rel freigabe mindert doppelt
+rel berater verantwortet nachweise
+rel marktfolge verantwortet scoring
+rel marktfolge verantwortet freigabe

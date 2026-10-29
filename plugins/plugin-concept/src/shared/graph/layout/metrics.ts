@@ -1,9 +1,10 @@
 import { type Font, STANDARD_FONTS, textWidth } from '@diagrist/core';
-import type { GridMetrics } from '@diagrist/layout-grid';
+import type { EdgeText, GridMetrics } from '@diagrist/layout-grid';
 import { MARGIN, wrap } from '@diagrist/parts';
+import { widestText } from './edges.js';
 
-/** Font roles of concept pictures besides the standard ones: the entries below an item's name. */
-export const CONCEPT_FONTS = {
+/** Font roles of graph pictures besides the standard ones: the entries below an item's name. */
+export const GRAPH_FONTS = {
   ...STANDARD_FONTS,
   entry: { size: 10 },
 } as const satisfies Readonly<Record<string, Font>>;
@@ -24,16 +25,34 @@ export const ITEM = {
   perLayer: 5,
 } as const;
 
+/** The least gap between columns, and the room a label keeps to the line beside it. */
+export const GAP = { col: 56, label: 12 } as const;
+
+/**
+ * Measures of a picture in columns: room for the heads above the first row, the gap between half rows, and the gap
+ * between columns, wide enough for the widest text on a line between them and its arrowhead, twice that where a
+ * relation forks halfway across.
+ */
+export const HEAD = {
+  room: 32,
+  rowGap: 16,
+  colGap: (all: readonly EdgeText[], fans: boolean): number =>
+    Math.max(72, Math.ceil((fans ? 2 : 1) * (widestText(all) + 2 * GAP.label) + 16)),
+} as const;
+
 /** Where the grid starts below the title line, with and without a subtitle. */
 export const FIRST_ROW = { subtitle: 104, title: 88 } as const;
 
-/** The measures `layout-grid` lays a concept picture out with: an adaptive grid of layers, orthogonal lines. */
-export const conceptMetrics = (firstRowY: number): GridMetrics => ({
+/**
+ * The measures `layout-grid` lays a graph picture out with: an adaptive grid of layers, orthogonal lines, and columns
+ * `colGap` apart, which the caller widens so labels beside the lines have room.
+ */
+export const graphMetrics = (firstRowY: number, colGap: number = GAP.col): GridMetrics => ({
   grid: 8,
   nodeW: ITEM.minW,
   nodeH: ITEM.minH,
-  colGap: 56,
-  subColGap: 56,
+  colGap,
+  subColGap: colGap,
   rowGap: 72,
   marginX: MARGIN,
   firstRowY,
@@ -61,7 +80,7 @@ const widest = (lines: readonly string[], font: Font) => Math.max(0, ...lines.ma
 
 /** Measures an item: its name and entries wrapped to at most `ITEM.maxW`, its box at least `ITEM.minW` wide. */
 export function measureItem(label: string, entries: readonly string[], figure: boolean): ItemBox {
-  const F = CONCEPT_FONTS;
+  const F = GRAPH_FONTS;
   const indent = figure ? ITEM.figure : 0;
   const inner = ITEM.maxW - 2 * ITEM.padX - indent;
   const name = wrap(label, inner, F.name);

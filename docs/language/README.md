@@ -25,6 +25,7 @@ Each kind has its own page with every statement, its parts, examples and the cod
 | [`code`](code.md) | `code` | A code diagram: excerpts of real source files as highlighted cards, one below the other, with marked lines, numbered notes below each card and arrows from a call to what it calls. |
 | [`matrix`](matrix.md) | `concept` | A matrix: columns, rows and one scale, with the values of the scale in the cells. |
 | [`concept`](concept.md) | `concept` | A picture of a business concept with its own vocabulary: the file declares types of things and types of relations with their rules, then writes items and relations, which are checked against the declarations. |
+| [`vocabulary`](vocabulary.md) | `concept` | A vocabulary of a business subject: the types of things and the types of relations between them, with the rules each relation keeps. |
 
 ## Statements of every kind
 

@@ -1,6 +1,6 @@
 import type { Finding } from '@diagrist/core';
 import { list } from '@diagrist/lang';
-import { counts, type End } from '../declarations.js';
+import { counts, type End } from '../../shared/declarations.js';
 import type { ConceptModel } from '../model.js';
 import { type ConceptRule, itemsById, known } from './shared.js';
 

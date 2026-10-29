@@ -371,6 +371,38 @@ The owner read a concept report on where `concept` goes next and decided three t
 |---|---|
 | A vocabulary becomes a file of its own, `diagram vocabulary`, that a picture names with `use=` in its header | plugins and templates can provide vocabularies later; `terms` and `roles` become vocabulary files the plugin ships, and a vocabulary can be drawn as a picture of its own |
 | Views are fixed pictures, not interactive | one source gives several pictures of how a diagram is built: every area closed, one area opened in place among closed neighbours, or the overview with a lens on one area beside its inside. Relations are written once, at the step they belong to, and the closed area derives them |
-| The look stays as it is for now | the standard look of `belege.dgr` and of a picture of risks and controls is the style to keep; tones, icons and bands per type come later |
+| The look stays as it is for now | the standard look of `belege.dgr` and of a picture of risks and controls is the style to keep; tones, icons and bands per type come later. Two tries at a lighter look on the same day, tinted cards with coloured bars and then pale fills in a sans face, read worse than the standard look and were taken back |
 
 The order is: the vocabulary as a file; frames with `in`, the inside of an item as a block, and the views `closed` and `open=`; lanes inside and the lens; properties with scales and the rules `distinct`, `needs`, `reach` and `within`; then `context-map` and `capability` as vocabulary files. Each is one pull request.
+
+The vocabulary as a file is built. `diagram vocabulary` declares `type` and `link` with the same tables as
+`concept`, and a concept picture names the file with `use="…"` in its header. The file is read the way `use` and
+`file()` read (ADR 0021, ADR 0025), so the CLI and the website hand it over, and the live editor cannot. A file
+that does not read cleanly is `M120`, which names its first finding. The vocabularies `terms` and `roles` of the
+plugin are now vocabulary sources read the same way, with `de=` for the German name of a type or link, and give
+the same pictures to the byte. A vocabulary drawn on its own shows each type in its shape and each link as a line
+with its rules in words. A link from a type to itself becomes an entry of that type, and the picture has no legend,
+since it is the legend of the pictures that use it.
+
+A picture of several types stands in columns. The owner found the layered placement of a picture of risks and
+controls unreadable, with too many corners, no hierarchy and no story. So a concept picture whose items are of
+more than one type now gives each type a column, in the order of their declaration, under a head that names it.
+The vocabulary is written in the order its story is told, such as process, risk, control and role. Related items
+stand level, so most relations run straight across. An item with two partners stands between them, and the
+relations from one item to two of the next column fork from a shared trunk that carries their text once. Of an
+order and its mirror, which cross alike, the one that keeps the first column in the order written wins. The legend
+leaves out what the heads and the lines already say. A picture of one type, such as terms or roles, stays layered,
+and `arrange=columns|layers` overrides the choice.
+
+`layout-grid` gains what this needs, and nothing a kind names. `LayerGraph.fixed` gives the layer of each node,
+and `thorough` searches harder for an order without crossings. `GridSpec.ports: 'centred'` lets lines leave and
+enter boxes in the middle of a side and bend halfway between them. All three are opt-in, so the pictures of the
+other kinds keep their bytes.
+
+A picture in columns reads in one direction. A link may say what it means backwards with `back=`, such as
+`mindert` with `back="gemindert durch"`. Where such a link points against the reading, its line runs from left to
+right and says the backward text, so every row reads as one sentence: process, "birgt" risk, "gemindert durch"
+control, "verantwortet von" role. Where all lines between two neighbouring columns are of one link, the head row
+says its verb once between the two heads on an arrow, and the lines are silent; a relation with a text of its own
+still says it on its line. The items of a column are as wide as its widest, so the columns read as a table, and
+lines that join two items into one share a trunk as forks do.

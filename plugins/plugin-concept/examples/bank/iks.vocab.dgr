@@ -1,0 +1,8 @@
+diagram vocabulary "Internes Kontrollsystem" subtitle="Prozesse, Risiken, Kontrollen und wer sie verantwortet" locale=de
+type prozess "Prozess" shape=round
+type risiko "Risiko"
+type kontrolle "Kontrolle" shape=doc
+type rolle "Rolle" shape=person
+link birgt "birgt" from=prozess to=risiko each=to
+link mindert "mindert" back="gemindert durch" from=kontrolle to=risiko each=to
+link verantwortet "verantwortet" back="verantwortet von" from=rolle to=kontrolle each=to single=to

@@ -1,6 +1,6 @@
 # @diagrist/plugin-concept
 
-Pictures of a business concept for Diagrist: the kinds `matrix` and `concept`.
+Pictures of a business concept for Diagrist: the kinds `matrix`, `concept` and `vocabulary`.
 
 ## `matrix`
 
@@ -56,7 +56,27 @@ synonyms `status=deprecated`. `roles` has who reports to whom, each role to one 
 and who stands in for whom. The items are layered along their relations by `@diagrist/layout-grid`, and the
 legend shows the types, links and statuses the picture uses.
 
+## `vocabulary`
+
+A vocabulary file holds the `type` and `link` declarations of a subject, so several concept pictures share them
+instead of each writing its own. A picture names the file with `use=` in its header and writes only items and
+relations; Diagrist reads the file the way `use` reads a base (ADR 0021) and checks the picture against it.
+Drawn on its own, a vocabulary is a picture of the subject: each type in its shape, each link a line with its
+rules in words, such as "exactly one per control". `examples/bank` has an internal control system of a bank as a
+vocabulary and two pictures that use it. The vocabularies `terms` and `roles` of the plugin are written as such
+files too, with `de=` for their German names.
+
+```dgr
+diagram vocabulary "Internal controls"
+type risk "Risk"
+type control "Control" shape=doc
+type role "Role" shape=person
+link mitigates "mitigates" from=control to=risk each=to
+link owns "owns" from=role to=control each=to single=to
+```
+
 The statements, their attributes and the diagnostic codes (prefix `M`, ADR 0011) are in the generated language
-pages [`matrix`](../../docs/language/matrix.md) and [`concept`](../../docs/language/concept.md). The examples in
+pages [`matrix`](../../docs/language/matrix.md), [`concept`](../../docs/language/concept.md) and
+[`vocabulary`](../../docs/language/vocabulary.md). The examples in
 `examples/radverleih` show the three scales of the matrix and the two vocabularies. ADR 0030 and 0031 and
 `docs/concept-and-matrix.md` explain the kinds and what comes next.
