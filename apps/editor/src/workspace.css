@@ -1,0 +1,129 @@
+/* The two panes of the editor: source and picture, the divider between them, pan and zoom, and the narrow screen. */
+.split {
+  flex: 1;
+  display: grid;
+  grid-template-columns: var(--source, 40%) 6px 1fr;
+  min-height: 0;
+}
+.left {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  background: #fff;
+}
+.divider {
+  height: auto;
+  margin: 0;
+  border-block: 0;
+  cursor: col-resize;
+  background: #dee2e6;
+  border-inline: 2px solid #f8f9fa;
+  touch-action: none;
+}
+.divider:hover,
+.divider:focus-visible {
+  background: #0d6efd;
+  outline: none;
+}
+.editor {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+.editor .cm-editor {
+  height: 100%;
+  font-size: 13px;
+}
+.editor .cm-scroller {
+  font-family: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+  font-variant-ligatures: none;
+}
+.right {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+}
+.right .preview {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  cursor: grab;
+  touch-action: none;
+}
+.right .preview.dragging {
+  cursor: grabbing;
+}
+.stage {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: 0 0;
+  line-height: 0;
+}
+.stage svg {
+  display: block;
+  background: #fff;
+  box-shadow: 0 0 0 1px #dee2e6;
+}
+.preview.stale .stage {
+  opacity: 0.45;
+}
+.zoom {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  background: rgb(255 255 255 / 0.92);
+}
+.zoom button {
+  min-width: 32px;
+  padding: 2px 8px;
+}
+.zoom output {
+  min-width: 4.5em;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  color: #495057;
+}
+
+@media (max-width: 760px) {
+  .brand {
+    display: none;
+  }
+  .switch {
+    display: inline-flex;
+    gap: 4px;
+  }
+  .split {
+    grid-template-columns: 1fr;
+  }
+  .divider,
+  .split[data-show="source"] .right,
+  .split[data-show="picture"] .left {
+    display: none;
+  }
+}
+
+@media (max-width: 760px) {
+  .brand {
+    display: none;
+  }
+  .switch {
+    display: inline-flex;
+    gap: 4px;
+  }
+  .split {
+    grid-template-columns: 1fr;
+  }
+  .divider,
+  .split[data-show="source"] .right,
+  .split[data-show="picture"] .left {
+    display: none;
+  }
+}

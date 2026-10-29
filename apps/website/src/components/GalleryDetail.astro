@@ -1,0 +1,42 @@
+---
+import { Icon } from '@astrojs/starlight/components';
+import '../styles/gallery-detail.css';
+
+/**
+ * The window an example of the gallery opens in: the picture large, its source beside it, and what to do with it.
+ * `scripts/gallery-detail.ts` fills it from `/gallery/<slug>.json`.
+ */
+---
+
+<dialog id="gallery-detail" class="not-content detail" aria-labelledby="detail-title">
+  <header class="detail-head">
+    <div>
+      <h2 id="detail-title"></h2>
+      <p class="detail-meta"><span id="detail-tags"></span> <code id="detail-file"></code></p>
+    </div>
+    <div class="detail-nav">
+      <button type="button" id="detail-prev" aria-label="Previous example" title="Previous (←)">
+        <Icon name="left-caret" />
+      </button>
+      <button type="button" id="detail-next" aria-label="Next example" title="Next (→)">
+        <Icon name="right-caret" />
+      </button>
+      <button type="button" id="detail-close" aria-label="Close" title="Close (Esc)"><Icon name="close" /></button>
+    </div>
+  </header>
+  <div class="detail-body">
+    <div class="detail-picture" id="detail-picture" title="Click for the actual size"></div>
+    <pre class="detail-source"><code id="detail-code"></code></pre>
+  </div>
+  <footer class="detail-actions">
+    <a id="detail-editor" class="detail-primary" href="https://live.diagrist.com/" target="_blank" rel="noopener">
+      Open in the editor <Icon name="external" size="1em" />
+    </a>
+    <span id="detail-files" class="detail-note" hidden>
+      Reads other files of its folder, so the editor cannot draw it: build it with <code>dgr</code>.
+    </span>
+    <button type="button" id="detail-copy">Copy source</button>
+    <a id="detail-svg" href="/gallery/" download>Download SVG</a>
+    <a id="detail-github" href="https://github.com/diagrist/diagrist" target="_blank" rel="noopener">Source on GitHub <Icon name="external" size="1em" /></a>
+  </footer>
+</dialog>

@@ -1,14 +1,17 @@
 import './fonts.css';
 import './style.css';
+import './workspace.css';
 import { setDiagnostics } from '@codemirror/lint';
 import { basicSetup, EditorView } from 'codemirror';
 import { copy, download, fileName, openEmbedDialog } from './actions.js';
 import { DEFAULT_SOURCE } from './examples.js';
 import { showFindings, toDiagnostics } from './findings.js';
 import { dgrLanguage } from './highlight.js';
+import { makeResizable, makeSwitch } from './layout.js';
 import type { Response } from './protocol.js';
 import { createRenderer } from './renderer.js';
 import { decodeSource, encodeSource } from './source-hash.js';
+import { createViewport } from './viewport.js';
 
 const byId = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
 const preview = byId('preview');
@@ -17,10 +20,25 @@ const findingsList = byId('findings');
 let last: Response | undefined;
 let fragment = '';
 let hashTimer: ReturnType<typeof setTimeout> | undefined;
+let refit = true;
+
+const show = createViewport({
+  frame: preview,
+  zoomIn: byId('zoom-in'),
+  zoomOut: byId('zoom-out'),
+  fit: byId('zoom-fit'),
+  actual: byId('zoom-actual'),
+  level: byId('zoom-level'),
+});
+makeResizable(byId('split'), byId('divider'));
+makeSwitch(byId('split'), byId('show-source'), byId('show-picture'));
 
 const render = createRenderer((result) => {
   last = result;
-  if (result.svg !== undefined) preview.innerHTML = result.svg;
+  if (result.svg !== undefined) {
+    show(result.svg, refit);
+    refit = false;
+  }
   preview.classList.toggle('stale', result.svg === undefined);
   view.dispatch(setDiagnostics(view.state, toDiagnostics(view.state.doc, result.findings)));
   showFindings(findingsList, result.findings, (f) => {
@@ -51,7 +69,9 @@ const view = new EditorView({
   ],
 });
 
+/** Replaces the whole source, as a link or an example does; its picture is fitted to the frame again. */
 function load(source: string): void {
+  refit = true;
   view.dispatch({ changes: { from: 0, to: view.state.doc.length, insert: source } });
 }
 
@@ -87,15 +107,21 @@ byId<HTMLButtonElement>('png').addEventListener('click', async (e) => {
     const { svgToPng } = await import('./png.js');
     download(await svgToPng(last.svg, 2), `${fileName(last.title)}.png`);
   } catch (error) {
-    alert(`PNG nicht möglich: ${error instanceof Error ? error.message : String(error)}`);
+    alert(`No PNG: ${error instanceof Error ? error.message : String(error)}`);
   } finally {
     button.disabled = false;
   }
 });
 
-if (import.meta.env.DEV) {
-  void import('./local-examples.js').then(({ mountExamples }) => mountExamples(byId('bar'), load));
-}
+const menu = byId<HTMLDetailsElement>('download');
+menu.addEventListener('click', (event) => {
+  if ((event.target as HTMLElement).closest('.menu-items button')) menu.open = false;
+});
+document.addEventListener('click', (event) => {
+  if (!menu.contains(event.target as Node)) menu.open = false;
+});
+
+void import('./example-menu.js').then(({ fillExamples }) => fillExamples(byId('examples'), load));
 
 window.addEventListener('hashchange', () => void loadFromAddress());
 void loadFromAddress();

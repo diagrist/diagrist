@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="de">
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -10,38 +10,67 @@
   <body>
     <header class="bar" id="bar">
       <strong class="brand">Diagrist</strong>
+      <select id="examples" aria-label="Load an example">
+        <option value="">Examples …</option>
+      </select>
       <span class="spacer"></span>
-      <button id="share" type="button">Link kopieren</button>
-      <button id="embed" type="button">Einbetten</button>
-      <button id="svg" type="button">SVG</button>
-      <button id="png" type="button">PNG</button>
-      <button id="dgr" type="button">.dgr</button>
+      <span class="switch">
+        <button type="button" id="show-source" aria-pressed="true">Source</button>
+        <button type="button" id="show-picture" aria-pressed="false">Picture</button>
+      </span>
+      <button id="share" type="button">Copy link</button>
+      <button id="embed" type="button">Embed</button>
+      <details class="menu" id="download">
+        <summary>Download</summary>
+        <div class="menu-items">
+          <button id="svg" type="button">SVG</button>
+          <button id="png" type="button">PNG</button>
+          <button id="dgr" type="button">Source (.dgr)</button>
+        </div>
+      </details>
     </header>
-    <main class="split">
+    <main class="split" id="split" data-show="source">
       <section class="left">
         <div id="editor" class="editor"></div>
         <ul id="findings" class="findings" aria-live="polite"></ul>
       </section>
+      <hr
+        class="divider"
+        id="divider"
+        tabindex="0"
+        aria-orientation="vertical"
+        aria-label="Width of the source"
+        aria-valuemin="20"
+        aria-valuemax="80"
+        aria-valuenow="40"
+      />
       <section class="right">
         <div id="preview" class="preview"></div>
+        <div class="zoom" role="toolbar" aria-label="Zoom">
+          <button id="zoom-out" type="button" aria-label="Zoom out" title="Zoom out (-)">−</button>
+          <output id="zoom-level" aria-live="off">100 %</output>
+          <button id="zoom-in" type="button" aria-label="Zoom in" title="Zoom in (+)">+</button>
+          <button id="zoom-fit" type="button" title="Fit the picture (0)" aria-pressed="true">Fit</button>
+          <button id="zoom-actual" type="button" title="Actual size (1)">1:1</button>
+        </div>
       </section>
     </main>
     <dialog id="embed-dialog">
       <form method="dialog">
-        <h2>Einbetten</h2>
-        <p>Confluence: <code>/iframe</code> eingeben, die Adresse einfügen und eine Höhe setzen.</p>
-        <label>Adresse für das iframe
+        <h2>Embed</h2>
+        <p>Confluence: type <code>/iframe</code>, paste the address and set a height.</p>
+        <label>Address for the iframe
           <textarea id="embed-url" rows="3" readonly></textarea>
         </label>
         <label>HTML
           <textarea id="embed-html" rows="4" readonly></textarea>
         </label>
         <p class="note" id="embed-size"></p>
-        <p class="note">Die Quelle steht im Link hinter dem <code>#</code>. Diesen Teil schickt der Browser nie an einen Server, das Diagramm wird im Browser gezeichnet.</p>
+        <p class="note">The source sits in the link behind the <code>#</code>. Browsers never send that part to a server; the diagram is drawn in the browser.</p>
         <div class="actions">
-          <button type="button" id="copy-url">Adresse kopieren</button>
-          <button type="button" id="copy-html">HTML kopieren</button>
-          <button type="submit" value="close">Schließen</button>
+          <button type="button" id="copy-url">Copy address</button>
+          <button type="button" id="copy-html">Copy HTML</button>
+          <button type="submit" value="close">Close</button>
         </div>
       </form>
     </dialog>
