@@ -1,0 +1,34 @@
+# Radverleih, C4 level 3: what the rental backend holds and what it depends on.
+# The rental runs left to right through the middle, the return comes back along the top, the rides lie below.
+diagram component "Verleih-Backend, Komponenten" subtitle="Arbeitsstand 02.10.2026, Entwurf zur Diskussion" locale=de
+grid cols client,backend.1,backend.2,infra
+grid rows top,main,data
+
+group infra   "Plattform" shared team="Betrieb"
+group backend "Backend"   own    team="Kotlin · Team Ausleihe"
+
+container psp    "Zahlungsanbieter" tech="REST"                      icon=receipt    at client/top
+container app    "App"              tech="iOS und Android"           icon=smartphone at client/main
+container broker "MQTT-Broker"      tech="Stationsnachrichten"       icon=router     at infra/top in infra
+container db     "Datenbank"        tech="PostgreSQL"                icon=postgresql at infra/data
+
+component tarif      "Tarifrechner"      tech="Minuten, Pässe, Rabatte"  icon=gauge    at backend.1/top  in backend mark=E1 emph
+component telemetrie "Stations-Consumer" tech="MQTT-Listener"            icon=cpu      at backend.2/top  in backend
+component api        "REST-API"          tech="Ausleihe, Rückgabe"       icon=route    at backend.1/main in backend
+component schloss    "Schloss-Steuerung" tech="Befehle an Schlösser"     icon=lock     at backend.2/main in backend mark=E2
+component fahrten    "Fahrten"           tech="Repository, JPA"          icon=database at backend.2/data in backend
+
+flow ausleihe accent
+  app     -> api     "Rad entsperren" via=HTTPS/JSON
+  api     -> schloss "Schloss öffnen"
+  schloss -> broker  "Befehl senden" via=MQTT
+  api     -> fahrten "Fahrt beginnen"
+  fahrten -> db      via=SQL
+
+flow rueckgabe primary
+  broker     ~> telemetrie "Schloss zu"
+  telemetrie -> tarif      "Fahrt abrechnen"
+  tarif      -> psp        "Betrag abbuchen" via=HTTPS
+
+adr E1 "Wo entsteht der Preis?" = "Im Backend, nach der Rückgabe" => "Die App zeigt nur eine Schätzung."
+adr E2 "Was, wenn ein Schloss nicht antwortet?" = "Drei Versuche, dann Störung melden" => "Alternative: Fahrt ohne Bestätigung starten." open="Team Ausleihe"

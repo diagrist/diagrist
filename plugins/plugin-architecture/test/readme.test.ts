@@ -22,6 +22,6 @@ describe('the README', () => {
     const example = /```dgr\n([\s\S]*?)```/.exec(readFileSync(path, 'utf8'))?.[1] ?? '';
     const result = compile(example, { plugins: [architecturePlugin] });
     expect(result.diagnostics).toEqual([]);
-    expect(result.svg).toContain('>Context diagram (C4 L1) · Radverleih</text>');
+    expect(result.svg).toContain('>Context diagram (C4 L1) · Bike rental</text>');
   });
 });

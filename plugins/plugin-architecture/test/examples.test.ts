@@ -26,37 +26,35 @@ const hashLines = (pictures: readonly { picture: string; svg: string }[]) =>
  * border of the frame their edge leaves (docs/burn-down.md).
  */
 const PLACEMENT: Readonly<Record<string, readonly string[]>> = {
-  'radverleih/komponenten.dgr': ['G400', 'G400'],
-  'radverleih/komponenten-paper.dgr': ['G400'],
+  'radverleih/entscheidung.dgr': ['G400 b', 'G400', 'G400 b', 'G400 b', 'G400 b', 'G400 b', 'G400 b'],
+  'radverleih/komponenten-columns.dgr': ['G400'],
+  'radverleih/komponenten-paper.dgr': ['G400', 'G400', 'G400'],
+  'radverleih/komponenten.dgr': ['G400', 'G400', 'G400', 'G400'],
+  'radverleih/kontext-paper.dgr': ['G400'],
   'radverleih/radverleih.dgr': [
-    'G400 soll',
-    'G400 soll',
     'G400',
     'G400 soll',
     'G400 soll',
     'G400 soll',
     'G400 soll',
-    'G400 soll',
-    'G402 soll',
-    'G400 soll',
     'G400 a',
     'G400 a',
+    'G400 soll',
     'G400 a',
     'G400 a',
     'G400 a',
   ],
-  'radverleih/entscheidung.dgr': ['G400', 'G400 b', 'G400 b', 'G400 b', 'G400 b', 'G400 b', 'G400 b'],
 };
 
-/** The SHA-256 of the files `radverleih.dgr` replaced, as `main` rendered them, plain and in `look=cards`. */
+/** The SHA-256 of the pictures `soll` and `a` of `radverleih.dgr` drawn without `diff`, plain and in `look=cards`. */
 const REPLACED = {
   soll: [
-    'a298ba956a49da233e3bb4df010917aadea165fbd9310777f5c0b90896b2ddbd',
-    'd2704fb89f277a36c895db5b2da78e1934a9db0aaf25e86b4bd0c155bf26e894',
+    '7783c0fee509ea80c75a6be503cb7d72e16597c233f7f2f02e48b4269eb5017b',
+    '75f5f5200a1aaf1bd6f730961a452a1c76d2ba5f70808311fedb665a0dd5dc28',
   ],
   a: [
-    '50392d819119a5cd4572a058932bcb6b25a9b9b3130077e4fd5670a13ddd9ce8',
-    '134ab0c82829dc568e64f034b6658b849efbd8b60055fc8c43233967b40a7f66',
+    'a447728c20c5ce754c733e982fbd651fcdafe7feab722361d0b65ba8466bee0b',
+    '20fe6f81d6cd06efc78222654a3972ca0a7eaa982ec3090103034ff13c869941',
   ],
 } as const;
 
@@ -70,7 +68,7 @@ describe('C4 examples', () => {
     expect(compileExample(name).pictures).toEqual(first.pictures);
   });
 
-  it('radverleih.dgr draws soll and a without diff in the bytes of the files they replaced', () => {
+  it('radverleih.dgr draws soll and a without diff in the reviewed bytes', () => {
     const plain = source('radverleih/radverleih.dgr').replace(/^(variant .*) diff$/gm, '$1');
     const cards = plain.replace(/^(diagram .*)$/m, '$1 look=cards');
     for (const [variant, [bytes, inCards]] of Object.entries(REPLACED)) {
@@ -113,7 +111,7 @@ describe('C4 examples', () => {
     expect(result.svg).toContain('>Context diagram (C4 L1) · Radverleih im Systemkontext</text>');
     expect(result.svg).toContain('>synchronous call</text>');
     expect(result.description?.split('\n')[0]).toBe(
-      'Radverleih im Systemkontext. Context diagram (C4 L1) with 5 elements in 0 groups.',
+      'Radverleih im Systemkontext. Context diagram (C4 L1) with 6 elements in 0 groups.',
     );
   });
 });

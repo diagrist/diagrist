@@ -50,7 +50,7 @@ layers, notes, the decision bar and the legend are drawn by the plugin and `@dia
 
 | Before | Now | Why |
 |---|---|---|
-| `grid cols user radverleih neighbours` | `grid cols user,radverleih,neighbours` | The language has no list of arguments; names separated by commas, as `over=` in sequence diagrams. |
+| `grid cols user core neighbours` | `grid cols user,core,neighbours` | The language has no list of arguments; names separated by commas, as `over=` in sequence diagrams. |
 | `decision E1 "Q" = "A" => "C"` | `adr E1 "Q" = "A" => "C"` | ADR 0002 Nr. 3: one keyword, one meaning |
 | texts added to the picture in German | `locale=de` in the header for German, default `en` | ADR 0008 Nr. 3 |
 | any icon name, checked by a rule (E104) | `icon=` is one of the bundled names | The table lists them; a wrong name gets the list. |
@@ -62,16 +62,17 @@ predecessor ran on routes (E204, E206, W203, W206, W207, W492).
 
 ## Examples and byte identity
 
-The eight C4 examples under `examples/` are the predecessor's, converted by the rules above; three more
-each (`*-paper.dgr`, `*-columns.dgr`) draw `radverleih/kontext`, `radverleih/komponenten` and `architecture/cloud` in
-`look=paper` and `look=columns`, without findings, and their hashes are in `test/__golden__/paper.sha256` and
-`columns.sha256`. With `locale=de` all of
-them render the predecessor's SVG and PNG byte for byte; `test/__golden__/examples.sha256` holds the predecessor's
-SHA-256 of each picture, and three of them are golden files. `look=cards` variants of the five plain examples match
-the predecessor too (`test/__golden__/cards.sha256`). The crutches that keep the bytes are listed in
+The examples under `examples/architecture` and `examples/patterns` are the predecessor's, converted by the rules
+above, and render its SVG and PNG byte for byte with `locale=de`. The examples under `examples/radverleih`, a bike
+rental with its context, its components, an as-is and a target picture and a decision paper, were written for
+Diagrist. Two more files each (`*-paper.dgr`, `*-columns.dgr`) draw `radverleih/kontext`, `radverleih/komponenten`
+and `architecture/cloud` in `look=paper` and `look=columns`, and their hashes are in `test/__golden__/paper.sha256`
+and `columns.sha256`. `test/__golden__/examples.sha256` holds the SHA-256 of every reviewed picture, and three of
+them are golden files; `look=cards` variants of the plain examples are kept the same way
+(`test/__golden__/cards.sha256`). The crutches that keep the bytes are listed in
 `docs/burn-down.md`.
 
-The kernel's placement check (G400, G402) reports a few labels in the radverleih examples that reach into a frame they
+The kernel's placement check (G400, G402) reports a few labels and flow numbers in the examples that reach into a frame they
 do not belong to. The predecessor did not check that; the pictures show it, and fixing it changes their bytes.
 
 ## Icons

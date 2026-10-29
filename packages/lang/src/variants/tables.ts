@@ -12,7 +12,7 @@ const lineId: Value<string> = {
 
 const leading: Value<string> = {
   type: 'tokens',
-  expected: 'the first words, texts and operators of the line as written, such as `doc -> portal`',
+  expected: 'the first words, texts and operators of the line as written, such as `backend -> portal`',
   tokens: ['word', 'text', 'operator'],
   read: (raw) => ({ ok: true, value: raw }),
 };
@@ -40,7 +40,7 @@ export const SET: StatementSpec = statement('set', {
 /** `drop <keyword> <arguments>` inside a variant: removes exactly one line. */
 export const DROP: StatementSpec = statement('drop', {
   doc: 'Removes one line of the picture: its keyword and as many of its first arguments as make it unique, matched from the left. It must match exactly one line, and no line left may refer to an id it removes. A line declared again after its `drop` takes its place. Lines inside a block are not dropped singly: drop the block and declare it again.',
-  examples: ['drop node portal', 'drop edge doc -> portal', 'drop grid rows'],
+  examples: ['drop node portal', 'drop edge backend -> portal', 'drop grid rows'],
   arguments: [
     arg('keyword', word(), 'The keyword of the line, such as `node`.'),
     optionalArg('arguments', leading, 'Its first arguments as written, as many as make it unique.'),

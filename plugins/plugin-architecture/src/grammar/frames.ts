@@ -20,7 +20,7 @@ export const layer = statement('layer', {
 
 export const group = statement('group', {
   doc: 'A frame around elements by responsibility; it grows from its members. Exactly one of `own`, `shared`, `external`. `in` nests it into another group; an empty title draws only the frame.',
-  examples: ['group backend "Backend" own team="Spring Boot · Team Radverleih"', 'group api "API" own in backend'],
+  examples: ['group backend "Backend" own team="Kotlin · Team Ausleihe"', 'group api "API" own in backend'],
   arguments: [
     arg('id', id(), 'Id that `in` of elements and groups and the ends of edges use.'),
     arg('title', text(), 'Title in the head of the frame.'),

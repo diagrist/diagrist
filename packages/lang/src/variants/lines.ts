@@ -30,12 +30,12 @@ export function startsWith(statement: Statement, keyword: string, args: readonly
   );
 }
 
-/** A line as diagnostics name it: keyword and its first arguments up to the first text, `edge doc -> portal`. */
+/** A line as diagnostics name it: keyword and its first arguments up to the first text, `edge backend -> portal`. */
 export function headOf(statement: Statement): string {
   return [statement.keyword, ...keyTokens(statement.arguments)].join(' ');
 }
 
-/** The tokens that say which line a line is: the first ones up to the first text, such as `doc -> portal`. */
+/** The tokens that say which line a line is: the first ones up to the first text, such as `backend -> portal`. */
 function keyTokens(args: readonly Argument[]): string[] {
   const end = args.findIndex((a) => a.kind === 'text');
   return args.slice(0, end < 0 ? args.length : end).map((a) => a.value);
