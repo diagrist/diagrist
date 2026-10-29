@@ -362,3 +362,15 @@ from the declarations, and the vocabularies `terms` and `roles`.
 
 The codes of `concept` are `M110` to `M119` for errors and `M610` to `M613` for warnings. Each kind has its own
 entry point only once a host asks to load one without the other; until then the root registers both.
+
+## Next steps, decided on 29.10.2026
+
+The owner read a concept report on where `concept` goes next and decided three things.
+
+| Decision | Consequence |
+|---|---|
+| A vocabulary becomes a file of its own, `diagram vocabulary`, that a picture names with `use=` in its header | plugins and templates can provide vocabularies later; `terms` and `roles` become vocabulary files the plugin ships, and a vocabulary can be drawn as a picture of its own |
+| Views are fixed pictures, not interactive | one source gives several pictures of how a diagram is built: every area closed, one area opened in place among closed neighbours, or the overview with a lens on one area beside its inside. Relations are written once, at the step they belong to, and the closed area derives them |
+| The look stays as it is for now | the standard look of `belege.dgr` and of a picture of risks and controls is the style to keep; tones, icons and bands per type come later |
+
+The order is: the vocabulary as a file; frames with `in`, the inside of an item as a block, and the views `closed` and `open=`; lanes inside and the lens; properties with scales and the rules `distinct`, `needs`, `reach` and `within`; then `context-map` and `capability` as vocabulary files. Each is one pull request.
