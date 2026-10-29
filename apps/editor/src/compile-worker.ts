@@ -1,6 +1,7 @@
 import { compile, formatMessage } from '@diagrist/core';
 import { architecturePlugin } from '@diagrist/plugin-architecture';
 import { codePlugin } from '@diagrist/plugin-code';
+import { conceptPlugin } from '@diagrist/plugin-concept';
 import { umlPlugin } from '@diagrist/plugin-uml';
 import type { Finding, Request, Response } from './protocol.js';
 
@@ -8,7 +9,7 @@ import type { Finding, Request, Response } from './protocol.js';
  * Compiles off the main thread, so typing stays smooth while a large class diagram searches its arrangement.
  * Everything happens here in the browser; the worker has no network access of its own to use.
  */
-const plugins = [umlPlugin, architecturePlugin, codePlugin];
+const plugins = [umlPlugin, architecturePlugin, codePlugin, conceptPlugin];
 
 /** Inside a worker, `self` posts to the page that started it, like the page's handle on the worker. */
 const page = self as unknown as Worker;

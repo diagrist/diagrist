@@ -3,10 +3,11 @@ import { deflateRawSync } from 'node:zlib';
 import { compile, formatMessage, type Plugin } from '@diagrist/core';
 import { architecturePlugin } from '@diagrist/plugin-architecture';
 import { codePlugin } from '@diagrist/plugin-code';
+import { conceptPlugin } from '@diagrist/plugin-concept';
 import { umlPlugin } from '@diagrist/plugin-uml';
 
 /** The plugins of the site, the same as the editor's: every kind the docs describe can be drawn. */
-export const plugins: readonly Plugin[] = [umlPlugin, architecturePlugin, codePlugin];
+export const plugins: readonly Plugin[] = [umlPlugin, architecturePlugin, codePlugin, conceptPlugin];
 
 /** The live editor; a link carries the source in the fragment, which browsers never send to a server. */
 const EDITOR = 'https://live.diagrist.com/';
@@ -39,7 +40,7 @@ export function renderDgr(source: string, where: string): Rendered {
  * An inline SVG's stylesheet applies to the whole page, and its marker ids are global. Renaming the root class
  * `dia` and the markers `m-…` after the source keeps two pictures of different kinds apart.
  */
-function scoped(svg: string, name: string): string {
+export function scoped(svg: string, name: string): string {
   return svg
     .replace('class="dia"', `class="dia ${name}"`)
     .replace(/<style>[\s\S]*?<\/style>/, (style) => style.replace(/\.dia\b/g, `.${name}`))
