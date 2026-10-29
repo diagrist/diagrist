@@ -25,7 +25,10 @@ export const inColumns = (m: Graph): boolean =>
  * The grid of a graph picture in columns: one column per type in the order of the declarations, and in each column
  * the items ordered so related items stand side by side, an item with two partners in a row between theirs. Of an
  * order and its mirror, which cross alike, the one that keeps the first column in the order written wins. The items
- * of a column are as wide as its widest, so the columns read as a table; the lines are `columnEdges`.
+ * of a column are as wide as its widest, so the columns read as a table; the rows that follow one item of the
+ * first column stand close, in rows that share a prefix, and the usual room parts them from the next, so the
+ * stories group without a line. The
+ * lines are `columnEdges`.
  */
 export function columnsGrid(
   m: Graph,
@@ -35,7 +38,6 @@ export function columnsGrid(
   headed: boolean,
 ): Cells {
   const types = usedTypes(m);
-  const tones = tonesOf(m);
   const fixed = new Map(m.items.map((i) => [i.id, Math.max(0, types.indexOf(i.type))]));
   const relations = edgesOf(m);
   const { layers, position } = layerGraph({
@@ -54,7 +56,17 @@ export function columnsGrid(
   const taken = new Set([...at.values()].map((c) => c.cross));
   const between = (c: number) => c % 2 === 1 && taken.has(c - 1) && taken.has(c + 1);
   const crosses = [...taken].filter((c) => !between(c)).sort((a, b) => a - b);
-  const row = (c: number) => `r${crosses.indexOf(c) + 1}`;
+  const leads = [...at].filter(([, cell]) => cell.col === 0);
+  const anchorOf = (c: number): string | undefined =>
+    leads.find(([, cell]) => cell.cross === c || (between(cell.cross) && Math.abs(cell.cross - c) === 1))?.[0] ??
+    leads.filter(([, cell]) => cell.cross < c).at(-1)?.[0];
+  const groupOf = new Map<number, number>();
+  crosses.forEach((c, k) => {
+    const before = crosses[k - 1];
+    const last = before === undefined ? 0 : (groupOf.get(before) ?? 0);
+    groupOf.set(c, before !== undefined && (!headed || anchorOf(c) !== anchorOf(before)) ? last + 1 : last);
+  });
+  const row = (c: number) => `g${(groupOf.get(c) ?? 0) + 1}.${crosses.indexOf(c) + 1}`;
   const widths = new Map<number, number>();
   for (const [id, cell] of at) widths.set(cell.col, Math.max(widths.get(cell.col) ?? 0, boxes.get(id)?.w ?? 0));
   const metrics = graphMetrics(m.subtitle ? FIRST_ROW.subtitle : FIRST_ROW.title, 0);
@@ -89,18 +101,14 @@ export function columnsGrid(
       ...metrics,
       firstRowY: metrics.firstRowY + (headed ? HEAD.room : 0),
       colGap: HEAD.colGap([...lines.texts, ...lines.verbs.map((v) => ({ edge: v.left, name: v.text }))], lines.forks),
-      subColGap: HEAD.colGap(
-        [...lines.texts, ...lines.verbs.map((v) => ({ edge: v.left, name: v.text }))],
-        lines.forks,
-      ),
+      subColGap: HEAD.rowGap,
       rowGap: HEAD.rowGap,
       indent,
     },
     heads: headed
       ? types.map((t, k) => ({
           col: `k${k + 1}`,
-          text: (m.types.get(t)?.label[locale] ?? t).toUpperCase(),
-          tone: tones.get(t) ?? 'slate',
+          text: m.types.get(t)?.label[locale] ?? t,
         }))
       : [],
   };

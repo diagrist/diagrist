@@ -407,10 +407,12 @@ says its verb once between the two heads on an arrow, and the lines are silent; 
 still says it on its line. The items of a column are as wide as its widest, so the columns read as a table, and
 lines that join two items into one share a trunk as forks do.
 
-Graph pictures have a lighter look of their own. The items carry the picture: white, a light grey border with
-round corners, the name dark and the entries grey. In columns, a narrow bar inside each item and the head of its
-column take a muted tone of its type, from `blue`, `amber`, `teal`, `plum` and `slate`. A type picks one with
-`tone=`, else the columns take them in that order. The lines step back in a mid grey with small heads, the heads
-of the columns are small, spaced capitals, and there is more room between rows and inside the items. Pictures of
-one type stay grey, since a single tone would say nothing. Colour here names the type, which the head of the
-column explains, so it needs no legend.
+Graph pictures have a lighter look of their own, which leads the eye by contrast and proximity rather than by
+lines. The owner rejected a first try with coloured bars and spaced capitals: composition, hierarchy and contrast
+make a picture readable, not more strokes. All texts are in the sans face. In columns, the first column tells the
+story and stands as bare, strong text at the start of its rows. The other columns are cards without a border, in a
+pale tint of their type from `blue`, `amber`, `teal`, `plum` and `slate`, which a type picks with `tone=`. The heads
+above them are small and grey, the verbs between the heads lighter still, and the lines a light grey with small
+heads. The rows that follow one item of the first column stand close, and the usual room parts them from the next,
+so the stories group without a line. A name with entries below it is a heading in the semibold face. Pictures of
+one type stay white and grey.

@@ -1,25 +1,25 @@
 /**
- * The colours of graph pictures: greys that let the items carry the picture and the lines step back, and a few
- * muted tones, one per type, for the bar on its items and the head of its column. A tone has a light shade for
- * bars and rules and a dark one for text, so heads stay readable.
+ * The colours of graph pictures: greys that order the picture by contrast, the names darkest, entries, heads and
+ * lines lighter, and per type one pale tint for the cards of its items, so a column reads as one without a frame.
  */
 export const INK = {
   name: '#18181b',
+  text: '#3f3f46',
   muted: '#71717a',
-  line: '#a1a1aa',
+  quiet: '#a1a1aa',
+  line: '#b4b4bc',
   border: '#d4d4d8',
-  hairline: '#e4e4e7',
   fill: '#ffffff',
   soft: '#f4f4f5',
 } as const;
 
 /** The tones a type may take with `tone=`, in the order columns take them when a type names none. */
 export const TYPE_TONES = {
-  blue: { bar: '#6b8fc7', text: '#3d5f94' },
-  amber: { bar: '#d9a441', text: '#8f6416' },
-  teal: { bar: '#5aa596', text: '#2f6f63' },
-  plum: { bar: '#a47aa8', text: '#6d4672' },
-  slate: { bar: '#8794a3', text: '#4a5563' },
+  blue: { tint: '#eaf0f8' },
+  amber: { tint: '#f8f0e1' },
+  teal: { tint: '#e6f2ef' },
+  plum: { tint: '#f3ecf4' },
+  slate: { tint: '#edeff2' },
 } as const;
 
 /** A name of `TYPE_TONES`. */

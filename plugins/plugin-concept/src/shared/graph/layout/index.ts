@@ -14,7 +14,7 @@ import type { LinkDecl, TypeDecl } from '../../declarations.js';
 import type { Graph, GraphWords, Item, Relation } from '../model.js';
 import type { TypeTone } from '../palette.js';
 import { tonesOf } from './columns.js';
-import { type PlacedHead, type PlacedVerb, placeHeads } from './heads.js';
+import { type PlacedHead, placeHeads } from './heads.js';
 import { GRAPH_FONTS as F, type ItemBox } from './metrics.js';
 import { drawn, edgeId, graphGrid } from './spec.js';
 
@@ -52,7 +52,7 @@ export interface GraphLayout {
   /** The heads above the columns, each centred on its column with a rule as wide as the column below it. */
   readonly heads: readonly PlacedHead[];
   /** The verbs between the heads, each standing for every line between its two columns. */
-  readonly verbs: readonly PlacedVerb[];
+  readonly verbs: readonly PlacedHead[];
   readonly width: number;
   readonly height: number;
   readonly placed: readonly Placed[];
@@ -106,7 +106,7 @@ export function layoutGraph(
 ): GraphLayout {
   const { spec, boxes, grid, routes, labels, heads: named, verbs } = placed(m, locale, options.heads);
   const fitted = fitFrames(spec, grid, routes, labels);
-  const row = placeHeads(fitted, named, verbs, m.links);
+  const row = placeHeads(fitted, named, verbs);
   const heads = row.heads;
   const byId = new Map(m.items.map((i) => [i.id, i]));
   const tones = tonesOf(m);

@@ -42,31 +42,31 @@ const LINE_ROLES: Readonly<Record<string, RoleStyle>> = Object.fromEntries(
   ),
 );
 
-/** Roles of a tone: the bar on an item, the head of a column and the rule below it. */
+/** The card of an item in the tone of its type. */
 const TONE_ROLES: Readonly<Record<string, RoleStyle>> = Object.fromEntries(
-  TYPE_TONE_NAMES.flatMap((t) => [
-    [`bar-${t}`, one(`g-bar-${t}`)],
-    [`head-${t}`, one(`g-head-${t}`)],
-    [`headRule-${t}`, one(`g-head-rule-${t}`)],
-  ]),
+  TYPE_TONE_NAMES.map((t) => [`card-${t}`, one(`g-card-${t}`)]),
 );
 
 const ROLES: Readonly<Record<string, RoleStyle>> = {
   ...PART_ROLES,
   ...LINE_ROLES,
   ...TONE_ROLES,
+  title: one('g-title'),
+  subtitle: one('g-subtitle'),
   item: one('g-item'),
   itemPlanned: one('g-item', 'g-dashed'),
   itemDeprecated: one('g-item-muted', 'g-dashed'),
   itemDetail: one('g-detail'),
   itemRule: one('g-rule'),
   name: one('g-name'),
+  lead: one('g-lead'),
+  heading: one('g-heading'),
   entry: one('g-entry'),
   edgeLabel: one('g-label', 'halo'),
   head: one('g-head'),
-  verb: one('g-label'),
-  headRule: one('g-head-rule'),
-  legendRule: one('g-head-rule'),
+  verb: one('g-verb'),
+  legendRule: one('g-rule'),
+  legendText: one('g-entry'),
 };
 
 /** Heads of the lines in their grey, smaller than the standard ones; hollow heads filled with the canvas. */
@@ -77,39 +77,37 @@ const MARKERS: readonly Marker[] = [
   { id: 'g-diamond', shape: MARKER_SHAPES.diamond, name: 'g-arrow-hollow' },
 ];
 
-const head = (paint: string) => textRule(`fill: ${paint};`, F.head);
-
 /**
- * The style table of graph pictures. The items carry the picture: white with a light border and the name dark,
- * entries in grey, a bar in the tone of their type. The lines step back in a mid grey with small heads, and the head
- * row orders it all with the names of the types, small and spaced, in the dark shade of their tone.
+ * The style table of graph pictures, in the sans face. Contrast leads the eye: the first column's names darkest and
+ * strongest, the cards of the other columns pale tints without a border and their names a step lighter, the heads
+ * and verbs above them quiet, and the lines a light grey with small heads that join without drawing attention.
  */
 export const GRAPH_STYLES: Styles = (() => {
   const base = standardStyles({
     roles: ROLES,
     rules: [
+      rule('g-title', textRule(`fill: ${INK.name};`, F.title)),
+      rule('g-subtitle', textRule(`fill: ${INK.muted};`, F.note)),
       rule('g-item', `fill: ${INK.fill}; stroke: ${INK.border}; stroke-width: 1;`),
-      rule('g-item-muted', `fill: ${INK.soft}; stroke: ${INK.line}; stroke-width: 1;`),
-      rule('g-detail', `fill: none; stroke: ${INK.line}; stroke-width: 1.25;`),
-      rule('g-rule', `fill: none; stroke: ${INK.hairline}; stroke-width: 1;`),
-      rule('g-name', textRule(`fill: ${INK.name};`, F.name)),
+      rule('g-item-muted', `fill: ${INK.soft}; stroke: ${INK.quiet}; stroke-width: 1;`),
+      rule('g-detail', `fill: none; stroke: ${INK.quiet}; stroke-width: 1;`),
+      rule('g-rule', `fill: none; stroke: ${INK.border}; stroke-width: 1;`),
+      rule('g-name', textRule(`fill: ${INK.text};`, F.name)),
+      rule('g-lead', textRule(`fill: ${INK.name};`, F.lead)),
+      rule('g-heading', textRule(`fill: ${INK.name};`, F.heading)),
       rule('g-entry', textRule(`fill: ${INK.muted};`, F.entry)),
       rule('g-label', textRule(`fill: ${INK.muted};`, F.label)),
-      rule('g-line', `fill: none; stroke: ${INK.line}; stroke-width: 1.25;`),
+      rule('g-head', textRule(`fill: ${INK.muted};`, F.head)),
+      rule('g-verb', textRule(`fill: ${INK.quiet};`, F.label)),
+      rule('g-line', `fill: none; stroke: ${INK.line}; stroke-width: 1;`),
       rule('g-dashed', 'stroke-dasharray: 5 4;'),
       rule('g-dotted', 'stroke-dasharray: 1.5 3; stroke-linecap: round;'),
       rule('g-arrow', `fill: ${INK.line}; stroke: none;`, true),
-      rule('g-arrow-open', `fill: none; stroke: ${INK.line}; stroke-width: 1.25;`, true),
-      rule('g-arrow-hollow', `fill: ${INK.fill}; stroke: ${INK.line}; stroke-width: 1.25;`, true),
-      rule('g-head', head(INK.muted)),
-      rule('g-head-rule', `fill: none; stroke: ${INK.border}; stroke-width: 1;`),
-      ...TYPE_TONE_NAMES.flatMap((t) => [
-        rule(`g-bar-${t}`, `fill: ${TYPE_TONES[t].bar}; stroke: none;`),
-        rule(`g-head-${t}`, head(TYPE_TONES[t].text)),
-        rule(`g-head-rule-${t}`, `fill: none; stroke: ${TYPE_TONES[t].bar}; stroke-width: 2;`),
-      ]),
+      rule('g-arrow-open', `fill: none; stroke: ${INK.line}; stroke-width: 1;`, true),
+      rule('g-arrow-hollow', `fill: ${INK.fill}; stroke: ${INK.line}; stroke-width: 1;`, true),
+      ...TYPE_TONE_NAMES.map((t) => rule(`g-card-${t}`, `fill: ${TYPE_TONES[t].tint}; stroke: none;`)),
     ],
     fonts: F,
   });
-  return { ...base, markerSize: 9, markers: [...base.markers, ...MARKERS] };
+  return { ...base, markerSize: 8, markers: [...base.markers, ...MARKERS] };
 })();

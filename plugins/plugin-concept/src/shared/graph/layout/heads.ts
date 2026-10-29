@@ -1,62 +1,43 @@
-import type { Placed, Rect } from '@diagrist/core';
-import { textWidth } from '@diagrist/core';
+import { type Placed, type Rect, textWidth } from '@diagrist/core';
 import type { GridLayout } from '@diagrist/layout-grid';
-import type { LinkDecl } from '../../declarations.js';
-import type { TypeTone } from '../palette.js';
 import type { ColumnHead, ColumnVerb } from './edges.js';
-import { GRAPH_FONTS as F } from './metrics.js';
+import { GRAPH_FONTS as F, ITEM } from './metrics.js';
 
-/** A head above a column: its text centred at `x` on the baseline `y`, and the rule below it from `x1` to `x2`. */
+/** A text of the head row: where it starts or is centred, its baseline, and the box it covers. */
 export interface PlacedHead {
-  /** The tone of the type a head names; a verb has none. */
-  readonly tone?: TypeTone;
   readonly text: string;
   readonly x: number;
   readonly y: number;
-  readonly rule: { readonly x1: number; readonly x2: number; readonly y: number };
+  readonly anchor: 'start' | 'middle';
   readonly rect: Rect;
 }
 
-/** A verb of the head row: its text centred between two heads, and an arrow in the look of its link below it. */
-export interface PlacedVerb extends PlacedHead {
-  readonly link: LinkDecl;
-}
-
-/** Baselines and rule of the head row above the first row of items. */
-const ROW = { text: 18, rule: 10, top: 29, h: 14, inset: 10 } as const;
+/** How far above the first row of items the head row stands. */
+const ROW = { baseline: 16, top: 27, h: 14 } as const;
 
 /**
- * The head row of a picture in columns: each head centred on its column with a rule as wide as the column, and
- * between two heads the verb all their lines share, on an arrow that joins the two rules.
+ * The head row of a picture in columns: each head where the texts of its column start, the first column's at its
+ * edge, since it leads with bare text; and between two heads, quieter, the verb all their lines share.
  */
 export function placeHeads(
   fitted: GridLayout,
   heads: readonly ColumnHead[],
   verbs: readonly ColumnVerb[],
-  links: ReadonlyMap<string, LinkDecl>,
-): { readonly heads: PlacedHead[]; readonly verbs: PlacedVerb[]; readonly placed: Placed[] } {
+): { readonly heads: PlacedHead[]; readonly verbs: PlacedHead[]; readonly placed: Placed[] } {
   const top = fitted.rows[0]?.y ?? 0;
-  const at = (text: string, x: number, x1: number, x2: number, font: typeof F.head | typeof F.label) => {
+  const at = (text: string, x: number, anchor: 'start' | 'middle', font: typeof F.head): PlacedHead => {
     const w = textWidth(text, font);
-    return {
-      text,
-      x,
-      y: top - ROW.text,
-      rule: { x1, x2, y: top - ROW.rule },
-      rect: { x: x - w / 2, y: top - ROW.top, w, h: ROW.h },
-    };
+    const left = anchor === 'middle' ? x - w / 2 : x;
+    return { text, x, y: top - ROW.baseline, anchor, rect: { x: left, y: top - ROW.top, w, h: ROW.h } };
   };
   const col = (name: string) => fitted.cols.find((c) => c.name === name);
-  const placedHeads = heads.flatMap((h): PlacedHead[] => {
+  const placedHeads = heads.flatMap((h, k): PlacedHead[] => {
     const c = col(h.col);
-    return c ? [{ ...at(h.text, c.x + c.w / 2, c.x, c.x + c.w, F.head), tone: h.tone }] : [];
+    return c ? [at(h.text, c.x + (k === 0 ? 0 : ITEM.padX), 'start', F.head)] : [];
   });
-  const placedVerbs = verbs.flatMap((v): PlacedVerb[] => {
-    const [a, b, link] = [col(v.left), col(v.right), links.get(v.link)];
-    if (!a || !b || !link) return [];
-    const x1 = a.x + a.w + ROW.inset;
-    const x2 = b.x - ROW.inset;
-    return [{ ...at(v.text, (x1 + x2) / 2, x1, x2, F.label), link }];
+  const placedVerbs = verbs.flatMap((v): PlacedHead[] => {
+    const [a, b] = [col(v.left), col(v.right)];
+    return a && b ? [at(v.text, (a.x + a.w + b.x) / 2, 'middle', F.label)] : [];
   });
   return {
     heads: placedHeads,
