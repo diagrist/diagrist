@@ -1,5 +1,9 @@
 import type { APIRoute } from 'astro';
-import skill from '../../../../skills/diagrist/SKILL.md?raw';
+import { markdown, skillFiles } from '../lib/skill.js';
 
-/** The agent skill as `tools/docs` generates it, to download into an agent's skills folder. */
-export const GET: APIRoute = () => new Response(skill, { headers: { 'Content-Type': 'text/markdown; charset=utf-8' } });
+/**
+ * The entry of the agent skill at its old address. Its links point into `/skill/`, where the other files of the
+ * folder are; the whole folder is installed as `docs/agents` describes.
+ */
+export const GET: APIRoute = () =>
+  markdown((skillFiles.get('SKILL.md') ?? '').replace(/\]\((?![a-z]+:|\/|#)([^)]+)\)/g, '](/skill/$1)'));

@@ -48,12 +48,19 @@ so a tool does not have to parse text:
 
 ## The agent skill
 
-The skill tells an agent how to work with Diagrist and holds a short reference of every kind. It is at
-[/skill.md](/skill.md); put it where your agent looks for skills, for Claude Code for example:
+The skill is a folder. `SKILL.md` tells an agent how to work with Diagrist and what to read when. Guides written
+by hand say what makes a picture good, which kind answers which question, how to show a core and its extensions
+with areas, and what to look at before handing a picture over. A generated reference holds every kind, the
+language and the codes, one file each, so an agent reads only the kind it draws. The guides' examples are
+checked by the tests, and the reference comes from the same tables as `dgr`.
+
+Read it at [/skill.md](/skill.md). To install the whole folder where your agent looks for skills, for Claude Code
+for example:
 
 ```sh
-mkdir -p .claude/skills/diagrist
-curl -o .claude/skills/diagrist/SKILL.md https://diagrist.com/skill.md
+mkdir -p .claude/skills
+curl -sL https://codeload.github.com/diagrist/diagrist/tar.gz/main \
+  | tar -xz -C .claude/skills --strip-components=2 diagrist-main/skills/diagrist
 ```
 
 ## The docs as text

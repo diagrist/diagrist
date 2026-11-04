@@ -3,7 +3,7 @@ import { GRAMMAR_SCHEMA } from '@diagrist/lang';
 import { type Command, SCHEMA_PATH } from 'diagrist/tables';
 import { languageOverview, OVERVIEW_PATH } from './overview.js';
 import { REFERENCE_PATH, reference } from './reference.js';
-import { agentSkill, SKILL_PATH } from './skill.js';
+import { skillReference } from './skill.js';
 import { languageSpec, specPath } from './spec.js';
 
 /** A checked-in file derived from the tables, by its path relative to the repository root. */
@@ -27,7 +27,7 @@ export function derivedFiles(plugins: readonly Plugin[], commands: readonly Comm
     ...plugins.flatMap((plugin) =>
       plugin.kinds.map((kind) => ({ path: specPath(kind.spec.name), content: languageSpec(kind, plugin.name) })),
     ),
-    { path: SKILL_PATH, content: agentSkill(plugins, commands) },
+    ...skillReference(plugins, commands),
   ];
 }
 

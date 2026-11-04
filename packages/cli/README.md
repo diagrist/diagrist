@@ -48,6 +48,6 @@ The [command reference](https://github.com/diagrist/diagrist/blob/main/docs/cli.
 and JSON field. The [language pages](https://github.com/diagrist/diagrist/blob/main/docs/language/README.md)
 describe each kind with its statements, examples and diagnostic codes. An
 [agent skill](https://github.com/diagrist/diagrist/blob/main/skills/diagrist/SKILL.md) teaches coding agents the
-workflow. The source and the issue tracker are at [diagrist/diagrist](https://github.com/diagrist/diagrist).
+workflow and what makes a picture good. The source and the issue tracker are at [diagrist/diagrist](https://github.com/diagrist/diagrist).
 
 Diagrist is licensed under Apache-2.0. The bundled fonts and icons come with their own licences, listed in `NOTICE`.
