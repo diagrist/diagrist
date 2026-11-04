@@ -9,7 +9,7 @@ This page lists everything a `usecase` diagram may contain. The same grammar is 
 ## The first line
 
 ```text
-diagram usecase "Title" [subtitle=<text>] [look=<plain|cards>] [direction=<down|right>] [locale=<en|de>]
+diagram usecase "Title" [subtitle=<text>] [look=<plain|cards>] [direction=<down|right>] [areas=<tint|outline|stripe>] [locale=<en|de>]
 ```
 
 Every usecase diagram starts with this line.
@@ -19,6 +19,7 @@ Every usecase diagram starts with this line.
 | `subtitle=` | attribute | a text in double quotes like `"Order service"` | Second line below the title. |
 | `look=` | attribute | one of `plain`, `cards` | `plain` (default) draws the UML notation, `cards` the same layout with toned outlines and areas. |
 | `direction=` | attribute | one of `down`, `right` | Several subjects: `right` side by side, `down` one below the other. Without it they stand below each other, unless an actor works in more than one or the picture would grow too tall; then side by side, more than three in rows of a grid, if that crosses no more lines. With fewer than two subjects it has no effect. |
+| `areas=` | attribute | one of `tint`, `outline`, `stripe` | How elements of a coloured area are painted: `tint` (default) a light fill and the outline in its tone, `outline` the outline and the name in its tone, `stripe` a stripe of its tone at the left edge. Lines and frames of an area are drawn in its tone in each. |
 | `locale=` | attribute | one of `en`, `de` | Language of the texts Diagrist adds to the picture and of the description: `en` (default) or `de`. |
 
 Example:
@@ -39,11 +40,12 @@ Each statement is one line that starts with its keyword. Statements inside block
 | [`rel`](#rel) | top level | A relation, read from `from` to `to`. |
 | [`note`](#note) | top level | A comment on an actor, a use case or a subject: a box with a folded corner at a free spot nearby, joined to it by a dashed line. |
 | [`adr`](#adr) | top level | An architecture decision in the bar below the picture: question, the chosen option after `=`, and the consequence after `=>`. |
+| [`area`](#area) | top level | A named area of the picture, such as the core or one extension of an extensible architecture. |
 
 ### `actor`
 
 ```text
-actor <id> <label> [kind=<person|system>] [side=<left|right>] [tone=<choice>] [mark=<ref>] [emph]
+actor <id> <label> [kind=<person|system>] [side=<left|right>] [tone=<choice>] [mark=<ref>] [area=<ref>] [emph]
 ```
 
 An actor: a role outside every subject, drawn as a stick figure with the role below it or, with `kind=system`, as a box with `«actor»` for another system. It has no `in`: actors stand outside the subject. Diagrist puts it left or right of its use cases. UML 2.5.1: 18.1.3.1 Actor.
@@ -58,6 +60,7 @@ Written at the top level.
 | `side=` | attribute | one of `left`, `right` | Side of the subject the actor stands on; without it Diagrist chooses. |
 | `tone=` | attribute | one of `blue`, `indigo`, `purple`, `maroon`, `green`, `teal`, `slate`, `red`, `orange`, `peach`, `sky` | Colour of the figure or box in `look=cards`; without it slate. |
 | `mark=` | attribute | the id of an `adr` declared in this diagram | Id of a decision of the decision bar, such as `E1`; the mark is drawn beside it. |
+| `area=` | attribute | the id of an `area` declared in this diagram | The area it belongs to, declared with `area`, whose tone paints it. Members of a frame take the area of the frame unless they name their own. |
 | `emph` | flag |  | Highlights it in the accent colour. |
 
 Examples:
@@ -70,7 +73,7 @@ actor psp "Payment provider" kind=system side=right
 ### `subject`
 
 ```text
-subject <id> <label> [tone=<choice>]
+subject <id> <label> [tone=<choice>] [area=<ref>]
 ```
 
 A subject: the system the use cases belong to, drawn as a rectangle with its name at the top left around the use cases `in` it. UML 2.5.1: 18.1.3.1 Subject a use case applies to.
@@ -82,6 +85,7 @@ Written at the top level.
 | `<id>` | argument | an identifier like `api` (letters, digits, `_` and `-`, starting with a letter) | Id that `usecase ... in` and `note ... on` use for this subject. |
 | `<label>` | argument | a text in double quotes like `"Order service"` | Name of the system. |
 | `tone=` | attribute | one of `blue`, `indigo`, `purple`, `maroon`, `green`, `teal`, `slate`, `red`, `orange`, `peach`, `sky` | Colour of its area in `look=cards`; without it slate. |
+| `area=` | attribute | the id of an `area` declared in this diagram | The area it belongs to, declared with `area`, whose tone paints it. Members of a frame take the area of the frame unless they name their own. |
 
 Example:
 
@@ -92,7 +96,7 @@ subject shop "Online shop"
 ### `usecase`
 
 ```text
-usecase <id> <label> [in <ref>] [points=<text>] [form=<ellipse|classifier>] [stereotype=<text>] [tone=<choice>] [mark=<ref>] [emph]
+usecase <id> <label> [in <ref>] [points=<text>] [form=<ellipse|classifier>] [stereotype=<text>] [tone=<choice>] [mark=<ref>] [area=<ref>] [emph]
 ```
 
 A use case: an ellipse as large as its name inside the subject `in`; names over 18 characters wrap. `points=` lists extension points in a compartment, which `extend` names with `at=`. `form=classifier` draws a rectangle with a small ellipse instead. Diagrist places use cases in columns: included and extending cases right of their base, a special case below its general one. UML 2.5.1: 18.1.3.1 Use case.
@@ -109,6 +113,7 @@ Written at the top level.
 | `stereotype=` | attribute | a text in double quotes like `"Order service"` | Stereotype above the name, written without guillemets: `batch` shows `«batch»`. UML 2.5.1: 18.1.4 Keyword or stereotype above a use case. |
 | `tone=` | attribute | one of `blue`, `indigo`, `purple`, `maroon`, `green`, `teal`, `slate`, `red`, `orange`, `peach`, `sky` | Colour of the outline in `look=cards`; without it slate. |
 | `mark=` | attribute | the id of an `adr` declared in this diagram | Id of a decision of the decision bar, such as `E1`; the mark is drawn beside it. |
+| `area=` | attribute | the id of an `area` declared in this diagram | The area it belongs to, declared with `area`, whose tone paints it. Members of a frame take the area of the frame unless they name their own. |
 | `emph` | flag |  | Highlights it in the accent colour. |
 
 Example:
@@ -120,7 +125,7 @@ usecase order "Place order" in shop points="before checkout"
 ### `rel`
 
 ```text
-rel <from> <arrow> <to> [label] [source=<multiplicity>] [card=<multiplicity>] [when=<text>] [at=<text>] [include] [extend] [emph]
+rel <from> <arrow> <to> [label] [area=<ref>] [source=<multiplicity>] [card=<multiplicity>] [when=<text>] [at=<text>] [include] [extend] [emph]
 ```
 
 A relation, read from `from` to `to`. `a -- b` is an association between an actor and a use case, with multiplicities `source=` at `a` and `card=` at `b`. `a -|> b` is a generalization: `a` is a special kind of `b`, both actors or both use cases. `a --> b include` means `a` always includes `b`; `a --> b extend` means `a` extends `b` under the condition `when=` at the extension points `at=` of `b`, shown in a note on the line. Lines run straight from outline to outline.
@@ -133,6 +138,7 @@ Written at the top level.
 | `<arrow>` | argument | one of the arrows `--` association between an actor and a use case, `-\|>` generalization from the special to the general actor or use case, hollow triangle at the general one, `-->` include or extend between two use cases, dashed with an open head; needs the flag `include` or `extend` | What kind of relation it is. UML 2.5.1: `--` 18.1.3.1 Association of an actor with a use case; `-\|>` 9.2.3.2 Generalization between actors or between use cases. |
 | `<to>` | argument | the id of an `actor` or `usecase` declared in this diagram | Actor or use case the relation points to. |
 | `[label]` | optional argument | a text in double quotes like `"Order service"` | Name of the relation, shown at the middle of the line. |
+| `area=` | attribute | the id of an `area` declared in this diagram | The area the line belongs to, declared with `area`. Without it the line takes the coloured area of its first end, else that of its second, so a line between an extension and the core belongs to the extension. |
 | `source=` | attribute | a UML multiplicity like `1`, `0..1`, `1..*` or `*`, the lower bound not above the upper one | Multiplicity at `from`, on an association only. UML 2.5.1: 18.1.3.1 Multiplicity at an end of that association. |
 | `card=` | attribute | a UML multiplicity like `1`, `0..1`, `1..*` or `*`, the lower bound not above the upper one | Multiplicity at `to`, on an association only. UML 2.5.1: 18.1.3.1 Multiplicity at an end of that association. |
 | `when=` | attribute | a text in double quotes like `"Order service"` | Condition of an `extend`, written without braces: Diagrist shows `{condition}` in a note. UML 2.5.1: 18.1.3.2 Condition of an extend, 18.1.4 Condition and extension points in a note on the extend. |
@@ -203,6 +209,29 @@ Example:
 
 ```dgr
 adr E1 "How do the services coordinate?" = "Events over Kafka" => "No central coordinator"
+```
+
+### `area`
+
+```text
+area <id> <label> [tone=<choice>]
+```
+
+A named area of the picture, such as the core or one extension of an extensible architecture. Elements, frames and lines join it with `area=` and are painted in its tone, and the legend names it. An area without a tone stays in ink, as a core does.
+
+Written at the top level.
+
+| Part | Kind | Value | Meaning |
+|---|---|---|---|
+| `<id>` | argument | an identifier like `api` (letters, digits, `_` and `-`, starting with a letter) | Id that `area=` of elements, frames and lines names. |
+| `<label>` | argument | a text in double quotes like `"Order service"` | Name of the area in the legend. |
+| `tone=` | attribute | one of `green`, `orange`, `purple`, `red`, `yellow`, `teal`, `pink`, `sky` | Colour of the area. Two areas of one picture take different tones; without one the area stays in ink. |
+
+Examples:
+
+```dgr
+area kern "Kern"
+area zahlung "Zahlungen" tone=green
 ```
 
 ## Diagnostic codes

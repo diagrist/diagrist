@@ -9,7 +9,7 @@ This page lists everything a `state` diagram may contain. The same grammar is av
 ## The first line
 
 ```text
-diagram state "Title" [subtitle=<text>] [look=<plain|cards>] [direction=<down|right>] [locale=<en|de>]
+diagram state "Title" [subtitle=<text>] [look=<plain|cards>] [direction=<down|right>] [areas=<tint|outline|stripe>] [locale=<en|de>]
 ```
 
 Every state diagram starts with this line.
@@ -19,6 +19,7 @@ Every state diagram starts with this line.
 | `subtitle=` | attribute | a text in double quotes like `"Order service"` | Second line below the title. |
 | `look=` | attribute | one of `plain`, `cards` | `plain` (default) draws the UML notation, `cards` the same layout with states as cards with a toned name field. |
 | `direction=` | attribute | one of `down`, `right` | `down` (default) lays the flow out from top to bottom, `right` from left to right. |
+| `areas=` | attribute | one of `tint`, `outline`, `stripe` | How elements of a coloured area are painted: `tint` (default) a light fill and the outline in its tone, `outline` the outline and the name in its tone, `stripe` a stripe of its tone at the left edge. Lines and frames of an area are drawn in its tone in each. |
 | `locale=` | attribute | one of `en`, `de` | Language of the texts Diagrist adds to the picture and of the description: `en` (default) or `de`. |
 
 Example:
@@ -49,11 +50,12 @@ Each statement is one line that starts with its keyword. Statements inside block
 | [`internal`](#internal) | top level | An internal transition: a line `trigger [guard] / effect` in the compartment of its state. |
 | [`note`](#note) | top level | A comment on a vertex: a dashed box above it with a tip down to it, below it when lines run above. |
 | [`adr`](#adr) | top level | An architecture decision in the bar below the picture: question, the chosen option after `=`, and the consequence after `=>`. |
+| [`area`](#area) | top level | A named area of the picture, such as the core or one extension of an extensible architecture. |
 
 ### `state`
 
 ```text
-state <id> <label> [in <ref>] [entry=<text>] [do=<text>] [exit=<text>] [defer=<text>] [submachine=<text>] [file=<text>] [tone=<choice>] [mark=<ref>] [emph]
+state <id> <label> [in <ref>] [entry=<text>] [do=<text>] [exit=<text>] [defer=<text>] [submachine=<text>] [file=<text>] [tone=<choice>] [mark=<ref>] [area=<ref>] [emph]
 ```
 
 A state: a rounded box with the name, below it a compartment with `entry`, `do` and `exit`, deferred events and internal transitions. A state with vertices `in` it is a composite state, drawn as a frame around them; with `submachine=` it calls another state machine. Diagrist lays states out in layers from the initial pseudostate to the final state. UML 2.5.1: 14.2.3.4 Simple state.
@@ -73,6 +75,7 @@ Written at the top level.
 | `file=` | attribute | a text in double quotes like `"Order service"` | File of the called state machine, relative to this one; named in the description, not checked yet. |
 | `tone=` | attribute | one of `blue`, `indigo`, `purple`, `maroon`, `green`, `teal`, `slate`, `red`, `orange`, `peach`, `sky` | Colour of the name field in `look=cards`; without it slate. |
 | `mark=` | attribute | the id of an `adr` declared in this diagram | Id of a decision of the decision bar, such as `E1`; the mark is drawn beside it. |
+| `area=` | attribute | the id of an `area` declared in this diagram | The area it belongs to, declared with `area`, whose tone paints it. Members of a frame take the area of the frame unless they name their own. |
 | `emph` | flag |  | Highlights the state in the accent colour. |
 
 Examples:
@@ -85,7 +88,7 @@ state check "Check" submachine="Credit check"
 ### `initial`
 
 ```text
-initial <id> [label] [in <ref>]
+initial <id> [label] [in <ref>] [area=<ref>]
 ```
 
 The initial pseudostate: a filled circle. Each region, the top level included, has at most one; its transition has neither trigger nor guard. UML 2.5.1: 14.2.3 Initial pseudostate.
@@ -97,6 +100,7 @@ Written at the top level.
 | `<id>` | argument | an identifier like `api` (letters, digits, `_` and `-`, starting with a letter) | Id that `go` uses for this vertex. |
 | `[label]` | optional argument | a text in double quotes like `"Order service"` | Name shown small beside the symbol. |
 | `in <ref>` | clause | the id of a `state` or `region` declared in this diagram | The composite state or the region the vertex lies in; without it, the vertex stands at the top level. UML 2.5.1: 14.2.3.4 Composite state with substates. |
+| `area=` | attribute | the id of an `area` declared in this diagram | The area it belongs to, declared with `area`, whose tone paints it. Members of a frame take the area of the frame unless they name their own. |
 
 Example:
 
@@ -107,7 +111,7 @@ initial start
 ### `final`
 
 ```text
-final <id> [label] [in <ref>]
+final <id> [label] [in <ref>] [area=<ref>]
 ```
 
 A final state: a circle with a dot. No transition leaves it. Diagrist puts final states into the last layer. UML 2.5.1: 14.2.3 Final state.
@@ -119,6 +123,7 @@ Written at the top level.
 | `<id>` | argument | an identifier like `api` (letters, digits, `_` and `-`, starting with a letter) | Id that `go` uses for this vertex. |
 | `[label]` | optional argument | a text in double quotes like `"Order service"` | Name shown small beside the symbol. |
 | `in <ref>` | clause | the id of a `state` or `region` declared in this diagram | The composite state or the region the vertex lies in; without it, the vertex stands at the top level. UML 2.5.1: 14.2.3.4 Composite state with substates. |
+| `area=` | attribute | the id of an `area` declared in this diagram | The area it belongs to, declared with `area`, whose tone paints it. Members of a frame take the area of the frame unless they name their own. |
 
 Example:
 
@@ -129,7 +134,7 @@ final end
 ### `choice`
 
 ```text
-choice <id> [label] [in <ref>]
+choice <id> [label] [in <ref>] [area=<ref>]
 ```
 
 A choice pseudostate: a diamond. Its outgoing transitions carry guards, one of them `when=else`. UML 2.5.1: 14.2.3 Choice pseudostate.
@@ -141,6 +146,7 @@ Written at the top level.
 | `<id>` | argument | an identifier like `api` (letters, digits, `_` and `-`, starting with a letter) | Id that `go` uses for this vertex. |
 | `[label]` | optional argument | a text in double quotes like `"Order service"` | Name shown small beside the symbol. |
 | `in <ref>` | clause | the id of a `state` or `region` declared in this diagram | The composite state or the region the vertex lies in; without it, the vertex stands at the top level. UML 2.5.1: 14.2.3.4 Composite state with substates. |
+| `area=` | attribute | the id of an `area` declared in this diagram | The area it belongs to, declared with `area`, whose tone paints it. Members of a frame take the area of the frame unless they name their own. |
 
 Example:
 
@@ -151,7 +157,7 @@ choice paid
 ### `junction`
 
 ```text
-junction <id> [label] [in <ref>]
+junction <id> [label] [in <ref>] [area=<ref>]
 ```
 
 A junction pseudostate: a small filled circle that joins or splits transitions without a decision of its own. UML 2.5.1: 14.2.3 Junction pseudostate.
@@ -163,6 +169,7 @@ Written at the top level.
 | `<id>` | argument | an identifier like `api` (letters, digits, `_` and `-`, starting with a letter) | Id that `go` uses for this vertex. |
 | `[label]` | optional argument | a text in double quotes like `"Order service"` | Name shown small beside the symbol. |
 | `in <ref>` | clause | the id of a `state` or `region` declared in this diagram | The composite state or the region the vertex lies in; without it, the vertex stands at the top level. UML 2.5.1: 14.2.3.4 Composite state with substates. |
+| `area=` | attribute | the id of an `area` declared in this diagram | The area it belongs to, declared with `area`, whose tone paints it. Members of a frame take the area of the frame unless they name their own. |
 
 Example:
 
@@ -173,7 +180,7 @@ junction merge
 ### `history`
 
 ```text
-history <id> [label] [in <ref>] [deep]
+history <id> [label] [in <ref>] [area=<ref>] [deep]
 ```
 
 A history pseudostate inside a composite state: a circle with `H`, with `deep` `H*`. Entering it resumes the substate last active. UML 2.5.1: 14.2.3 Shallow and deep history pseudostates.
@@ -185,6 +192,7 @@ Written at the top level.
 | `<id>` | argument | an identifier like `api` (letters, digits, `_` and `-`, starting with a letter) | Id that `go` uses for this pseudostate. |
 | `[label]` | optional argument | a text in double quotes like `"Order service"` | Name shown small beside the symbol. |
 | `in <ref>` | clause | the id of a `state` or `region` declared in this diagram | The composite state or the region the vertex lies in; without it, the vertex stands at the top level. UML 2.5.1: 14.2.3.4 Composite state with substates. |
+| `area=` | attribute | the id of an `area` declared in this diagram | The area it belongs to, declared with `area`, whose tone paints it. Members of a frame take the area of the frame unless they name their own. |
 | `deep` | flag |  | Deep history: resumes the innermost substates too, drawn `H*`. |
 
 Example:
@@ -196,7 +204,7 @@ history resume in active deep
 ### `fork`
 
 ```text
-fork <id> [label] [in <ref>]
+fork <id> [label] [in <ref>] [area=<ref>]
 ```
 
 A fork pseudostate: a bar across the flow, from one incoming to several outgoing transitions into states, often into the regions of a state. UML 2.5.1: 14.2.3 Fork pseudostate.
@@ -208,6 +216,7 @@ Written at the top level.
 | `<id>` | argument | an identifier like `api` (letters, digits, `_` and `-`, starting with a letter) | Id that `go` uses for this vertex. |
 | `[label]` | optional argument | a text in double quotes like `"Order service"` | Name shown small beside the symbol. |
 | `in <ref>` | clause | the id of a `state` or `region` declared in this diagram | The composite state or the region the vertex lies in; without it, the vertex stands at the top level. UML 2.5.1: 14.2.3.4 Composite state with substates. |
+| `area=` | attribute | the id of an `area` declared in this diagram | The area it belongs to, declared with `area`, whose tone paints it. Members of a frame take the area of the frame unless they name their own. |
 
 Example:
 
@@ -218,7 +227,7 @@ fork split
 ### `join`
 
 ```text
-join <id> [label] [in <ref>]
+join <id> [label] [in <ref>] [area=<ref>]
 ```
 
 A join pseudostate: a bar across the flow that waits for all its incoming transitions from states. UML 2.5.1: 14.2.3 Join pseudostate.
@@ -230,6 +239,7 @@ Written at the top level.
 | `<id>` | argument | an identifier like `api` (letters, digits, `_` and `-`, starting with a letter) | Id that `go` uses for this vertex. |
 | `[label]` | optional argument | a text in double quotes like `"Order service"` | Name shown small beside the symbol. |
 | `in <ref>` | clause | the id of a `state` or `region` declared in this diagram | The composite state or the region the vertex lies in; without it, the vertex stands at the top level. UML 2.5.1: 14.2.3.4 Composite state with substates. |
+| `area=` | attribute | the id of an `area` declared in this diagram | The area it belongs to, declared with `area`, whose tone paints it. Members of a frame take the area of the frame unless they name their own. |
 
 Example:
 
@@ -240,7 +250,7 @@ join done
 ### `terminate`
 
 ```text
-terminate <id> [label] [in <ref>]
+terminate <id> [label] [in <ref>] [area=<ref>]
 ```
 
 A terminate pseudostate: a cross. The state machine ends at once. UML 2.5.1: 14.2.3 Terminate pseudostate.
@@ -252,6 +262,7 @@ Written at the top level.
 | `<id>` | argument | an identifier like `api` (letters, digits, `_` and `-`, starting with a letter) | Id that `go` uses for this vertex. |
 | `[label]` | optional argument | a text in double quotes like `"Order service"` | Name shown small beside the symbol. |
 | `in <ref>` | clause | the id of a `state` or `region` declared in this diagram | The composite state or the region the vertex lies in; without it, the vertex stands at the top level. UML 2.5.1: 14.2.3.4 Composite state with substates. |
+| `area=` | attribute | the id of an `area` declared in this diagram | The area it belongs to, declared with `area`, whose tone paints it. Members of a frame take the area of the frame unless they name their own. |
 
 Example:
 
@@ -262,7 +273,7 @@ terminate abort
 ### `entrypoint`
 
 ```text
-entrypoint <id> [label] [in <ref>]
+entrypoint <id> [label] [in <ref>] [area=<ref>]
 ```
 
 An entry point: a small circle on the border of its state. A transition from outside ends at it and continues inside; on a submachine state the way inside lies in the called machine. UML 2.5.1: 14.2.3 Entry point on the border of a state.
@@ -274,6 +285,7 @@ Written at the top level.
 | `<id>` | argument | an identifier like `api` (letters, digits, `_` and `-`, starting with a letter) | Id that `go` uses for this point. |
 | `[label]` | optional argument | a text in double quotes like `"Order service"` | Name shown small outside the circle. |
 | `in <ref>` | clause | the id of a `state` declared in this diagram | The composite or submachine state on whose border the point sits. Required. |
+| `area=` | attribute | the id of an `area` declared in this diagram | The area it belongs to, declared with `area`, whose tone paints it. Members of a frame take the area of the frame unless they name their own. |
 
 Example:
 
@@ -284,7 +296,7 @@ entrypoint fresh "New customer" in check
 ### `exitpoint`
 
 ```text
-exitpoint <id> [label] [in <ref>]
+exitpoint <id> [label] [in <ref>] [area=<ref>]
 ```
 
 An exit point: a small circle with a cross on the border of its state. A transition from inside ends at it and continues outside. UML 2.5.1: 14.2.3 Exit point on the border of a state.
@@ -296,6 +308,7 @@ Written at the top level.
 | `<id>` | argument | an identifier like `api` (letters, digits, `_` and `-`, starting with a letter) | Id that `go` uses for this point. |
 | `[label]` | optional argument | a text in double quotes like `"Order service"` | Name shown small outside the circle. |
 | `in <ref>` | clause | the id of a `state` declared in this diagram | The composite or submachine state on whose border the point sits. Required. |
+| `area=` | attribute | the id of an `area` declared in this diagram | The area it belongs to, declared with `area`, whose tone paints it. Members of a frame take the area of the frame unless they name their own. |
 
 Example:
 
@@ -306,7 +319,7 @@ exitpoint rejected "Rejected" in check
 ### `region`
 
 ```text
-region <id> [label] [in <ref>]
+region <id> [label] [in <ref>] [area=<ref>]
 ```
 
 An orthogonal region of a state: the regions of a state are active at the same time and stand side by side, separated by dashed lines, the name at the top left. Vertices come in with `in`; each region has its own initial pseudostate unless a fork enters it. UML 2.5.1: 14.2.3.2 Orthogonal regions of a state, separated by dashed lines.
@@ -318,6 +331,7 @@ Written at the top level.
 | `<id>` | argument | an identifier like `api` (letters, digits, `_` and `-`, starting with a letter) | Id that `in` uses for this region. |
 | `[label]` | optional argument | a text in double quotes like `"Order service"` | Name of the region, shown at its top left. |
 | `in <ref>` | clause | the id of a `state` declared in this diagram | The state the region belongs to. Required. |
+| `area=` | attribute | the id of an `area` declared in this diagram | The area it belongs to, declared with `area`, whose tone paints it. Members of a frame take the area of the frame unless they name their own. |
 
 Example:
 
@@ -328,7 +342,7 @@ region payment "Payment" in processing
 ### `go`
 
 ```text
-go <from> <arrow> <to> [on=<text>] [when=<text>] [do=<text>] [post=<text>] [emph]
+go <from> <arrow> <to> [on=<text>] [when=<text>] [do=<text>] [post=<text>] [area=<ref>] [emph]
 ```
 
 A transition from `from` to `to`, labelled `trigger [guard] / effect`; without all three it is a completion transition. `when=else` is the else branch of a choice. A transition of a state to itself is a loop at its freest corner. In a protocol state machine (`{protocol}` in the title) it reads `[precondition] operation / [postcondition]`. UML 2.5.1: 14.2.3.8 Transition with trigger, guard and effect, 14.2.3.8 Completion transition without trigger.
@@ -344,6 +358,7 @@ Written at the top level.
 | `when=` | attribute | a text in double quotes like `"Order service"` | Guard, written without brackets; `else` is the predefined else branch. UML 2.5.1: 14.2.3.8 Predefined guard else. |
 | `do=` | attribute | a text in double quotes like `"Order service"` | Effect: the behaviour the transition runs, shown after `/`. |
 | `post=` | attribute | a text in double quotes like `"Order service"` | Postcondition of a protocol transition, written without brackets. UML 2.5.1: 14.4.3 Protocol transition with precondition and postcondition. |
+| `area=` | attribute | the id of an `area` declared in this diagram | The area the line belongs to, declared with `area`. Without it the line takes the coloured area of its first end, else that of its second, so a line between an extension and the core belongs to the extension. |
 | `emph` | flag |  | Highlights the line in the accent colour. |
 
 The values of `arrow` and what they mean:
@@ -428,6 +443,29 @@ Example:
 
 ```dgr
 adr E1 "How do the services coordinate?" = "Events over Kafka" => "No central coordinator"
+```
+
+### `area`
+
+```text
+area <id> <label> [tone=<choice>]
+```
+
+A named area of the picture, such as the core or one extension of an extensible architecture. Elements, frames and lines join it with `area=` and are painted in its tone, and the legend names it. An area without a tone stays in ink, as a core does.
+
+Written at the top level.
+
+| Part | Kind | Value | Meaning |
+|---|---|---|---|
+| `<id>` | argument | an identifier like `api` (letters, digits, `_` and `-`, starting with a letter) | Id that `area=` of elements, frames and lines names. |
+| `<label>` | argument | a text in double quotes like `"Order service"` | Name of the area in the legend. |
+| `tone=` | attribute | one of `green`, `orange`, `purple`, `red`, `yellow`, `teal`, `pink`, `sky` | Colour of the area. Two areas of one picture take different tones; without one the area stays in ink. |
+
+Examples:
+
+```dgr
+area kern "Kern"
+area zahlung "Zahlungen" tone=green
 ```
 
 ## Diagnostic codes

@@ -9,7 +9,7 @@ This page lists everything a `sequence` diagram may contain. The same grammar is
 ## The first line
 
 ```text
-diagram sequence "Title" [subtitle=<text>] [look=<plain|cards>] [locale=<en|de>]
+diagram sequence "Title" [subtitle=<text>] [look=<plain|cards>] [areas=<tint|outline|stripe>] [locale=<en|de>]
 ```
 
 Every sequence diagram starts with this line.
@@ -18,6 +18,7 @@ Every sequence diagram starts with this line.
 |---|---|---|---|
 | `subtitle=` | attribute | a text in double quotes like `"Order service"` | Second line below the title. |
 | `look=` | attribute | one of `plain`, `cards` | `plain` (default) draws the UML notation, `cards` toned cards. |
+| `areas=` | attribute | one of `tint`, `outline`, `stripe` | How elements of a coloured area are painted: `tint` (default) a light fill and the outline in its tone, `outline` the outline and the name in its tone, `stripe` a stripe of its tone at the left edge. Lines and frames of an area are drawn in its tone in each. |
 | `locale=` | attribute | one of `en`, `de` | Language of the texts Diagrist adds to the picture and of the description: `en` (default) or `de`. |
 
 Example:
@@ -68,11 +69,12 @@ Each statement is one line that starts with its keyword. Statements inside block
 | [`duration`](#duration) | top level | A duration constraint between two messages with `id=`: a bracket from the first to the second, left of the lifeline both touch when there is room, otherwise mirrored to the right or at the left edge. |
 | [`time`](#time) | top level | A time constraint of one message with `id=`: a tick at its height left of its lifeline or at the left edge, the text in `{...}`. |
 | [`adr`](#adr) | top level | An architecture decision in the bar below the picture: question, the chosen option after `=`, and the consequence after `=>`. |
+| [`area`](#area) | top level | A named area of the picture, such as the core or one extension of an extensible architecture. |
 
 ### `participant`
 
 ```text
-participant <id> <label> [stereotype=<text>] [tone=<choice>] [external]
+participant <id> <label> [stereotype=<text>] [tone=<choice>] [area=<ref>] [external]
 ```
 
 A lifeline drawn as a box, from left to right in source order. Messages, notes and references name it by its id. UML 2.5.1: 17.3.3.1 Lifeline.
@@ -85,6 +87,7 @@ Written at the top level.
 | `<label>` | argument | a text in double quotes like `"Order service"` | Name shown in the head. |
 | `stereotype=` | attribute | a text in double quotes like `"Order service"` | Stereotype above the name, written without guillemets: `service` shows `«service»`. |
 | `tone=` | attribute | one of `blue`, `indigo`, `purple`, `maroon`, `green`, `teal`, `slate`, `red`, `orange`, `peach`, `sky` | Colour of the head and its bars in `look=cards`; without it the head is slate. |
+| `area=` | attribute | the id of an `area` declared in this diagram | The area it belongs to, declared with `area`, whose tone paints it. Members of a frame take the area of the frame unless they name their own. |
 | `external` | flag |  | Draws the head dashed: the system is outside the scope of the diagram. |
 
 Example:
@@ -96,7 +99,7 @@ participant api "api-service" stereotype="service"
 ### `actor`
 
 ```text
-actor <id> <label> [stereotype=<text>] [tone=<choice>] [external]
+actor <id> <label> [stereotype=<text>] [tone=<choice>] [area=<ref>] [external]
 ```
 
 A lifeline drawn as a stick figure, from left to right in source order. Messages, notes and references name it by its id. UML 2.5.1: 17.3.3.1 Lifeline.
@@ -109,6 +112,7 @@ Written at the top level.
 | `<label>` | argument | a text in double quotes like `"Order service"` | Name shown in the head. |
 | `stereotype=` | attribute | a text in double quotes like `"Order service"` | Stereotype above the name, written without guillemets: `service` shows `«service»`. |
 | `tone=` | attribute | one of `blue`, `indigo`, `purple`, `maroon`, `green`, `teal`, `slate`, `red`, `orange`, `peach`, `sky` | Colour of the head and its bars in `look=cards`; without it the head is slate. |
+| `area=` | attribute | the id of an `area` declared in this diagram | The area it belongs to, declared with `area`, whose tone paints it. Members of a frame take the area of the frame unless they name their own. |
 | `external` | flag |  | Draws the head dashed: the system is outside the scope of the diagram. |
 
 Example:
@@ -120,7 +124,7 @@ actor customer "Customer"
 ### `database`
 
 ```text
-database <id> <label> [stereotype=<text>] [tone=<choice>] [external]
+database <id> <label> [stereotype=<text>] [tone=<choice>] [area=<ref>] [external]
 ```
 
 A lifeline drawn as a cylinder, from left to right in source order. Messages, notes and references name it by its id. UML 2.5.1: 17.3.3.1 Lifeline.
@@ -133,6 +137,7 @@ Written at the top level.
 | `<label>` | argument | a text in double quotes like `"Order service"` | Name shown in the head. |
 | `stereotype=` | attribute | a text in double quotes like `"Order service"` | Stereotype above the name, written without guillemets: `service` shows `«service»`. |
 | `tone=` | attribute | one of `blue`, `indigo`, `purple`, `maroon`, `green`, `teal`, `slate`, `red`, `orange`, `peach`, `sky` | Colour of the head and its bars in `look=cards`; without it the head is slate. |
+| `area=` | attribute | the id of an `area` declared in this diagram | The area it belongs to, declared with `area`, whose tone paints it. Members of a frame take the area of the frame unless they name their own. |
 | `external` | flag |  | Draws the head dashed: the system is outside the scope of the diagram. |
 
 Example:
@@ -144,7 +149,7 @@ database db "Orders DB"
 ### `queue`
 
 ```text
-queue <id> <label> [stereotype=<text>] [tone=<choice>] [external]
+queue <id> <label> [stereotype=<text>] [tone=<choice>] [area=<ref>] [external]
 ```
 
 A lifeline drawn as a horizontal tube, from left to right in source order. Messages, notes and references name it by its id. UML 2.5.1: 17.3.3.1 Lifeline.
@@ -157,6 +162,7 @@ Written at the top level.
 | `<label>` | argument | a text in double quotes like `"Order service"` | Name shown in the head. |
 | `stereotype=` | attribute | a text in double quotes like `"Order service"` | Stereotype above the name, written without guillemets: `service` shows `«service»`. |
 | `tone=` | attribute | one of `blue`, `indigo`, `purple`, `maroon`, `green`, `teal`, `slate`, `red`, `orange`, `peach`, `sky` | Colour of the head and its bars in `look=cards`; without it the head is slate. |
+| `area=` | attribute | the id of an `area` declared in this diagram | The area it belongs to, declared with `area`, whose tone paints it. Members of a frame take the area of the frame unless they name their own. |
 | `external` | flag |  | Draws the head dashed: the system is outside the scope of the diagram. |
 
 Example:
@@ -168,7 +174,7 @@ queue broker "Kafka"
 ### `boundary`
 
 ```text
-boundary <id> <label> [stereotype=<text>] [tone=<choice>] [external]
+boundary <id> <label> [stereotype=<text>] [tone=<choice>] [area=<ref>] [external]
 ```
 
 A lifeline drawn as the boundary symbol of robustness analysis, from left to right in source order. Messages, notes and references name it by its id. UML 2.5.1: 17.3.3.1 Lifeline.
@@ -181,6 +187,7 @@ Written at the top level.
 | `<label>` | argument | a text in double quotes like `"Order service"` | Name shown in the head. |
 | `stereotype=` | attribute | a text in double quotes like `"Order service"` | Stereotype above the name, written without guillemets: `service` shows `«service»`. |
 | `tone=` | attribute | one of `blue`, `indigo`, `purple`, `maroon`, `green`, `teal`, `slate`, `red`, `orange`, `peach`, `sky` | Colour of the head and its bars in `look=cards`; without it the head is slate. |
+| `area=` | attribute | the id of an `area` declared in this diagram | The area it belongs to, declared with `area`, whose tone paints it. Members of a frame take the area of the frame unless they name their own. |
 | `external` | flag |  | Draws the head dashed: the system is outside the scope of the diagram. |
 
 Example:
@@ -192,7 +199,7 @@ boundary form "Order form"
 ### `control`
 
 ```text
-control <id> <label> [stereotype=<text>] [tone=<choice>] [external]
+control <id> <label> [stereotype=<text>] [tone=<choice>] [area=<ref>] [external]
 ```
 
 A lifeline drawn as the control symbol of robustness analysis, from left to right in source order. Messages, notes and references name it by its id. UML 2.5.1: 17.3.3.1 Lifeline.
@@ -205,6 +212,7 @@ Written at the top level.
 | `<label>` | argument | a text in double quotes like `"Order service"` | Name shown in the head. |
 | `stereotype=` | attribute | a text in double quotes like `"Order service"` | Stereotype above the name, written without guillemets: `service` shows `«service»`. |
 | `tone=` | attribute | one of `blue`, `indigo`, `purple`, `maroon`, `green`, `teal`, `slate`, `red`, `orange`, `peach`, `sky` | Colour of the head and its bars in `look=cards`; without it the head is slate. |
+| `area=` | attribute | the id of an `area` declared in this diagram | The area it belongs to, declared with `area`, whose tone paints it. Members of a frame take the area of the frame unless they name their own. |
 | `external` | flag |  | Draws the head dashed: the system is outside the scope of the diagram. |
 
 Example:
@@ -216,7 +224,7 @@ control checkout "Checkout"
 ### `entity`
 
 ```text
-entity <id> <label> [stereotype=<text>] [tone=<choice>] [external]
+entity <id> <label> [stereotype=<text>] [tone=<choice>] [area=<ref>] [external]
 ```
 
 A lifeline drawn as the entity symbol of robustness analysis, from left to right in source order. Messages, notes and references name it by its id. UML 2.5.1: 17.3.3.1 Lifeline.
@@ -229,6 +237,7 @@ Written at the top level.
 | `<label>` | argument | a text in double quotes like `"Order service"` | Name shown in the head. |
 | `stereotype=` | attribute | a text in double quotes like `"Order service"` | Stereotype above the name, written without guillemets: `service` shows `«service»`. |
 | `tone=` | attribute | one of `blue`, `indigo`, `purple`, `maroon`, `green`, `teal`, `slate`, `red`, `orange`, `peach`, `sky` | Colour of the head and its bars in `look=cards`; without it the head is slate. |
+| `area=` | attribute | the id of an `area` declared in this diagram | The area it belongs to, declared with `area`, whose tone paints it. Members of a frame take the area of the frame unless they name their own. |
 | `external` | flag |  | Draws the head dashed: the system is outside the scope of the diagram. |
 
 Example:
@@ -276,7 +285,7 @@ frame "OAuth callback"
 ### `msg`
 
 ```text
-msg <from> <arrow> <to> [label] [id=<id>] [mark=<ref>] [duration=<text>] [emph]
+msg <from> <arrow> <to> [label] [area=<ref>] [id=<id>] [mark=<ref>] [duration=<text>] [emph]
 ```
 
 A message in source order; its arrow says what kind. Sender equal to receiver is a self call. Calls and replies activate the receiver by themselves. `found` as sender and `lost` as receiver are found and lost messages; `gate` is a gate on the frame of the interaction (`gate -> a` comes in from the left, `a --> gate` replies to the left, `a -> gate` leaves to the right), `gate.name` names it. The `id=` of a `ref` or fragment as an end leads the message to its edge. UML 2.5.1: 17.4.3.1 Message.
@@ -289,6 +298,7 @@ Written at the top level and inside `coregion`, `alt`, `else`, `opt`, `loop`, `p
 | `<arrow>` | argument | one of the arrows `->` synchronous call (filled head), `~>` asynchronous message (open head), `-->` reply (dashed, open head) | The kind of message, which also decides how it is drawn. UML 2.5.1: `->` 17.4.3.1 Synchronous call; `~>` 17.4.3.1 Asynchronous call or signal; `-->` 17.4.3.1 Reply to a call. |
 | `<to>` | argument | a lifeline id like `api`, `found`, `lost`, `gate`, `gate.name`, or the `id=` of a `ref` or fragment, optionally with `.name` | Receiver: a lifeline, `lost`, `gate`, or a frame with `id=`. UML 2.5.1: `lost` 17.4.3.1 Lost message, without receiver; `gate` 17.4.3.5 Gate on the frame of the interaction. |
 | `[label]` | optional argument | a text in double quotes like `"Order service"` | What is sent; without it the arrow has no label. |
+| `area=` | attribute | the id of an `area` declared in this diagram | The area the line belongs to, declared with `area`. Without it the line takes the coloured area of its first end, else that of its second, so a line between an extension and the core belongs to the extension. |
 | `id=` | attribute | an identifier like `api` (letters, digits, `_` and `-`, starting with a letter) | Name of the message that `duration` and `time` refer to. |
 | `mark=` | attribute | the id of an `adr` declared in this diagram | Id of a decision of the decision bar, such as `E1`; the mark is drawn after the label. |
 | `duration=` | attribute | a text in double quotes like `"Order service"` | Duration of the transmission: the arrow slopes down and shows the text in `{...}`. UML 2.5.1: 8.5.3.2 Duration constraint. |
@@ -313,7 +323,7 @@ msg gate.order -> api "place(order)" emph
 ### `create`
 
 ```text
-create <from> <arrow> <to> [label] [id=<id>] [mark=<ref>] [duration=<text>] [emph]
+create <from> <arrow> <to> [label] [area=<ref>] [id=<id>] [mark=<ref>] [duration=<text>] [emph]
 ```
 
 A creation message: dashed with an open head, and the head of the receiver stands at its height. Before it the lifeline does not exist. UML 2.5.1: 17.4.3.1 Message that creates a lifeline.
@@ -326,6 +336,7 @@ Written at the top level and inside `alt`, `else`, `opt`, `loop`, `par`, `and`, 
 | `<arrow>` | argument | one of the arrows `->` | Always `->`. |
 | `<to>` | argument | the id of a `participant`, `actor`, `database`, `queue`, `boundary`, `control` or `entity` declared in this diagram | The lifeline that is created. |
 | `[label]` | optional argument | a text in double quotes like `"Order service"` | The constructor call; without it the arrow has no label. |
+| `area=` | attribute | the id of an `area` declared in this diagram | The area the line belongs to, declared with `area`. Without it the line takes the coloured area of its first end, else that of its second, so a line between an extension and the core belongs to the extension. |
 | `id=` | attribute | an identifier like `api` (letters, digits, `_` and `-`, starting with a letter) | Name of the message that `duration` and `time` refer to. |
 | `mark=` | attribute | the id of an `adr` declared in this diagram | Id of a decision of the decision bar, such as `E1`; the mark is drawn after the label. |
 | `duration=` | attribute | a text in double quotes like `"Order service"` | Duration of the transmission: the arrow slopes down and shows the text in `{...}`. UML 2.5.1: 8.5.3.2 Duration constraint. |
@@ -862,6 +873,29 @@ Example:
 
 ```dgr
 adr E1 "How do the services coordinate?" = "Events over Kafka" => "No central coordinator"
+```
+
+### `area`
+
+```text
+area <id> <label> [tone=<choice>]
+```
+
+A named area of the picture, such as the core or one extension of an extensible architecture. Elements, frames and lines join it with `area=` and are painted in its tone, and the legend names it. An area without a tone stays in ink, as a core does.
+
+Written at the top level.
+
+| Part | Kind | Value | Meaning |
+|---|---|---|---|
+| `<id>` | argument | an identifier like `api` (letters, digits, `_` and `-`, starting with a letter) | Id that `area=` of elements, frames and lines names. |
+| `<label>` | argument | a text in double quotes like `"Order service"` | Name of the area in the legend. |
+| `tone=` | attribute | one of `green`, `orange`, `purple`, `red`, `yellow`, `teal`, `pink`, `sky` | Colour of the area. Two areas of one picture take different tones; without one the area stays in ink. |
+
+Examples:
+
+```dgr
+area kern "Kern"
+area zahlung "Zahlungen" tone=green
 ```
 
 ## Diagnostic codes

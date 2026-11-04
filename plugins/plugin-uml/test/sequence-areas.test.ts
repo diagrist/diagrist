@@ -27,7 +27,7 @@ describe('areas in sequence diagrams', () => {
     expect(plain.svg).toContain('<g id="node-shop">');
     expect(plain.svg).toMatch(/<g class="area-green"><line [^>]*class="seq-lifeline"/);
     expect(plain.svg).toMatch(/<g class="area-green"><rect [^>]*class="seq-activation"/);
-    expect(plain.svg.match(/class="area-green"><line/g)).toHaveLength(1);
+    expect((plain.svg ?? '').match(/class="area-green"><line/g)).toHaveLength(1);
   });
 
   it('give messages between an extension and the core its tone, both ways, and none inside the core', () => {
