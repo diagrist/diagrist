@@ -455,14 +455,15 @@ The rules of `component` report these codes:
 A code diagram: excerpts of real source files as highlighted cards, one below the other, with marked lines, numbered notes below each card and arrows from a call to what it calls. The files are read when the picture is built, so a renamed method fails the build instead of leaving a stale picture. Java, Kotlin, SQL, YAML, JSON and XML are highlighted. Full reference: `dgr grammar code`.
 
 ```text
-diagram code "Title" [subtitle=<text>] [locale=<en|de>]
+diagram code "Title" [subtitle=<text>] [areas=<tint|outline|stripe>] [locale=<en|de>]
 ```
 
 | Line | Where | What it does | Example |
 |---|---|---|---|
-| `source <id> <title> [src=<file>] [symbol=<word>] [region=<word>] [lines=<lineRange>] [lang=<choice>] [outline]` | top level | A card of highlighted code read from a file when the picture is built, so it shows the code as it is now and the build fails when the code it points to is gone. | `source submit "TransferService.submit" src="TransferService.java" symbol=submit` |
+| `source <id> <title> [src=<file>] [symbol=<word>] [region=<word>] [lines=<lineRange>] [lang=<choice>] [area=<ref>] [outline]` | top level | A card of highlighted code read from a file when the picture is built, so it shows the code as it is now and the build fails when the code it points to is gone. | `source submit "TransferService.submit" src="TransferService.java" symbol=submit` |
 | `mark <range> [note]` | inside `source` | Marks lines of the card with a band and a number, counted across the picture; the note stands under that number below the card. | `mark 27-30 "A second call with the same key returns the first transfer"` |
-| `link <from> <fromLine> <arrow> <to> [label]` | top level | An arrow from a line of one card to another card: this call leads there. | `link submit 34 -> publish "outbox.publish(event)"` |
+| `link <from> <fromLine> <arrow> <to> [label] [area=<ref>]` | top level | An arrow from a line of one card to another card: this call leads there. | `link submit 34 -> publish "outbox.publish(event)"` |
+| `area <id> <label> [tone=<choice>]` | top level | A named area of the picture, such as the core or one extension of an extensible architecture. | `area kern "Kern"` |
 
 The arrows of `link`: `->` leads to.
 
@@ -482,15 +483,16 @@ The rules of `code` report these codes:
 A matrix: columns, rows and one scale, with the values of the scale in the cells. The scale carries rules that are checked: `raci` asks every row for exactly one A and at least one R, `crud` every column for a C and an R, `cover` every row and column for a mark. Full reference: `dgr grammar matrix`.
 
 ```text
-diagram matrix "Title" [subtitle=<text>] [scale=<raci|crud|cover>] [cover=<rows|cols|both>] [locale=<en|de>]
+diagram matrix "Title" [subtitle=<text>] [scale=<raci|crud|cover>] [cover=<rows|cols|both>] [areas=<tint|outline|stripe>] [locale=<en|de>]
 ```
 
 | Line | Where | What it does | Example |
 |---|---|---|---|
-| `col <id> <label>` | top level | A column, such as a role, an object or a building block. | `col station "Stationsteam"` |
+| `col <id> <label> [area=<ref>]` | top level | A column, such as a role, an object or a building block. | `col station "Stationsteam"` |
 | `group <id> <label>` | top level | A band over rows that belong together, such as the steps of one process. | `group vorgang "Vorgang"` |
-| `row <id> <label> [in <ref>]` | top level | A row, such as a task, a use case or a requirement, from top to bottom in the order written. | `row ausleihen "Rad ausleihen" in vorgang` |
+| `row <id> <label> [in <ref>] [area=<ref>]` | top level | A row, such as a task, a use case or a requirement, from top to bottom in the order written. | `row ausleihen "Rad ausleihen" in vorgang` |
 | `note <text> [on <ref>]` | top level | A numbered note below the matrix. | `note "Bei Schäden über 500 Euro entscheidet die Versicherung." on schaden` |
+| `area <id> <label> [tone=<choice>]` | top level | A named area of the picture, such as the core or one extension of an extensible architecture. | `area kern "Kern"` |
 
 The rules of `matrix` report these codes:
 

@@ -8,6 +8,7 @@ the crutches that keep the predecessor's bytes are numbered, since they go toget
 
 | Debt | Clean-up |
 |---|---|
+| **Areas repaint colours, not meanings** (ADR 0033). The kernel finds what to repaint by the values of a style table's rules (`areaColors`) and by the kinds of shape a class is drawn on, so a look that paints an element in a colour of its own, such as the heads of UML cards in their `tone=`, shows the area only on what is left; a stripe on a diamond follows both left edges as a chevron. | A role for the paint an area replaces, which looks name, once a look needs more than colour values. |
 | **Operators are fixed in `lang`.** `OPERATORS` in `packages/lang/src/scanner.ts` knows the UML diamond ends; BPMN gateways or ER crow's feet would need a change there. | `operators` in `KindSpec`, handed to the scanner by `readKind`, with `lang` keeping `=`, `=>`, `->` and `--`. It changes `read-kind.ts` and the tables, which the work on variants rewrites, so it follows once that has landed, or with the first plugin that needs its own. |
 | **`Theme` and the description reach no host.** `compile` takes a `theme` and returns a `description` and `anchors`, but the CLI passes no theme and drops the other two, so the words in `describe/` of every UML kind reach no user yet. | `--theme <file>` and `description` in `build --json`, or drop what still has no host by the first release. |
 | **`Infer` stops at recursion, and `readKind` casts.** Children of fragments are typed by hand in `plugins/plugin-uml/src/sequence/source.ts`, and `readKind` asserts its result type. | Carry the child tables in the type when a second recursive kind arrives. |
@@ -63,6 +64,7 @@ frames and labels are not handed to the placement check, which would report what
 
 | Debt | Clean-up |
 |---|---|
+| **Areas show weakly in `look=cards` and between lanes** (ADR 0033). Card heads keep their `tone=`, so sequence heads, lane heads and state cards show their area only in the outline or the stripe; neighbouring activity lanes share a border, which takes the tone of the lane drawn later; interruptible and expansion regions and sequence fragments take no `area=`. | Let a card head take the area's ink when it names no tone; draw shared lane borders once, in ink. |
 | **U400 points at the statement, not the token.** `msg a -> b` reports column 1 instead of the `b`. | Carry the span of the offending end through the model. |
 | **Completion knows no lifelines in `msg`.** Message ends are no `ref`, since they may also be `found`, `lost`, `gate` or a frame (`messageEnd` in `src/sequence/grammar/values.ts`), and the same holds for `over=`. | Let a value name the declarations it accepts besides its own forms, without `lang` checking them. |
 
@@ -119,6 +121,7 @@ keep it so; they go in the clean-up with a second baseline.
 
 | Debt | Clean-up |
 |---|---|
+| **The stripe of an area lies under the bands of marked lines** (ADR 0033), so at a marked line it looks dark; a matrix gives no area to groups of rows. | Draw the bands inset by the stripe in `stripe`; let rows take the area of their group when a matrix needs it. |
 | **Shiki still looks at the clock.** `vscode-textmate` calls `Date.now()` once per line even with `tokenizeTimeLimit: 0` and only ignores the result, and it reads `process.env.VSCODE_TEXTMATE_DEBUG` when it loads, which turns on logging and nothing else. The purity test reads only our sources; `packages/code/test/highlight.test.ts` proves the runs do not depend on the clock. | Upstream: skip the clock when the limit is 0. |
 | **The paper colours exist twice.** `plugins/plugin-code/src/styles.ts` repeats the ink, paper and outline colours of the C4 sheet `paper` by value, since plugins may not import each other. | Take them from `parts` or the standard look once the looks refactor of C4 moves the paper palette there. |
 | **Badges of marks that start on one line overlap.** Each mark's badge sits at the first line of its band, so two marks starting on the same line draw two badges in one spot. No example does it. | Stack such badges to the left, or refuse the second mark. |

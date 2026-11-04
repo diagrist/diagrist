@@ -43,5 +43,7 @@ not one fixed look.
 Colour enters every kind with a meaning and a legend entry, as the scope asks, and the paint stays a value of the
 file, not of the kind. ADR 0027 point 4 is amended: at most six coloured areas, not four tones, because the owner's
 overviews need a core and five or six extensions. Greyscale survival does not hold for the tones themselves; it holds
-for the assignment as far as the legend and the description name it, and `stripe` survives best. Kinds take areas one
-by one: `concept` first, then C4, the UML kinds, `code` and `matrix`, each in its own change.
+for the assignment as far as the legend and the description name it, and `stripe` survives best. Every kind takes them:
+`concept`, the C4 levels in all five looks, the five UML kinds, `code` and `matrix` (on the heads of its columns and
+rows, since a cell belongs to a row and a column at once). Kinds without a legend of their own append one with
+`withAreaLegend` of `parts`. What the areas still paint weakly is listed in `docs/burn-down.md`.

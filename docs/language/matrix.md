@@ -9,7 +9,7 @@ This page lists everything a `matrix` diagram may contain. The same grammar is a
 ## The first line
 
 ```text
-diagram matrix "Title" [subtitle=<text>] [scale=<raci|crud|cover>] [cover=<rows|cols|both>] [locale=<en|de>]
+diagram matrix "Title" [subtitle=<text>] [scale=<raci|crud|cover>] [cover=<rows|cols|both>] [areas=<tint|outline|stripe>] [locale=<en|de>]
 ```
 
 Every matrix diagram starts with this line.
@@ -19,6 +19,7 @@ Every matrix diagram starts with this line.
 | `subtitle=` | attribute | a text in double quotes like `"Order service"` | Second line below the title. |
 | `scale=` | attribute | one of `raci`, `crud`, `cover` | The scale of every cell, required: `raci` (R responsible, A accountable, C consulted, I informed; several per cell), `crud` (C create, R read, U update, D delete; several per cell) or `cover` (`full` or `part`, one per cell). |
 | `cover=` | attribute | one of `rows`, `cols`, `both` | Which lines need at least one value: every row, every column, or both. `scale=cover` asks for both by default. |
+| `areas=` | attribute | one of `tint`, `outline`, `stripe` | How elements of a coloured area are painted: `tint` (default) a light fill and the outline in its tone, `outline` the outline and the name in its tone, `stripe` a stripe of its tone at the left edge. Lines and frames of an area are drawn in its tone in each. |
 | `locale=` | attribute | one of `en`, `de` | Language of the texts Diagrist adds to the picture and of the description: `en` (default) or `de`. |
 
 Example:
@@ -37,11 +38,12 @@ Each statement is one line that starts with its keyword. Statements inside block
 | [`group`](#group) | top level | A band over rows that belong together, such as the steps of one process. |
 | [`row`](#row) | top level | A row, such as a task, a use case or a requirement, from top to bottom in the order written. |
 | [`note`](#note) | top level | A numbered note below the matrix. |
+| [`area`](#area) | top level | A named area of the picture, such as the core or one extension of an extensible architecture. |
 
 ### `col`
 
 ```text
-col <id> <label>
+col <id> <label> [area=<ref>]
 ```
 
 A column, such as a role, an object or a building block. Columns stand from left to right in the order written.
@@ -52,11 +54,13 @@ Written at the top level.
 |---|---|---|---|
 | `<id>` | argument | an identifier like `api` (letters, digits, `_` and `-`, starting with a letter) | Id that the cells of the rows name. |
 | `<label>` | argument | a text in double quotes like `"Order service"` | Head of the column, wrapped when it is long. |
+| `area=` | attribute | the id of an `area` declared in this diagram | The area it belongs to, declared with `area`, whose tone paints its head. The cells keep their marks in ink, since a cell belongs to a row and a column at once. |
 
-Example:
+Examples:
 
 ```dgr
 col station "Stationsteam"
+col partner "Partnerwerkstatt" area=extern
 ```
 
 ### `group`
@@ -83,7 +87,7 @@ group vorgang "Vorgang"
 ### `row`
 
 ```text
-row <id> <label> [in <ref>]
+row <id> <label> [in <ref>] [area=<ref>]
 ```
 
 A row, such as a task, a use case or a requirement, from top to bottom in the order written. Its cells stand indented below it, one line per column that holds a value.
@@ -95,6 +99,7 @@ Written at the top level.
 | `<id>` | argument | an identifier like `api` (letters, digits, `_` and `-`, starting with a letter) | Id that notes name with `on`. |
 | `<label>` | argument | a text in double quotes like `"Order service"` | Head of the row at the left, wrapped when it is long. |
 | `in <ref>` | clause | the id of a `group` declared in this diagram | The group whose band it stands under. |
+| `area=` | attribute | the id of an `area` declared in this diagram | The area it belongs to, declared with `area`, whose tone paints its head. The cells keep their marks in ink, since a cell belongs to a row and a column at once. |
 
 Examples:
 
@@ -143,6 +148,29 @@ Examples:
 ```dgr
 note "Bei Schäden über 500 Euro entscheidet die Versicherung." on schaden
 note "Stand: Konzept 1.2"
+```
+
+### `area`
+
+```text
+area <id> <label> [tone=<choice>]
+```
+
+A named area of the picture, such as the core or one extension of an extensible architecture. Elements, frames and lines join it with `area=` and are painted in its tone, and the legend names it. An area without a tone stays in ink, as a core does.
+
+Written at the top level.
+
+| Part | Kind | Value | Meaning |
+|---|---|---|---|
+| `<id>` | argument | an identifier like `api` (letters, digits, `_` and `-`, starting with a letter) | Id that `area=` of elements, frames and lines names. |
+| `<label>` | argument | a text in double quotes like `"Order service"` | Name of the area in the legend. |
+| `tone=` | attribute | one of `green`, `orange`, `purple`, `red`, `yellow`, `teal`, `pink`, `sky` | Colour of the area. Two areas of one picture take different tones; without one the area stays in ink. |
+
+Examples:
+
+```dgr
+area kern "Kern"
+area zahlung "Zahlungen" tone=green
 ```
 
 ## Diagnostic codes
