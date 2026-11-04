@@ -1,4 +1,4 @@
-import type { Tone } from '@diagrist/core';
+import { readAreas, type Tone } from '@diagrist/core';
 import type { Header, KindReading } from '@diagrist/lang';
 import { type Decision, decisionOf } from '@diagrist/parts';
 import type {
@@ -56,6 +56,7 @@ function message(s: Of<'msg'> | Of<'create'>): MessageEvent {
     ...some('mark', s.attributes.mark),
     ...some('duration', s.attributes.duration),
     ...some('emph', s.flags.emph ? true : undefined),
+    ...some('area', s.attributes.area),
     span: s.span,
   };
 }
@@ -133,7 +134,7 @@ function afterOperands(statements: readonly (SequenceStatement | OperandStatemen
 }
 
 function participant(s: Of<ParticipantKind>): Participant {
-  const { stereotype, tone } = s.attributes;
+  const { stereotype, tone, area } = s.attributes;
   return {
     id: s.id,
     kind: s.keyword,
@@ -141,6 +142,7 @@ function participant(s: Of<ParticipantKind>): Participant {
     ...some('stereotype', stereotype),
     ...some('external', s.flags.external ? true : undefined),
     ...some<'tone', Tone>('tone', tone),
+    ...some('area', area),
     span: s.span,
   };
 }
@@ -171,5 +173,6 @@ export function sequenceDiagram(reading: KindReading<SequenceStatement>): Sequen
     constraints: reading.statements.flatMap(constraint),
     decisions: reading.statements.flatMap(decision),
     afterOperands: afterOperands(reading.statements),
+    areas: readAreas(reading.statements, header.attributes),
   };
 }

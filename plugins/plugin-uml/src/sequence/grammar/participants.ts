@@ -1,4 +1,4 @@
-import { TONE_NAMES } from '@diagrist/core';
+import { areaAttribute, TONE_NAMES } from '@diagrist/core';
 import { arg, attr, id, oneOf, statement, text } from '@diagrist/lang';
 import { implementing } from '../../spec/catalog.js';
 import { INTERACTIONS } from '../../spec/interactions.js';
@@ -25,6 +25,7 @@ function head<const K extends string>(keyword: K, shape: string, example: string
             oneOf(TONE_NAMES),
             'Colour of the head and its bars in `look=cards`; without it the head is slate.',
           ),
+          area: areaAttribute,
         },
         flags: { external: 'Draws the head dashed: the system is outside the scope of the diagram.' },
       },
