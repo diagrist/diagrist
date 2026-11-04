@@ -56,7 +56,7 @@
 <g id="node-bestaetigen"><rect x="72" y="879" width="168" height="40" rx="12" class="card-shadow"/><rect x="72" y="876" width="168" height="40" rx="12" class="card"/><text x="156" y="900" text-anchor="middle" class="act-text">Auftrag bestätigen</text><rect x="151" y="866" width="10" height="10" class="shape"/><text x="165" y="874" text-anchor="start" class="label">Ergebnisse</text></g>
 <g id="node-ende"><circle cx="156" cy="976" r="12" class="shape"/><circle cx="156" cy="976" r="7" class="uml-filled"/></g>
 <g id="edge-0"><path d="M156 156 L156 204" class="line" marker-end="url(#m-open)"/></g>
-<g id="edge-1"><path d="M156 254 L156 273 L460 273 L460 302" class="line" marker-end="url(#m-open)"/></g>
+<g id="edge-1"><path d="M156 254 L156 278 L460 278 L460 302" class="line" marker-end="url(#m-open)"/></g>
 <g id="edge-2"><path d="M460 314 L460 362" class="line" marker-end="url(#m-open)"/></g>
 <g id="edge-3"><path d="M460 412 L460 460" class="line" marker-end="url(#m-open)"/></g>
 <g id="edge-4"><path d="M444 476 L368 476 L368 540" class="line" marker-end="url(#m-open)"/></g>
@@ -65,7 +65,7 @@
 <g id="edge-7"><path d="M552 580 L552 644 L476 644" class="line" marker-end="url(#m-open)"/></g>
 <g id="edge-8"><path d="M460 660 L460 708" class="line" marker-end="url(#m-open)"/></g>
 <g id="edge-9"><path d="M460 758 L460 806" class="line" marker-end="url(#m-open)"/></g>
-<g id="edge-10"><path d="M460 818 L460 847 L156 847 L156 866" class="line" marker-end="url(#m-open)"/></g>
+<g id="edge-10"><path d="M460 818 L460 842 L156 842 L156 866" class="line" marker-end="url(#m-open)"/></g>
 <g id="edge-11"><path d="M156 916 L156 964" class="line" marker-end="url(#m-open)"/></g>
 <g id="label-4"><text x="438" y="470" text-anchor="end" class="label halo">[ja]</text></g>
 <g id="label-5"><text x="482" y="470" text-anchor="start" class="label halo">[else]</text></g>

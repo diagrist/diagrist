@@ -2,11 +2,10 @@ import type { Group, Link } from './links.js';
 import type { Ports } from './ports.js';
 
 /**
- * A horizontal piece in a gap between two layers: its group, the verticals that come down into it from above
- * (`tops`) and that leave it downwards (`bottoms`), its span, and the track it got, 0 the highest.
+ * A horizontal piece in a gap between two layers, as the track assigner sees it: the verticals that come down into it
+ * from above (`tops`) and that leave it downwards (`bottoms`), its span, and the track it got, 0 the highest.
  */
-export interface Piece {
-  readonly group: Group;
+export interface TrackPiece {
   readonly tops: readonly number[];
   readonly bottoms: readonly number[];
   readonly x1: number;
@@ -14,15 +13,30 @@ export interface Piece {
   track: number;
 }
 
+/** A horizontal piece of a layered picture, with the group of lines it carries. */
+export interface Piece extends TrackPiece {
+  readonly group: Group;
+}
+
 /** Two pieces need different tracks when they come this close along the gap. */
 const NEAR = 8;
 
-const overlap = (a: Piece, b: Piece) => a.x1 < b.x2 + NEAR && b.x1 < a.x2 + NEAR;
-const inside = (v: number, p: Piece) => v > p.x1 + 0.5 && v < p.x2 - 0.5;
+const overlap = (a: TrackPiece, b: TrackPiece) => a.x1 < b.x2 + NEAR && b.x1 < a.x2 + NEAR;
+const inside = (v: number, p: TrackPiece) => v > p.x1 + 0.5 && v < p.x2 - 0.5;
 
-/** Crossings when `a` runs above `b`: verticals of `b` coming down through `a`, of `a` going down through `b`. */
-const over = (a: Piece, b: Piece) =>
-  b.tops.filter((t) => inside(t, a)).length + a.bottoms.filter((u) => inside(u, b)).length;
+/**
+ * Verticals that run side by side when `a` runs above `b`: one going down from `a` and one coming down into `b`,
+ * closer than `apart`. Both pass the stretch between the two tracks.
+ */
+const beside = (a: TrackPiece, b: TrackPiece, apart: number) =>
+  apart <= 0 ? 0 : a.bottoms.reduce((n, u) => n + b.tops.filter((t) => Math.abs(t - u) < apart).length, 0);
+
+/**
+ * Crossings when `a` runs above `b`: verticals of `b` coming down through `a`, of `a` going down through `b`. A pair
+ * of verticals side by side counts twice, as two lines that close read as one.
+ */
+const over = (a: TrackPiece, b: TrackPiece, apart: number) =>
+  b.tops.filter((t) => inside(t, a)).length + a.bottoms.filter((u) => inside(u, b)).length + 2 * beside(a, b, apart);
 
 /** The horizontal pieces of one gap: every group whose ends are not on one vertical, with the ends of its verticals. */
 export function piecesOf(groups: readonly Group[], ports: Ports): Piece[] {
@@ -40,16 +54,17 @@ export function piecesOf(groups: readonly Group[], ports: Ports): Piece[] {
 /**
  * Tracks for the pieces of one gap. The order from the top is built greedily: next comes the piece that loses the
  * most crossings by running above the pieces still left rather than below them, ties to the leftmost. A piece then
- * takes the track below the lowest earlier piece it meets, so pieces that do not meet share a track. Returns how
- * many tracks the gap needs.
+ * takes the track below the lowest earlier piece it meets, so pieces that do not meet share a track. With `apart`,
+ * a vertical going down from one piece and one coming down into another closer than that count as crossings too,
+ * where the order of the two would put them side by side. Returns how many tracks the gap needs.
  */
-export function assignTracks(pieces: Piece[]): number {
+export function assignTracks(pieces: TrackPiece[], apart = 0): number {
   const left = [...pieces];
-  const order: Piece[] = [];
+  const order: TrackPiece[] = [];
   while (left.length > 0) {
-    const cost = (p: Piece) =>
-      left.filter((q) => q !== p && overlap(p, q)).reduce((s, q) => s + over(p, q) - over(q, p), 0);
-    const best = [...left].sort((a, b) => cost(a) - cost(b) || a.x1 - b.x1 || a.x2 - b.x2)[0] as Piece;
+    const cost = (p: TrackPiece) =>
+      left.filter((q) => q !== p && overlap(p, q)).reduce((s, q) => s + over(p, q, apart) - over(q, p, apart), 0);
+    const best = [...left].sort((a, b) => cost(a) - cost(b) || a.x1 - b.x1 || a.x2 - b.x2)[0] as TrackPiece;
     order.push(best);
     left.splice(left.indexOf(best), 1);
   }

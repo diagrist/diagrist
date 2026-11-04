@@ -1,5 +1,6 @@
+import type { Point } from '@diagrist/core';
 import type { Flow } from '../diagram.js';
-import { ACT, SIZE, type XY } from './metrics.js';
+import { ACT, SIZE } from './metrics.js';
 import type { PlacedNode, Placement } from './place.js';
 import type { ActivityText } from './regions.js';
 import type { Routed } from './route.js';
@@ -21,7 +22,7 @@ export function guardLabel(f: Flow): string | undefined {
  * never crosses it. Out at the bottom: beside the vertical piece just below the tip, on the side no neighbouring
  * branch takes.
  */
-function placeGuard(text: string, p: readonly XY[], side: 1 | -1, route: number): GuardText | undefined {
+function placeGuard(text: string, p: readonly Point[], side: 1 | -1, route: number): GuardText | undefined {
   const g = ACT.guardGap;
   const [a, b] = [p[0], p[1]];
   if (!a || !b) return undefined;

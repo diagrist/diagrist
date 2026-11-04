@@ -97,7 +97,7 @@ export function stateGridSpec(
     nodes,
     groups,
     edges: [],
-    metrics: { ...metrics, marginX: metrics.marginX + margin },
+    metrics: { ...metrics, indent: margin },
     adaptive: true,
   };
 }

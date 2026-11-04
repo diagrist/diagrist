@@ -40,7 +40,7 @@ export function expandBars(
     const others = ranks.ids
       .filter((id) => id !== bar && ranks.layerOf.get(id) === layer)
       .map((id) => ({ id, r: rects.get(id) ?? { x: where(id), y: 0, w: 0, h: 0 } }));
-    const half = ACT.track;
+    const half = ACT.barClear;
     const leftWall = Math.max(-Infinity, ...others.filter((o) => cx(o.r) < cx(r)).map((o) => right(o.r) + half));
     const rightWall = Math.min(Infinity, ...others.filter((o) => cx(o.r) > cx(r)).map((o) => o.r.x - half));
     for (const o of others) {

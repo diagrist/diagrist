@@ -76,7 +76,7 @@ export function spreadRails(routes: readonly Route[], c: RouteContext): Route[] 
   const ranked: RankedRail[] = [];
   const placed: { rail: Rail; at: number; room: number }[] = [];
   for (const rail of [...rails].sort((a, b) => a.span - b.span || a.index - b.index)) {
-    const own = rail.anchor + rail.dir * (S.laneGap + overhang(routes, rail, c));
+    const own = rail.anchor + rail.dir * (S.lead + overhang(routes, rail, c));
     const limits = placed
       .filter((p) => p.rail.r.fromSide === rail.r.fromSide && p.rail.lo < rail.hi && rail.lo < p.rail.hi)
       .map((p) => p.at + rail.dir * p.room);

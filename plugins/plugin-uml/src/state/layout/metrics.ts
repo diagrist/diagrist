@@ -41,8 +41,10 @@ export const STATE = {
   /** Up to this offset a step becomes a straight line; also the distance from corners. */
   step: 16,
   laneGap: 16,
+  /** Straight run of a line into its head (plan Q4), so also the distance of a rail, and the least step of a Z (Q6). */
+  lead: 24,
   loopReach: 32,
-  labelGap: 10,
+  labelGap: 8,
   labelLineH: 12,
   /** Air around frames, and the pads of a composite state below its head. */
   padBottom: 24,

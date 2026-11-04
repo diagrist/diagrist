@@ -19,7 +19,7 @@ export function collinear(a: Point, b: Point, c: Point, d: Point): boolean {
 }
 
 /** Does a candidate touch a blocking rectangle or lie on another route? */
-function clashes(points: readonly Point[], i: number, out: readonly Route[], c: RouteContext): boolean {
+export function clashes(points: readonly Point[], i: number, out: readonly Route[], c: RouteContext): boolean {
   if (blocking(c, i).some((r) => points.slice(1).some((p, k) => segmentHits(points[k] ?? p, p, r, 2)))) return true;
   return out.some(
     (o, j) =>
@@ -83,4 +83,25 @@ export function cornerSteps(routes: readonly Route[], c: RouteContext): Route[] 
     if (!clashes(points, i, out, c)) out[i] = { ...r, points, shape: 'orthogonal' };
   });
   return out;
+}
+
+/** Does the middle point turn the line back on itself, along one axis? */
+const reverses = (a: Point, b: Point, c: Point): boolean =>
+  (a[1] === b[1] && b[1] === c[1] && a[0] !== b[0] && sign(a[0], b[0]) === -sign(b[0], c[0])) ||
+  (a[0] === b[0] && b[0] === c[0] && a[1] !== b[1] && sign(a[1], b[1]) === -sign(b[1], c[1]));
+
+/**
+ * Lines of the grid's router that overshoot a turn and come back along the same piece, such as a stub out of a port
+ * longer than the way to the next track, lose the overshoot: the piece runs straight on to where the line goes.
+ */
+export function foldBacks(routes: readonly Route[]): Route[] {
+  return routes.map((r) => {
+    const points: Point[] = [];
+    for (const p of r.points) {
+      const [a, b] = [points.at(-2), points.at(-1)];
+      if (a && b && reverses(a, b, p)) points.pop();
+      points.push(p);
+    }
+    return points.length === r.points.length ? r : { ...r, points };
+  });
 }

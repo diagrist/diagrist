@@ -1,20 +1,20 @@
-import type { Rect } from '@diagrist/core';
-import type { Side } from '@diagrist/layout-grid';
+import type { Point, Rect } from '@diagrist/core';
+import { type Side, simplify } from '@diagrist/layout-grid';
 import { type Graph, isHandlerFlow } from './graph.js';
-import { ACT, SIZE, type XY } from './metrics.js';
+import { ACT, SIZE } from './metrics.js';
 import { docks, far, moveEnd, moveStart, type Pin } from './pin-docks.js';
 import type { PlacedNode, Placement } from './place.js';
 import type { ActivityText } from './regions.js';
-import { dedupe, type Routed } from './route.js';
+import type { Routed } from './route.js';
 import type { PinArt } from './size.js';
 
-const NORMAL: Readonly<Record<Side, XY>> = { top: [0, -1], bottom: [0, 1], left: [-1, 0], right: [1, 0] };
+const NORMAL: Readonly<Record<Side, Point>> = { top: [0, -1], bottom: [0, 1], left: [-1, 0], right: [1, 0] };
 
 /**
  * A pin as a square outside the edge, centred on its attachment point. The object type stands right of the square
  * on top and bottom, above it on the sides, facing outwards.
  */
-function pinArt(text: string, side: Side, at: XY): PinArt {
+function pinArt(text: string, side: Side, at: Point): PinArt {
   const s = ACT.pin;
   const [nx, ny] = NORMAL[side];
   const rect: Rect = { x: at[0] + (nx * s) / 2 - s / 2, y: at[1] + (ny * s) / 2 - s / 2, w: s, h: s };
@@ -34,7 +34,7 @@ function pinArt(text: string, side: Side, at: XY): PinArt {
   }
 }
 
-const shift = (p: XY, side: Side, by: number): XY => [p[0] + NORMAL[side][0] * by, p[1] + NORMAL[side][1] * by];
+const shift = (p: Point, side: Side, by: number): Point => [p[0] + NORMAL[side][0] * by, p[1] + NORMAL[side][1] * by];
 
 /** Pins of an action: outputs, inputs and the exception pin of a handler, each with its edges. */
 function pinsOf(id: string, p: PlacedNode, routes: readonly Routed[], g: Graph): Pin[] {
@@ -108,6 +108,6 @@ export function placePins(
     }
     nodes.set(id, { ...p, art: { ...p.art, pins: arts } });
   }
-  const moved = routes.map((r) => ({ ...r, points: dedupe(points.get(r) ?? []) }));
+  const moved = routes.map((r) => ({ ...r, points: simplify(points.get(r) ?? []) }));
   return { placement: { ...pl, nodes }, routes: moved };
 }

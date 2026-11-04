@@ -46,12 +46,12 @@
 <g id="node-buchen"><rect x="72" y="740" width="160" height="40" rx="12" class="shape"/><text x="152" y="764" text-anchor="middle" class="act-text">Zahlung verbuchen</text><rect x="147" y="730" width="10" height="10" class="shape"/><text x="161" y="738" text-anchor="start" class="label">Belege</text></g>
 <g id="node-ende"><circle cx="152" cy="840" r="12" class="shape"/><circle cx="152" cy="840" r="7" class="uml-filled"/></g>
 <g id="edge-0"><path d="M152 156 L152 204" class="line" marker-end="url(#m-open)"/></g>
-<g id="edge-1"><path d="M152 254 L152 273 L371 273 L371 302" class="line" marker-end="url(#m-open)"/></g>
+<g id="edge-1"><path d="M152 254 L152 278 L371 278 L371 302" class="line" marker-end="url(#m-open)"/></g>
 <g id="edge-2"><path d="M371 314 L371 379" class="line" marker-end="url(#m-open)"/></g>
 <g id="edge-3"><path d="M371 429 L371 494" class="line" marker-end="url(#m-open)"/></g>
 <g id="edge-4"><path d="M371 534 L371 582" class="line" marker-end="url(#m-open)"/></g>
 <g id="edge-5"><path d="M371 622 L371 670" class="line" marker-end="url(#m-open)"/></g>
-<g id="edge-6"><path d="M371 682 L371 711 L152 711 L152 730" class="line" marker-end="url(#m-open)"/></g>
+<g id="edge-6"><path d="M371 682 L371 706 L152 706 L152 730" class="line" marker-end="url(#m-open)"/></g>
 <g id="edge-7"><path d="M152 780 L152 828" class="line" marker-end="url(#m-open)"/></g>
 <g id="edge-8"><path d="M431 409 L447 409 L455 417 L455 401 L463 409 L597 409" class="line" marker-end="url(#m-open)"/></g>
 <g id="edge-9"><path d="M439 514 L455 514 L463 522 L463 506 L471 514 L523 514 L523 437 L597 437" class="line" marker-end="url(#m-open)"/></g>

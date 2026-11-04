@@ -2,16 +2,17 @@ import { type Placed, textWidth } from '@diagrist/core';
 import { right } from '@diagrist/layout-grid';
 import { decisionStrip, HEADER, type Header, MARGIN, type Strip, stripWidth, type Words } from '@diagrist/parts';
 import type { ActivityModel } from '../model/index.js';
-import { layoutGraph } from './graph.js';
+import { type Graph, layoutGraph } from './graph.js';
 import { type GuardText, guardTexts, placeQuestions } from './guards.js';
 import type { LaneArt } from './lanes.js';
 import { ACT, ACT_FONTS, widthOf } from './metrics.js';
 import { placePins } from './pins.js';
-import { type PlacedNode, placeActivity } from './place.js';
+import { type ActivityPlacement, type PlacedNode, type Placement, placeActivity } from './place.js';
 import { placedOf } from './placed.js';
 import { nameRegions } from './region-names.js';
 import type { ActivityText, RegionArt } from './regions.js';
 import { type Routed, routeActivity } from './route.js';
+import { separateJogs } from './tracks.js';
 
 /** The texts of the picture the layout measures: the title line, and the suffix of open decisions. */
 export type PictureTexts = Pick<Words, 'open'> & {
@@ -68,19 +69,29 @@ const textRight = (t: ActivityText): number => {
 };
 
 /**
+ * The routes of a placement with the questions and pins they decide, then on their tracks; and the room the gaps
+ * lack for their tracks, by the layer below each.
+ */
+function drawRoutes(g: Graph, ap: ActivityPlacement): { placement: Placement; routes: Routed[]; room: number[] } {
+  const routed = routeActivity(g, ap);
+  const pinned = placePins(placeQuestions(ap.placement, routed), routed, g);
+  return { placement: pinned.placement, ...separateJogs(pinned.routes, pinned.placement) };
+}
+
+/**
  * Layout of an activity diagram: layers and order from the layering, lanes as columns, its own routing with bars,
- * diamonds and loops, then pins, questions, guards and region names; then the sheet around title, picture and
- * decision bar.
+ * diamonds and loops, then questions, pins and the tracks of the layered router, placed once more when a gap lacks
+ * room for its tracks; then guards and region names, and the sheet around title, picture and decision bar.
  */
 export function layoutActivity(m: ActivityModel, words: PictureTexts): ActivityLayout {
   const g = layoutGraph(m);
-  const ap = placeActivity(g);
-  const routed = routeActivity(g, ap);
-  const pinned = placePins(placeQuestions(ap.placement, routed), routed, g);
-  const routes = pinned.routes;
+  const first = placeActivity(g);
+  const once = drawRoutes(g, first);
+  const ap = once.room.some((r) => r > 0) ? placeActivity(g, once.room) : first;
+  const { placement, routes } = ap === first ? once : drawRoutes(g, ap);
   const guards = guardTexts(routes);
-  const nodes = [...pinned.placement.nodes.values()];
-  const regions = nameRegions(ap.regions, routes, pinned.placement);
+  const nodes = [...placement.nodes.values()];
+  const regions = nameRegions(ap.regions, routes, placement);
   const side = sideTexts(nodes, regions);
   const width = Math.ceil(
     Math.max(
