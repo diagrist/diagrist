@@ -1,5 +1,6 @@
 import type { Locale } from '@diagrist/lang';
-import { WORDS } from '@diagrist/parts';
+import { areaSentences, WORDS } from '@diagrist/parts';
+import { activityAreas } from '../areas.js';
 import type { ActivityNode, Flow } from '../diagram.js';
 import type { ActivityModel } from '../model/index.js';
 import type { ActivityProse } from './prose.js';
@@ -69,9 +70,20 @@ function flowLines(n: ActivityNode, m: ActivityModel, p: ActivityProse, name: (n
   );
 }
 
+/** The names of the nodes of each area, by the area's id (ADR 0033). */
+function membersByArea(m: ActivityModel, name: (n: ActivityNode) => string): Map<string, string[]> {
+  const of = activityAreas(m);
+  const out = new Map<string, string[]>();
+  for (const n of m.diagram.nodes) {
+    const area = of.node(n.id);
+    if (area !== undefined) out.set(area, [...(out.get(area) ?? []), name(n)]);
+  }
+  return out;
+}
+
 /**
  * Alt text of an activity diagram: the lanes with their nodes, the regions, pins and calls, the handlers, then the
- * edges node by node in source order, then the decisions.
+ * edges node by node in source order, then the decisions and the areas with their nodes.
  */
 export function describeActivity(m: ActivityModel, locale: Locale): string {
   const p = ACTIVITY_PROSE[locale];
@@ -95,5 +107,6 @@ export function describeActivity(m: ActivityModel, locale: Locale): string {
   }
   for (const n of m.nodes) lines.push(...flowLines(n, m, p, name));
   for (const x of d.decisions) lines.push(WORDS[locale].decision(x));
+  lines.push(...areaSentences(d.areas, membersByArea(m, name), locale));
   return lines.join('\n');
 }
