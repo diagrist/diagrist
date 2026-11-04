@@ -35,12 +35,12 @@ describe('areas in the SVG', () => {
     const svg = svgOf('tint', body);
     expect(svg).toContain('<g class="area-green">');
     expect(svg).toContain('.dia .area-green .shape { fill: #dcfce7; stroke: #15803d; }');
-    expect(svg).not.toContain('.area-green .label-bold');
+    expect(svg).toContain('.dia .area-green .label-bold { fill: #18181b; }');
   });
 
   it('outline: the outline and the name in the ink, the fill left white', () => {
     const svg = svgOf('outline', body);
-    expect(svg).toContain('.dia .area-green .shape { stroke: #15803d; }');
+    expect(svg).toContain('.dia .area-green .shape { fill: #ffffff; stroke: #15803d; }');
     expect(svg).toContain('.dia .area-green .label-bold { fill: #15803d; }');
   });
 
@@ -58,8 +58,8 @@ describe('areas in the SVG', () => {
       const svg = svgOf(paint, line);
       expect(svg).toContain('<path d="M 0 0 L 9 9" class="line" marker-end="url(#m-filled-orange)"/>');
       expect(svg).toContain('<marker id="m-filled-orange" class="area-orange-line"');
-      expect(svg).toContain('.dia .area-orange-line .line { stroke: #c2410c; }');
-      expect(svg).toContain('.dia .area-orange-line .arrow-filled { fill: #c2410c; }');
+      expect(svg).toContain('.dia .area-orange-line .line { fill: none; stroke: #c2410c; }');
+      expect(svg).toContain('.dia .area-orange-line .arrow-filled { fill: #c2410c; stroke: none; }');
     }
   });
 
@@ -69,6 +69,16 @@ describe('areas in the SVG', () => {
     const svg = toSvg(scene, usedOnly);
     expect(svg).not.toContain('.dia .arrow-filled {');
     expect(svg).toContain('.dia .area-orange-line .arrow-filled { fill: #c2410c; }');
+  });
+
+  it('keep the cascade of a shape with two classes: a halo under a line keeps the canvas, not the tone', () => {
+    const haloed: Shape = { ...line, children: [{ kind: 'path', d: 'M 0 0 L 9 9', role: 'haloed' }] };
+    const withHalo = { ...styles, roles: { ...styles.roles, haloed: { classes: ['line', 'halo'] } } };
+    const svg = toSvg({ width: 100, height: 50, title: 'T', children: [haloed] }, withHalo);
+    const inked = svg.indexOf('.dia .area-orange-line .line {');
+    const halo = svg.indexOf('.dia .area-orange-line .halo { stroke: #fafafa; }');
+    expect(inked).toBeGreaterThan(0);
+    expect(halo).toBeGreaterThan(inked);
   });
 
   it('a scene without areas has no area rules, markers or filters', () => {

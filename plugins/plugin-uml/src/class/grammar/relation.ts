@@ -1,3 +1,4 @@
+import { lineAreaAttribute } from '@diagrist/core';
 import { arg, arrow, attr, oneOf, optionalArg, ref, statement, text } from '@diagrist/lang';
 import { multiplicity } from '../../shared/values.js';
 import { implementing, type SpecElement } from '../../spec/catalog.js';
@@ -67,6 +68,7 @@ export const classRel = statement(
         optionalArg('label', text(), 'Name of the relation, shown at the middle of the line.'),
       ],
       attributes: {
+        area: lineAreaAttribute,
         source: implementing(
           { uml: [CLASSES.multiplicity] },
           attr(multiplicity(), 'Multiplicity at `from`: how many `from` belong to one `to`.'),

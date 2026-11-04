@@ -216,24 +216,25 @@ The rules of `activity` report these codes:
 A UML class diagram (UML 2.5.1, chapters 9 to 12): classes, interfaces and enumerations with their members, packages, and the relations between them. Diagrist lays it out by itself in layers: superclasses, interfaces, wholes and users above, associated classes side by side, each package as one block. Full reference: `dgr grammar class`.
 
 ```text
-diagram class "Title" [subtitle=<text>] [look=<plain|cards>] [locale=<en|de>]
+diagram class "Title" [subtitle=<text>] [look=<plain|cards>] [areas=<tint|outline|stripe>] [locale=<en|de>]
 ```
 
 | Line | Where | What it does | Example |
 |---|---|---|---|
-| `class <id> <label> [in <ref>] [stereotype=<text>] [template=<text>] [tone=<choice>] [mark=<ref>] [abstract] [emph]` | top level | A class: a box with the name, below it the compartments of attributes and operations, shown even when empty. | `class order "Order" stereotype="entity"
+| `class <id> <label> [in <ref>] [stereotype=<text>] [template=<text>] [tone=<choice>] [mark=<ref>] [area=<ref>] [abstract] [emph]` | top level | A class: a box with the name, below it the compartments of attributes and operations, shown even when empty. | `class order "Order" stereotype="entity"
   "- number : String {readOnly}"
   "+ total() : Money"` |
-| `interface <id> <label> [in <ref>] [stereotype=<text>] [template=<text>] [tone=<choice>] [mark=<ref>] [abstract] [emph]` | top level | An interface: `«interface»` above the name, operations in italics; the attribute compartment only when it holds something. | `interface printable "Printable"
+| `interface <id> <label> [in <ref>] [stereotype=<text>] [template=<text>] [tone=<choice>] [mark=<ref>] [area=<ref>] [abstract] [emph]` | top level | An interface: `«interface»` above the name, operations in italics; the attribute compartment only when it holds something. | `interface printable "Printable"
   "+ print() : String"` |
-| `enum <id> <label> [in <ref>] [stereotype=<text>] [template=<text>] [tone=<choice>] [mark=<ref>] [abstract] [emph]` | top level | An enumeration: `«enumeration»` above the name, below it one value per line. | `enum status "Status"
+| `enum <id> <label> [in <ref>] [stereotype=<text>] [template=<text>] [tone=<choice>] [mark=<ref>] [area=<ref>] [abstract] [emph]` | top level | An enumeration: `«enumeration»` above the name, below it one value per line. | `enum status "Status"
   "OPEN"
   "PAID"` |
-| `package <id> <label> [in <ref>] [tone=<choice>]` | top level | A package: a frame with a tab holding the name, around the classifiers `in` it. | `package domain "domain"` |
-| `assoc <id> [label] [in <ref>] [class=<ref>] [mark=<ref>] [emph]` | top level | An n-ary association: a diamond joined to three or more classes. | `assoc lesson "Lesson" class=unit` |
-| `rel <from> <arrow> <to> [label] [source=<multiplicity>] [card=<multiplicity>] [role=<text>] [srole=<text>] [nonav=<from\|to\|both>] [class=<ref>] [import] [access] [emph]` | top level | A relation between classifiers, read from `from` to `to`; the arrow says which (see the arrows). | `rel customer -- order "places" source=1 card=0..*` |
+| `package <id> <label> [in <ref>] [tone=<choice>] [area=<ref>]` | top level | A package: a frame with a tab holding the name, around the classifiers `in` it. | `package domain "domain"` |
+| `assoc <id> [label] [in <ref>] [class=<ref>] [mark=<ref>] [area=<ref>] [emph]` | top level | An n-ary association: a diamond joined to three or more classes. | `assoc lesson "Lesson" class=unit` |
+| `rel <from> <arrow> <to> [label] [area=<ref>] [source=<multiplicity>] [card=<multiplicity>] [role=<text>] [srole=<text>] [nonav=<from\|to\|both>] [class=<ref>] [import] [access] [emph]` | top level | A relation between classifiers, read from `from` to `to`; the arrow says which (see the arrows). | `rel customer -- order "places" source=1 card=0..*` |
 | `note <text> [on <ref>]` | top level | A comment on a classifier: a dashed box above it with a tip down to it, below it when lines run above. | `note "Exactly one lecturer per lesson" on lecturer` |
 | `adr <id> <question> <equals> <choice> [then] [consequence] [open=<text>]` | top level | An architecture decision in the bar below the picture: question, the chosen option after `=`, and the consequence after `=>`. | `adr E1 "How do the services coordinate?" = "Events over Kafka" => "No central coordinator"` |
+| `area <id> <label> [tone=<choice>]` | top level | A named area of the picture, such as the core or one extension of an extensible architecture. | `area kern "Kern"` |
 
 The arrows of `rel`: `--` association, navigability open at both ends, `->` directed association, navigable towards `to` (open head there), `<->` association navigable at both ends (open heads at both), `-->` dependency, dashed with an open head at `to`; between packages with `import` or `access`, `-|>` generalization: `from` is a special kind of `to`, hollow triangle at `to`, `--|>` realization: `from` implements the interface `to`, dashed with a hollow triangle, `o--` aggregation: `from` is the whole, hollow diamond at `from`, `*--` composition: `from` is the whole that owns its parts, filled diamond at `from`.
 

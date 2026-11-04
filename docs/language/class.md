@@ -9,7 +9,7 @@ This page lists everything a `class` diagram may contain. The same grammar is av
 ## The first line
 
 ```text
-diagram class "Title" [subtitle=<text>] [look=<plain|cards>] [locale=<en|de>]
+diagram class "Title" [subtitle=<text>] [look=<plain|cards>] [areas=<tint|outline|stripe>] [locale=<en|de>]
 ```
 
 Every class diagram starts with this line.
@@ -18,6 +18,7 @@ Every class diagram starts with this line.
 |---|---|---|---|
 | `subtitle=` | attribute | a text in double quotes like `"Order service"` | Second line below the title. |
 | `look=` | attribute | one of `plain`, `cards` | `plain` (default) draws the UML notation, `cards` the same layout as cards with a toned name field and toned packages. |
+| `areas=` | attribute | one of `tint`, `outline`, `stripe` | How elements of a coloured area are painted: `tint` (default) a light fill and the outline in its tone, `outline` the outline and the name in its tone, `stripe` a stripe of its tone at the left edge. Lines and frames of an area are drawn in its tone in each. |
 | `locale=` | attribute | one of `en`, `de` | Language of the texts Diagrist adds to the picture and of the description: `en` (default) or `de`. |
 
 Example:
@@ -40,11 +41,12 @@ Each statement is one line that starts with its keyword. Statements inside block
 | [`rel`](#rel) | top level | A relation between classifiers, read from `from` to `to`; the arrow says which (see the arrows). |
 | [`note`](#note) | top level | A comment on a classifier: a dashed box above it with a tip down to it, below it when lines run above. |
 | [`adr`](#adr) | top level | An architecture decision in the bar below the picture: question, the chosen option after `=`, and the consequence after `=>`. |
+| [`area`](#area) | top level | A named area of the picture, such as the core or one extension of an extensible architecture. |
 
 ### `class`
 
 ```text
-class <id> <label> [in <ref>] [stereotype=<text>] [template=<text>] [tone=<choice>] [mark=<ref>] [abstract] [emph]
+class <id> <label> [in <ref>] [stereotype=<text>] [template=<text>] [tone=<choice>] [mark=<ref>] [area=<ref>] [abstract] [emph]
 ```
 
 A class: a box with the name, below it the compartments of attributes and operations, shown even when empty. Members follow indented, one per line. Diagrist places classifiers in layers: superclasses and interfaces above, the whole above its parts, the user above what it uses, associated classes side by side. UML 2.5.1: 11.4.4 Class with compartments for attributes and operations.
@@ -60,6 +62,7 @@ Written at the top level.
 | `template=` | attribute | a text in double quotes like `"Order service"` | Template parameters such as `"T"` or `"K, V"`, drawn in a dashed box at the top right corner. UML 2.5.1: 7.3.4 Template parameters in a dashed box at the top right corner. |
 | `tone=` | attribute | one of `blue`, `indigo`, `purple`, `maroon`, `green`, `teal`, `slate`, `red`, `orange`, `peach`, `sky` | Colour of the name field in `look=cards`; without it slate. |
 | `mark=` | attribute | the id of an `adr` declared in this diagram | Id of a decision of the decision bar, such as `E1`; the mark is drawn beside it. |
+| `area=` | attribute | the id of an `area` declared in this diagram | The area it belongs to, declared with `area`, whose tone paints it. Members of a frame take the area of the frame unless they name their own. |
 | `abstract` | flag |  | An abstract classifier: the name in italics with `{abstract}` below it. UML 2.5.1: 9.2.4 Abstract classifier, its name in italics. |
 | `emph` | flag |  | Highlights the box in the accent colour. |
 
@@ -95,7 +98,7 @@ Examples:
 ### `interface`
 
 ```text
-interface <id> <label> [in <ref>] [stereotype=<text>] [template=<text>] [tone=<choice>] [mark=<ref>] [abstract] [emph]
+interface <id> <label> [in <ref>] [stereotype=<text>] [template=<text>] [tone=<choice>] [mark=<ref>] [area=<ref>] [abstract] [emph]
 ```
 
 An interface: `«interface»` above the name, operations in italics; the attribute compartment only when it holds something. Members follow indented, one per line. Diagrist places classifiers in layers: superclasses and interfaces above, the whole above its parts, the user above what it uses, associated classes side by side. UML 2.5.1: 10.4.4 Interface with the keyword «interface».
@@ -111,6 +114,7 @@ Written at the top level.
 | `template=` | attribute | a text in double quotes like `"Order service"` | Template parameters such as `"T"` or `"K, V"`, drawn in a dashed box at the top right corner. UML 2.5.1: 7.3.4 Template parameters in a dashed box at the top right corner. |
 | `tone=` | attribute | one of `blue`, `indigo`, `purple`, `maroon`, `green`, `teal`, `slate`, `red`, `orange`, `peach`, `sky` | Colour of the name field in `look=cards`; without it slate. |
 | `mark=` | attribute | the id of an `adr` declared in this diagram | Id of a decision of the decision bar, such as `E1`; the mark is drawn beside it. |
+| `area=` | attribute | the id of an `area` declared in this diagram | The area it belongs to, declared with `area`, whose tone paints it. Members of a frame take the area of the frame unless they name their own. |
 | `abstract` | flag |  | An abstract classifier: the name in italics with `{abstract}` below it. UML 2.5.1: 9.2.4 Abstract classifier, its name in italics. |
 | `emph` | flag |  | Highlights the box in the accent colour. |
 
@@ -145,7 +149,7 @@ Examples:
 ### `enum`
 
 ```text
-enum <id> <label> [in <ref>] [stereotype=<text>] [template=<text>] [tone=<choice>] [mark=<ref>] [abstract] [emph]
+enum <id> <label> [in <ref>] [stereotype=<text>] [template=<text>] [tone=<choice>] [mark=<ref>] [area=<ref>] [abstract] [emph]
 ```
 
 An enumeration: `«enumeration»` above the name, below it one value per line. Members follow indented, one per line. Diagrist places classifiers in layers: superclasses and interfaces above, the whole above its parts, the user above what it uses, associated classes side by side. UML 2.5.1: 10.2.4 Enumeration with its literals.
@@ -161,6 +165,7 @@ Written at the top level.
 | `template=` | attribute | a text in double quotes like `"Order service"` | Template parameters such as `"T"` or `"K, V"`, drawn in a dashed box at the top right corner. UML 2.5.1: 7.3.4 Template parameters in a dashed box at the top right corner. |
 | `tone=` | attribute | one of `blue`, `indigo`, `purple`, `maroon`, `green`, `teal`, `slate`, `red`, `orange`, `peach`, `sky` | Colour of the name field in `look=cards`; without it slate. |
 | `mark=` | attribute | the id of an `adr` declared in this diagram | Id of a decision of the decision bar, such as `E1`; the mark is drawn beside it. |
+| `area=` | attribute | the id of an `area` declared in this diagram | The area it belongs to, declared with `area`, whose tone paints it. Members of a frame take the area of the frame unless they name their own. |
 | `abstract` | flag |  | An abstract classifier: the name in italics with `{abstract}` below it. UML 2.5.1: 9.2.4 Abstract classifier, its name in italics. |
 | `emph` | flag |  | Highlights the box in the accent colour. |
 
@@ -196,7 +201,7 @@ Examples:
 ### `package`
 
 ```text
-package <id> <label> [in <ref>] [tone=<choice>]
+package <id> <label> [in <ref>] [tone=<choice>] [area=<ref>]
 ```
 
 A package: a frame with a tab holding the name, around the classifiers `in` it. Packages nest with `in`. Between packages, and between a package and a classifier, only dependencies `-->` exist, optionally with `import` or `access`. A package without classifiers is not drawn. UML 2.5.1: 12.2.4 Package as a frame with its name in the tab.
@@ -209,6 +214,7 @@ Written at the top level.
 | `<label>` | argument | a text in double quotes like `"Order service"` | Name shown in the tab. |
 | `in <ref>` | clause | the id of a `package` declared in this diagram | The package this one is nested in. |
 | `tone=` | attribute | one of `blue`, `indigo`, `purple`, `maroon`, `green`, `teal`, `slate`, `red`, `orange`, `peach`, `sky` | Colour of its area in `look=cards`; without it slate. |
+| `area=` | attribute | the id of an `area` declared in this diagram | The area it belongs to, declared with `area`, whose tone paints it. Members of a frame take the area of the frame unless they name their own. |
 
 Examples:
 
@@ -220,7 +226,7 @@ package persistence "persistence" in backend
 ### `assoc`
 
 ```text
-assoc <id> [label] [in <ref>] [class=<ref>] [mark=<ref>] [emph]
+assoc <id> [label] [in <ref>] [class=<ref>] [mark=<ref>] [area=<ref>] [emph]
 ```
 
 An n-ary association: a diamond joined to three or more classes. Each end is a leg `rel <assoc> -- <class> card=... role=...`; multiplicity and role stand at the class end and say how many objects there belong to one fixed combination of the other ends. The name stands at the top right of the diamond. Diagrist places the diamond in the middle of its ends: the first two left and right, the third below, the fourth (or the association class) above. UML 2.5.1: 11.5.4 N-ary association as a diamond with a leg to each end.
@@ -234,6 +240,7 @@ Written at the top level.
 | `in <ref>` | clause | the id of a `package` declared in this diagram | The package the association belongs to. |
 | `class=` | attribute | the id of a `class` declared in this diagram | The association class: a class that is this association, joined dashed to the diamond. UML 2.5.1: 11.5.4 Association class joined by a dashed line. |
 | `mark=` | attribute | the id of an `adr` declared in this diagram | Id of a decision of the decision bar, such as `E1`; the mark is drawn beside it. |
+| `area=` | attribute | the id of an `area` declared in this diagram | The area it belongs to, declared with `area`, whose tone paints it. Members of a frame take the area of the frame unless they name their own. |
 | `emph` | flag |  | Highlights the diamond in the accent colour. |
 
 Example:
@@ -245,7 +252,7 @@ assoc lesson "Lesson" class=unit
 ### `rel`
 
 ```text
-rel <from> <arrow> <to> [label] [source=<multiplicity>] [card=<multiplicity>] [role=<text>] [srole=<text>] [nonav=<from|to|both>] [class=<ref>] [import] [access] [emph]
+rel <from> <arrow> <to> [label] [area=<ref>] [source=<multiplicity>] [card=<multiplicity>] [role=<text>] [srole=<text>] [nonav=<from|to|both>] [class=<ref>] [import] [access] [emph]
 ```
 
 A relation between classifiers, read from `from` to `to`; the arrow says which (see the arrows). `card=` and `role=` stand at `to`, `source=` and `srole=` at `from`. Generalizations and realizations with the same target share one triangle. A relation of a class with itself is a loop. A leg of an n-ary association runs from the `assoc` to a class.
@@ -258,6 +265,7 @@ Written at the top level.
 | `<arrow>` | argument | one of the arrows `--` association, navigability open at both ends, `->` directed association, navigable towards `to` (open head there), `<->` association navigable at both ends (open heads at both), `-->` dependency, dashed with an open head at `to`; between packages with `import` or `access`, `-\|>` generalization: `from` is a special kind of `to`, hollow triangle at `to`, `--\|>` realization: `from` implements the interface `to`, dashed with a hollow triangle, `o--` aggregation: `from` is the whole, hollow diamond at `from`, `*--` composition: `from` is the whole that owns its parts, filled diamond at `from` | What kind of relation it is. UML 2.5.1: `--` 11.5.4 Binary association as a line with its name; `->` 11.5.4 Binary association as a line with its name, 11.5.4 Navigable end with an open arrowhead; `<->` 11.5.4 Binary association as a line with its name, 11.5.4 Navigable end with an open arrowhead; `-->` 7.7.4 Dependency as a dashed arrow; `-\|>` 9.2.3.2 Generalization between classifiers; `--\|>` 10.4.4 Realization of an interface, dashed with a hollow triangle; `o--` 11.5.4 Shared aggregation with a hollow diamond at the whole; `*--` 11.5.4 Composition with a filled diamond at the whole. |
 | `<to>` | argument | the id of a `class`, `interface`, `enum`, `assoc` or `package` declared in this diagram | Classifier, n-ary association or package the relation points to. |
 | `[label]` | optional argument | a text in double quotes like `"Order service"` | Name of the relation, shown at the middle of the line. |
+| `area=` | attribute | the id of an `area` declared in this diagram | The area the line belongs to, declared with `area`. Without it the line takes the coloured area of its first end, else that of its second, so a line between an extension and the core belongs to the extension. |
 | `source=` | attribute | a UML multiplicity like `1`, `0..1`, `1..*` or `*`, the lower bound not above the upper one | Multiplicity at `from`: how many `from` belong to one `to`. UML 2.5.1: 7.5.4 Multiplicity at an end or of a property. |
 | `card=` | attribute | a UML multiplicity like `1`, `0..1`, `1..*` or `*`, the lower bound not above the upper one | Multiplicity at `to`: how many `to` belong to one `from`. UML 2.5.1: 7.5.4 Multiplicity at an end or of a property. |
 | `role=` | attribute | a text in double quotes like `"Order service"` | Role name at `to`, written opposite the multiplicity. UML 2.5.1: 11.5.4 Role name at an end of an association. |
@@ -337,6 +345,29 @@ Example:
 
 ```dgr
 adr E1 "How do the services coordinate?" = "Events over Kafka" => "No central coordinator"
+```
+
+### `area`
+
+```text
+area <id> <label> [tone=<choice>]
+```
+
+A named area of the picture, such as the core or one extension of an extensible architecture. Elements, frames and lines join it with `area=` and are painted in its tone, and the legend names it. An area without a tone stays in ink, as a core does.
+
+Written at the top level.
+
+| Part | Kind | Value | Meaning |
+|---|---|---|---|
+| `<id>` | argument | an identifier like `api` (letters, digits, `_` and `-`, starting with a letter) | Id that `area=` of elements, frames and lines names. |
+| `<label>` | argument | a text in double quotes like `"Order service"` | Name of the area in the legend. |
+| `tone=` | attribute | one of `green`, `orange`, `purple`, `red`, `yellow`, `teal`, `pink`, `sky` | Colour of the area. Two areas of one picture take different tones; without one the area stays in ink. |
+
+Examples:
+
+```dgr
+area kern "Kern"
+area zahlung "Zahlungen" tone=green
 ```
 
 ## Diagnostic codes

@@ -21,21 +21,34 @@ type AreaColors = NonNullable<Styles['areaColors']>;
 
 const DECLARATION = /^\s*(fill|stroke)\s*:\s*(\S+?)\s*$/;
 
-/** The declarations an area adds to a rule of the style table, or none when the rule paints nothing it replaces. */
-function derive(declarations: string, mark: AreaMark, paint: AreaPaint, colors: AreaColors): string {
+/** One painting declaration of a rule inside an area, and whether the area changed it. */
+interface Painted {
+  readonly prop: string;
+  readonly value: string;
+  readonly changed: boolean;
+}
+
+/** The fill and stroke of a rule as an area paints them, each marked when the area replaced it; the stripe as a filter. */
+function derive(declarations: string, mark: AreaMark, paint: AreaPaint, colors: AreaColors): Painted[] {
   const { ink, tint } = AREA_TONES[mark.tone];
   const { ink: inks, outline, surface } = colors;
   const mode = mark.as === 'line' ? 'outline' : paint;
-  const out: string[] = [];
+  const out: Painted[] = [];
   for (const part of declarations.split(';')) {
-    const [, prop = '', value = ''] = DECLARATION.exec(part) ?? [];
+    const [, prop, value] = DECLARATION.exec(part) ?? [];
+    if (prop === undefined || value === undefined) continue;
     const isInk = inks.includes(value) || (prop === 'stroke' && outline.includes(value));
     const isSurface = prop === 'fill' && surface.includes(value);
-    if (isInk && (mode === 'outline' || (mode === 'tint' && prop === 'stroke'))) out.push(`${prop}: ${ink};`);
-    if (isSurface && mode === 'tint') out.push(`fill: ${tint};`);
-    if (isSurface && mode === 'stripe') out.push(`filter: url(#area-${mark.tone});`);
+    if (isInk && (mode === 'outline' || (mode === 'tint' && prop === 'stroke'))) {
+      out.push({ prop, value: ink, changed: true });
+    } else if (isSurface && mode === 'tint') {
+      out.push({ prop, value: tint, changed: true });
+    } else {
+      out.push({ prop, value, changed: false });
+    }
+    if (isSurface && mode === 'stripe') out.push({ prop: 'filter', value: `url(#area-${mark.tone})`, changed: true });
   }
-  return out.join(' ');
+  return out;
 }
 
 /** Area classes in a stable order: by tone, lines and frames before the elements, whose rules then win. */
@@ -48,7 +61,9 @@ const ordered = (uses: ReadonlyMap<string, AreaUse>): AreaUse[] => {
 const UNSTYLED = 'fill: #000000;';
 
 /**
- * CSS rules of the areas: each rule of the style table used inside an area, repainted in the area's tone. A rule the
+ * CSS rules of the areas: each rule of the style table used inside an area, repainted in the area's tone. The rules
+ * repeat, in their order, what the other classes used there paint of the same property, so that a shape of two
+ * classes, such as a line with a halo, is painted inside the area as outside: the halo keeps the canvas. A rule the
  * stylesheet leaves out, as looks do that write only what the picture uses, paints nothing, so its class is drawn in
  * SVG's black fill, which the area repaints like ink; that keeps arrowheads in the tone of their line.
  */
@@ -61,19 +76,25 @@ export function areaRules(
   const root = `.${styles.root}`;
   const colors = styles.areaColors ?? STANDARD_AREA_COLORS;
   const unstyled = { ...colors, ink: [...colors.ink, '#000000'] };
-  return ordered(uses).flatMap((use) =>
-    styles.rules
+  return ordered(uses).flatMap((use) => {
+    const rules = styles.rules
       .filter((rule) => use.classes.has(rule.name))
       .map((rule) => {
         const own = written.has(rule.name);
-        return [
-          rule.name,
-          derive(own ? rule.declarations : UNSTYLED, use.mark, paint, own ? colors : unstyled),
-        ] as const;
-      })
-      .filter(([, declarations]) => declarations !== '')
-      .map(([name, declarations]) => `  ${root} .${areaClass(use.mark)} .${name} { ${declarations} }\n`),
-  );
+        return {
+          name: rule.name,
+          painted: derive(own ? rule.declarations : UNSTYLED, use.mark, paint, own ? colors : unstyled),
+        };
+      });
+    const changed = new Set(rules.flatMap((r) => r.painted.filter((d) => d.changed).map((d) => d.prop)));
+    return rules
+      .map(({ name, painted }) => ({ name, kept: painted.filter((d) => d.changed || changed.has(d.prop)) }))
+      .filter(({ kept }) => kept.length > 0)
+      .map(({ name, kept }) => {
+        const declarations = kept.map((d) => `${d.prop}: ${d.value};`).join(' ');
+        return `  ${root} .${areaClass(use.mark)} .${name} { ${declarations} }\n`;
+      });
+  });
 }
 
 /**

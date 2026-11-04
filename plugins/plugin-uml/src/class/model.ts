@@ -24,6 +24,17 @@ export function classModel(diagram: ClassDiagram): ClassModel {
   };
 }
 
+/** The area of a classifier, diamond or package: its own, else that of the nearest package around it (ADR 0033). */
+export function areaOf(m: ClassModel, id: string): string | undefined {
+  const own = m.classifiers.get(id)?.area ?? m.associations.get(id)?.area ?? m.packages.get(id)?.area;
+  return (
+    own ??
+    packagesAround(m, id)
+      .map((p) => m.packages.get(p)?.area)
+      .find((a) => a !== undefined)
+  );
+}
+
 /** The packages around `id`, innermost first: its own package and their parents; cycles end the chain. */
 export function packagesAround(m: ClassModel, id: string): string[] {
   const out: string[] = [];

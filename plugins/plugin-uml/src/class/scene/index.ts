@@ -1,8 +1,9 @@
-import { type Anchors, domId, type Scene, type Shape } from '@diagrist/core';
-import { headerShapes, markShapes, stripShapes, type Words } from '@diagrist/parts';
+import { type Anchors, domId, markAreas, type Scene, type Shape } from '@diagrist/core';
+import { headerShapes, markShapes, stripShapes, type Words, withAreaLegend } from '@diagrist/parts';
 import { noteShapes } from '../../shared/note-shapes.js';
 import type { ClassLayout, PictureTexts } from '../layout/index.js';
 import type { ClassModel } from '../model.js';
+import { classAreaMarks, usedAreas } from './areas.js';
 import { edgeShape, labelShape } from './edges.js';
 import { classShape, diamondShape, packageShape } from './nodes.js';
 
@@ -47,7 +48,18 @@ export function classScene(l: ClassLayout, m: ClassModel, words: Words & Picture
     ...l.marks.map((x): Shape => ({ kind: 'group', children: markShapes(x.id, x.x, x.y) })),
     ...stripShapes(l.strip, words),
   ];
-  return { width: l.width, height: l.height, title: m.diagram.title, children };
+  const marks = classAreaMarks(
+    m,
+    edges.map((e) => e.relation),
+  );
+  const scene: Scene = {
+    width: l.width,
+    height: l.height,
+    title: m.diagram.title,
+    areas: m.diagram.areas.paint,
+    children: markAreas(children, marks),
+  };
+  return withAreaLegend(scene, m.diagram.areas, usedAreas(m), cards ? 'cardBox' : 'box');
 }
 
 /** Classifiers and diamonds as nodes, packages as groups, relations as edges in drawing order. */
