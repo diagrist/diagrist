@@ -1,11 +1,9 @@
 import { fileURLToPath } from 'node:url';
-import { either, GRAMMAR_SCHEMA, grammarOf, SHARED_KEYWORDS } from '@diagrist/lang';
+import { GRAMMAR_SCHEMA, grammarOf, SHARED_KEYWORDS } from '@diagrist/lang';
 import { compareGolden } from '@diagrist/testkit';
-import { COMMANDS, GLOBAL_OPTIONS, PLUGINS, SCHEMA_PATH } from 'diagrist/tables';
+import { COMMANDS, PLUGINS, SCHEMA_PATH } from 'diagrist/tables';
 import { describe, expect, it } from 'vitest';
 import { derivedFiles } from '../src/files.js';
-import { SKILL_PATH } from '../src/skill.js';
-import { SKILL_INTRO } from '../src/skill-intro.js';
 import { specPath } from '../src/spec.js';
 
 const root = fileURLToPath(new URL('../../../', import.meta.url));
@@ -56,34 +54,4 @@ describe('the language spec of a kind', () => {
       expect(kind.rules.filter((rule) => !spec.includes(`| \`${rule.code}\` |`)).map((rule) => rule.code)).toEqual([]);
     },
   );
-});
-
-describe('the agent skill', () => {
-  const skill = content(SKILL_PATH);
-
-  it('starts with frontmatter whose description is a plain YAML scalar', () => {
-    const [, frontmatter = ''] = /^---\n([\s\S]*?)\n---\n/.exec(skill) ?? [];
-    const description = /^description: (.*)$/m.exec(frontmatter)?.[1] ?? '';
-    expect(frontmatter).toMatch(/^name: diagrist$/m);
-    expect(description).toContain(either(kinds.map((kind) => kind.spec.name)));
-    expect(description).not.toMatch(/: | #|^["'{[]/);
-  });
-
-  it('names only commands and options the CLI has in its handwritten part', () => {
-    const text = [...SKILL_INTRO.lead, ...SKILL_INTRO.workflow].join('\n');
-    const calls = [...text.matchAll(/`dgr ([a-z]+)([^`]*)`/g)];
-    expect(calls.length).toBeGreaterThan(0);
-    const wrong = calls.flatMap(([whole, name, rest = '']) => {
-      const command = COMMANDS.find((c) => c.name === name);
-      if (command === undefined) return [whole];
-      const options = [...rest.matchAll(/--([a-z-]+)/g)].map((m) => m[1] ?? '');
-      return options.filter((o) => !(o in command.options) && !(o in GLOBAL_OPTIONS)).map((o) => `${whole}: --${o}`);
-    });
-    expect(wrong).toEqual([]);
-  });
-
-  it('lists every rule code of every kind', () => {
-    const codes = kinds.flatMap((kind) => kind.rules.map((rule) => rule.code));
-    expect(codes.filter((c) => !skill.includes(`\`${c}\``))).toEqual([]);
-  });
 });

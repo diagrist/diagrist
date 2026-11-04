@@ -1,66 +1,67 @@
 import type { Kind, Plugin } from '@diagrist/core';
-import { either, type GrammarField, grammarOf } from '@diagrist/lang';
+import { type GrammarField, grammarOf } from '@diagrist/lang';
 import { type Command, commandLine, headerLine, signatureOf, summaryOf } from 'diagrist/tables';
 import { LANGUAGE_BASICS } from './basics.js';
 import { kernelCodes, languageCodes, ruleCodes } from './codes.js';
+import type { DerivedFile } from './files.js';
 import { code, generatedFrom, table } from './markdown.js';
 import { ownStatements, SHARED_BASICS, sharedStatements } from './shared.js';
-import { SKILL_INTRO } from './skill-intro.js';
 import { type PlacedStatement, placedStatements, whereOf } from './statements.js';
 
 /** Where the agent skill is checked in, relative to the repository root. */
-export const SKILL_PATH = 'skills/diagrist/SKILL.md';
+export const SKILL_DIR = 'skills/diagrist';
 
 /**
- * The agent skill in the format of Claude Code skills: frontmatter with `name` and `description`, then how to work,
- * the commands, a short reference of every kind and the diagnostic codes. All but the intro is derived from the
- * command tables, the statement tables and the catalogues (ADR 0004).
+ * Where the generated part of the skill lies, relative to the skill: the language, one file per kind and the codes.
+ * Everything else in the skill folder is written by hand, starting with `SKILL.md` (ADR 0036).
  */
-export function agentSkill(plugins: readonly Plugin[], commands: readonly Command[]): string {
+export const SKILL_REFERENCE = 'reference';
+
+/** The path of a kind's reference inside the skill folder, such as `reference/sequence.md`. */
+export const kindReferencePath = (kind: string): string => `${SKILL_REFERENCE}/${kind}.md`;
+
+/**
+ * The generated part of the agent skill, which `SKILL.md` and the handwritten guides link to: the basics of the
+ * language with the commands, a reference per kind and the codes. An agent opens a file only when it needs it, so a
+ * diagram of one kind reads one kind (ADR 0036). All of it is derived from the command tables, the statement tables
+ * and the catalogues (ADR 0004).
+ */
+export function skillReference(plugins: readonly Plugin[], commands: readonly Command[]): DerivedFile[] {
   const kinds = plugins.flatMap((plugin) => plugin.kinds);
-  const names = either(kinds.map((kind) => kind.spec.name));
+  const at = (path: string) => `${SKILL_DIR}/${path}`;
   return [
-    '---',
-    'name: diagrist',
-    `description: ${SKILL_INTRO.description.replace('{kinds}', names)}`,
-    '---',
+    { path: at(`${SKILL_REFERENCE}/language.md`), content: languageFile(plugins, commands) },
+    ...kinds.map((kind) => ({ path: at(kindReferencePath(kind.spec.name)), content: kindFile(kind) })),
+    { path: at(`${SKILL_REFERENCE}/codes.md`), content: codesFile() },
+  ];
+}
+
+/** How every file is written, the commands, and the statements every kind has. */
+function languageFile(plugins: readonly Plugin[], commands: readonly Command[]): string {
+  return lines([
+    generatedFrom('the command tables and the statement tables'),
     '',
-    generatedFrom('the command tables, the statement tables of every kind and the diagnostic catalogues'),
+    '# The language and the commands',
     '',
-    '# Diagrist',
+    ...paragraphs(LANGUAGE_BASICS),
+    '## Commands',
     '',
-    ...[...SKILL_INTRO.lead, ...LANGUAGE_BASICS].flatMap((paragraph) => [paragraph, '']),
-    '## How to work',
-    '',
-    ...SKILL_INTRO.workflow.flatMap((paragraph) => [paragraph, '']),
-    'Every command takes `--json` for one JSON document on stdout. The commands:',
+    'Every command takes `--json` for one JSON document on stdout.',
     '',
     ...table(
       ['Command', 'What it does'],
       commands.map((command) => [code(commandLine(command)), summaryOf(command.doc)]),
     ),
     '',
-    ...kinds.flatMap(kindReference),
     '## Statements of every kind',
     '',
-    ...SHARED_BASICS.flatMap((paragraph) => [paragraph, '']),
+    ...paragraphs(SHARED_BASICS),
     ...statementTable(sharedStatements(plugins)),
-    '',
-    '## Diagnostic codes',
-    '',
-    'The letter of a code names who reports it. Messages show values as `{name}`; in `--json` they are the `values` of the diagnostic. These come from the language:',
-    '',
-    ...table(['Code', 'Message'], languageCodes()),
-    '',
-    'These come from the kernel:',
-    '',
-    ...table(['Code', 'Message'], kernelCodes()),
-    '',
-  ].join('\n');
+  ]);
 }
 
 /** One kind in short: its first line, every statement with signature, purpose and example, its arrows and codes. */
-function kindReference(kind: Kind): string[] {
+function kindFile(kind: Kind): string {
   const grammar = ownStatements(grammarOf(kind.spec));
   const placed = placedStatements(grammar);
   const withMeanings = placed.flatMap(({ statement }) =>
@@ -68,10 +69,12 @@ function kindReference(kind: Kind): string[] {
       .filter((field): field is GrammarField & { meanings: Readonly<Record<string, string>> } => !!field.meanings)
       .map((field) => ({ keyword: statement.keyword, meanings: field.meanings })),
   );
-  return [
-    `## Kind \`${grammar.kind}\``,
+  return lines([
+    generatedFrom(`the statement tables and the rules of \`${grammar.kind}\``),
     '',
-    `${grammar.doc} Full reference: \`dgr grammar ${grammar.kind}\`.`,
+    `# Kind \`${grammar.kind}\``,
+    '',
+    `${grammar.doc} Full reference with every argument: \`dgr grammar ${grammar.kind} --json\`.`,
     '',
     '```text',
     signatureOf(`diagram ${grammar.kind} "Title"`, headerLine(grammar)),
@@ -85,11 +88,29 @@ function kindReference(kind: Kind): string[] {
         .join(', ')}.`,
       '',
     ]),
+    'Every kind also has `use`, `variant`, `set` and `drop`; see [the language](language.md).',
+    '',
     `The rules of \`${grammar.kind}\` report these codes:`,
     '',
     ...table(['Code', 'Severity', 'What it checks'], ruleCodes(kind)),
+  ]);
+}
+
+/** The codes of the language and the kernel; each kind's own codes stand in its reference. */
+function codesFile(): string {
+  return lines([
+    generatedFrom('the diagnostic catalogues'),
     '',
-  ];
+    '# Diagnostic codes',
+    '',
+    'The letter of a code names who reports it. Messages show values as `{name}`; in `--json` they are the `values` of the diagnostic. The codes of a kind stand at the end of its reference. These come from the language:',
+    '',
+    ...table(['Code', 'Message'], languageCodes()),
+    '',
+    'These come from the kernel:',
+    '',
+    ...table(['Code', 'Message'], kernelCodes()),
+  ]);
 }
 
 /** Statements as one table row each: signature, where they stand, what they do, an example. */
@@ -104,3 +125,7 @@ function statementTable(placed: readonly PlacedStatement[]): string[] {
     ]),
   );
 }
+
+const paragraphs = (texts: readonly string[]): string[] => texts.flatMap((text) => [text, '']);
+
+const lines = (all: readonly string[]): string => `${all.join('\n')}\n`;

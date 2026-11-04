@@ -140,12 +140,14 @@ examples as data, and validates against the JSON Schema in [`schemas`](schemas/g
 `dgr check <file> --json` reports each finding with its code, position and the values its message is built from,
 so a tool does not have to parse text.
 
-The agent skill in [`skills/diagrist`](skills/diagrist/SKILL.md) tells an agent how to work with Diagrist: look
-the grammar up, write the file, check it until nothing is reported, format it and look at the PNG. It also holds a
-short reference of every kind. Copy the folder to where your agent looks for skills.
+The agent skill in [`skills/diagrist`](skills/diagrist/SKILL.md) tells an agent how to work with Diagrist: settle
+the question, look the grammar up, write the file, check it until nothing is reported, and look at the PNG before
+handing it over. Its guides say what makes a picture good enough to show stakeholders, which kind answers which
+question and how to show a core with its extensions; its reference holds every kind, one file each. Copy the
+folder to where your agent looks for skills.
 
-The language pages, the CLI reference, the JSON Schema and the skill are generated from the same tables that
-check the diagrams, so they cannot drift from what Diagrist accepts.
+The language pages, the CLI reference, the JSON Schema and the skill's reference are generated from the same
+tables that check the diagrams, so they cannot drift from what Diagrist accepts.
 
 ## Building from source
 
