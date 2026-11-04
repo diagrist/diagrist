@@ -33,7 +33,7 @@ layering, whatever the order and the router.
    different types (a story across types), a hub when a core area extends two areas or more, else layers;
    `arrange=` asks for one. The core is the area marked `core`, else the one area without a tone. With one or two
    links in a picture their words stand in the legend only, never on every line.
-4. **Lines are checked.** `lineFindings` (`src/check`) reports crossings, lines through boxes and labels, bends,
+4. **Lines are checked.** `lineFindings` (`src/check`, in the kernel since ADR 0035) reports crossings, lines through boxes and labels, bends,
    short runs before heads and after starts, small jogs, parallel lines too close, ports out of order or too close,
    and ambiguous labels; `lineMetrics` measures crossings, bends, length and the centring of parents. Every plugin
    records them per example in `layout-metrics.json`; a kind on the pipeline asserts that its examples break no
@@ -46,6 +46,6 @@ none, without a crossing; `rollen` and `begriffe` lost their jogs. Concept pictu
 pictures in columns keep the grid's router. Class diagrams take the pipeline with their layers and order as given,
 packages as frames and end symbols with their own run (L5): every example breaks no hard rule, from 26 findings.
 State machines route forward transitions through its ports and tracks and keep their rails and loops (L6): from 76
-findings to the three nested rails of `fahrgastraum`. Activity diagrams share its track assigner (L7): from 7
+findings to the three nested rails of `fahrgastraum`, which ADR 0035 reads as no breach. Activity diagrams share its track assigner (L7): from 7
 findings to none. Every kind on the pipeline asserts the line check over its examples; C4 keeps its grid. The search of the hub runs the
 pipeline a few dozen times; pictures are small (under forty boxes), so a hub takes well under a second.
