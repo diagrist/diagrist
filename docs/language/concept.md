@@ -9,7 +9,7 @@ This page lists everything a `concept` diagram may contain. The same grammar is 
 ## The first line
 
 ```text
-diagram concept "Title" [subtitle=<text>] [vocabulary=<terms|roles>] [arrange=<columns|layers>] [use=<file>] [locale=<en|de>]
+diagram concept "Title" [subtitle=<text>] [vocabulary=<terms|roles>] [arrange=<columns|layers>] [use=<file>] [areas=<tint|outline|stripe>] [locale=<en|de>]
 ```
 
 Every concept diagram starts with this line.
@@ -20,6 +20,7 @@ Every concept diagram starts with this line.
 | `vocabulary=` | attribute | one of `terms`, `roles` | Declarations of the plugin the file builds on: `terms` (terms with definitions, broader and narrower, parts, synonyms) or `roles` (roles, who reports to whom, who stands in for whom). |
 | `arrange=` | attribute | one of `columns`, `layers` | How the items stand: `columns`, a column per type in the order of their declaration, so a relation reads from left to right as a sentence; or `layers` along the relations. Without it, columns when the items are of more than one type. |
 | `use=` | attribute | a path in double quotes, relative to the diagram, like `"src/OrderService.java"`; it stays inside the folder `dgr` runs in and names no hidden file or folder | A vocabulary file the picture builds on, such as `"iks.vocab.dgr"`: its types and links come first, after those of `vocabulary=`. |
+| `areas=` | attribute | one of `tint`, `outline`, `stripe` | How elements of a coloured area are painted: `tint` (default) a light fill and the outline in its tone, `outline` the outline and the name in its tone, `stripe` a stripe of its tone at the left edge. Lines and frames of an area are drawn in its tone in each. |
 | `locale=` | attribute | one of `en`, `de` | Language of the texts Diagrist adds to the picture and of the description: `en` (default) or `de`. |
 
 Example:
@@ -38,6 +39,7 @@ Each statement is one line that starts with its keyword. Statements inside block
 | [`link`](#link) | top level | A type of relation between items of the types it lists. |
 | [`item`](#item) | top level | One thing of a declared type. |
 | [`rel`](#rel) | top level | One relation of a declared link from one item to another, written as a sentence: `rel kunde fuehrt ausleihen`. |
+| [`area`](#area) | top level | A named area of the picture, such as the core or one extension of an extensible architecture. |
 
 ### `type`
 
@@ -101,7 +103,7 @@ link teil "ist Teil von" from=begriff to=begriff head=diamond acyclic bare
 ### `item`
 
 ```text
-item <id> <label> [is <type-name>] [status=<planned|deprecated>]
+item <id> <label> [is <type-name>] [status=<planned|deprecated>] [area=<ref>]
 ```
 
 One thing of a declared type. Its indented lines are entries drawn below its name.
@@ -114,12 +116,14 @@ Written at the top level.
 | `<label>` | argument | a text in double quotes like `"Order service"` | Name of the item in its shape. |
 | `is <type-name>` | clause | the id of a `type` declared in this diagram or in its vocabulary | Its type, declared with `type` or by the vocabulary. |
 | `status=` | attribute | one of `planned`, `deprecated` | An item not there yet, drawn dashed, or one to give up, drawn dashed and muted. |
+| `area=` | attribute | the id of an `area` declared in this diagram | The area it belongs to, declared with `area`, whose tone paints it. Members of a frame take the area of the frame unless they name their own. |
 
 Examples:
 
 ```dgr
 item kunde "Kunde" is rolle
 item tarif "Tarif" is begriff status=deprecated
+item stripe "Stripe-Adapter" is modul area=zahlung
 ```
 
 Indented lines that start without one of these keywords have this form:
@@ -143,7 +147,7 @@ Example:
 ### `rel`
 
 ```text
-rel <from> <link> <to> [label]
+rel <from> <link> <to> [label] [area=<ref>]
 ```
 
 One relation of a declared link from one item to another, written as a sentence: `rel kunde fuehrt ausleihen`.
@@ -156,12 +160,36 @@ Written at the top level.
 | `<link>` | argument | the id of a `link` declared in this diagram or in its vocabulary | Its link, declared with `link` or by the vocabulary. |
 | `<to>` | argument | the id of an `item` declared in this diagram | The item the relation ends at. |
 | `[label]` | optional argument | a text in double quotes like `"Order service"` | Its own text on the line, instead of the label of the link. |
+| `area=` | attribute | the id of an `area` declared in this diagram | The area the line belongs to, declared with `area`. Without it the line takes the coloured area of its first end, else that of its second, so a line between an extension and the core belongs to the extension. |
 
 Examples:
 
 ```dgr
 rel kunde fuehrt ausleihen
 rel ausleihen erzeugt vertrag "bei Abschluss"
+```
+
+### `area`
+
+```text
+area <id> <label> [tone=<choice>]
+```
+
+A named area of the picture, such as the core or one extension of an extensible architecture. Elements, frames and lines join it with `area=` and are painted in its tone, and the legend names it. An area without a tone stays in ink, as a core does.
+
+Written at the top level.
+
+| Part | Kind | Value | Meaning |
+|---|---|---|---|
+| `<id>` | argument | an identifier like `api` (letters, digits, `_` and `-`, starting with a letter) | Id that `area=` of elements, frames and lines names. |
+| `<label>` | argument | a text in double quotes like `"Order service"` | Name of the area in the legend. |
+| `tone=` | attribute | one of `green`, `orange`, `purple`, `red`, `yellow`, `teal`, `pink`, `sky` | Colour of the area. Two areas of one picture take different tones; without one the area stays in ink. |
+
+Examples:
+
+```dgr
+area kern "Kern"
+area zahlung "Zahlungen" tone=green
 ```
 
 ## Diagnostic codes

@@ -9,6 +9,9 @@ export const KERNEL_CODES: {
   readonly kindFailed: 'K110';
   readonly noDiff: 'K103';
   readonly runs: 'K104';
+  readonly unusedArea: 'K105';
+  readonly manyAreas: 'K106';
+  readonly sameTone: 'K107';
   readonly overlap: 'G400';
   readonly outside: 'G401';
   readonly overflow: 'G402';
@@ -20,6 +23,9 @@ export const KERNEL_CODES: {
   kindFailed: 'K110',
   noDiff: 'K103',
   runs: 'K104',
+  unusedArea: 'K105',
+  manyAreas: 'K106',
+  sameTone: 'K107',
   overlap: 'G400',
   outside: 'G401',
   overflow: 'G402',
@@ -79,6 +85,24 @@ const KERNEL: Catalogue = {
       `A text of the picture reads \`${v.text}\`, but its runs read \`${v.runs}\`. This is a bug of the plugin, not a mistake in the diagram: the runs of a text join to its text.`,
     de: (v) =>
       `Ein Text des Bildes lautet \`${v.text}\`, seine Teilstücke aber \`${v.runs}\`. Das ist ein Fehler des Plugins, kein Fehler im Diagramm: die Teilstücke eines Textes ergeben zusammen seinen Text.`,
+  },
+  K105: {
+    en: (v) =>
+      `Nothing joins the area \`${v.area}\`, so the legend would name a colour the picture does not use. Give elements, frames or lines \`area=${v.area}\`, or remove the line.`,
+    de: (v) =>
+      `Nichts gehört zum Bereich \`${v.area}\`; die Legende nennte also eine Farbe, die das Bild nicht zeigt. Elementen, Rahmen oder Linien \`area=${v.area}\` geben oder die Zeile entfernen.`,
+  },
+  K106: {
+    en: (v) =>
+      `The picture paints ${v.count} areas in colour, from \`${v.area}\` on more than the ${v.limit} a reader can tell apart. Merge areas, or leave some without \`tone=\` in ink.`,
+    de: (v) =>
+      `Das Bild färbt ${v.count} Bereiche ein, ab \`${v.area}\` mehr als die ${v.limit}, die man auseinanderhalten kann. Bereiche zusammenlegen oder einige ohne \`tone=\` in Schwarz lassen.`,
+  },
+  K107: {
+    en: (v) =>
+      `The areas \`${v.first}\` and \`${v.area}\` share the tone \`${v.tone}\`, so the picture cannot tell them apart. Give \`${v.area}\` another tone.`,
+    de: (v) =>
+      `Die Bereiche \`${v.first}\` und \`${v.area}\` teilen den Ton \`${v.tone}\`; das Bild kann sie also nicht unterscheiden. \`${v.area}\` einen anderen Ton geben.`,
   },
   K102: {
     en: (v) => `The picture uses the icon \`${v.icon}\`, which the style table does not have. Icons: ${v.known}.`,

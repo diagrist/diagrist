@@ -1,6 +1,9 @@
 import { xmlSafe } from '@diagrist/lang';
+import { type AreaUse, areaClass, areaDefs, areaRules } from './areas/paint.js';
+import type { AreaTone } from './areas/tones.js';
+import { markerElement, num } from './markers.js';
 import type { Scene, Shape, TextRun } from './scene.js';
-import type { Icon, Marker, Styles } from './styles.js';
+import type { Icon, Styles } from './styles.js';
 
 /** How `toSvg` writes the document. */
 export interface SvgOptions {
@@ -12,23 +15,26 @@ export interface SvgOptions {
 const escapeText = (text: string): string =>
   xmlSafe(text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
-/** Coordinates of rectangles, lines and texts: integers as they are, others with one decimal. */
-const num = (n: number): string => (Number.isInteger(n) ? String(n) : n.toFixed(1).replace(/\.0$/, ''));
-
 /**
  * Writes a scene as a standalone SVG document. The output is part of the public contract: ids from `domId`
- * on groups, `marker-end="url(#m-<id>)"` on paths, every marker in `<defs>`, one shape per line.
+ * on groups, `marker-end="url(#m-<id>)"` on paths, every marker in `<defs>`, one shape per line. A group of an area
+ * carries its class, and its paths end in the area's copy of their marker, `m-<id>-<tone>` (ADR 0033).
  */
 export function toSvg(scene: Scene, styles: Styles, options: SvgOptions = {}): string {
   const { width, height } = scene;
   const title = escapeText(scene.title);
+  const paint = scene.areas ?? 'tint';
+  const areas = areaUses(scene.children, styles);
   const head = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" width="${width}" height="${height}" class="${styles.root}" role="img" aria-label="${title}">`;
+  const sheet = () =>
+    styleSheet(styles, usedClasses(scene.children, styles)) + areaRules(styles, areas, paint).join('');
   const style =
     options.inline === true
       ? ''
-      : `<style>${styleSheet(styles, usedClasses(scene.children, styles))}</style><rect width="${width}" height="${height}" fill="${styles.canvas}"/>`;
+      : `<style>${sheet()}</style><rect width="${width}" height="${height}" fill="${styles.canvas}"/>`;
   const body = scene.children.map((shape) => element(shape, styles)).join('\n');
-  return `${head}<title>${title}</title>${style}${markers(styles)}\n${body}\n</svg>\n`;
+  const defs = `<defs>${styles.markers.map((m) => markerElement(m, styles.markerSize)).join('')}${areaDefs(styles, areas, paint)}</defs>`;
+  return `${head}<title>${title}</title>${style}${defs}\n${body}\n</svg>\n`;
 }
 
 function classesOf(role: string, styles: Styles): readonly string[] {
@@ -41,17 +47,20 @@ const paintOf = (role: string, styles: Styles): string => {
   return paint === undefined ? '' : ` ${paint}`;
 };
 
-function element(shape: Shape, styles: Styles): string {
+/** A marker reference, to the area's copy of the marker inside a group of an area. */
+const markerRef = (attribute: string, id: string | undefined, tone: AreaTone | undefined): string =>
+  id === undefined ? '' : ` ${attribute}="url(#m-${id}${tone === undefined ? '' : `-${tone}`})"`;
+
+function element(shape: Shape, styles: Styles, tone?: AreaTone): string {
   const cls = (role: string) => `class="${classesOf(role, styles).join(' ')}"${paintOf(role, styles)}`;
   switch (shape.kind) {
     case 'rect':
       return `<rect x="${num(shape.x)}" y="${num(shape.y)}" width="${num(shape.w)}" height="${num(shape.h)}"${shape.rx ? ` rx="${shape.rx}"` : ''} ${cls(shape.role)}/>`;
     case 'path': {
       const { marker, markerStart } = styles.roles[shape.role] ?? {};
-      const end = marker === undefined ? '' : ` marker-end="url(#m-${marker})"`;
-      const start = markerStart === undefined ? '' : ` marker-start="url(#m-${markerStart})"`;
+      const ends = markerRef('marker-end', marker, tone) + markerRef('marker-start', markerStart, tone);
       const move = shape.offset ? ` transform="translate(${shape.offset[0]} ${shape.offset[1]})"` : '';
-      return `<path d="${shape.d}" ${cls(shape.role)}${end}${start}${move}/>`;
+      return `<path d="${shape.d}" ${cls(shape.role)}${ends}${move}/>`;
     }
     case 'line':
       return `<line x1="${num(shape.x1)}" y1="${num(shape.y1)}" x2="${num(shape.x2)}" y2="${num(shape.y2)}" ${cls(shape.role)}/>`;
@@ -66,12 +75,22 @@ function element(shape: Shape, styles: Styles): string {
     }
     case 'icon':
       return icon(shape, styles.icons?.[shape.icon], cls(shape.role), paintOf(shape.role, styles));
-    case 'group': {
-      const id = shape.id === undefined ? '' : ` id="${escapeText(shape.id)}"`;
-      const role = shape.role === undefined ? '' : ` ${cls(shape.role)}`;
-      return `<g${id}${role}>${shape.children.map((child) => element(child, styles)).join('')}</g>`;
-    }
+    case 'group':
+      return group(shape, styles, tone);
   }
+}
+
+/** A group with its id, the classes of its role and of its area; its paths end in the markers of its area. */
+function group(shape: Extract<Shape, { kind: 'group' }>, styles: Styles, tone: AreaTone | undefined): string {
+  const id = shape.id === undefined ? '' : ` id="${escapeText(shape.id)}"`;
+  const classes = [
+    ...(shape.role === undefined ? [] : classesOf(shape.role, styles)),
+    ...(shape.area === undefined ? [] : [areaClass(shape.area)]),
+  ];
+  const paint = shape.role === undefined ? '' : paintOf(shape.role, styles);
+  const role = classes.length === 0 ? '' : ` class="${classes.join(' ')}"${paint}`;
+  const inner = shape.area?.tone ?? tone;
+  return `<g${id}${role}>${shape.children.map((child) => element(child, styles, inner)).join('')}</g>`;
 }
 
 /** Whitespace that SVG would strip or collapse in a text unless it is told to keep it: at either end, or in a row. */
@@ -89,6 +108,52 @@ function usedClasses(shapes: readonly Shape[], styles: Styles, into: Set<string>
     if (shape.kind === 'group') usedClasses(shape.children, styles, into);
   }
   return into;
+}
+
+/**
+ * What each area class of the scene holds: the classes below its groups and the markers of their paths. A marker
+ * used inside an area is painted by the area's line class, which its copy carries.
+ */
+function areaUses(
+  shapes: readonly Shape[],
+  styles: Styles,
+  into: Map<string, AreaUse> = new Map(),
+): Map<string, AreaUse> {
+  for (const shape of shapes) {
+    if (shape.kind !== 'group') continue;
+    if (shape.area !== undefined) {
+      const use = entry(into, shape.area);
+      usedClasses(shape.children, styles, use.classes);
+      const lines = entry(into, { tone: shape.area.tone, as: 'line' });
+      for (const marker of markersOf(shape.children, styles)) {
+        lines.markers.add(marker.id);
+        lines.classes.add(marker.name);
+      }
+    }
+    areaUses(shape.children, styles, into);
+  }
+  return into;
+}
+
+function entry(uses: Map<string, AreaUse>, mark: AreaUse['mark']): AreaUse {
+  const key = areaClass(mark);
+  const found = uses.get(key) ?? { mark, classes: new Set<string>(), markers: new Set<string>() };
+  uses.set(key, found);
+  return found;
+}
+
+/** The markers the paths among `shapes` end in, at any depth. */
+function markersOf(shapes: readonly Shape[], styles: Styles): Styles['markers'] {
+  const ids = new Set<string>();
+  const visit = (list: readonly Shape[]) => {
+    for (const shape of list) {
+      if (shape.kind === 'group') visit(shape.children);
+      const role = shape.kind === 'path' ? styles.roles[shape.role] : undefined;
+      for (const id of [role?.marker, role?.markerStart]) if (id !== undefined) ids.add(id);
+    }
+  };
+  visit(shapes);
+  return styles.markers.filter((m) => ids.has(m.id));
 }
 
 function styleSheet(styles: Styles, used: ReadonlySet<string>): string {
@@ -111,16 +176,4 @@ function icon(shape: Extract<Shape, { kind: 'icon' }>, found: Icon | undefined, 
     return `<g transform="translate(${num(x)} ${num(y)}) scale(${num(size / found.size)})"${paint} data-icon="${escapeText(shape.icon)}">${found.markup}</g>`;
   const paths = found.paths.map((d) => `<path d="${d}"/>`).join('');
   return `<svg x="${num(x)}" y="${num(y)}" width="${num(size)}" height="${num(size)}" viewBox="0 0 ${found.size} ${found.size}" ${cls}>${paths}</svg>`;
-}
-
-/** Markers drawn in a grid of 12 units, scaled to `markerSize`. */
-function markers(styles: Styles): string {
-  const size = styles.markerSize;
-  const unit = (n: number) => num((n * size) / 12);
-  const outline = (m: Marker) =>
-    m.shape.points.map(([x, y], i) => `${i === 0 ? 'M' : 'L'}${unit(x)} ${unit(y)}`).join(' ') +
-    (m.shape.closed === true ? ' Z' : '');
-  const marker = (m: Marker) =>
-    `<marker id="m-${m.id}" markerUnits="userSpaceOnUse" markerWidth="${size}" markerHeight="${size}" refX="${unit(11)}" refY="${unit(6)}" orient="${m.orient ?? 'auto'}"><path d="${outline(m)}" class="${m.name}" stroke-linecap="round"/></marker>`;
-  return `<defs>${styles.markers.map(marker).join('')}</defs>`;
 }

@@ -8,6 +8,7 @@ import {
   type StatementSpec,
 } from '@diagrist/lang';
 import type { Anchors } from './anchors.js';
+import { checkAreas } from './areas/check.js';
 import type { CompileOptions } from './compile.js';
 import { checkDrawing } from './drawing.js';
 import { KERNEL_CODES } from './messages.js';
@@ -44,7 +45,7 @@ export function drawPicture(
   context: PictureContext,
 ): DrawnPicture & { readonly diagnostics: readonly Diagnostic[] } {
   const named = picture.variant === undefined ? {} : { variant: picture.variant };
-  const found: Diagnostic[] = [...picture.reading.diagnostics];
+  const found: Diagnostic[] = [...picture.reading.diagnostics, ...checkAreas(picture.reading.statements)];
   if (picture.diff !== undefined && kind.diff !== true) {
     const values = { kind: kind.spec.name, variant: picture.variant ?? '', allowed: list(context.withDiff) };
     found.push(diagnostic(KERNEL_CODES.noDiff, 'error', picture.diff, values));

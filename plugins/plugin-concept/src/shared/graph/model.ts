@@ -1,3 +1,4 @@
+import type { Areas } from '@diagrist/core';
 import type { Span } from '@diagrist/lang';
 import type { LinkDecl, TypeDecl } from '../declarations.js';
 
@@ -7,6 +8,8 @@ export interface Item {
   readonly label: string;
   readonly type: string;
   readonly status?: 'planned' | 'deprecated';
+  /** The area it belongs to (ADR 0033). */
+  readonly area?: string;
   readonly entries: readonly string[];
   readonly span: Span;
 }
@@ -17,6 +20,8 @@ export interface Relation {
   readonly link: string;
   readonly to: string;
   readonly label?: string;
+  /** The area the relation names itself; the scene falls back to the areas of its items. */
+  readonly area?: string;
   readonly span: Span;
 }
 
@@ -30,6 +35,8 @@ export interface Graph {
   readonly relations: readonly Relation[];
   /** How the items stand: a column per type, or layers along the relations; left out, columns for several types. */
   readonly arrange?: 'columns' | 'layers';
+  /** The areas of the picture (ADR 0033); a picture without the statement `area` has none. */
+  readonly areas?: Areas;
 }
 
 /** The words the graph picture adds itself: the statuses in its legend. */

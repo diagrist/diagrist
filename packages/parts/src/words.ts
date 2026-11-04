@@ -1,3 +1,4 @@
+import type { AreaTone } from '@diagrist/core';
 import type { Locale } from '@diagrist/lang';
 import type { Decision } from './decisions/adr.js';
 
@@ -12,13 +13,39 @@ export interface Words {
   readonly open: (who: string) => string;
   /** A decision in the description, one sentence per `adr`. */
   readonly decision: (decision: Decision) => string;
+  /** An area in the description: its name, its tone if it has one, and the names of what belongs to it. */
+  readonly area: (label: string, tone: AreaTone | undefined, members: readonly string[]) => string;
 }
+
+const TONES_EN: Readonly<Record<AreaTone, string>> = {
+  green: 'green',
+  orange: 'orange',
+  purple: 'purple',
+  red: 'red',
+  yellow: 'yellow',
+  teal: 'teal',
+  pink: 'pink',
+  sky: 'sky blue',
+};
+
+const TONES_DE: Readonly<Record<AreaTone, string>> = {
+  green: 'grün',
+  orange: 'orange',
+  purple: 'lila',
+  red: 'rot',
+  yellow: 'gelb',
+  teal: 'petrol',
+  pink: 'pink',
+  sky: 'hellblau',
+};
 
 const EN: Words = {
   decisions: 'Decisions (marks in the picture)',
   open: (who) => `(open, ${who})`,
   decision: (d) =>
     `${d.id} ${d.question} Chosen: ${d.choice}.${d.consequence ? ` ${d.consequence}` : ''}${d.open ? ` Open: ${d.open}.` : ''}`,
+  area: (label, tone, members) =>
+    `Area ${label} (${tone === undefined ? 'black' : TONES_EN[tone]}): ${members.join(', ')}.`,
 };
 
 const DE: Words = {
@@ -26,6 +53,8 @@ const DE: Words = {
   open: (who) => `(offen, ${who})`,
   decision: (d) =>
     `${d.id} ${d.question} Gewählt: ${d.choice}.${d.consequence ? ` ${d.consequence}` : ''}${d.open ? ` Offen: ${d.open}.` : ''}`,
+  area: (label, tone, members) =>
+    `Bereich ${label} (${tone === undefined ? 'schwarz' : TONES_DE[tone]}): ${members.join(', ')}.`,
 };
 
 /** The words of the shared parts by locale; the type makes a missing locale a compile error. */

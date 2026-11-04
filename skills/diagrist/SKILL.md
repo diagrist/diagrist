@@ -503,15 +503,16 @@ The rules of `matrix` report these codes:
 A picture of a business concept with its own vocabulary: the file declares types of things and types of relations with their rules, then writes items and relations, which are checked against the declarations. A vocabulary file named with `use=`, or one of the plugin such as `terms` or `roles`, brings the declarations of a subject. Full reference: `dgr grammar concept`.
 
 ```text
-diagram concept "Title" [subtitle=<text>] [vocabulary=<terms|roles>] [arrange=<columns|layers>] [use=<file>] [locale=<en|de>]
+diagram concept "Title" [subtitle=<text>] [vocabulary=<terms|roles>] [arrange=<columns|layers>] [use=<file>] [areas=<tint|outline|stripe>] [locale=<en|de>]
 ```
 
 | Line | Where | What it does | Example |
 |---|---|---|---|
 | `type <id> <label> [shape=<box\|round\|person\|store\|doc>] [de=<text>] [explain]` | top level | A type of thing the picture shows, such as a role, a task or a document. | `type rolle "Rolle" shape=person` |
 | `link <id> <label> [from=<type-names>] [to=<type-names>] [line=<solid\|dashed\|dotted>] [head=<arrow\|open\|triangle\|diamond\|none>] [each=<from\|to\|both>] [single=<from\|to\|both>] [back=<text>] [de=<text>] [acyclic] [upward] [beside] [bare]` | top level | A type of relation between items of the types it lists. | `link fuehrt "führt aus" from=rolle to=aufgabe each=to` |
-| `item <id> <label> [is <type-name>] [status=<planned\|deprecated>]` | top level | One thing of a declared type. | `item kunde "Kunde" is rolle` |
-| `rel <from> <link> <to> [label]` | top level | One relation of a declared link from one item to another, written as a sentence: `rel kunde fuehrt ausleihen`. | `rel kunde fuehrt ausleihen` |
+| `item <id> <label> [is <type-name>] [status=<planned\|deprecated>] [area=<ref>]` | top level | One thing of a declared type. | `item kunde "Kunde" is rolle` |
+| `rel <from> <link> <to> [label] [area=<ref>]` | top level | One relation of a declared link from one item to another, written as a sentence: `rel kunde fuehrt ausleihen`. | `rel kunde fuehrt ausleihen` |
+| `area <id> <label> [tone=<choice>]` | top level | A named area of the picture, such as the core or one extension of an extensible architecture. | `area kern "Kern"` |
 
 The rules of `concept` report these codes:
 
@@ -614,4 +615,7 @@ These come from the kernel:
 | `K102` | The picture uses the icon `{icon}`, which the style table does not have. Icons: {known}. |
 | `K103` | The kind `{kind}` draws no diff pictures; remove `diff` from `variant {variant}`. Kinds with diff pictures: {allowed}. |
 | `K104` | A text of the picture reads `{text}`, but its runs read `{runs}`. This is a bug of the plugin, not a mistake in the diagram: the runs of a text join to its text. |
+| `K105` | Nothing joins the area `{area}`, so the legend would name a colour the picture does not use. Give elements, frames or lines `area={area}`, or remove the line. |
+| `K106` | The picture paints {count} areas in colour, from `{area}` on more than the {limit} a reader can tell apart. Merge areas, or leave some without `tone=` in ink. |
+| `K107` | The areas `{first}` and `{area}` share the tone `{tone}`, so the picture cannot tell them apart. Give `{area}` another tone. |
 | `K110` | The plugin `{plugin}` failed while drawing the kind `{kind}`: {error}. This is a bug, not a mistake in the diagram; please report it with the diagram at https://github.com/diagrist/diagrist/issues. |

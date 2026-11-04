@@ -1,6 +1,15 @@
 import type { Locale } from '@diagrist/lang';
+import { areaSentences } from '@diagrist/parts';
 import type { ConceptModel } from './model.js';
 import { CONCEPT_WORDS } from './texts/index.js';
+
+/** The names of the items of each area, by the area's id. */
+function members(m: ConceptModel): Map<string, string[]> {
+  const out = new Map<string, string[]>();
+  for (const item of m.items)
+    if (item.area !== undefined) out.set(item.area, [...(out.get(item.area) ?? []), item.label]);
+  return out;
+}
 
 /**
  * The picture in sentences: what it is, the items of each type, the entries of the items that have some, and one
@@ -25,5 +34,6 @@ export function describeConcept(m: ConceptModel, locale: Locale): string {
       const to = label.get(r.to);
       return link && from && to ? [w.relation(from, link.label[locale], to, r.label)] : [];
     }),
+    ...areaSentences(m.areas, members(m), locale),
   ].join(' ');
 }

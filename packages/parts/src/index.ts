@@ -1,3 +1,4 @@
+export { areaSentences } from './areas.js';
 export type { Decision } from './decisions/adr.js';
 export { adr, decisionOf } from './decisions/adr.js';
 export { markShapes, stripShapes } from './decisions/scene.js';

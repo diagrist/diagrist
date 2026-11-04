@@ -1,4 +1,4 @@
-import { type Placed, type Rect, textWidth } from '@diagrist/core';
+import { type Area, type Placed, type Rect, textWidth } from '@diagrist/core';
 import type { Locale } from '@diagrist/lang';
 import {
   type EdgeLabel,
@@ -20,7 +20,8 @@ import { drawn, edgeId, graphGrid } from './spec.js';
 export type Sample =
   | { readonly kind: 'type'; readonly type: TypeDecl }
   | { readonly kind: 'link'; readonly link: LinkDecl }
-  | { readonly kind: 'status'; readonly status: 'planned' | 'deprecated' };
+  | { readonly kind: 'status'; readonly status: 'planned' | 'deprecated' }
+  | { readonly kind: 'area'; readonly area: Area };
 
 /** An item in the picture: where it stands, how it is drawn, and its texts. */
 export interface PlacedItem {
@@ -43,7 +44,8 @@ export interface PlacedLine {
 export interface GraphLayout {
   readonly items: readonly PlacedItem[];
   readonly lines: readonly PlacedLine[];
-  readonly labels: readonly EdgeLabel[];
+  /** The labels of the lines, each with the relation of its line. */
+  readonly labels: readonly (EdgeLabel & { readonly relation?: Relation })[];
   readonly legend: Legend<Sample>;
   /** The heads above the columns, each centred on its column with a rule as wide as the column below it. */
   readonly heads: readonly PlacedHead[];
@@ -65,17 +67,22 @@ function samples(m: Graph, headed: boolean): Sample[] {
   const types = new Set(m.items.map((i) => i.type));
   const links = new Set(drawn(m).map(([r]) => r.link));
   const statuses = (['planned', 'deprecated'] as const).filter((s) => m.items.some((i) => i.status === s));
+  const joined = new Set([...m.items, ...m.relations].map((x) => x.area));
   return [
     ...[...m.types.values()].filter((t) => types.has(t.id) && !headed).map((type): Sample => ({ kind: 'type', type })),
     ...[...m.links.values()]
       .filter((l) => links.has(l.id) && (l.bare || !headed))
       .map((link): Sample => ({ kind: 'link', link })),
     ...statuses.map((status): Sample => ({ kind: 'status', status })),
+    ...(m.areas?.list ?? []).filter((a) => joined.has(a.id)).map((area): Sample => ({ kind: 'area', area })),
   ];
 }
 
-const legendText = (s: Sample, locale: Locale, w: GraphWords): string =>
-  s.kind === 'type' ? s.type.label[locale] : s.kind === 'link' ? s.link.label[locale] : w.status[s.status];
+function legendText(s: Sample, locale: Locale, w: GraphWords): string {
+  if (s.kind === 'type') return s.type.label[locale];
+  if (s.kind === 'link') return s.link.label[locale];
+  return s.kind === 'area' ? s.area.label : w.status[s.status];
+}
 
 /** Placed, routed and labelled; a second time with room on the left when a label stands left of the margin. */
 function placed(m: Graph, locale: Locale, headed: boolean, indent = 0) {
@@ -118,6 +125,11 @@ export function layoutGraph(
     const link = at && m.links.get(at.relation.link);
     return at && link ? [{ route, link, ...at }] : [];
   });
+  const lineOf = new Map(lines.map((l) => [l.route.edge, l.relation]));
+  const related = labels.map((l) => {
+    const relation = lineOf.get(routes[l.route]?.edge ?? '');
+    return relation === undefined ? l : { ...l, relation };
+  });
   const right = Math.max(
     fitted.width,
     ...routes.flatMap((r) => r.points.map(([x]) => x + MARGIN)),
@@ -136,7 +148,7 @@ export function layoutGraph(
   return {
     items,
     lines,
-    labels,
+    labels: related,
     legend,
     heads,
     verbs: row.verbs,
