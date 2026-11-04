@@ -71,7 +71,9 @@ const f = FONTS;
 
 /**
  * The style table of code diagrams, on its own rather than over the standard look, so a picture carries only the
- * rules it uses: the root in unkerned Inter (ADR 0022), the paper canvas, one thin open arrowhead.
+ * rules it uses: the root in unkerned Inter (ADR 0022), the paper canvas, one thin open arrowhead. An area (ADR 0033)
+ * repaints the ink of titles, links and their labels, the grey outline of a card and its white sheet; `line` is the
+ * rule above the legend of the areas.
  */
 export const CODE_STYLES: Styles = {
   root: 'dia',
@@ -81,6 +83,7 @@ export const CODE_STYLES: Styles = {
   canvas: c.paper,
   markerSize: 8,
   markers: [{ id: 'open', shape: MARKER_SHAPES.hook, name: 'arrow' }],
+  areaColors: { ink: [c.ink, c.ink2], outline: [c.outline], surface: [c.card] },
   roles: ROLES,
   rules: [
     rule('label-title', textRule(`fill: ${c.ink};`, f.title)),
@@ -100,6 +103,7 @@ export const CODE_STYLES: Styles = {
     rule('link', `fill: none; stroke: ${c.ink2}; stroke-width: 1;`),
     rule('arrow', `fill: none; stroke: ${c.ink2}; stroke-width: 1.1;`),
     rule('link-label', textRule(`fill: ${c.ink2};`, f.label)),
+    rule('line', `fill: none; stroke: ${c.hairline}; stroke-width: 1;`),
     ...codeRules(CODE_INK),
   ],
   fonts: f,

@@ -16,7 +16,7 @@ const code = defineKind({
     const header = headerOf(model, locale);
     const layout = layoutCode(model, { width: header.width, subtitle: header.subtitle !== undefined });
     return {
-      scene: codeScene(layout, header),
+      scene: codeScene(layout, header, model),
       styles: CODE_STYLES,
       anchors: codeAnchors(layout),
       placed: codePlaced(layout),

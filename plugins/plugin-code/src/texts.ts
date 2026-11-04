@@ -1,8 +1,9 @@
 import type { CodeLanguage } from '@diagrist/code';
 import { textWidth } from '@diagrist/core';
 import type { Locale } from '@diagrist/lang';
-import { imageTitle, MARGIN } from '@diagrist/parts';
+import { areaSentences, imageTitle, MARGIN } from '@diagrist/parts';
 import type { Card, CodeModel } from './model.js';
+import { cardsByArea } from './scene/areas.js';
 import { FONTS } from './styles.js';
 
 /** How the languages are named in the kicker and the description. */
@@ -75,7 +76,10 @@ export function headerOf(model: CodeModel, locale: Locale): Header {
 
 const rangeOf = (card: Card): string => `${card.lines[0]?.number ?? 0}-${card.lines.at(-1)?.number ?? 0}`;
 
-/** The diagram in sentences: each card with its language, lines and file, each mark with its note, each link. */
+/**
+ * The diagram in sentences: each card with its language, lines and file, each mark with its note, each link, and
+ * the cards of each area.
+ */
 export function describeCode(model: CodeModel, locale: Locale): string {
   const w = WORDS[locale];
   return [
@@ -85,5 +89,6 @@ export function describeCode(model: CodeModel, locale: Locale): string {
       ...card.marks.map((m) => w.mark(m.n, m.from, m.to, m.note)),
     ]),
     ...model.links.map((l) => w.link(l.line, l.from, l.to, l.label)),
+    ...areaSentences(model.areas, cardsByArea(model), locale),
   ].join(' ');
 }
