@@ -11,8 +11,8 @@ import {
   textRule,
 } from '@diagrist/core';
 import { PART_ROLES } from '@diagrist/parts';
-import { HEADS, type HeadName, LINES, type LineName } from './declarations.js';
-import { CONCEPT_FONTS as F } from './layout/metrics.js';
+import { HEADS, type HeadName, LINES, type LineName } from '../declarations.js';
+import { GRAPH_FONTS as F } from './layout/metrics.js';
 
 const one = (...classes: string[]): RoleStyle => ({ classes });
 
@@ -55,6 +55,9 @@ const ROLES: Readonly<Record<string, RoleStyle>> = {
   name: one('label-bold'),
   entry: one('item-entry'),
   edgeLabel: one('label', 'halo'),
+  head: one('label-group'),
+  verb: one('label'),
+  headRule: one('head-rule'),
 };
 
 /** Hollow heads for broader terms and wholes, filled with the canvas so the line ends at their outline. */
@@ -64,10 +67,10 @@ const MARKERS: readonly Marker[] = [
 ];
 
 /**
- * The style table of concept pictures: the standard look, items as white shapes in ink, planned ones dashed and
+ * The style table of graph pictures: the standard look, items as white shapes in ink, planned ones dashed and
  * deprecated ones muted, the entries in the note colour, and the lines in ink with the heads of their links.
  */
-export const CONCEPT_STYLES: Styles = (() => {
+export const GRAPH_STYLES: Styles = (() => {
   const base = standardStyles({
     roles: ROLES,
     rules: [
@@ -76,6 +79,7 @@ export const CONCEPT_STYLES: Styles = (() => {
       rule('item-detail', `fill: none; stroke: ${c.stroke}; stroke-width: ${STROKES.shape};`),
       rule('item-rule', `fill: none; stroke: ${c.grid}; stroke-width: 1; stroke-dasharray: ${DASH.frame};`),
       rule('item-entry', textRule(`fill: ${c.note};`, F.entry)),
+      rule('head-rule', `fill: none; stroke: ${c.border}; stroke-width: 1;`),
     ],
     fonts: F,
   });

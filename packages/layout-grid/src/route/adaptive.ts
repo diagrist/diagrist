@@ -4,6 +4,7 @@ import { ellipseSides, type Plan, plansOf } from './adaptive-plans.js';
 import { adaptivePorts, type PortRequest } from './adaptive-ports.js';
 import { type Board, groupKey, headStrips } from './boxes.js';
 import { bundlePlans } from './bundle.js';
+import { zRoute } from './centred.js';
 import type { Routed } from './routed.js';
 import { searchPath, simplify } from './search.js';
 import { trunkPaths } from './trunk.js';
@@ -27,7 +28,8 @@ function routeAttempt(routes: readonly Routed[], board: Board, mode: number, att
   const headers = headStrips(board.layout.groups, m.framePad.top);
   const bundles = bundlePlans(routes, board);
   const plans = ellipseSides(plansOf(routes, board, bundles, mode, attempt, gap), board);
-  const ports = adaptivePorts([...new Set(plans.flatMap((p) => (p ? [p.from, p.to] : [])))], gap);
+  const requests = [...new Set(plans.flatMap((p) => (p ? [p.from, p.to] : [])))];
+  const ports = adaptivePorts(requests, gap, board.tree.spec.ports === 'centred');
   const port = (r: PortRequest) => ports.get(r) as Point;
   const fixed = new Map<number, Routed>();
   const bundled = new Set(bundles.flatMap((bundle) => bundle.members));
@@ -71,8 +73,27 @@ function routeAttempt(routes: readonly Routed[], board: Board, mode: number, att
     }
     const plan = plans[index];
     if (!plan) return r;
+    const z = board.tree.spec.ports === 'centred' ? zOf(r, plan, port, board, used, gap) : undefined;
+    if (z) return z;
     return searched(r, plan, plans, port, board, { obstacles, headers, used, gap });
   });
+}
+
+/** The Z route of a plan between boxes one above the other, laid and recorded as used; undefined when none fits. */
+function zOf(
+  r: Routed,
+  plan: Plan,
+  port: (r: PortRequest) => Point,
+  board: Board,
+  used: Point[][],
+  gap: number,
+): Routed | undefined {
+  const own = new Set([plan.a.id, plan.b.id]);
+  const blocks = board.nodes.filter((n) => !own.has(n.id)).map((n) => n.rect);
+  const points = zRoute(port(plan.from), port(plan.to), [plan.from.side, plan.to.side], blocks, used, gap);
+  if (!points) return undefined;
+  used.push(points);
+  return { ...r, fromSide: plan.from.side, toSide: plan.to.side, points, shape: 'orthogonal' };
 }
 
 /** What the path search avoids: nodes, head strips and the routes laid so far, which it extends. */

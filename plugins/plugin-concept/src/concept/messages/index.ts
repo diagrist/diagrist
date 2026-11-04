@@ -8,8 +8,14 @@ const known = (v: Values, en: boolean) => (v.types === '' ? (en ? 'none' : 'kein
 const meant = (v: Values, en: boolean) =>
   v.nearest === '' || v.nearest === undefined ? '' : ` (${en ? 'did you mean' : 'gemeint ist wohl'} \`${v.nearest}\`?)`;
 
-/** Messages of the concept rules M110 to M119 and M610 to M613, in English and German. */
+/** Messages of the concept rules M110 to M120 and M610 to M613, in English and German. */
 export const CONCEPT_MESSAGES: Catalogue = {
+  M120: {
+    en: (v) =>
+      `The vocabulary file \`${v.path}\` does not read cleanly: line ${v.line} reports ${v.code}. Run \`dgr check ${v.path}\` to see the finding.`,
+    de: (v) =>
+      `Die Vokabular-Datei \`${v.path}\` liest sich nicht fehlerfrei: Zeile ${v.line} meldet ${v.code}. \`dgr check ${v.path}\` zeigt den Befund.`,
+  },
   M110: {
     en: (v) =>
       `The item \`${v.item}\` ${pick(v, { none: 'names no type; add `is <type>`', unknown: `is of the type \`${v.type}\`, which is not declared${meant(v, true)}` })}. Declared types: ${known(v, true)}.`,

@@ -10,11 +10,11 @@ import {
   routeEdges,
 } from '@diagrist/layout-grid';
 import { LEGEND, type Legend, legendLayout, MARGIN } from '@diagrist/parts';
-import type { LinkDecl, TypeDecl } from '../declarations.js';
-import type { ConceptModel, Item, Relation } from '../model.js';
-import type { ConceptWords } from '../texts/words.js';
-import { CONCEPT_FONTS as F, type ItemBox } from './metrics.js';
-import { conceptGrid, drawn, edgeId } from './spec.js';
+import type { LinkDecl, TypeDecl } from '../../declarations.js';
+import type { Graph, GraphWords, Item, Relation } from '../model.js';
+import { type PlacedHead, type PlacedVerb, placeHeads } from './heads.js';
+import { GRAPH_FONTS as F, type ItemBox } from './metrics.js';
+import { drawn, edgeId, graphGrid } from './spec.js';
 
 /** What the legend shows a sample of: a type with its shape, a link with its line and head, or a status. */
 export type Sample =
@@ -40,11 +40,15 @@ export interface PlacedLine {
 }
 
 /** Everything the scene draws, in picture pixels. */
-export interface ConceptLayout {
+export interface GraphLayout {
   readonly items: readonly PlacedItem[];
   readonly lines: readonly PlacedLine[];
   readonly labels: readonly EdgeLabel[];
   readonly legend: Legend<Sample>;
+  /** The heads above the columns, each centred on its column with a rule as wide as the column below it. */
+  readonly heads: readonly PlacedHead[];
+  /** The verbs between the heads, each standing for every line between its two columns. */
+  readonly verbs: readonly PlacedVerb[];
   readonly width: number;
   readonly height: number;
   readonly placed: readonly Placed[];
@@ -53,31 +57,53 @@ export interface ConceptLayout {
 /** Room between the content and the legend below it. */
 const LEGEND_GAP = 40;
 
-/** The legend's samples: the types, links and statuses the picture uses, in the order of their declarations. */
-function samples(m: ConceptModel): Sample[] {
+/**
+ * The legend's samples: the types, links and statuses the picture uses, in the order of their declarations. A
+ * picture in columns says the rest itself: the heads name the types, and a link that is not `bare` stands on its line.
+ */
+function samples(m: Graph, headed: boolean): Sample[] {
   const types = new Set(m.items.map((i) => i.type));
   const links = new Set(drawn(m).map(([r]) => r.link));
   const statuses = (['planned', 'deprecated'] as const).filter((s) => m.items.some((i) => i.status === s));
   return [
-    ...[...m.types.values()].filter((t) => types.has(t.id)).map((type): Sample => ({ kind: 'type', type })),
-    ...[...m.links.values()].filter((l) => links.has(l.id)).map((link): Sample => ({ kind: 'link', link })),
+    ...[...m.types.values()].filter((t) => types.has(t.id) && !headed).map((type): Sample => ({ kind: 'type', type })),
+    ...[...m.links.values()]
+      .filter((l) => links.has(l.id) && (l.bare || !headed))
+      .map((link): Sample => ({ kind: 'link', link })),
     ...statuses.map((status): Sample => ({ kind: 'status', status })),
   ];
 }
 
-const legendText = (s: Sample, locale: Locale, w: ConceptWords): string =>
+const legendText = (s: Sample, locale: Locale, w: GraphWords): string =>
   s.kind === 'type' ? s.type.label[locale] : s.kind === 'link' ? s.link.label[locale] : w.status[s.status];
 
+/** Placed, routed and labelled; a second time with room on the left when a label stands left of the margin. */
+function placed(m: Graph, locale: Locale, headed: boolean, indent = 0) {
+  const at = graphGrid(m, locale, indent, headed);
+  const grid = placeGrid(at.spec);
+  const routes = routeEdges(at.spec, grid);
+  const labels = labelEdges(at.spec, grid, routes, at.texts);
+  const left = Math.min(MARGIN, ...labels.map((l) => l.box.x));
+  if (left < MARGIN && indent === 0) return placed(m, locale, headed, Math.ceil((MARGIN - left) / 8) * 8);
+  return { ...at, grid, routes, labels };
+}
+
 /**
- * Lays out a concept picture on `layout-grid`: items measured and layered, placed in an adaptive grid, lines routed
- * and labelled, then the legend of what the picture uses below it.
+ * Lays out a graph picture on `layout-grid`: items measured and layered, placed in an adaptive grid, lines routed
+ * and labelled, then the heads of the columns and the legend of what the picture does not say itself, unless
+ * `options` leave them out.
  */
-export function layoutConcept(m: ConceptModel, w: ConceptWords, title: string, locale: Locale): ConceptLayout {
-  const { spec, texts, boxes } = conceptGrid(m, locale);
-  const grid = placeGrid(spec);
-  const routes = routeEdges(spec, grid);
-  const labels = labelEdges(spec, grid, routes, texts);
+export function layoutGraph(
+  m: Graph,
+  w: GraphWords,
+  title: string,
+  locale: Locale,
+  options: { readonly legend: boolean; readonly heads: boolean } = { legend: true, heads: true },
+): GraphLayout {
+  const { spec, boxes, grid, routes, labels, heads: named, verbs } = placed(m, locale, options.heads);
   const fitted = fitFrames(spec, grid, routes, labels);
+  const row = placeHeads(fitted, named, verbs, m.links);
+  const heads = row.heads;
   const byId = new Map(m.items.map((i) => [i.id, i]));
   const items = fitted.nodes.flatMap((p): PlacedItem[] => {
     const item = byId.get(p.id);
@@ -100,7 +126,7 @@ export function layoutConcept(m: ConceptModel, w: ConceptWords, title: string, l
   );
   const width = Math.ceil(right);
   const bottom = Math.max(fitted.bottom, ...labels.map((l) => l.box.y + l.box.h + MARGIN));
-  const entries = samples(m).map((sample) => ({
+  const entries = (options.legend ? samples(m, heads.length > 0) : []).map((sample) => ({
     sample,
     sampleWidth: LEGEND.sampleWidth,
     labelDx: LEGEND.labelDx,
@@ -112,8 +138,10 @@ export function layoutConcept(m: ConceptModel, w: ConceptWords, title: string, l
     lines,
     labels,
     legend,
+    heads,
+    verbs: row.verbs,
     width,
     height: Math.ceil(entries.length > 0 ? legend.bottom : bottom),
-    placed: placedOf(spec, fitted, routes, labels),
+    placed: [...placedOf(spec, fitted, routes, labels), ...row.placed],
   };
 }

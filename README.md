@@ -35,6 +35,7 @@ Each kind comes from a plugin, and each has a page with every statement, its exa
 | [`code`](docs/language/code.md) | [`plugin-code`](plugins/plugin-code/README.md) | Excerpts of source files as highlighted cards, with marks, notes and links |
 | [`matrix`](docs/language/matrix.md) | [`plugin-concept`](plugins/plugin-concept/README.md) | Columns, rows and a scale whose rules are checked: RACI, CRUD, coverage |
 | [`concept`](docs/language/concept.md) | [`plugin-concept`](plugins/plugin-concept/README.md) | Items and relations of a declared vocabulary, checked against it: terms, roles, a file's own |
+| [`vocabulary`](docs/language/vocabulary.md) | [`plugin-concept`](plugins/plugin-concept/README.md) | Types and links of a subject with their rules, for concept pictures to build on with `use=` |
 
 UML diagrams are laid out by Diagrist itself. C4 diagrams place their elements in a named grid that the file
 declares, so the author decides what stands next to what.

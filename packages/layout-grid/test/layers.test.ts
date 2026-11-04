@@ -37,4 +37,24 @@ describe('layering a graph', () => {
     };
     expect(layerGraph(graph)).toEqual(layerGraph(structuredClone(graph)));
   });
+
+  it('searches thoroughly for an order without crossings, where two layers have to change together', () => {
+    const edges = ranked('m>s m>f b>n s>x a>x a>y n>y f>z u>z');
+    const nodes = ['a', 'u', 'x', 'y', 'z', 's', 'n', 'f', 'b', 'm'];
+    const crossings = (layers: readonly (readonly string[])[]) => {
+      const at = new Map(layers.flatMap((layer) => layer.map((n, i) => [n, i] as const)));
+      const pairs = edges.map((e) => [at.get(e.from) ?? 0, at.get(e.to) ?? 0] as const);
+      const level = new Map(layers.flatMap((layer, l) => layer.map((n) => [n, l] as const)));
+      return edges.filter((e, i) =>
+        edges.some(
+          (o, j) =>
+            j > i &&
+            level.get(e.from) === level.get(o.from) &&
+            ((pairs[i]?.[0] ?? 0) - (pairs[j]?.[0] ?? 0)) * ((pairs[i]?.[1] ?? 0) - (pairs[j]?.[1] ?? 0)) < 0,
+        ),
+      ).length;
+    };
+    expect(crossings(layerGraph({ nodes, edges, maxPerLayer: 5 }).layers)).toBeGreaterThan(0);
+    expect(crossings(layerGraph({ nodes, edges, maxPerLayer: 5, thorough: true }).layers)).toBe(0);
+  });
 });

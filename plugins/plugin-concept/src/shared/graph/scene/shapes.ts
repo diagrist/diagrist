@@ -1,5 +1,5 @@
 import type { Rect, Shape } from '@diagrist/core';
-import type { ShapeName } from '../declarations.js';
+import type { ShapeName } from '../../declarations.js';
 import { ITEM } from '../layout/metrics.js';
 
 /** Role of an item's outline by its status. */

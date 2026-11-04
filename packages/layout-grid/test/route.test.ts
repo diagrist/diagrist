@@ -132,4 +132,21 @@ describe('straight lines', () => {
     expect(b.rect.y - q[1]).toBeGreaterThan(0);
     expect(b.rect.y - q[1]).toBeLessThanOrEqual(4);
   });
+
+  it('with centred ports leaves and enters a box in the middle of its side, bending halfway between the rows', () => {
+    const nodes = [
+      { id: 'p', col: 'a', row: 'up', to: { col: 'b' }, width: 300, height: 56 },
+      { id: 'c', col: 'b', row: 'down', to: { col: 'c' }, width: 192, height: 56 },
+    ];
+    const centred = spec('a b c', 'up down', nodes, { edges: [edge('p', 'c')], adaptive: true, ports: 'centred' });
+    const grid = placeGrid(centred);
+    const [route] = routeEdges(centred, grid);
+    const rect = (id: string) => grid.nodes.find((n) => n.id === id)?.rect as Rect;
+    const middle = (r: Rect): number => r.x + r.w / 2;
+    const points = route?.points ?? [];
+    expect(points[0]).toEqual([middle(rect('p')), rect('p').y + rect('p').h]);
+    expect(points.at(-1)).toEqual([middle(rect('c')), rect('c').y]);
+    expect(points).toHaveLength(4);
+    expect(points[1]?.[1]).toBe((rect('p').y + rect('p').h + rect('c').y) / 2);
+  });
 });

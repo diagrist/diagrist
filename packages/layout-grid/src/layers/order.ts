@@ -74,19 +74,89 @@ function swap(layer: string[], i: number): void {
   layer[i + 1] = a;
 }
 
+/** Moves each node to the place in its layer where the cost is lowest, as long as that lowers it. */
+function sift(layers: Layers, adj: Adjacency, layerOf: ReadonlyMap<string, number>): Layers {
+  let current = layerCost(layers, adj, layerOf);
+  for (let improved = true; improved; ) {
+    improved = false;
+    for (const layer of layers)
+      for (const n of [...layer]) {
+        const from = layer.indexOf(n);
+        layer.splice(from, 1);
+        let best = from;
+        let cost = Number.POSITIVE_INFINITY;
+        for (let to = 0; to <= layer.length; to++) {
+          layer.splice(to, 0, n);
+          const c = layerCost(layers, adj, layerOf);
+          if (c < cost || (c === cost && to === from)) {
+            cost = c;
+            best = to;
+          }
+          layer.splice(to, 1);
+        }
+        layer.splice(best, 0, n);
+        if (cost < current) {
+          current = cost;
+          improved = true;
+        }
+      }
+  }
+  return layers;
+}
+
+/** The layers filled in the order of `nodes`. */
+function filled(nodes: readonly string[], layerOf: ReadonlyMap<string, number>): Layers {
+  const count = Math.max(0, ...layerOf.values()) + 1;
+  const layers: Layers = Array.from({ length: count }, () => []);
+  for (const n of nodes) layers[layerOf.get(n) ?? 0]?.push(n);
+  return layers;
+}
+
 /**
  * Order within the layers: start in depth-first order, so what is connected stands together, then barycentre sweeps
  * down and up. The order with the fewest crossings stays; neighbours in one layer should stand side by side.
+ * `thorough` also starts with each layer turned around in turn, sweeping first up and first down, and then moves
+ * every node to its best place in its layer. That finds orders the swapping of neighbours cannot reach, where two
+ * layers have to change together; the cheapest result wins, the first on a tie.
  */
-export function orderLayers(nodes: readonly string[], layerOf: ReadonlyMap<string, number>, adj: Adjacency): Layers {
+export function orderLayers(
+  nodes: readonly string[],
+  layerOf: ReadonlyMap<string, number>,
+  adj: Adjacency,
+  thorough = false,
+): Layers {
   const start = dfsOrder(nodes, adj);
-  const count = Math.max(0, ...layerOf.values()) + 1;
-  const layers: Layers = Array.from({ length: count }, () => []);
-  for (const n of [...nodes].sort((a, b) => at(start, a) - at(start, b))) layers[layerOf.get(n) ?? 0]?.push(n);
+  const base = filled(
+    [...nodes].sort((a, b) => at(start, a) - at(start, b)),
+    layerOf,
+  );
+  if (!thorough) return improve(base, adj, layerOf, true);
+  const turned = base.flatMap((layer, l) =>
+    layer.length < 2 ? [] : [base.map((other, k) => (k === l ? [...other].reverse() : [...other]))],
+  );
+  const runs = [base, ...turned].flatMap((layers) =>
+    [true, false].map((down) =>
+      sift(
+        improve(
+          layers.map((l) => [...l]),
+          adj,
+          layerOf,
+          down,
+        ),
+        adj,
+        layerOf,
+      ),
+    ),
+  );
+  const costs = runs.map((r) => layerCost(r, adj, layerOf));
+  return runs[costs.indexOf(Math.min(...costs))] ?? base;
+}
+
+function improve(layers: Layers, adj: Adjacency, layerOf: ReadonlyMap<string, number>, down: boolean): Layers {
   let best = layers.map((l) => [...l]);
   let bestCost = layerCost(best, adj, layerOf);
   for (let i = 0; i < SWEEPS; i++) {
-    sweep(layers, adj, layerOf, i % 2 === 0);
+    sweep(layers, adj, layerOf, i % 2 === (down ? 0 : 1));
     const c = layerCost(layers, adj, layerOf);
     if (c < bestCost) {
       best = layers.map((l) => [...l]);

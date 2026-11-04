@@ -64,8 +64,14 @@ function keepNearest(
   return out;
 }
 
-/** Ports of an adaptive grid. The other ends set the order, so fans do not interlock. */
-export function adaptivePorts(requests: readonly PortRequest[], gap: number): Map<PortRequest, Point> {
+/** How far apart the middles of two boxes may lie for a line between them to stay straight with centred ends. */
+const NEARLY = 0.2;
+
+/**
+ * Ports of an adaptive grid. The other ends set the order, so fans do not interlock. `centred` spreads the ends of a
+ * side evenly instead of towards the other ends, except a line whose boxes nearly share their middle.
+ */
+export function adaptivePorts(requests: readonly PortRequest[], gap: number, centred = false): Map<PortRequest, Point> {
   const groups = new Map<string, PortRequest[]>();
   for (const request of requests) {
     const key = `${request.id}:${request.side}`;
@@ -88,13 +94,18 @@ export function adaptivePorts(requests: readonly PortRequest[], gap: number): Ma
       (a, b) =>
         (center(a.other) - center(b.other)) * (first.side === 'bottom' && first.other.y < first.rect.y ? -1 : 1),
     );
-    const preferred = sorted.map((r) => {
+    const preferred = sorted.map((r, i) => {
       const otherLo = (horizontal ? r.other.x : r.other.y) + gap;
       const otherHi = (horizontal ? right(r.other) : bottom(r.other)) - gap;
       const a = Math.max(lo, otherLo);
       const b = Math.min(hi, otherHi);
       if (r.at !== undefined) return Math.max(lo, Math.min(hi, r.at));
       const mid = center(r.rect);
+      if (centred) {
+        const size = Math.min(hi - lo, (horizontal ? r.other.w : r.other.h) - 2 * gap);
+        const near = a <= b && Math.abs(mid - center(r.other)) <= NEARLY * size;
+        return near ? (a + b) / 2 : lo + ((hi - lo) * (i + 1)) / (sorted.length + 1);
+      }
       const inside = a <= b && r.center && mid >= a && mid <= b;
       const v = inside ? mid : a <= b ? (a + b) / 2 : r.center ? mid : Math.max(lo, Math.min(hi, center(r.other)));
       return r.avoid ? outside(v, r.avoid, lo, hi) : v;

@@ -173,4 +173,10 @@ export interface GridSpec {
   readonly metrics: GridMetrics;
   readonly adaptive: boolean;
   readonly lines?: 'orthogonal' | 'straight';
+  /**
+   * Where the ends of an adaptive grid sit on a side. `towards` (default) puts them where the other end overlaps, so
+   * a line stays straight even off the middle. `centred` spreads them evenly, one end in the middle, and keeps a line
+   * straight only where the middles of both boxes nearly meet; elsewhere it bends twice between them.
+   */
+  readonly ports?: 'towards' | 'centred';
 }

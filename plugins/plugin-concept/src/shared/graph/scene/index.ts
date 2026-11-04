@@ -1,8 +1,8 @@
 import { type Anchors, domId, type Point, type Scene, type Shape } from '@diagrist/core';
 import { HEADER, headerShapes, legendShapes } from '@diagrist/parts';
-import type { ConceptLayout, PlacedItem, Sample } from '../layout/index.js';
+import type { GraphLayout, PlacedItem, Sample } from '../layout/index.js';
 import { ITEM } from '../layout/metrics.js';
-import type { ConceptModel } from '../model.js';
+import type { Graph } from '../model.js';
 import { lineRole } from '../styles.js';
 import { outline, outlineRole } from './shapes.js';
 
@@ -60,7 +60,7 @@ function sampleShapes(sample: Sample, x: number, y: number): Shape[] {
 }
 
 /** The title, the lines below the items, the items, the labels of the lines, the legend. */
-export function conceptScene(layout: ConceptLayout, model: ConceptModel, title: string): Scene {
+export function graphScene(layout: GraphLayout, model: Graph, title: string): Scene {
   const lines = layout.lines.map(
     (l): Shape => ({
       kind: 'group',
@@ -71,6 +71,18 @@ export function conceptScene(layout: ConceptLayout, model: ConceptModel, title: 
   const labels = layout.labels.map(
     (l): Shape => ({ kind: 'text', x: l.x, y: l.y, text: l.text, role: 'edgeLabel', font: 'label', anchor: l.anchor }),
   );
+  const heads = layout.heads.flatMap((h): Shape[] => [
+    { kind: 'text', x: h.x, y: h.y, text: h.text, role: 'head', font: 'group', anchor: 'middle' },
+    { kind: 'line', x1: h.rule.x1, y1: h.rule.y, x2: h.rule.x2, y2: h.rule.y, role: 'headRule' },
+  ]);
+  const verbs = layout.verbs.flatMap((v): Shape[] => [
+    { kind: 'text', x: v.x, y: v.y, text: v.text, role: 'verb', font: 'label', anchor: 'middle' },
+    {
+      kind: 'path',
+      d: `M ${v.rule.x1} ${v.rule.y} L ${v.rule.x2} ${v.rule.y}`,
+      role: lineRole(v.link.line, v.link.head),
+    },
+  ]);
   const legend =
     layout.legend.entries.length > 0 ? legendShapes(layout.legend, (e) => sampleShapes(e.sample, e.at.x, e.at.y)) : [];
   return {
@@ -79,6 +91,8 @@ export function conceptScene(layout: ConceptLayout, model: ConceptModel, title: 
     title,
     children: [
       ...headerShapes(HEADER, title, model.subtitle),
+      ...heads,
+      ...verbs,
       ...lines,
       ...layout.items.map(itemShapes),
       ...labels,
@@ -88,7 +102,7 @@ export function conceptScene(layout: ConceptLayout, model: ConceptModel, title: 
 }
 
 /** Items as nodes and relations as edges, by the DOM ids of their groups. */
-export function conceptAnchors(layout: ConceptLayout): Anchors {
+export function graphAnchors(layout: GraphLayout): Anchors {
   return {
     width: layout.width,
     height: layout.height,

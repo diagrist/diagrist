@@ -17,6 +17,13 @@ export interface LayerGraph {
   readonly edges: readonly LayerEdge[];
   readonly maxPerLayer: number;
   readonly last?: readonly string[];
+  /** Searches harder for an order without crossings: for pictures where every crossing shows, at more cost in time. */
+  readonly thorough?: boolean;
+  /**
+   * The layer of every node as the kind decides it, such as a column per type of thing; then edges set only the
+   * order within the layers. A node it leaves out stands in the first layer.
+   */
+  readonly fixed?: ReadonlyMap<string, number>;
 }
 
 /** Layers from top to bottom and a position per node in half columns; neighbours in a layer stand at least 1 apart. */

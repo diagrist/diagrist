@@ -2,14 +2,14 @@
 
 # `concept`
 
-A picture of a business concept with its own vocabulary: the file declares types of things and types of relations with their rules, then writes items and relations, which are checked against the declarations. A vocabulary of the plugin brings the declarations of a common picture, such as `terms` or `roles`.
+A picture of a business concept with its own vocabulary: the file declares types of things and types of relations with their rules, then writes items and relations, which are checked against the declarations. A vocabulary file named with `use=`, or one of the plugin such as `terms` or `roles`, brings the declarations of a subject.
 
 This page lists everything a `concept` diagram may contain. The same grammar is available as data with `dgr grammar concept --json`, and [the overview](README.md) explains how lines, texts and attributes are written and lists the codes every kind shares.
 
 ## The first line
 
 ```text
-diagram concept "Title" [subtitle=<text>] [vocabulary=<terms|roles>] [locale=<en|de>]
+diagram concept "Title" [subtitle=<text>] [vocabulary=<terms|roles>] [arrange=<columns|layers>] [use=<file>] [locale=<en|de>]
 ```
 
 Every concept diagram starts with this line.
@@ -18,6 +18,8 @@ Every concept diagram starts with this line.
 |---|---|---|---|
 | `subtitle=` | attribute | a text in double quotes like `"Order service"` | Second line below the title. |
 | `vocabulary=` | attribute | one of `terms`, `roles` | Declarations of the plugin the file builds on: `terms` (terms with definitions, broader and narrower, parts, synonyms) or `roles` (roles, who reports to whom, who stands in for whom). |
+| `arrange=` | attribute | one of `columns`, `layers` | How the items stand: `columns`, a column per type in the order of their declaration, so a relation reads from left to right as a sentence; or `layers` along the relations. Without it, columns when the items are of more than one type. |
+| `use=` | attribute | a path in double quotes, relative to the diagram, like `"src/OrderService.java"`; it stays inside the folder `dgr` runs in and names no hidden file or folder | A vocabulary file the picture builds on, such as `"iks.vocab.dgr"`: its types and links come first, after those of `vocabulary=`. |
 | `locale=` | attribute | one of `en`, `de` | Language of the texts Diagrist adds to the picture and of the description: `en` (default) or `de`. |
 
 Example:
@@ -40,7 +42,7 @@ Each statement is one line that starts with its keyword. Statements inside block
 ### `type`
 
 ```text
-type <id> <label> [shape=<box|round|person|store|doc>] [explain]
+type <id> <label> [shape=<box|round|person|store|doc>] [de=<text>] [explain]
 ```
 
 A type of thing the picture shows, such as a role, a task or a document. Every item names its type with `is`, and the legend shows each type in use with its shape.
@@ -52,19 +54,20 @@ Written at the top level.
 | `<id>` | argument | an identifier like `api` (letters, digits, `_` and `-`, starting with a letter) | Id that `is` of the items and `from=` and `to=` of the links name. |
 | `<label>` | argument | a text in double quotes like `"Order service"` | Name of the type in the legend. |
 | `shape=` | attribute | one of `box`, `round`, `person`, `store`, `doc` | How its items are drawn: `box` (default), `round` corners, `person` with a figure, `store` as a cylinder, `doc` with a folded corner. |
+| `de=` | attribute | a text in double quotes like `"Order service"` | Its name in German, for pictures with `locale=de`; without it the label stands in every locale. |
 | `explain` | flag |  | Every item of the type has at least one indented entry, such as a definition. |
 
 Examples:
 
 ```dgr
 type rolle "Rolle" shape=person
-type begriff "Begriff" explain
+type term "Term" de="Begriff" explain
 ```
 
 ### `link`
 
 ```text
-link <id> <label> [from=<type-names>] [to=<type-names>] [line=<solid|dashed|dotted>] [head=<arrow|open|triangle|diamond|none>] [each=<from|to|both>] [single=<from|to|both>] [acyclic] [upward] [beside] [bare]
+link <id> <label> [from=<type-names>] [to=<type-names>] [line=<solid|dashed|dotted>] [head=<arrow|open|triangle|diamond|none>] [each=<from|to|both>] [single=<from|to|both>] [back=<text>] [de=<text>] [acyclic] [upward] [beside] [bare]
 ```
 
 A type of relation between items of the types it lists. Every relation names its link, and the declared rules are checked: which types it joins, how many relations each item needs, and whether chains may loop.
@@ -81,6 +84,8 @@ Written at the top level.
 | `head=` | attribute | one of `arrow`, `open`, `triangle`, `diamond`, `none` | The head at the second item: `arrow` (default), `open`, `triangle` and `diamond` hollow, or `none`. |
 | `each=` | attribute | one of `from`, `to`, `both` | Every item of a `from` type, of a `to` type, or of both, has at least one such relation. |
 | `single=` | attribute | one of `from`, `to`, `both` | Every item of a `from` type, of a `to` type, or of both, has at most one such relation. |
+| `back=` | attribute | a text in double quotes like `"Order service"` | What the relation says read backwards, from the second item to the first, such as `"gemindert durch"` for `mindert`. A picture in columns then draws every line from left to right and writes this where the link points against the reading. |
+| `de=` | attribute | a text in double quotes like `"Order service"` | Its name in German, for pictures with `locale=de`; without it the label stands in every locale. |
 | `acyclic` | flag |  | No chain of such relations leads back to where it started. |
 | `upward` | flag |  | The second item stands above the first, as a broader term above a narrower one or a lead above a team. |
 | `beside` | flag |  | The two items stand side by side rather than one below the other, as a deputy beside the role it stands in for. |
@@ -165,8 +170,9 @@ Besides the codes of the language and the kernel, listed in [the overview](READM
 
 | Code | Severity | What it checks |
 |---|---|---|
-| `M110` | error | An item names its type with `is`, and the type is declared with `type` or by the vocabulary of the header. |
-| `M111` | error | A relation names a link declared with `link` or by the vocabulary of the header. |
+| `M120` | error | The vocabulary file of `use=` reads without errors, since a picture cannot build on declarations that are broken. |
+| `M110` | error | An item names its type with `is`, and the type is declared with `type`, by the vocabulary file of `use=` or by the vocabulary of `vocabulary=`. |
+| `M111` | error | A relation names a link declared with `link`, by the vocabulary file of `use=` or by the vocabulary of `vocabulary=`. |
 | `M112` | error | A link lists the types it joins with `from=` and `to=`, each a declared type. |
 | `M113` | error | The file adds types and links to its vocabulary, but does not declare one of the vocabulary again. |
 | `M114` | error | A relation joins items of the types its link lists in `from=` and `to=`. |
