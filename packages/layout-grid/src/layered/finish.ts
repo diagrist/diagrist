@@ -59,7 +59,13 @@ export function finish(spec: LayeredSpec, arrangement: Arrangement): LayeredLayo
     return assignTracks(pieces);
   });
   const below = besideRoutes(ranked, layers);
-  const first = layers.map((_, l) => Math.max(m.tail, labelRoom(seats, l, 'top', m.labelGap)) + under(l));
+  const headsUp = new Set(
+    spec.edges.flatMap((e) =>
+      ranked.down.get(e.id) === false ? [ranked.layerOf.get(ranked.chains.get(e.id)?.[0] ?? '') ?? -1] : [],
+    ),
+  );
+  const run = (l: number) => (headsUp.has(l) ? m.lead : m.tail);
+  const first = layers.map((_, l) => Math.max(run(l), labelRoom(seats, l, 'top', m.labelGap)) + under(l));
   const last = layers.map((_, l) => Math.max(m.lead, labelRoom(seats, l, 'bottom', m.labelGap)) + above(l));
   const rects = new Map<string, Rect>();
   const gapTop: number[] = [];
