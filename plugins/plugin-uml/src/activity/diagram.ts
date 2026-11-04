@@ -1,4 +1,4 @@
-import type { Tone } from '@diagrist/core';
+import type { Areas, Tone } from '@diagrist/core';
 import type { Span } from '@diagrist/lang';
 import type { Decision } from '@diagrist/parts';
 import type { EXPANSION_MODES } from './grammar/frames.js';
@@ -24,12 +24,15 @@ export interface ActivityDiagram {
   readonly flows: readonly Flow[];
   readonly handlers: readonly Handler[];
   readonly decisions: readonly Decision[];
+  readonly areas: Areas;
 }
 
 export interface Partition {
   readonly id: string;
   readonly label: string;
   readonly tone?: Tone;
+  /** The area of the lane (ADR 0033), which its nodes take unless they name their own. */
+  readonly area?: string;
   readonly span: Span;
 }
 
@@ -77,6 +80,8 @@ export interface ActivityNode {
   readonly call: boolean;
   readonly tone?: Tone;
   readonly mark?: string;
+  /** The area it names itself; it takes the area of its lane otherwise. */
+  readonly area?: string;
   readonly span: Span;
   /** Set on the expansion nodes the model adds for a region; they are object nodes on its frame. */
   readonly port?: ExpansionPort;
@@ -93,6 +98,8 @@ export interface Flow {
   readonly else: boolean;
   readonly pin?: string;
   readonly weight?: number;
+  /** The area the edge names itself; the scene falls back to the areas of its ends. */
+  readonly area?: string;
   readonly span: Span;
 }
 

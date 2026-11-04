@@ -1,5 +1,11 @@
 export type { Anchors, EdgeAnchor, NodeAnchor } from './anchors.js';
 export { domId } from './anchors.js';
+export type { AreaStatementSpec } from './areas/grammar.js';
+export { AREA_STATEMENT, areaAttribute, areasAttribute, lineAreaAttribute } from './areas/grammar.js';
+export { markAreas } from './areas/mark.js';
+export type { Area, Areas } from './areas/model.js';
+export { areaMark, lineArea, readAreas } from './areas/model.js';
+export type { AreaMark, AreaPaint, AreaTone } from './areas/tones.js';
 export { checkPlugin } from './check.js';
 export type { Compilation, CompileOptions } from './compile.js';
 export { compile, localeAttribute } from './compile.js';

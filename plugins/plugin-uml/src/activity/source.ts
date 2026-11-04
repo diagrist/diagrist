@@ -1,4 +1,4 @@
-import type { Tone } from '@diagrist/core';
+import { readAreas, type Tone } from '@diagrist/core';
 import type { Header, KindReading } from '@diagrist/lang';
 import { decisionOf } from '@diagrist/parts';
 import { splitNames } from '../shared/values.js';
@@ -27,6 +27,7 @@ interface NodeAttributes {
   readonly state?: string;
   readonly tone?: Tone;
   readonly mark?: string;
+  readonly area?: string;
 }
 
 function node(s: Of<NodeKind>): ActivityNode {
@@ -45,6 +46,7 @@ function node(s: Of<NodeKind>): ActivityNode {
     call: 'call' in s.flags && s.flags.call,
     ...some('tone', a.tone),
     ...some('mark', a.mark),
+    ...some('area', a.area),
     span: s.span,
   };
 }
@@ -64,6 +66,7 @@ function flow(s: Of<'go'>): Flow {
     else: s.flags.else || guard === 'else',
     ...some('pin', s.attributes.pin),
     ...some('weight', s.attributes.weight),
+    ...some('area', s.attributes.area),
     span: s.span,
   };
 }
@@ -92,6 +95,7 @@ export function activityDiagram(reading: KindReading<ActivityStatement>): Activi
       id: p.id,
       label: p.label,
       ...some<'tone', Tone>('tone', p.attributes.tone),
+      ...some('area', p.attributes.area),
       span: p.span,
     })),
     regions: of(s, 'interruptible').map((r) => ({ id: r.id, ...some('label', r.label), span: r.span })),
@@ -105,5 +109,6 @@ export function activityDiagram(reading: KindReading<ActivityStatement>): Activi
       span: h.span,
     })),
     decisions: of(s, 'adr').map(decisionOf),
+    areas: readAreas(s, header.attributes),
   };
 }

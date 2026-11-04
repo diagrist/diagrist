@@ -1,3 +1,4 @@
+import { readAreas } from '@diagrist/core';
 import type { KindReading } from '@diagrist/lang';
 import { decisionOf } from '@diagrist/parts';
 import type { Level } from '../grammar/elements.js';
@@ -42,6 +43,7 @@ function nodeOf(s: Element, styles: ReadonlyMap<string, Style>): ArchNode {
       height: a.height,
       tone: a.tone,
       form: a.form,
+      area: s.attributes.area,
       origin: s.origin,
     }),
   };
@@ -64,6 +66,7 @@ function groupOf(s: Of<'group'>, nodes: readonly ArchNode[]): ArchGroup {
       tag: a.tag,
       cover: a.cover,
       tone: a.tone,
+      area: a.area,
     }),
   };
 }
@@ -93,6 +96,7 @@ export function architectureModel(level: Level, reading: KindReading<Architectur
     layers: only(all, 'layer').map((l) => ({ row: l.row, label: l.label, source: l.span })),
     notes: only(all, 'note').map((n) => ({ text: n.text, source: n.span, ...compact({ on: n.clauses.on }) })),
     decisions: only(all, 'adr').map(decisionOf),
+    areas: readAreas(all, header),
     ...compact({ subtitle: header.subtitle as string | undefined, label: header.label as string | undefined }),
   };
 }

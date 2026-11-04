@@ -1,7 +1,7 @@
 import type { Locale } from '@diagrist/lang';
-import { WORDS } from '@diagrist/parts';
+import { areaSentences, WORDS } from '@diagrist/parts';
 import type { Transition, Vertex } from '../diagram.js';
-import { isBorderPoint, type StateModel } from '../model.js';
+import { areaOf, isBorderPoint, type StateModel } from '../model.js';
 import type { Opening, StateProse } from './prose.js';
 import { STATE_NAME, STATE_PROSE } from './texts.js';
 
@@ -65,6 +65,16 @@ function opening(m: StateModel, t: Transition, name: (id: string) => string): Op
   return { from: 'completion', source: from };
 }
 
+/** The names of the states of each area, by the area's id (ADR 0033); pseudostates are named by their transitions. */
+function membersByArea(m: StateModel, name: (id: string) => string): Map<string, string[]> {
+  const out = new Map<string, string[]>();
+  for (const v of m.diagram.vertices) {
+    const area = v.kind === 'state' ? areaOf(m, v.id) : undefined;
+    if (area !== undefined) out.set(area, [...(out.get(area) ?? []), name(v.id)]);
+  }
+  return out;
+}
+
 /** Alt text of a state machine: overview, states with their behaviour, then one sentence per transition, notes, decisions. */
 export function describeState(m: StateModel, locale: Locale): string {
   const p = STATE_PROSE[locale];
@@ -91,6 +101,7 @@ export function describeState(m: StateModel, locale: Locale): string {
     }),
     ...d.notes.flatMap((n) => (n.on === undefined ? [] : [p.note(name(n.on), n.text)])),
     ...d.decisions.map((x) => WORDS[locale].decision(x)),
+    ...areaSentences(d.areas, membersByArea(m, name), locale),
   ];
   return lines.join('\n');
 }

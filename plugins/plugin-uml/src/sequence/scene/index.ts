@@ -1,14 +1,16 @@
-import { type Anchors, domId, type Scene, type Shape } from '@diagrist/core';
-import { headerShapes, stripShapes, type Words } from '@diagrist/parts';
+import { type Anchors, domId, markAreas, type Scene, type Shape } from '@diagrist/core';
+import { headerShapes, stripShapes, type Words, withAreaLegend } from '@diagrist/parts';
 import type { PictureTexts } from '../layout/index.js';
 import type { SeqShape, SequenceLayout } from '../layout/types.js';
 import type { SequenceModel } from '../model/types.js';
+import { barMark, inArea, lifelineMark, sequenceAreaMarks, usedAreas } from './areas.js';
 import { cardHeads, cardShapes } from './cards.js';
 import { messageShape, shape } from './shapes.js';
 
 /**
  * The scene of a sequence diagram: title, lifelines, guides, bars, frames, boxes, messages, heads, marks,
- * annotations and decision bar, in this drawing order. `look=cards` draws heads and areas as cards.
+ * annotations and decision bar, in this drawing order. `look=cards` draws heads and areas as cards. Lifelines
+ * of a coloured area are painted in its tone, head, dashed line and bars alike, their messages in its ink (ADR 0033).
  */
 export function sequenceScene(l: SequenceLayout, m: SequenceModel, words: Words & PictureTexts): Scene {
   const d = m.diagram;
@@ -20,9 +22,9 @@ export function sequenceScene(l: SequenceLayout, m: SequenceModel, words: Words 
     : l.heads.map((h): Shape => ({ kind: 'group', id: domId.node(h.id), children: h.shapes.map(shape) }));
   const children: Shape[] = [
     ...headerShapes(l.header, words.title, d.subtitle),
-    ...l.lifelines.map(shape),
+    ...l.lifelines.flatMap((s, i) => inArea([shape(s)], lifelineMark(m, l.heads[i]?.id))),
     ...l.guides.map(shape),
-    ...area(l.activations),
+    ...l.activations.flatMap((s) => inArea(area([s]), barMark(m, l, s))),
     ...area(l.frames),
     ...area(l.boxes),
     ...l.messages.map((art, k) => messageShape(art, domId.edge(k))),
@@ -31,7 +33,14 @@ export function sequenceScene(l: SequenceLayout, m: SequenceModel, words: Words 
     ...l.annotations.map(shape),
     ...stripShapes(l.strip, words),
   ];
-  return { width: l.width, height: l.height, title: d.title, children };
+  const scene: Scene = {
+    width: l.width,
+    height: l.height,
+    title: d.title,
+    areas: d.areas.paint,
+    children: markAreas(children, sequenceAreaMarks(m, l)),
+  };
+  return withAreaLegend(scene, d.areas, usedAreas(m), cards ? 'cardBox' : 'head');
 }
 
 /** Heads as nodes, messages as edges in drawing order; a sequence diagram has no groups. */

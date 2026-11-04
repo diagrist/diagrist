@@ -1,5 +1,5 @@
 import { CODE_LANGUAGES } from '@diagrist/code';
-import { localeAttribute } from '@diagrist/core';
+import { AREA_STATEMENT, areaAttribute, areasAttribute, lineAreaAttribute, localeAttribute } from '@diagrist/core';
 import {
   arg,
   arrow,
@@ -38,6 +38,7 @@ const source = statement('source', {
     'source publish "Outbox.publish" src="Outbox.java" region=publish',
     'source table "outbox_entry" src="outbox.sql" lines=2-9',
     'source api "TransferService" src="TransferService.java" outline',
+    'source relay "Outbox.publish" src="Outbox.java" region=publish area=outbox',
   ],
   arguments: [
     arg('id', id(), 'Id of the card, which `link` names.'),
@@ -58,6 +59,7 @@ const source = statement('source', {
       oneOf(CODE_LANGUAGES),
       'Language of the code. Default: from the extension of `src` (`.java`, `.kt`, `.kts`, `.sql`, `.yaml`, `.yml`, `.json`, `.xml`, `.xsd`), else `text`, which draws the code without colours.',
     ),
+    area: areaAttribute,
   },
   flags: {
     outline:
@@ -80,15 +82,17 @@ const link = statement('link', {
     arg('to', ref('source'), 'The card the arrow points to.'),
     optionalArg('label', text(), 'What happens on the way, such as the call, written beside the arrow.'),
   ],
+  attributes: { area: lineAreaAttribute },
 });
 
-const statements = [source, link] as const;
+const statements = [source, link, AREA_STATEMENT] as const;
 
 /** The statement tables of code diagrams. */
 export const codeSpec = kind('code', {
   doc: 'A code diagram: excerpts of real source files as highlighted cards, one below the other, with marked lines, numbered notes below each card and arrows from a call to what it calls. The files are read when the picture is built, so a renamed method fails the build instead of leaving a stale picture. Java, Kotlin, SQL, YAML, JSON and XML are highlighted.',
   header: {
     subtitle: attr(text(), 'Second line below the title.'),
+    areas: areasAttribute,
     locale: localeAttribute,
   },
   statements,

@@ -1,4 +1,4 @@
-import { TONE_NAMES } from '@diagrist/core';
+import { areaAttribute, TONE_NAMES } from '@diagrist/core';
 import { attr, oneOf, ref, text } from '@diagrist/lang';
 import { ACTIVITIES } from '../../spec/activities.js';
 import { implementing } from '../../spec/catalog.js';
@@ -35,7 +35,7 @@ export const lane = {
   ),
 };
 
-/** The frames a node may lie in besides its lane. */
+/** The frames a node may lie in besides its lane, and the area it belongs to, else that of its lane (ADR 0033). */
 export const frames = {
   interruptible: implementing(
     { uml: [ACTIVITIES.interruptibleRegion] },
@@ -48,6 +48,7 @@ export const frames = {
     { uml: [ACTIVITIES.expansionRegion] },
     attr(ref('expansion'), 'The expansion region the node belongs to, run once per element.'),
   ),
+  area: areaAttribute,
 };
 
 /** `tone=` of a node drawn as a card in `look=cards`. */

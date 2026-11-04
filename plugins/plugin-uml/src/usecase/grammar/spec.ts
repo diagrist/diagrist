@@ -1,10 +1,10 @@
-import { localeAttribute } from '@diagrist/core';
+import { AREA_STATEMENT, areasAttribute, localeAttribute } from '@diagrist/core';
 import { attr, type Infer, kind, oneOf, text } from '@diagrist/lang';
 import { adr } from '@diagrist/parts';
 import { actor, note, subject, usecase } from './elements.js';
 import { rel } from './relation.js';
 
-const statements = [actor, subject, usecase, rel, note, adr] as const;
+const statements = [actor, subject, usecase, rel, note, adr, AREA_STATEMENT] as const;
 
 /** The statement tables of UML use case diagrams. */
 export const usecaseSpec = kind('usecase', {
@@ -19,6 +19,7 @@ export const usecaseSpec = kind('usecase', {
       oneOf(['down', 'right']),
       'Several subjects: `right` side by side, `down` one below the other. Without it they stand below each other, unless an actor works in more than one or the picture would grow too tall; then side by side, more than three in rows of a grid, if that crosses no more lines. With fewer than two subjects it has no effect.',
     ),
+    areas: areasAttribute,
     locale: localeAttribute,
   },
   statements,

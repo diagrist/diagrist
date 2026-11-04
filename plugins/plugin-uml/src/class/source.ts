@@ -1,4 +1,4 @@
-import type { Tone } from '@diagrist/core';
+import { readAreas, type Tone } from '@diagrist/core';
 import type { Header, KindReading } from '@diagrist/lang';
 import { decisionOf } from '@diagrist/parts';
 import type { ClassDiagram, Classifier, ClassifierKind, ClassRelation } from './diagram.js';
@@ -19,7 +19,7 @@ const of = <K extends ClassStatement['keyword']>(statements: readonly ClassState
 const bare = (text: string | undefined): string | undefined => text?.trim().replace(/^«\s*|\s*»$/g, '') || undefined;
 
 function classifier(s: Of<'class' | 'interface' | 'enum'>): Classifier {
-  const { stereotype, template, tone, mark } = s.attributes;
+  const { stereotype, template, tone, mark, area } = s.attributes;
   return {
     kind: s.keyword as ClassifierKind,
     id: s.id,
@@ -37,12 +37,13 @@ function classifier(s: Of<'class' | 'interface' | 'enum'>): Classifier {
     ...some<'tone', Tone>('tone', tone),
     ...some('mark', mark),
     ...some('emph', s.flags.emph),
+    ...some('area', area),
     span: s.span,
   };
 }
 
 function relation(s: Of<'rel'>): ClassRelation {
-  const { source, card, role, srole, nonav, class: via } = s.attributes;
+  const { source, card, role, srole, nonav, class: via, area } = s.attributes;
   const keyword: ClassRelation['keyword'] = s.flags.import ? 'import' : s.flags.access ? 'access' : undefined;
   return {
     from: s.from,
@@ -58,6 +59,7 @@ function relation(s: Of<'rel'>): ClassRelation {
     ...some('via', via),
     ...some('keyword', keyword),
     ...some('emph', s.flags.emph),
+    ...some('area', area),
     span: s.span,
   };
 }
@@ -81,6 +83,7 @@ export function classDiagram(reading: KindReading<ClassStatement>): ClassDiagram
       label: p.label,
       ...some('parent', p.clauses.in),
       ...some<'tone', Tone>('tone', p.attributes.tone),
+      ...some('area', p.attributes.area),
       span: p.span,
     })),
     associations: of(s, 'assoc').map((a) => ({
@@ -90,10 +93,12 @@ export function classDiagram(reading: KindReading<ClassStatement>): ClassDiagram
       ...some('via', a.attributes.class),
       ...some('mark', a.attributes.mark),
       ...some('emph', a.flags.emph),
+      ...some('area', a.attributes.area),
       span: a.span,
     })),
     relations: of(s, 'rel').map(relation),
     notes: of(s, 'note').map((n) => ({ text: n.text, ...some('on', n.clauses.on), span: n.span })),
     decisions: of(s, 'adr').map(decisionOf),
+    areas: readAreas(s, header.attributes),
   };
 }

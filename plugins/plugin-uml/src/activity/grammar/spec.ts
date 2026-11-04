@@ -1,4 +1,4 @@
-import { localeAttribute } from '@diagrist/core';
+import { AREA_STATEMENT, areasAttribute, localeAttribute } from '@diagrist/core';
 import { attr, type Infer, kind, oneOf, text } from '@diagrist/lang';
 import { adr } from '@diagrist/parts';
 import { accept, action, buffer, datastore, object, send, wait } from './actions.js';
@@ -27,6 +27,7 @@ const statements = [
   go,
   handler,
   adr,
+  AREA_STATEMENT,
 ] as const;
 
 /** The statement tables of UML activity diagrams. */
@@ -38,6 +39,7 @@ export const activitySpec = kind('activity', {
       oneOf(['plain', 'cards']),
       '`plain` (default) draws the UML notation, `cards` the same layout with actions, objects and signals as cards and toned lane heads; start, ends, diamonds, bars and hourglass stay UML symbols.',
     ),
+    areas: areasAttribute,
     locale: localeAttribute,
   },
   statements,

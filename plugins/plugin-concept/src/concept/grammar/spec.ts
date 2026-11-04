@@ -1,4 +1,4 @@
-import { localeAttribute } from '@diagrist/core';
+import { AREA_STATEMENT, areaAttribute, areasAttribute, lineAreaAttribute, localeAttribute } from '@diagrist/core';
 import { arg, attr, file, type Infer, id, kind, lines, oneOf, optionalArg, ref, statement, text } from '@diagrist/lang';
 import { linkStatement, typeStatement } from '../../shared/declare.js';
 import { declared } from '../../shared/values.js';
@@ -12,7 +12,11 @@ const entry = lines({
 
 const item = statement('item', {
   doc: 'One thing of a declared type. Its indented lines are entries drawn below its name.',
-  examples: ['item kunde "Kunde" is rolle', 'item tarif "Tarif" is begriff status=deprecated'],
+  examples: [
+    'item kunde "Kunde" is rolle',
+    'item tarif "Tarif" is begriff status=deprecated',
+    'item stripe "Stripe-Adapter" is modul area=zahlung',
+  ],
   arguments: [arg('id', id(), 'Id that the relations name.'), arg('label', text(), 'Name of the item in its shape.')],
   clauses: { is: attr(declared('type'), 'Its type, declared with `type` or by the vocabulary.') },
   attributes: {
@@ -20,6 +24,7 @@ const item = statement('item', {
       oneOf(['planned', 'deprecated']),
       'An item not there yet, drawn dashed, or one to give up, drawn dashed and muted.',
     ),
+    area: areaAttribute,
   },
   lines: entry,
 });
@@ -33,9 +38,10 @@ const rel = statement('rel', {
     arg('to', ref('item'), 'The item the relation ends at.'),
     optionalArg('label', text(), 'Its own text on the line, instead of the label of the link.'),
   ],
+  attributes: { area: lineAreaAttribute },
 });
 
-const statements = [typeStatement, linkStatement, item, rel] as const;
+const statements = [typeStatement, linkStatement, item, rel, AREA_STATEMENT] as const;
 
 /** The statement tables of concept pictures. */
 export const conceptSpec = kind('concept', {
@@ -54,6 +60,7 @@ export const conceptSpec = kind('concept', {
       file(),
       'A vocabulary file the picture builds on, such as `"iks.vocab.dgr"`: its types and links come first, after those of `vocabulary=`.',
     ),
+    areas: areasAttribute,
     locale: localeAttribute,
   },
   statements,

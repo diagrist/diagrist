@@ -1,3 +1,5 @@
+import type { AreaMark, AreaPaint } from './areas/tones.js';
+
 /**
  * One thing to draw. Shapes carry a role, not a style (ADR 0008): the plugin's style table turns the role
  * into classes and arrowheads, so looks change tables, never code. Coordinates are picture pixels.
@@ -60,6 +62,8 @@ export type Shape =
       /** DOM id that embeddings use to find the group, see `domId`. */
       readonly id?: string;
       readonly role?: string;
+      /** The area the group belongs to (ADR 0033): its shapes are painted in the area's tone. */
+      readonly area?: AreaMark;
       readonly children: readonly Shape[];
     };
 
@@ -77,4 +81,6 @@ export interface Scene {
   readonly height: number;
   readonly title: string;
   readonly children: readonly Shape[];
+  /** How the elements of coloured areas are painted, from the header's `areas=`; `tint` when left out. */
+  readonly areas?: AreaPaint;
 }

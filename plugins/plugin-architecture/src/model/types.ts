@@ -1,4 +1,4 @@
-import type { Tone } from '@diagrist/core';
+import type { Areas, Tone } from '@diagrist/core';
 import type { Origin, Span } from '@diagrist/lang';
 import type { Decision } from '@diagrist/parts';
 import type { EdgeKind } from '../grammar/edges.js';
@@ -34,6 +34,8 @@ export interface ArchNode {
   readonly height?: number;
   readonly tone?: Tone;
   readonly form?: NodeForm;
+  /** The area it names itself (ADR 0033); `areaOfNode` adds the one of its groups. */
+  readonly area?: string;
   /** In a diff picture (ADR 0021): whether the element is new, changed or gone; absent means unchanged. */
   readonly origin?: Origin;
   readonly source: Span;
@@ -52,6 +54,8 @@ export interface ArchGroup {
   readonly tag?: string;
   readonly cover?: string;
   readonly tone?: Tone;
+  /** The area it names itself (ADR 0033); members and nested groups take it unless they name their own. */
+  readonly area?: string;
   /** Ids of the elements directly in it, in source order. */
   readonly members: readonly string[];
   readonly source: Span;
@@ -79,6 +83,8 @@ export interface ArchEdge {
   readonly bundle?: string;
   readonly lane?: string;
   readonly tone?: Tone;
+  /** The area the edge names itself (ADR 0033); the scene falls back to the areas of its ends. */
+  readonly area?: string;
   /** A step of a flow; a step a diff picture shows as removed has none, so the numbers stay those of the variant. */
   readonly step?: Step;
   /** In a diff picture (ADR 0021): whether the edge is new, changed or gone; absent means unchanged. */
@@ -134,4 +140,5 @@ export interface ArchitectureModel {
   readonly layers: readonly Layer[];
   readonly notes: readonly Note[];
   readonly decisions: readonly Decision[];
+  readonly areas: Areas;
 }

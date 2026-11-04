@@ -177,4 +177,7 @@ The kernel reports these about kinds, icons and the placement of what the layout
 | `K102` | The picture uses the icon `{icon}`, which the style table does not have. Icons: {known}. |
 | `K103` | The kind `{kind}` draws no diff pictures; remove `diff` from `variant {variant}`. Kinds with diff pictures: {allowed}. |
 | `K104` | A text of the picture reads `{text}`, but its runs read `{runs}`. This is a bug of the plugin, not a mistake in the diagram: the runs of a text join to its text. |
+| `K105` | Nothing joins the area `{area}`, so the legend would name a colour the picture does not use. Give elements, frames or lines `area={area}`, or remove the line. |
+| `K106` | The picture paints {count} areas in colour, from `{area}` on more than the {limit} a reader can tell apart. Merge areas, or leave some without `tone=` in ink. |
+| `K107` | The areas `{first}` and `{area}` share the tone `{tone}`, so the picture cannot tell them apart. Give `{area}` another tone. |
 | `K110` | The plugin `{plugin}` failed while drawing the kind `{kind}`: {error}. This is a bug, not a mistake in the diagram; please report it with the diagram at https://github.com/diagrist/diagrist/issues. |

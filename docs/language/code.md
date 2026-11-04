@@ -9,7 +9,7 @@ This page lists everything a `code` diagram may contain. The same grammar is ava
 ## The first line
 
 ```text
-diagram code "Title" [subtitle=<text>] [locale=<en|de>]
+diagram code "Title" [subtitle=<text>] [areas=<tint|outline|stripe>] [locale=<en|de>]
 ```
 
 Every code diagram starts with this line.
@@ -17,6 +17,7 @@ Every code diagram starts with this line.
 | Part | Kind | Value | Meaning |
 |---|---|---|---|
 | `subtitle=` | attribute | a text in double quotes like `"Order service"` | Second line below the title. |
+| `areas=` | attribute | one of `tint`, `outline`, `stripe` | How elements of a coloured area are painted: `tint` (default) a light fill and the outline in its tone, `outline` the outline and the name in its tone, `stripe` a stripe of its tone at the left edge. Lines and frames of an area are drawn in its tone in each. |
 | `locale=` | attribute | one of `en`, `de` | Language of the texts Diagrist adds to the picture and of the description: `en` (default) or `de`. |
 
 Example:
@@ -34,11 +35,12 @@ Each statement is one line that starts with its keyword. Statements inside block
 | [`source`](#source) | top level | A card of highlighted code read from a file when the picture is built, so it shows the code as it is now and the build fails when the code it points to is gone. |
 | [`mark`](#mark) | inside `source` | Marks lines of the card with a band and a number, counted across the picture; the note stands under that number below the card. |
 | [`link`](#link) | top level | An arrow from a line of one card to another card: this call leads there. |
+| [`area`](#area) | top level | A named area of the picture, such as the core or one extension of an extensible architecture. |
 
 ### `source`
 
 ```text
-source <id> <title> [src=<file>] [symbol=<word>] [region=<word>] [lines=<lineRange>] [lang=<choice>] [outline]
+source <id> <title> [src=<file>] [symbol=<word>] [region=<word>] [lines=<lineRange>] [lang=<choice>] [area=<ref>] [outline]
 ```
 
 A card of highlighted code read from a file when the picture is built, so it shows the code as it is now and the build fails when the code it points to is gone. `symbol` (a declaration by name) follows the code when lines move and is the first choice, `region` (between `#region` comments) the second, `lines` the last; without any of them the card shows the whole file. Cards stand one below the other in the order of the diagram; the lines keep the numbers of the source file.
@@ -54,6 +56,7 @@ Written at the top level. Indented below it: `mark`.
 | `region=` | attribute | a single word without quotes | Only the lines between `#region <name>` and `#endregion` comments in the file, in the comment syntax of its language (`// #region publish`, `-- #region find`, `<!-- #region deps -->`), without the markers. |
 | `lines=` | attribute | a line like `31` or a range like `27-30`, counted from 1, the smaller number first | Only this range of lines, like `25-36`. Drifts when lines are added above it. |
 | `lang=` | attribute | one of `java`, `kotlin`, `sql`, `yaml`, `json`, `xml`, `text` | Language of the code. Default: from the extension of `src` (`.java`, `.kt`, `.kts`, `.sql`, `.yaml`, `.yml`, `.json`, `.xml`, `.xsd`), else `text`, which draws the code without colours. |
+| `area=` | attribute | the id of an `area` declared in this diagram | The area it belongs to, declared with `area`, whose tone paints it. Members of a frame take the area of the frame unless they name their own. |
 | `outline` | flag |  | Zooms out: declarations, fields, annotations and member signatures, each member body folded into `{ … }`; package, imports, comments and blank lines go. |
 
 Examples:
@@ -63,6 +66,7 @@ source submit "TransferService.submit" src="TransferService.java" symbol=submit
 source publish "Outbox.publish" src="Outbox.java" region=publish
 source table "outbox_entry" src="outbox.sql" lines=2-9
 source api "TransferService" src="TransferService.java" outline
+source relay "Outbox.publish" src="Outbox.java" region=publish area=outbox
 ```
 
 ### `mark`
@@ -90,7 +94,7 @@ mark 34
 ### `link`
 
 ```text
-link <from> <fromLine> <arrow> <to> [label]
+link <from> <fromLine> <arrow> <to> [label] [area=<ref>]
 ```
 
 An arrow from a line of one card to another card: this call leads there. It leaves the card at the right edge of the line and enters the other card at its head.
@@ -104,6 +108,7 @@ Written at the top level.
 | `<arrow>` | argument | one of the arrows `->` leads to | Always `->`. |
 | `<to>` | argument | the id of a `source` declared in this diagram | The card the arrow points to. |
 | `[label]` | optional argument | a text in double quotes like `"Order service"` | What happens on the way, such as the call, written beside the arrow. |
+| `area=` | attribute | the id of an `area` declared in this diagram | The area the line belongs to, declared with `area`. Without it the line takes the coloured area of its first end, else that of its second, so a line between an extension and the core belongs to the extension. |
 
 The values of `arrow` and what they mean:
 
@@ -115,6 +120,29 @@ Example:
 
 ```dgr
 link submit 34 -> publish "outbox.publish(event)"
+```
+
+### `area`
+
+```text
+area <id> <label> [tone=<choice>]
+```
+
+A named area of the picture, such as the core or one extension of an extensible architecture. Elements, frames and lines join it with `area=` and are painted in its tone, and the legend names it. An area without a tone stays in ink, as a core does.
+
+Written at the top level.
+
+| Part | Kind | Value | Meaning |
+|---|---|---|---|
+| `<id>` | argument | an identifier like `api` (letters, digits, `_` and `-`, starting with a letter) | Id that `area=` of elements, frames and lines names. |
+| `<label>` | argument | a text in double quotes like `"Order service"` | Name of the area in the legend. |
+| `tone=` | attribute | one of `green`, `orange`, `purple`, `red`, `yellow`, `teal`, `pink`, `sky` | Colour of the area. Two areas of one picture take different tones; without one the area stays in ink. |
+
+Examples:
+
+```dgr
+area kern "Kern"
+area zahlung "Zahlungen" tone=green
 ```
 
 ## Diagnostic codes

@@ -1,8 +1,8 @@
 import type { Locale } from '@diagrist/lang';
-import { WORDS } from '@diagrist/parts';
+import { areaSentences, WORDS } from '@diagrist/parts';
 import type { KnownRelation } from '../diagram.js';
 import { isKnown } from '../diagram.js';
-import type { UseCaseModel } from '../model.js';
+import { areaOf, type UseCaseModel } from '../model.js';
 import type { UseCaseProse } from './prose.js';
 import { USECASE_NAME, USECASE_PROSE } from './texts.js';
 
@@ -22,6 +22,16 @@ function relationLine(r: KnownRelation, p: UseCaseProse, m: UseCaseModel): strin
     case 'extend':
       return p.extend(a, b, r.at?.length ? p.list(r.at) : undefined, r.when);
   }
+}
+
+/** The names of the actors and use cases of each area, by the area's id (ADR 0033). */
+function membersByArea(m: UseCaseModel): Map<string, string[]> {
+  const out = new Map<string, string[]>();
+  for (const x of [...m.actors.values(), ...m.cases.values()]) {
+    const area = areaOf(m, x.id);
+    if (area !== undefined) out.set(area, [...(out.get(area) ?? []), x.label]);
+  }
+  return out;
 }
 
 /**
@@ -49,5 +59,6 @@ export function describeUseCase(m: UseCaseModel, locale: Locale): string {
     lines.push(p.note(on, subject !== undefined, n.text.replace(/[.!?]$/, '')));
   }
   for (const x of d.decisions) lines.push(WORDS[locale].decision(x));
+  lines.push(...areaSentences(d.areas, membersByArea(m), locale));
   return lines.join('\n');
 }

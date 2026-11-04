@@ -19,6 +19,7 @@ import { STATE_FONTS as F, STATE as S } from './metrics.js';
 import { placedState } from './placed.js';
 import { placeBorderPoints } from './points/index.js';
 import { type PointName, pointNames } from './points/names.js';
+import type { TransitionEnds } from './route/context.js';
 import { routeStates } from './route/index.js';
 import { stateGridSpec } from './spec.js';
 
@@ -36,7 +37,7 @@ export interface StateLayout {
   readonly grid: GridLayout;
   readonly routes: readonly Route[];
   /** Ends of each route, by route index. */
-  readonly ends: readonly { readonly from: string; readonly to: string; readonly emph?: boolean }[];
+  readonly ends: readonly TransitionEnds[];
   readonly labels: readonly EdgeLabel[];
   readonly names: ReadonlyMap<string, PointName>;
   readonly notes: readonly NoteArt[];

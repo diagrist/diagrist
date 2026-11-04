@@ -1,5 +1,5 @@
 import type { Locale } from '@diagrist/lang';
-import { WORDS } from '@diagrist/parts';
+import { areaSentences, WORDS } from '@diagrist/parts';
 import { FOUND, LOST, type MessageEvent } from '../diagram.js';
 import type { SeqFragment, SeqItem, SequenceModel, TimelineEvent } from '../model/types.js';
 import type { GatePlace, SequenceProse } from './prose.js';
@@ -106,7 +106,18 @@ function itemLines(items: readonly SeqItem[], depth: number, w: Writer): void {
   }
 }
 
-/** Alt text of a sequence diagram: lifelines, then the messages numbered, fragments indented, then decisions. */
+/** The names of the lifelines of each area, by the area's id (ADR 0033). */
+function membersByArea(m: SequenceModel): Map<string, string[]> {
+  const out = new Map<string, string[]>();
+  for (const p of m.diagram.participants)
+    if (p.area !== undefined) out.set(p.area, [...(out.get(p.area) ?? []), p.label]);
+  return out;
+}
+
+/**
+ * Alt text of a sequence diagram: lifelines, then the messages numbered, fragments indented, then decisions and the
+ * areas with their lifelines.
+ */
 export function describeSequence(m: SequenceModel, locale: Locale): string {
   const p = SEQUENCE_PROSE[locale];
   const d = m.diagram;
@@ -133,5 +144,6 @@ export function describeSequence(m: SequenceModel, locale: Locale): string {
   for (const c of d.constraints)
     w.lines.push(c.type === 'duration' ? p.duration(nr(c.from), nr(c.to), c.text) : p.time(nr(c.at), c.text));
   for (const x of d.decisions) w.lines.push(WORDS[locale].decision(x));
+  w.lines.push(...areaSentences(d.areas, membersByArea(m), locale));
   return w.lines.join('\n');
 }

@@ -1,3 +1,4 @@
+import { lineAreaAttribute } from '@diagrist/core';
 import { arg, arrow, attr, ref, statement, text } from '@diagrist/lang';
 import { implementing } from '../../spec/catalog.js';
 import { STATE_MACHINES as S } from '../../spec/state-machines.js';
@@ -52,6 +53,7 @@ export const go = statement(
           { uml: [S.protocolTransition] },
           attr(text(), 'Postcondition of a protocol transition, written without brackets.'),
         ),
+        area: lineAreaAttribute,
       },
       flags: { emph: 'Highlights the line in the accent colour.' },
     },

@@ -28,7 +28,7 @@ more look or one more styling knob, and the product drifts toward a drawing tool
    status means or what a label says. A theme changes paint only. UML kinds keep the specification look and take only
    the sheet (kicker, title, status line) from the C4 looks.
 4. **Visual principles are checks.** One emphasis per picture, colour only with a legend entry and at most four
-   tones, every distinction surviving greyscale, a legend whenever more than one edge kind or any status, tone or
+   tones (six coloured areas since ADR 0033), every distinction surviving greyscale, a legend whenever more than one edge kind or any status, tone or
    diff appears, focus by dimming never by removal, a title with kind and status line, names never in capitals, no
    text under 9 px, every label a real `<text>`, no edge through a label or head, frames at most two deep, a warning
    above 1,100 CSS pixels of width, and a finding instead of a picture above about forty ungrouped nodes.

@@ -1,4 +1,4 @@
-import { localeAttribute } from '@diagrist/core';
+import { AREA_STATEMENT, areaAttribute, areasAttribute, localeAttribute } from '@diagrist/core';
 import { arg, attr, type Infer, id, kind, lines, oneOf, ref, statement, text, type Value } from '@diagrist/lang';
 import { SCALE_NAMES } from '../scales.js';
 
@@ -12,13 +12,20 @@ const cellValues = (): Value<readonly string[]> => ({
   read: (raw) => (VALUES.test(raw) ? { ok: true, value: raw.split(',') } : { ok: false }),
 });
 
+/** `area=` of a column or a row: its head is painted in the area's tone, its cells stay as they are (ADR 0033). */
+const headArea = attr(
+  areaAttribute.value,
+  'The area it belongs to, declared with `area`, whose tone paints its head. The cells keep their marks in ink, since a cell belongs to a row and a column at once.',
+);
+
 const col = statement('col', {
   doc: 'A column, such as a role, an object or a building block. Columns stand from left to right in the order written.',
-  examples: ['col station "Stationsteam"'],
+  examples: ['col station "Stationsteam"', 'col partner "Partnerwerkstatt" area=extern'],
   arguments: [
     arg('id', id(), 'Id that the cells of the rows name.'),
     arg('label', text(), 'Head of the column, wrapped when it is long.'),
   ],
+  attributes: { area: headArea },
 });
 
 const group = statement('group', {
@@ -47,6 +54,7 @@ const row = statement('row', {
     arg('label', text(), 'Head of the row at the left, wrapped when it is long.'),
   ],
   clauses: { in: attr(ref('group'), 'The group whose band it stands under.') },
+  attributes: { area: headArea },
   lines: cell,
 });
 
@@ -57,7 +65,7 @@ const note = statement('note', {
   clauses: { on: attr(ref('row', 'col'), 'The row or column the note is about.') },
 });
 
-const statements = [col, group, row, note] as const;
+const statements = [col, group, row, note, AREA_STATEMENT] as const;
 
 /** The statement tables of matrices. */
 export const matrixSpec = kind('matrix', {
@@ -72,6 +80,7 @@ export const matrixSpec = kind('matrix', {
       oneOf(['rows', 'cols', 'both']),
       'Which lines need at least one value: every row, every column, or both. `scale=cover` asks for both by default.',
     ),
+    areas: areasAttribute,
     locale: localeAttribute,
   },
   statements,

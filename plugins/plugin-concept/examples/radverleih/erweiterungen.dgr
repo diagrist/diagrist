@@ -1,0 +1,35 @@
+# The rental platform as a core and its extensions: each extension in its own area and tone (ADR 0033).
+diagram concept "Radverleih: Kern und Erweiterungen" locale=de
+type modul "Modul" shape=round
+type daten "Datenbestand" shape=store
+type extern "Fremdsystem" shape=box
+link nutzt "nutzt" from=modul to=modul,daten,extern
+link meldet "meldet an" from=modul,extern to=modul line=dashed
+
+area kern "Kern"
+area zahlung "Zahlungen" tone=green
+area wartung "Wartung" tone=orange
+area melden "Benachrichtigung" tone=purple
+area firmen "Firmenkunden" tone=red
+
+item ausleihe "Ausleihe" is modul area=kern
+item konto "Kundenkonto" is modul area=kern
+item flotte "Flotte" is modul area=kern
+item fahrten "Fahrten" is daten area=kern
+item tarif "Tarifrechner" is modul area=zahlung
+item psp "Zahlungsanbieter" is extern area=zahlung
+item schaden "Schadensmeldung" is modul area=wartung
+item werkstatt "Werkstattplanung" is modul area=wartung
+item push "Push-Dienst" is modul area=melden
+item firma "Firmenabrechnung" is modul area=firmen
+
+rel ausleihe nutzt konto
+rel ausleihe nutzt flotte
+rel ausleihe nutzt fahrten
+rel tarif nutzt fahrten
+rel tarif nutzt psp
+rel firma nutzt tarif
+rel firma nutzt konto
+rel schaden nutzt flotte
+rel werkstatt nutzt schaden
+rel push meldet ausleihe

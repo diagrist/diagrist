@@ -1,4 +1,4 @@
-import { TONE_NAMES } from '@diagrist/core';
+import { areaAttribute, TONE_NAMES } from '@diagrist/core';
 import { arg, attr, id, oneOf, optionalArg, statement, text } from '@diagrist/lang';
 import { ACTIVITIES } from '../../spec/activities.js';
 import { implementing } from '../../spec/catalog.js';
@@ -14,7 +14,10 @@ export const partition = statement(
         arg('id', id(), 'Id that `in` uses for this lane.'),
         arg('label', text(), 'Who is responsible, such as a role or a system.'),
       ],
-      attributes: { tone: attr(oneOf(TONE_NAMES), 'Colour of the lane head in `look=cards`; without it slate.') },
+      attributes: {
+        tone: attr(oneOf(TONE_NAMES), 'Colour of the lane head in `look=cards`; without it slate.'),
+        area: areaAttribute,
+      },
     },
   ),
 );

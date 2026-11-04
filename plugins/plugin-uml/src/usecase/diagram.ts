@@ -1,4 +1,4 @@
-import type { Tone } from '@diagrist/core';
+import type { Areas, Tone } from '@diagrist/core';
 import type { Span } from '@diagrist/lang';
 import type { Decision } from '@diagrist/parts';
 import type { RelationArrow } from './grammar/relation.js';
@@ -20,6 +20,7 @@ export interface UseCaseDiagram {
   readonly relations: readonly Relation[];
   readonly notes: readonly Note[];
   readonly decisions: readonly Decision[];
+  readonly areas: Areas;
 }
 
 export interface Actor {
@@ -31,6 +32,8 @@ export interface Actor {
   readonly tone?: Tone;
   readonly mark?: string;
   readonly emph?: boolean;
+  /** The area it belongs to (ADR 0033), independent of the `tone` of the card look. */
+  readonly area?: string;
   readonly span: Span;
 }
 
@@ -38,6 +41,8 @@ export interface Subject {
   readonly id: string;
   readonly label: string;
   readonly tone?: Tone;
+  /** The area of the subject, which its use cases take unless they name their own. */
+  readonly area?: string;
   readonly span: Span;
 }
 
@@ -54,6 +59,8 @@ export interface UseCase {
   readonly tone?: Tone;
   readonly mark?: string;
   readonly emph?: boolean;
+  /** The area it names itself; it takes the area of its subject otherwise. */
+  readonly area?: string;
   readonly span: Span;
 }
 
@@ -75,6 +82,8 @@ export interface Relation {
   /** Extension points of `to` named by `at=`, in their order. */
   readonly at?: readonly string[];
   readonly emph?: boolean;
+  /** The area the relation names itself; the scene falls back to the areas of its ends. */
+  readonly area?: string;
   readonly span: Span;
 }
 

@@ -1,4 +1,4 @@
-import { localeAttribute } from '@diagrist/core';
+import { AREA_STATEMENT, areasAttribute, localeAttribute } from '@diagrist/core';
 import { attr, type Infer, kind, oneOf, text } from '@diagrist/lang';
 import { adr } from '@diagrist/parts';
 import {
@@ -20,6 +20,7 @@ const statements = [
   classRel,
   classNote,
   adr,
+  AREA_STATEMENT,
 ] as const;
 
 /** The statement tables of UML class diagrams. */
@@ -31,6 +32,7 @@ export const classSpec = kind('class', {
       oneOf(['plain', 'cards']),
       '`plain` (default) draws the UML notation, `cards` the same layout as cards with a toned name field and toned packages.',
     ),
+    areas: areasAttribute,
     locale: localeAttribute,
   },
   statements,

@@ -1,4 +1,4 @@
-import { domId, type Shape } from '@diagrist/core';
+import { type AreaMark, domId, type Shape } from '@diagrist/core';
 import { CARD, NOTE, type PlacedCard } from '../layout/card.js';
 
 /** A numbered badge: a small circle on paper with its number in it. */
@@ -11,15 +11,19 @@ function badge(x: number, y: number, n: number): Shape[] {
 
 /**
  * One card in its group `node-<id>`: the sheet, the head with title and file, the bands of the marks with a dark edge,
- * the line numbers and the code with its runs, then the badges in the margin and the notes below.
+ * the line numbers and the code with its runs, then the badges in the margin and the notes below. With an `area`
+ * the sheet and the title stand in a group of their own that carries it (ADR 0033).
  */
-export function cardShapes(placed: PlacedCard): Shape {
+export function cardShapes(placed: PlacedCard, area?: AreaMark): Shape {
   const { rect, card } = placed;
   const { x, y, w } = rect;
   const head = y + CARD.headBaseline;
-  const children: Shape[] = [
+  const frame: Shape[] = [
     { kind: 'rect', ...rect, rx: 4, role: 'card' },
     { kind: 'text', x: x + CARD.padX, y: head, text: card.title, role: 'cardTitle', font: 'cardTitle' },
+  ];
+  const children: Shape[] = [
+    ...(area === undefined ? frame : [{ kind: 'group', area, children: frame } as const]),
     {
       kind: 'text',
       x: x + w - CARD.padX,

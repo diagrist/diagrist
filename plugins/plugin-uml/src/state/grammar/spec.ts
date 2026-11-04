@@ -1,4 +1,4 @@
-import { localeAttribute } from '@diagrist/core';
+import { AREA_STATEMENT, areasAttribute, localeAttribute } from '@diagrist/core';
 import { attr, type Infer, kind, oneOf, text } from '@diagrist/lang';
 import { adr } from '@diagrist/parts';
 import { go, internal, stateNote } from './transitions.js';
@@ -34,6 +34,7 @@ const statements = [
   internal,
   stateNote,
   adr,
+  AREA_STATEMENT,
 ] as const;
 
 /** The statement tables of UML state machine diagrams. */
@@ -49,6 +50,7 @@ export const stateSpec = kind('state', {
       oneOf(['down', 'right']),
       '`down` (default) lays the flow out from top to bottom, `right` from left to right.',
     ),
+    areas: areasAttribute,
     locale: localeAttribute,
   },
   statements,

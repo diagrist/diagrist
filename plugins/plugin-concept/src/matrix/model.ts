@@ -1,3 +1,4 @@
+import { type Areas, readAreas } from '@diagrist/core';
 import type { KindReading, Span } from '@diagrist/lang';
 import type { MatrixStatement } from './grammar/spec.js';
 import { type Cover, SCALES, type Scale, type ScaleName } from './scales.js';
@@ -8,6 +9,8 @@ type Of<K extends MatrixStatement['keyword']> = Extract<MatrixStatement, { keywo
 export interface Head {
   readonly id: string;
   readonly label: string;
+  /** The area of a column or a row (ADR 0033); a group has none. */
+  readonly area?: string;
   readonly span: Span;
 }
 
@@ -44,6 +47,7 @@ export interface MatrixModel {
   readonly groups: readonly Head[];
   readonly rows: readonly Row[];
   readonly notes: readonly Note[];
+  readonly areas: Areas;
   /** The header line, which findings about the whole matrix point at. */
   readonly span: Span;
 }
@@ -59,10 +63,12 @@ export function matrixModel(reading: KindReading<MatrixStatement>): MatrixModel 
   const cover = (attributes.cover as Cover | undefined) ?? scale?.cover ?? 'none';
   const subtitle = attributes.subtitle;
   const head = ({ id, label, span }: Of<'col' | 'group'>): Head => ({ id, label, span });
+  const area = (s: Of<'col' | 'row'>) => (s.attributes.area === undefined ? {} : { area: s.attributes.area });
   const rows = of(reading, 'row').map(
     (r): Row => ({
       id: r.id,
       label: r.label,
+      ...area(r),
       span: r.span,
       ...(r.clauses.in === undefined ? {} : { group: r.clauses.in }),
       cells: r.lines.map(({ col, values, span }) => ({ col, values, span })),
@@ -76,10 +82,20 @@ export function matrixModel(reading: KindReading<MatrixStatement>): MatrixModel 
     ...(typeof subtitle === 'string' ? { subtitle } : {}),
     ...(scale === undefined ? {} : { scale }),
     cover,
-    cols: of(reading, 'col').map(head),
+    cols: of(reading, 'col').map((c) => ({ ...head(c), ...area(c) })),
     groups: of(reading, 'group').map(head),
     rows,
     notes,
+    areas: readAreas(reading.statements, attributes),
     span: { line: reading.header?.line ?? 1, column: 1, length: 'diagram'.length },
   };
+}
+
+/** The heads of each area, columns first, by the area's id, for the legend and the description. */
+export function headsByArea(model: MatrixModel): Map<string, string[]> {
+  const out = new Map<string, string[]>();
+  for (const head of [...model.cols, ...model.rows]) {
+    if (head.area !== undefined) out.set(head.area, [...(out.get(head.area) ?? []), head.label]);
+  }
+  return out;
 }

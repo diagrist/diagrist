@@ -152,6 +152,7 @@ function columnsChanges(f: LookFonts): StyleRule[] {
  */
 export const COLUMNS_PAINT: Paint = {
   strokes: STROKES_OF_COLUMNS,
+  areaColors: { ink: [INK.ink], outline: [INK.ink2, INK.rule], surface: [INK.ground] },
   roles: COLUMNS_ROLES,
   rules: columnsRules,
   changes: columnsChanges,

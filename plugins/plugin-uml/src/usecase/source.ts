@@ -1,4 +1,4 @@
-import type { Tone } from '@diagrist/core';
+import { readAreas, type Tone } from '@diagrist/core';
 import type { Header, KindReading } from '@diagrist/lang';
 import { decisionOf } from '@diagrist/parts';
 import { splitNames } from '../shared/values.js';
@@ -16,7 +16,7 @@ const of = <K extends UseCaseStatement['keyword']>(statements: readonly UseCaseS
   statements.filter((s): s is Of<K> => s.keyword === keyword);
 
 function actor(s: Of<'actor'>): Actor {
-  const { kind, side, tone, mark } = s.attributes;
+  const { kind, side, tone, mark, area } = s.attributes;
   return {
     id: s.id,
     label: s.label,
@@ -25,12 +25,13 @@ function actor(s: Of<'actor'>): Actor {
     ...some<'tone', Tone>('tone', tone),
     ...some('mark', mark),
     ...some('emph', s.flags.emph),
+    ...some('area', area),
     span: s.span,
   };
 }
 
 function useCase(s: Of<'usecase'>): UseCase {
-  const { points, form, stereotype, tone, mark } = s.attributes;
+  const { points, form, stereotype, tone, mark, area } = s.attributes;
   return {
     id: s.id,
     label: s.label,
@@ -41,6 +42,7 @@ function useCase(s: Of<'usecase'>): UseCase {
     ...some<'tone', Tone>('tone', tone),
     ...some('mark', mark),
     ...some('emph', s.flags.emph),
+    ...some('area', area),
     span: s.span,
   };
 }
@@ -54,7 +56,7 @@ function kindOf(s: Of<'rel'>, flagged: readonly ('include' | 'extend')[]): Relat
 
 function relation(s: Of<'rel'>): Relation {
   const flagged = (['include', 'extend'] as const).filter((f) => s.flags[f]);
-  const { source, card, when, at } = s.attributes;
+  const { source, card, when, at, area } = s.attributes;
   const points = splitNames(at);
   return {
     from: s.from,
@@ -68,6 +70,7 @@ function relation(s: Of<'rel'>): Relation {
     ...some('when', when?.trim().replace(/^\{\s*|\s*\}$/g, '') || undefined),
     ...some('at', at === undefined ? undefined : points),
     ...some('emph', s.flags.emph),
+    ...some('area', area),
     span: s.span,
   };
 }
@@ -87,11 +90,13 @@ export function useCaseDiagram(reading: KindReading<UseCaseStatement>): UseCaseD
       id: x.id,
       label: x.label,
       ...some<'tone', Tone>('tone', x.attributes.tone),
+      ...some('area', x.attributes.area),
       span: x.span,
     })),
     cases: of(s, 'usecase').map(useCase),
     relations: of(s, 'rel').map(relation),
     notes: of(s, 'note').map((n) => ({ text: n.text, ...some('on', n.clauses.on), span: n.span })),
     decisions: of(s, 'adr').map(decisionOf),
+    areas: readAreas(s, header.attributes),
   };
 }

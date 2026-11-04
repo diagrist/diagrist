@@ -4,13 +4,14 @@ import type { GraphLayout, PlacedItem, Sample } from '../layout/index.js';
 import { ITEM } from '../layout/metrics.js';
 import type { Graph } from '../model.js';
 import { lineRole } from '../styles.js';
+import { inArea, markOf, relationArea } from './areas.js';
 import { outline, outlineRole } from './shapes.js';
 
 const pathOf = (points: readonly Point[]): string =>
   points.map(([x, y], i) => `${i === 0 ? 'M' : 'L'} ${x} ${y}`).join(' ');
 
 /** An item: its outline, its name centred, and below a hairline its entries from the left. */
-function itemShapes(p: PlacedItem): Shape {
+function itemShapes(p: PlacedItem, model: Graph): Shape {
   const { rect, box } = p;
   const entries = box.entries.length > 0;
   const body = box.name.length * ITEM.nameLine + (entries ? ITEM.entryGap + box.entries.length * ITEM.entryLine : 0);
@@ -44,16 +45,19 @@ function itemShapes(p: PlacedItem): Shape {
         ),
       ]
     : [];
+  const mark = markOf(model, p.item.area, 'body');
   return {
     kind: 'group',
     id: domId.node(p.item.id),
+    ...(mark === undefined ? {} : { area: mark }),
     children: [...outline(p.type?.shape ?? 'box', rect, outlineRole(p.item.status)), ...names, ...below],
   };
 }
 
 /** The sample of a legend entry: a small shape of a type or status, or a line with the head of a link. */
-function sampleShapes(sample: Sample, x: number, y: number): Shape[] {
+function sampleShapes(sample: Sample, x: number, y: number, model: Graph): Shape[] {
   const small = { x, y: y - 9, w: 32, h: 18 };
+  if (sample.kind === 'area') return inArea(markOf(model, sample.area.id, 'body'), outline('box', small, 'item', 0.5));
   if (sample.kind === 'type') return outline(sample.type.shape, small, 'item', 0.5);
   if (sample.kind === 'status') return outline('box', small, outlineRole(sample.status), 0.5);
   return [{ kind: 'path', d: `M ${x} ${y} L ${x + 40} ${y}`, role: lineRole(sample.link.line, sample.link.head) }];
@@ -61,16 +65,28 @@ function sampleShapes(sample: Sample, x: number, y: number): Shape[] {
 
 /** The title, the lines below the items, the items, the labels of the lines, the legend. */
 export function graphScene(layout: GraphLayout, model: Graph, title: string): Scene {
-  const lines = layout.lines.map(
-    (l): Shape => ({
+  const lines = layout.lines.map((l): Shape => {
+    const mark = markOf(model, relationArea(model, l.relation), 'line');
+    return {
       kind: 'group',
       id: domId.edge(l.index),
+      ...(mark === undefined ? {} : { area: mark }),
       children: [{ kind: 'path', d: pathOf(l.route.points), role: lineRole(l.link.line, l.link.head) }],
-    }),
-  );
-  const labels = layout.labels.map(
-    (l): Shape => ({ kind: 'text', x: l.x, y: l.y, text: l.text, role: 'edgeLabel', font: 'label', anchor: l.anchor }),
-  );
+    };
+  });
+  const labels = layout.labels.flatMap((l): Shape[] => {
+    const mark = l.relation === undefined ? undefined : markOf(model, relationArea(model, l.relation), 'line');
+    const text: Shape = {
+      kind: 'text',
+      x: l.x,
+      y: l.y,
+      text: l.text,
+      role: 'edgeLabel',
+      font: 'label',
+      anchor: l.anchor,
+    };
+    return inArea(mark, [text]);
+  });
   const heads = layout.heads.flatMap((h): Shape[] => [
     { kind: 'text', x: h.x, y: h.y, text: h.text, role: 'head', font: 'group', anchor: 'middle' },
     { kind: 'line', x1: h.rule.x1, y1: h.rule.y, x2: h.rule.x2, y2: h.rule.y, role: 'headRule' },
@@ -84,17 +100,20 @@ export function graphScene(layout: GraphLayout, model: Graph, title: string): Sc
     },
   ]);
   const legend =
-    layout.legend.entries.length > 0 ? legendShapes(layout.legend, (e) => sampleShapes(e.sample, e.at.x, e.at.y)) : [];
+    layout.legend.entries.length > 0
+      ? legendShapes(layout.legend, (e) => sampleShapes(e.sample, e.at.x, e.at.y, model))
+      : [];
   return {
     width: layout.width,
     height: layout.height,
     title,
+    ...(model.areas === undefined ? {} : { areas: model.areas.paint }),
     children: [
       ...headerShapes(HEADER, title, model.subtitle),
       ...heads,
       ...verbs,
       ...lines,
-      ...layout.items.map(itemShapes),
+      ...layout.items.map((p) => itemShapes(p, model)),
       ...labels,
       ...legend,
     ],

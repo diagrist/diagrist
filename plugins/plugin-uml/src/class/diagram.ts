@@ -1,4 +1,4 @@
-import type { Tone } from '@diagrist/core';
+import type { Areas, Tone } from '@diagrist/core';
 import type { Span } from '@diagrist/lang';
 import type { Decision } from '@diagrist/parts';
 import type { ClassArrow } from './grammar/relation.js';
@@ -16,6 +16,7 @@ export interface ClassDiagram {
   readonly relations: readonly ClassRelation[];
   readonly notes: readonly ClassNote[];
   readonly decisions: readonly Decision[];
+  readonly areas: Areas;
 }
 
 /** What a classifier is; it decides the keyword above the name and the compartments. */
@@ -41,6 +42,8 @@ export interface Classifier {
   readonly tone?: Tone;
   readonly mark?: string;
   readonly emph?: boolean;
+  /** The area it names itself (ADR 0033); it takes the area of its package otherwise. */
+  readonly area?: string;
   readonly span: Span;
 }
 
@@ -49,6 +52,7 @@ export interface Package {
   readonly label: string;
   readonly parent?: string;
   readonly tone?: Tone;
+  readonly area?: string;
   readonly span: Span;
 }
 
@@ -60,6 +64,7 @@ export interface NaryAssociation {
   readonly via?: string;
   readonly mark?: string;
   readonly emph?: boolean;
+  readonly area?: string;
   readonly span: Span;
 }
 
@@ -104,6 +109,8 @@ export interface ClassRelation {
   /** `«import»` or `«access»` of a package dependency. */
   readonly keyword?: 'import' | 'access';
   readonly emph?: boolean;
+  /** The area the relation names itself; the scene falls back to the areas of its ends. */
+  readonly area?: string;
   readonly span: Span;
 }
 

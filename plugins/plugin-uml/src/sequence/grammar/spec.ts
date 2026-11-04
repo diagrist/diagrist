@@ -1,4 +1,4 @@
-import { localeAttribute } from '@diagrist/core';
+import { AREA_STATEMENT, areasAttribute, localeAttribute } from '@diagrist/core';
 import { attr, type Infer, kind, oneOf, text } from '@diagrist/lang';
 import { adr } from '@diagrist/parts';
 import { autonumber, divider, duration, frame, invariant, note, ref, time } from './annotations.js';
@@ -30,6 +30,7 @@ const statements = [
   duration,
   time,
   adr,
+  AREA_STATEMENT,
 ] as const;
 
 /** The statement tables of UML sequence diagrams. */
@@ -38,6 +39,7 @@ export const sequenceSpec = kind('sequence', {
   header: {
     subtitle: attr(text(), 'Second line below the title.'),
     look: attr(oneOf(['plain', 'cards']), '`plain` (default) draws the UML notation, `cards` toned cards.'),
+    areas: areasAttribute,
     locale: localeAttribute,
   },
   statements,

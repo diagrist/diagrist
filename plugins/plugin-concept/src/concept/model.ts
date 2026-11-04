@@ -1,3 +1,4 @@
+import { type Areas, readAreas } from '@diagrist/core';
 import type { Diagnostic, FileText, KindReading, Span } from '@diagrist/lang';
 import type { LinkDecl, TypeDecl } from '../shared/declarations.js';
 import type { Graph } from '../shared/graph/model.js';
@@ -19,6 +20,7 @@ export interface Used {
 
 /** A concept picture as rules, layout and description see it. */
 export interface ConceptModel extends Graph {
+  readonly areas: Areas;
   readonly vocabulary?: VocabularyName;
   readonly used?: Used;
   /** Declarations of the file whose id a vocabulary declares already; the language reports those of the file twice. */
@@ -86,6 +88,7 @@ export function conceptModel(reading: KindReading<ConceptStatement>): ConceptMod
       label: s.label,
       type: s.clauses.is ?? '',
       ...(s.attributes.status === undefined ? {} : { status: s.attributes.status }),
+      ...(s.attributes.area === undefined ? {} : { area: s.attributes.area }),
       entries: s.lines.map((l) => l.text),
       span: s.span,
     })),
@@ -94,7 +97,9 @@ export function conceptModel(reading: KindReading<ConceptStatement>): ConceptMod
       link: s.link,
       to: s.to,
       ...(s.label === undefined ? {} : { label: s.label }),
+      ...(s.attributes.area === undefined ? {} : { area: s.attributes.area }),
       span: s.span,
     })),
+    areas: readAreas(reading.statements, attributes),
   };
 }

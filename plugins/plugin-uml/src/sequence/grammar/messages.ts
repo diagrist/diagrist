@@ -1,9 +1,11 @@
+import { lineAreaAttribute } from '@diagrist/core';
 import { arg, arrow, attr, id, optionalArg, ref, statement, text } from '@diagrist/lang';
 import { implementing } from '../../spec/catalog.js';
 import { INTERACTIONS } from '../../spec/interactions.js';
 import { lifeline, messageEnd } from './values.js';
 
 const attributes = {
+  area: lineAreaAttribute,
   id: attr(id(), 'Name of the message that `duration` and `time` refer to.'),
   mark: attr(ref('adr'), 'Id of a decision of the decision bar, such as `E1`; the mark is drawn after the label.'),
   duration: implementing(

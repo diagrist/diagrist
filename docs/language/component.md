@@ -9,7 +9,7 @@ This page lists everything a `component` diagram may contain. The same grammar i
 ## The first line
 
 ```text
-diagram component "Title" [subtitle=<text>] [label=<text>] [look=<plain|cards|blocks|paper|columns>] [decisions=<right|below|auto>] [layout=<adaptive>] [locale=<en|de>]
+diagram component "Title" [subtitle=<text>] [label=<text>] [look=<plain|cards|blocks|paper|columns>] [decisions=<right|below|auto>] [layout=<adaptive>] [areas=<tint|outline|stripe>] [locale=<en|de>]
 ```
 
 Every component diagram starts with this line.
@@ -21,6 +21,7 @@ Every component diagram starts with this line.
 | `look=` | attribute | one of `plain`, `cards`, `blocks`, `paper`, `columns` | `plain` (default) boxes with a legend, `cards` toned icon cards, `blocks` filled blocks as in pattern books, `paper` a quiet print look: Inter on paper, zones as areas, the core in yellow, decisions in the margin, `columns` a technical sheet: columns in bands under grey heads, names in the top edge of square boxes, the focus flow heavy. |
 | `decisions=` | attribute | one of `right`, `below`, `auto` | Where a look that writes decisions as notes sets them: `right` (default) in a column beside the picture, `below` side by side under it, `auto` below once the picture is wider than 1,100 pixels, as a printed page needs. |
 | `layout=` | attribute | one of `adaptive` | Columns grow to their content and edges find their own way around obstacles; without it the grid is fixed. |
+| `areas=` | attribute | one of `tint`, `outline`, `stripe` | How elements of a coloured area are painted: `tint` (default) a light fill and the outline in its tone, `outline` the outline and the name in its tone, `stripe` a stripe of its tone at the left edge. Lines and frames of an area are drawn in its tone in each. |
 | `locale=` | attribute | one of `en`, `de` | Language of the texts Diagrist adds to the picture and of the description: `en` (default) or `de`. |
 
 Example:
@@ -47,6 +48,7 @@ Each statement is one line that starts with its keyword. Statements inside block
 | [`flow`](#flow) | top level | A numbered path: its steps are indented below it. |
 | [`note`](#note) | top level | A dashed note above an element, with a tip pointing at it. |
 | [`adr`](#adr) | top level | An architecture decision in the bar below the picture: question, the chosen option after `=`, and the consequence after `=>`. |
+| [`area`](#area) | top level | A named area of the picture, such as the core or one extension of an extensible architecture. |
 
 ### `grid`
 
@@ -94,7 +96,7 @@ layer business "Business logic"
 ### `group`
 
 ```text
-group <id> <title> [in <ref>] [team=<text>] [heading=<top|side>] [tag=<text>] [cover=<grid-name>] [tone=<choice>] [own] [shared] [external]
+group <id> <title> [in <ref>] [team=<text>] [heading=<top|side>] [tag=<text>] [cover=<grid-name>] [tone=<choice>] [area=<ref>] [own] [shared] [external]
 ```
 
 A frame around elements by responsibility; it grows from its members. Exactly one of `own`, `shared`, `external`. `in` nests it into another group; an empty title draws only the frame.
@@ -111,6 +113,7 @@ Written at the top level.
 | `tag=` | attribute | a text in double quotes like `"Order service"` | A tag right in the frame, such as `"CLOSED"` for a closed layer. |
 | `cover=` | attribute | a column or row name like `api` or `backend.1` | A column the frame also covers, at the height of its members; needs `layout=adaptive`. |
 | `tone=` | attribute | one of `blue`, `indigo`, `purple`, `maroon`, `green`, `teal`, `slate`, `red`, `orange`, `peach`, `sky` | Fills the frame lightly in this tone; in `look=blocks` the colour of its area. |
+| `area=` | attribute | the id of an `area` declared in this diagram | The area it belongs to, declared with `area`, whose tone paints it. Members of a frame take the area of the frame unless they name their own. |
 | `own` | flag |  | Our own system: a solid frame on a light area. |
 | `shared` | flag |  | Shared infrastructure: its elements are drawn muted. |
 | `external` | flag |  | Someone else’s system: a dashed frame. |
@@ -152,7 +155,7 @@ style store shape=db height=96
 ### `person`
 
 ```text
-person <id> <label> [at <place>] [in <ref>] [tech=<text>] [icon=<choice>] [shape=<db|queue|store|job|app>] [width=<integer>] [height=<integer>] [tone=<choice>] [form=<card|circle|text>] [status=<planned|deprecated>] [replicas=<integer>] [span=<span>] [slot=<slot>] [style=<ref>] [mark=<ref>] [emph]
+person <id> <label> [at <place>] [in <ref>] [tech=<text>] [icon=<choice>] [shape=<db|queue|store|job|app>] [width=<integer>] [height=<integer>] [tone=<choice>] [form=<card|circle|text>] [status=<planned|deprecated>] [replicas=<integer>] [span=<span>] [slot=<slot>] [style=<ref>] [mark=<ref>] [area=<ref>] [emph]
 ```
 
 A person who uses the system, drawn as a stick figure with name and role below it. `at` places it in the grid, `in` puts it into a group. `emph` marks a core decision with a thick border.
@@ -178,6 +181,7 @@ Written at the top level.
 | `slot=` | attribute | `i/n` with 1 ≤ i ≤ n ≤ 64, like `2/3` | Takes place `i` of `n` equal places in its area, like `2/3`; needs `layout=adaptive`. |
 | `style=` | attribute | the id of a `style` declared in this diagram | A `style` whose values apply where the element sets none. |
 | `mark=` | attribute | the id of an `adr` declared in this diagram | Id of a decision of the bar below, such as `E1`; the mark stands at the corner. |
+| `area=` | attribute | the id of an `area` declared in this diagram | The area it belongs to, declared with `area`, whose tone paints it. Members of a frame take the area of the frame unless they name their own. |
 | `emph` | flag |  | Draws the border thick: the core decision of the picture. |
 
 Example:
@@ -189,7 +193,7 @@ person customer "Customer" tech="account holder" at user/main
 ### `container`
 
 ```text
-container <id> <label> [at <place>] [in <ref>] [tech=<text>] [icon=<choice>] [shape=<db|queue|store|job|app>] [width=<integer>] [height=<integer>] [tone=<choice>] [form=<card|circle|text>] [status=<planned|deprecated>] [replicas=<integer>] [span=<span>] [slot=<slot>] [style=<ref>] [mark=<ref>] [emph]
+container <id> <label> [at <place>] [in <ref>] [tech=<text>] [icon=<choice>] [shape=<db|queue|store|job|app>] [width=<integer>] [height=<integer>] [tone=<choice>] [form=<card|circle|text>] [status=<planned|deprecated>] [replicas=<integer>] [span=<span>] [slot=<slot>] [style=<ref>] [mark=<ref>] [area=<ref>] [emph]
 ```
 
 A container: an application or data store that runs on its own, such as a service or a database. `at` places it in the grid, `in` puts it into a group. `emph` marks a core decision with a thick border.
@@ -215,6 +219,7 @@ Written at the top level.
 | `slot=` | attribute | `i/n` with 1 ≤ i ≤ n ≤ 64, like `2/3` | Takes place `i` of `n` equal places in its area, like `2/3`; needs `layout=adaptive`. |
 | `style=` | attribute | the id of a `style` declared in this diagram | A `style` whose values apply where the element sets none. |
 | `mark=` | attribute | the id of an `adr` declared in this diagram | Id of a decision of the bar below, such as `E1`; the mark stands at the corner. |
+| `area=` | attribute | the id of an `area` declared in this diagram | The area it belongs to, declared with `area`, whose tone paints it. Members of a frame take the area of the frame unless they name their own. |
 | `emph` | flag |  | Draws the border thick: the core decision of the picture. |
 
 Example:
@@ -226,7 +231,7 @@ container db "Database" tech="PostgreSQL" icon=postgresql at infra/data in infra
 ### `component`
 
 ```text
-component <id> <label> [at <place>] [in <ref>] [tech=<text>] [icon=<choice>] [shape=<db|queue|store|job|app>] [width=<integer>] [height=<integer>] [tone=<choice>] [form=<card|circle|text>] [status=<planned|deprecated>] [replicas=<integer>] [span=<span>] [slot=<slot>] [style=<ref>] [mark=<ref>] [emph]
+component <id> <label> [at <place>] [in <ref>] [tech=<text>] [icon=<choice>] [shape=<db|queue|store|job|app>] [width=<integer>] [height=<integer>] [tone=<choice>] [form=<card|circle|text>] [status=<planned|deprecated>] [replicas=<integer>] [span=<span>] [slot=<slot>] [style=<ref>] [mark=<ref>] [area=<ref>] [emph]
 ```
 
 A component inside a container, such as a module or an adapter. `at` places it in the grid, `in` puts it into a group. `emph` marks a core decision with a thick border.
@@ -252,6 +257,7 @@ Written at the top level.
 | `slot=` | attribute | `i/n` with 1 ≤ i ≤ n ≤ 64, like `2/3` | Takes place `i` of `n` equal places in its area, like `2/3`; needs `layout=adaptive`. |
 | `style=` | attribute | the id of a `style` declared in this diagram | A `style` whose values apply where the element sets none. |
 | `mark=` | attribute | the id of an `adr` declared in this diagram | Id of a decision of the bar below, such as `E1`; the mark stands at the corner. |
+| `area=` | attribute | the id of an `area` declared in this diagram | The area it belongs to, declared with `area`, whose tone paints it. Members of a frame take the area of the frame unless they name their own. |
 | `emph` | flag |  | Draws the border thick: the core decision of the picture. |
 
 Example:
@@ -263,7 +269,7 @@ component api "REST API" tech="Spring Boot" icon=springboot at backend.2/main in
 ### `node`
 
 ```text
-node <id> <label> [at <place>] [in <ref>] [tech=<text>] [icon=<choice>] [shape=<db|queue|store|job|app>] [width=<integer>] [height=<integer>] [tone=<choice>] [form=<card|circle|text>] [status=<planned|deprecated>] [replicas=<integer>] [span=<span>] [slot=<slot>] [style=<ref>] [mark=<ref>] [emph]
+node <id> <label> [at <place>] [in <ref>] [tech=<text>] [icon=<choice>] [shape=<db|queue|store|job|app>] [width=<integer>] [height=<integer>] [tone=<choice>] [form=<card|circle|text>] [status=<planned|deprecated>] [replicas=<integer>] [span=<span>] [slot=<slot>] [style=<ref>] [mark=<ref>] [area=<ref>] [emph]
 ```
 
 A neutral element for any level, such as a queue, a job or a layer of a pattern. `at` places it in the grid, `in` puts it into a group. `emph` marks a core decision with a thick border.
@@ -289,6 +295,7 @@ Written at the top level.
 | `slot=` | attribute | `i/n` with 1 ≤ i ≤ n ≤ 64, like `2/3` | Takes place `i` of `n` equal places in its area, like `2/3`; needs `layout=adaptive`. |
 | `style=` | attribute | the id of a `style` declared in this diagram | A `style` whose values apply where the element sets none. |
 | `mark=` | attribute | the id of an `adr` declared in this diagram | Id of a decision of the bar below, such as `E1`; the mark stands at the corner. |
+| `area=` | attribute | the id of an `area` declared in this diagram | The area it belongs to, declared with `area`, whose tone paints it. Members of a frame take the area of the frame unless they name their own. |
 | `emph` | flag |  | Draws the border thick: the core decision of the picture. |
 
 Example:
@@ -300,7 +307,7 @@ node orders "Orders" tech="business logic" replicas=3 at web/business in cloud
 ### `edge`
 
 ```text
-edge <from> <arrow> <to> [label] [via=<text>] [schedule=<text>] [volume=<text>] [sla=<text>] [mark=<ref>] [bundle=<word>] [lane=<grid-name>] [tone=<choice>] [style=<ref>]
+edge <from> <arrow> <to> [label] [via=<text>] [schedule=<text>] [volume=<text>] [sla=<text>] [mark=<ref>] [bundle=<word>] [lane=<grid-name>] [tone=<choice>] [style=<ref>] [area=<ref>]
 ```
 
 An edge outside of flows, without number. Its ends may be groups too.
@@ -322,6 +329,7 @@ Written at the top level.
 | `lane=` | attribute | a column or row name like `api` or `backend.1` | Column a vertical edge runs in, reaching into frames at its ends; needs `layout=adaptive`. |
 | `tone=` | attribute | one of `blue`, `indigo`, `purple`, `maroon`, `green`, `teal`, `slate`, `red`, `orange`, `peach`, `sky` | Colour of line and heads, such as `red` for a highlighted way. |
 | `style=` | attribute | the id of a `style` declared in this diagram | A `style` whose `tone` applies when the edge sets none. |
+| `area=` | attribute | the id of an `area` declared in this diagram | The area the line belongs to, declared with `area`. Without it the line takes the coloured area of its first end, else that of its second, so a line between an extension and the core belongs to the extension. |
 
 The values of `arrow` and what they mean:
 
@@ -366,7 +374,7 @@ flow import primary
 Indented lines that start without one of these keywords have this form:
 
 ```text
-<from> <arrow> <to> [label] [via=<text>] [schedule=<text>] [volume=<text>] [sla=<text>] [mark=<ref>] [bundle=<word>] [lane=<grid-name>] [tone=<choice>] [style=<ref>]
+<from> <arrow> <to> [label] [via=<text>] [schedule=<text>] [volume=<text>] [sla=<text>] [mark=<ref>] [bundle=<word>] [lane=<grid-name>] [tone=<choice>] [style=<ref>] [area=<ref>]
 ```
 
 A step of the flow: an edge without keyword, numbered after the steps before it, across all flows.
@@ -386,6 +394,7 @@ A step of the flow: an edge without keyword, numbered after the steps before it,
 | `lane=` | attribute | a column or row name like `api` or `backend.1` | Column a vertical edge runs in, reaching into frames at its ends; needs `layout=adaptive`. |
 | `tone=` | attribute | one of `blue`, `indigo`, `purple`, `maroon`, `green`, `teal`, `slate`, `red`, `orange`, `peach`, `sky` | Colour of line and heads, such as `red` for a highlighted way. |
 | `style=` | attribute | the id of a `style` declared in this diagram | A `style` whose `tone` applies when the edge sets none. |
+| `area=` | attribute | the id of an `area` declared in this diagram | The area the line belongs to, declared with `area`. Without it the line takes the coloured area of its first end, else that of its second, so a line between an extension and the core belongs to the extension. |
 
 The values of `arrow` and what they mean:
 
@@ -450,6 +459,29 @@ Example:
 
 ```dgr
 adr E1 "How do the services coordinate?" = "Events over Kafka" => "No central coordinator"
+```
+
+### `area`
+
+```text
+area <id> <label> [tone=<choice>]
+```
+
+A named area of the picture, such as the core or one extension of an extensible architecture. Elements, frames and lines join it with `area=` and are painted in its tone, and the legend names it. An area without a tone stays in ink, as a core does.
+
+Written at the top level.
+
+| Part | Kind | Value | Meaning |
+|---|---|---|---|
+| `<id>` | argument | an identifier like `api` (letters, digits, `_` and `-`, starting with a letter) | Id that `area=` of elements, frames and lines names. |
+| `<label>` | argument | a text in double quotes like `"Order service"` | Name of the area in the legend. |
+| `tone=` | attribute | one of `green`, `orange`, `purple`, `red`, `yellow`, `teal`, `pink`, `sky` | Colour of the area. Two areas of one picture take different tones; without one the area stays in ink. |
+
+Examples:
+
+```dgr
+area kern "Kern"
+area zahlung "Zahlungen" tone=green
 ```
 
 ## Diagnostic codes

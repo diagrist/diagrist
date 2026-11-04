@@ -36,13 +36,11 @@ const ROLES: Readonly<Record<string, RoleStyle>> = {
   badge: one('badge'),
   badgeText: one('badge-text'),
   noteText: one('label-note'),
+  topArea: one('head-top-area'),
+  sideArea: one('head-side-area'),
 };
 
-/**
- * The style table of matrices: the standard look, the cells on white within hairlines, the heads in ink, the letters
- * bold in the mono face of the look and the discs in ink, so a matrix prints in greyscale without losing a value.
- */
-export const MATRIX_STYLES: Styles = standardStyles({
+const BASE: Styles = standardStyles({
   roles: ROLES,
   rules: [
     rule('table-sheet', `fill: ${c.fill}; stroke: ${c.stroke}; stroke-width: 1;`),
@@ -54,6 +52,19 @@ export const MATRIX_STYLES: Styles = standardStyles({
     rule('cell-text', textRule(`fill: ${c.stroke};`, F.cell)),
     rule('mark-full', `fill: ${c.stroke}; stroke: none;`),
     rule('mark-ring', `fill: ${c.fill}; stroke: ${c.stroke}; stroke-width: 1.5;`),
+    rule('head-top-area', `fill: ${c.canvas}; stroke: none;`),
+    rule('head-side-area', `fill: ${c.fill}; stroke: none;`),
   ],
   fonts: F,
 });
+
+/**
+ * The style table of matrices: the standard look, the cells on white within hairlines, the heads in ink, the letters
+ * bold in the mono face of the look and the discs in ink, so a matrix prints in greyscale without losing a value.
+ * The head of a column or row in an area (ADR 0033) stands on a ground of its own, the canvas above the table and
+ * white within it, which the area tints or stripes; both are surfaces of the areas, the ink of the heads their ink.
+ */
+export const MATRIX_STYLES: Styles = {
+  ...BASE,
+  areaColors: { ink: [c.stroke], outline: [c.border], surface: [c.fill, c.canvas] },
+};

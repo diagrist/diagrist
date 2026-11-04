@@ -1,14 +1,19 @@
-import { type Anchors, domId, type Placed, type Scene, type Shape } from '@diagrist/core';
-import { kickerShapes } from '@diagrist/parts';
+import { type Anchors, domId, markAreas, type Placed, type Scene, type Shape } from '@diagrist/core';
+import { kickerShapes, withAreaLegend } from '@diagrist/parts';
 import type { CodeLayout } from '../layout/index.js';
+import type { CodeModel } from '../model.js';
 import type { Header } from '../texts.js';
+import { cardMark, linkMarks, usedAreas } from './areas.js';
 import { cardShapes } from './card.js';
 
 const path = (points: readonly (readonly [number, number])[]): string =>
   points.map(([x, y], i) => `${i === 0 ? 'M' : 'L'}${x} ${y}`).join(' ');
 
-/** The kicker header, the cards in source order, then the links in groups `edge-<index>` on top. */
-export function codeScene(layout: CodeLayout, header: Header): Scene {
+/**
+ * The kicker header, the cards in source order, then the links in groups `edge-<index>` on top; below them a legend
+ * of the areas when the picture has some (ADR 0033).
+ */
+export function codeScene(layout: CodeLayout, header: Header, model: CodeModel): Scene {
   const links = layout.links.map(
     (link): Shape => ({
       kind: 'group',
@@ -30,12 +35,15 @@ export function codeScene(layout: CodeLayout, header: Header): Scene {
       ],
     }),
   );
-  return {
+  const cards = layout.cards.map((placed) => cardShapes(placed, cardMark(model, placed.card.id)));
+  const scene: Scene = {
     width: layout.width,
     height: layout.height,
     title: header.alt,
-    children: [...kickerShapes(header), ...layout.cards.map(cardShapes), ...links],
+    areas: model.areas.paint,
+    children: [...kickerShapes(header), ...cards, ...markAreas(links, linkMarks(model, layout.links))],
   };
+  return withAreaLegend(scene, model.areas, usedAreas(model), 'card');
 }
 
 /** Cards as nodes and links as edges, by the DOM ids of their groups. */

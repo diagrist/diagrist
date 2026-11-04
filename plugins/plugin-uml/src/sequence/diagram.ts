@@ -1,4 +1,4 @@
-import type { Tone } from '@diagrist/core';
+import type { Areas, Tone } from '@diagrist/core';
 import type { Span } from '@diagrist/lang';
 import type { Decision } from '@diagrist/parts';
 
@@ -20,6 +20,7 @@ export interface SequenceDiagram {
   readonly decisions: readonly Decision[];
   /** Statements that stand in a fragment after an operand marker instead of below it (rule `afterOperand`). */
   readonly afterOperands: readonly Misplaced[];
+  readonly areas: Areas;
 }
 
 /** A statement at the wrong level of a fragment, with the fragment and the marker it follows. */
@@ -51,6 +52,8 @@ export interface Participant {
   readonly stereotype?: string;
   readonly external?: boolean;
   readonly tone?: Tone;
+  /** The area the lifeline belongs to (ADR 0033); its head, line and bars are painted in its tone. */
+  readonly area?: string;
   readonly span: Span;
 }
 
@@ -89,6 +92,8 @@ export interface MessageEvent {
   readonly mark?: string;
   readonly duration?: string;
   readonly emph?: boolean;
+  /** The area the message names itself; the scene falls back to the areas of its lifelines. */
+  readonly area?: string;
   readonly span: Span;
 }
 

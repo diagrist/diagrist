@@ -38,22 +38,22 @@ Every command takes `--json` for one JSON document on stdout. The commands:
 A UML sequence diagram (UML 2.5.1, chapter 17): lifelines from left to right in source order, messages and fragments from top to bottom. Fragments nest by indentation. Full reference: `dgr grammar sequence`.
 
 ```text
-diagram sequence "Title" [subtitle=<text>] [look=<plain|cards>] [locale=<en|de>]
+diagram sequence "Title" [subtitle=<text>] [look=<plain|cards>] [areas=<tint|outline|stripe>] [locale=<en|de>]
 ```
 
 | Line | Where | What it does | Example |
 |---|---|---|---|
-| `participant <id> <label> [stereotype=<text>] [tone=<choice>] [external]` | top level | A lifeline drawn as a box, from left to right in source order. | `participant api "api-service" stereotype="service"` |
-| `actor <id> <label> [stereotype=<text>] [tone=<choice>] [external]` | top level | A lifeline drawn as a stick figure, from left to right in source order. | `actor customer "Customer"` |
-| `database <id> <label> [stereotype=<text>] [tone=<choice>] [external]` | top level | A lifeline drawn as a cylinder, from left to right in source order. | `database db "Orders DB"` |
-| `queue <id> <label> [stereotype=<text>] [tone=<choice>] [external]` | top level | A lifeline drawn as a horizontal tube, from left to right in source order. | `queue broker "Kafka"` |
-| `boundary <id> <label> [stereotype=<text>] [tone=<choice>] [external]` | top level | A lifeline drawn as the boundary symbol of robustness analysis, from left to right in source order. | `boundary form "Order form"` |
-| `control <id> <label> [stereotype=<text>] [tone=<choice>] [external]` | top level | A lifeline drawn as the control symbol of robustness analysis, from left to right in source order. | `control checkout "Checkout"` |
-| `entity <id> <label> [stereotype=<text>] [tone=<choice>] [external]` | top level | A lifeline drawn as the entity symbol of robustness analysis, from left to right in source order. | `entity order "Order"` |
+| `participant <id> <label> [stereotype=<text>] [tone=<choice>] [area=<ref>] [external]` | top level | A lifeline drawn as a box, from left to right in source order. | `participant api "api-service" stereotype="service"` |
+| `actor <id> <label> [stereotype=<text>] [tone=<choice>] [area=<ref>] [external]` | top level | A lifeline drawn as a stick figure, from left to right in source order. | `actor customer "Customer"` |
+| `database <id> <label> [stereotype=<text>] [tone=<choice>] [area=<ref>] [external]` | top level | A lifeline drawn as a cylinder, from left to right in source order. | `database db "Orders DB"` |
+| `queue <id> <label> [stereotype=<text>] [tone=<choice>] [area=<ref>] [external]` | top level | A lifeline drawn as a horizontal tube, from left to right in source order. | `queue broker "Kafka"` |
+| `boundary <id> <label> [stereotype=<text>] [tone=<choice>] [area=<ref>] [external]` | top level | A lifeline drawn as the boundary symbol of robustness analysis, from left to right in source order. | `boundary form "Order form"` |
+| `control <id> <label> [stereotype=<text>] [tone=<choice>] [area=<ref>] [external]` | top level | A lifeline drawn as the control symbol of robustness analysis, from left to right in source order. | `control checkout "Checkout"` |
+| `entity <id> <label> [stereotype=<text>] [tone=<choice>] [area=<ref>] [external]` | top level | A lifeline drawn as the entity symbol of robustness analysis, from left to right in source order. | `entity order "Order"` |
 | `autonumber` | top level | Numbers all messages in source order (1, 2, 3 ...), across fragments; the number stands before the label. | `autonumber` |
 | `frame [label]` | top level | A frame around the whole interaction with `sd Name` in its tag. | `frame "OAuth callback"` |
-| `msg <from> <arrow> <to> [label] [id=<id>] [mark=<ref>] [duration=<text>] [emph]` | top level and inside blocks | A message in source order; its arrow says what kind. | `msg client -> api "GET /orders" id=request` |
-| `create <from> <arrow> <to> [label] [id=<id>] [mark=<ref>] [duration=<text>] [emph]` | top level and inside blocks | A creation message: dashed with an open head, and the head of the receiver stands at its height. | `create client -> meter "new MeterData()"` |
+| `msg <from> <arrow> <to> [label] [area=<ref>] [id=<id>] [mark=<ref>] [duration=<text>] [emph]` | top level and inside blocks | A message in source order; its arrow says what kind. | `msg client -> api "GET /orders" id=request` |
+| `create <from> <arrow> <to> [label] [area=<ref>] [id=<id>] [mark=<ref>] [duration=<text>] [emph]` | top level and inside blocks | A creation message: dashed with an open head, and the head of the receiver stands at its height. | `create client -> meter "new MeterData()"` |
 | `destroy <target>` | top level and inside blocks | Destruction: the lifeline ends here with an X. | `destroy session` |
 | `activate <target>` | top level and inside blocks | Starts an activation bar by hand, for processing after an asynchronous message. | `activate worker` |
 | `deactivate <target>` | top level and inside blocks | Ends the bar the last `activate` of this lifeline started. | `deactivate worker` |
@@ -79,6 +79,7 @@ diagram sequence "Title" [subtitle=<text>] [look=<plain|cards>] [locale=<en|de>]
 | `duration <from> <to> <text>` | top level | A duration constraint between two messages with `id=`: a bracket from the first to the second, left of the lifeline both touch when there is room, otherwise mirrored to the right or at the left edge. | `duration request response "≤ 300 ms"` |
 | `time <at> <text>` | top level | A time constraint of one message with `id=`: a tick at its height left of its lifeline or at the left edge, the text in `{...}`. | `time request "t = now"` |
 | `adr <id> <question> <equals> <choice> [then] [consequence] [open=<text>]` | top level | An architecture decision in the bar below the picture: question, the chosen option after `=`, and the consequence after `=>`. | `adr E1 "How do the services coordinate?" = "Events over Kafka" => "No central coordinator"` |
+| `area <id> <label> [tone=<choice>]` | top level | A named area of the picture, such as the core or one extension of an extensible architecture. | `area kern "Kern"` |
 
 The arrows of `msg`: `->` synchronous call (filled head), `~>` asynchronous message (open head), `-->` reply (dashed, open head).
 
@@ -115,17 +116,18 @@ The rules of `sequence` report these codes:
 A UML use case diagram (UML 2.5.1, chapter 18): actors outside, use cases inside their subject, relations as straight lines. Diagrist lays it out by itself: use cases in columns by include and extend, actors left or right at the height of their use cases, an order with as few crossings as it finds. Full reference: `dgr grammar usecase`.
 
 ```text
-diagram usecase "Title" [subtitle=<text>] [look=<plain|cards>] [direction=<down|right>] [locale=<en|de>]
+diagram usecase "Title" [subtitle=<text>] [look=<plain|cards>] [direction=<down|right>] [areas=<tint|outline|stripe>] [locale=<en|de>]
 ```
 
 | Line | Where | What it does | Example |
 |---|---|---|---|
-| `actor <id> <label> [kind=<person\|system>] [side=<left\|right>] [tone=<choice>] [mark=<ref>] [emph]` | top level | An actor: a role outside every subject, drawn as a stick figure with the role below it or, with `kind=system`, as a box with `«actor»` for another system. | `actor customer "Customer"` |
-| `subject <id> <label> [tone=<choice>]` | top level | A subject: the system the use cases belong to, drawn as a rectangle with its name at the top left around the use cases `in` it. | `subject shop "Online shop"` |
-| `usecase <id> <label> [in <ref>] [points=<text>] [form=<ellipse\|classifier>] [stereotype=<text>] [tone=<choice>] [mark=<ref>] [emph]` | top level | A use case: an ellipse as large as its name inside the subject `in`; names over 18 characters wrap. | `usecase order "Place order" in shop points="before checkout"` |
-| `rel <from> <arrow> <to> [label] [source=<multiplicity>] [card=<multiplicity>] [when=<text>] [at=<text>] [include] [extend] [emph]` | top level | A relation, read from `from` to `to`. | `rel customer -- order source=1 card=0..*` |
+| `actor <id> <label> [kind=<person\|system>] [side=<left\|right>] [tone=<choice>] [mark=<ref>] [area=<ref>] [emph]` | top level | An actor: a role outside every subject, drawn as a stick figure with the role below it or, with `kind=system`, as a box with `«actor»` for another system. | `actor customer "Customer"` |
+| `subject <id> <label> [tone=<choice>] [area=<ref>]` | top level | A subject: the system the use cases belong to, drawn as a rectangle with its name at the top left around the use cases `in` it. | `subject shop "Online shop"` |
+| `usecase <id> <label> [in <ref>] [points=<text>] [form=<ellipse\|classifier>] [stereotype=<text>] [tone=<choice>] [mark=<ref>] [area=<ref>] [emph]` | top level | A use case: an ellipse as large as its name inside the subject `in`; names over 18 characters wrap. | `usecase order "Place order" in shop points="before checkout"` |
+| `rel <from> <arrow> <to> [label] [area=<ref>] [source=<multiplicity>] [card=<multiplicity>] [when=<text>] [at=<text>] [include] [extend] [emph]` | top level | A relation, read from `from` to `to`. | `rel customer -- order source=1 card=0..*` |
 | `note <text> [on <ref>]` | top level | A comment on an actor, a use case or a subject: a box with a folded corner at a free spot nearby, joined to it by a dashed line. | `note "Only private customers" on shop` |
 | `adr <id> <question> <equals> <choice> [then] [consequence] [open=<text>]` | top level | An architecture decision in the bar below the picture: question, the chosen option after `=`, and the consequence after `=>`. | `adr E1 "How do the services coordinate?" = "Events over Kafka" => "No central coordinator"` |
+| `area <id> <label> [tone=<choice>]` | top level | A named area of the picture, such as the core or one extension of an extensible architecture. | `area kern "Kern"` |
 
 The arrows of `rel`: `--` association between an actor and a use case, `-|>` generalization from the special to the general actor or use case, hollow triangle at the general one, `-->` include or extend between two use cases, dashed with an open head; needs the flag `include` or `extend`.
 
@@ -154,31 +156,32 @@ The rules of `usecase` report these codes:
 A UML activity diagram (UML 2.5.1, chapters 15 and 16): nodes and edges in layers from top to bottom, one vertical swimlane per `partition`. Diagrist lays it out by itself: layers by the longest path, alternatives symmetric below their decision, parallel branches side by side below their fork, a hand-over into another lane level and horizontal when its line is free, loops back up on the right. Full reference: `dgr grammar activity`.
 
 ```text
-diagram activity "Title" [subtitle=<text>] [look=<plain|cards>] [locale=<en|de>]
+diagram activity "Title" [subtitle=<text>] [look=<plain|cards>] [areas=<tint|outline|stripe>] [locale=<en|de>]
 ```
 
 | Line | Where | What it does | Example |
 |---|---|---|---|
-| `partition <id> <label> [tone=<choice>]` | top level | A partition, drawn as a vertical swimlane with its name in a head. | `partition customer "Customer"` |
+| `partition <id> <label> [tone=<choice>] [area=<ref>]` | top level | A partition, drawn as a vertical swimlane with its name in a head. | `partition customer "Customer"` |
 | `interruptible <id> [label]` | top level | An interruptible activity region: a dashed, rounded frame around the nodes with `interruptible=id`. | `interruptible cancel "Cancellation by the customer"` |
 | `expansion <id> [label] [mode=<iterative\|parallel\|stream>] [input=<text>] [output=<text>]` | top level | An expansion region: a dashed, rounded frame around the nodes with `expansion=id`, run once per element of a collection, with its mode as `«iterative»`, `«parallel»` or `«stream»` at the top left. | `expansion each "Check every item" mode=parallel` |
-| `initial <id> [in <ref>] [interruptible=<ref>] [expansion=<ref>]` | top level | An initial node: a filled circle where the flow starts. | `initial start in customer` |
-| `final <id> [in <ref>] [interruptible=<ref>] [expansion=<ref>]` | top level | An activity final node: a circle with a filled core. | `final done in customer` |
-| `flowfinal <id> [in <ref>] [interruptible=<ref>] [expansion=<ref>]` | top level | A flow final node: a circle with a cross. | `flowfinal mailed` |
-| `action <id> <label> [in <ref>] [interruptible=<ref>] [expansion=<ref>] [tone=<choice>] [mark=<ref>] [input=<text>] [output=<text>] [call]` | top level | An action: a rounded box with its text; texts wider than 208 pixels wrap into two lines. | `action order "Place order" in customer` |
-| `decision <id> [question] [in <ref>] [interruptible=<ref>] [expansion=<ref>]` | top level | A decision node: a diamond with one incoming edge and alternatives going out, each with a guard on its `go`. | `decision stock "Enough stock?" in warehouse` |
-| `merge <id> [label] [in <ref>] [interruptible=<ref>] [expansion=<ref>]` | top level | A merge node: a diamond that brings alternative branches together without waiting for each other, with exactly one outgoing edge. | `merge together in support` |
-| `fork <id> [in <ref>] [interruptible=<ref>] [expansion=<ref>]` | top level | A fork node: a bar across the flow that starts all its outgoing branches at the same time. | `fork split in warehouse` |
-| `join <id> [in <ref>] [interruptible=<ref>] [expansion=<ref>]` | top level | A join node: a bar across the flow that waits for all incoming branches and then continues on its one outgoing edge. | `join done in service` |
-| `object <id> <label> [in <ref>] [interruptible=<ref>] [expansion=<ref>] [tone=<choice>] [mark=<ref>] [state=<text>]` | top level | An object node: a rectangle with the object type, its state below in brackets. | `object invoice "Invoice" state="open" in billing` |
-| `datastore <id> <label> [in <ref>] [interruptible=<ref>] [expansion=<ref>] [tone=<choice>] [mark=<ref>]` | top level | A data store: an object node with `«datastore»` above its name, whose data outlive the activity. | `datastore accounts "Customer accounts" in payment` |
-| `buffer <id> <label> [in <ref>] [interruptible=<ref>] [expansion=<ref>] [tone=<choice>] [mark=<ref>]` | top level | A central buffer: an object node with `«centralBuffer»` above its name that collects objects from several flows. | `buffer receipts "Receipts" in accounting` |
-| `send <id> <label> [in <ref>] [interruptible=<ref>] [expansion=<ref>] [tone=<choice>] [mark=<ref>] [input=<text>]` | top level | A send signal action: a pentagon pointing right with the signal. | `send refusal "Refusal" in service` |
-| `accept <id> <label> [in <ref>] [interruptible=<ref>] [expansion=<ref>] [tone=<choice>] [mark=<ref>] [output=<text>]` | top level | An accept event action: a box with a notch on the left that waits for a signal. | `accept cancel "Cancellation requested" in warehouse interruptible=cancel` |
-| `wait <id> <label> [in <ref>] [interruptible=<ref>] [expansion=<ref>]` | top level | An accept time event action: an hourglass with the time beside it; the flow waits there until the time has come. | `wait period "14 days" in billing` |
-| `go <from> <arrow> <to> [guard] [pin=<text>] [weight=<number>] [else]` | top level | An activity edge from `from` to `to`. | `go start -> order` |
+| `initial <id> [in <ref>] [interruptible=<ref>] [expansion=<ref>] [area=<ref>]` | top level | An initial node: a filled circle where the flow starts. | `initial start in customer` |
+| `final <id> [in <ref>] [interruptible=<ref>] [expansion=<ref>] [area=<ref>]` | top level | An activity final node: a circle with a filled core. | `final done in customer` |
+| `flowfinal <id> [in <ref>] [interruptible=<ref>] [expansion=<ref>] [area=<ref>]` | top level | A flow final node: a circle with a cross. | `flowfinal mailed` |
+| `action <id> <label> [in <ref>] [interruptible=<ref>] [expansion=<ref>] [area=<ref>] [tone=<choice>] [mark=<ref>] [input=<text>] [output=<text>] [call]` | top level | An action: a rounded box with its text; texts wider than 208 pixels wrap into two lines. | `action order "Place order" in customer` |
+| `decision <id> [question] [in <ref>] [interruptible=<ref>] [expansion=<ref>] [area=<ref>]` | top level | A decision node: a diamond with one incoming edge and alternatives going out, each with a guard on its `go`. | `decision stock "Enough stock?" in warehouse` |
+| `merge <id> [label] [in <ref>] [interruptible=<ref>] [expansion=<ref>] [area=<ref>]` | top level | A merge node: a diamond that brings alternative branches together without waiting for each other, with exactly one outgoing edge. | `merge together in support` |
+| `fork <id> [in <ref>] [interruptible=<ref>] [expansion=<ref>] [area=<ref>]` | top level | A fork node: a bar across the flow that starts all its outgoing branches at the same time. | `fork split in warehouse` |
+| `join <id> [in <ref>] [interruptible=<ref>] [expansion=<ref>] [area=<ref>]` | top level | A join node: a bar across the flow that waits for all incoming branches and then continues on its one outgoing edge. | `join done in service` |
+| `object <id> <label> [in <ref>] [interruptible=<ref>] [expansion=<ref>] [area=<ref>] [tone=<choice>] [mark=<ref>] [state=<text>]` | top level | An object node: a rectangle with the object type, its state below in brackets. | `object invoice "Invoice" state="open" in billing` |
+| `datastore <id> <label> [in <ref>] [interruptible=<ref>] [expansion=<ref>] [area=<ref>] [tone=<choice>] [mark=<ref>]` | top level | A data store: an object node with `«datastore»` above its name, whose data outlive the activity. | `datastore accounts "Customer accounts" in payment` |
+| `buffer <id> <label> [in <ref>] [interruptible=<ref>] [expansion=<ref>] [area=<ref>] [tone=<choice>] [mark=<ref>]` | top level | A central buffer: an object node with `«centralBuffer»` above its name that collects objects from several flows. | `buffer receipts "Receipts" in accounting` |
+| `send <id> <label> [in <ref>] [interruptible=<ref>] [expansion=<ref>] [area=<ref>] [tone=<choice>] [mark=<ref>] [input=<text>]` | top level | A send signal action: a pentagon pointing right with the signal. | `send refusal "Refusal" in service` |
+| `accept <id> <label> [in <ref>] [interruptible=<ref>] [expansion=<ref>] [area=<ref>] [tone=<choice>] [mark=<ref>] [output=<text>]` | top level | An accept event action: a box with a notch on the left that waits for a signal. | `accept cancel "Cancellation requested" in warehouse interruptible=cancel` |
+| `wait <id> <label> [in <ref>] [interruptible=<ref>] [expansion=<ref>] [area=<ref>]` | top level | An accept time event action: an hourglass with the time beside it; the flow waits there until the time has come. | `wait period "14 days" in billing` |
+| `go <from> <arrow> <to> [guard] [area=<ref>] [pin=<text>] [weight=<number>] [else]` | top level | An activity edge from `from` to `to`. | `go start -> order` |
 | `handler <protected> <arrow> <handler> <exception>` | top level | An exception handler: when the protected action throws an exception of the type, the handler action takes over, and the flow goes on at the output of the protected action. | `handler capture -> open "Direct debit refused"` |
 | `adr <id> <question> <equals> <choice> [then] [consequence] [open=<text>]` | top level | An architecture decision in the bar below the picture: question, the chosen option after `=`, and the consequence after `=>`. | `adr E1 "How do the services coordinate?" = "Events over Kafka" => "No central coordinator"` |
+| `area <id> <label> [tone=<choice>]` | top level | A named area of the picture, such as the core or one extension of an extensible architecture. | `area kern "Kern"` |
 
 The arrows of `go`: `->` control flow, `=>` object flow, with an object node or pin at one end at least, `~>` interrupting edge out of an interruptible region, drawn with a lightning bolt.
 
@@ -216,24 +219,25 @@ The rules of `activity` report these codes:
 A UML class diagram (UML 2.5.1, chapters 9 to 12): classes, interfaces and enumerations with their members, packages, and the relations between them. Diagrist lays it out by itself in layers: superclasses, interfaces, wholes and users above, associated classes side by side, each package as one block. Full reference: `dgr grammar class`.
 
 ```text
-diagram class "Title" [subtitle=<text>] [look=<plain|cards>] [locale=<en|de>]
+diagram class "Title" [subtitle=<text>] [look=<plain|cards>] [areas=<tint|outline|stripe>] [locale=<en|de>]
 ```
 
 | Line | Where | What it does | Example |
 |---|---|---|---|
-| `class <id> <label> [in <ref>] [stereotype=<text>] [template=<text>] [tone=<choice>] [mark=<ref>] [abstract] [emph]` | top level | A class: a box with the name, below it the compartments of attributes and operations, shown even when empty. | `class order "Order" stereotype="entity"
+| `class <id> <label> [in <ref>] [stereotype=<text>] [template=<text>] [tone=<choice>] [mark=<ref>] [area=<ref>] [abstract] [emph]` | top level | A class: a box with the name, below it the compartments of attributes and operations, shown even when empty. | `class order "Order" stereotype="entity"
   "- number : String {readOnly}"
   "+ total() : Money"` |
-| `interface <id> <label> [in <ref>] [stereotype=<text>] [template=<text>] [tone=<choice>] [mark=<ref>] [abstract] [emph]` | top level | An interface: `«interface»` above the name, operations in italics; the attribute compartment only when it holds something. | `interface printable "Printable"
+| `interface <id> <label> [in <ref>] [stereotype=<text>] [template=<text>] [tone=<choice>] [mark=<ref>] [area=<ref>] [abstract] [emph]` | top level | An interface: `«interface»` above the name, operations in italics; the attribute compartment only when it holds something. | `interface printable "Printable"
   "+ print() : String"` |
-| `enum <id> <label> [in <ref>] [stereotype=<text>] [template=<text>] [tone=<choice>] [mark=<ref>] [abstract] [emph]` | top level | An enumeration: `«enumeration»` above the name, below it one value per line. | `enum status "Status"
+| `enum <id> <label> [in <ref>] [stereotype=<text>] [template=<text>] [tone=<choice>] [mark=<ref>] [area=<ref>] [abstract] [emph]` | top level | An enumeration: `«enumeration»` above the name, below it one value per line. | `enum status "Status"
   "OPEN"
   "PAID"` |
-| `package <id> <label> [in <ref>] [tone=<choice>]` | top level | A package: a frame with a tab holding the name, around the classifiers `in` it. | `package domain "domain"` |
-| `assoc <id> [label] [in <ref>] [class=<ref>] [mark=<ref>] [emph]` | top level | An n-ary association: a diamond joined to three or more classes. | `assoc lesson "Lesson" class=unit` |
-| `rel <from> <arrow> <to> [label] [source=<multiplicity>] [card=<multiplicity>] [role=<text>] [srole=<text>] [nonav=<from\|to\|both>] [class=<ref>] [import] [access] [emph]` | top level | A relation between classifiers, read from `from` to `to`; the arrow says which (see the arrows). | `rel customer -- order "places" source=1 card=0..*` |
+| `package <id> <label> [in <ref>] [tone=<choice>] [area=<ref>]` | top level | A package: a frame with a tab holding the name, around the classifiers `in` it. | `package domain "domain"` |
+| `assoc <id> [label] [in <ref>] [class=<ref>] [mark=<ref>] [area=<ref>] [emph]` | top level | An n-ary association: a diamond joined to three or more classes. | `assoc lesson "Lesson" class=unit` |
+| `rel <from> <arrow> <to> [label] [area=<ref>] [source=<multiplicity>] [card=<multiplicity>] [role=<text>] [srole=<text>] [nonav=<from\|to\|both>] [class=<ref>] [import] [access] [emph]` | top level | A relation between classifiers, read from `from` to `to`; the arrow says which (see the arrows). | `rel customer -- order "places" source=1 card=0..*` |
 | `note <text> [on <ref>]` | top level | A comment on a classifier: a dashed box above it with a tip down to it, below it when lines run above. | `note "Exactly one lecturer per lesson" on lecturer` |
 | `adr <id> <question> <equals> <choice> [then] [consequence] [open=<text>]` | top level | An architecture decision in the bar below the picture: question, the chosen option after `=`, and the consequence after `=>`. | `adr E1 "How do the services coordinate?" = "Events over Kafka" => "No central coordinator"` |
+| `area <id> <label> [tone=<choice>]` | top level | A named area of the picture, such as the core or one extension of an extensible architecture. | `area kern "Kern"` |
 
 The arrows of `rel`: `--` association, navigability open at both ends, `->` directed association, navigable towards `to` (open head there), `<->` association navigable at both ends (open heads at both), `-->` dependency, dashed with an open head at `to`; between packages with `import` or `access`, `-|>` generalization: `from` is a special kind of `to`, hollow triangle at `to`, `--|>` realization: `from` implements the interface `to`, dashed with a hollow triangle, `o--` aggregation: `from` is the whole, hollow diamond at `from`, `*--` composition: `from` is the whole that owns its parts, filled diamond at `from`.
 
@@ -266,27 +270,28 @@ The rules of `class` report these codes:
 A UML state machine diagram (UML 2.5.1, chapter 14): states and pseudostates joined by transitions, composite states with substates or orthogonal regions, entry and exit points on their border. `{protocol}` in the title makes it a protocol state machine. Diagrist lays it out by itself: layers by the longest path from the initial pseudostate, final states last, back and skip transitions on rails beside the states, loops at a free corner. Full reference: `dgr grammar state`.
 
 ```text
-diagram state "Title" [subtitle=<text>] [look=<plain|cards>] [direction=<down|right>] [locale=<en|de>]
+diagram state "Title" [subtitle=<text>] [look=<plain|cards>] [direction=<down|right>] [areas=<tint|outline|stripe>] [locale=<en|de>]
 ```
 
 | Line | Where | What it does | Example |
 |---|---|---|---|
-| `state <id> <label> [in <ref>] [entry=<text>] [do=<text>] [exit=<text>] [defer=<text>] [submachine=<text>] [file=<text>] [tone=<choice>] [mark=<ref>] [emph]` | top level | A state: a rounded box with the name, below it a compartment with `entry`, `do` and `exit`, deferred events and internal transitions. | `state open "Open" entry="set deadline"` |
-| `initial <id> [label] [in <ref>]` | top level | The initial pseudostate: a filled circle. | `initial start` |
-| `final <id> [label] [in <ref>]` | top level | A final state: a circle with a dot. | `final end` |
-| `choice <id> [label] [in <ref>]` | top level | A choice pseudostate: a diamond. | `choice paid` |
-| `junction <id> [label] [in <ref>]` | top level | A junction pseudostate: a small filled circle that joins or splits transitions without a decision of its own. | `junction merge` |
-| `history <id> [label] [in <ref>] [deep]` | top level | A history pseudostate inside a composite state: a circle with `H`, with `deep` `H*`. | `history resume in active deep` |
-| `fork <id> [label] [in <ref>]` | top level | A fork pseudostate: a bar across the flow, from one incoming to several outgoing transitions into states, often into the regions of a state. | `fork split` |
-| `join <id> [label] [in <ref>]` | top level | A join pseudostate: a bar across the flow that waits for all its incoming transitions from states. | `join done` |
-| `terminate <id> [label] [in <ref>]` | top level | A terminate pseudostate: a cross. | `terminate abort` |
-| `entrypoint <id> [label] [in <ref>]` | top level | An entry point: a small circle on the border of its state. | `entrypoint fresh "New customer" in check` |
-| `exitpoint <id> [label] [in <ref>]` | top level | An exit point: a small circle with a cross on the border of its state. | `exitpoint rejected "Rejected" in check` |
-| `region <id> [label] [in <ref>]` | top level | An orthogonal region of a state: the regions of a state are active at the same time and stand side by side, separated by dashed lines, the name at the top left. | `region payment "Payment" in processing` |
-| `go <from> <arrow> <to> [on=<text>] [when=<text>] [do=<text>] [post=<text>] [emph]` | top level | A transition from `from` to `to`, labelled `trigger [guard] / effect`; without all three it is a completion transition. | `go open -> paid on="pay" when="amount covered" do="send receipt"` |
+| `state <id> <label> [in <ref>] [entry=<text>] [do=<text>] [exit=<text>] [defer=<text>] [submachine=<text>] [file=<text>] [tone=<choice>] [mark=<ref>] [area=<ref>] [emph]` | top level | A state: a rounded box with the name, below it a compartment with `entry`, `do` and `exit`, deferred events and internal transitions. | `state open "Open" entry="set deadline"` |
+| `initial <id> [label] [in <ref>] [area=<ref>]` | top level | The initial pseudostate: a filled circle. | `initial start` |
+| `final <id> [label] [in <ref>] [area=<ref>]` | top level | A final state: a circle with a dot. | `final end` |
+| `choice <id> [label] [in <ref>] [area=<ref>]` | top level | A choice pseudostate: a diamond. | `choice paid` |
+| `junction <id> [label] [in <ref>] [area=<ref>]` | top level | A junction pseudostate: a small filled circle that joins or splits transitions without a decision of its own. | `junction merge` |
+| `history <id> [label] [in <ref>] [area=<ref>] [deep]` | top level | A history pseudostate inside a composite state: a circle with `H`, with `deep` `H*`. | `history resume in active deep` |
+| `fork <id> [label] [in <ref>] [area=<ref>]` | top level | A fork pseudostate: a bar across the flow, from one incoming to several outgoing transitions into states, often into the regions of a state. | `fork split` |
+| `join <id> [label] [in <ref>] [area=<ref>]` | top level | A join pseudostate: a bar across the flow that waits for all its incoming transitions from states. | `join done` |
+| `terminate <id> [label] [in <ref>] [area=<ref>]` | top level | A terminate pseudostate: a cross. | `terminate abort` |
+| `entrypoint <id> [label] [in <ref>] [area=<ref>]` | top level | An entry point: a small circle on the border of its state. | `entrypoint fresh "New customer" in check` |
+| `exitpoint <id> [label] [in <ref>] [area=<ref>]` | top level | An exit point: a small circle with a cross on the border of its state. | `exitpoint rejected "Rejected" in check` |
+| `region <id> [label] [in <ref>] [area=<ref>]` | top level | An orthogonal region of a state: the regions of a state are active at the same time and stand side by side, separated by dashed lines, the name at the top left. | `region payment "Payment" in processing` |
+| `go <from> <arrow> <to> [on=<text>] [when=<text>] [do=<text>] [post=<text>] [area=<ref>] [emph]` | top level | A transition from `from` to `to`, labelled `trigger [guard] / effect`; without all three it is a completion transition. | `go open -> paid on="pay" when="amount covered" do="send receipt"` |
 | `internal <state> [on=<text>] [when=<text>] [do=<text>]` | top level | An internal transition: a line `trigger [guard] / effect` in the compartment of its state. | `internal open on="change item" do="recalculate"` |
 | `note <text> [on <ref>]` | top level | A comment on a vertex: a dashed box above it with a tip down to it, below it when lines run above. | `note "Only for new customers" on check` |
 | `adr <id> <question> <equals> <choice> [then] [consequence] [open=<text>]` | top level | An architecture decision in the bar below the picture: question, the chosen option after `=`, and the consequence after `=>`. | `adr E1 "How do the services coordinate?" = "Events over Kafka" => "No central coordinator"` |
+| `area <id> <label> [tone=<choice>]` | top level | A named area of the picture, such as the core or one extension of an extensible architecture. | `area kern "Kern"` |
 
 The arrows of `go`: `->` transition, with an open arrowhead at `to`.
 
@@ -328,22 +333,23 @@ The rules of `state` report these codes:
 A C4 system context diagram (level 1): the system as one box, the people who use it and the systems around it, placed in a named grid. Full reference: `dgr grammar context`.
 
 ```text
-diagram context "Title" [subtitle=<text>] [label=<text>] [look=<plain|cards|blocks|paper|columns>] [decisions=<right|below|auto>] [layout=<adaptive>] [locale=<en|de>]
+diagram context "Title" [subtitle=<text>] [label=<text>] [look=<plain|cards|blocks|paper|columns>] [decisions=<right|below|auto>] [layout=<adaptive>] [areas=<tint|outline|stripe>] [locale=<en|de>]
 ```
 
 | Line | Where | What it does | Example |
 |---|---|---|---|
 | `grid <axis> <names>` | top level | The named columns from left to right, or the rows from top to bottom. | `grid cols user,backend.1,backend.2,edge` |
 | `layer <row> <label>` | top level | Names a row in a box right of the picture, joined by one bracket for all layers; needs `layout=adaptive`. | `layer business "Business logic"` |
-| `group <id> <title> [in <ref>] [team=<text>] [heading=<top\|side>] [tag=<text>] [cover=<grid-name>] [tone=<choice>] [own] [shared] [external]` | top level | A frame around elements by responsibility; it grows from its members. | `group backend "Backend" own team="Kotlin · Team Ausleihe"` |
+| `group <id> <title> [in <ref>] [team=<text>] [heading=<top\|side>] [tag=<text>] [cover=<grid-name>] [tone=<choice>] [area=<ref>] [own] [shared] [external]` | top level | A frame around elements by responsibility; it grows from its members. | `group backend "Backend" own team="Kotlin · Team Ausleihe"` |
 | `style <id> [icon=<choice>] [shape=<db\|queue\|store\|job\|app>] [width=<integer>] [height=<integer>] [tone=<choice>] [form=<card\|circle\|text>]` | top level | Named values for elements, and a tone for edges, so sizes and colours stand in one place. | `style component height=80` |
-| `person <id> <label> [at <place>] [in <ref>] [tech=<text>] [icon=<choice>] [shape=<db\|queue\|store\|job\|app>] [width=<integer>] [height=<integer>] [tone=<choice>] [form=<card\|circle\|text>] [status=<planned\|deprecated>] [replicas=<integer>] [span=<span>] [slot=<slot>] [style=<ref>] [mark=<ref>] [emph]` | top level | A person who uses the system, drawn as a stick figure with name and role below it. | `person customer "Customer" tech="account holder" at user/main` |
-| `system <id> <label> [at <place>] [in <ref>] [tech=<text>] [icon=<choice>] [shape=<db\|queue\|store\|job\|app>] [width=<integer>] [height=<integer>] [tone=<choice>] [form=<card\|circle\|text>] [status=<planned\|deprecated>] [replicas=<integer>] [span=<span>] [slot=<slot>] [style=<ref>] [mark=<ref>] [emph]` | top level | A software system, as a box with name and a second line. | `system shop "Web shop" tech="sells online" at core/main emph mark=E1` |
-| `node <id> <label> [at <place>] [in <ref>] [tech=<text>] [icon=<choice>] [shape=<db\|queue\|store\|job\|app>] [width=<integer>] [height=<integer>] [tone=<choice>] [form=<card\|circle\|text>] [status=<planned\|deprecated>] [replicas=<integer>] [span=<span>] [slot=<slot>] [style=<ref>] [mark=<ref>] [emph]` | top level | A neutral element for any level, such as a queue, a job or a layer of a pattern. | `node orders "Orders" tech="business logic" replicas=3 at web/business in cloud` |
-| `edge <from> <arrow> <to> [label] [via=<text>] [schedule=<text>] [volume=<text>] [sla=<text>] [mark=<ref>] [bundle=<word>] [lane=<grid-name>] [tone=<choice>] [style=<ref>]` | top level | An edge outside of flows, without number. | `edge abgleich => db "check inventory" schedule="daily 03:00"` |
+| `person <id> <label> [at <place>] [in <ref>] [tech=<text>] [icon=<choice>] [shape=<db\|queue\|store\|job\|app>] [width=<integer>] [height=<integer>] [tone=<choice>] [form=<card\|circle\|text>] [status=<planned\|deprecated>] [replicas=<integer>] [span=<span>] [slot=<slot>] [style=<ref>] [mark=<ref>] [area=<ref>] [emph]` | top level | A person who uses the system, drawn as a stick figure with name and role below it. | `person customer "Customer" tech="account holder" at user/main` |
+| `system <id> <label> [at <place>] [in <ref>] [tech=<text>] [icon=<choice>] [shape=<db\|queue\|store\|job\|app>] [width=<integer>] [height=<integer>] [tone=<choice>] [form=<card\|circle\|text>] [status=<planned\|deprecated>] [replicas=<integer>] [span=<span>] [slot=<slot>] [style=<ref>] [mark=<ref>] [area=<ref>] [emph]` | top level | A software system, as a box with name and a second line. | `system shop "Web shop" tech="sells online" at core/main emph mark=E1` |
+| `node <id> <label> [at <place>] [in <ref>] [tech=<text>] [icon=<choice>] [shape=<db\|queue\|store\|job\|app>] [width=<integer>] [height=<integer>] [tone=<choice>] [form=<card\|circle\|text>] [status=<planned\|deprecated>] [replicas=<integer>] [span=<span>] [slot=<slot>] [style=<ref>] [mark=<ref>] [area=<ref>] [emph]` | top level | A neutral element for any level, such as a queue, a job or a layer of a pattern. | `node orders "Orders" tech="business logic" replicas=3 at web/business in cloud` |
+| `edge <from> <arrow> <to> [label] [via=<text>] [schedule=<text>] [volume=<text>] [sla=<text>] [mark=<ref>] [bundle=<word>] [lane=<grid-name>] [tone=<choice>] [style=<ref>] [area=<ref>]` | top level | An edge outside of flows, without number. | `edge abgleich => db "check inventory" schedule="daily 03:00"` |
 | `flow <id> [primary] [accent]` | top level | A numbered path: its steps are indented below it. | `flow import primary` |
 | `note <text> [on <ref>]` | top level | A dashed note above an element, with a tip pointing at it. | `note "replaced in Q3" on portal` |
 | `adr <id> <question> <equals> <choice> [then] [consequence] [open=<text>]` | top level | An architecture decision in the bar below the picture: question, the chosen option after `=`, and the consequence after `=>`. | `adr E1 "How do the services coordinate?" = "Events over Kafka" => "No central coordinator"` |
+| `area <id> <label> [tone=<choice>]` | top level | A named area of the picture, such as the core or one extension of an extensible architecture. | `area kern "Kern"` |
 
 The arrows of `edge`: `->` synchronous call (filled head), `~>` asynchronous message or event (dashed, open head), `-->` dependency (dashed, open head), `=>` data flow (thick line, filled head), `--` connection without direction (no head), `<->` call in both directions (a head at each end).
 
@@ -367,23 +373,24 @@ The rules of `context` report these codes:
 A C4 container diagram (level 2): the applications and data stores of a system, grouped by responsibility, placed in a named grid. Full reference: `dgr grammar container`.
 
 ```text
-diagram container "Title" [subtitle=<text>] [label=<text>] [look=<plain|cards|blocks|paper|columns>] [decisions=<right|below|auto>] [layout=<adaptive>] [locale=<en|de>]
+diagram container "Title" [subtitle=<text>] [label=<text>] [look=<plain|cards|blocks|paper|columns>] [decisions=<right|below|auto>] [layout=<adaptive>] [areas=<tint|outline|stripe>] [locale=<en|de>]
 ```
 
 | Line | Where | What it does | Example |
 |---|---|---|---|
 | `grid <axis> <names>` | top level | The named columns from left to right, or the rows from top to bottom. | `grid cols user,backend.1,backend.2,edge` |
 | `layer <row> <label>` | top level | Names a row in a box right of the picture, joined by one bracket for all layers; needs `layout=adaptive`. | `layer business "Business logic"` |
-| `group <id> <title> [in <ref>] [team=<text>] [heading=<top\|side>] [tag=<text>] [cover=<grid-name>] [tone=<choice>] [own] [shared] [external]` | top level | A frame around elements by responsibility; it grows from its members. | `group backend "Backend" own team="Kotlin · Team Ausleihe"` |
+| `group <id> <title> [in <ref>] [team=<text>] [heading=<top\|side>] [tag=<text>] [cover=<grid-name>] [tone=<choice>] [area=<ref>] [own] [shared] [external]` | top level | A frame around elements by responsibility; it grows from its members. | `group backend "Backend" own team="Kotlin · Team Ausleihe"` |
 | `style <id> [icon=<choice>] [shape=<db\|queue\|store\|job\|app>] [width=<integer>] [height=<integer>] [tone=<choice>] [form=<card\|circle\|text>]` | top level | Named values for elements, and a tone for edges, so sizes and colours stand in one place. | `style component height=80` |
-| `person <id> <label> [at <place>] [in <ref>] [tech=<text>] [icon=<choice>] [shape=<db\|queue\|store\|job\|app>] [width=<integer>] [height=<integer>] [tone=<choice>] [form=<card\|circle\|text>] [status=<planned\|deprecated>] [replicas=<integer>] [span=<span>] [slot=<slot>] [style=<ref>] [mark=<ref>] [emph]` | top level | A person who uses the system, drawn as a stick figure with name and role below it. | `person customer "Customer" tech="account holder" at user/main` |
-| `system <id> <label> [at <place>] [in <ref>] [tech=<text>] [icon=<choice>] [shape=<db\|queue\|store\|job\|app>] [width=<integer>] [height=<integer>] [tone=<choice>] [form=<card\|circle\|text>] [status=<planned\|deprecated>] [replicas=<integer>] [span=<span>] [slot=<slot>] [style=<ref>] [mark=<ref>] [emph]` | top level | A software system, as a box with name and a second line. | `system shop "Web shop" tech="sells online" at core/main emph mark=E1` |
-| `container <id> <label> [at <place>] [in <ref>] [tech=<text>] [icon=<choice>] [shape=<db\|queue\|store\|job\|app>] [width=<integer>] [height=<integer>] [tone=<choice>] [form=<card\|circle\|text>] [status=<planned\|deprecated>] [replicas=<integer>] [span=<span>] [slot=<slot>] [style=<ref>] [mark=<ref>] [emph]` | top level | A container: an application or data store that runs on its own, such as a service or a database. | `container db "Database" tech="PostgreSQL" icon=postgresql at infra/data in infra` |
-| `node <id> <label> [at <place>] [in <ref>] [tech=<text>] [icon=<choice>] [shape=<db\|queue\|store\|job\|app>] [width=<integer>] [height=<integer>] [tone=<choice>] [form=<card\|circle\|text>] [status=<planned\|deprecated>] [replicas=<integer>] [span=<span>] [slot=<slot>] [style=<ref>] [mark=<ref>] [emph]` | top level | A neutral element for any level, such as a queue, a job or a layer of a pattern. | `node orders "Orders" tech="business logic" replicas=3 at web/business in cloud` |
-| `edge <from> <arrow> <to> [label] [via=<text>] [schedule=<text>] [volume=<text>] [sla=<text>] [mark=<ref>] [bundle=<word>] [lane=<grid-name>] [tone=<choice>] [style=<ref>]` | top level | An edge outside of flows, without number. | `edge abgleich => db "check inventory" schedule="daily 03:00"` |
+| `person <id> <label> [at <place>] [in <ref>] [tech=<text>] [icon=<choice>] [shape=<db\|queue\|store\|job\|app>] [width=<integer>] [height=<integer>] [tone=<choice>] [form=<card\|circle\|text>] [status=<planned\|deprecated>] [replicas=<integer>] [span=<span>] [slot=<slot>] [style=<ref>] [mark=<ref>] [area=<ref>] [emph]` | top level | A person who uses the system, drawn as a stick figure with name and role below it. | `person customer "Customer" tech="account holder" at user/main` |
+| `system <id> <label> [at <place>] [in <ref>] [tech=<text>] [icon=<choice>] [shape=<db\|queue\|store\|job\|app>] [width=<integer>] [height=<integer>] [tone=<choice>] [form=<card\|circle\|text>] [status=<planned\|deprecated>] [replicas=<integer>] [span=<span>] [slot=<slot>] [style=<ref>] [mark=<ref>] [area=<ref>] [emph]` | top level | A software system, as a box with name and a second line. | `system shop "Web shop" tech="sells online" at core/main emph mark=E1` |
+| `container <id> <label> [at <place>] [in <ref>] [tech=<text>] [icon=<choice>] [shape=<db\|queue\|store\|job\|app>] [width=<integer>] [height=<integer>] [tone=<choice>] [form=<card\|circle\|text>] [status=<planned\|deprecated>] [replicas=<integer>] [span=<span>] [slot=<slot>] [style=<ref>] [mark=<ref>] [area=<ref>] [emph]` | top level | A container: an application or data store that runs on its own, such as a service or a database. | `container db "Database" tech="PostgreSQL" icon=postgresql at infra/data in infra` |
+| `node <id> <label> [at <place>] [in <ref>] [tech=<text>] [icon=<choice>] [shape=<db\|queue\|store\|job\|app>] [width=<integer>] [height=<integer>] [tone=<choice>] [form=<card\|circle\|text>] [status=<planned\|deprecated>] [replicas=<integer>] [span=<span>] [slot=<slot>] [style=<ref>] [mark=<ref>] [area=<ref>] [emph]` | top level | A neutral element for any level, such as a queue, a job or a layer of a pattern. | `node orders "Orders" tech="business logic" replicas=3 at web/business in cloud` |
+| `edge <from> <arrow> <to> [label] [via=<text>] [schedule=<text>] [volume=<text>] [sla=<text>] [mark=<ref>] [bundle=<word>] [lane=<grid-name>] [tone=<choice>] [style=<ref>] [area=<ref>]` | top level | An edge outside of flows, without number. | `edge abgleich => db "check inventory" schedule="daily 03:00"` |
 | `flow <id> [primary] [accent]` | top level | A numbered path: its steps are indented below it. | `flow import primary` |
 | `note <text> [on <ref>]` | top level | A dashed note above an element, with a tip pointing at it. | `note "replaced in Q3" on portal` |
 | `adr <id> <question> <equals> <choice> [then] [consequence] [open=<text>]` | top level | An architecture decision in the bar below the picture: question, the chosen option after `=`, and the consequence after `=>`. | `adr E1 "How do the services coordinate?" = "Events over Kafka" => "No central coordinator"` |
+| `area <id> <label> [tone=<choice>]` | top level | A named area of the picture, such as the core or one extension of an extensible architecture. | `area kern "Kern"` |
 
 The arrows of `edge`: `->` synchronous call (filled head), `~>` asynchronous message or event (dashed, open head), `-->` dependency (dashed, open head), `=>` data flow (thick line, filled head), `--` connection without direction (no head), `<->` call in both directions (a head at each end).
 
@@ -407,23 +414,24 @@ The rules of `container` report these codes:
 A C4 component diagram (level 3): the components inside a container and what they depend on, placed in a named grid. Full reference: `dgr grammar component`.
 
 ```text
-diagram component "Title" [subtitle=<text>] [label=<text>] [look=<plain|cards|blocks|paper|columns>] [decisions=<right|below|auto>] [layout=<adaptive>] [locale=<en|de>]
+diagram component "Title" [subtitle=<text>] [label=<text>] [look=<plain|cards|blocks|paper|columns>] [decisions=<right|below|auto>] [layout=<adaptive>] [areas=<tint|outline|stripe>] [locale=<en|de>]
 ```
 
 | Line | Where | What it does | Example |
 |---|---|---|---|
 | `grid <axis> <names>` | top level | The named columns from left to right, or the rows from top to bottom. | `grid cols user,backend.1,backend.2,edge` |
 | `layer <row> <label>` | top level | Names a row in a box right of the picture, joined by one bracket for all layers; needs `layout=adaptive`. | `layer business "Business logic"` |
-| `group <id> <title> [in <ref>] [team=<text>] [heading=<top\|side>] [tag=<text>] [cover=<grid-name>] [tone=<choice>] [own] [shared] [external]` | top level | A frame around elements by responsibility; it grows from its members. | `group backend "Backend" own team="Kotlin · Team Ausleihe"` |
+| `group <id> <title> [in <ref>] [team=<text>] [heading=<top\|side>] [tag=<text>] [cover=<grid-name>] [tone=<choice>] [area=<ref>] [own] [shared] [external]` | top level | A frame around elements by responsibility; it grows from its members. | `group backend "Backend" own team="Kotlin · Team Ausleihe"` |
 | `style <id> [icon=<choice>] [shape=<db\|queue\|store\|job\|app>] [width=<integer>] [height=<integer>] [tone=<choice>] [form=<card\|circle\|text>]` | top level | Named values for elements, and a tone for edges, so sizes and colours stand in one place. | `style component height=80` |
-| `person <id> <label> [at <place>] [in <ref>] [tech=<text>] [icon=<choice>] [shape=<db\|queue\|store\|job\|app>] [width=<integer>] [height=<integer>] [tone=<choice>] [form=<card\|circle\|text>] [status=<planned\|deprecated>] [replicas=<integer>] [span=<span>] [slot=<slot>] [style=<ref>] [mark=<ref>] [emph]` | top level | A person who uses the system, drawn as a stick figure with name and role below it. | `person customer "Customer" tech="account holder" at user/main` |
-| `container <id> <label> [at <place>] [in <ref>] [tech=<text>] [icon=<choice>] [shape=<db\|queue\|store\|job\|app>] [width=<integer>] [height=<integer>] [tone=<choice>] [form=<card\|circle\|text>] [status=<planned\|deprecated>] [replicas=<integer>] [span=<span>] [slot=<slot>] [style=<ref>] [mark=<ref>] [emph]` | top level | A container: an application or data store that runs on its own, such as a service or a database. | `container db "Database" tech="PostgreSQL" icon=postgresql at infra/data in infra` |
-| `component <id> <label> [at <place>] [in <ref>] [tech=<text>] [icon=<choice>] [shape=<db\|queue\|store\|job\|app>] [width=<integer>] [height=<integer>] [tone=<choice>] [form=<card\|circle\|text>] [status=<planned\|deprecated>] [replicas=<integer>] [span=<span>] [slot=<slot>] [style=<ref>] [mark=<ref>] [emph]` | top level | A component inside a container, such as a module or an adapter. | `component api "REST API" tech="Spring Boot" icon=springboot at backend.2/main in backend` |
-| `node <id> <label> [at <place>] [in <ref>] [tech=<text>] [icon=<choice>] [shape=<db\|queue\|store\|job\|app>] [width=<integer>] [height=<integer>] [tone=<choice>] [form=<card\|circle\|text>] [status=<planned\|deprecated>] [replicas=<integer>] [span=<span>] [slot=<slot>] [style=<ref>] [mark=<ref>] [emph]` | top level | A neutral element for any level, such as a queue, a job or a layer of a pattern. | `node orders "Orders" tech="business logic" replicas=3 at web/business in cloud` |
-| `edge <from> <arrow> <to> [label] [via=<text>] [schedule=<text>] [volume=<text>] [sla=<text>] [mark=<ref>] [bundle=<word>] [lane=<grid-name>] [tone=<choice>] [style=<ref>]` | top level | An edge outside of flows, without number. | `edge abgleich => db "check inventory" schedule="daily 03:00"` |
+| `person <id> <label> [at <place>] [in <ref>] [tech=<text>] [icon=<choice>] [shape=<db\|queue\|store\|job\|app>] [width=<integer>] [height=<integer>] [tone=<choice>] [form=<card\|circle\|text>] [status=<planned\|deprecated>] [replicas=<integer>] [span=<span>] [slot=<slot>] [style=<ref>] [mark=<ref>] [area=<ref>] [emph]` | top level | A person who uses the system, drawn as a stick figure with name and role below it. | `person customer "Customer" tech="account holder" at user/main` |
+| `container <id> <label> [at <place>] [in <ref>] [tech=<text>] [icon=<choice>] [shape=<db\|queue\|store\|job\|app>] [width=<integer>] [height=<integer>] [tone=<choice>] [form=<card\|circle\|text>] [status=<planned\|deprecated>] [replicas=<integer>] [span=<span>] [slot=<slot>] [style=<ref>] [mark=<ref>] [area=<ref>] [emph]` | top level | A container: an application or data store that runs on its own, such as a service or a database. | `container db "Database" tech="PostgreSQL" icon=postgresql at infra/data in infra` |
+| `component <id> <label> [at <place>] [in <ref>] [tech=<text>] [icon=<choice>] [shape=<db\|queue\|store\|job\|app>] [width=<integer>] [height=<integer>] [tone=<choice>] [form=<card\|circle\|text>] [status=<planned\|deprecated>] [replicas=<integer>] [span=<span>] [slot=<slot>] [style=<ref>] [mark=<ref>] [area=<ref>] [emph]` | top level | A component inside a container, such as a module or an adapter. | `component api "REST API" tech="Spring Boot" icon=springboot at backend.2/main in backend` |
+| `node <id> <label> [at <place>] [in <ref>] [tech=<text>] [icon=<choice>] [shape=<db\|queue\|store\|job\|app>] [width=<integer>] [height=<integer>] [tone=<choice>] [form=<card\|circle\|text>] [status=<planned\|deprecated>] [replicas=<integer>] [span=<span>] [slot=<slot>] [style=<ref>] [mark=<ref>] [area=<ref>] [emph]` | top level | A neutral element for any level, such as a queue, a job or a layer of a pattern. | `node orders "Orders" tech="business logic" replicas=3 at web/business in cloud` |
+| `edge <from> <arrow> <to> [label] [via=<text>] [schedule=<text>] [volume=<text>] [sla=<text>] [mark=<ref>] [bundle=<word>] [lane=<grid-name>] [tone=<choice>] [style=<ref>] [area=<ref>]` | top level | An edge outside of flows, without number. | `edge abgleich => db "check inventory" schedule="daily 03:00"` |
 | `flow <id> [primary] [accent]` | top level | A numbered path: its steps are indented below it. | `flow import primary` |
 | `note <text> [on <ref>]` | top level | A dashed note above an element, with a tip pointing at it. | `note "replaced in Q3" on portal` |
 | `adr <id> <question> <equals> <choice> [then] [consequence] [open=<text>]` | top level | An architecture decision in the bar below the picture: question, the chosen option after `=`, and the consequence after `=>`. | `adr E1 "How do the services coordinate?" = "Events over Kafka" => "No central coordinator"` |
+| `area <id> <label> [tone=<choice>]` | top level | A named area of the picture, such as the core or one extension of an extensible architecture. | `area kern "Kern"` |
 
 The arrows of `edge`: `->` synchronous call (filled head), `~>` asynchronous message or event (dashed, open head), `-->` dependency (dashed, open head), `=>` data flow (thick line, filled head), `--` connection without direction (no head), `<->` call in both directions (a head at each end).
 
@@ -447,14 +455,15 @@ The rules of `component` report these codes:
 A code diagram: excerpts of real source files as highlighted cards, one below the other, with marked lines, numbered notes below each card and arrows from a call to what it calls. The files are read when the picture is built, so a renamed method fails the build instead of leaving a stale picture. Java, Kotlin, SQL, YAML, JSON and XML are highlighted. Full reference: `dgr grammar code`.
 
 ```text
-diagram code "Title" [subtitle=<text>] [locale=<en|de>]
+diagram code "Title" [subtitle=<text>] [areas=<tint|outline|stripe>] [locale=<en|de>]
 ```
 
 | Line | Where | What it does | Example |
 |---|---|---|---|
-| `source <id> <title> [src=<file>] [symbol=<word>] [region=<word>] [lines=<lineRange>] [lang=<choice>] [outline]` | top level | A card of highlighted code read from a file when the picture is built, so it shows the code as it is now and the build fails when the code it points to is gone. | `source submit "TransferService.submit" src="TransferService.java" symbol=submit` |
+| `source <id> <title> [src=<file>] [symbol=<word>] [region=<word>] [lines=<lineRange>] [lang=<choice>] [area=<ref>] [outline]` | top level | A card of highlighted code read from a file when the picture is built, so it shows the code as it is now and the build fails when the code it points to is gone. | `source submit "TransferService.submit" src="TransferService.java" symbol=submit` |
 | `mark <range> [note]` | inside `source` | Marks lines of the card with a band and a number, counted across the picture; the note stands under that number below the card. | `mark 27-30 "A second call with the same key returns the first transfer"` |
-| `link <from> <fromLine> <arrow> <to> [label]` | top level | An arrow from a line of one card to another card: this call leads there. | `link submit 34 -> publish "outbox.publish(event)"` |
+| `link <from> <fromLine> <arrow> <to> [label] [area=<ref>]` | top level | An arrow from a line of one card to another card: this call leads there. | `link submit 34 -> publish "outbox.publish(event)"` |
+| `area <id> <label> [tone=<choice>]` | top level | A named area of the picture, such as the core or one extension of an extensible architecture. | `area kern "Kern"` |
 
 The arrows of `link`: `->` leads to.
 
@@ -474,15 +483,16 @@ The rules of `code` report these codes:
 A matrix: columns, rows and one scale, with the values of the scale in the cells. The scale carries rules that are checked: `raci` asks every row for exactly one A and at least one R, `crud` every column for a C and an R, `cover` every row and column for a mark. Full reference: `dgr grammar matrix`.
 
 ```text
-diagram matrix "Title" [subtitle=<text>] [scale=<raci|crud|cover>] [cover=<rows|cols|both>] [locale=<en|de>]
+diagram matrix "Title" [subtitle=<text>] [scale=<raci|crud|cover>] [cover=<rows|cols|both>] [areas=<tint|outline|stripe>] [locale=<en|de>]
 ```
 
 | Line | Where | What it does | Example |
 |---|---|---|---|
-| `col <id> <label>` | top level | A column, such as a role, an object or a building block. | `col station "Stationsteam"` |
+| `col <id> <label> [area=<ref>]` | top level | A column, such as a role, an object or a building block. | `col station "Stationsteam"` |
 | `group <id> <label>` | top level | A band over rows that belong together, such as the steps of one process. | `group vorgang "Vorgang"` |
-| `row <id> <label> [in <ref>]` | top level | A row, such as a task, a use case or a requirement, from top to bottom in the order written. | `row ausleihen "Rad ausleihen" in vorgang` |
+| `row <id> <label> [in <ref>] [area=<ref>]` | top level | A row, such as a task, a use case or a requirement, from top to bottom in the order written. | `row ausleihen "Rad ausleihen" in vorgang` |
 | `note <text> [on <ref>]` | top level | A numbered note below the matrix. | `note "Bei Schäden über 500 Euro entscheidet die Versicherung." on schaden` |
+| `area <id> <label> [tone=<choice>]` | top level | A named area of the picture, such as the core or one extension of an extensible architecture. | `area kern "Kern"` |
 
 The rules of `matrix` report these codes:
 
@@ -503,15 +513,16 @@ The rules of `matrix` report these codes:
 A picture of a business concept with its own vocabulary: the file declares types of things and types of relations with their rules, then writes items and relations, which are checked against the declarations. A vocabulary file named with `use=`, or one of the plugin such as `terms` or `roles`, brings the declarations of a subject. Full reference: `dgr grammar concept`.
 
 ```text
-diagram concept "Title" [subtitle=<text>] [vocabulary=<terms|roles>] [arrange=<columns|layers>] [use=<file>] [locale=<en|de>]
+diagram concept "Title" [subtitle=<text>] [vocabulary=<terms|roles>] [arrange=<columns|layers>] [use=<file>] [areas=<tint|outline|stripe>] [locale=<en|de>]
 ```
 
 | Line | Where | What it does | Example |
 |---|---|---|---|
 | `type <id> <label> [shape=<box\|round\|person\|store\|doc>] [de=<text>] [explain]` | top level | A type of thing the picture shows, such as a role, a task or a document. | `type rolle "Rolle" shape=person` |
 | `link <id> <label> [from=<type-names>] [to=<type-names>] [line=<solid\|dashed\|dotted>] [head=<arrow\|open\|triangle\|diamond\|none>] [each=<from\|to\|both>] [single=<from\|to\|both>] [back=<text>] [de=<text>] [acyclic] [upward] [beside] [bare]` | top level | A type of relation between items of the types it lists. | `link fuehrt "führt aus" from=rolle to=aufgabe each=to` |
-| `item <id> <label> [is <type-name>] [status=<planned\|deprecated>]` | top level | One thing of a declared type. | `item kunde "Kunde" is rolle` |
-| `rel <from> <link> <to> [label]` | top level | One relation of a declared link from one item to another, written as a sentence: `rel kunde fuehrt ausleihen`. | `rel kunde fuehrt ausleihen` |
+| `item <id> <label> [is <type-name>] [status=<planned\|deprecated>] [area=<ref>]` | top level | One thing of a declared type. | `item kunde "Kunde" is rolle` |
+| `rel <from> <link> <to> [label] [area=<ref>]` | top level | One relation of a declared link from one item to another, written as a sentence: `rel kunde fuehrt ausleihen`. | `rel kunde fuehrt ausleihen` |
+| `area <id> <label> [tone=<choice>]` | top level | A named area of the picture, such as the core or one extension of an extensible architecture. | `area kern "Kern"` |
 
 The rules of `concept` report these codes:
 
@@ -614,4 +625,7 @@ These come from the kernel:
 | `K102` | The picture uses the icon `{icon}`, which the style table does not have. Icons: {known}. |
 | `K103` | The kind `{kind}` draws no diff pictures; remove `diff` from `variant {variant}`. Kinds with diff pictures: {allowed}. |
 | `K104` | A text of the picture reads `{text}`, but its runs read `{runs}`. This is a bug of the plugin, not a mistake in the diagram: the runs of a text join to its text. |
+| `K105` | Nothing joins the area `{area}`, so the legend would name a colour the picture does not use. Give elements, frames or lines `area={area}`, or remove the line. |
+| `K106` | The picture paints {count} areas in colour, from `{area}` on more than the {limit} a reader can tell apart. Merge areas, or leave some without `tone=` in ink. |
+| `K107` | The areas `{first}` and `{area}` share the tone `{tone}`, so the picture cannot tell them apart. Give `{area}` another tone. |
 | `K110` | The plugin `{plugin}` failed while drawing the kind `{kind}`: {error}. This is a bug, not a mistake in the diagram; please report it with the diagram at https://github.com/diagrist/diagrist/issues. |

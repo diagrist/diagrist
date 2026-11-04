@@ -1,4 +1,4 @@
-import { TONE_NAMES } from '@diagrist/core';
+import { areaAttribute, TONE_NAMES } from '@diagrist/core';
 import { arg, attr, id, oneOf, ref, statement, text } from '@diagrist/lang';
 import { implementing } from '../../spec/catalog.js';
 import { USE_CASES } from '../../spec/use-cases.js';
@@ -26,6 +26,7 @@ export const actor = statement(
         side: attr(oneOf(['left', 'right']), 'Side of the subject the actor stands on; without it Diagrist chooses.'),
         tone: tone('the figure or box'),
         mark,
+        area: areaAttribute,
       },
       flags: emph,
     },
@@ -43,7 +44,7 @@ export const subject = statement(
         arg('id', id(), 'Id that `usecase ... in` and `note ... on` use for this subject.'),
         arg('label', text(), 'Name of the system.'),
       ],
-      attributes: { tone: tone('its area') },
+      attributes: { tone: tone('its area'), area: areaAttribute },
     },
   ),
 );
@@ -83,6 +84,7 @@ export const usecase = statement(
         ),
         tone: tone('the outline'),
         mark,
+        area: areaAttribute,
       },
       flags: emph,
     },

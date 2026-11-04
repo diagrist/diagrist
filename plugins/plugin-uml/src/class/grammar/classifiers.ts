@@ -1,4 +1,4 @@
-import { TONE_NAMES } from '@diagrist/core';
+import { areaAttribute, TONE_NAMES } from '@diagrist/core';
 import { arg, attr, id, lines, oneOf, optionalArg, ref, statement, text } from '@diagrist/lang';
 import { implementing, type SpecElement } from '../../spec/catalog.js';
 import { CLASSES } from '../../spec/classes.js';
@@ -55,6 +55,7 @@ function classifier<const K extends string>(
           ),
           tone: tone('the name field'),
           mark,
+          area: areaAttribute,
         },
         flags: {
           abstract: 'An abstract classifier: the name in italics with `{abstract}` below it.',
@@ -99,7 +100,7 @@ export const packageStatement = statement(
         arg('label', text(), 'Name shown in the tab.'),
       ],
       clauses: { in: attr(ref('package'), 'The package this one is nested in.') },
-      attributes: { tone: tone('its area') },
+      attributes: { tone: tone('its area'), area: areaAttribute },
     },
   ),
 );
@@ -122,6 +123,7 @@ export const assocStatement = statement(
           attr(ref('class'), 'The association class: a class that is this association, joined dashed to the diamond.'),
         ),
         mark,
+        area: areaAttribute,
       },
       flags: { emph: 'Highlights the diamond in the accent colour.' },
     },

@@ -1,4 +1,4 @@
-import type { Tone } from '@diagrist/core';
+import { readAreas, type Tone } from '@diagrist/core';
 import type { Header, KindReading } from '@diagrist/lang';
 import { decisionOf } from '@diagrist/parts';
 import type { Behaviour, StateDiagram, Vertex, VertexKind } from './diagram.js';
@@ -56,6 +56,7 @@ function vertex(s: VertexStatement): Vertex {
     ...some<'tone', Tone>('tone', a.tone as Tone | undefined),
     ...some('mark', a.mark),
     ...some('emph', flags.emph),
+    ...some('area', a.area),
     span: s.span,
   };
 }
@@ -87,10 +88,12 @@ export function stateDiagram(reading: KindReading<StateStatement>): StateDiagram
       to: t.to,
       ...behaviour(t.attributes),
       ...some('emph', t.flags.emph),
+      ...some('area', t.attributes.area),
       span: t.span,
     })),
     internals: of('internal').map((i) => ({ state: i.state, ...behaviour(i.attributes), span: i.span })),
     notes: of('note').map((n) => ({ text: n.text, ...some('on', n.clauses.on), span: n.span })),
     decisions: of('adr').map(decisionOf),
+    areas: readAreas(s, header.attributes),
   };
 }

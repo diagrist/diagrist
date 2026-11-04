@@ -1,4 +1,4 @@
-import { TONE_NAMES } from '@diagrist/core';
+import { areaAttribute, TONE_NAMES } from '@diagrist/core';
 import { arg, attr, id, oneOf, ref, statement, text } from '@diagrist/lang';
 import { ICON_NAMES } from '../icons/index.js';
 import { place, slot, spanEnd, whole } from './values.js';
@@ -84,6 +84,7 @@ function element<const K extends ElementKeyword>(keyword: K) {
       slot: attr(slot(), 'Takes place `i` of `n` equal places in its area, like `2/3`; needs `layout=adaptive`.'),
       style: attr(ref('style'), 'A `style` whose values apply where the element sets none.'),
       mark: attr(ref('adr'), 'Id of a decision of the bar below, such as `E1`; the mark stands at the corner.'),
+      area: areaAttribute,
     },
     flags: { emph: 'Draws the border thick: the core decision of the picture.' },
   });

@@ -161,6 +161,7 @@ function paperChanges(f: LookFonts): StyleRule[] {
  */
 export const PAPER_PAINT: Paint = {
   strokes: PAPER_STROKES,
+  areaColors: { ink: [PAPER.ink], outline: [PAPER.ink2, PAPER.outline], surface: [PAPER.node, PAPER.core] },
   roles: PAPER_ROLES,
   rules: paperRules,
   changes: paperChanges,

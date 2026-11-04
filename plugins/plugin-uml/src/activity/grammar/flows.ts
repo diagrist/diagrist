@@ -1,3 +1,4 @@
+import { lineAreaAttribute } from '@diagrist/core';
 import { arg, arrow, attr, number, optionalArg, ref, statement, text } from '@diagrist/lang';
 import { ACTIVITIES } from '../../spec/activities.js';
 import { implementing, type SpecElement } from '../../spec/catalog.js';
@@ -44,6 +45,7 @@ export const go = statement(
         ),
       ],
       attributes: {
+        area: lineAreaAttribute,
         pin: implementing(
           { uml: [ACTIVITIES.pin] },
           attr(

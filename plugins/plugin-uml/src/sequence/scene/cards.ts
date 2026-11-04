@@ -73,11 +73,17 @@ export function cardHeads(
   });
 }
 
-/** Tone of the lifeline a bar lies on: the one whose head centre is nearest. */
-function toneAt(x: number, heads: readonly SeqHeadArt[], participants: ReadonlyMap<string, Participant>): Tone {
+/** The head whose centre is nearest to `x`: the lifeline a bar at `x` lies on. */
+export function nearestHead(x: number, heads: readonly SeqHeadArt[]): SeqHeadArt | undefined {
   let best: SeqHeadArt | undefined;
   for (const h of heads)
     if (!best || Math.abs(h.rect.x + h.rect.w / 2 - x) < Math.abs(best.rect.x + best.rect.w / 2 - x)) best = h;
+  return best;
+}
+
+/** Tone of the lifeline a bar lies on. */
+function toneAt(x: number, heads: readonly SeqHeadArt[], participants: ReadonlyMap<string, Participant>): Tone {
+  const best = nearestHead(x, heads);
   return toneOf(best === undefined ? undefined : participants.get(best.id));
 }
 

@@ -1,4 +1,4 @@
-import { TONE_NAMES } from '@diagrist/core';
+import { areaAttribute, TONE_NAMES } from '@diagrist/core';
 import { arg, attr, id, oneOf, ref, statement, text } from '@diagrist/lang';
 import { LEVEL_ELEMENTS, type Level, LOOK_ATTRIBUTES } from './elements.js';
 import { gridName, gridNames } from './values.js';
@@ -32,6 +32,7 @@ export const group = statement('group', {
     tag: attr(text(), 'A tag right in the frame, such as `"CLOSED"` for a closed layer.'),
     cover: attr(gridName(), 'A column the frame also covers, at the height of its members; needs `layout=adaptive`.'),
     tone: attr(oneOf(TONE_NAMES), 'Fills the frame lightly in this tone; in `look=blocks` the colour of its area.'),
+    area: areaAttribute,
   },
   flags: {
     own: 'Our own system: a solid frame on a light area.',

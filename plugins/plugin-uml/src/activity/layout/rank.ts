@@ -45,7 +45,7 @@ function compact(layer: ReadonlyMap<string, number>): Map<string, number> {
  * Lane per node: its own from `in`, else that of its first predecessor with a lane, else that of its first
  * successor. Start, ends and bars without `in` so stand beside their neighbour.
  */
-function lanes(g: Graph): Map<string, number> {
+export function nodeLanes(g: Graph): Map<string, number> {
   const index = new Map(g.partitions.map((p, i) => [p.id, i]));
   const lane = new Map<string, number>();
   for (const n of g.nodes) {
@@ -93,7 +93,7 @@ export function rankActivity(g: Graph, extra: readonly LayerEdge[] = []): Activi
   const known = new Set(ids);
   const valid = g.flows.filter((f) => known.has(f.from) && known.has(f.to));
   const proper = valid.filter((f) => f.from !== f.to);
-  const laneOf = lanes(g);
+  const laneOf = nodeLanes(g);
   const guarded = proper.filter(isHandlerFlow);
   const shared = new Set<GraphFlow>(guarded.filter((f, k) => guarded.findIndex((h) => h.to === f.to) < k));
   const base: LayerEdge[] = [

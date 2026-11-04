@@ -8,6 +8,7 @@ import {
   outline,
   type Selection,
 } from '@diagrist/code';
+import { type Areas, readAreas } from '@diagrist/core';
 import type { KindReading, Span } from '@diagrist/lang';
 import type { CodeStatement } from './grammar/spec.js';
 
@@ -51,6 +52,8 @@ export interface Card {
   readonly lines: readonly CodeLine[];
   readonly marks: readonly Mark[];
   readonly missing?: Missing;
+  /** The area the card belongs to (ADR 0033). */
+  readonly area?: string;
   readonly span: Span;
 }
 
@@ -60,6 +63,8 @@ export interface Link {
   readonly line: number;
   readonly to: string;
   readonly label?: string;
+  /** The area the link names itself; the scene falls back to the areas of its cards. */
+  readonly area?: string;
   readonly span: Span;
 }
 
@@ -69,6 +74,7 @@ export interface CodeModel {
   readonly subtitle?: string;
   readonly cards: readonly Card[];
   readonly links: readonly Link[];
+  readonly areas: Areas;
 }
 
 /** The selection a card names first, in the order of `SELECTIONS`, and how it is written for a message. */
@@ -100,6 +106,7 @@ function card(s: Of<'source'>, marks: readonly Mark[]): Card {
     lines: shown,
     marks,
     ...(missing === undefined ? {} : { missing }),
+    ...(s.attributes.area === undefined ? {} : { area: s.attributes.area }),
     span: s.span,
   };
 }
@@ -121,12 +128,13 @@ export function codeModel(reading: KindReading<CodeStatement>): CodeModel {
     });
   const links = reading.statements
     .filter((s): s is Of<'link'> => s.keyword === 'link')
-    .map(({ from, fromLine, to, label, span }) => ({
+    .map(({ from, fromLine, to, label, attributes, span }) => ({
       from,
       line: fromLine,
       to,
       span,
       ...(label === undefined ? {} : { label }),
+      ...(attributes.area === undefined ? {} : { area: attributes.area }),
     }));
   const subtitle = reading.header?.attributes.subtitle;
   return {
@@ -134,5 +142,6 @@ export function codeModel(reading: KindReading<CodeStatement>): CodeModel {
     ...(typeof subtitle === 'string' ? { subtitle } : {}),
     cards,
     links,
+    areas: readAreas(reading.statements, reading.header?.attributes),
   };
 }

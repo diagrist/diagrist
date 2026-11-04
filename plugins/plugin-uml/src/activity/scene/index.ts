@@ -1,9 +1,11 @@
-import { type Anchors, domId, type Scene, type Shape } from '@diagrist/core';
-import { headerShapes, markShapes, stripShapes, type Words } from '@diagrist/parts';
+import { type Anchors, domId, markAreas, type Scene, type Shape } from '@diagrist/core';
+import { headerShapes, markShapes, stripShapes, type Words, withAreaLegend } from '@diagrist/parts';
+import { activityAreas } from '../areas.js';
 import { isHandlerFlow } from '../layout/graph.js';
 import type { ActivityLayout, PictureTexts } from '../layout/index.js';
 import type { LaneArt } from '../layout/lanes.js';
 import type { ActivityModel } from '../model/index.js';
+import { activityAreaMarks, usedAreas } from './areas.js';
 import { edgePath, headPath } from './edges.js';
 import { nodeShapes } from './nodes.js';
 
@@ -34,7 +36,7 @@ function laneShapes(lanes: readonly LaneArt[], m: ActivityModel): Shape[] {
 
 /**
  * The scene of an activity diagram in drawing order: title, lanes, regions with their names, nodes, edges, guards,
- * marks and the decision bar.
+ * marks and the decision bar. Nodes, lanes and edges of a coloured area are marked with its tone (ADR 0033).
  */
 export function activityScene(l: ActivityLayout, m: ActivityModel, words: Words & PictureTexts): Scene {
   const cards = m.diagram.look === 'cards';
@@ -72,7 +74,15 @@ export function activityScene(l: ActivityLayout, m: ActivityModel, words: Words 
     ...l.marks.map((x): Shape => ({ kind: 'group', children: markShapes(x.id, x.x, x.y) })),
     ...stripShapes(l.strip, words),
   ];
-  return { width: l.width, height: l.height, title: m.diagram.title, children };
+  const areas = activityAreas(m);
+  const scene: Scene = {
+    width: l.width,
+    height: l.height,
+    title: m.diagram.title,
+    areas: m.diagram.areas.paint,
+    children: markAreas(children, activityAreaMarks(m, l, areas)),
+  };
+  return withAreaLegend(scene, m.diagram.areas, usedAreas(m, areas), cards ? 'card' : 'shape');
 }
 
 /** Nodes, regions as groups, and edges in drawing order; a guard is the label of its edge. */

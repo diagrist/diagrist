@@ -1,4 +1,4 @@
-import { localeAttribute } from '@diagrist/core';
+import { AREA_STATEMENT, areasAttribute, localeAttribute } from '@diagrist/core';
 import { attr, type Infer, kind, oneOf, text } from '@diagrist/lang';
 import { adr } from '@diagrist/parts';
 import { DEFAULT_LOOK, LOOK_NAMES, LOOKS, type LookName } from '../looks/index.js';
@@ -22,6 +22,7 @@ const header = {
     oneOf(['adaptive']),
     'Columns grow to their content and edges find their own way around obstacles; without it the grid is fixed.',
   ),
+  areas: areasAttribute,
   locale: localeAttribute,
 };
 
@@ -41,7 +42,7 @@ const DOCS: Readonly<Record<Level, string>> = {
 function statementsOf(level: Level) {
   const { edge, flow } = edgeTables(level);
   const elements = LEVEL_ELEMENTS[level].map((keyword) => ELEMENT_TABLES[keyword]);
-  return [grid, layer, group, style, ...elements, edge, flow, noteTable(level), adr] as const;
+  return [grid, layer, group, style, ...elements, edge, flow, noteTable(level), adr, AREA_STATEMENT] as const;
 }
 
 /** The statement tables of one C4 level: the same tables for all levels, the elements as the level allows. */

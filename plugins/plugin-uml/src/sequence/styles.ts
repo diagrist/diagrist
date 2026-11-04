@@ -132,9 +132,11 @@ const ROLES: Record<string, RoleStyle> = {
   ...TONED,
 };
 
-/** The style table of sequence diagrams: the kernel's standard look plus the sequence rules (ADR 0010). */
-export const SEQUENCE_STYLES: Styles = standardStyles({
-  roles: ROLES,
-  rules: [...BEFORE, ...SEQUENCE, ...AFTER],
-  fonts: FONTS,
-});
+/**
+ * The style table of sequence diagrams: the kernel's standard look plus the sequence rules (ADR 0010). An area also
+ * repaints the grey of the dashed lifeline, which belongs to the element as much as its head (ADR 0033).
+ */
+export const SEQUENCE_STYLES: Styles = {
+  ...standardStyles({ roles: ROLES, rules: [...BEFORE, ...SEQUENCE, ...AFTER], fonts: FONTS }),
+  areaColors: { ink: [c.stroke, c.note], outline: [c.border], surface: [c.fill] },
+};

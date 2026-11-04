@@ -1,8 +1,8 @@
 import type { Locale } from '@diagrist/lang';
-import { WORDS } from '@diagrist/parts';
+import { areaSentences, WORDS } from '@diagrist/parts';
 import type { ClassRelation, NaryAssociation } from '../diagram.js';
 import { parseMember } from '../members.js';
-import type { ClassModel } from '../model.js';
+import { areaOf, type ClassModel } from '../model.js';
 import type { ClassProse, NaryEnd } from './prose.js';
 import { CLASS_NAME, CLASS_PROSE } from './texts.js';
 
@@ -24,6 +24,16 @@ function naryLine(m: ClassModel, a: NaryAssociation, p: ClassProse, name: (id: s
       };
     });
   return p.nary(a.label, ends, a.via === undefined ? undefined : name(a.via));
+}
+
+/** The names of the classifiers of each area, by the area's id (ADR 0033). */
+function membersByArea(m: ClassModel): Map<string, string[]> {
+  const out = new Map<string, string[]>();
+  for (const c of m.classifiers.values()) {
+    const area = areaOf(m, c.id);
+    if (area !== undefined) out.set(area, [...(out.get(area) ?? []), c.label]);
+  }
+  return out;
 }
 
 /**
@@ -80,5 +90,6 @@ export function describeClass(m: ClassModel, locale: Locale): string {
   }
   for (const n of d.notes) if (n.on !== undefined) lines.push(p.note(name(n.on), n.text));
   for (const x of d.decisions) lines.push(WORDS[locale].decision(x));
+  lines.push(...areaSentences(d.areas, membersByArea(m), locale));
   return lines.join('\n');
 }
