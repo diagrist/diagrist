@@ -56,7 +56,7 @@ describe('concept layout', () => {
     expect(concept('').svg).toBeDefined();
   });
 
-  it('leaves and enters items in the middle of their sides, and bends halfway between the layers', () => {
+  it('draws relations of one link from one item as a fan: one trunk from the middle, a branch into the middle of each', () => {
     const result = concept(
       '',
       'type t "T"',
@@ -70,11 +70,38 @@ describe('concept layout', () => {
     const [first, second] = result.anchors?.edges ?? [];
     const a = rectOf(result, 'a');
     const b = rectOf(result, 'b');
+    const c = rectOf(result, 'c');
     expect(first?.points.at(-1)).toEqual([b.x + b.w / 2, b.y]);
-    const middle = a.x + a.w / 2;
-    const [left, right] = [first?.points[0]?.[0] ?? 0, second?.points[0]?.[0] ?? 0];
-    expect(left).toBeLessThan(middle);
-    expect(right - middle).toBeCloseTo(middle - left);
+    expect(second?.points.at(-1)).toEqual([c.x + c.w / 2, c.y]);
+    expect(first?.points[0]).toEqual([a.x + a.w / 2, a.y + a.h]);
+    expect(second?.points[0]).toEqual(first?.points[0]);
     expect(first?.points).toHaveLength(4);
+  });
+});
+
+describe('arrangement', () => {
+  const extensions = [
+    'type m "Modul"',
+    'link uses "nutzt" from=m to=m',
+    'area kern "Kern"',
+    'area pay "Zahlung" tone=green',
+    'area fix "Wartung" tone=orange',
+    'item a "Ausleihe" is m area=kern',
+    'item b "Konto" is m area=kern',
+    'item p "Tarif" is m area=pay',
+    'item w "Schaden" is m area=fix',
+    'rel a uses b',
+    'rel p uses b',
+    'rel w uses a',
+  ];
+
+  it('lays out a core extended by two areas as a hub, with the core in a frame headed by its name', () => {
+    const svg = concept('locale=de', ...extensions).svg ?? '';
+    expect(svg).toMatch(/<rect [^>]*class="frame"/);
+    expect(svg).toContain('>Kern</text>');
+  });
+
+  it('keeps layers when asked, and has no frame then', () => {
+    expect(concept('arrange=layers', ...extensions).svg).not.toMatch(/<rect [^>]*class="frame"/);
   });
 });

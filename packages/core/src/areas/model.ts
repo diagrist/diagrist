@@ -6,6 +6,8 @@ export interface Area {
   readonly id: string;
   readonly label: string;
   readonly tone?: AreaTone;
+  /** Marked as the core the other areas extend (`core`). */
+  readonly core?: boolean;
   readonly span: Span;
 }
 
@@ -22,6 +24,7 @@ interface Loose {
   readonly label?: unknown;
   readonly span?: Span;
   readonly attributes?: Readonly<Record<string, unknown>>;
+  readonly flags?: Readonly<Record<string, unknown>>;
   readonly children?: readonly unknown[];
   readonly lines?: readonly unknown[];
 }
@@ -38,6 +41,7 @@ export function declaredAreas(statements: readonly unknown[]): Area[] {
         id: s.id as string,
         label: typeof s.label === 'string' ? s.label : '',
         ...(tone === undefined ? {} : { tone }),
+        ...(s.flags?.core === true ? { core: true } : {}),
         span: s.span ?? DEFAULT_SPAN,
       };
     });

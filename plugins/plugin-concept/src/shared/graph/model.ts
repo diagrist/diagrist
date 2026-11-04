@@ -34,7 +34,7 @@ export interface Graph {
   readonly items: readonly Item[];
   readonly relations: readonly Relation[];
   /** How the items stand: a column per type, or layers along the relations; left out, columns for several types. */
-  readonly arrange?: 'columns' | 'layers';
+  readonly arrange?: 'columns' | 'layers' | 'hub';
   /** The areas of the picture (ADR 0033); a picture without the statement `area` has none. */
   readonly areas?: Areas;
 }

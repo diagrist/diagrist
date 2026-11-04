@@ -79,7 +79,7 @@ diagram sequence "Title" [subtitle=<text>] [look=<plain|cards>] [areas=<tint|out
 | `duration <from> <to> <text>` | top level | A duration constraint between two messages with `id=`: a bracket from the first to the second, left of the lifeline both touch when there is room, otherwise mirrored to the right or at the left edge. | `duration request response "≤ 300 ms"` |
 | `time <at> <text>` | top level | A time constraint of one message with `id=`: a tick at its height left of its lifeline or at the left edge, the text in `{...}`. | `time request "t = now"` |
 | `adr <id> <question> <equals> <choice> [then] [consequence] [open=<text>]` | top level | An architecture decision in the bar below the picture: question, the chosen option after `=`, and the consequence after `=>`. | `adr E1 "How do the services coordinate?" = "Events over Kafka" => "No central coordinator"` |
-| `area <id> <label> [tone=<choice>]` | top level | A named area of the picture, such as the core or one extension of an extensible architecture. | `area kern "Kern"` |
+| `area <id> <label> [tone=<choice>] [core]` | top level | A named area of the picture, such as the core or one extension of an extensible architecture. | `area kern "Kern"` |
 
 The arrows of `msg`: `->` synchronous call (filled head), `~>` asynchronous message (open head), `-->` reply (dashed, open head).
 
@@ -127,7 +127,7 @@ diagram usecase "Title" [subtitle=<text>] [look=<plain|cards>] [direction=<down|
 | `rel <from> <arrow> <to> [label] [area=<ref>] [source=<multiplicity>] [card=<multiplicity>] [when=<text>] [at=<text>] [include] [extend] [emph]` | top level | A relation, read from `from` to `to`. | `rel customer -- order source=1 card=0..*` |
 | `note <text> [on <ref>]` | top level | A comment on an actor, a use case or a subject: a box with a folded corner at a free spot nearby, joined to it by a dashed line. | `note "Only private customers" on shop` |
 | `adr <id> <question> <equals> <choice> [then] [consequence] [open=<text>]` | top level | An architecture decision in the bar below the picture: question, the chosen option after `=`, and the consequence after `=>`. | `adr E1 "How do the services coordinate?" = "Events over Kafka" => "No central coordinator"` |
-| `area <id> <label> [tone=<choice>]` | top level | A named area of the picture, such as the core or one extension of an extensible architecture. | `area kern "Kern"` |
+| `area <id> <label> [tone=<choice>] [core]` | top level | A named area of the picture, such as the core or one extension of an extensible architecture. | `area kern "Kern"` |
 
 The arrows of `rel`: `--` association between an actor and a use case, `-|>` generalization from the special to the general actor or use case, hollow triangle at the general one, `-->` include or extend between two use cases, dashed with an open head; needs the flag `include` or `extend`.
 
@@ -181,7 +181,7 @@ diagram activity "Title" [subtitle=<text>] [look=<plain|cards>] [areas=<tint|out
 | `go <from> <arrow> <to> [guard] [area=<ref>] [pin=<text>] [weight=<number>] [else]` | top level | An activity edge from `from` to `to`. | `go start -> order` |
 | `handler <protected> <arrow> <handler> <exception>` | top level | An exception handler: when the protected action throws an exception of the type, the handler action takes over, and the flow goes on at the output of the protected action. | `handler capture -> open "Direct debit refused"` |
 | `adr <id> <question> <equals> <choice> [then] [consequence] [open=<text>]` | top level | An architecture decision in the bar below the picture: question, the chosen option after `=`, and the consequence after `=>`. | `adr E1 "How do the services coordinate?" = "Events over Kafka" => "No central coordinator"` |
-| `area <id> <label> [tone=<choice>]` | top level | A named area of the picture, such as the core or one extension of an extensible architecture. | `area kern "Kern"` |
+| `area <id> <label> [tone=<choice>] [core]` | top level | A named area of the picture, such as the core or one extension of an extensible architecture. | `area kern "Kern"` |
 
 The arrows of `go`: `->` control flow, `=>` object flow, with an object node or pin at one end at least, `~>` interrupting edge out of an interruptible region, drawn with a lightning bolt.
 
@@ -237,7 +237,7 @@ diagram class "Title" [subtitle=<text>] [look=<plain|cards>] [areas=<tint|outlin
 | `rel <from> <arrow> <to> [label] [area=<ref>] [source=<multiplicity>] [card=<multiplicity>] [role=<text>] [srole=<text>] [nonav=<from\|to\|both>] [class=<ref>] [import] [access] [emph]` | top level | A relation between classifiers, read from `from` to `to`; the arrow says which (see the arrows). | `rel customer -- order "places" source=1 card=0..*` |
 | `note <text> [on <ref>]` | top level | A comment on a classifier: a dashed box above it with a tip down to it, below it when lines run above. | `note "Exactly one lecturer per lesson" on lecturer` |
 | `adr <id> <question> <equals> <choice> [then] [consequence] [open=<text>]` | top level | An architecture decision in the bar below the picture: question, the chosen option after `=`, and the consequence after `=>`. | `adr E1 "How do the services coordinate?" = "Events over Kafka" => "No central coordinator"` |
-| `area <id> <label> [tone=<choice>]` | top level | A named area of the picture, such as the core or one extension of an extensible architecture. | `area kern "Kern"` |
+| `area <id> <label> [tone=<choice>] [core]` | top level | A named area of the picture, such as the core or one extension of an extensible architecture. | `area kern "Kern"` |
 
 The arrows of `rel`: `--` association, navigability open at both ends, `->` directed association, navigable towards `to` (open head there), `<->` association navigable at both ends (open heads at both), `-->` dependency, dashed with an open head at `to`; between packages with `import` or `access`, `-|>` generalization: `from` is a special kind of `to`, hollow triangle at `to`, `--|>` realization: `from` implements the interface `to`, dashed with a hollow triangle, `o--` aggregation: `from` is the whole, hollow diamond at `from`, `*--` composition: `from` is the whole that owns its parts, filled diamond at `from`.
 
@@ -291,7 +291,7 @@ diagram state "Title" [subtitle=<text>] [look=<plain|cards>] [direction=<down|ri
 | `internal <state> [on=<text>] [when=<text>] [do=<text>]` | top level | An internal transition: a line `trigger [guard] / effect` in the compartment of its state. | `internal open on="change item" do="recalculate"` |
 | `note <text> [on <ref>]` | top level | A comment on a vertex: a dashed box above it with a tip down to it, below it when lines run above. | `note "Only for new customers" on check` |
 | `adr <id> <question> <equals> <choice> [then] [consequence] [open=<text>]` | top level | An architecture decision in the bar below the picture: question, the chosen option after `=`, and the consequence after `=>`. | `adr E1 "How do the services coordinate?" = "Events over Kafka" => "No central coordinator"` |
-| `area <id> <label> [tone=<choice>]` | top level | A named area of the picture, such as the core or one extension of an extensible architecture. | `area kern "Kern"` |
+| `area <id> <label> [tone=<choice>] [core]` | top level | A named area of the picture, such as the core or one extension of an extensible architecture. | `area kern "Kern"` |
 
 The arrows of `go`: `->` transition, with an open arrowhead at `to`.
 
@@ -349,7 +349,7 @@ diagram context "Title" [subtitle=<text>] [label=<text>] [look=<plain|cards|bloc
 | `flow <id> [primary] [accent]` | top level | A numbered path: its steps are indented below it. | `flow import primary` |
 | `note <text> [on <ref>]` | top level | A dashed note above an element, with a tip pointing at it. | `note "replaced in Q3" on portal` |
 | `adr <id> <question> <equals> <choice> [then] [consequence] [open=<text>]` | top level | An architecture decision in the bar below the picture: question, the chosen option after `=`, and the consequence after `=>`. | `adr E1 "How do the services coordinate?" = "Events over Kafka" => "No central coordinator"` |
-| `area <id> <label> [tone=<choice>]` | top level | A named area of the picture, such as the core or one extension of an extensible architecture. | `area kern "Kern"` |
+| `area <id> <label> [tone=<choice>] [core]` | top level | A named area of the picture, such as the core or one extension of an extensible architecture. | `area kern "Kern"` |
 
 The arrows of `edge`: `->` synchronous call (filled head), `~>` asynchronous message or event (dashed, open head), `-->` dependency (dashed, open head), `=>` data flow (thick line, filled head), `--` connection without direction (no head), `<->` call in both directions (a head at each end).
 
@@ -390,7 +390,7 @@ diagram container "Title" [subtitle=<text>] [label=<text>] [look=<plain|cards|bl
 | `flow <id> [primary] [accent]` | top level | A numbered path: its steps are indented below it. | `flow import primary` |
 | `note <text> [on <ref>]` | top level | A dashed note above an element, with a tip pointing at it. | `note "replaced in Q3" on portal` |
 | `adr <id> <question> <equals> <choice> [then] [consequence] [open=<text>]` | top level | An architecture decision in the bar below the picture: question, the chosen option after `=`, and the consequence after `=>`. | `adr E1 "How do the services coordinate?" = "Events over Kafka" => "No central coordinator"` |
-| `area <id> <label> [tone=<choice>]` | top level | A named area of the picture, such as the core or one extension of an extensible architecture. | `area kern "Kern"` |
+| `area <id> <label> [tone=<choice>] [core]` | top level | A named area of the picture, such as the core or one extension of an extensible architecture. | `area kern "Kern"` |
 
 The arrows of `edge`: `->` synchronous call (filled head), `~>` asynchronous message or event (dashed, open head), `-->` dependency (dashed, open head), `=>` data flow (thick line, filled head), `--` connection without direction (no head), `<->` call in both directions (a head at each end).
 
@@ -431,7 +431,7 @@ diagram component "Title" [subtitle=<text>] [label=<text>] [look=<plain|cards|bl
 | `flow <id> [primary] [accent]` | top level | A numbered path: its steps are indented below it. | `flow import primary` |
 | `note <text> [on <ref>]` | top level | A dashed note above an element, with a tip pointing at it. | `note "replaced in Q3" on portal` |
 | `adr <id> <question> <equals> <choice> [then] [consequence] [open=<text>]` | top level | An architecture decision in the bar below the picture: question, the chosen option after `=`, and the consequence after `=>`. | `adr E1 "How do the services coordinate?" = "Events over Kafka" => "No central coordinator"` |
-| `area <id> <label> [tone=<choice>]` | top level | A named area of the picture, such as the core or one extension of an extensible architecture. | `area kern "Kern"` |
+| `area <id> <label> [tone=<choice>] [core]` | top level | A named area of the picture, such as the core or one extension of an extensible architecture. | `area kern "Kern"` |
 
 The arrows of `edge`: `->` synchronous call (filled head), `~>` asynchronous message or event (dashed, open head), `-->` dependency (dashed, open head), `=>` data flow (thick line, filled head), `--` connection without direction (no head), `<->` call in both directions (a head at each end).
 
@@ -463,7 +463,7 @@ diagram code "Title" [subtitle=<text>] [areas=<tint|outline|stripe>] [locale=<en
 | `source <id> <title> [src=<file>] [symbol=<word>] [region=<word>] [lines=<lineRange>] [lang=<choice>] [area=<ref>] [outline]` | top level | A card of highlighted code read from a file when the picture is built, so it shows the code as it is now and the build fails when the code it points to is gone. | `source submit "TransferService.submit" src="TransferService.java" symbol=submit` |
 | `mark <range> [note]` | inside `source` | Marks lines of the card with a band and a number, counted across the picture; the note stands under that number below the card. | `mark 27-30 "A second call with the same key returns the first transfer"` |
 | `link <from> <fromLine> <arrow> <to> [label] [area=<ref>]` | top level | An arrow from a line of one card to another card: this call leads there. | `link submit 34 -> publish "outbox.publish(event)"` |
-| `area <id> <label> [tone=<choice>]` | top level | A named area of the picture, such as the core or one extension of an extensible architecture. | `area kern "Kern"` |
+| `area <id> <label> [tone=<choice>] [core]` | top level | A named area of the picture, such as the core or one extension of an extensible architecture. | `area kern "Kern"` |
 
 The arrows of `link`: `->` leads to.
 
@@ -492,7 +492,7 @@ diagram matrix "Title" [subtitle=<text>] [scale=<raci|crud|cover>] [cover=<rows|
 | `group <id> <label>` | top level | A band over rows that belong together, such as the steps of one process. | `group vorgang "Vorgang"` |
 | `row <id> <label> [in <ref>] [area=<ref>]` | top level | A row, such as a task, a use case or a requirement, from top to bottom in the order written. | `row ausleihen "Rad ausleihen" in vorgang` |
 | `note <text> [on <ref>]` | top level | A numbered note below the matrix. | `note "Bei Schäden über 500 Euro entscheidet die Versicherung." on schaden` |
-| `area <id> <label> [tone=<choice>]` | top level | A named area of the picture, such as the core or one extension of an extensible architecture. | `area kern "Kern"` |
+| `area <id> <label> [tone=<choice>] [core]` | top level | A named area of the picture, such as the core or one extension of an extensible architecture. | `area kern "Kern"` |
 
 The rules of `matrix` report these codes:
 
@@ -513,7 +513,7 @@ The rules of `matrix` report these codes:
 A picture of a business concept with its own vocabulary: the file declares types of things and types of relations with their rules, then writes items and relations, which are checked against the declarations. A vocabulary file named with `use=`, or one of the plugin such as `terms` or `roles`, brings the declarations of a subject. Full reference: `dgr grammar concept`.
 
 ```text
-diagram concept "Title" [subtitle=<text>] [vocabulary=<terms|roles>] [arrange=<columns|layers>] [use=<file>] [areas=<tint|outline|stripe>] [locale=<en|de>]
+diagram concept "Title" [subtitle=<text>] [vocabulary=<terms|roles>] [arrange=<columns|layers|hub>] [use=<file>] [areas=<tint|outline|stripe>] [locale=<en|de>]
 ```
 
 | Line | Where | What it does | Example |
@@ -522,7 +522,7 @@ diagram concept "Title" [subtitle=<text>] [vocabulary=<terms|roles>] [arrange=<c
 | `link <id> <label> [from=<type-names>] [to=<type-names>] [line=<solid\|dashed\|dotted>] [head=<arrow\|open\|triangle\|diamond\|none>] [each=<from\|to\|both>] [single=<from\|to\|both>] [back=<text>] [de=<text>] [acyclic] [upward] [beside] [bare]` | top level | A type of relation between items of the types it lists. | `link fuehrt "führt aus" from=rolle to=aufgabe each=to` |
 | `item <id> <label> [is <type-name>] [status=<planned\|deprecated>] [area=<ref>]` | top level | One thing of a declared type. | `item kunde "Kunde" is rolle` |
 | `rel <from> <link> <to> [label] [area=<ref>]` | top level | One relation of a declared link from one item to another, written as a sentence: `rel kunde fuehrt ausleihen`. | `rel kunde fuehrt ausleihen` |
-| `area <id> <label> [tone=<choice>]` | top level | A named area of the picture, such as the core or one extension of an extensible architecture. | `area kern "Kern"` |
+| `area <id> <label> [tone=<choice>] [core]` | top level | A named area of the picture, such as the core or one extension of an extensible architecture. | `area kern "Kern"` |
 
 The rules of `concept` report these codes:
 

@@ -58,6 +58,8 @@ const ROLES: Readonly<Record<string, RoleStyle>> = {
   head: one('label-group'),
   verb: one('label'),
   headRule: one('head-rule'),
+  coreFrame: one('frame'),
+  coreHead: one('label-group'),
 };
 
 /** Hollow heads for broader terms and wholes, filled with the canvas so the line ends at their outline. */

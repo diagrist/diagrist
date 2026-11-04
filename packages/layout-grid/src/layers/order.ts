@@ -1,6 +1,9 @@
 type Layers = string[][];
 type Adjacency = ReadonlyMap<string, readonly string[]>;
 
+/** What an order of the layers costs; lower is better. `layerCost` unless the caller brings its own. */
+export type OrderCost = (layers: Layers, adj: Adjacency, layerOf: ReadonlyMap<string, number>) => number;
+
 const SWEEPS = 8;
 
 function dfsOrder(nodes: readonly string[], adj: Adjacency): Map<string, number> {
@@ -51,14 +54,14 @@ function sweep(layers: Layers, adj: Adjacency, layerOf: ReadonlyMap<string, numb
 }
 
 /** Swaps neighbours as long as that lowers the cost. */
-function polish(layers: Layers, adj: Adjacency, layerOf: ReadonlyMap<string, number>): Layers {
-  let current = layerCost(layers, adj, layerOf);
+function polish(layers: Layers, adj: Adjacency, layerOf: ReadonlyMap<string, number>, cost: OrderCost): Layers {
+  let current = cost(layers, adj, layerOf);
   for (let improved = true; improved; ) {
     improved = false;
     for (const layer of layers)
       for (let i = 0; i + 1 < layer.length; i++) {
         swap(layer, i);
-        const next = layerCost(layers, adj, layerOf);
+        const next = cost(layers, adj, layerOf);
         if (next < current) {
           current = next;
           improved = true;
@@ -75,8 +78,8 @@ function swap(layer: string[], i: number): void {
 }
 
 /** Moves each node to the place in its layer where the cost is lowest, as long as that lowers it. */
-function sift(layers: Layers, adj: Adjacency, layerOf: ReadonlyMap<string, number>): Layers {
-  let current = layerCost(layers, adj, layerOf);
+function sift(layers: Layers, adj: Adjacency, layerOf: ReadonlyMap<string, number>, cost: OrderCost): Layers {
+  let current = cost(layers, adj, layerOf);
   for (let improved = true; improved; ) {
     improved = false;
     for (const layer of layers)
@@ -84,19 +87,19 @@ function sift(layers: Layers, adj: Adjacency, layerOf: ReadonlyMap<string, numbe
         const from = layer.indexOf(n);
         layer.splice(from, 1);
         let best = from;
-        let cost = Number.POSITIVE_INFINITY;
+        let lowest = Number.POSITIVE_INFINITY;
         for (let to = 0; to <= layer.length; to++) {
           layer.splice(to, 0, n);
-          const c = layerCost(layers, adj, layerOf);
-          if (c < cost || (c === cost && to === from)) {
-            cost = c;
+          const c = cost(layers, adj, layerOf);
+          if (c < lowest || (c === lowest && to === from)) {
+            lowest = c;
             best = to;
           }
           layer.splice(to, 1);
         }
         layer.splice(best, 0, n);
-        if (cost < current) {
-          current = cost;
+        if (lowest < current) {
+          current = lowest;
           improved = true;
         }
       }
@@ -124,13 +127,14 @@ export function orderLayers(
   layerOf: ReadonlyMap<string, number>,
   adj: Adjacency,
   thorough = false,
+  cost: OrderCost = layerCost,
 ): Layers {
   const start = dfsOrder(nodes, adj);
   const base = filled(
     [...nodes].sort((a, b) => at(start, a) - at(start, b)),
     layerOf,
   );
-  if (!thorough) return improve(base, adj, layerOf, true);
+  if (!thorough) return improve(base, adj, layerOf, true, cost);
   const turned = base.flatMap((layer, l) =>
     layer.length < 2 ? [] : [base.map((other, k) => (k === l ? [...other].reverse() : [...other]))],
   );
@@ -142,26 +146,34 @@ export function orderLayers(
           adj,
           layerOf,
           down,
+          cost,
         ),
         adj,
         layerOf,
+        cost,
       ),
     ),
   );
-  const costs = runs.map((r) => layerCost(r, adj, layerOf));
+  const costs = runs.map((r) => cost(r, adj, layerOf));
   return runs[costs.indexOf(Math.min(...costs))] ?? base;
 }
 
-function improve(layers: Layers, adj: Adjacency, layerOf: ReadonlyMap<string, number>, down: boolean): Layers {
+function improve(
+  layers: Layers,
+  adj: Adjacency,
+  layerOf: ReadonlyMap<string, number>,
+  down: boolean,
+  cost: OrderCost,
+): Layers {
   let best = layers.map((l) => [...l]);
-  let bestCost = layerCost(best, adj, layerOf);
+  let bestCost = cost(best, adj, layerOf);
   for (let i = 0; i < SWEEPS; i++) {
     sweep(layers, adj, layerOf, i % 2 === (down ? 0 : 1));
-    const c = layerCost(layers, adj, layerOf);
+    const c = cost(layers, adj, layerOf);
     if (c < bestCost) {
       best = layers.map((l) => [...l]);
       bestCost = c;
     }
   }
-  return polish(best, adj, layerOf);
+  return polish(best, adj, layerOf, cost);
 }

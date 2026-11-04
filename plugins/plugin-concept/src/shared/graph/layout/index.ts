@@ -1,20 +1,14 @@
 import { type Area, type Placed, type Rect, textWidth } from '@diagrist/core';
 import type { Locale } from '@diagrist/lang';
-import {
-  type EdgeLabel,
-  fitFrames,
-  labelEdges,
-  placedOf,
-  placeGrid,
-  type Route,
-  routeEdges,
-} from '@diagrist/layout-grid';
+import type { CoreFrame, EdgeLabel, Route } from '@diagrist/layout-grid';
 import { LEGEND, type Legend, legendLayout, MARGIN } from '@diagrist/parts';
 import type { LinkDecl, TypeDecl } from '../../declarations.js';
 import type { Graph, GraphWords, Item, Relation } from '../model.js';
-import { type PlacedHead, type PlacedVerb, placeHeads } from './heads.js';
+import { inGrid, inLayers } from './arranged.js';
+import { inColumns } from './columns.js';
+import type { PlacedHead, PlacedVerb } from './heads.js';
 import { GRAPH_FONTS as F, type ItemBox } from './metrics.js';
-import { drawn, edgeId, graphGrid } from './spec.js';
+import { drawn, edgeId } from './spec.js';
 
 /** What the legend shows a sample of: a type with its shape, a link with its line and head, or a status. */
 export type Sample =
@@ -51,6 +45,8 @@ export interface GraphLayout {
   readonly heads: readonly PlacedHead[];
   /** The verbs between the heads, each standing for every line between its two columns. */
   readonly verbs: readonly PlacedVerb[];
+  /** The frame around the core of a hub, with its head. */
+  readonly frame?: CoreFrame;
   readonly width: number;
   readonly height: number;
   readonly placed: readonly Placed[];
@@ -84,21 +80,10 @@ function legendText(s: Sample, locale: Locale, w: GraphWords): string {
   return s.kind === 'area' ? s.area.label : w.status[s.status];
 }
 
-/** Placed, routed and labelled; a second time with room on the left when a label stands left of the margin. */
-function placed(m: Graph, locale: Locale, headed: boolean, indent = 0) {
-  const at = graphGrid(m, locale, indent, headed);
-  const grid = placeGrid(at.spec);
-  const routes = routeEdges(at.spec, grid);
-  const labels = labelEdges(at.spec, grid, routes, at.texts);
-  const left = Math.min(MARGIN, ...labels.map((l) => l.box.x));
-  if (left < MARGIN && indent === 0) return placed(m, locale, headed, Math.ceil((MARGIN - left) / 8) * 8);
-  return { ...at, grid, routes, labels };
-}
-
 /**
- * Lays out a graph picture on `layout-grid`: items measured and layered, placed in an adaptive grid, lines routed
- * and labelled, then the heads of the columns and the legend of what the picture does not say itself, unless
- * `options` leave them out.
+ * Lays out a graph picture on `layout-grid`: a picture in columns on its grid with the heads of the columns, any
+ * other in layers by the layered pipeline; then the legend of what the picture does not say itself, unless
+ * `options` leave it out.
  */
 export function layoutGraph(
   m: Graph,
@@ -107,12 +92,10 @@ export function layoutGraph(
   locale: Locale,
   options: { readonly legend: boolean; readonly heads: boolean } = { legend: true, heads: true },
 ): GraphLayout {
-  const { spec, boxes, grid, routes, labels, heads: named, verbs } = placed(m, locale, options.heads);
-  const fitted = fitFrames(spec, grid, routes, labels);
-  const row = placeHeads(fitted, named, verbs, m.links);
-  const heads = row.heads;
+  const at = inColumns(m) ? inGrid(m, locale, options.heads) : inLayers(m, locale);
+  const { boxes, routes, labels, heads } = at;
   const byId = new Map(m.items.map((i) => [i.id, i]));
-  const items = fitted.nodes.flatMap((p): PlacedItem[] => {
+  const items = at.nodes.flatMap((p): PlacedItem[] => {
     const item = byId.get(p.id);
     const box = boxes.get(p.id);
     if (!item || !box) return [];
@@ -121,15 +104,16 @@ export function layoutGraph(
   });
   const byEdge = new Map(drawn(m).map(([relation, index]) => [edgeId(index), { relation, index }]));
   const lines = routes.flatMap((route): PlacedLine[] => {
-    const at = byEdge.get(route.edge);
-    const link = at && m.links.get(at.relation.link);
-    return at && link ? [{ route, link, ...at }] : [];
+    const found = byEdge.get(route.edge);
+    const link = found && m.links.get(found.relation.link);
+    return found && link ? [{ route, link, ...found }] : [];
   });
   const lineOf = new Map(lines.map((l) => [l.route.edge, l.relation]));
   const related = labels.map((l) => {
     const relation = lineOf.get(routes[l.route]?.edge ?? '');
     return relation === undefined ? l : { ...l, relation };
   });
+  const fitted = { width: at.width, bottom: at.bottom };
   const right = Math.max(
     fitted.width,
     ...routes.flatMap((r) => r.points.map(([x]) => x + MARGIN)),
@@ -151,9 +135,10 @@ export function layoutGraph(
     labels: related,
     legend,
     heads,
-    verbs: row.verbs,
+    verbs: at.verbs,
+    ...(at.frame ? { frame: at.frame } : {}),
     width,
     height: Math.ceil(entries.length > 0 ? legend.bottom : bottom),
-    placed: [...placedOf(spec, fitted, routes, labels), ...row.placed],
+    placed: at.placed,
   };
 }

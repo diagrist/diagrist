@@ -112,6 +112,19 @@ export function graphScene(layout: GraphLayout, model: Graph, title: string): Sc
       ...headerShapes(HEADER, title, model.subtitle),
       ...heads,
       ...verbs,
+      ...(layout.frame
+        ? [
+            { kind: 'rect', ...layout.frame.rect, rx: 6, role: 'coreFrame' } as const,
+            {
+              kind: 'text',
+              x: layout.frame.head.x,
+              y: layout.frame.head.y,
+              text: layout.frame.head.text,
+              role: 'coreHead',
+              font: 'group',
+            } as const,
+          ]
+        : []),
       ...lines,
       ...layout.items.map((p) => itemShapes(p, model)),
       ...labels,
