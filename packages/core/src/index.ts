@@ -10,6 +10,22 @@ export { checkPlugin } from './check.js';
 export type { Compilation, CompileOptions } from './compile.js';
 export { compile, localeAttribute } from './compile.js';
 export type { Point, Rect } from './geometry.js';
+export { linesOfDrawing } from './lines/drawing.js';
+export { lineFindings } from './lines/index.js';
+export { type LineMetrics, lineMetrics } from './lines/metrics.js';
+export type { LineCheck } from './lines/report.js';
+export {
+  LINE_RULES,
+  type LineFinding,
+  type LineFrame,
+  type LineInput,
+  type LineLabel,
+  type LineNode,
+  type LineRoute,
+  type LineRule,
+  type LineText,
+  type LineThresholds,
+} from './lines/types.js';
 export { formatMessage, KERNEL_CODES, pick } from './messages.js';
 export type { DrawnPicture } from './picture.js';
 export type { Placed } from './placement.js';
@@ -17,6 +33,7 @@ export { checkPlacement } from './placement.js';
 export type { Catalogue, Drawing, Finding, Kind, KindContext, Plugin, Rule } from './plugin.js';
 export { defineKind, definePlugin } from './plugin.js';
 export type { Scene, Shape, TextRun } from './scene.js';
+export { segmentMeetsEllipse, segmentMeetsRect, segmentsIntersect } from './segment.js';
 export type { Tone } from './standard/palette.js';
 export { COLORS, DASH, FONT_SIZE, STROKES, TONE_NAMES, TONES } from './standard/palette.js';
 export type { KindStyles } from './standard/styles.js';

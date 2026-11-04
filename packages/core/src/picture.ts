@@ -11,6 +11,8 @@ import type { Anchors } from './anchors.js';
 import { checkAreas } from './areas/check.js';
 import type { CompileOptions } from './compile.js';
 import { checkDrawing } from './drawing.js';
+import { linesOfDrawing } from './lines/drawing.js';
+import { type LineMetrics, lineMetrics } from './lines/metrics.js';
 import { KERNEL_CODES } from './messages.js';
 import type { Kind } from './plugin.js';
 import { toSvg } from './svg.js';
@@ -23,6 +25,8 @@ export interface DrawnPicture {
   readonly svg?: string;
   readonly anchors?: Anchors;
   readonly description?: string;
+  /** The soft measures of its lines, such as crossings, bends and length, so a host can compare layouts (ADR 0035). */
+  readonly metrics?: LineMetrics;
 }
 
 /** What a picture is drawn with besides its reading. */
@@ -56,13 +60,14 @@ export function drawPicture(
   if (hasErrors(checked)) return { ...named, diagnostics: checked };
   const drawing = kind.layout(model, { locale: context.locale });
   const styles = applyTheme(drawing.styles, context.options.theme);
-  const drawn = [...checked, ...checkDrawing(drawing, styles)];
+  const drawn = [...checked, ...checkDrawing(drawing, styles, kind.lineCheck)];
   if (hasErrors(drawn)) return { ...named, diagnostics: drawn };
   return {
     ...named,
     diagnostics: drawn,
     svg: toSvg(drawing.scene, styles, context.options.inline === true ? { inline: true } : {}),
     anchors: drawing.anchors,
+    metrics: lineMetrics(linesOfDrawing(drawing)),
     description: kind.describe(model, { locale: context.locale }),
   };
 }

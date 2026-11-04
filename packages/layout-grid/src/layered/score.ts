@@ -1,5 +1,5 @@
 import type { Point } from '@diagrist/core';
-import { segmentsIntersect } from '../label/segment.js';
+import { segmentsIntersect } from '@diagrist/core';
 import type { Route } from '../layout.js';
 
 /** How many points two lines of different edges share or cross at, trunks shared by both left out. */

@@ -1,5 +1,4 @@
-import type { Drawing, Plugin } from '@diagrist/core';
-import { LINE_RULES, lineFindings, lineMetrics, linesOfDrawing } from '@diagrist/layout-grid';
+import { type Drawing, LINE_RULES, lineFindings, lineMetrics, linesOfDrawing, type Plugin } from '@diagrist/core';
 import { compareGolden } from '@diagrist/testkit';
 import { describe, expect, it } from 'vitest';
 import { compileExample, exampleNames, golden, plugins } from './compile.js';

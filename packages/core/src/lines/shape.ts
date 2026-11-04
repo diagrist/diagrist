@@ -1,4 +1,4 @@
-import type { Rect } from '@diagrist/core';
+import type { Rect } from '../geometry.js';
 import { axisOf, lengthOf, middle, rounded, type Segment, segmentsOf, TOLERANCE, tenth } from './lines.js';
 import type { LineFinding, LineRoute, LineThresholds } from './types.js';
 
@@ -24,8 +24,9 @@ export function shapeFindings(
   const edges = [route.edge];
   const found: LineFinding[] = [];
   const bends = segments.length - 1;
-  if (bends > (long(route, rectOf, t) ? t.longBends : t.bends)) {
-    found.push({ rule: 'bends', edges, at: rounded(first.a), value: bends });
+  const most = long(route, rectOf, t) ? t.longBends : t.bends;
+  if (bends > most) {
+    found.push({ rule: 'bends', edges, at: rounded(first.a), value: bends, limit: most });
   }
   if (lengthOf(last) < t.lead - TOLERANCE)
     found.push({ rule: 'lead', edges, at: rounded(last.b), value: tenth(lengthOf(last)) });

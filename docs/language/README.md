@@ -172,6 +172,15 @@ The kernel reports these about kinds, icons and the placement of what the layout
 | `G401` | `{key}` reaches outside the picture. |
 | `G402` | `{key}` does not fit into `{within}`. Shorten the text or give `{within}` more room. |
 | `G403` | `{key}` reaches into the frame `{frame}` without belonging to it, so the picture says it is part of it. Make `{key}` a member of `{frame}`, or split the frame. |
+| `G410` | The line {line} crosses the line {other}. Try another order of the declarations or split the picture; it is drawn anyway. |
+| `G411` | The line {line} runs through `{key}`; a line keeps {limit} px clear of what it does not join. Try another order of the declarations or split the picture; it is drawn anyway. |
+| `G412` | The line {line} bends {value} times, more than the {limit} a reader follows at a glance. Try another order of the declarations or split the picture; it is drawn anyway. |
+| `G413` | The line {line} runs only {value} px straight into its end; its head needs {limit} px to point the way. Try another order of the declarations or split the picture; it is drawn anyway. |
+| `G414` | The line {line} bends {value} px after its start, sooner than {limit} px, so it seems to start elsewhere. Try another order of the declarations or split the picture; it is drawn anyway. |
+| `G415` | The line {line} jogs by {value} px, less than {limit} px, which reads as a slip, not a turn. Try another order of the declarations or split the picture; it is drawn anyway. |
+| `G416` | The lines {line} and {other} run side by side only {value} px apart, less than {limit} px, so they read as one. Try another order of the declarations or split the picture; it is drawn anyway. |
+| `G417` | The lines {line} and {other} meet one side of `{key}` in an order that makes them cross right beside it. Try another order of the declarations or split the picture; it is drawn anyway. |
+| `G418` | The text of the line {line} lies on `{key}`. Shorten the text, try another order of the declarations or split the picture; it is drawn anyway. |
 | `K100` | No plugin draws the diagram kind `{found}`. Registered kinds: {allowed}. A diagram starts with `diagram <kind> "Title"`. |
 | `K101` | The kind `{kind}` is registered twice, by {plugins}; the first one is used. |
 | `K102` | The picture uses the icon `{icon}`, which the style table does not have. Icons: {known}. |

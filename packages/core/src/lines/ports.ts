@@ -1,16 +1,18 @@
-import type { Point, Rect } from '@diagrist/core';
-import type { Side } from '../geometry.js';
+import type { Point, Rect } from '../geometry.js';
+import { segmentsIntersect } from '../segment.js';
 import { axisOf, bundled, rounded, type Segment, segmentsOf, TOLERANCE, tenth } from './lines.js';
+import type { Side } from './rects.js';
 import type { LineFinding, LineRoute } from './types.js';
 
-/** Where a line leaves or enters a box: the side, the place along it, and the place of the other end. */
+/** Where a line leaves or enters a box: the side, the place along it, the line's segments and the two at this end. */
 interface Port {
   readonly route: LineRoute;
   readonly node: string;
   readonly side: Side;
   readonly at: Point;
   readonly along: number;
-  readonly far: number;
+  readonly segments: readonly Segment[];
+  readonly near: readonly Segment[];
 }
 
 /** The side a straight end segment meets its box on, seen from outside, or none for a slanted one. */
@@ -44,17 +46,19 @@ function portsOf(routes: readonly LineRoute[], rectOf: (id: string) => Rect | un
       const rect = rectOf(node);
       const side = sideOf(s, leaving);
       const at = leaving ? s.a : s.b;
-      const other = leaving ? last.b : first.a;
       if (rect === undefined || side === undefined || !near(at, rect)) return [];
       const i = side === 'top' || side === 'bottom' ? 0 : 1;
-      return [{ route, node, side, at, along: at[i], far: other[i] }];
+      const close = leaving ? segments.slice(0, 2) : segments.slice(-2);
+      return [{ route, node, side, at, along: at[i], segments, near: close }];
     });
   });
 }
 
 /**
- * Ports on one side of a box (Q8): two lines outside a common bundle keep `least` apart (`spacing`), and their order
- * along the side follows the order of their other ends, so they do not interleave (`order`).
+ * Ports on one side of a box (Q8): two lines outside a common bundle keep `least` apart (`spacing`), and they stand
+ * in an order that lets them part without crossing (`order`): the two segments at the box of one line do not cross
+ * the other line. Nested lines, such as two rails around the same side, keep their ends in opposite orders and
+ * still never cross, so they pass.
  */
 export function portFindings(
   routes: readonly LineRoute[],
@@ -70,8 +74,14 @@ export function portFindings(
       const gap = Math.abs(p.along - q.along);
       const base = { rule: 'ports' as const, edges, at, other: p.node };
       if (gap < least - TOLERANCE) return [{ ...base, detail: 'spacing', value: tenth(gap) }];
-      const [a, b] = p.along < q.along ? [p, q] : [q, p];
-      return a.far > b.far + TOLERANCE ? [{ ...base, detail: 'order', value: tenth(a.far - b.far) }] : [];
+      return interleaved(p, q) ? [{ ...base, detail: 'order' }] : [];
     }),
   );
+}
+
+/** Whether the lines of two ports cross where one of them leaves or enters the box. */
+function interleaved(p: Port, q: Port): boolean {
+  const meets = (near: readonly Segment[], all: readonly Segment[]) =>
+    near.some((a) => all.some((b) => segmentsIntersect(a.a, a.b, b.a, b.b)));
+  return meets(p.near, q.segments) || meets(q.near, p.segments);
 }

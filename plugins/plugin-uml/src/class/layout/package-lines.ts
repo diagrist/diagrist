@@ -1,5 +1,5 @@
-import type { Point, Rect } from '@diagrist/core';
-import { type GridLayout, type Route, segmentMeetsRect, segmentsIntersect } from '@diagrist/layout-grid';
+import { type Point, type Rect, segmentMeetsRect, segmentsIntersect } from '@diagrist/core';
+import type { GridLayout, Route } from '@diagrist/layout-grid';
 import { CLASS, tabWidth } from './metrics.js';
 
 /** Step of the search for a free vertical, and the least distance from a parallel line or a tab. */

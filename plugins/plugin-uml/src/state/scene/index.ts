@@ -87,6 +87,7 @@ export function stateAnchors(l: StateLayout): Anchors {
       domId: domId.edge(k),
       ...(l.labels.some((x) => x.route === k) ? { labelId: domId.label(k) } : {}),
       points: r.points,
+      ...(l.ends[k]?.span === undefined ? {} : { span: l.ends[k].span }),
     })),
   };
 }

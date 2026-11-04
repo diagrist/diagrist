@@ -21,6 +21,8 @@ export interface Picture {
   readonly variant?: string;
   /** Present exactly when no finding of the file or of this picture has severity `error`. */
   readonly svg?: string;
+  /** The measures of its lines by name, such as `crossings` and `bends`; present with `svg`. */
+  readonly metrics?: Readonly<Record<string, number>>;
 }
 
 /** What the engine gives back for one source: its pictures, the findings, and the files it needs. */

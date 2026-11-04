@@ -1,4 +1,4 @@
-import type { Rect } from '@diagrist/core';
+import { type Rect, segmentMeetsRect, segmentsIntersect } from '@diagrist/core';
 import {
   type EdgeLabel,
   type GridLayout,
@@ -6,8 +6,6 @@ import {
   layoutLayered,
   polylineLength,
   type Route,
-  segmentMeetsRect,
-  segmentsIntersect,
 } from '@diagrist/layout-grid';
 import type { ClassRelation } from '../diagram.js';
 import type { ClassModel } from '../model.js';

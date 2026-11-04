@@ -21,7 +21,7 @@ working **on** Diagrist. Read it fully before changing code. The principles behi
 | Path | What |
 |---|---|
 | `packages/lang` | Scanner, statement tree, printer, statement tables, diagnostics. No Node APIs. |
-| `packages/core` | The kernel: plugin registry, `compile`, scene, text metrics, SVG, placement check, and the standard look (`src/standard`: palette, strokes, font roles, base rules) that themes overlay (ADR 0014). No Node APIs. |
+| `packages/core` | The kernel: plugin registry, `compile`, scene, text metrics, SVG, placement check, line check (ADR 0035), and the standard look (`src/standard`: palette, strokes, font roles, base rules) that themes overlay (ADR 0014). No Node APIs. |
 | `packages/parts` | Pieces several plugins draw alike: title header in both forms, decision bar with the `adr` table, legend mechanics, the sheet with margin notes and sentence legend, `wrap`, note geometry, card and note rules, their roles and words (ADR 0014, 0023). No Node APIs, no kinds. |
 | `packages/layout-grid` | Grid layout library for plugins: places measured nodes and frames, routes edges, places labels, layers graphs (ADR 0015). Depends on `core` only, knows no kind. |
 | `packages/layout-matrix` | Table layout library for plugins: heads across the top and down the side, bands, cells of equal width (ADR 0031). Depends on `core` only, knows no kind; the caller wraps and measures its texts. |

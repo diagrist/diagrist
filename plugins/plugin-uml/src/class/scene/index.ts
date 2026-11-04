@@ -76,6 +76,7 @@ export function classAnchors(l: ClassLayout): Anchors {
       domId: domId.edge(k),
       ...(l.labels.some((x) => x.route === e.i) ? { labelId: domId.label(k) } : {}),
       points: e.route.points,
+      span: e.relation.span,
     })),
   };
 }

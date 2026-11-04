@@ -238,9 +238,6 @@ importers:
         specifier: workspace:*
         version: link:../../packages/parts
     devDependencies:
-      '@diagrist/layout-grid':
-        specifier: workspace:*
-        version: link:../../packages/layout-grid
       '@diagrist/testkit':
         specifier: workspace:*
         version: link:../../packages/testkit

@@ -9,7 +9,7 @@ Installed as `dgr` and `diagrist`. Usage: `dgr <command> [arguments] [options]`;
 | Command | What it does |
 |---|---|
 | [`fmt`](#dgr-fmt) | Formats .dgr files in place. |
-| [`check`](#dgr-check) | Checks a diagram against the grammar and the rules of its kind and prints every finding, those about one picture of a file with variants marked with the variant. |
+| [`check`](#dgr-check) | Checks a diagram against the grammar, the rules of its kind, the placement and the lines of its pictures and prints every finding, those about one picture of a file with variants marked with the variant. |
 | [`build`](#dgr-build) | Renders a diagram as SVG, and with `--png` also as PNG: the base picture as `<file>.svg` and each variant as `<file>.<variant>.svg`. |
 | [`grammar`](#dgr-grammar) | Shows what a diagram kind allows. |
 | [`help`](#dgr-help) | Explains the commands. |
@@ -74,11 +74,15 @@ With `--json`, besides the fields of every document:
 dgr check <file> [options]
 ```
 
-Checks a diagram against the grammar and the rules of its kind and prints every finding, those about one picture of a file with variants marked with the variant. Writes nothing.
+Checks a diagram against the grammar, the rules of its kind, the placement and the lines of its pictures and prints every finding, those about one picture of a file with variants marked with the variant. Writes nothing.
 
 | Argument | Meaning |
 |---|---|
 | `<file>` | The .dgr file to check. |
+
+| Option | Meaning |
+|---|---|
+| `--metrics` | Also print the measures of the lines of every drawn picture: lines, crossings, bends, length and size, so two versions of a diagram can be compared. |
 
 Examples:
 
@@ -87,6 +91,8 @@ Examples:
 dgr check diagrams/order.dgr
 # The same as one JSON document, for agents.
 dgr check diagrams/order.dgr --json
+# The findings and how many crossings and bends each picture has.
+dgr check diagrams/order.dgr --metrics
 ```
 
 With `--json`, besides the fields of every document:
@@ -95,6 +101,7 @@ With `--json`, besides the fields of every document:
 |---|---|
 | `file` | The checked file. |
 | `diagnostics` | All findings, see "Diagnostics". |
+| `pictures` | With `--metrics`: every drawn picture with its `variant`, if any, and `metrics`: `lines`, `crossings`, `bends`, `maxBends`, `length`, `parentsOff`, `parentOffset`, `childrenOff`, `childOffset`, `width`, `height`. |
 
 ## dgr build
 

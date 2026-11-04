@@ -1,18 +1,3 @@
-export { linesOfDrawing } from './check/drawing.js';
-export { lineFindings } from './check/index.js';
-export { type LineMetrics, lineMetrics } from './check/metrics.js';
-export {
-  LINE_RULES,
-  type LineFinding,
-  type LineFrame,
-  type LineInput,
-  type LineLabel,
-  type LineNode,
-  type LineRoute,
-  type LineRule,
-  type LineText,
-  type LineThresholds,
-} from './check/types.js';
 export {
   bottom,
   cx,
@@ -29,7 +14,6 @@ export { type LabelOptions, labelEdges, placeLabels } from './label/index.js';
 export { cheapest, type Occupancy, occupancy } from './label/occupancy.js';
 export type { OnLine } from './label/on-line.js';
 export { type SeatMark, type SeatOptions, seatMarks } from './label/seat.js';
-export { segmentMeetsEllipse, segmentMeetsRect, segmentsIntersect } from './label/segment.js';
 export type { EdgeLabel, EdgeText, EndText } from './label/types.js';
 export { wrapTwo } from './label/wrap.js';
 export { assignTracks, type GapMeasure, gapHeight, type TrackPiece } from './layered/channels.js';

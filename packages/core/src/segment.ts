@@ -1,4 +1,4 @@
-import type { Point, Rect } from '@diagrist/core';
+import type { Point, Rect } from './geometry.js';
 
 /** Does the segment meet the rectangle grown by `pad`? Exact for slanted segments too (Liang-Barsky). */
 export function segmentMeetsRect(p1: Point, p2: Point, r: Rect, pad = 0): boolean {

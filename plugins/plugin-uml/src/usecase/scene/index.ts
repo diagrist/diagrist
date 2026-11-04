@@ -82,6 +82,7 @@ export function useCaseAnchors(l: UseCaseLayout): Anchors {
       domId: domId.edge(k),
       ...(l.labels.some((x) => x.route === d.route) ? { labelId: domId.label(k) } : {}),
       points: l.routes[d.route]?.points ?? [],
+      span: d.relation.span,
     })),
   };
 }

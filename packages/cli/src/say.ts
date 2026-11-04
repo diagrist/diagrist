@@ -11,6 +11,7 @@ export type TextName =
   | 'allFormatted'
   | 'wrote'
   | 'noFindings'
+  | 'metrics'
   | 'watching'
   | 'changed'
   | 'error'
@@ -31,6 +32,12 @@ const TEXTS: Readonly<Record<TextName, Texts>> = {
   },
   wrote: { en: (v) => `wrote ${v.file}`, de: (v) => `geschrieben: ${v.file}` },
   noFindings: { en: (v) => `${v.file}: no findings`, de: (v) => `${v.file}: keine Befunde` },
+  metrics: {
+    en: (v) =>
+      `${v.picture}: ${v.lines} lines, ${v.crossings} crossings, ${v.bends} bends (at most ${v.maxBends} on one line), ${v.length} px of line, ${v.width} × ${v.height} px`,
+    de: (v) =>
+      `${v.picture}: ${v.lines} Linien, ${v.crossings} Kreuzungen, ${v.bends} Knicke (höchstens ${v.maxBends} an einer Linie), ${v.length} px Linie, ${v.width} × ${v.height} px`,
+  },
   watching: { en: (v) => `watching ${v.file}, Ctrl+C ends`, de: (v) => `beobachte ${v.file}, Strg+C beendet` },
   changed: { en: (v) => `changed ${v.file}`, de: (v) => `geändert: ${v.file}` },
   error: { en: () => 'error', de: () => 'Fehler' },

@@ -1,6 +1,5 @@
-import type { Point } from '@diagrist/core';
 import { describe, expect, it } from 'vitest';
-import { type LineInput, type LineNode, type LineRoute, lineFindings } from '../src/index.js';
+import { type LineInput, type LineNode, type LineRoute, lineFindings, type Point } from '../src/index.js';
 
 const box = (id: string, x: number, y: number, w = 80, h = 40): LineNode => ({ id, rect: { x, y, w, h } });
 const line = (edge: string, from: string, to: string, ...points: Point[]): LineRoute => ({ edge, from, to, points });
@@ -79,6 +78,10 @@ describe('line findings', () => {
       [240, 100],
     ];
     expect(rules({ nodes: near, routes: [line('1', 'a', 'b', ...steps)] })).toContain('bends');
+    const found = lineFindings({ nodes: near, routes: [line('1', 'a', 'b', ...steps)] }).find(
+      (f) => f.rule === 'bends',
+    );
+    expect(found).toMatchObject({ value: 4, limit: 2 });
     const far = [box('a', 0, 0), box('b', 200, 400)];
     const long: Point[] = [
       [40, 40],
@@ -137,6 +140,15 @@ describe('line findings', () => {
       line('2', 'a', 'l', [250, 40], [250, 160], [40, 160], [40, 300]),
     ];
     expect(ports(crossed)).toEqual([['a', 'order']]);
+  });
+
+  it('let nested rails around one side pass Q8, though their ends stand in opposite orders', () => {
+    const nodes = [box('a', 0, 0, 80, 80), box('b', 0, 300, 80, 80)];
+    const rails = [
+      line('1', 'a', 'b', [80, 50], [120, 50], [120, 330], [80, 330]),
+      line('2', 'a', 'b', [80, 20], [160, 20], [160, 360], [80, 360]),
+    ];
+    expect(lineFindings({ nodes, routes: rails }).filter((f) => f.rule === 'ports')).toEqual([]);
   });
 
   it('report a text far from its own line, near a foreign one, or on a box (Q9)', () => {

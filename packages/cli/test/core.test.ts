@@ -35,6 +35,16 @@ describe('the CLI with the real kernel and the UML plugin', () => {
     expect(german.stdout).not.toContain('is no declared lifeline');
   });
 
+  it('measures the lines of each picture with --metrics, in text and in JSON', async () => {
+    const files = { 'o.dgr': example('oauth-pkce') };
+    const text = await call(['check', 'o.dgr', '--metrics', '--locale', 'de'], { files, engine });
+    const json = await callJson(['check', 'o.dgr', '--metrics'], { files, engine });
+    expect(text.stdout).toMatch(/^o\.dgr: \d+ Linien, \d+ Kreuzungen, \d+ Knicke \(höchstens \d+ an einer Linie\)/m);
+    expect(json.json.pictures).toMatchObject([{ metrics: { lines: expect.any(Number), crossings: 0 } }]);
+    const plain = await callJson(['check', 'o.dgr'], { files, engine });
+    expect(plain.json).not.toHaveProperty('pictures');
+  });
+
   it('lists the kinds and describes the sequence grammar for agents', async () => {
     const kinds = await callJson(['grammar'], { engine });
     expect(JSON.stringify(kinds.json)).toContain('sequence');

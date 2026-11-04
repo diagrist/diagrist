@@ -1,7 +1,7 @@
-import type { Rect } from '@diagrist/core';
-import { overlaps, union } from '../geometry.js';
+import type { Rect } from '../geometry.js';
 import { bundled, routeToRect, segmentsOf, TOLERANCE, tenth } from './lines.js';
 import type { Obstacle } from './obstacles.js';
+import { overlaps, union } from './rects.js';
 import type { LineFinding, LineInput, LineLabel, LineThresholds } from './types.js';
 
 /** Texts of one line that touch each other, such as the lines of a wrapped text, read as one block. */

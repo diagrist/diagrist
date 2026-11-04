@@ -59,6 +59,7 @@ export function codeAnchors(layout: CodeLayout): Anchors {
       to: link.to,
       domId: domId.edge(index),
       points,
+      span: link.span,
     })),
   };
 }

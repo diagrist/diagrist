@@ -1,3 +1,4 @@
+import type { Span } from '@diagrist/lang';
 import type { Point, Rect } from './geometry.js';
 
 /** Where a node or group sits, and the DOM id of its `<g>` in the SVG. */
@@ -15,6 +16,8 @@ export interface EdgeAnchor {
   readonly domId: string;
   readonly labelId?: string;
   readonly points: readonly Point[];
+  /** The source line that declares the edge, so the line check points at it; absent where a kind does not know it. */
+  readonly span?: Span;
 }
 
 /**

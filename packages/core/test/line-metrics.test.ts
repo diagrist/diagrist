@@ -1,6 +1,14 @@
-import type { Anchors, Placed, Point, Rect } from '@diagrist/core';
 import { describe, expect, it } from 'vitest';
-import { type LineNode, type LineRoute, lineMetrics, linesOfDrawing } from '../src/index.js';
+import {
+  type Anchors,
+  type LineNode,
+  type LineRoute,
+  lineMetrics,
+  linesOfDrawing,
+  type Placed,
+  type Point,
+  type Rect,
+} from '../src/index.js';
 
 const rect = (x: number, y: number, w = 80, h = 40): Rect => ({ x, y, w, h });
 const box = (id: string, x: number, y: number): LineNode => ({ id, rect: rect(x, y) });
@@ -118,9 +126,15 @@ describe('lines of a drawing', () => {
 
   it('read lines leaving a box at one point as a bundle', () => {
     expect(input.routes.map((r) => [r.edge, r.from, r.to, r.bundles])).toEqual([
-      ['0', 'a', 'b', ['out a 60.0,100.0']],
-      ['1', 'a', 'c', ['out a 60.0,100.0']],
+      ['0', 'a', 'b', ['at 60.0,100.0']],
+      ['1', 'a', 'c', ['at 60.0,100.0']],
     ]);
     expect([input.width, input.height]).toEqual([400, 300]);
+  });
+
+  it('read a fan drawn against its reading, from its far ends to the shared point, as a bundle', () => {
+    const reversed = anchors.edges.map((e) => ({ ...e, points: [...e.points].reverse() }));
+    const read = linesOfDrawing({ anchors: { ...anchors, edges: reversed }, placed });
+    expect(read.routes.map((r) => r.bundles)).toEqual([['at 60.0,100.0'], ['at 60.0,100.0']]);
   });
 });

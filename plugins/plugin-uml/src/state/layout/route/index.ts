@@ -71,6 +71,7 @@ export function routeStates(m: StateModel, spec: GridSpec, grid: GridLayout): Ro
       to: t.to,
       ...(t.emph ? { emph: true } : {}),
       ...(t.area === undefined ? {} : { area: t.area }),
+      span: t.span,
     })),
     lines: items.map(({ t }) => labelLines(t, m.diagram.protocol)),
   };

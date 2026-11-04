@@ -1,5 +1,4 @@
-import { compile, type Drawing, type Plugin } from '@diagrist/core';
-import { type LineFinding, lineFindings, linesOfDrawing } from '@diagrist/layout-grid';
+import { compile, type Drawing, type LineFinding, lineFindings, linesOfDrawing, type Plugin } from '@diagrist/core';
 import { describe, expect, it } from 'vitest';
 import { umlPlugin } from '../src/index.js';
 import { stateNames, stateSource } from './compile.js';
@@ -20,16 +19,6 @@ function findingsOf(source: string): LineFinding[] {
   compile(source, { plugins: [recorded] });
   return lineFindings(linesOfDrawing(drawings[0] as Drawing));
 }
-
-/**
- * Breaches a picture cannot avoid yet, by example, as `rule detail edges`. `fahrgastraum` runs two back edges
- * between the same states, Niedrig and Hoch, on one side, and a skip edge out of Leer beside a back edge into it:
- * nested rails are the only way without a crossing, and nested rails dock in the opposite order of their other
- * ends, which Q8 reads as interleaved. The rule should tell nested rails from interleaved ports.
- */
-const ALLOWED: Readonly<Record<string, readonly string[]>> = {
-  'fahrgastraum.dgr': ['ports order 1 3', 'ports order 5 9', 'ports order 5 9'],
-};
 
 const key = (f: LineFinding) => [f.rule, f.detail ?? '', ...f.edges].join(' ');
 
@@ -55,8 +44,8 @@ const fanned = (direction: string) =>
   ].join('\n');
 
 describe('the lines of state machines', () => {
-  it.each([...stateNames].sort())('%s breaks no hard rule of the line check but the allowed ones', (name) => {
-    expect(findingsOf(stateSource(name)).map(key).sort()).toEqual([...(ALLOWED[name] ?? [])].sort());
+  it.each([...stateNames].sort())('%s breaks no hard rule of the line check', (name) => {
+    expect(findingsOf(stateSource(name)).map(key)).toEqual([]);
   });
 
   it.each(['down', 'right'])('steps forward transitions on tracks without a breach, flowing %s', (direction) => {

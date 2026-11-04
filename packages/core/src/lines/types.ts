@@ -1,4 +1,4 @@
-import type { Point, Rect } from '@diagrist/core';
+import type { Point, Rect } from '../geometry.js';
 
 /** A box lines are drawn between or must avoid, with the outline drawn in its rectangle. */
 export interface LineNode {
@@ -98,6 +98,8 @@ export interface LineFinding {
   readonly detail?: 'own' | 'spacing' | 'order' | 'far' | 'near' | 'overlap';
   /** What was measured: a length, a distance or a count. */
   readonly value?: number;
+  /** The threshold breached, where the rule picks one of several by the line, such as the bends of a long line. */
+  readonly limit?: number;
 }
 
 /**

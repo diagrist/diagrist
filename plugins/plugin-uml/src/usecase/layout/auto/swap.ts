@@ -1,5 +1,4 @@
-import type { Point } from '@diagrist/core';
-import { segmentMeetsEllipse, segmentsIntersect } from '@diagrist/layout-grid';
+import { type Point, segmentMeetsEllipse, segmentsIntersect } from '@diagrist/core';
 import type { Parts } from './parts.js';
 
 /** A line grazing a foreign use case weighs more than a crossing. */

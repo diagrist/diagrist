@@ -1,5 +1,6 @@
 import type { Infer, KindReading, KindSpec, Locale, Severity, Span, StatementSpec } from '@diagrist/lang';
 import type { Anchors } from './anchors.js';
+import type { LineCheck } from './lines/report.js';
 import type { Placed } from './placement.js';
 import type { Scene } from './scene.js';
 import type { Styles } from './styles.js';
@@ -56,6 +57,11 @@ export interface Kind<M = unknown, S extends readonly StatementSpec[] = readonly
    * `origin`, its removed lines included. Without it such a variant is K103.
    */
   readonly diff?: true;
+  /**
+   * How the kernel checks the lines the kind draws (G410 to G418, ADR 0035): left out, with the standard thresholds;
+   * `false` while its layout does not meet them yet; or its own thresholds.
+   */
+  readonly lineCheck?: LineCheck;
 }
 
 /**
@@ -69,6 +75,7 @@ export function defineKind<M, const S extends readonly StatementSpec[]>(kind: {
   readonly layout: (model: M, context: KindContext) => Drawing;
   readonly describe: (model: M, context: KindContext) => string;
   readonly diff?: true;
+  readonly lineCheck?: LineCheck;
 }): Kind<M, S> {
   return kind;
 }
