@@ -86,7 +86,7 @@ describe('class layout', () => {
     expect(end[0]).toBeGreaterThan(domain.x + 72);
   });
 
-  it('arranges five packages so that linked ones are neighbours, each as high as its content, and no lines cross', () => {
+  it('arranges five packages so that linked ones are neighbours, those of one layer lined up, and no lines cross', () => {
     const p = picture('pakete-quer');
     const [web, orders, payment, catalogue, shipping] = [
       p.frame('web'),
@@ -95,8 +95,8 @@ describe('class layout', () => {
       p.frame('katalog'),
       p.frame('versand'),
     ];
+    expect(shipping.y + shipping.h).toBeLessThan(web.y);
     expect(web.y + web.h).toBeLessThan(orders.y);
-    expect(orders.y + orders.h).toBeLessThan(shipping.y);
     expect(payment.x + payment.w).toBeLessThan(orders.x);
     expect(orders.x + orders.w).toBeLessThan(catalogue.x);
     expect([payment.y, catalogue.y]).toEqual([orders.y, orders.y]);

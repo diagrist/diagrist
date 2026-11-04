@@ -2,7 +2,6 @@ import type { Point, Rect } from '@diagrist/core';
 import { type GridLayout, pointAlong, polylineLength, type Route } from '@diagrist/layout-grid';
 import type { ClassRelation } from '../diagram.js';
 import type { ClassModel } from '../model.js';
-import { CLASS, tabWidth } from './metrics.js';
 
 /** A straight dashed piece, such as the line of an association class. */
 export interface Tether {
@@ -47,31 +46,6 @@ export function legsAtVertices(
     const [a, b] = [diamond(rel.from), diamond(rel.to)];
     if (!a === !b) return r;
     const points = a ? toVertex(r.points, a) : toVertex([...r.points].reverse(), b as Rect).reverse();
-    return { ...r, points };
-  });
-}
-
-/** A line ending on the top edge of a package beside its tab reaches down to the body below the tab. */
-export function belowTabs(
-  routes: readonly Route[],
-  relations: readonly (ClassRelation | undefined)[],
-  m: ClassModel,
-  grid: GridLayout,
-): Route[] {
-  const lowered = (end: Point, id: string | undefined): Point => {
-    const frame = id === undefined ? undefined : grid.groups.find((g) => g.id === id);
-    const label = id === undefined ? undefined : m.packages.get(id)?.label;
-    if (!frame || label === undefined) return end;
-    const tab = Math.min(frame.rect.w, tabWidth(label));
-    const onTop = end[1] === frame.rect.y && end[0] > frame.rect.x + tab && end[0] <= frame.rect.x + frame.rect.w;
-    return onTop ? [end[0], end[1] + CLASS.tabH] : end;
-  };
-  return routes.map((r, i) => {
-    const rel = relations[i];
-    const first = r.points[0];
-    const last = r.points.at(-1);
-    if (!rel || !first || !last) return r;
-    const points = [lowered(first, rel.from), ...r.points.slice(1, -1), lowered(last, rel.to)];
     return { ...r, points };
   });
 }
