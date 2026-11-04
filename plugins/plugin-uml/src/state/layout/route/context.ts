@@ -1,4 +1,5 @@
 import type { Rect } from '@diagrist/core';
+import type { Span } from '@diagrist/lang';
 import type { GridLayout } from '@diagrist/layout-grid';
 import type { StateModel } from '../../model.js';
 import { endBox, foreignFrames } from '../ends.js';
@@ -9,6 +10,8 @@ export interface TransitionEnds {
   readonly to: string;
   readonly emph?: boolean;
   readonly area?: string;
+  /** The source line of the transition, for the anchors. */
+  readonly span?: Span;
 }
 
 /** What the tidying of routes knows per route index: its ends, the lines of its label, and the layout. */

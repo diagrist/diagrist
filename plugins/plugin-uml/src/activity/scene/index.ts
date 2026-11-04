@@ -103,6 +103,7 @@ export function activityAnchors(l: ActivityLayout): Anchors {
       domId: domId.edge(k),
       ...(guarded.has(k) ? { labelId: domId.label(k) } : {}),
       points: r.points,
+      span: r.flow.span,
     })),
   };
 }

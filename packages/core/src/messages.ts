@@ -1,4 +1,6 @@
 import { type Diagnostic, formatDiagnostic, type Locale } from '@diagrist/lang';
+import { LINE_MESSAGES } from './lines/messages.js';
+import type { LineRule } from './lines/types.js';
 import type { Catalogue, Plugin } from './plugin.js';
 
 /** Diagnostic codes of the kernel itself. */
@@ -16,6 +18,15 @@ export const KERNEL_CODES: {
   readonly outside: 'G401';
   readonly overflow: 'G402';
   readonly foreign: 'G403';
+  readonly lineCrossing: 'G410';
+  readonly lineThrough: 'G411';
+  readonly lineBends: 'G412';
+  readonly lineLead: 'G413';
+  readonly lineTail: 'G414';
+  readonly lineJog: 'G415';
+  readonly lineParallel: 'G416';
+  readonly linePorts: 'G417';
+  readonly lineLabel: 'G418';
 } = {
   unknownKind: 'K100',
   duplicateKind: 'K101',
@@ -30,6 +41,28 @@ export const KERNEL_CODES: {
   outside: 'G401',
   overflow: 'G402',
   foreign: 'G403',
+  lineCrossing: 'G410',
+  lineThrough: 'G411',
+  lineBends: 'G412',
+  lineLead: 'G413',
+  lineTail: 'G414',
+  lineJog: 'G415',
+  lineParallel: 'G416',
+  linePorts: 'G417',
+  lineLabel: 'G418',
+};
+
+/** The kernel's code for each rule of the line check (ADR 0035). */
+export const LINE_CODES: Readonly<Record<LineRule, string>> = {
+  crossing: KERNEL_CODES.lineCrossing,
+  through: KERNEL_CODES.lineThrough,
+  bends: KERNEL_CODES.lineBends,
+  lead: KERNEL_CODES.lineLead,
+  tail: KERNEL_CODES.lineTail,
+  jog: KERNEL_CODES.lineJog,
+  parallel: KERNEL_CODES.lineParallel,
+  ports: KERNEL_CODES.linePorts,
+  label: KERNEL_CODES.lineLabel,
 };
 
 const OVERLAP: Readonly<Record<Locale, Readonly<Record<string, string>>>> = {
@@ -38,6 +71,7 @@ const OVERLAP: Readonly<Record<Locale, Readonly<Record<string, string>>>> = {
 };
 
 const KERNEL: Catalogue = {
+  ...LINE_MESSAGES,
   K100: {
     en: (v) =>
       `No plugin draws the diagram kind \`${v.found}\`. Registered kinds: ${v.allowed}. A diagram starts with \`diagram <kind> "Title"\`.`,

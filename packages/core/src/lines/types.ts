@@ -1,4 +1,4 @@
-import type { Point, Rect } from '@diagrist/core';
+import type { Point, Rect } from '../geometry.js';
 
 /** A box lines are drawn between or must avoid, with the outline drawn in its rectangle. */
 export interface LineNode {

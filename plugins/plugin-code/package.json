@@ -48,7 +48,6 @@
     "@diagrist/parts": "workspace:*"
   },
   "devDependencies": {
-    "@diagrist/layout-grid": "workspace:*",
     "@diagrist/testkit": "workspace:*"
   }
 }

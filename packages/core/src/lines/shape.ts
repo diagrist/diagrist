@@ -1,4 +1,4 @@
-import type { Rect } from '@diagrist/core';
+import type { Rect } from '../geometry.js';
 import { axisOf, lengthOf, middle, rounded, type Segment, segmentsOf, TOLERANCE, tenth } from './lines.js';
 import type { LineFinding, LineRoute, LineThresholds } from './types.js';
 

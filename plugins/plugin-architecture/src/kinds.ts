@@ -12,7 +12,8 @@ import { TEXTS } from './texts/index.js';
 
 /**
  * One C4 level as a kind: the shared tables with the level's elements, model, rules, layout on `layout-grid`,
- * the style table of its look, and a description. Each level draws diff pictures (ADR 0021).
+ * the style table of its look, and a description. Each level draws diff pictures (ADR 0021). Its lines stay out of
+ * the kernel's line check while they keep the grid's router (burn-down).
  */
 function architectureKind(level: Level) {
   return defineKind({
@@ -30,6 +31,7 @@ function architectureKind(level: Level) {
     },
     describe: (model, { locale }) => describeArchitecture(model, TEXTS[locale], WORDS[locale]),
     diff: true,
+    lineCheck: false,
   });
 }
 

@@ -1,5 +1,4 @@
-import { compile, type Drawing, type Plugin } from '@diagrist/core';
-import { lineFindings, linesOfDrawing } from '@diagrist/layout-grid';
+import { compile, type Drawing, lineFindings, linesOfDrawing, type Plugin } from '@diagrist/core';
 import { describe, expect, it } from 'vitest';
 import { umlPlugin } from '../src/index.js';
 import { classNames, classSource } from './compile.js';

@@ -1,5 +1,5 @@
-import { type Point, type Rect, STANDARD_FONTS, textWidth } from '@diagrist/core';
-import { type EdgeLabel, overlaps, type Route, segmentMeetsRect } from '@diagrist/layout-grid';
+import { type Point, type Rect, STANDARD_FONTS, segmentMeetsRect, textWidth } from '@diagrist/core';
+import { type EdgeLabel, overlaps, type Route } from '@diagrist/layout-grid';
 import type { ClassRelation } from '../diagram.js';
 import { nameOf } from './layered.js';
 import { LAYERED } from './metrics.js';

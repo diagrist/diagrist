@@ -1,4 +1,4 @@
-import type { Rect } from '@diagrist/core';
+import type { Rect } from '../geometry.js';
 import { labelFindings } from './labels.js';
 import { obstaclesOf, throughFindings } from './obstacles.js';
 import { crossingFindings, foreignPairs, parallelFindings } from './pairs.js';

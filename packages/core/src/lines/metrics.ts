@@ -1,7 +1,7 @@
-import type { Rect } from '@diagrist/core';
-import { cx } from '../geometry.js';
+import type { Rect } from '../geometry.js';
 import { lengthOf, segmentsOf, TOLERANCE, tenth } from './lines.js';
 import { crossings, foreignPairs } from './pairs.js';
+import { cx } from './rects.js';
 import type { LineInput } from './types.js';
 
 /**

@@ -1,4 +1,5 @@
-import type { Drawing, Placed } from '@diagrist/core';
+import type { Placed } from '../placement.js';
+import type { Drawing } from '../plugin.js';
 import type { LineFrame, LineInput, LineLabel, LineNode, LineRoute, LineText } from './types.js';
 
 /** A text keyed `<id><n>.label`, `<id><n>.label.<k>` or `label-<n>` stands on the line of index `n`. */
@@ -12,7 +13,7 @@ const OF_LINE = /^\D*?(\d+)\./;
  * outlines and texts of `placed`, a line per edge anchor, its id the anchor's index. Texts are tied to their line by
  * key, as `placedOf` and the kinds name them; boxes that hold other boxes, and areas, are frames, and a text keyed
  * `<frame>.name` is the head of its frame. Lines leaving a box at one point, or entering one at one point, are
- * drawn as a bundle and are read as one.
+ * drawn as a bundle and are read as one, whichever end of them is the start.
  */
 export function linesOfDrawing(drawing: Pick<Drawing, 'anchors' | 'placed'>): LineInput {
   const { anchors } = drawing;
@@ -74,12 +75,14 @@ export function linesOfDrawing(drawing: Pick<Drawing, 'anchors' | 'placed'>): Li
   return { nodes, routes: bundles(routes), labels, texts, frames, width: anchors.width, height: anchors.height };
 }
 
-/** Lines that leave one box at one point share a bundle, and so do lines that enter one box at one point. */
+/**
+ * Lines that meet at one of their ends share a bundle: a fan that leaves one box at one point, or a join that enters
+ * one at one point. The point counts, not which end is the start, since a kind may draw a line against its reading.
+ */
 function bundles(routes: readonly LineRoute[]): LineRoute[] {
   const keys = routes.map((r) => {
-    const [start, end] = [r.points[0], r.points.at(-1)];
     const at = (p: readonly number[] | undefined) => (p === undefined ? '' : p.map((v) => v.toFixed(1)).join(','));
-    return [`out ${r.from} ${at(start)}`, `in ${r.to} ${at(end)}`];
+    return [...new Set([`at ${at(r.points[0])}`, `at ${at(r.points.at(-1))}`])];
   });
   const counts = new Map<string, number>();
   for (const k of keys.flat()) counts.set(k, (counts.get(k) ?? 0) + 1);

@@ -1,5 +1,4 @@
-import { compile, type Rect } from '@diagrist/core';
-import { segmentsIntersect } from '@diagrist/layout-grid';
+import { compile, type Rect, segmentsIntersect } from '@diagrist/core';
 import { describe, expect, it } from 'vitest';
 import { umlPlugin } from '../src/index.js';
 import { classDiagram, classSource } from './compile.js';

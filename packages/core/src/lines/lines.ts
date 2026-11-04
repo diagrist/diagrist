@@ -1,5 +1,5 @@
-import type { Point, Rect } from '@diagrist/core';
-import { segmentMeetsRect } from '../label/segment.js';
+import type { Point, Rect } from '../geometry.js';
+import { segmentMeetsRect } from '../segment.js';
 import type { LineRoute } from './types.js';
 
 /** Overlap or distance below this many pixels is rounding. */

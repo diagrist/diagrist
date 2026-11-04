@@ -1,9 +1,9 @@
 import type { Point, Rect } from '@diagrist/core';
+import { segmentMeetsEllipse, segmentMeetsRect, segmentsIntersect } from '@diagrist/core';
 import { overlaps } from '../geometry.js';
 import type { GridLayout, PlacedNode, Route } from '../layout.js';
 import { ellipseIn } from '../route/snap.js';
 import type { GridSpec } from '../spec.js';
-import { segmentMeetsEllipse, segmentMeetsRect, segmentsIntersect } from './segment.js';
 
 /** Air between a text and foreign lines, nodes or frames. */
 const AIR = 3;

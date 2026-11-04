@@ -1,5 +1,5 @@
-import type { Point } from '@diagrist/core';
-import { segmentsIntersect } from '../label/segment.js';
+import type { Point } from '../geometry.js';
+import { segmentsIntersect } from '../segment.js';
 import { axisOf, bundled, meeting, rounded, type Segment, segmentsOf, TOLERANCE, tenth } from './lines.js';
 import type { LineFinding, LineRoute } from './types.js';
 
