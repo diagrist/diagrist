@@ -16,7 +16,8 @@ not one fixed look.
 
 1. **The file declares areas, never colours.** `area <id> <label> [tone=]` declares a named part of the picture once;
    elements and frames join it with `area=`. An area without `tone=` stays in ink, as a core does, and still gets its
-   legend entry. Tones come from a closed table of eight (`green`, `orange`, `purple`, `red`, `yellow`, `teal`, `pink`,
+   legend entry. The flag `core` marks the area the others extend, for pictures that arrange a core and its
+   extensions (ADR 0034); without it, the one area without a tone is the core. Tones come from a closed table of eight (`green`, `orange`, `purple`, `red`, `yellow`, `teal`, `pink`,
    `sky`), each an ink of at least 4.5:1 on white for lines and texts and a light tint for fills. They are new names
    besides the `tone=` of the C4 blocks, whose bright greens and oranges are too light for a text.
 2. **Lines derive their area.** A line takes its own `area=`, else the coloured area of its first end, else that of
