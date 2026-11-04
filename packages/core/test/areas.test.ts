@@ -81,6 +81,44 @@ describe('areas in the SVG', () => {
     expect(halo).toBeGreaterThan(inked);
   });
 
+  it('never stripe or tint a text, even one filled white like a name on a card head, nor stripe a line', () => {
+    const card = standardStyles({
+      roles: { head: { classes: ['head-text'] }, limb: { classes: ['limb'] } },
+      rules: [
+        { name: 'head-text', declarations: 'fill: #ffffff;' },
+        { name: 'limb', declarations: 'fill: #ffffff; stroke: #18181b;' },
+      ],
+    });
+    const drawn: Shape = {
+      kind: 'group',
+      area: { tone: 'green', as: 'body' },
+      children: [
+        { kind: 'text', x: 0, y: 9, text: 'Alpha', role: 'head', font: 'name' },
+        { kind: 'line', x1: 5, y1: 0, x2: 5, y2: 9, role: 'limb' },
+      ],
+    };
+    for (const areas of ['tint', 'stripe'] as const) {
+      const svg = toSvg({ width: 100, height: 50, title: 'T', areas, children: [drawn] }, card);
+      expect(svg).not.toMatch(/\.area-green \.head-text \{[^}]*(#dcfce7|filter)/);
+      expect(svg).not.toContain('filter: url(#area-green)');
+    }
+  });
+
+  it('tint fills what is filled in ink, such as the dot of an initial state, but keeps the texts black', () => {
+    const dot = standardStyles({
+      roles: { dot: { classes: ['dot'] } },
+      rules: [{ name: 'dot', declarations: 'fill: #18181b;' }],
+    });
+    const drawn: Shape = {
+      kind: 'group',
+      area: { tone: 'green', as: 'body' },
+      children: [{ kind: 'circle', cx: 5, cy: 5, r: 4, role: 'dot' }],
+    };
+    expect(toSvg({ width: 9, height: 9, title: 'T', children: [drawn] }, dot)).toContain(
+      '.dia .area-green .dot { fill: #15803d; }',
+    );
+  });
+
   it('a scene without areas has no area rules, markers or filters', () => {
     const svg = svgOf('stripe', { kind: 'rect', x: 0, y: 0, w: 9, h: 9, role: 'item' });
     expect(svg).not.toContain('area-');

@@ -1,9 +1,10 @@
 import { xmlSafe } from '@diagrist/lang';
-import { type AreaUse, areaClass, areaDefs, areaRules } from './areas/paint.js';
+import { areaClass, areaDefs, areaRules } from './areas/paint.js';
 import type { AreaTone } from './areas/tones.js';
+import { areaUses } from './areas/uses.js';
 import { markerElement, num } from './markers.js';
 import type { Scene, Shape, TextRun } from './scene.js';
-import type { Icon, Styles } from './styles.js';
+import { classesOf, type Icon, type Styles } from './styles.js';
 
 /** How `toSvg` writes the document. */
 export interface SvgOptions {
@@ -36,10 +37,6 @@ export function toSvg(scene: Scene, styles: Styles, options: SvgOptions = {}): s
   const body = scene.children.map((shape) => element(shape, styles)).join('\n');
   const defs = `<defs>${styles.markers.map((m) => markerElement(m, styles.markerSize)).join('')}${areaDefs(styles, areas, paint)}</defs>`;
   return `${head}<title>${title}</title>${style}${defs}\n${body}\n</svg>\n`;
-}
-
-function classesOf(role: string, styles: Styles): readonly string[] {
-  return styles.roles[role]?.classes ?? [role];
 }
 
 /** The inline paint of a role, with its leading space; empty for roles styled by class alone. */
@@ -109,52 +106,6 @@ function usedClasses(shapes: readonly Shape[], styles: Styles, into: Set<string>
     if (shape.kind === 'group') usedClasses(shape.children, styles, into);
   }
   return into;
-}
-
-/**
- * What each area class of the scene holds: the classes below its groups and the markers of their paths. A marker
- * used inside an area is painted by the area's line class, which its copy carries.
- */
-function areaUses(
-  shapes: readonly Shape[],
-  styles: Styles,
-  into: Map<string, AreaUse> = new Map(),
-): Map<string, AreaUse> {
-  for (const shape of shapes) {
-    if (shape.kind !== 'group') continue;
-    if (shape.area !== undefined) {
-      const use = entry(into, shape.area);
-      usedClasses(shape.children, styles, use.classes);
-      const lines = entry(into, { tone: shape.area.tone, as: 'line' });
-      for (const marker of markersOf(shape.children, styles)) {
-        lines.markers.add(marker.id);
-        lines.classes.add(marker.name);
-      }
-    }
-    areaUses(shape.children, styles, into);
-  }
-  return into;
-}
-
-function entry(uses: Map<string, AreaUse>, mark: AreaUse['mark']): AreaUse {
-  const key = areaClass(mark);
-  const found = uses.get(key) ?? { mark, classes: new Set<string>(), markers: new Set<string>() };
-  uses.set(key, found);
-  return found;
-}
-
-/** The markers the paths among `shapes` end in, at any depth. */
-function markersOf(shapes: readonly Shape[], styles: Styles): Styles['markers'] {
-  const ids = new Set<string>();
-  const visit = (list: readonly Shape[]) => {
-    for (const shape of list) {
-      if (shape.kind === 'group') visit(shape.children);
-      const role = shape.kind === 'path' ? styles.roles[shape.role] : undefined;
-      for (const id of [role?.marker, role?.markerStart]) if (id !== undefined) ids.add(id);
-    }
-  };
-  visit(shapes);
-  return styles.markers.filter((m) => ids.has(m.id));
 }
 
 function styleSheet(styles: Styles, used: ReadonlySet<string>): string {

@@ -11,6 +11,8 @@ export const areaClass = (mark: AreaMark): string =>
 export interface AreaUse {
   readonly mark: AreaMark;
   readonly classes: Set<string>;
+  /** The kinds of shape each class is drawn on there, `marker` for the outline of a marker. */
+  readonly on: Map<string, Set<string>>;
   readonly markers: Set<string>;
 }
 
@@ -29,24 +31,35 @@ interface Painted {
 }
 
 /** The fill and stroke of a rule as an area paints them, each marked when the area replaced it; the stripe as a filter. */
-function derive(declarations: string, mark: AreaMark, paint: AreaPaint, colors: AreaColors): Painted[] {
+function derive(
+  declarations: string,
+  mark: AreaMark,
+  paint: AreaPaint,
+  colors: AreaColors,
+  on: ReadonlySet<string>,
+): Painted[] {
   const { ink, tint } = AREA_TONES[mark.tone];
-  const { ink: inks, outline, surface } = colors;
+  const { ink: inks, outline } = colors;
+  const text = on.has('text');
+  const surface = text ? [] : colors.surface;
   const mode = mark.as === 'line' ? 'outline' : paint;
+  const keepsInk = (prop: string) => mode === 'outline' || (mode === 'tint' && (prop === 'stroke' || !text));
   const out: Painted[] = [];
   for (const part of declarations.split(';')) {
     const [, prop, value] = DECLARATION.exec(part) ?? [];
     if (prop === undefined || value === undefined) continue;
     const isInk = inks.includes(value) || (prop === 'stroke' && outline.includes(value));
     const isSurface = prop === 'fill' && surface.includes(value);
-    if (isInk && (mode === 'outline' || (mode === 'tint' && prop === 'stroke'))) {
+    if (isInk && keepsInk(prop)) {
       out.push({ prop, value: ink, changed: true });
     } else if (isSurface && mode === 'tint') {
       out.push({ prop, value: tint, changed: true });
     } else {
       out.push({ prop, value, changed: false });
     }
-    if (isSurface && mode === 'stripe') out.push({ prop: 'filter', value: `url(#area-${mark.tone})`, changed: true });
+    if (isSurface && mode === 'stripe' && !on.has('line')) {
+      out.push({ prop: 'filter', value: `url(#area-${mark.tone})`, changed: true });
+    }
   }
   return out;
 }
@@ -83,7 +96,13 @@ export function areaRules(
         const own = written.has(rule.name);
         return {
           name: rule.name,
-          painted: derive(own ? rule.declarations : UNSTYLED, use.mark, paint, own ? colors : unstyled),
+          painted: derive(
+            own ? rule.declarations : UNSTYLED,
+            use.mark,
+            paint,
+            own ? colors : unstyled,
+            use.on.get(rule.name) ?? new Set(),
+          ),
         };
       });
     const changed = new Set(rules.flatMap((r) => r.painted.filter((d) => d.changed).map((d) => d.prop)));

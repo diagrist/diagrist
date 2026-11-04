@@ -124,3 +124,8 @@ export interface Styles {
     readonly surface: readonly string[];
   };
 }
+
+/** The classes of a role, or the role itself as the class when the table does not name it. */
+export function classesOf(role: string, styles: Styles): readonly string[] {
+  return styles.roles[role]?.classes ?? [role];
+}
