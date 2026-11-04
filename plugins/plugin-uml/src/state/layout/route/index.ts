@@ -5,10 +5,11 @@ import { endBox, foreignFrames } from '../ends.js';
 import { labelLines } from '../labels.js';
 import { transitionSides } from '../sides.js';
 import { edgeId } from '../spec.js';
+import { channelSteps } from './channels.js';
 import type { RouteContext } from './context.js';
 import { type Loop, placeLoops, stateLoop } from './loops.js';
 import { spreadRails } from './rails.js';
-import { centreSteps, cornerSteps } from './steps.js';
+import { centreSteps, cornerSteps, foldBacks } from './steps.js';
 
 /** The routes of a state machine and what belongs to them by index. */
 export interface Routing {
@@ -29,7 +30,8 @@ function pointNodes(spec: GridSpec, grid: GridLayout): GridNode[] {
   });
 }
 
-const tidy = (routes: readonly Route[], c: RouteContext) => cornerSteps(centreSteps(spreadRails(routes, c), c), c);
+const tidy = (routes: readonly Route[], c: RouteContext) =>
+  cornerSteps(channelSteps(centreSteps(spreadRails(foldBacks(routes), c), c), c), c);
 
 /**
  * Routes of a state machine on `layout-grid`: the kind chooses the sides of each transition per attempt, keeps
