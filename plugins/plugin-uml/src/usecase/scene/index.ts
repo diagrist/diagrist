@@ -1,10 +1,11 @@
-import { type Anchors, domId, type Scene, type Shape } from '@diagrist/core';
-import { headerShapes, markShapes, stripShapes, type Words } from '@diagrist/parts';
+import { type Anchors, domId, markAreas, type Scene, type Shape } from '@diagrist/core';
+import { headerShapes, markShapes, stripShapes, type Words, withAreaLegend } from '@diagrist/parts';
 import { actorArt } from '../layout/actor.js';
 import { useCaseArt } from '../layout/ellipse.js';
 import type { PictureTexts, UseCaseLayout } from '../layout/index.js';
 import { SUBJECT_TITLE } from '../layout/spec.js';
 import type { UseCaseModel } from '../model.js';
+import { markExtendNote, useCaseAreaMarks, usedAreas } from './areas.js';
 import { commentShape, edgeShape, labelShape } from './edges.js';
 import { actorShapes, useCaseShapes } from './nodes.js';
 
@@ -52,12 +53,19 @@ export function useCaseScene(l: UseCaseLayout, m: UseCaseModel, words: Words & P
     ...subjectShapes(l, m),
     ...nodeShapes(l, m),
     ...l.drawn.map((d, k) => edgeShape(d, l.routes[d.route]?.points ?? [], domId.edge(k))),
-    ...l.comments.map((c) => commentShape(c, cards)),
+    ...l.comments.map((c) => markExtendNote(m, l, c.route, commentShape(c, cards))),
     ...labelled,
     ...l.marks.map((x): Shape => ({ kind: 'group', children: markShapes(x.id, x.x, x.y) })),
     ...stripShapes(l.strip, words),
   ];
-  return { width: l.width, height: l.height, title: m.diagram.title, children };
+  const scene: Scene = {
+    width: l.width,
+    height: l.height,
+    title: m.diagram.title,
+    areas: m.diagram.areas.paint,
+    children: markAreas(children, useCaseAreaMarks(m, l)),
+  };
+  return withAreaLegend(scene, m.diagram.areas, usedAreas(m), cards ? 'noteCard' : 'outline');
 }
 
 /** Actors and use cases as nodes, subjects as groups, relations as edges in drawing order. */

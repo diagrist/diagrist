@@ -23,3 +23,10 @@ export function useCaseModel(diagram: UseCaseDiagram): UseCaseModel {
     subjects: byId(diagram.subjects),
   };
 }
+
+/** The area of an actor, use case or subject: its own, else for a use case that of its subject (ADR 0033). */
+export function areaOf(m: UseCaseModel, id: string): string | undefined {
+  const u = m.cases.get(id);
+  const subject = u?.subject === undefined ? undefined : m.subjects.get(u.subject);
+  return m.actors.get(id)?.area ?? u?.area ?? subject?.area ?? m.subjects.get(id)?.area;
+}

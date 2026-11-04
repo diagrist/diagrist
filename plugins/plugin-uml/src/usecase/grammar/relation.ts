@@ -1,3 +1,4 @@
+import { lineAreaAttribute } from '@diagrist/core';
 import { arg, arrow, attr, optionalArg, ref, statement, text } from '@diagrist/lang';
 import { multiplicity } from '../../shared/values.js';
 import { implementing, type SpecElement } from '../../spec/catalog.js';
@@ -55,6 +56,7 @@ export const rel = statement(
         optionalArg('label', text(), 'Name of the relation, shown at the middle of the line.'),
       ],
       attributes: {
+        area: lineAreaAttribute,
         source: implementing(
           { uml: [USE_CASES.multiplicity] },
           attr(multiplicity(), 'Multiplicity at `from`, on an association only.'),
