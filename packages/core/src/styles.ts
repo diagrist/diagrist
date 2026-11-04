@@ -114,8 +114,13 @@ export interface Styles {
   /** Pictograms that `icon` shapes name, by name. */
   readonly icons?: Readonly<Record<string, Icon>>;
   /**
-   * The colours an area replaces (ADR 0033): `ink` of lines, outlines and texts by its ink, `surface` of the fill of an
-   * element by its tint or stripe. Left out, the standard look's ink, border and fill.
+   * The colours an area replaces (ADR 0033): `ink` of lines, outlines and texts by its ink, `outline` only where it
+   * strokes, such as a grey border, and `surface`, the fill of an element, by its tint or stripe. Left out, the
+   * standard look's ink, border and fill.
    */
-  readonly areaColors?: { readonly ink: readonly string[]; readonly surface: readonly string[] };
+  readonly areaColors?: {
+    readonly ink: readonly string[];
+    readonly outline: readonly string[];
+    readonly surface: readonly string[];
+  };
 }

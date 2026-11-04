@@ -63,6 +63,14 @@ describe('areas in the SVG', () => {
     }
   });
 
+  it('repaint the arrowheads of a look that writes only used rules, which SVG draws in its black fill', () => {
+    const usedOnly = { ...styles, rules: styles.rules.map(({ name, declarations }) => ({ name, declarations })) };
+    const scene: Scene = { width: 100, height: 50, title: 'T', children: [line] };
+    const svg = toSvg(scene, usedOnly);
+    expect(svg).not.toContain('.dia .arrow-filled {');
+    expect(svg).toContain('.dia .area-orange-line .arrow-filled { fill: #c2410c; }');
+  });
+
   it('a scene without areas has no area rules, markers or filters', () => {
     const svg = svgOf('stripe', { kind: 'rect', x: 0, y: 0, w: 9, h: 9, role: 'item' });
     expect(svg).not.toContain('area-');

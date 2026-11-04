@@ -3,6 +3,7 @@ import { legendShapes, sheetShapes, stripShapes, type Words } from '@diagrist/pa
 import type { ArchitectureLayout } from '../layout/index.js';
 import type { ArchitectureModel } from '../model/types.js';
 import type { Texts } from '../texts/index.js';
+import { inAreas } from './areas.js';
 import { bandShapes } from './bands.js';
 import { edgeShapes } from './edges.js';
 import { dimmed } from './focus.js';
@@ -41,7 +42,13 @@ export function architectureScene(
     ...(layout.legend ? legendShapes(layout.legend, sampleShapes) : []),
     ...(layout.sheet ? sheetShapes(layout.sheet) : []),
   ];
-  return { width: layout.width, height: layout.height, title: model.title, children: dimmed(children, model, layout) };
+  return {
+    width: layout.width,
+    height: layout.height,
+    title: model.title,
+    areas: model.areas.paint,
+    children: inAreas(dimmed(children, model, layout), model, layout),
+  };
 }
 
 /** Where nodes, frames and edges are, by the DOM ids of their groups, for embeddings such as animations. */

@@ -26,8 +26,9 @@ export function toSvg(scene: Scene, styles: Styles, options: SvgOptions = {}): s
   const paint = scene.areas ?? 'tint';
   const areas = areaUses(scene.children, styles);
   const head = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" width="${width}" height="${height}" class="${styles.root}" role="img" aria-label="${title}">`;
-  const sheet = () =>
-    styleSheet(styles, usedClasses(scene.children, styles)) + areaRules(styles, areas, paint).join('');
+  const used = usedClasses(scene.children, styles);
+  const written = new Set(styles.rules.filter((r) => r.always === true || used.has(r.name)).map((r) => r.name));
+  const sheet = () => styleSheet(styles, used) + areaRules(styles, areas, paint, written).join('');
   const style =
     options.inline === true
       ? ''

@@ -1,0 +1,29 @@
+# Radverleih, C4 level 2: the rental core and its extensions, each extension in its own area and tone (ADR 0033).
+diagram container "Radverleih: Kern und Erweiterungen" locale=de
+grid cols links,mitte,rechts
+grid rows oben,haupt,unten
+
+area kern "Kern"
+area zahlung "Zahlungen" tone=green
+area wartung "Wartung" tone=orange
+area melden "Benachrichtigung" tone=purple
+
+group plattform "Zahlungen" own area=zahlung
+
+person kunde "Kundin" at links/oben area=kern
+container app "App" tech="iOS und Android" icon=smartphone at links/haupt area=kern
+container api "Verleih-API" tech="Kotlin" icon=route at mitte/haupt area=kern
+container db "Datenbank" tech="PostgreSQL" icon=postgresql at mitte/unten area=kern
+container push "Push-Dienst" tech="FCM, APNs" icon=network at mitte/oben area=melden
+container tarif "Tarifdienst" tech="Kotlin" icon=gauge at rechts/haupt in plattform
+system psp "Zahlungsanbieter" tech="REST" icon=receipt at rechts/oben in plattform
+container werkstatt "Werkstatt-Portal" tech="Web" icon=monitor at rechts/unten area=wartung
+
+edge kunde -> app "leiht aus"
+edge app -> api "Rad entsperren" via=HTTPS
+edge api -> db via=SQL
+edge api -> tarif "Fahrt abrechnen"
+edge tarif -> psp "Betrag abbuchen" via=HTTPS
+edge werkstatt -> api "Rad sperren"
+edge api -> push "Ereignis"
+edge push -> app "Mitteilung"

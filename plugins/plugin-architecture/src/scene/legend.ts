@@ -49,6 +49,10 @@ export function sampleShapes(entry: LegendEntry<Sample>): readonly Shape[] {
       const box = { kind: 'rect', x, y: y - SWATCH.h / 2, w: SWATCH.w, h: SWATCH.h, rx: SWATCH.rx, role } as const;
       return [box, ...changeTagShapes(sample.change, x + SWATCH.w / 2, y)];
     }
+    case 'area': {
+      const box: Shape = { kind: 'rect', x, y: y - SWATCH.h / 2, w: SWATCH.w, h: SWATCH.h, rx: SWATCH.rx, role: 'box' };
+      return sample.mark === undefined ? [box] : [{ kind: 'group', area: sample.mark, children: [box] }];
+    }
     case 'none':
       return [];
   }

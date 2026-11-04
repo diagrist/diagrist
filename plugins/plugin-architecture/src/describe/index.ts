@@ -1,5 +1,6 @@
 import type { Words } from '@diagrist/parts';
 import { CHANGES } from '../layout/diff.js';
+import { areaMembers } from '../model/areas.js';
 import type { ArchEdge, ArchGroup, ArchitectureModel, ArchNode } from '../model/types.js';
 import type { Texts } from '../texts/index.js';
 
@@ -61,6 +62,9 @@ export function describeArchitecture(model: ArchitectureModel, t: Texts, words: 
   for (const l of model.layers) {
     const row = model.nodes.filter((n) => n.at?.row === l.row).map((n) => nodeText(n, t));
     lines.push(`${p.layer} ${l.label}: ${row.join(', ')}.`);
+  }
+  for (const { area, members } of areaMembers(model)) {
+    if (members.length > 0) lines.push(words.area(area.label, area.tone, members));
   }
   for (const f of model.flows) {
     lines.push(`Flow ${f.id}:`);

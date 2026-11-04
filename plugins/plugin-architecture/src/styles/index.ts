@@ -28,13 +28,13 @@ export function stylesOf(look: Look): Styles {
     rules: architectureRules(fonts, paint.strokes, paint.changes(fonts, paint.strokes)),
     fonts,
   });
-  const { fontKerning, canvas, markers } = paint;
+  const { fontKerning, canvas, markers, areaColors } = paint;
   const root = fonts[paint.root];
   return {
     ...base,
     fontFamily: root.family === undefined ? base.fontFamily : FONT_STACKS[root.family],
     fontSize: root.size,
-    ...compact({ fontKerning, canvas, markers }),
+    ...compact({ fontKerning, canvas, markers, areaColors }),
     markerSize: look.metrics.markerSize,
     rules: overlay(base.rules, paint.rules(fonts, paint.strokes), paint.usedOnly === true),
     icons: ICONS,

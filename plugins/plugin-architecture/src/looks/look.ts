@@ -1,4 +1,4 @@
-import type { Font, Marker, RoleStyle, StyleRule } from '@diagrist/core';
+import type { Font, Marker, RoleStyle, StyleRule, Styles } from '@diagrist/core';
 import type { Locale } from '@diagrist/lang';
 import type { FontRole, Metrics } from '../layout/metrics.js';
 import type { Strokes } from '../styles/rules.js';
@@ -95,6 +95,8 @@ export interface Paint {
   readonly usedOnly?: boolean;
   /** How the sentence legend names what this paint shows differently, such as the colour of emphasis, by locale. */
   readonly sights?: Readonly<Record<Locale, Partial<SentenceWords>>>;
+  /** The inks and the fill of an element that areas replace (ADR 0033), where the look paints other ones. */
+  readonly areaColors?: Styles['areaColors'];
 }
 
 /** A look of C4 pictures as a value (ADR 0023): a one-line doc, measures, fonts by role, paint and options. */

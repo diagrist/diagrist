@@ -32,6 +32,7 @@ describe('the three C4 levels', () => {
       'flow',
       'note',
       'adr',
+      'area',
       'use',
       'variant',
     ]);

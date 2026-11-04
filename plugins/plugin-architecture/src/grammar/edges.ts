@@ -1,4 +1,4 @@
-import { TONE_NAMES } from '@diagrist/core';
+import { lineAreaAttribute, TONE_NAMES } from '@diagrist/core';
 import { arg, arrow, attr, id, lines, oneOf, optionalArg, ref, statement, text, word } from '@diagrist/lang';
 import { LEVEL_ELEMENTS, type Level } from './elements.js';
 import { gridName } from './values.js';
@@ -35,6 +35,7 @@ const ATTRIBUTES = {
   lane: attr(gridName(), 'Column a vertical edge runs in, reaching into frames at its ends; needs `layout=adaptive`.'),
   tone: attr(oneOf(TONE_NAMES), 'Colour of line and heads, such as `red` for a highlighted way.'),
   style: attr(ref('style'), 'A `style` whose `tone` applies when the edge sets none.'),
+  area: lineAreaAttribute,
 };
 
 /** Arguments of an edge between two elements or groups of the level. */

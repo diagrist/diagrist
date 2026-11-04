@@ -15,6 +15,8 @@ export interface Words {
   readonly decision: (decision: Decision) => string;
   /** An area in the description: its name, its tone if it has one, and the names of what belongs to it. */
   readonly area: (label: string, tone: AreaTone | undefined, members: readonly string[]) => string;
+  /** The name of a tone of areas, and of the ink of an area without one. */
+  readonly tone: (tone: AreaTone | undefined) => string;
 }
 
 const TONES_EN: Readonly<Record<AreaTone, string>> = {
@@ -44,8 +46,8 @@ const EN: Words = {
   open: (who) => `(open, ${who})`,
   decision: (d) =>
     `${d.id} ${d.question} Chosen: ${d.choice}.${d.consequence ? ` ${d.consequence}` : ''}${d.open ? ` Open: ${d.open}.` : ''}`,
-  area: (label, tone, members) =>
-    `Area ${label} (${tone === undefined ? 'black' : TONES_EN[tone]}): ${members.join(', ')}.`,
+  area: (label, tone, members) => `Area ${label} (${EN.tone(tone)}): ${members.join(', ')}.`,
+  tone: (tone) => (tone === undefined ? 'black' : TONES_EN[tone]),
 };
 
 const DE: Words = {
@@ -53,8 +55,8 @@ const DE: Words = {
   open: (who) => `(offen, ${who})`,
   decision: (d) =>
     `${d.id} ${d.question} Gewählt: ${d.choice}.${d.consequence ? ` ${d.consequence}` : ''}${d.open ? ` Offen: ${d.open}.` : ''}`,
-  area: (label, tone, members) =>
-    `Bereich ${label} (${tone === undefined ? 'schwarz' : TONES_DE[tone]}): ${members.join(', ')}.`,
+  area: (label, tone, members) => `Bereich ${label} (${DE.tone(tone)}): ${members.join(', ')}.`,
+  tone: (tone) => (tone === undefined ? 'schwarz' : TONES_DE[tone]),
 };
 
 /** The words of the shared parts by locale; the type makes a missing locale a compile error. */

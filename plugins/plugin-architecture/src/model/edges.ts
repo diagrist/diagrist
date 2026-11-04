@@ -25,6 +25,7 @@ function edgeOf(e: Line, index: number, styles: Styles, step: Step | undefined):
       bundle: a.bundle,
       lane: a.lane,
       tone: a.tone ?? styles.get(a.style ?? '')?.tone,
+      area: a.area,
       step,
       origin: e.origin,
     }),

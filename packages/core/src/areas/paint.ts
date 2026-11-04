@@ -15,19 +15,21 @@ export interface AreaUse {
 }
 
 /** The colours a style table paints in ink and as the fill of an element, which the areas replace. */
-const STANDARD_AREA_COLORS = { ink: [COLORS.stroke, COLORS.border], surface: [COLORS.fill] } as const;
+const STANDARD_AREA_COLORS: AreaColors = { ink: [COLORS.stroke], outline: [COLORS.border], surface: [COLORS.fill] };
+
+type AreaColors = NonNullable<Styles['areaColors']>;
 
 const DECLARATION = /^\s*(fill|stroke)\s*:\s*(\S+?)\s*$/;
 
 /** The declarations an area adds to a rule of the style table, or none when the rule paints nothing it replaces. */
-function derive(declarations: string, mark: AreaMark, paint: AreaPaint, colors: Styles['areaColors']): string {
+function derive(declarations: string, mark: AreaMark, paint: AreaPaint, colors: AreaColors): string {
   const { ink, tint } = AREA_TONES[mark.tone];
-  const { ink: inks, surface } = colors ?? STANDARD_AREA_COLORS;
+  const { ink: inks, outline, surface } = colors;
   const mode = mark.as === 'line' ? 'outline' : paint;
   const out: string[] = [];
   for (const part of declarations.split(';')) {
     const [, prop = '', value = ''] = DECLARATION.exec(part) ?? [];
-    const isInk = inks.includes(value);
+    const isInk = inks.includes(value) || (prop === 'stroke' && outline.includes(value));
     const isSurface = prop === 'fill' && surface.includes(value);
     if (isInk && (mode === 'outline' || (mode === 'tint' && prop === 'stroke'))) out.push(`${prop}: ${ink};`);
     if (isSurface && mode === 'tint') out.push(`fill: ${tint};`);
@@ -42,13 +44,33 @@ const ordered = (uses: ReadonlyMap<string, AreaUse>): AreaUse[] => {
   return [...uses.values()].sort((a, b) => rank(a) - rank(b));
 };
 
-/** CSS rules of the areas: each rule of the style table used inside an area, repainted in the area's tone. */
-export function areaRules(styles: Styles, uses: ReadonlyMap<string, AreaUse>, paint: AreaPaint): string[] {
+/** What SVG paints a shape with when its class has no rule in the stylesheet: a black fill. */
+const UNSTYLED = 'fill: #000000;';
+
+/**
+ * CSS rules of the areas: each rule of the style table used inside an area, repainted in the area's tone. A rule the
+ * stylesheet leaves out, as looks do that write only what the picture uses, paints nothing, so its class is drawn in
+ * SVG's black fill, which the area repaints like ink; that keeps arrowheads in the tone of their line.
+ */
+export function areaRules(
+  styles: Styles,
+  uses: ReadonlyMap<string, AreaUse>,
+  paint: AreaPaint,
+  written: ReadonlySet<string>,
+): string[] {
   const root = `.${styles.root}`;
+  const colors = styles.areaColors ?? STANDARD_AREA_COLORS;
+  const unstyled = { ...colors, ink: [...colors.ink, '#000000'] };
   return ordered(uses).flatMap((use) =>
     styles.rules
       .filter((rule) => use.classes.has(rule.name))
-      .map((rule) => [rule.name, derive(rule.declarations, use.mark, paint, styles.areaColors)] as const)
+      .map((rule) => {
+        const own = written.has(rule.name);
+        return [
+          rule.name,
+          derive(own ? rule.declarations : UNSTYLED, use.mark, paint, own ? colors : unstyled),
+        ] as const;
+      })
       .filter(([, declarations]) => declarations !== '')
       .map(([name, declarations]) => `  ${root} .${areaClass(use.mark)} .${name} { ${declarations} }\n`),
   );

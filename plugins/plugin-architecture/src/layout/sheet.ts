@@ -2,6 +2,7 @@ import type { Locale } from '@diagrist/lang';
 import type { GridLayout, Route } from '@diagrist/layout-grid';
 import { type Sheet, sheetOf, WORDS } from '@diagrist/parts';
 import type { Look } from '../looks/look.js';
+import { areaMembers } from '../model/areas.js';
 import type { ArchGroup, ArchitectureModel } from '../model/types.js';
 import type { Texts } from '../texts/index.js';
 import { SENTENCE_WORDS } from '../texts/sentence.js';
@@ -22,6 +23,13 @@ export interface SheetContent {
   readonly width: number;
   readonly bottom: number;
 }
+
+/** The areas of the picture as sentences of the legend, the tone as the sight: `Grün: Zahlungen.` (ADR 0033). */
+const areaSights = (model: ArchitectureModel, locale: Locale): string[] =>
+  areaMembers(model).map(({ area }) => {
+    const tone = WORDS[locale].tone(area.tone);
+    return `${tone.charAt(0).toUpperCase()}${tone.slice(1)}: ${area.label}.`;
+  });
 
 /**
  * The sheet around a picture with `decisions: notes` or `legend: sentence`: the notes beside the picture or below it
@@ -50,7 +58,10 @@ export function sheetFor(
   return sheetOf({
     decisions: o.decisions === 'notes' ? model.decisions : [],
     notes: place,
-    sentences: o.legend === 'sentence' ? legendSentences(model, shown, look, texts, words) : [],
+    sentences:
+      o.legend === 'sentence'
+        ? [...legendSentences(model, shown, look, texts, words), ...areaSights(model, locale)]
+        : [],
     top: Math.min(...grid.groups.map((g) => g.rect.y), ...grid.nodes.map((n) => n.rect.y)),
     right: width - m.marginX,
     bottom: content.bottom,

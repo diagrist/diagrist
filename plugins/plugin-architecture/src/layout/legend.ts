@@ -1,9 +1,10 @@
-import { textWidth } from '@diagrist/core';
+import { type AreaMark, areaMark, textWidth } from '@diagrist/core';
 import type { Route } from '@diagrist/layout-grid';
 import { LEGEND, type LegendItem } from '@diagrist/parts';
 import type { EdgeKind } from '../grammar/edges.js';
 import { SHAPES, STATUSES } from '../grammar/elements.js';
 import type { LookFont } from '../looks/look.js';
+import { areaMembers } from '../model/areas.js';
 import type { ArchitectureModel, NodeShape, Role } from '../model/types.js';
 import type { Texts } from '../texts/index.js';
 import { CHANGES, type Change } from './diff.js';
@@ -20,6 +21,7 @@ export type Sample =
   | { readonly kind: 'badge'; readonly n: number; readonly accent: boolean }
   | { readonly kind: 'mark' }
   | { readonly kind: 'change'; readonly change: Change }
+  | { readonly kind: 'area'; readonly mark?: AreaMark }
   | { readonly kind: 'none' };
 
 const ROLES: readonly Role[] = ['own', 'shared', 'external'];
@@ -43,7 +45,7 @@ const narrow = (sample: Sample, text: string, sampleWidth: number): LegendItem<S
 
 /**
  * What the legend explains: only what the picture shows, in a fixed order: kinds of edges, flows, roles of frames,
- * core decision, life cycle, changes of a diff picture, replicas, shapes, decision marks, icons. Samples of numbers
+ * core decision, life cycle, changes of a diff picture, replicas, shapes, decision marks, icons, areas. Samples of numbers
  * and marks are as wide as their text in the note `font`.
  */
 export function legendItems(
@@ -75,5 +77,9 @@ export function legendItems(
       out.push(wide({ kind: 'shape', shape }, texts.shapes[shape], SHAPE_SAMPLE.w));
   if (marked) out.push(narrow({ kind: 'mark' }, texts.mark, textWidth('E1', font)));
   if (nodes.some((n) => n.icon)) out.push({ sample: { kind: 'none' }, sampleWidth: 0, labelDx: 0, text: texts.icon });
+  for (const { area } of areaMembers(model)) {
+    const mark = areaMark(model.areas, area.id, 'body');
+    out.push(wide({ kind: 'area', ...(mark === undefined ? {} : { mark }) }, area.label));
+  }
   return out;
 }
