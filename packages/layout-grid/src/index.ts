@@ -38,6 +38,7 @@ export { simplify } from './layered/geometry.js';
 export type { LayeredLayout } from './layered/index.js';
 export { layoutLayered } from './layered/index.js';
 export type { LayeredEdge, LayeredMetrics, LayeredNode, LayeredSpec } from './layered/spec.js';
+export { type StackedLine, type StackedPorts, stackedPorts, stackedTracks } from './layered/stacked.js';
 export { assignLayers } from './layers/assign.js';
 export type { LayerEdge, Layered, LayerGraph } from './layers/graph.js';
 export { acyclic, neighbours } from './layers/graph.js';

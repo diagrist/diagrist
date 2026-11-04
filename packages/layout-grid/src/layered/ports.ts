@@ -16,7 +16,7 @@ interface End {
 }
 
 /** Keeps ends this far from the corners of a box. */
-const inset = (r: Rect) => Math.min(16, r.w / 4);
+const corners = (r: Rect) => Math.min(16, r.w / 4);
 
 /**
  * The ends on every side of every box: a fan leaves through one end, a join arrives through one end, every other
@@ -24,15 +24,16 @@ const inset = (r: Rect) => Math.min(16, r.w / 4);
  * box, each as near above or below its other end as the side and a gap of `gap` between ends allow; a fan or
  * join aims at its member nearest the middle, so that member runs straight. Placeholders are a single point. Then every piece whose two ends are the only ones
  * on their sides runs straight where the two boxes share a stretch, and an end that is the only one on its side
- * follows the other end of its piece wherever its box reaches: no small jogs.
+ * follows the other end of its piece wherever its box reaches: no small jogs. `inset` keeps ends off the corners.
  */
 export function portsOf(
   groups: readonly Group[],
-  ranked: Ranked,
+  ranked: Pick<Ranked, 'dummies'>,
   rects: ReadonlyMap<string, Rect>,
   x: ReadonlyMap<string, number>,
   gap: number,
   snap = 8,
+  inset: (r: Rect) => number = corners,
 ): Ports {
   const top = new Map<Link, number>();
   const bottom = new Map<Link, number>();
