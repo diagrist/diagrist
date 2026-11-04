@@ -30,7 +30,8 @@ const byId = (groups: readonly Group[], ports: ReadonlyMap<Link, number>): Map<s
  * ends stand in the order of their other ends, `gap` apart, each as near its other end as the side allows, and an end
  * alone on its side follows the other end of its line, so the line runs straight where both boxes share a stretch.
  * Every line keeps its own ends; nothing is bundled. `inset` keeps ends off the corners of a box, by default 16
- * pixels or a quarter of the side.
+ * pixels or a quarter of the side, always: an end never moves nearer a corner to spare a jog, since a caller that
+ * places its boxes itself may round their corners, and a head on a rounded corner reads worse than a step.
  */
 export function stackedPorts(
   lines: readonly StackedLine[],
@@ -40,7 +41,7 @@ export function stackedPorts(
 ): StackedPorts {
   const groups = groupsOf(lines);
   const x = new Map([...rects].map(([id, r]): [string, number] => [id, r.x + r.w / 2]));
-  const ports = portsOf(groups, { dummies: new Set() }, rects, x, gap, undefined, inset);
+  const ports = portsOf(groups, { dummies: new Set() }, rects, x, gap, undefined, inset, 0);
   return { top: byId(groups, ports.top), bottom: byId(groups, ports.bottom) };
 }
 
