@@ -78,6 +78,10 @@ describe('line findings', () => {
       [240, 100],
     ];
     expect(rules({ nodes: near, routes: [line('1', 'a', 'b', ...steps)] })).toContain('bends');
+    const found = lineFindings({ nodes: near, routes: [line('1', 'a', 'b', ...steps)] }).find(
+      (f) => f.rule === 'bends',
+    );
+    expect(found).toMatchObject({ value: 4, limit: 2 });
     const far = [box('a', 0, 0), box('b', 200, 400)];
     const long: Point[] = [
       [40, 40],

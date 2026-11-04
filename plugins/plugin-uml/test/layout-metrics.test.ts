@@ -36,13 +36,23 @@ function rows(kind: string, name: string, source: string): string[] {
   });
 }
 
+/** The rows of every kind, filled kind by kind, so no single test draws all examples. */
+const table = new Map<string, string[]>();
+const KINDS = ['activity', 'class', 'sequence', 'state', 'usecase'];
+
 describe('layout metrics', () => {
+  it.each(KINDS)('are measured for every picture of %s', (kind) => {
+    const { names, source } = examplesOf(kind);
+    table.set(
+      kind,
+      [...names].sort().flatMap((name) => rows(kind, name, source(name))),
+    );
+  });
+
   it('are recorded per picture: the measures of its lines and the breaches of each hard rule', () => {
-    const lines = ['activity', 'class', 'sequence', 'state', 'usecase'].flatMap((kind) => {
-      const { names, source } = examplesOf(kind);
-      return [...names].sort().flatMap((name) => rows(kind, name, source(name)));
-    });
-    const table = `{\n  ${lines.join(',\n  ')}\n}\n`;
-    expect(compareGolden(golden('layout-metrics.json'), table)).toEqual({ status: 'match' });
+    const lines = KINDS.flatMap((kind) => table.get(kind) ?? []);
+    expect(table.size).toBe(KINDS.length);
+    const text = `{\n  ${lines.join(',\n  ')}\n}\n`;
+    expect(compareGolden(golden('layout-metrics.json'), text)).toEqual({ status: 'match' });
   });
 });

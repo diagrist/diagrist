@@ -20,7 +20,7 @@ function limitOf(f: LineFinding, t: LineThresholds): number | undefined {
     case 'through':
       return t.clearance;
     case 'bends':
-      return value > t.longBends ? t.longBends : t.bends;
+      return f.limit ?? t.bends;
     case 'lead':
       return t.lead;
     case 'tail':
