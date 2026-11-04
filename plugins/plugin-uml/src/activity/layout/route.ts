@@ -1,28 +1,30 @@
-import type { Side } from '@diagrist/layout-grid';
+import type { Point } from '@diagrist/core';
+import { type Side, simplify } from '@diagrist/layout-grid';
 import type { Graph, GraphFlow } from './graph.js';
-import type { XY } from './metrics.js';
 import type { ActivityPlacement } from './place.js';
 import { type Port, ports } from './ports.js';
 import type { RankedFlow } from './rank.js';
-import { separateJogs } from './tracks.js';
 
 /** An edge with its route and the sides it leaves and enters by. */
 export interface Routed {
   readonly flow: GraphFlow;
-  readonly points: readonly XY[];
+  readonly points: readonly Point[];
   readonly fromSide: Side;
   readonly toSide: Side;
 }
 
-/** The gap above layer `layer`, midway between the rows. */
-const gutterAbove = (ap: ActivityPlacement, layer: number) => ap.placement.gutters[layer - 1] ?? 0;
+/** The middle of the gap above layer `layer`, between the pins of the two layers. */
+const gutterAbove = (ap: ActivityPlacement, layer: number) => {
+  const gap = ap.placement.gaps[layer - 1];
+  return gap ? (gap.top + gap.bottom) / 2 : 0;
+};
 
 /**
  * A forward edge: out of a diamond at the side, else straight down; horizontal pieces only in the gaps between
  * layers, over the waypoints of long edges; into a diamond at the side, else from the top.
  */
-function forward(ap: ActivityPlacement, f: RankedFlow, from: Port, to: Port): XY[] {
-  const pts: XY[] = [from.at];
+function forward(ap: ActivityPlacement, f: RankedFlow, from: Port, to: Port): Point[] {
+  const pts: Point[] = [from.at];
   let x = from.at[0];
   const waypoints = f.dummies.map((id) => ({
     x: ap.points.get(id)?.[0] ?? 0,
@@ -51,11 +53,11 @@ function forward(ap: ActivityPlacement, f: RankedFlow, from: Port, to: Port): XY
     jog(to.at[0], layerTo);
     pts.push(to.at);
   }
-  return dedupe(pts);
+  return simplify(pts);
 }
 
 /** A back edge or self loop: out on the right, up in its channel, in from the right. */
-function backward(ap: ActivityPlacement, f: RankedFlow, from: Port, to: Port): XY[] {
+function backward(ap: ActivityPlacement, f: RankedFlow, from: Port, to: Port): Point[] {
   const channel = ap.channels.get(f.index)?.x ?? from.at[0];
   if (f.from === f.to) {
     const [rx, y] = from.at;
@@ -70,31 +72,17 @@ function backward(ap: ActivityPlacement, f: RankedFlow, from: Port, to: Port): X
   const lastRow = ap.placement.rows.at(-1)?.h ?? 0;
   const below = gutterAbove(ap, layer(f.from) + 1) || from.at[1] + lastRow / 2 + 24;
   const above = gutterAbove(ap, layer(f.to)) || to.at[1] - 24;
-  const start: XY[] = from.side === 'right' ? [from.at] : [from.at, [from.at[0], below]];
-  const end: XY[] = to.side === 'right' ? [to.at] : [[to.at[0], above], to.at];
+  const start: Point[] = from.side === 'right' ? [from.at] : [from.at, [from.at[0], below]];
+  const end: Point[] = to.side === 'right' ? [to.at] : [[to.at[0], above], to.at];
   const out = start.at(-1) ?? from.at;
   const into = end[0] ?? to.at;
-  return dedupe([...start, [channel, out[1]], [channel, into[1]], ...end]);
+  return simplify([...start, [channel, out[1]], [channel, into[1]], ...end]);
 }
 
-/** Drops repeated points and middle points on a straight line. */
-export function dedupe(points: readonly XY[]): XY[] {
-  const out: XY[] = [];
-  for (const p of points) {
-    const last = out.at(-1);
-    if (last && last[0] === p[0] && last[1] === p[1]) continue;
-    const prev = out.at(-2);
-    if (prev && last && ((prev[0] === last[0] && last[0] === p[0]) || (prev[1] === last[1] && last[1] === p[1])))
-      out.pop();
-    out.push(p);
-  }
-  return out;
-}
-
-/** All edges in source order, handler bolts after them. */
+/** All edges in source order, handler bolts after them, every horizontal piece in the middle of its gap. */
 export function routeActivity(g: Graph, ap: ActivityPlacement): Routed[] {
   const portMap = ports(ap);
-  const routes = ap.ranks.flows.flatMap((f): Routed[] => {
+  return ap.ranks.flows.flatMap((f): Routed[] => {
     const p = portMap.get(f.index);
     const flow = g.flows[f.index];
     if (!p || !flow) return [];
@@ -105,5 +93,4 @@ export function routeActivity(g: Graph, ap: ActivityPlacement): Routed[] {
         : forward(ap, f, p.from, p.to);
     return [{ flow, points, fromSide: p.from.side, toSide: p.to.side }];
   });
-  return separateJogs(routes);
 }

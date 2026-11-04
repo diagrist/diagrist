@@ -1,12 +1,11 @@
-import type { Rect } from '@diagrist/core';
+import type { Point, Rect } from '@diagrist/core';
 import { cx, cy, right, type Side } from '@diagrist/layout-grid';
-import type { XY } from './metrics.js';
 import type { ActivityPlacement } from './place.js';
 import type { RankedFlow } from './rank.js';
 
 /** Where an edge attaches: a point on the edge of a node and the side it leaves or enters by. */
 export interface Port {
-  readonly at: XY;
+  readonly at: Point;
   readonly side: Side;
 }
 
@@ -55,7 +54,7 @@ function diamondSides(
   return sides;
 }
 
-function pointOn(r: Rect, side: Side, x: number): XY {
+function pointOn(r: Rect, side: Side, x: number): Point {
   switch (side) {
     case 'left':
       return [r.x, cy(r)];

@@ -28,12 +28,18 @@ export interface Row {
   readonly h: number;
 }
 
+/** The free part of a gap between two layers: from below the pins of the upper layer to above those of the lower. */
+export interface Gap {
+  readonly top: number;
+  readonly bottom: number;
+}
+
 /** Where nodes, layers and lanes stand. */
 export interface Placement {
   readonly nodes: ReadonlyMap<string, PlacedNode>;
   readonly rows: readonly Row[];
-  /** Middle of the gap above every layer but the first. */
-  readonly gutters: readonly number[];
+  /** The gap above every layer but the first; lines turn in its middle. */
+  readonly gaps: readonly Gap[];
   readonly bodyBottom: number;
   readonly width: number;
 }
@@ -51,7 +57,7 @@ export interface ActivityPlacement {
 /**
  * Rows per layer: as tall as the tallest node, with a fixed gap between. Pins reach into the gap; it grows by their
  * size so the edge still has room to turn before the pin. Above a layer in which a named region starts, `band` adds
- * room for its name.
+ * room for its name, and for tracks where the gap needs them.
  */
 function rowsOf(
   ranks: ActivityRanks,
@@ -84,18 +90,19 @@ interface Arrangement {
  * Placement of an activity diagram: a layer is a row, a lane a column. Per lane the column solver orders the nodes;
  * lanes are as wide as their content, their name and the loops in them. It takes at most two layerings: when a node
  * blocks the way of a fork or join bar in the first, the second moves it one layer down and is kept as it comes.
- * Then lanes whose loop channels do not fit grow and are fitted once more.
+ * Then lanes whose loop channels do not fit grow and are fitted once more. `room` widens the gap above a layer, for
+ * lines that need more than one track there.
  */
-export function placeActivity(g: Graph): ActivityPlacement {
-  const first = arrange(g, []);
-  const settled = first.fit.pushes.length > 0 ? arrange(g, first.fit.pushes) : first;
+export function placeActivity(g: Graph, room: readonly number[] = []): ActivityPlacement {
+  const first = arrange(g, [], room);
+  const settled = first.fit.pushes.length > 0 ? arrange(g, first.fit.pushes, room) : first;
   const extra = loopRoom(settled.fit);
   const fit = extra.some((e) => e > 0) ? laneFit(settled.grid, extra) : settled.fit;
   return placed(settled, fit);
 }
 
 /** Ranks, sizes, columns and rows of one layering, `pushed` adding edges that move nodes down. */
-function arrange(g: Graph, pushed: readonly LayerEdge[]): Arrangement {
+function arrange(g: Graph, pushed: readonly LayerEdge[], room: readonly number[]): Arrangement {
   const ranks = rankActivity(g, pushed);
   const own = new Map(g.nodes.map((n) => [n.id, activitySize(n)]));
   const sizes = handlerSizes(g, own, ranks);
@@ -110,7 +117,7 @@ function arrange(g: Graph, pushed: readonly LayerEdge[]): Arrangement {
   };
   const frame = laneFrame(g);
   const bands = regionBands(g, ranks.layerOf);
-  const band = (l: number) => (bands.has(l) ? 2 * ACT.regionLabelH : 0);
+  const band = (l: number) => (bands.has(l) ? 2 * ACT.regionLabelH : 0) + (room[l] ?? 0);
   const rows = rowsOf(
     ranks,
     (id) => sizes.get(id),
@@ -156,11 +163,13 @@ function placed({ grid, rows, frame }: Arrangement, fit: LaneFit): ActivityPlace
     ...[...fit.rects.values()].map((r) => r.x + r.w),
     ...[...fit.loops.values()].map((c) => c.x),
   );
-  const gutters = rows.slice(1).map((r, i) => {
+  const pins = (l: number, side: 'input' | 'output') =>
+    Math.max(0, ...ranks.ids.filter((id) => ranks.layerOf.get(id) === l).map((id) => pinRoom(g, id)[side]));
+  const gaps = rows.slice(1).map((r, i): Gap => {
     const above = rows[i] ?? r;
-    return (above.y + above.h + r.y) / 2;
+    return { top: above.y + above.h + pins(i, 'output'), bottom: r.y - pins(i + 1, 'input') };
   });
-  const placement: Placement = { nodes, rows, gutters, bodyBottom, width: right + ACT.marginX };
+  const placement: Placement = { nodes, rows, gaps, bodyBottom, width: right + ACT.marginX };
   const lanes = laneArt(g, fit.xs, fit.widths, frame, bodyBottom);
   const regions = [...regionArt(g, fit.rects, reach), ...expansionArt(g, fit.rects, reach)];
   return { placement, ranks, points: fit.points, lanes, channels: fit.loops, regions };

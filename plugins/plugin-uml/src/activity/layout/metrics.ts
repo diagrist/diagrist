@@ -43,8 +43,10 @@ export const ACT = {
   laneStep: 8,
   /** Gap of the channel of a loop to the outermost node and between two channels. */
   loopGap: 24,
-  /** Offset of parallel horizontal pieces in one gap between layers. */
-  track: 8,
+  /** Distance of two tracks of horizontal pieces in one gap between layers, as far as foreign lines keep apart. */
+  track: 12,
+  /** Least room between a bar and a node beside it in its layer. */
+  barClear: 8,
   guardGap: 6,
   pin: 10,
   pinGap: 4,
@@ -80,6 +82,3 @@ export function union(rects: readonly Rect[]): Rect {
   const y = Math.min(...rects.map((r) => r.y));
   return { x, y, w: Math.max(...rects.map(right)) - x, h: Math.max(...rects.map(bottom)) - y };
 }
-
-/** A point as the layout moves it around; the scene reads it as a `Point`. */
-export type XY = [number, number];
