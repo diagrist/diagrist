@@ -1,5 +1,5 @@
 import { readdirSync, readFileSync } from 'node:fs';
-import { type Compilation, compile } from '@diagrist/core';
+import { type Compilation, compile, type Plugin } from '@diagrist/core';
 import { codePlugin } from '../src/index.js';
 
 const examples = new URL('../examples/', import.meta.url);
@@ -12,21 +12,22 @@ export const exampleNames: readonly string[] = readdirSync(examples)
 
 const read = (name: string): string => readFileSync(new URL(name, examples), 'utf8');
 
-export const plugins = [codePlugin];
+export const plugins: readonly Plugin[] = [codePlugin];
 
 /**
  * Compiles a diagram the way `dgr` does: compile, read the files it needs, compile again. `text` is the diagram, by
  * default the example `name`; `files` are texts by path that stand in for files, and the rest is read from the
- * examples folder, as an example lying at `name` would find them.
+ * examples folder, as an example lying at `name` would find them. `using` stands in for the plugin of this package.
  */
 export function compileCode(
   name: string,
   text: string = read(name),
   files: Readonly<Record<string, string>> = {},
+  using: readonly Plugin[] = plugins,
 ): Compilation {
   const handed: Record<string, string> = {};
   for (;;) {
-    const compiled = compile(text, { plugins, path: name, files: handed });
+    const compiled = compile(text, { plugins: using, path: name, files: handed });
     const missing = compiled.needs.filter((need) => !Object.hasOwn(handed, need.path));
     if (missing.length === 0) return compiled;
     for (const need of missing) handed[need.path] = files[need.path] ?? read(need.path);

@@ -8,5 +8,5 @@
     "types": ["node"]
   },
   "include": ["."],
-  "references": [{ "path": ".." }, { "path": "../../../packages/testkit" }]
+  "references": [{ "path": ".." }, { "path": "../../../packages/layout-grid" }, { "path": "../../../packages/testkit" }]
 }

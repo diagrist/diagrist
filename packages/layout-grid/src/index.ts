@@ -1,3 +1,18 @@
+export { linesOfDrawing } from './check/drawing.js';
+export { lineFindings } from './check/index.js';
+export { type LineMetrics, lineMetrics } from './check/metrics.js';
+export {
+  LINE_RULES,
+  type LineFinding,
+  type LineFrame,
+  type LineInput,
+  type LineLabel,
+  type LineNode,
+  type LineRoute,
+  type LineRule,
+  type LineText,
+  type LineThresholds,
+} from './check/types.js';
 export {
   bottom,
   cx,

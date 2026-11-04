@@ -1,5 +1,5 @@
 import { readdirSync, readFileSync } from 'node:fs';
-import { type Compilation, compile } from '@diagrist/core';
+import { type Compilation, compile, type Plugin } from '@diagrist/core';
 import { conceptPlugin } from '../src/index.js';
 
 const examples = new URL('../examples/', import.meta.url);
@@ -10,22 +10,23 @@ export const exampleNames: readonly string[] = readdirSync(examples)
   .filter((f) => f.endsWith('.dgr'))
   .sort();
 
-export const plugins = [conceptPlugin];
+export const plugins: readonly Plugin[] = [conceptPlugin];
 
 const read = (path: string): string => readFileSync(new URL(path, examples), 'utf8');
 
 /**
  * Compiles an example, or a text in its place, the way `dgr` does: compile, read the files it needs from the
- * examples folder or from `files`, compile again.
+ * examples folder or from `files`, compile again; with the plugin of this package unless `using` names others.
  */
 export function compileExample(
   name: string,
   text: string = read(name),
   files: Readonly<Record<string, string>> = {},
+  using: readonly Plugin[] = plugins,
 ): Compilation {
   const handed: Record<string, string> = {};
   for (;;) {
-    const compiled = compile(text, { plugins, path: name, files: handed });
+    const compiled = compile(text, { plugins: using, path: name, files: handed });
     const missing = compiled.needs.filter((need) => !Object.hasOwn(handed, need.path));
     if (missing.length === 0) return compiled;
     for (const need of missing) handed[need.path] = files[need.path] ?? read(need.path);

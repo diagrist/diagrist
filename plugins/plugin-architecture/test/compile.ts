@@ -1,5 +1,5 @@
 import { readdirSync, readFileSync } from 'node:fs';
-import { type Compilation, compile } from '@diagrist/core';
+import { type Compilation, compile, type Plugin } from '@diagrist/core';
 import { architecturePlugin } from '../src/index.js';
 
 export const examples = new URL('../examples/', import.meta.url);
@@ -13,16 +13,20 @@ export const exampleNames: readonly string[] = readdirSync(examples)
 
 export const source = (name: string): string => readFileSync(new URL(name, examples), 'utf8');
 
-export const plugins = [architecturePlugin];
+export const plugins: readonly Plugin[] = [architecturePlugin];
 
 /**
  * Compiles an example, or its text when given, with every file it uses, read from the examples folder the way `dgr`
- * reads them: compile, read what it needs, compile again.
+ * reads them: compile, read what it needs, compile again; with the plugin of this package unless `using` names others.
  */
-export function compileExample(name: string, text: string = source(name)): Compilation {
+export function compileExample(
+  name: string,
+  text: string = source(name),
+  using: readonly Plugin[] = plugins,
+): Compilation {
   const files: Record<string, string> = {};
   for (;;) {
-    const compiled = compile(text, { plugins, path: name, files });
+    const compiled = compile(text, { plugins: using, path: name, files });
     const missing = compiled.needs.filter((need) => !Object.hasOwn(files, need.path));
     if (missing.length === 0) return compiled;
     for (const need of missing) files[need.path] = source(need.path);
