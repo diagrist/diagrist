@@ -43,6 +43,9 @@ layering, whatever the order and the router.
 
 `erweiterungen` went from 31 bends, 3,056 px of lines and 25 breaches of the hard rules to 4 bends, 999 px and
 none, without a crossing; `rollen` and `begriffe` lost their jogs. Concept pictures in layers changed on purpose;
-pictures in columns keep the grid's router. Class, state and activity diagrams move onto the pipeline step by step
-(L5 to L7), each with before-and-after pictures and metrics that must not get worse. The search of the hub runs the
+pictures in columns keep the grid's router. Class diagrams take the pipeline with their layers and order as given,
+packages as frames and end symbols with their own run (L5): every example breaks no hard rule, from 26 findings.
+State machines route forward transitions through its ports and tracks and keep their rails and loops (L6): from 76
+findings to the three nested rails of `fahrgastraum`. Activity diagrams share its track assigner (L7): from 7
+findings to none. Every kind on the pipeline asserts the line check over its examples; C4 keeps its grid. The search of the hub runs the
 pipeline a few dozen times; pictures are small (under forty boxes), so a hub takes well under a second.

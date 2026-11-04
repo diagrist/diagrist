@@ -22,7 +22,10 @@ const LOOSE = 0.001;
 
 const sepOf = (input: CoordsInput, a: string, b: string) => (input.width(a) + input.width(b)) / 2 + input.gap(a, b);
 
-/** Places one layer as near its partners as its gaps allow, `refs` being the layer the pass looks at. */
+/**
+ * Places one layer as near its partners as its gaps allow, `refs` being the layer the pass looks at. A node without
+ * partners there keeps its place, or comes as near as it may to its partners beside it.
+ */
 function place(input: CoordsInput, x: Xs, layer: readonly string[], refs: ReadonlySet<string> | undefined): void {
   const desired: number[] = [];
   const weights: number[] = [];
@@ -31,9 +34,10 @@ function place(input: CoordsInput, x: Xs, layer: readonly string[], refs: Readon
     const pulls = partners.filter((m) => !layer.includes(m));
     const w = pulls.map((m) => input.links.weight.get(n < m ? `${n}|${m}` : `${m}|${n}`) ?? 1);
     const total = w.reduce((s, v) => s + v, 0);
-    desired.push(
-      total === 0 ? (x.get(n) ?? 0) : pulls.reduce((s, m, i) => s + (x.get(m) ?? 0) * (w[i] as number), 0) / total,
-    );
+    const beside = (input.links.adj.get(n) ?? []).filter((m) => layer.includes(m));
+    const near =
+      beside.length === 0 ? (x.get(n) ?? 0) : beside.reduce((s, m) => s + (x.get(m) ?? 0), 0) / beside.length;
+    desired.push(total === 0 ? near : pulls.reduce((s, m, i) => s + (x.get(m) ?? 0) * (w[i] as number), 0) / total);
     weights.push(total === 0 ? LOOSE : total);
   }
   const seps = layer.slice(1).map((n, i) => sepOf(input, layer[i] as string, n));

@@ -1,5 +1,5 @@
 import { type Point, type Rect, textWidth } from '@diagrist/core';
-import { type EdgeLabel, type GridLayout, overlaps, type Route } from '@diagrist/layout-grid';
+import { type EdgeLabel, overlaps, type Route } from '@diagrist/layout-grid';
 import type { ClassRelation } from '../diagram.js';
 import { crossEnds, HEAD_AT_END, HEAD_AT_START, headLength } from './heads.js';
 import { CLASS, CLASS_FONTS as F } from './metrics.js';
@@ -67,6 +67,17 @@ const hits = (p: Point, q: Point, r: Rect, pad: number) =>
   Math.min(p[1], q[1]) < r.y + r.h + pad &&
   Math.max(p[1], q[1]) > r.y - pad;
 
+/** What end texts keep off: boxes and the heads of packages, and the borders of packages. */
+export interface Around {
+  readonly boxes: readonly Rect[];
+  readonly frames: readonly Rect[];
+  /** Routes sharing a trunk with route `i`, which its texts may come near. */
+  readonly mates: (i: number) => ReadonlySet<number>;
+}
+
+/** Least distance between an end text and a line of another relation. */
+const CLEAR = 12;
+
 /**
  * Multiplicities and roles at both ends of every relation. The multiplicity stands below or right of the line, the
  * role opposite; when the place is taken by a box, a text, a line or the border of a package, both swap sides, and
@@ -75,16 +86,19 @@ const hits = (p: Point, q: Point, r: Rect, pad: number) =>
 export function endLabels(
   relations: readonly (ClassRelation | undefined)[],
   routes: readonly Route[],
-  grid: GridLayout,
+  around: Around,
   placed: readonly EdgeLabel[],
 ): EdgeLabel[] {
   const out: EdgeLabel[] = [];
-  const boxes = grid.nodes.map((n) => n.rect);
-  const free = (b: Rect) =>
+  const boxes = around.boxes;
+  const free = (b: Rect, idx: number) =>
     !boxes.some((n) => overlaps(b, n, 1)) &&
-    !grid.groups.some((g) => onFrame(b, g.rect)) &&
+    !around.frames.some((g) => onFrame(b, g)) &&
     ![...placed, ...out].some((t) => overlaps(b, t.box, 2)) &&
-    !routes.some((o) => o.points.slice(1).some((q, k) => hits(o.points[k] ?? q, q, b, 1)));
+    !routes.some((o, i) => {
+      const pad = i === idx || around.mates(idx).has(i) ? 1 : CLEAR - 1;
+      return o.points.slice(1).some((q, k) => hits(o.points[k] ?? q, q, b, pad));
+    });
   routes.forEach((route, idx) => {
     const r = relations[idx];
     if (!r || route.points.length < 2) return;
@@ -93,9 +107,9 @@ export function endLabels(
       const sides: (1 | -1)[] = count ? [1, -1] : [-1, 1];
       const first = count ?? role;
       if (first === undefined) continue;
-      const side = sides.find((s) => free(item(first, end, s, idx, 0).box)) ?? 1;
+      const side = sides.find((s) => free(item(first, end, s, idx, 0).box, idx)) ?? 1;
       const place = (text: string, s: 1 | -1) =>
-        SHIFTS.map((k) => item(text, end, s, idx, k)).find((t) => free(t.box)) ?? item(text, end, s, idx, 0);
+        SHIFTS.map((k) => item(text, end, s, idx, k)).find((t) => free(t.box, idx)) ?? item(text, end, s, idx, 0);
       if (count) out.push(place(count, side));
       if (role) out.push(place(role, count ? (side === 1 ? -1 : 1) : side));
     }

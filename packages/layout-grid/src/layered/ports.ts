@@ -17,6 +17,8 @@ interface End {
 
 /** Keeps ends this far from the corners of a box. */
 const corners = (r: Rect) => Math.min(16, r.w / 4);
+/** How near a corner an end may come when that spares its line a jog of less than `jog`. */
+const CORNER = 4;
 
 /**
  * The ends on every side of every box: a fan leaves through one end, a join arrives through one end, every other
@@ -24,7 +26,8 @@ const corners = (r: Rect) => Math.min(16, r.w / 4);
  * box, each as near above or below its other end as the side and a gap of `gap` between ends allow; a fan or
  * join aims at its member nearest the middle, so that member runs straight. Placeholders are a single point. Then every piece whose two ends are the only ones
  * on their sides runs straight where the two boxes share a stretch, and an end that is the only one on its side
- * follows the other end of its piece wherever its box reaches: no small jogs. `inset` keeps ends off the corners.
+ * follows the other end of its piece wherever its box reaches, up to `CORNER` from a corner when the jog it spares
+ * is shorter than `jog`: no small jogs. `inset` keeps ends off the corners.
  */
 export function portsOf(
   groups: readonly Group[],
@@ -34,6 +37,7 @@ export function portsOf(
   gap: number,
   snap = 8,
   inset: (r: Rect) => number = corners,
+  jog = 24,
 ): Ports {
   const top = new Map<Link, number>();
   const bottom = new Map<Link, number>();
@@ -113,9 +117,15 @@ export function portsOf(
     const t = top.get(l) ?? 0;
     if (b === t) continue;
     const real = (n: string) => !ranked.dummies.has(n);
+    const near = (box: string, v: number) => {
+      const r = rects.get(box);
+      return Math.abs(b - t) < jog && r !== undefined && v >= r.x + CORNER && v <= r.x + r.w - CORNER;
+    };
     if (real(l.upper) && alone(l.upper, 'bottom') && within(l.upper, t)) bottom.set(l, t);
     else if (real(l.lower) && alone(l.lower, 'top') && within(l.lower, b)) top.set(l, b);
     else if (Math.abs(b - t) <= snap && real(l.lower) && alone(l.lower, 'top')) top.set(l, b);
+    else if (real(l.upper) && alone(l.upper, 'bottom') && near(l.upper, t)) bottom.set(l, t);
+    else if (real(l.lower) && alone(l.lower, 'top') && near(l.lower, b)) top.set(l, b);
   }
   return { top, bottom };
 }

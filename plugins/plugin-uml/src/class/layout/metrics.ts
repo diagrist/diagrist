@@ -1,5 +1,4 @@
-import { STANDARD_FONTS, textWidth } from '@diagrist/core';
-import type { GridMetrics } from '@diagrist/layout-grid';
+import { textWidth } from '@diagrist/core';
 import { UML_BOX_FONTS } from '../../shared/box-styles.js';
 
 /** Font roles of class diagrams: those of every UML box. Layout measures with them, the style table sets them. */
@@ -37,6 +36,8 @@ export const CLASS = {
   tabMinW: 72,
   tabPadX: 10,
   packagePad: 28,
+  /** Room between a package and its classes at the sides and the bottom. */
+  packageSide: 24,
   crossAt: 11,
   crossArm: 5,
   templateH: 20,
@@ -49,25 +50,21 @@ export const CLASS = {
   perLayer: 5,
 } as const;
 
-/** The measures `layout-grid` lays a class diagram out with: adaptive columns, orthogonal lines. */
-export const classMetrics = (colGap: number, packages: boolean): GridMetrics => ({
-  grid: CLASS.grid,
-  nodeW: 192,
-  nodeH: 56,
-  colGap,
-  subColGap: 104,
-  rowGap: 120,
-  marginX: 48,
-  firstRowY: 128,
-  margin: 32,
-  laneGap: 16,
-  portSpread: 16,
-  loopReach: CLASS.loopReach,
-  framePad: packages ? { top: CLASS.tabH + CLASS.packagePad, bottom: 24, x: 24 } : { top: 56, bottom: 24, x: 24 },
-  labelFont: STANDARD_FONTS.label,
-  labelLineH: 12,
-  labelGap: 10,
-});
+/**
+ * The measures the layered pipeline of `layout-grid` lays a class diagram out with: gaps between classes, runs into
+ * and out of the boxes, tracks and ports 16 apart, names 6 from their line.
+ */
+export const LAYERED = {
+  colGap: 72,
+  rowGapMin: 64,
+  track: 16,
+  portGap: 16,
+  lead: 24,
+  tail: 16,
+  labelGap: 6,
+  left: 48,
+  top: 128,
+} as const;
 
 /** Width of the tab of a package: as wide as its name, at least `tabMinW`. */
 export const tabWidth = (label: string): number =>

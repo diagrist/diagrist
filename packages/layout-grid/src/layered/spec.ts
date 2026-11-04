@@ -33,6 +33,18 @@ export interface LayeredEdge {
    * start of the line, or beside the trunk the edge shares, once per trunk.
    */
   readonly label?: { readonly text: string; readonly width: number; readonly size: number };
+  /**
+   * The edge is not drawn: it only holds its ends near each other in layers and places, such as a box hung below
+   * the line it belongs to. It takes no port and no track and gets no route.
+   */
+  readonly hidden?: boolean;
+  /**
+   * The least straight run out of `from` and into `to`, where the kind draws symbols and texts at the ends of the
+   * line; never less than `tail` and `lead` of the metrics.
+   */
+  readonly run?: { readonly from?: number; readonly to?: number };
+  /** The least distance between `from` and `to` when the edge is drawn beside, between neighbours of one layer. */
+  readonly room?: number;
   readonly source?: Placed['span'];
 }
 
@@ -70,10 +82,37 @@ export interface Hub {
   readonly pad: number;
 }
 
+/**
+ * A frame around boxes, such as a named group of them: a rectangle `pad` away from what it holds at the
+ * sides and the bottom and `top` away at the top, where its head stands at the left. Boxes of other frames keep
+ * outside it, and lines crossing its top keep clear of its head.
+ */
+export interface LayeredFrame {
+  readonly id: string;
+  /** The boxes directly in the frame; those of frames inside it belong to it as well. */
+  readonly members: readonly string[];
+  /** The frame this one stands in. */
+  readonly parent?: string;
+  readonly pad: number;
+  readonly top: number;
+  /** The head at the top left corner, inside the room `top`. */
+  readonly head: { readonly width: number; readonly height: number };
+}
+
 /** A layered picture to lay out: boxes, edges and measures, and optionally a hub. */
 export interface LayeredSpec {
   readonly nodes: readonly LayeredNode[];
   readonly edges: readonly LayeredEdge[];
   readonly metrics: LayeredMetrics;
   readonly hub?: Hub;
+  /**
+   * The layers, top first, and the order of the boxes in each, as the kind arranged them; placeholders of long
+   * edges are ordered in between. Without it, the edges decide both.
+   */
+  readonly layers?: readonly (readonly string[])[];
+  /**
+   * Frames around boxes, drawn parents first. They need `layers`, in which the boxes of each frame
+   * stand together in every layer the frame spans, and frames stand in the same order in every layer they share.
+   */
+  readonly frames?: readonly LayeredFrame[];
 }

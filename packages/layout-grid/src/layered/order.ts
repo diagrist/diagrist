@@ -44,13 +44,15 @@ export function neighboursOf(spec: LayeredSpec, ranked: Ranked): Neighbours {
  * The order of every layer, placeholders included: the barycentre sweeps and the thorough search of `layers`, with
  * a cost that weighs each crossing by the weights of both pieces, keeps nodes beside each other near, and counts
  * every foreign node standing between two members of one cluster, so clusters stay together where that is cheap.
- * A node in `pins` keeps to the left or right end of its layer.
+ * A node in `pins` keeps to the left or right end of its layer, and nodes in `given` keep the order of their places
+ * there, so only the placeholders find their places among them.
  */
 export function orderRanked(
   spec: LayeredSpec,
   ranked: Ranked,
   links: Neighbours,
   pins: ReadonlyMap<string, 'left' | 'right'> = new Map(),
+  given: ReadonlyMap<string, number> = new Map(),
 ): string[][] {
   const cluster = new Map(spec.nodes.flatMap((n) => (n.cluster === undefined ? [] : [[n.id, n.cluster] as const])));
   const w = (a: string, b: string) => links.weight.get(key(a, b)) ?? 1;
@@ -74,6 +76,9 @@ export function orderRanked(
         const pin = pins.get(n);
         const wrong = pin === 'left' ? layer.slice(0, i) : pin === 'right' ? layer.slice(i + 1) : [];
         total += PINNED * wrong.filter((m) => pins.get(m) !== pin).length;
+        const place = given.get(n);
+        if (place !== undefined)
+          total += PINNED * layer.slice(i + 1).filter((m) => (given.get(m) ?? place) < place).length;
       });
       for (const c of new Set(layer.flatMap((n) => cluster.get(n) ?? []))) {
         const mine = layer.flatMap((n, i) => (cluster.get(n) === c ? [i] : []));

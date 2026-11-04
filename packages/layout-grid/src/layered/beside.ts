@@ -34,7 +34,7 @@ export function besideRoutes(ranked: Ranked, layers: readonly (readonly string[]
     const [i, j] = [layer.indexOf(e.from), layer.indexOf(e.to)].sort((a, b) => a - b) as [number, number];
     return layer.slice(i + 1, j).every((n) => ranked.dummies.has(n));
   };
-  const under = ranked.beside.filter((e) => !neighbours(e));
+  const under = ranked.beside.filter((e) => e.hidden !== true && !neighbours(e));
   return {
     count: (l) => under.filter((e) => layerOf(e) === l).length,
     route: (e, frame, tracks) => {

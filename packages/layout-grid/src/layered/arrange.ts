@@ -12,11 +12,13 @@ export interface Arrangement {
   readonly pins?: ReadonlyMap<string, 'left' | 'right'>;
 }
 
-/** The layers and their order along the edges of a plain picture. */
+/** The layers and their order along the edges of a plain picture, or as the kind gave them in `layers`. */
 export function arrange(spec: LayeredSpec): Arrangement {
-  const ranked = rank(spec);
+  const given = spec.layers;
+  const ranked = rank(spec, given && new Map(given.flatMap((layer, l) => layer.map((n) => [n, l] as const))));
   const neighbours = neighboursOf(spec, ranked);
-  return { ranked, neighbours, layers: orderRanked(spec, ranked, neighbours) };
+  const places = new Map(given?.flatMap((layer) => layer.map((n, i) => [n, i] as const)));
+  return { ranked, neighbours, layers: orderRanked(spec, ranked, neighbours, new Map(), places) };
 }
 
 /** A hub picture before its extensions dock: the layers of its core alone, its extensions, the first guess of sides. */

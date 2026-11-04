@@ -1,22 +1,14 @@
 import { type Placed, textWidth } from '@diagrist/core';
-import {
-  type EdgeLabel,
-  type EdgeText,
-  fitFrames,
-  type GridLayout,
-  labelEdges,
-  placedOf,
-  type Route,
-  right,
-} from '@diagrist/layout-grid';
+import { type EdgeLabel, type GridLayout, type Route, right } from '@diagrist/layout-grid';
 import { decisionStrip, HEADER, type Header, MARGIN, type Strip, stripWidth, type Words } from '@diagrist/parts';
-import { homed } from '../../shared/homed.js';
 import { type NoteArt, noteArts } from '../../shared/notes.js';
 import type { ClassRelation } from '../diagram.js';
 import type { ClassModel } from '../model.js';
 import { endLabels } from './ends.js';
 import { type Tether, tethers } from './extras.js';
 import { CLASS_FONTS } from './metrics.js';
+import { nameLabels } from './names.js';
+import { classPlaced, tabOf } from './placed.js';
 import { routeClass } from './routed.js';
 
 /** The texts of the picture the layout measures: the title line, and the suffix of open decisions. */
@@ -51,25 +43,6 @@ export interface ClassLayout {
   readonly placed: readonly Placed[];
 }
 
-/** Name of the relation, and `«import»` or `«access»` below it, for the labelling of `layout-grid`. */
-function texts(routes: readonly Route[], relations: readonly (ClassRelation | undefined)[]): EdgeText[] {
-  return routes.flatMap((r, i): EdgeText[] => {
-    const rel = relations[i];
-    if (!rel) return [];
-    const detail = rel.keyword ? `«${rel.keyword}»` : undefined;
-    return rel.label || detail
-      ? [
-          {
-            edge: r.edge,
-            ...(rel.label ? { name: rel.label } : {}),
-            ...(detail ? { detail } : {}),
-            accent: rel.emph === true,
-          },
-        ]
-      : [];
-  });
-}
-
 /** Marks stand at the top right beside their classifier or diamond. */
 function marks(m: ClassModel, grid: GridLayout): MarkSpot[] {
   return grid.nodes.flatMap((p) => {
@@ -78,45 +51,55 @@ function marks(m: ClassModel, grid: GridLayout): MarkSpot[] {
   });
 }
 
+/** Room around the picture right of and below everything placed. */
+const EDGE = 48;
+
 /**
- * Layout of a class diagram on `layout-grid`: the automatic grid in layers, routes around the boxes, legs at the
- * vertices of their diamond and package dependencies below the tab, names placed by the grid and end texts by the
- * kind, frames grown around their routes; then association classes, notes, marks and the decision bar.
+ * Layout of a class diagram on the layered pipeline of `layout-grid`: classes in the layers and order of the
+ * automatic grid, placed and routed by the pipeline, packages as its frames; names beside their lines, end texts at
+ * the ends, legs at the vertices of their diamond; then association classes, notes, marks and the decision bar.
  */
 export function layoutClass(m: ClassModel, words: PictureTexts): ClassLayout {
-  const { spec, grid, routes, relations } = routeClass(m);
-  const named = labelEdges(spec, grid, routes, texts(routes, relations));
-  const ends = endLabels(relations, routes, grid, named);
+  const routed = routeClass(m);
+  const { grid, routes, relations, trunks } = routed;
+  const mates = (i: number) => {
+    const t = trunks.get(routes[i]?.edge ?? '');
+    return new Set(t === undefined ? [] : routes.flatMap((x, k) => (k !== i && trunks.get(x.edge) === t ? [k] : [])));
+  };
+  const boxes = [...grid.nodes.map((n) => n.rect), ...grid.groups.map((g) => tabOf(m, g))];
+  const named = nameLabels(relations, routes, routed.labels, { boxes, routes, mates });
+  const ends = endLabels(relations, routes, { boxes, frames: grid.groups.map((g) => g.rect), mates }, named);
   const labels = [...named, ...ends];
-  const fitted = fitFrames(spec, grid, routes, labels);
-  const notes = noteArts(m.diagram.notes, fitted, routes, labels);
-  const noteBottom = Math.max(0, ...notes.map((n) => n.rect.y + n.rect.h + 24));
-  const bottom = Math.max(fitted.bottom, noteBottom);
+  const dashed = tethers(routes, relations, m, grid);
+  const lines = dashed.map(
+    (t): Route => ({ edge: '', points: [t.a, t.b], shape: 'straight', fromSide: 'top', toSide: 'top' }),
+  );
+  const notes = noteArts(m.diagram.notes, grid, [...routes, ...lines], labels, true);
+  const xs = [...labels.map((l) => right(l.box)), ...routes.flatMap((r) => r.points.map((p) => p[0]))];
+  const ys = [...labels.map((l) => l.box.y + l.box.h), ...routes.flatMap((r) => r.points.map((p) => p[1]))];
+  const bottom = Math.max(grid.bottom, ...ys, ...notes.map((n) => n.rect.y + n.rect.h)) + EDGE;
   const width = Math.ceil(
     Math.max(
-      fitted.width,
-      ...notes.map((n) => right(n.rect) + 48),
+      Math.max(grid.width, ...xs, ...notes.map((n) => right(n.rect))) + EDGE,
       textWidth(words.title, CLASS_FONTS.title) + 2 * MARGIN,
       stripWidth(m.diagram.decisions, words.open),
     ),
   );
   const strip = decisionStrip(m.diagram.decisions, bottom, width);
+  const shared = (r: ClassRelation | undefined) => r?.kind === 'generalization' || r?.kind === 'realization';
   return {
     header: HEADER,
     width,
-    height: Math.ceil((strip.cards.length > 0 ? strip.bottom : bottom) + 32),
-    grid: fitted,
+    height: Math.ceil(strip.cards.length > 0 ? strip.bottom + 32 : bottom),
+    grid,
     routes,
     relations,
-    bundles: new Set(spec.edges.flatMap((e) => (e.bundle ? [e.id] : []))),
+    bundles: new Set(routes.flatMap((r, i) => (trunks.has(r.edge) && shared(relations[i]) ? [r.edge] : []))),
     labels,
-    tethers: tethers(routes, relations, m, fitted),
+    tethers: dashed,
     notes,
-    marks: marks(m, fitted),
+    marks: marks(m, grid),
     strip,
-    placed: [
-      ...placedOf(spec, fitted, routes, labels),
-      ...notes.map((n, i): Placed => ({ key: `${n.on}.note.${i + 1}`, kind: 'box', rect: n.rect })),
-    ].map((p) => homed(p, fitted)),
+    placed: classPlaced(m, routed, labels, notes),
   };
 }
