@@ -1,4 +1,4 @@
-import { type AreaMark, areaMark, domId, type Shape } from '@diagrist/core';
+import { type AreaMark, areaMark, domId, markAreas, type Shape } from '@diagrist/core';
 import type { ArchitectureLayout } from '../layout/index.js';
 import { edgeArea, groupArea, nodeArea } from '../model/areas.js';
 import type { ArchitectureModel } from '../model/types.js';
@@ -26,11 +26,5 @@ function marks(model: ArchitectureModel, layout: ArchitectureLayout): Map<string
  * The shapes with every group of an element, frame, edge or label marked with its area (ADR 0033), which the kernel
  * paints in the area's tone. A picture without coloured areas keeps its shapes.
  */
-export function inAreas(shapes: readonly Shape[], model: ArchitectureModel, layout: ArchitectureLayout): Shape[] {
-  const found = marks(model, layout);
-  if (found.size === 0) return [...shapes];
-  return shapes.map((s): Shape => {
-    const area = s.kind === 'group' && s.id !== undefined ? found.get(s.id) : undefined;
-    return s.kind === 'group' && area !== undefined ? { ...s, area } : s;
-  });
-}
+export const inAreas = (shapes: readonly Shape[], model: ArchitectureModel, layout: ArchitectureLayout): Shape[] =>
+  markAreas(shapes, marks(model, layout));
