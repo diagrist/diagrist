@@ -2,6 +2,7 @@ import { type Anchors, domId, type Placed, type Rect, type Scene, type Shape } f
 import { HEADER, headerShapes, legendShapes } from '@diagrist/parts';
 import { type MatrixLayout, MEASURES } from '../layout/index.js';
 import type { MatrixModel } from '../model.js';
+import { areaSample, headInArea } from './areas.js';
 import { badgeShapes, valueShapes } from './marks.js';
 import { tableRules } from './rules.js';
 
@@ -34,7 +35,10 @@ const textLines = (
     }),
   );
 
-/** The title, the table with bands, heads and cells, the numbers of the notes on their heads, the notes, the legend. */
+/**
+ * The title, the table with bands, heads and cells, the numbers of the notes on their heads, the notes, the legend.
+ * The heads of columns and rows in a coloured area stand in a group of the area; the cells stay neutral (ADR 0033).
+ */
 export function matrixScene(layout: MatrixLayout, model: MatrixModel, title: string): Scene {
   const { table, texts } = layout;
   const values = model.scale?.values ?? [];
@@ -48,7 +52,7 @@ export function matrixScene(layout: MatrixLayout, model: MatrixModel, title: str
     const cx = t.rect.x + (t.rect.w - (badges.has(t.key) ? MEASURES.badge.room : 0)) / 2;
     const ys = baselines(t.rect, lines.length, 'bottom');
     const children = [
-      ...textLines(lines, cx, ys, 'top', 'top', true),
+      ...headInArea(model, t.key, t.rect, 'topArea', textLines(lines, cx, ys, 'top', 'top', true)),
       ...badge(t.key, t.rect.x + t.rect.w - 9, t.rect.y + 9),
     ];
     return { kind: 'group', id: domId.node(t.key), children };
@@ -72,7 +76,7 @@ export function matrixScene(layout: MatrixLayout, model: MatrixModel, title: str
         return valueShapes(known, c.rect.x + c.rect.w / 2, c.rect.y + c.rect.h / 2);
       });
     const head = [
-      ...textLines(lines, s.rect.x + pad.x, ys, 'side', 'side'),
+      ...headInArea(model, s.key, s.rect, 'sideArea', textLines(lines, s.rect.x + pad.x, ys, 'side', 'side')),
       ...badge(s.key, s.rect.x + s.rect.w - 10, s.rect.y + s.rect.h / 2),
     ];
     return { kind: 'group', id: domId.node(s.key), children: [...head, ...cells] };
@@ -91,12 +95,17 @@ export function matrixScene(layout: MatrixLayout, model: MatrixModel, title: str
   ]);
   const legend =
     layout.legend.entries.length > 0
-      ? legendShapes(layout.legend, (e) => valueShapes([e.sample], e.at.x + 7, e.at.y))
+      ? legendShapes(layout.legend, (e) =>
+          e.sample.kind === 'value'
+            ? valueShapes([e.sample.value], e.at.x + 7, e.at.y)
+            : areaSample(model, e.sample.area, e.at.x, e.at.y),
+        )
       : [];
   return {
     width: layout.width,
     height: layout.height,
     title,
+    areas: model.areas.paint,
     children: [
       ...headerShapes(HEADER, title, model.subtitle),
       sheet,

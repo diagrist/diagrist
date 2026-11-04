@@ -1,7 +1,7 @@
-import { type Rect, textWidth } from '@diagrist/core';
+import { type Area, type Rect, textWidth } from '@diagrist/core';
 import { placeTable, type SideEntry, type TableLayout } from '@diagrist/layout-matrix';
-import { LEGEND, type Legend, legendLayout, MARGIN, wrap } from '@diagrist/parts';
-import type { MatrixModel, Note } from '../model.js';
+import { LEGEND, type Legend, type LegendItem, legendLayout, MARGIN, wrap } from '@diagrist/parts';
+import { headsByArea, type MatrixModel, type Note } from '../model.js';
 import type { ScaleValue } from '../scales.js';
 import { MATRIX_FONTS as F } from '../styles.js';
 import type { MatrixWords } from '../texts/words.js';
@@ -27,12 +27,17 @@ export interface PlacedNote {
   readonly rect: Rect;
 }
 
+/** What the legend explains: a value of the scale, or an area with heads in it (ADR 0033). */
+export type Sample =
+  | { readonly kind: 'value'; readonly value: ScaleValue }
+  | { readonly kind: 'area'; readonly area: Area };
+
 /** A laid out matrix: the table, the texts of its heads, the notes, the legend and the size of the picture. */
 export interface MatrixLayout {
   readonly table: TableLayout;
   readonly texts: ReadonlyMap<string, readonly string[]>;
   readonly notes: readonly PlacedNote[];
-  readonly legend: Legend<ScaleValue>;
+  readonly legend: Legend<Sample>;
   readonly width: number;
   readonly height: number;
 }
@@ -55,8 +60,8 @@ function legendText(model: MatrixModel, value: ScaleValue, w: MatrixWords): stri
 
 /**
  * Lays out a matrix: heads wrapped, a band above the first row of each group, the table placed by `layout-matrix`,
- * the numbered notes below it and the legend of the scale below them. A head a note is about leaves room for its
- * number. The picture is as wide as the table, the title or the notes ask, whichever is widest.
+ * the numbered notes below it and the legend of the scale and the areas below them. A head a note is about leaves
+ * room for its number. The picture is as wide as the table, the title or the notes ask, whichever is widest.
  */
 export function layoutMatrix(model: MatrixModel, w: MatrixWords, title: string): MatrixLayout {
   const noted = new Set(model.notes.flatMap((n) => (n.on === undefined ? [] : [n.on])));
@@ -89,12 +94,23 @@ export function layoutMatrix(model: MatrixModel, w: MatrixWords, title: string):
   );
   const notes = placeNotes(model.notes, table.frame.y + table.frame.h + 28, right - MARGIN - MEASURES.note.indent);
   const below = notes.at(-1)?.rect ?? { y: table.frame.y + table.frame.h, h: 0 };
-  const items = legendValues(model).map((value) => ({
-    sample: value,
-    sampleWidth: 2 * MEASURES.badge.r,
-    labelDx: LEGEND.markDx,
-    text: legendText(model, value, w),
-  }));
+  const joined = headsByArea(model);
+  const items: LegendItem<Sample>[] = [
+    ...legendValues(model).map((value) => ({
+      sample: { kind: 'value', value } as const,
+      sampleWidth: 2 * MEASURES.badge.r,
+      labelDx: LEGEND.markDx,
+      text: legendText(model, value, w),
+    })),
+    ...model.areas.list
+      .filter((area) => joined.has(area.id))
+      .map((area) => ({
+        sample: { kind: 'area', area } as const,
+        sampleWidth: LEGEND.sampleWidth,
+        labelDx: LEGEND.labelDx,
+        text: area.label,
+      })),
+  ];
   const width = Math.ceil(right + MARGIN);
   const legend = legendLayout(items, below.y + below.h + 36, width);
   return {

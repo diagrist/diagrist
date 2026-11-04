@@ -1,5 +1,6 @@
 import type { Locale } from '@diagrist/lang';
-import type { MatrixModel, Row } from './model.js';
+import { areaSentences } from '@diagrist/parts';
+import { headsByArea, type MatrixModel, type Row } from './model.js';
 import { MATRIX_WORDS } from './texts/index.js';
 import type { MatrixWords } from './texts/words.js';
 
@@ -18,7 +19,10 @@ function partsOf(model: MatrixModel, row: Row, w: MatrixWords): (readonly [strin
   });
 }
 
-/** The matrix in sentences: what it is, then row by row the values with their columns, a group before its rows. */
+/**
+ * The matrix in sentences: what it is, then row by row the values with their columns, a group before its rows, the
+ * notes, and the columns and rows of each area.
+ */
 export function describeMatrix(model: MatrixModel, locale: Locale): string {
   const w = MATRIX_WORDS[locale];
   const scale = model.scale ? w.scales[model.scale.name] : '';
@@ -31,5 +35,6 @@ export function describeMatrix(model: MatrixModel, locale: Locale): string {
       return [...(band && group ? [w.group(group.label)] : []), w.row(row.label, partsOf(model, row, w))];
     }),
     ...model.notes.map((n) => w.note(n.n, n.text, n.on === undefined ? undefined : headOf(n.on))),
+    ...areaSentences(model.areas, headsByArea(model), locale),
   ].join(' ');
 }
