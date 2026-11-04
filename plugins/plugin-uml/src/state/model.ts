@@ -80,3 +80,8 @@ export function machineFrame(m: StateModel): string | undefined {
   if (only?.kind !== 'state') return undefined;
   return m.diagram.vertices.some((v) => isBorderPoint(v.kind) && v.parent === only.id) ? only.id : undefined;
 }
+
+/** The area of a vertex: its own, else that of the nearest state or region around it (ADR 0033). */
+export function areaOf(m: StateModel, id: string): string | undefined {
+  return [id, ...ancestors(m, id)].map((v) => m.vertices.get(v)?.area).find((a) => a !== undefined);
+}

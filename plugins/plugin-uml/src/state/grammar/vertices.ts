@@ -1,4 +1,4 @@
-import { TONE_NAMES } from '@diagrist/core';
+import { areaAttribute, TONE_NAMES } from '@diagrist/core';
 import { arg, attr, id, oneOf, optionalArg, ref, statement, text } from '@diagrist/lang';
 import { implementing, type SpecElement } from '../../spec/catalog.js';
 import { STATE_MACHINES as S } from '../../spec/state-machines.js';
@@ -44,6 +44,7 @@ export const stateStatement = statement(
         ),
         tone: attr(oneOf(TONE_NAMES), 'Colour of the name field in `look=cards`; without it slate.'),
         mark: attr(ref('adr'), 'Id of a decision of the decision bar, such as `E1`; the mark is drawn beside it.'),
+        area: areaAttribute,
       },
       flags: { emph: 'Highlights the state in the accent colour.' },
     },
@@ -64,6 +65,7 @@ function vertex<const K extends string>(keyword: K, uml: readonly SpecElement[],
           optionalArg('label', text(), 'Name shown small beside the symbol.'),
         ],
         clauses: { in: parent },
+        attributes: { area: areaAttribute },
       },
     ),
   );
@@ -124,6 +126,7 @@ export const history = statement(
         optionalArg('label', text(), 'Name shown small beside the symbol.'),
       ],
       clauses: { in: parent },
+      attributes: { area: areaAttribute },
       flags: { deep: 'Deep history: resumes the innermost substates too, drawn `H*`.' },
     },
   ),
@@ -145,6 +148,7 @@ function point<const K extends string>(keyword: K, uml: SpecElement, doc: string
         clauses: {
           in: attr(ref('state'), 'The composite or submachine state on whose border the point sits. Required.'),
         },
+        attributes: { area: areaAttribute },
       },
     ),
   );
@@ -175,6 +179,7 @@ export const region = statement(
         optionalArg('label', text(), 'Name of the region, shown at its top left.'),
       ],
       clauses: { in: attr(ref('state'), 'The state the region belongs to. Required.') },
+      attributes: { area: areaAttribute },
     },
   ),
 );

@@ -1,4 +1,4 @@
-import type { Tone } from '@diagrist/core';
+import type { Areas, Tone } from '@diagrist/core';
 import type { Span } from '@diagrist/lang';
 import type { Decision } from '@diagrist/parts';
 
@@ -32,6 +32,7 @@ export interface StateDiagram {
   readonly internals: readonly Internal[];
   readonly notes: readonly StateNote[];
   readonly decisions: readonly Decision[];
+  readonly areas: Areas;
 }
 
 /** A state, pseudostate or region; behaviour, submachine, tone and mark exist on states only. */
@@ -52,6 +53,8 @@ export interface Vertex {
   readonly tone?: Tone;
   readonly mark?: string;
   readonly emph?: boolean;
+  /** The area it names itself (ADR 0033); it takes the area of the state or region around it otherwise. */
+  readonly area?: string;
   readonly span: Span;
 }
 
@@ -67,6 +70,8 @@ export interface Transition extends Behaviour {
   readonly from: string;
   readonly to: string;
   readonly emph?: boolean;
+  /** The area the transition names itself; the scene falls back to the areas of its ends. */
+  readonly area?: string;
   readonly span: Span;
 }
 

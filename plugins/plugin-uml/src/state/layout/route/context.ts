@@ -3,11 +3,19 @@ import type { GridLayout } from '@diagrist/layout-grid';
 import type { StateModel } from '../../model.js';
 import { endBox, foreignFrames } from '../ends.js';
 
+/** The ends of a transition by route index, whether it is highlighted, and the area it names itself (ADR 0033). */
+export interface TransitionEnds {
+  readonly from: string;
+  readonly to: string;
+  readonly emph?: boolean;
+  readonly area?: string;
+}
+
 /** What the tidying of routes knows per route index: its ends, the lines of its label, and the layout. */
 export interface RouteContext {
   readonly m: StateModel;
   readonly grid: GridLayout;
-  readonly ends: readonly { readonly from: string; readonly to: string; readonly emph?: boolean }[];
+  readonly ends: readonly TransitionEnds[];
   readonly lines: readonly (readonly string[])[];
 }
 

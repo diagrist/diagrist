@@ -1,9 +1,10 @@
-import { type Anchors, domId, type Point, type Scene, type Shape } from '@diagrist/core';
-import { headerShapes, markShapes, stripShapes, type Words } from '@diagrist/parts';
+import { type Anchors, domId, markAreas, type Point, type Scene, type Shape } from '@diagrist/core';
+import { headerShapes, markShapes, stripShapes, type Words, withAreaLegend } from '@diagrist/parts';
 import { noteShapes } from '../../shared/note-shapes.js';
 import type { PictureTexts, StateLayout } from '../layout/index.js';
 import { borderOf, hostOf } from '../layout/points/geometry.js';
 import type { StateModel } from '../model.js';
+import { stateAreaMarks, usedAreas } from './areas.js';
 import { frameShape } from './frames.js';
 import { vertexShape } from './nodes.js';
 
@@ -62,7 +63,14 @@ export function stateScene(l: StateLayout, m: StateModel, words: Words & Picture
     ...l.marks.map((x): Shape => ({ kind: 'group', children: markShapes(x.id, x.x, x.y) })),
     ...stripShapes(l.strip, words),
   ];
-  return { width: l.width, height: l.height, title: m.diagram.title, children };
+  const scene: Scene = {
+    width: l.width,
+    height: l.height,
+    title: m.diagram.title,
+    areas: m.diagram.areas.paint,
+    children: markAreas(children, stateAreaMarks(m, l)),
+  };
+  return withAreaLegend(scene, m.diagram.areas, usedAreas(m), cards ? 'card' : 'box');
 }
 
 /** Vertices as nodes, composite states as groups, transitions as edges in drawing order. */

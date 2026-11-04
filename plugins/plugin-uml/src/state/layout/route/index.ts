@@ -64,7 +64,12 @@ export function routeStates(m: StateModel, spec: GridSpec, grid: GridLayout): Ro
   const context: RouteContext = {
     m,
     grid,
-    ends: items.map(({ t }) => ({ from: t.from, to: t.to, ...(t.emph ? { emph: true } : {}) })),
+    ends: items.map(({ t }) => ({
+      from: t.from,
+      to: t.to,
+      ...(t.emph ? { emph: true } : {}),
+      ...(t.area === undefined ? {} : { area: t.area }),
+    })),
     lines: items.map(({ t }) => labelLines(t, m.diagram.protocol)),
   };
   const nodes = [...spec.nodes, ...pointNodes(spec, grid)];
