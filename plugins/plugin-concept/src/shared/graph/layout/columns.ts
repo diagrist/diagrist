@@ -1,6 +1,7 @@
 import type { Locale } from '@diagrist/lang';
 import { type GridNode, layerGraph } from '@diagrist/layout-grid';
 import type { Graph } from '../model.js';
+import { arrangementOf } from './arrangement.js';
 import { columnEdges } from './column-edges.js';
 import { type Cells, edgesOf } from './edges.js';
 import { FIRST_ROW, graphMetrics, HEAD, type ItemBox } from './metrics.js';
@@ -8,9 +9,8 @@ import { FIRST_ROW, graphMetrics, HEAD, type ItemBox } from './metrics.js';
 /** The types the items use, in the order of their declaration: the order the columns tell the story in. */
 export const usedTypes = (m: Graph): string[] => [...m.types.keys()].filter((t) => m.items.some((i) => i.type === t));
 
-/** Whether the items stand in a column per type: as asked, or when they are of more than one type. */
-export const inColumns = (m: Graph): boolean =>
-  (m.arrange ?? (usedTypes(m).length > 1 ? 'columns' : 'layers')) === 'columns';
+/** Whether the items stand in a column per type, as `arrangementOf` decides. */
+export const inColumns = (m: Graph): boolean => arrangementOf(m) === 'columns';
 
 /**
  * The grid of a graph picture in columns: one column per type in the order of the declarations, and in each column

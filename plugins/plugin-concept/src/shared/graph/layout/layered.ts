@@ -3,6 +3,7 @@ import type { Locale } from '@diagrist/lang';
 import { type LayeredEdge, type LayeredLayout, layoutLayered } from '@diagrist/layout-grid';
 import { MARGIN } from '@diagrist/parts';
 import type { Graph } from '../model.js';
+import { arrangementOf, coreArea } from './arrangement.js';
 import { edgeId, edgesOf } from './edges.js';
 import { FIRST_ROW, GAP, type ItemBox, measureItem } from './metrics.js';
 
@@ -54,6 +55,13 @@ export function layeredGraph(m: Graph, locale: Locale): LayeredGraph {
     };
   });
   const top = m.subtitle ? FIRST_ROW.subtitle : FIRST_ROW.title;
+  const core = arrangementOf(m) === 'hub' ? coreArea(m) : undefined;
+  const head = STANDARD_FONTS.group;
+  const hub = core && {
+    core: m.items.filter((i) => i.area === core.id).map((i) => i.id),
+    head: { text: core.label, width: textWidth(core.label, head), size: head.size },
+    pad: 16,
+  };
   const layout = layoutLayered({
     nodes: m.items.map((i) => {
       const box = boxes.get(i.id);
@@ -67,6 +75,7 @@ export function layeredGraph(m: Graph, locale: Locale): LayeredGraph {
     }),
     edges,
     metrics: { ...METRICS, left: MARGIN, top },
+    ...(hub ? { hub } : {}),
   });
   return { layout, boxes };
 }

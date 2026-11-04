@@ -6,7 +6,7 @@ export type AreaStatementSpec = StatementSpec<'area'> & {
   readonly arguments: readonly [Arg<'id', string, false>, Arg<'label', string, false>];
   readonly clauses: Record<never, never>;
   readonly attributes: { readonly tone: Attr<AreaTone> };
-  readonly flags: Record<never, never>;
+  readonly flags: { readonly core: string };
 };
 
 /**
@@ -15,7 +15,7 @@ export type AreaStatementSpec = StatementSpec<'area'> & {
  */
 export const AREA_STATEMENT: AreaStatementSpec = statement('area', {
   doc: 'A named area of the picture, such as the core or one extension of an extensible architecture. Elements, frames and lines join it with `area=` and are painted in its tone, and the legend names it. An area without a tone stays in ink, as a core does.',
-  examples: ['area kern "Kern"', 'area zahlung "Zahlungen" tone=green'],
+  examples: ['area kern "Kern"', 'area zahlung "Zahlungen" tone=green', 'area basis "Plattform" tone=sky core'],
   arguments: [
     arg('id', id(), 'Id that `area=` of elements, frames and lines names.'),
     arg('label', text(), 'Name of the area in the legend.'),
@@ -25,6 +25,9 @@ export const AREA_STATEMENT: AreaStatementSpec = statement('area', {
       oneOf(AREA_TONE_NAMES),
       'Colour of the area. Two areas of one picture take different tones; without one the area stays in ink.',
     ),
+  },
+  flags: {
+    core: 'The core the other areas extend. A picture that arranges a core and its extensions lays it out first and docks the others at its sides; without the flag, the one area without a tone is the core.',
   },
 }) as AreaStatementSpec;
 

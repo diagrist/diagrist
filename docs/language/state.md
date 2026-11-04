@@ -448,7 +448,7 @@ adr E1 "How do the services coordinate?" = "Events over Kafka" => "No central co
 ### `area`
 
 ```text
-area <id> <label> [tone=<choice>]
+area <id> <label> [tone=<choice>] [core]
 ```
 
 A named area of the picture, such as the core or one extension of an extensible architecture. Elements, frames and lines join it with `area=` and are painted in its tone, and the legend names it. An area without a tone stays in ink, as a core does.
@@ -460,12 +460,14 @@ Written at the top level.
 | `<id>` | argument | an identifier like `api` (letters, digits, `_` and `-`, starting with a letter) | Id that `area=` of elements, frames and lines names. |
 | `<label>` | argument | a text in double quotes like `"Order service"` | Name of the area in the legend. |
 | `tone=` | attribute | one of `green`, `orange`, `purple`, `red`, `yellow`, `teal`, `pink`, `sky` | Colour of the area. Two areas of one picture take different tones; without one the area stays in ink. |
+| `core` | flag |  | The core the other areas extend. A picture that arranges a core and its extensions lays it out first and docks the others at its sides; without the flag, the one area without a tone is the core. |
 
 Examples:
 
 ```dgr
 area kern "Kern"
 area zahlung "Zahlungen" tone=green
+area basis "Plattform" tone=sky core
 ```
 
 ## Diagnostic codes

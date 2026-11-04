@@ -78,3 +78,30 @@ describe('concept layout', () => {
     expect(first?.points).toHaveLength(4);
   });
 });
+
+describe('arrangement', () => {
+  const extensions = [
+    'type m "Modul"',
+    'link uses "nutzt" from=m to=m',
+    'area kern "Kern"',
+    'area pay "Zahlung" tone=green',
+    'area fix "Wartung" tone=orange',
+    'item a "Ausleihe" is m area=kern',
+    'item b "Konto" is m area=kern',
+    'item p "Tarif" is m area=pay',
+    'item w "Schaden" is m area=fix',
+    'rel a uses b',
+    'rel p uses b',
+    'rel w uses a',
+  ];
+
+  it('lays out a core extended by two areas as a hub, with the core in a frame headed by its name', () => {
+    const svg = concept('locale=de', ...extensions).svg ?? '';
+    expect(svg).toMatch(/<rect [^>]*class="frame"/);
+    expect(svg).toContain('>Kern</text>');
+  });
+
+  it('keeps layers when asked, and has no frame then', () => {
+    expect(concept('arrange=layers', ...extensions).svg).not.toMatch(/<rect [^>]*class="frame"/);
+  });
+});

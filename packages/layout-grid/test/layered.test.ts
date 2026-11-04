@@ -99,3 +99,52 @@ describe('layered layout', () => {
     expect(JSON.stringify(lay([box('a'), box('b')], edges))).toBe(JSON.stringify(once));
   });
 });
+
+describe('hub layout', () => {
+  const head = { text: 'Kern', width: 30, size: 11 };
+  const nodes = [box('core'), box('db'), box('acct'), box('ext1'), box('ext2'), box('ext3'), box('ext4')];
+  const edges = [
+    edge('core', 'db'),
+    edge('core', 'acct'),
+    edge('ext1', 'core'),
+    edge('ext2', 'db'),
+    edge('ext3', 'acct'),
+    edge('ext4', 'ext2'),
+  ].map((e) => (e.from === 'core' ? { ...e, bundle: 'uses' } : e));
+  const hub = layoutLayered({
+    nodes: nodes.map((n) => (n.id.startsWith('ext') ? { ...n, cluster: n.id === 'ext4' ? 'ext2' : n.id } : n)),
+    edges,
+    metrics: METRICS,
+    hub: { core: ['core', 'db', 'acct'], head, pad: 16 },
+  });
+
+  it('docks the extensions around the core without a crossing, each line pointing into the core', () => {
+    type P = readonly [number, number];
+    const meets = (a1: P, a2: P, b1: P, b2: P): boolean => {
+      const flat = (s: P, t: P) => s[1] === t[1];
+      if (flat(a1, a2) === flat(b1, b2)) return false;
+      const [h1, h2, v1, v2] = flat(a1, a2) ? [a1, a2, b1, b2] : [b1, b2, a1, a2];
+      const inX = v1[0] > Math.min(h1[0], h2[0]) && v1[0] < Math.max(h1[0], h2[0]);
+      const inY = h1[1] > Math.min(v1[1], v2[1]) && h1[1] < Math.max(v1[1], v2[1]);
+      return inX && inY;
+    };
+    const cross = (a: readonly P[], b: readonly P[]) =>
+      a.some((p, i) => i > 0 && b.some((q, k) => k > 0 && meets(a[i - 1] as P, p, b[k - 1] as P, q)));
+    const routes = hub.routes;
+    for (const [i, a] of routes.entries())
+      for (const b of routes.slice(i + 1)) expect(cross(a.points, b.points), `${a.edge} × ${b.edge}`).toBe(false);
+  });
+
+  it('frames the core alone, with its head above it, and keeps every other box outside the frame', () => {
+    const frame = hub.frame?.rect;
+    expect(frame).toBeDefined();
+    const inside = (r: { x: number; y: number; w: number; h: number }) =>
+      frame !== undefined &&
+      r.x < frame.x + frame.w &&
+      frame.x < r.x + r.w &&
+      r.y < frame.y + frame.h &&
+      frame.y < r.y + r.h;
+    for (const n of hub.nodes) expect(inside(n.rect), n.id).toBe(['core', 'db', 'acct'].includes(n.id));
+    expect((hub.frame?.head.box.y ?? 0) + (hub.frame?.head.box.h ?? 0)).toBeLessThanOrEqual(frame?.y ?? 0);
+  });
+});

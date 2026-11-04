@@ -17,6 +17,7 @@ export { type SeatMark, type SeatOptions, seatMarks } from './label/seat.js';
 export { segmentMeetsEllipse, segmentMeetsRect, segmentsIntersect } from './label/segment.js';
 export type { EdgeLabel, EdgeText, EndText } from './label/types.js';
 export { wrapTwo } from './label/wrap.js';
+export type { CoreFrame } from './layered/frame.js';
 export type { LayeredLayout } from './layered/index.js';
 export { layoutLayered } from './layered/index.js';
 export type { LayeredEdge, LayeredMetrics, LayeredNode, LayeredSpec } from './layered/spec.js';

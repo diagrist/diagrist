@@ -53,18 +53,31 @@ function shorten(
   }
 }
 
-/** Layers every node, cuts cycles, shortens edges from lone sources, and threads placeholders through long edges. */
-export function rank(spec: LayeredSpec): Ranked {
+/** The layer of every node: as `fixed` says, else along the edges, cycles cut and edges from lone sources short. */
+function layersOf(
+  spec: LayeredSpec,
+  edges: readonly LayeredEdge[],
+  fixed?: ReadonlyMap<string, number>,
+): Map<string, number> {
   const nodes = spec.nodes.map((n) => n.id);
-  const known = new Set(nodes);
-  const edges = spec.edges.filter((e) => known.has(e.from) && known.has(e.to) && e.from !== e.to);
+  if (fixed !== undefined) return compact(new Map(nodes.map((n) => [n, fixed.get(n) ?? 0])));
   const asLayers = edges.map(layerEdge);
   const ranked = acyclic(nodes, asLayers);
   const side = asLayers.filter((e) => e.rank === 0);
   const held = new Set(side.flatMap((e) => [e.from, e.to]));
   const layer = assignLayers(nodes, ranked, side);
   shorten(nodes, ranked, held, layer);
-  const layerOf = compact(layer);
+  return compact(layer);
+}
+
+/**
+ * Layers every node, or takes the layers `fixed` gives, and threads placeholders through long edges; an edge
+ * between two nodes of one layer is drawn beside.
+ */
+export function rank(spec: LayeredSpec, fixed?: ReadonlyMap<string, number>): Ranked {
+  const known = new Set(spec.nodes.map((n) => n.id));
+  const edges = spec.edges.filter((e) => known.has(e.from) && known.has(e.to) && e.from !== e.to);
+  const layerOf = layersOf(spec, edges, fixed);
   const all = new Map(layerOf);
   const dummies = new Set<string>();
   const chains = new Map<string, string[]>();

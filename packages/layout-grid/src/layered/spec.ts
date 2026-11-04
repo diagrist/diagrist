@@ -58,9 +58,22 @@ export interface LayeredMetrics {
   readonly top: number;
 }
 
-/** A layered picture to lay out: boxes, edges and measures. */
+/**
+ * A hub picture (plan 4.7): the boxes of the core are laid out first, every other cluster docks at the side of the
+ * core where it meets it, with its lines pointing into the core, and the core stands in a light frame with a head.
+ */
+export interface Hub {
+  readonly core: readonly string[];
+  /** The head of the frame around the core, measured by the kind. */
+  readonly head: { readonly text: string; readonly width: number; readonly size: number };
+  /** Room between the frame and the boxes of the core. */
+  readonly pad: number;
+}
+
+/** A layered picture to lay out: boxes, edges and measures, and optionally a hub. */
 export interface LayeredSpec {
   readonly nodes: readonly LayeredNode[];
   readonly edges: readonly LayeredEdge[];
   readonly metrics: LayeredMetrics;
+  readonly hub?: Hub;
 }

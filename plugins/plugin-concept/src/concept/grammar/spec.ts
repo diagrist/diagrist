@@ -53,8 +53,8 @@ export const conceptSpec = kind('concept', {
       'Declarations of the plugin the file builds on: `terms` (terms with definitions, broader and narrower, parts, synonyms) or `roles` (roles, who reports to whom, who stands in for whom).',
     ),
     arrange: attr(
-      oneOf(['columns', 'layers']),
-      'How the items stand: `columns`, a column per type in the order of their declaration, so a relation reads from left to right as a sentence; or `layers` along the relations. Without it, columns when the items are of more than one type.',
+      oneOf(['columns', 'layers', 'hub']),
+      'How the items stand: `columns`, a column per type in the order of their declaration, so a relation reads from left to right as a sentence; `layers` along the relations; or `hub`, the core area first and every other area docked at the side of the core it meets, its lines pointing into the core. Without it, columns when at least 80 % of the relations join items of different types, a hub when a core area (marked `core`, or the one area without a tone) is extended by two areas or more, else layers.',
     ),
     use: attr(
       file(),

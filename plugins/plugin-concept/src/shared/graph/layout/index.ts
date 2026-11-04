@@ -1,6 +1,6 @@
 import { type Area, type Placed, type Rect, textWidth } from '@diagrist/core';
 import type { Locale } from '@diagrist/lang';
-import type { EdgeLabel, Route } from '@diagrist/layout-grid';
+import type { CoreFrame, EdgeLabel, Route } from '@diagrist/layout-grid';
 import { LEGEND, type Legend, legendLayout, MARGIN } from '@diagrist/parts';
 import type { LinkDecl, TypeDecl } from '../../declarations.js';
 import type { Graph, GraphWords, Item, Relation } from '../model.js';
@@ -45,6 +45,8 @@ export interface GraphLayout {
   readonly heads: readonly PlacedHead[];
   /** The verbs between the heads, each standing for every line between its two columns. */
   readonly verbs: readonly PlacedVerb[];
+  /** The frame around the core of a hub, with its head. */
+  readonly frame?: CoreFrame;
   readonly width: number;
   readonly height: number;
   readonly placed: readonly Placed[];
@@ -134,6 +136,7 @@ export function layoutGraph(
     legend,
     heads,
     verbs: at.verbs,
+    ...(at.frame ? { frame: at.frame } : {}),
     width,
     height: Math.ceil(entries.length > 0 ? legend.bottom : bottom),
     placed: at.placed,

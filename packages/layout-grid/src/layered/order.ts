@@ -6,6 +6,8 @@ import type { LayeredSpec } from './spec.js';
 const DUMMY_WEIGHT = 8;
 /** What one foreign node between two members of a cluster costs, against 10 for a crossing. */
 const CLUSTER_SPREAD = 3;
+/** What a node kept to the outside of its layer costs for every other node beyond it: more than any crossing. */
+const PINNED = 10_000;
 
 /** The links between nodes of neighbouring layers and within a layer, with their weights. */
 export interface Neighbours {
@@ -42,8 +44,14 @@ export function neighboursOf(spec: LayeredSpec, ranked: Ranked): Neighbours {
  * The order of every layer, placeholders included: the barycentre sweeps and the thorough search of `layers`, with
  * a cost that weighs each crossing by the weights of both pieces, keeps nodes beside each other near, and counts
  * every foreign node standing between two members of one cluster, so clusters stay together where that is cheap.
+ * A node in `pins` keeps to the left or right end of its layer.
  */
-export function orderRanked(spec: LayeredSpec, ranked: Ranked, links: Neighbours): string[][] {
+export function orderRanked(
+  spec: LayeredSpec,
+  ranked: Ranked,
+  links: Neighbours,
+  pins: ReadonlyMap<string, 'left' | 'right'> = new Map(),
+): string[][] {
   const cluster = new Map(spec.nodes.flatMap((n) => (n.cluster === undefined ? [] : [[n.id, n.cluster] as const])));
   const w = (a: string, b: string) => links.weight.get(key(a, b)) ?? 1;
   const cost = (
@@ -62,6 +70,11 @@ export function orderRanked(spec: LayeredSpec, ranked: Ranked, links: Neighbours
         for (const q of pairs.slice(i + 1)) if ((p[0] - q[0]) * (p[1] - q[1]) < 0) total += 10 * p[2] * q[2];
       for (const a of layer)
         for (const b of adj.get(a) ?? []) if (layerOf.get(b) === l) total += Math.abs(at(a) - at(b)) - 1;
+      layer.forEach((n, i) => {
+        const pin = pins.get(n);
+        const wrong = pin === 'left' ? layer.slice(0, i) : pin === 'right' ? layer.slice(i + 1) : [];
+        total += PINNED * wrong.filter((m) => pins.get(m) !== pin).length;
+      });
       for (const c of new Set(layer.flatMap((n) => cluster.get(n) ?? []))) {
         const mine = layer.flatMap((n, i) => (cluster.get(n) === c ? [i] : []));
         const span = (mine.at(-1) ?? 0) - (mine[0] ?? 0) + 1;

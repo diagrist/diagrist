@@ -71,7 +71,7 @@ export function conceptModel(reading: KindReading<ConceptStatement>): ConceptMod
   const types = declare([...shipped.types, ...(fromFile?.types ?? []), ...own.types], repeat('type'));
   const links = declare([...shipped.links, ...(fromFile?.links ?? []), ...own.links], repeat('link'));
   const subtitle = attributes.subtitle;
-  const arrange = attributes.arrange as 'columns' | 'layers' | undefined;
+  const arrange = attributes.arrange as Graph['arrange'];
   const problem = fromFile?.diagnostics.find((d) => d.severity === 'error');
   const span = HEADER_SPAN(reading.header?.line ?? 1);
   return {

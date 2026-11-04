@@ -1,6 +1,7 @@
 import type { Placed, Rect } from '@diagrist/core';
 import type { Locale } from '@diagrist/lang';
 import {
+  type CoreFrame,
   type EdgeLabel,
   fitFrames,
   labelEdges,
@@ -38,6 +39,8 @@ export interface Arranged {
   readonly width: number;
   readonly bottom: number;
   readonly placed: readonly Placed[];
+  /** The frame around the core of a hub, with its head. */
+  readonly frame?: CoreFrame;
 }
 
 /** A picture in columns, on the grid of `layout-grid`, with the heads of its columns. */
