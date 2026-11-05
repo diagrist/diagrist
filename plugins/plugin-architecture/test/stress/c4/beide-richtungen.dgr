@@ -1,0 +1,26 @@
+# Pressure: four pairs of boxes joined by two edges each, a call one way and an event back, plus a bundle of three.
+diagram container "Lagerverwaltung" subtitle="Aufrufe hin, Ereignisse zurück" locale=de
+grid cols links,mitte,rechts
+grid rows oben,mitte,unten
+
+group lager "Lagerverwaltung" own team="Team Logistik"
+
+container wms "WMS" tech="Java" icon=warehouse at mitte/mitte in lager
+container scanner "Handscanner" tech="Android" icon=smartphone at links/mitte in lager
+container foerder "Fördertechnik" tech="SPS" icon=cpu at mitte/unten in lager
+container erp "ERP" tech="SAP" icon=building-2 at rechts/mitte in lager
+container versand "Versand" tech="Go" icon=package at mitte/oben in lager
+container leitstand "Leitstand" tech="Vue" icon=monitor at links/oben in lager
+container wartung "Wartung" tech="Python" icon=settings at rechts/unten in lager
+
+edge scanner -> wms "Buchung" via=REST
+edge wms ~> scanner "Auftrag" via=Push
+edge wms -> foerder "Fahrauftrag" via=OPC
+edge foerder ~> wms "Quittung" via=OPC
+edge wms -> erp "Bestand melden" via=IDoc
+edge erp ~> wms "Lieferavis" via=IDoc
+edge wms -> versand "Packauftrag" via=REST
+edge versand ~> wms "verpackt" via=Kafka
+edge leitstand -> wms "Lage abrufen"
+edge foerder -> wartung "Störung"
+edge wartung -> foerder "Freigabe"

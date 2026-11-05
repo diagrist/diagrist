@@ -1,0 +1,23 @@
+# Pressure: long labels with protocol, schedule and volume on edges in narrow gutters between three columns.
+diagram container "Meldewesen" subtitle="Nächtliche Meldungen an die Aufsicht" locale=de
+grid cols quelle,verarbeitung,ziel
+grid rows oben,mitte,unten
+
+group bank "Bank" own team="Team Regulatorik"
+
+container kern "Kernbanksystem" tech="Avaloq" icon=building-2 at quelle/mitte in bank
+container handel "Handelssystem" tech="Murex" icon=chart-line at quelle/oben in bank
+container kredit "Kreditsystem" tech="SAP" icon=files at quelle/unten in bank
+container sammler "Meldedaten-Sammler" tech="Spring Batch" icon=layers at verarbeitung/mitte in bank
+container pruefung "Plausibilitätsprüfung" tech="Python" icon=shield-check at verarbeitung/unten in bank
+container archiv "Meldearchiv" tech="S3 Object Lock" icon=archive at verarbeitung/oben in bank
+system bafin "Bundesbank-Meldeportal" tech="ExtraNet" at ziel/mitte
+system ezb "EZB AnaCredit" tech="XML-Schnittstelle" at ziel/unten
+
+edge kern => sammler "Kontosalden und Positionen aller Kunden" schedule="täglich 01:00" volume="2 Mio. Sätze"
+edge handel => sammler "Handelsgeschäfte des Tages mit Bewertung" schedule="täglich 00:30" volume="80k"
+edge kredit => sammler "Kredite mit Sicherheiten und Ratings" schedule="monatlich" volume="400k"
+edge sammler -> pruefung "Meldebestand zur Prüfung übergeben"
+edge pruefung -> bafin "Meldung einreichen" via="SFTP mit Signatur"
+edge pruefung -> ezb "Kreditdaten melden" via="XML über ExtraNet"
+edge sammler => archiv "Meldebestand revisionssicher ablegen" volume="10 Jahre"

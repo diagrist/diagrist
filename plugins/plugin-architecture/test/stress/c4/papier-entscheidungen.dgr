@@ -1,0 +1,34 @@
+# Pressure: look=paper with four decisions marked on boxes and edges and lines between every column.
+diagram container "Datenplattform" subtitle="Entwurf zur Architekturrunde" look=paper locale=de
+grid cols quellen,eingang,verarbeitung,ausgabe
+grid rows oben,mitte,unten
+
+group plattform "Datenplattform" own team="Team Daten"
+
+system erp "ERP" tech="SAP S/4" at quellen/oben
+system shop "Shop" tech="Shopware" at quellen/mitte
+system sensoren "Sensoren" tech="OPC UA" at quellen/unten
+container ingest "Ingest" tech="Kafka Connect" icon=apachekafka at eingang/mitte in plattform mark=E1
+container stream "Stream-Verarbeitung" tech="Flink" icon=workflow at verarbeitung/unten in plattform mark=E2
+container batch "Batch-Jobs" tech="Spark" icon=layers at verarbeitung/oben in plattform
+container lake "Data Lake" tech="Iceberg auf S3" icon=database at verarbeitung/mitte in plattform mark=E3
+container bi "BI-Dashboards" tech="Superset" icon=chart-line at ausgabe/oben in plattform
+container api "Daten-API" tech="GraphQL" icon=server at ausgabe/mitte in plattform mark=E4
+container alarme "Alarme" tech="Alertmanager" icon=flame at ausgabe/unten in plattform
+
+edge erp => ingest "Stammdaten" schedule="stündlich"
+edge shop => ingest "Bestellungen" via=CDC
+edge sensoren => ingest "Messwerte" via=MQTT
+edge ingest => lake "Rohdaten"
+edge ingest => stream "Ereignisse"
+edge lake => batch "Tagesjob" schedule="täglich 02:00"
+edge batch => lake "Aggregate"
+edge lake -> api "Abfragen"
+edge batch -> bi "Kennzahlen"
+edge stream -> alarme "Grenzwert überschritten"
+edge stream => lake "Zeitreihen"
+
+adr E1 "Wie kommen die Daten herein?" = "Kafka Connect mit CDC" => "Keine Abfragen gegen die Quellsysteme."
+adr E2 "Echtzeit oder Batch?" = "Beides, Flink für Alarme" => "Zwei Pfade müssen gepflegt werden."
+adr E3 "Welches Tabellenformat?" = "Apache Iceberg" => "Zeitreisen und Schemaänderungen ohne Umkopieren."
+adr E4 "Wie lesen Fachbereiche?" = "Eine GraphQL-API" => "Kein direkter Zugriff auf den Lake." open="Team Daten"

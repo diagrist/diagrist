@@ -1,0 +1,33 @@
+# Pressure: look=cards with an icon in every cell of a 4x3 grid and edges between most neighbours.
+diagram container "Lernplattform" subtitle="Container und ihre Verbindungen" look=cards locale=de
+grid cols nutzer,frontend,backend,daten
+grid rows oben,mitte,unten
+
+group plattform "Lernplattform" own team="Team Lernen"
+
+person lernende "Lernende" tech="Azubis und Umschüler" icon=users at nutzer/mitte
+person trainer "Trainer" tech="erstellt Kurse" icon=user-cog at nutzer/unten
+person admin "Betrieb" tech="überwacht" icon=user-round at nutzer/oben
+container web "Web-App" tech="Vue" icon=vuedotjs at frontend/mitte in plattform
+container editor "Kurseditor" tech="Vue" icon=layout-dashboard at frontend/unten in plattform
+container monitoring "Monitoring" tech="Grafana" icon=chart-line at frontend/oben in plattform
+container api "Lern-API" tech="Laravel" icon=server at backend/mitte in plattform
+container labs "Lab-Server" tech="Go" icon=terminal at backend/unten in plattform
+container auth "Anmeldung" tech="Keycloak" icon=keycloak at backend/oben in plattform
+container db "Datenbank" tech="PostgreSQL" icon=postgresql at daten/mitte in plattform
+container dateien "Dateien" tech="MinIO" icon=minio at daten/unten in plattform
+container cluster "Lab-Cluster" tech="Kubernetes" icon=kubernetes at daten/oben in plattform
+
+edge lernende -> web "lernt"
+edge trainer -> editor "schreibt Kurse"
+edge admin -> monitoring "beobachtet"
+edge web -> api via=HTTPS
+edge editor -> api via=HTTPS
+edge monitoring -> api "Metriken lesen"
+edge web -> auth "anmelden" via=OIDC
+edge api -> auth "Token prüfen"
+edge api -> db via=SQL
+edge api -> labs "Lab starten"
+edge labs -> cluster "Pods anlegen"
+edge labs -> dateien "Vorlagen lesen" via=S3
+edge editor -> dateien "Medien hochladen" via=S3

@@ -66,9 +66,25 @@ function straightPorts(board: Board, plans: readonly Plan[], spread: number, gap
   return out;
 }
 
-/** Order of the ends on one side: by where their other box lies, nested Ls and parallel Zs between the same boxes. */
+/** How far the other box of an end lies out from its side, across the side. */
+function beyond(e: End): number {
+  const other = e.at === 'from' ? e.plan.b : e.plan.a;
+  const across: Side = flat(e.side) ? 'left' : 'top';
+  return Math.abs(middle(sideOf(other, across)) - middle(sideOf(e.box, across)));
+}
+
+/**
+ * Order of the ends on one side: by where their other box lies; of two Ls that turn the same way, the one that
+ * reaches further out first in the direction of the turn, so the two nest instead of crossing; nested Ls and parallel
+ * Zs between the same boxes.
+ */
 function byOther(e: End, f: End): number {
   if (e.other !== f.other) return e.other - f.other;
+  if (e.plan.shape === 'L' && f.plan.shape === 'L') {
+    const later = e.other >= middle(sideOf(e.box, e.side)) ? 1 : -1;
+    const apart = later * (beyond(f) - beyond(e));
+    if (apart !== 0) return apart;
+  }
   const sign = (x: End) => (x.plan.shape === 'L' && x.other < middle(sideOf(x.box, x.side)) ? -1 : 1);
   return (e.plan.key - f.plan.key) * sign(e);
 }
@@ -76,10 +92,40 @@ function byOther(e: End, f: End): number {
 const pairOf = (e: End): string => [e.plan.a.id, e.plan.b.id].sort().join('|');
 
 /**
+ * A train parted around the one straight end of its side, the ends whose other box lies before it before it and the
+ * rest after, `spread` from it and the steps of the train between each other; then the other partings, nearest
+ * first. `undefined` when the side has not one straight end or no parting fits its free stretches.
+ */
+function around(
+  ends: readonly End[],
+  steps: readonly number[],
+  fixed: readonly number[],
+  free: readonly Range[],
+  spread: number,
+): number[] | undefined {
+  const [f] = fixed;
+  if (f === undefined || fixed.length !== 1) return undefined;
+  const natural = ends.filter((e) => e.other < f).length;
+  const partings = ends
+    .map((_, k) => k)
+    .concat(ends.length)
+    .sort((a, b) => Math.abs(a - natural) - Math.abs(b - natural) || a - b);
+  for (const k of partings) {
+    const spots = ends.map(() => 0);
+    for (let i = k - 1; i >= 0; i--) spots[i] = i === k - 1 ? f - spread : (spots[i + 1] ?? f) - (steps[i] ?? spread);
+    for (let i = k; i < ends.length; i++)
+      spots[i] = i === k ? f + spread : (spots[i - 1] ?? f) + (steps[i - 1] ?? spread);
+    if (spots.every((v) => within(v, free))) return spots;
+  }
+  return undefined;
+}
+
+/**
  * Bent ends of one side, in the order of their other ends, as a train: `spread` apart, twice that between two ends
  * of edges between the same boxes, so their texts find room between them. The train stands inside the free stretches
  * of the side and `spread` clear of its straight ends, its middle as near the middle of the side as that allows, on a
- * tie towards where the other ends lie. Where no train fits, the ends spread evenly over the longest free stretch.
+ * tie towards where the other ends lie. Where no train fits beside a single straight end, it parts around it (`around`);
+ * where that fails too, the ends spread evenly over the longest free stretch.
  */
 function bentPorts(ends: readonly End[], fixed: readonly number[], free: readonly Range[], spread: number): number[] {
   const steps = ends.slice(1).map((e, i) => (pairOf(e) === pairOf(ends[i] as End) ? 2 * spread : spread));
@@ -98,6 +144,8 @@ function bentPorts(ends: readonly End[], fixed: readonly number[], free: readonl
     (a, b) => cost(a) - cost(b),
   )[0];
   if (best !== undefined) return offsets.map((d) => best + d);
+  const split = around(ends, steps, fixed, free, spread);
+  if (split !== undefined) return split;
   const longest = [...free].sort((x, y) => y[1] - y[0] - (x[1] - x[0]))[0] ?? [lo, hi];
   return ends.map((_, i) => longest[0] + ((longest[1] - longest[0]) * (i + 1)) / (ends.length + 1));
 }

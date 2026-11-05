@@ -1,0 +1,33 @@
+# Pressure: look=blocks with a fan of five lines from a gateway into a row of services and their stores below.
+diagram container "Streaming-Dienst" subtitle="Dienste hinter dem Gateway" look=blocks locale=de
+grid cols s1,s2,s3,s4,s5
+grid rows nutzer,gateway,dienste,daten
+
+group dienst "Streaming" own
+
+person zuschauer "Zuschauer" tech="Smart-TV und App" at s3/nutzer
+container gateway "Gateway" tech="Envoy" icon=shield-check at s3/gateway in dienst
+container katalog "Katalog" tech="Go" icon=folder at s1/dienste in dienst
+container profil "Profile" tech="Go" icon=user-round at s2/dienste in dienst
+container wiedergabe "Wiedergabe" tech="Rust" icon=monitor at s3/dienste in dienst
+container empfehlung "Empfehlungen" tech="Python" icon=chart-line at s4/dienste in dienst
+container abo "Abo" tech="Java" icon=receipt at s5/dienste in dienst
+container katalogdb "Katalogdaten" tech="Cassandra" icon=database at s1/daten in dienst
+container profildb "Profildaten" tech="PostgreSQL" icon=postgresql at s2/daten in dienst
+container cdn "CDN" tech="Edge-Cache" icon=cloud at s3/daten in dienst
+container features "Feature Store" tech="Redis" icon=hard-drive at s4/daten in dienst
+container abodb "Abodaten" tech="PostgreSQL" icon=postgresql at s5/daten in dienst
+
+edge zuschauer -> gateway via=HTTPS
+edge gateway -> katalog "Titel suchen"
+edge gateway -> profil "Profil laden"
+edge gateway -> wiedergabe "Stream starten"
+edge gateway -> empfehlung "Vorschläge"
+edge gateway -> abo "Berechtigung"
+edge katalog -> katalogdb via=CQL
+edge profil -> profildb via=SQL
+edge wiedergabe -> cdn "Segmente"
+edge empfehlung -> features "Merkmale"
+edge abo -> abodb via=SQL
+edge wiedergabe -> abo "Berechtigung prüfen"
+edge empfehlung -> profil "Verlauf lesen"
