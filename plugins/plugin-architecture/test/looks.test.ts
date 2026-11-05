@@ -18,7 +18,7 @@ describe('looks', () => {
     const cards = diagram('context look=cards', ...SHOP).svg ?? '';
     expect(plain).toContain('<g class="legend">');
     expect(plain).toMatch(
-      /<svg x="[\d.]+" y="[\d.]+" width="21.6" height="21.6" viewBox="0 0 24 24" class="icon-line-ink">/,
+      /<svg x="[\d.]+" y="[\d.]+" width="22" height="22" viewBox="0 0 24 24" class="icon-line-ink">/,
     );
     expect(cards).not.toContain('<g class="legend">');
     expect(cards).toMatch(/<circle cx="[\d.]+" cy="[\d.]+" r="22" class="tone-blue"\/>/);
