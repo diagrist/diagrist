@@ -2,7 +2,7 @@ import { type Point, textWidth } from '@diagrist/core';
 import type { GridMetrics } from '../spec.js';
 import { labelLine, partFont } from './text.js';
 import type { EdgeLabel, EdgeText } from './types.js';
-import { wrapTwo } from './wrap.js';
+import { WRAP_EM, wrapTwo, wrapWithin } from './wrap.js';
 
 /** A line of an edge's texts before it is placed. */
 export interface Line {
@@ -13,16 +13,35 @@ export interface Line {
 /** Names longer than this wrap beside a vertical piece, as `routeTexts` wraps them. */
 const UPRIGHT = 14;
 
-/** The ways the texts of an edge stack: the name on one line, then wrapped, each with the detail below. */
-export function stacks(text: EdgeText, upright: boolean): Line[][] {
+/** The widest a line of an edge's text may run, `WRAP_EM` sizes of the label font. */
+export const wrapWidth = (m: GridMetrics): number => WRAP_EM * m.labelFont.size;
+
+const lineOf =
+  (part: Line['part']) =>
+  (text: string): Line => ({ text, part });
+
+/**
+ * The ways the texts of an edge stack: the name on one line, then wrapped in two, each with the detail below, beside
+ * an upright piece a long name wrapped first. No line runs wider than `wrapWidth` where words allow: a longer name
+ * or detail wraps word by word.
+ */
+export function stacks(text: EdgeText, upright: boolean, m: GridMetrics): Line[][] {
   const { name, detail } = text;
-  const tail: Line[] = detail ? [{ text: detail, part: 'detail' }] : [];
+  const max = wrapWidth(m);
+  const fits = (lines: readonly string[], part: Line['part']) =>
+    lines.every((l) => textWidth(l, partFont(part, m)) <= max || !l.includes(' '));
+  const within = (s: string, part: Line['part']) => wrapWithin(s, max, (t) => textWidth(t, partFont(part, m)));
+  const tail: Line[] = !detail
+    ? []
+    : (fits([detail], 'detail') ? [detail] : within(detail, 'detail')).map(lineOf('detail'));
   if (!name) return tail.length > 0 ? [tail] : [];
-  const one: Line[] = [{ text: name, part: 'name' }, ...tail];
   const two = wrapTwo(name);
-  const wrapped: Line[] = [...two.map((t): Line => ({ text: t, part: 'name' })), ...tail];
-  if (two.length === 1) return [one];
-  return upright && name.length > UPRIGHT ? [wrapped, one] : [one, wrapped];
+  const ways = [[name], two, within(name, 'name')].filter((w, i) => fits(w, 'name') || i === 2);
+  const unique = ways.filter((w, i) => ways.findIndex((v) => v.join('\n') === w.join('\n')) === i);
+  const [first, second] = unique.map((w) => [...w.map(lineOf('name')), ...tail]);
+  if (!first) return [];
+  if (!second) return [first];
+  return upright && name.length > UPRIGHT && first.length < second.length ? [second, first] : [first, second];
 }
 
 /** The width of the widest line of a stack. */

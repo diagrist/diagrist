@@ -97,3 +97,8 @@ No example changed a byte: their texts found clear spots before. In the stress s
    covers is as wide as nothing, so only its gaps stay between its neighbours. `kontext-stern` names two such columns
    to set its neighbours two cells away from the middle; they took 384 pixels of nothing, and the picture shrinks from
    1728 to 1344 pixels wide.
+4. **Long texts wrap.** No line of an edge's text that the search for spots places runs wider than 16 sizes of the
+   label font, two or three words, where its words allow: a longer name or detail wraps word by word into lines as
+   alike as the width allows, a detail first between its parts joined by ` · `. A text kept where the old rule put
+   it is kept only within that width too. Gutters grow for the wrapped text, so `lange-texte` shrinks from 1344 to
+   1152 pixels wide; no example changed, their texts fit before.

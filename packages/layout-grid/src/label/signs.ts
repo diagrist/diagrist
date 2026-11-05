@@ -6,7 +6,7 @@ import type { GridSpec } from '../spec.js';
 import { clearOf } from './clear.js';
 import { namedOf } from './named.js';
 import type { OnLine } from './on-line.js';
-import { blockCost, type Found, rectsOf, type SearchOptions, searchBlock } from './search.js';
+import { blockCost, type Found, rectsOf, type SearchOptions, searchBlock, tooWide } from './search.js';
 import type { SeatMark } from './seat.js';
 import { markAt, spotsOf } from './spots.js';
 import type { EdgeLabel, EdgeText } from './types.js';
@@ -110,7 +110,7 @@ export function signEdges<M extends SeatMark>(
   const searchOf = (i: number): SearchOptions => (twin(i) ? { ...search, beside: true } : search);
   routes.forEach((_, i) => {
     const block = first(i);
-    if (block.length > 0 && blockCost(block, i, clear, search) === 0) take(i, block);
+    if (block.length > 0 && !tooWide(block, spec.metrics) && blockCost(block, i, clear, search) === 0) take(i, block);
   });
   routes.forEach((r, i) => {
     const text = texts.get(r.edge);
