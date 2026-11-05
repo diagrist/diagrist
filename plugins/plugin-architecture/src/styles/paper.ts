@@ -1,6 +1,6 @@
 import { MARKER_SHAPES, type Marker, type RoleStyle, rule, STROKES, type StyleRule, textRule } from '@diagrist/core';
 import type { LookFonts, Paint } from '../looks/look.js';
-import type { Strokes } from './rules.js';
+import { iconRules, type Strokes } from './rules.js';
 
 const PAPER_STROKES: Strokes = { ...STROKES, line: 1, accent: 1.5, data: 2, shape: 1, emph: 1.5, frame: 1 };
 
@@ -19,15 +19,6 @@ const PAPER = {
 } as const;
 
 const r = (...classes: string[]): RoleStyle => ({ classes });
-
-/** Icons in a quiet colour and finer than in the standard look, by the colour name of their role. */
-const iconPaint = (name: 'ink' | 'muted', color: string): Record<string, RoleStyle> => ({
-  [`icon-fill-${name}`]: { classes: [], paint: `fill="${color}"` },
-  [`icon-line-${name}`]: {
-    classes: [],
-    paint: `fill="none" stroke="${color}" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"`,
-  },
-});
 
 /**
  * Roles `look=paper` draws differently from the standard look: the core in yellow, also when it is new, zones as
@@ -69,8 +60,6 @@ const PAPER_ROLES: Readonly<Record<string, RoleStyle>> = {
   'edge-halo-zone': r('line', 'halo-zone'),
   'label-halo-zone': r('label', 'halo-zone'),
   'label-accent-halo-zone': r('label', 'halo-zone'),
-  ...iconPaint('ink', PAPER.ink2),
-  ...iconPaint('muted', PAPER.ink2),
 };
 
 /** Every arrowhead open and thin, in the colour of its line. */
@@ -88,6 +77,7 @@ function paperRules(f: LookFonts): StyleRule[] {
   const halo = (color: string) =>
     `fill: none; paint-order: stroke; stroke: ${color}; stroke-width: 4px; stroke-linejoin: round;`;
   return [
+    ...iconRules({ ink: c.ink2, muted: c.ink2 }, 1.6, 'round'),
     rule('shape', `fill: ${c.node}; stroke: ${c.outline}; stroke-width: 1;`),
     rule('shape-core', `fill: ${c.core}; stroke: ${c.ink}; stroke-width: 1.5;`),
     rule('shape-detail', line(c.outline, 1)),

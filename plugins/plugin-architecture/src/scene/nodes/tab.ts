@@ -5,7 +5,7 @@ import { secondLineRole } from '../../layout/measure.js';
 import { type TabArt, tabName } from '../../layout/tab.js';
 import type { Look } from '../../looks/look.js';
 import type { Role } from '../../model/types.js';
-import { iconRole } from '../icons.js';
+import { iconRole, iconShape } from '../icons.js';
 import { bodyOf, STATUS_DOT } from './box.js';
 
 /** The status dot after the name in the tab: its radius, its distance from the name and how far it rises. */
@@ -39,7 +39,7 @@ export function tabShapes(p: PlacedElement, art: BoxArt, tab: TabArt, role: Role
     const cx = art.label.x + textWidth(name, look.fonts.name) + DOT.gap;
     out.push({ kind: 'circle', cx, cy: art.label.y - DOT.rise, r: DOT.r, role: STATUS_DOT[n.status] });
   }
-  if (tab.icon) out.push({ kind: 'icon', icon: tab.icon, ...art.icon, role: iconRole(tab.icon, 'ink') });
+  if (tab.icon) out.push(iconShape(tab.icon, art.icon, iconRole(tab.icon, 'ink')));
   if (n.tech) out.push({ kind: 'text', ...art.tech, text: n.tech, role: second, font: second, anchor: 'middle' });
   return out;
 }

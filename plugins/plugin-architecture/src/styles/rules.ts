@@ -17,6 +17,25 @@ export interface Strokes {
 /** The strokes of the standard look, with data flows thicker than calls. */
 export const STANDARD_STROKES: Strokes = { ...STROKES, data: 2.5 };
 
+/**
+ * The rules of icons, by colour name: filled icons in the colour, line icons in strokes of `width` with their ends
+ * and corners. The nested `<svg>` of an icon does not clip what reaches past its square.
+ */
+export function iconRules(
+  colors: Readonly<Partial<Record<'ink' | 'muted' | 'white', string>>>,
+  width: number,
+  ends: 'round' | 'square',
+): StyleRule[] {
+  const join = ends === 'round' ? 'round' : 'miter';
+  return Object.entries(colors).flatMap(([name, color]) => [
+    rule(`icon-fill-${name}`, `overflow: visible; fill: ${color};`),
+    rule(
+      `icon-line-${name}`,
+      `overflow: visible; fill: none; stroke: ${color}; stroke-width: ${width}; stroke-linecap: ${ends}; stroke-linejoin: ${join};`,
+    ),
+  ]);
+}
+
 /** Fill and border opacity of toned frames, and of the halo a label keeps on them. */
 const TINT = { fill: 0.07, stroke: 0.45 } as const;
 
@@ -36,6 +55,7 @@ export function architectureRules(fonts: LookFonts, w: Strokes, changes: readonl
     rule('annotation-line', `fill: none; stroke: ${c.border}; stroke-width: ${w.frame};`),
     rule('annotation-arrow', `fill: ${c.border}; stroke: none;`),
     rule('legend-rule', `fill: none; stroke: ${c.grid}; stroke-width: 1;`),
+    ...iconRules({ ink: c.stroke, muted: c.note, white: '#ffffff' }, 1.8, 'round'),
     rule(
       'shape-planned',
       `fill: ${c.fill}; stroke: ${c.stroke}; stroke-width: ${w.shape}; stroke-dasharray: ${DASH.line};`,

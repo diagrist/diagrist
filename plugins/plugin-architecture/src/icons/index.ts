@@ -20,9 +20,9 @@ export const ICON_NAMES: readonly string[] = [...ALL.keys()];
 export const iconStroke = (name: string): IconStroke => ALL.get(name) ?? 'fill';
 
 /**
- * The icons for the style table. They keep the predecessor's markup, so pictures keep its bytes; `paths` for the
- * kernel's clean form follow with the clean-up (docs/burn-down.md).
+ * The icons for the style table as path data in a square of 24, which the kernel draws as a nested `<svg>` with the
+ * classes of the icon's role; the look's rules paint them (ADR 0016).
  */
 export const ICONS: Readonly<Record<string, Icon>> = Object.fromEntries(
-  Object.entries({ ...LUCIDE, ...SIMPLE_ICONS }).map(([name, markup]) => [name, { size: 24, paths: [], markup }]),
+  Object.entries({ ...LUCIDE, ...SIMPLE_ICONS }).map(([name, paths]) => [name, { size: 24, paths }]),
 );

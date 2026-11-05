@@ -1,4 +1,4 @@
-import { COLORS, type RoleStyle, TONE_NAMES } from '@diagrist/core';
+import { type RoleStyle, TONE_NAMES } from '@diagrist/core';
 import { PART_ROLES } from '@diagrist/parts';
 import type { EdgeKind } from '../grammar/edges.js';
 
@@ -39,19 +39,12 @@ function edgeRoles(): Record<string, RoleStyle> {
   );
 }
 
-/** Paint of icons as the predecessor wrote it inline, by stroke and colour (docs/burn-down.md). */
+/** Icons by stroke and colour, each its own class, which the rules of a look paint (`iconRules`). */
 function iconRoles(): Record<string, RoleStyle> {
-  const colors = { ink: COLORS.stroke, muted: COLORS.note, white: '#ffffff' } as const;
   return Object.fromEntries(
-    Object.entries(colors).flatMap(([name, color]) => [
-      [`icon-fill-${name}`, { classes: [], paint: `fill="${color}"` }],
-      [
-        `icon-line-${name}`,
-        {
-          classes: [],
-          paint: `fill="none" stroke="${color}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"`,
-        },
-      ],
+    ['ink', 'muted', 'white'].flatMap((name) => [
+      [`icon-fill-${name}`, r(`icon-fill-${name}`)],
+      [`icon-line-${name}`, r(`icon-line-${name}`)],
     ]),
   );
 }

@@ -39,18 +39,12 @@ export function toSvg(scene: Scene, styles: Styles, options: SvgOptions = {}): s
   return `${head}<title>${title}</title>${style}${defs}\n${body}\n</svg>\n`;
 }
 
-/** The inline paint of a role, with its leading space; empty for roles styled by class alone. */
-const paintOf = (role: string, styles: Styles): string => {
-  const paint = styles.roles[role]?.paint;
-  return paint === undefined ? '' : ` ${paint}`;
-};
-
 /** A marker reference, to the area's copy of the marker inside a group of an area. */
 const markerRef = (attribute: string, id: string | undefined, tone: AreaTone | undefined): string =>
   id === undefined ? '' : ` ${attribute}="url(#m-${id}${tone === undefined ? '' : `-${tone}`})"`;
 
 function element(shape: Shape, styles: Styles, tone?: AreaTone): string {
-  const cls = (role: string) => `class="${classesOf(role, styles).join(' ')}"${paintOf(role, styles)}`;
+  const cls = (role: string) => `class="${classesOf(role, styles).join(' ')}"`;
   switch (shape.kind) {
     case 'rect':
       return `<rect x="${num(shape.x)}" y="${num(shape.y)}" width="${num(shape.w)}" height="${num(shape.h)}"${shape.rx ? ` rx="${shape.rx}"` : ''} ${cls(shape.role)}/>`;
@@ -72,7 +66,7 @@ function element(shape: Shape, styles: Styles, tone?: AreaTone): string {
       return `<text x="${num(shape.x)}" y="${num(shape.y)}"${anchor}${space} ${cls(shape.role)}>${content}</text>`;
     }
     case 'icon':
-      return icon(shape, styles.icons?.[shape.icon], cls(shape.role), paintOf(shape.role, styles));
+      return icon(shape, styles.icons?.[shape.icon], cls(shape.role));
     case 'group':
       return group(shape, styles, tone);
   }
@@ -85,8 +79,7 @@ function group(shape: Extract<Shape, { kind: 'group' }>, styles: Styles, tone: A
     ...(shape.role === undefined ? [] : classesOf(shape.role, styles)),
     ...(shape.area === undefined ? [] : [areaClass(shape.area)]),
   ];
-  const paint = shape.role === undefined ? '' : paintOf(shape.role, styles);
-  const role = classes.length === 0 ? '' : ` class="${classes.join(' ')}"${paint}`;
+  const role = classes.length === 0 ? '' : ` class="${classes.join(' ')}"`;
   const inner = shape.area?.tone ?? tone;
   return `<g${id}${role}>${shape.children.map((child) => element(child, styles, inner)).join('')}</g>`;
 }
@@ -117,15 +110,10 @@ function styleSheet(styles: Styles, used: ReadonlySet<string>): string {
   return `\n  ${root} { font-family: ${styles.fontFamily}; font-size: ${styles.fontSize}px;${kerning} }\n${rules.join('')}`;
 }
 
-/**
- * An icon as a nested `<svg>` scaled into its square; an icon with the predecessor's `markup` as its `<g transform>`
- * with the role's paint. An icon without a table entry draws nothing (K102).
- */
-function icon(shape: Extract<Shape, { kind: 'icon' }>, found: Icon | undefined, cls: string, paint: string): string {
+/** An icon as a nested `<svg>` scaled into its square. An icon without a table entry draws nothing (K102). */
+function icon(shape: Extract<Shape, { kind: 'icon' }>, found: Icon | undefined, cls: string): string {
   if (found === undefined) return '';
   const { x, y, size } = shape;
-  if (found.markup !== undefined)
-    return `<g transform="translate(${num(x)} ${num(y)}) scale(${num(size / found.size)})"${paint} data-icon="${escapeText(shape.icon)}">${found.markup}</g>`;
   const paths = found.paths.map((d) => `<path d="${d}"/>`).join('');
   return `<svg x="${num(x)}" y="${num(y)}" width="${num(size)}" height="${num(size)}" viewBox="0 0 ${found.size} ${found.size}" ${cls}>${paths}</svg>`;
 }

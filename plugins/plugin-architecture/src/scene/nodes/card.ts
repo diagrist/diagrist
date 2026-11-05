@@ -2,7 +2,7 @@ import type { Shape } from '@diagrist/core';
 import type { BoxArt, CardArt } from '../../layout/art.js';
 import type { PlacedElement } from '../../layout/index.js';
 import type { Texts } from '../../texts/index.js';
-import { iconRole } from '../icons.js';
+import { iconRole, iconShape } from '../icons.js';
 
 const CARD_RX = 6;
 const SHADOW_DY = 2;
@@ -27,14 +27,7 @@ export function cardShapes(p: PlacedElement, art: BoxArt, card: CardArt, texts: 
     out.push({ kind: 'circle', cx, cy, r, role: `fill-${n.tone ?? 'blue'}` });
     if (card.icon) {
       const size = Math.round(r * (card.form === 'circle' ? CIRCLE_ICON : 1));
-      out.push({
-        kind: 'icon',
-        icon: card.icon,
-        x: cx - size / 2,
-        y: cy - size / 2,
-        size,
-        role: iconRole(card.icon, 'white'),
-      });
+      out.push(iconShape(card.icon, { x: cx - size / 2, y: cy - size / 2, size }, iconRole(card.icon, 'white')));
     }
   }
   const name = n.status === 'deprecated' ? 'nameDeprecated' : 'name';

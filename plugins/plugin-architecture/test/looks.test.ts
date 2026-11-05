@@ -17,10 +17,13 @@ describe('looks', () => {
     const plain = diagram('context', ...SHOP).svg ?? '';
     const cards = diagram('context look=cards', ...SHOP).svg ?? '';
     expect(plain).toContain('<g class="legend">');
-    expect(plain).toContain('data-icon="database"');
+    expect(plain).toMatch(
+      /<svg x="[\d.]+" y="[\d.]+" width="21.6" height="21.6" viewBox="0 0 24 24" class="icon-line-ink">/,
+    );
     expect(cards).not.toContain('<g class="legend">');
     expect(cards).toMatch(/<circle cx="[\d.]+" cy="[\d.]+" r="22" class="tone-blue"\/>/);
-    expect(cards).toContain('stroke="#ffffff"');
+    expect(cards).toContain('class="icon-line-white"');
+    expect(cards).toMatch(/\.icon-line-white \{[^}]*stroke: #ffffff;/);
   });
 
   it('draw blocks larger, with the variant’s measures in the stylesheet', () => {

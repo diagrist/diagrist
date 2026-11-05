@@ -7,7 +7,7 @@ import type { Look } from '../../looks/look.js';
 import type { NodeStatus, Role } from '../../model/types.js';
 import type { Texts } from '../../texts/index.js';
 import { bodyShapes, clockShapes, replicaShapes } from '../bodies.js';
-import { iconRole } from '../icons.js';
+import { iconRole, iconShape } from '../icons.js';
 
 const STATUS_BODY: Readonly<Record<NodeStatus, string>> = { planned: 'boxPlanned', deprecated: 'boxDeprecated' };
 /** The roles of the status dot (`status: dot`). */
@@ -45,8 +45,7 @@ export function boxShapes(p: PlacedElement, art: BoxArt, role: Role | undefined,
   if (n.shape === 'job') out.push(...clockShapes(art.clock, detail));
   if (n.replicas !== undefined && look.options.replicas === 'tag')
     out.push(...replicaShapes(`x${n.replicas}`, art.replicas));
-  if (n.icon)
-    out.push({ kind: 'icon', icon: n.icon, ...art.icon, role: iconRole(n.icon, muted || old ? 'muted' : 'ink') });
+  if (n.icon) out.push(iconShape(n.icon, art.icon, iconRole(n.icon, muted || old ? 'muted' : 'ink')));
   out.push({ kind: 'text', ...art.label, text: n.label, role: old ? 'nameDeprecated' : 'name', font: 'name' });
   const second = secondLineRole(n);
   if (n.tech) out.push({ kind: 'text', ...art.tech, text: n.tech, role: second, font: second });
