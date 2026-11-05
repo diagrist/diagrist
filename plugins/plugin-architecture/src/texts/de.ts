@@ -17,7 +17,7 @@ export const DE: Texts = {
   },
   roles: { own: 'eigenes System', shared: 'gemeinsame Infrastruktur', external: 'externes System' },
   status: { planned: 'geplant', deprecated: 'abgelöst' },
-  statusInBox: { planned: 'geplant', deprecated: 'abgeloest' },
+  statusInBox: { planned: 'geplant', deprecated: 'abgelöst' },
   shapes: { db: 'Datenbank', queue: 'Warteschlange', store: 'Ablage', job: 'Job', app: 'Anwendung' },
   changes: { added: 'hinzugefügt', removed: 'entfällt', changed: 'geändert' },
   emph: 'Kernentscheidung',

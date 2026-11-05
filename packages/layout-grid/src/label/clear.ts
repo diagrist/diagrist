@@ -13,9 +13,9 @@ export interface Clear {
   /**
    * The number of things a rectangle on route `route` meets: boxes, their captions, heads, frames that hold neither end of its edge
    * or that it only reaches into, what was taken, lines that share no end with its own nearer than `lineGap`, and
-   * its own line unless `onLine`. A free spot meets nothing.
+   * its own line unless `onLine`. A free spot meets nothing. Counting stops at `limit`.
    */
-  readonly cost: (rect: Rect, route: number, lineGap: number, onLine: boolean) => number;
+  readonly cost: (rect: Rect, route: number, lineGap: number, onLine: boolean, limit?: number) => number;
   /** Marks a placed rectangle as taken, and frees it again. */
   readonly take: (rect: Rect) => void;
   readonly drop: (rect: Rect) => void;
@@ -50,20 +50,19 @@ export function clearOf(board: Board, routes: readonly Route[], taken: readonly 
     return new Set(e ? [...framesAround(board.tree, e.from), ...framesAround(board.tree, e.to)] : []);
   });
   const segments = routes.map((r) => segmentsOf(r.points));
-  const cost = (rect: Rect, route: number, lineGap: number, onLine: boolean): number => {
-    const own = routes[route];
+  const solid = [...board.layout.nodes.map((node) => node.rect), ...heads, ...captions];
+  const foreign = routes.map((own) => routes.map((r) => r !== own && !bundled(own, r)));
+  const cost = (rect: Rect, route: number, lineGap: number, onLine: boolean, limit = Infinity): number => {
     let n = rect.x < 0 || rect.y < 0 || rect.x + rect.w > board.layout.width ? 1 : 0;
-    n += board.layout.nodes.filter((node) => overlaps(rect, node.rect, PAD)).length;
-    n += [...heads, ...captions].filter((h) => overlaps(rect, h, PAD)).length;
-    n += board.layout.groups.filter(
-      (g) => overlaps(rect, g.rect, PAD) && !(holds(g.rect, rect) && allowed[route]?.has(g.id)),
-    ).length;
-    n += placed.filter((t) => overlaps(rect, t, TAKEN)).length;
-    routes.forEach((r, i) => {
-      const near = i === route ? !onLine : own !== undefined && !bundled(own, r);
+    for (const r of solid) if (n < limit && overlaps(rect, r, PAD)) n++;
+    for (const g of board.layout.groups)
+      if (n < limit && overlaps(rect, g.rect, PAD) && !(holds(g.rect, rect) && allowed[route]?.has(g.id))) n++;
+    for (const t of placed) if (n < limit && overlaps(rect, t, TAKEN)) n++;
+    for (const [i, list] of segments.entries()) {
+      const near = i === route ? !onLine : foreign[route]?.[i] === true;
       const gap = i === route ? 1 : lineGap;
-      if (near) n += (segments[i] ?? []).filter(([p, q]) => segmentHitsRect(p, q, rect, gap)).length;
-    });
+      if (near) for (const [p, q] of list) if (n < limit && segmentHitsRect(p, q, rect, gap)) n++;
+    }
     return n;
   };
   const drop = (rect: Rect) => {

@@ -1,4 +1,5 @@
-import { DEFAULT_THRESHOLDS, type Rect } from '@diagrist/core';
+import { DEFAULT_THRESHOLDS, type Point, type Rect } from '@diagrist/core';
+import { segmentsCross } from '../geometry.js';
 import type { GridLayout, Route } from '../layout.js';
 import { boardOf } from '../route/boxes.js';
 import type { GridSpec } from '../spec.js';
@@ -10,6 +11,8 @@ import type { SeatMark } from './seat.js';
 import { markAt, spotsOf } from './spots.js';
 import type { EdgeLabel, EdgeText } from './types.js';
 
+/** Every how many clear spots of a mark a text that found no room tries again. */
+const RETRY = 3;
 /** A mark keeps one pixel more from foreign lines than the line check asks of lines past texts, against rounding. */
 const LINE_GAP = DEFAULT_THRESHOLDS.clearance + 1;
 
@@ -23,16 +26,29 @@ export interface SignOptions {
   readonly avoid?: readonly Rect[];
   /** Size of every mark, and the room texts keep from a mark besides the pad all of them keep. */
   readonly mark?: { readonly w: number; readonly h: number; readonly room: number };
+  /** Signs beside a route, such as decision marks, `w` by `h`, each with the spots the kind offers it. */
+  readonly pins?: { readonly w: number; readonly h: number; readonly at: readonly Pin[] };
+}
+
+/**
+ * A sign beside route `route`, with the centres it may take in the order the kind prefers them, each with the point
+ * of the route it stands beside: no foreign line may run between the two.
+ */
+export interface Pin {
+  readonly route: number;
+  readonly spots: readonly { readonly at: Point; readonly on: Point }[];
 }
 
 const grown = (r: Rect, by: number): Rect => ({ x: r.x - by, y: r.y - by, w: r.w + 2 * by, h: r.h + 2 * by });
 
 /**
- * Marks and texts of the routes of a channel grid, each clear of boxes, heads, frames that hold neither end of its
- * edge, foreign lines and what was placed before it (`clearOf`). Marks such as flow numbers come first, where the
- * kind put them or the nearest clear spot along their line. Texts stay where `routeTexts` or `onLineTexts` put
- * them when that spot is clear, else take the first clear spot beside or on their line (`searchBlock`); a route whose texts find none moves
- * its mark along the line until they do. Other fields of a mark are kept.
+ * Signs, marks and texts of the routes of a channel grid, each clear of boxes, heads, frames that hold neither end of
+ * its edge, foreign lines and what was placed before it (`clearOf`). Signs beside a route come first, at the first
+ * clear spot the kind offers, else at its first. Marks on the route such as flow numbers follow, where the kind put
+ * them or the nearest clear spot along their line. Texts stay where `routeTexts` or `onLineTexts` put them when that
+ * spot is clear, else take the first clear spot beside or on their line (`searchBlock`); a route whose texts find
+ * none moves its mark along the line until they do. Last, a sign that a text could not avoid moves on to its next
+ * clear spot. Other fields of a mark are kept.
  */
 export function signEdges<M extends SeatMark>(
   spec: GridSpec,
@@ -41,13 +57,28 @@ export function signEdges<M extends SeatMark>(
   edgeTexts: readonly EdgeText[],
   marks: readonly M[],
   o: SignOptions,
-): { labels: EdgeLabel[]; marks: M[] } {
+): { labels: EdgeLabel[]; marks: M[]; pins: Point[] } {
   const board = boardOf(spec, layout);
   const texts = new Map(edgeTexts.map((t) => [t.edge, t]));
   const named = namedOf(spec, routes, texts, o);
   const clear = clearOf(board, routes, o.avoid ?? []);
   const size = o.mark ?? { w: 0, h: 0, room: 0 };
   const search: SearchOptions = { preferFlat: o.preferFlat === true, ...(o.onLine ? { onLine: o.onLine } : {}) };
+  const pin = o.pins ?? { w: 0, h: 0, at: [] };
+  const between = (spot: Pin['spots'][number], route: number) =>
+    routes.some(
+      (r, i) =>
+        i !== route && r.points.slice(1).some((q, j) => segmentsCross(spot.on, spot.at, r.points[j] as Point, q)),
+    );
+  const pinCost = (spot: Pin['spots'][number], route: number) =>
+    clear.cost(markAt(spot.at, pin.w, pin.h), route, LINE_GAP, false) + (between(spot, route) ? 1 : 0);
+  const pinAt = (k: Pin): Point => (k.spots.find((spot) => pinCost(spot, k.route) === 0) ?? k.spots[0])?.at ?? [0, 0];
+  const pins = pin.at.map((k) => {
+    const spot = pinAt(k);
+    const rect = markAt(spot, pin.w, pin.h);
+    clear.take(rect);
+    return { spot, rect };
+  });
   const placed = new Map<M, { mark: M; rect: Rect }>();
   const free = (m: M) =>
     spotsOf(m, routes, size.w, size.h).filter(
@@ -78,7 +109,7 @@ export function signEdges<M extends SeatMark>(
     const seat = mark && placed.get(mark);
     if (found.cost > 0 && mark && seat) {
       clear.drop(seat.rect);
-      for (const p of free(mark)) {
+      for (const p of free(mark).filter((_, k) => k % RETRY === 0)) {
         put(mark, p);
         const moved = searchBlock(r, i, text, first(i), clear, spec.metrics, search);
         if (moved.cost === 0) {
@@ -94,8 +125,16 @@ export function signEdges<M extends SeatMark>(
     }
     take(i, found.block);
   });
+  const moved = pin.at.map((k, i) => {
+    const { spot, rect } = pins[i] as (typeof pins)[number];
+    clear.drop(rect);
+    const next = pinCost({ at: spot, on: spot }, k.route) === 0 ? spot : pinAt(k);
+    clear.take(markAt(next, pin.w, pin.h));
+    return next;
+  });
   return {
     labels: routes.flatMap((_, i) => chosen.get(i) ?? []),
     marks: marks.map((m) => placed.get(m)?.mark ?? m),
+    pins: moved,
   };
 }

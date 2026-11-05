@@ -81,4 +81,19 @@ describe('signs of a channel grid', () => {
     const placed = placedOf(channelled, layout, routes, labels, numbers);
     expect(checkPlacement(placed, { width: layout.width, height: layout.bottom + 32 })).toEqual([]);
   });
+
+  it('set a sign beside its line, never across a foreign line from it', () => {
+    const s = { ...spec('a b', 'r', ['x@a/r', 'y@b/r'], { edges: [edge('x', 'y'), edge('y', 'x')] }), channels: true };
+    const layout = placeGrid(s);
+    const routes = routeEdges(s, layout);
+    const [there, back] = routes.map((r) => r.points[0]?.[1] ?? 0);
+    const on: readonly [number, number] = [308, there ?? 0];
+    const below = (back ?? 0) > (there ?? 0) ? 1 : -1;
+    const spots = [
+      { at: [308, (there ?? 0) + below * 48] as const, on },
+      { at: [308, (there ?? 0) - below * 24] as const, on },
+    ];
+    const { pins } = signEdges(s, layout, routes, [], [], { pins: { w: 24, h: 14, at: [{ route: 0, spots }] } });
+    expect(pins).toEqual([spots[1]?.at]);
+  });
 });

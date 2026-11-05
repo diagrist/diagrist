@@ -37,7 +37,8 @@ the track assigner above all, can serve a fixed grid as well.
    kernel's `labelClear` and `clearance`, now exported as `DEFAULT_THRESHOLDS`) and what was placed before. A text
    stays where the old rule put it when that spot is clear; else it takes the first clear spot beside or on one of its
    pieces, longest first and nearest the middle, wrapped where that helps, and two lines between the same boxes get
-   their texts outward on their own. When a text finds no spot, its number moves along the line until it does.
+   their texts outward on their own. When a text finds no spot, its number moves along the line until it does. Signs beside a line, such as
+   decision marks, take the first clear spot of those the kind offers (`pins`), before everything else.
 5. **A text or number belongs to the frame of either end** that holds it in a channel grid (`placedOf`), not only to
    the frame of both ends: a text beside a line that leaves a frame may stand inside it.
 

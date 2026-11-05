@@ -1,7 +1,15 @@
 import { type Rect, type Tone, textWidth } from '@diagrist/core';
 import type { Look } from '../looks/look.js';
 import type { ArchNode } from '../model/types.js';
-import { type BlockForm, blockForm, isCircle, isFigure, secondLine, TUBE_MEASURES as TUBE } from './measure.js';
+import {
+  type BlockForm,
+  blockForm,
+  isCircle,
+  isFigure,
+  STATUS_GAP,
+  secondLine,
+  TUBE_MEASURES as TUBE,
+} from './measure.js';
 import { type TabArt, tabParts } from './tab.js';
 
 /** A point where a text or a mark is anchored. */
@@ -66,7 +74,6 @@ export type NodeArt = PersonArt | BoxArt;
 
 const HEAD_R = 9;
 const CORNER = 15;
-const STATUS_GAP = 8;
 const REPLICA_SHIFT = 26;
 const LIGHT_TONES: ReadonlySet<Tone> = new Set(['peach', 'sky']);
 /** Icons a circle of the `card` family without own icon takes from its shape. */

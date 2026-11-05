@@ -20,63 +20,25 @@ const picturesOf = (name: string, text?: string) =>
 const hashLines = (pictures: readonly { picture: string; svg: string }[]) =>
   pictures.map(({ picture, svg }) => `${sha256(svg)}  ${picture}\n`).join('');
 
-/**
- * Warnings of the kernel's placement check: labels reaching into other frames, as the predecessor placed them, in
- * the diff pictures labels of removed and kept edges between the same two boxes, and flow numbers standing on the
- * border of the frame their edge leaves (docs/burn-down.md).
- */
-const PLACEMENT: Readonly<Record<string, readonly string[]>> = {
-  'radverleih/entscheidung.dgr': ['G400 b', 'G400', 'G400 b', 'G400 b', 'G400 b', 'G400 b', 'G400 b'],
-  'radverleih/komponenten-columns.dgr': ['G400'],
-  'radverleih/komponenten-paper.dgr': ['G400', 'G400', 'G400'],
-  'radverleih/komponenten.dgr': ['G400', 'G400', 'G400', 'G400'],
-  'radverleih/kontext-paper.dgr': ['G400'],
-  'radverleih/radverleih.dgr': [
-    'G400',
-    'G400 soll',
-    'G400 soll',
-    'G400 soll',
-    'G400 soll',
-    'G400 a',
-    'G400 a',
-    'G400 soll',
-    'G400 a',
-    'G400 a',
-    'G400 a',
-  ],
-};
-
-/** The SHA-256 of the pictures `soll` and `a` of `radverleih.dgr` drawn without `diff`, plain and in `look=cards`. */
-const REPLACED = {
-  soll: [
-    '7783c0fee509ea80c75a6be503cb7d72e16597c233f7f2f02e48b4269eb5017b',
-    '75f5f5200a1aaf1bd6f730961a452a1c76d2ba5f70808311fedb665a0dd5dc28',
-  ],
-  a: [
-    'a447728c20c5ce754c733e982fbd651fcdafe7feab722361d0b65ba8466bee0b',
-    '20fe6f81d6cd06efc78222654a3972ca0a7eaa982ec3090103034ff13c869941',
-  ],
-} as const;
-
 describe('C4 examples', () => {
   it.each(exampleNames)('%s renders without errors, twice to the same bytes', (name) => {
     const first = compileExample(name);
     expect(first.diagnostics.filter((d) => d.severity === 'error')).toEqual([]);
     const placement = first.diagnostics.filter((d) => d.code.startsWith('G'));
-    expect(placement.map((d) => [d.code, d.picture].filter(Boolean).join(' '))).toEqual(PLACEMENT[name] ?? []);
+    expect(placement.map((d) => [d.code, d.picture].filter(Boolean).join(' '))).toEqual([]);
     expect(first.pictures.every((p) => p.svg !== undefined)).toBe(true);
     expect(compileExample(name).pictures).toEqual(first.pictures);
   });
 
-  it('radverleih.dgr draws soll and a without diff in the reviewed bytes', () => {
+  it('radverleih.dgr draws soll and a without diff in the reviewed bytes, plain and in look=cards', () => {
     const plain = source('radverleih/radverleih.dgr').replace(/^(variant .*) diff$/gm, '$1');
     const cards = plain.replace(/^(diagram .*)$/m, '$1 look=cards');
-    for (const [variant, [bytes, inCards]] of Object.entries(REPLACED)) {
-      const svg = (text: string) =>
-        compileExample('radverleih/radverleih.dgr', text).pictures.find((p) => p.variant === variant)?.svg;
-      expect(sha256(svg(plain) ?? '')).toBe(bytes);
-      expect(sha256(svg(cards) ?? '')).toBe(inCards);
-    }
+    const lines = [plain, cards].flatMap((text, i) =>
+      compileExample('radverleih/radverleih.dgr', text)
+        .pictures.filter((p) => p.variant !== undefined)
+        .map((p) => `${sha256(p.svg ?? '')}  radverleih/radverleih.dgr#${p.variant}${i === 1 ? ' look=cards' : ''}\n`),
+    );
+    expect(compareGolden(golden('replaced.sha256'), lines.join(''))).toEqual({ status: 'match' });
   });
 
   it.each(['kontext', 'komponenten', 'cloud'])('%s renders the reviewed picture', (name) => {
@@ -95,7 +57,7 @@ describe('C4 examples', () => {
     expect(compareGolden(golden(`${look}.sha256`), hashes.join(''))).toEqual({ status: 'match' });
   });
 
-  it('render the bytes of the predecessor in look=cards too', () => {
+  it('render the reviewed bytes in look=cards too', () => {
     const plain = exampleNames.filter((name) => !source(name).includes('look='));
     const cards = plain.flatMap((name) => picturesOf(name, source(name).replace(/^(diagram .*)$/m, '$1 look=cards')));
     expect(compareGolden(golden('cards.sha256'), hashLines(cards))).toEqual({ status: 'match' });

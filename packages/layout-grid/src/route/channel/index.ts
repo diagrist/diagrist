@@ -53,10 +53,29 @@ function bendUnshared(board: Board, p: Plan, gap: number): Plan {
 }
 
 /**
+ * An end on the lower side of a node with a caption, such as a figure or a circle with its name below, moves below
+ * the caption along its first or last piece, so the line does not run through the text.
+ */
+function belowCaption(board: Board, r: Routed): Routed {
+  const below = (box: Box) => (box.id.startsWith('group:') ? undefined : board.node(box.id)?.caption?.below);
+  const points = [...r.points];
+  const move = (at: number, next: number, box: Box) => {
+    const p = points[at];
+    const q = points[next];
+    const by = below(box);
+    if (!p || !q || by === undefined || p[0] !== q[0] || q[1] <= p[1] + by) return;
+    points[at] = [p[0], p[1] + by];
+  };
+  if (r.fromSide === 'bottom') move(0, 1, r.from);
+  if (r.toSide === 'bottom') move(points.length - 1, points.length - 2, r.to);
+  return { ...r, points };
+}
+
+/**
  * Routes of a fixed grid through its channels (ADR 0038): shape and sides as `gridRoutes` chooses them, with the
  * heads of frames where their kind draws them as obstacles; ends spread over the free stretches of their sides, two
  * edges between the same boxes on ports of their own; and the middle pieces of the Zs of one gap on tracks of their
- * own. A route the kind laid itself is kept, as a loop.
+ * own; an end below a node starts below its caption. A route the kind laid itself is kept, as a loop.
  */
 export function channelRoutes(board: Board): Routed[] {
   const m = board.tree.spec.metrics;
@@ -74,6 +93,7 @@ export function channelRoutes(board: Board): Routed[] {
     const at = lanes.get(p);
     const lane = p.lane && at !== undefined ? { axis: p.lane.axis, at } : undefined;
     const points = edgePoints(p.shape, p.fromSide, start, end, lane, p.edge.loopReach ?? m.loopReach);
-    return { edge: p.edge, from: p.a, to: p.b, shape: p.shape, points, fromSide: p.fromSide, toSide: p.toSide };
+    const routed = { edge: p.edge, from: p.a, to: p.b, shape: p.shape, points, fromSide: p.fromSide, toSide: p.toSide };
+    return belowCaption(board, routed);
   });
 }

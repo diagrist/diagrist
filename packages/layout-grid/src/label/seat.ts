@@ -17,11 +17,6 @@ export interface SeatOptions {
   readonly r: number;
   /** Room a mark keeps from the texts on its line, beyond its radius. */
   readonly room: number;
-  /**
-   * Test a spot on a segment running left or up with the predecessor's arithmetic, which measures both distances on
-   * the wrong side, for a look that keeps its bytes until its fixes (docs/burn-down.md).
-   */
-  readonly predecessor?: boolean;
 }
 
 /** The segment of `points` that the mark lies on. */
@@ -42,15 +37,14 @@ const moved = (l: EdgeLabel, along: 0 | 1, by: number): EdgeLabel =>
 /**
  * Marks that would sit under the texts standing on their line move along their segment, to the side of the texts
  * that faces the start of the segment, else to the other side. A spot counts when the mark keeps its radius from the
- * start and twice that from the end, which the arrowhead takes, in either direction unless `predecessor` asks for
- * the old test. Where neither side
- * holds, the mark goes next to the start and the texts move behind it. Other fields of a mark are kept.
+ * start and twice that from the end, which the arrowhead takes, in either direction. Where neither side holds, the
+ * mark goes next to the start and the texts move behind it. Other fields of a mark are kept.
  */
 export function seatMarks<M extends SeatMark>(
   marks: readonly M[],
   labels: readonly EdgeLabel[],
   routes: readonly Route[],
-  { r: R, room: ROOM, predecessor = false }: SeatOptions,
+  { r: R, room: ROOM }: SeatOptions,
 ): { marks: M[]; labels: EdgeLabel[] } {
   const near = (m: SeatMark, r: Rect): boolean =>
     m.x + R + ROOM > r.x && m.x - R - ROOM < r.x + r.w && m.y + R + ROOM > r.y && m.y - R - ROOM < r.y + r.h;
@@ -67,9 +61,7 @@ export function seatMarks<M extends SeatMark>(
     const high = low + (along === 0 ? box.w : box.h);
     const before = sign > 0 ? low - ROOM - R : high + ROOM + R;
     const after = sign > 0 ? high + ROOM + R : low - ROOM - R;
-    const fits = predecessor
-      ? (v: number) => (v - a[along] - R) * sign >= 0 && (c[along] - v - 2 * R) * sign >= 0
-      : (v: number) => (v - a[along]) * sign - R >= 0 && (c[along] - v) * sign - 2 * R >= 0;
+    const fits = (v: number) => (v - a[along]) * sign - R >= 0 && (c[along] - v) * sign - 2 * R >= 0;
     const spot = [before, after].find(fits);
     const at = spot ?? a[along] + sign * (R + 2);
     if (spot === undefined) {

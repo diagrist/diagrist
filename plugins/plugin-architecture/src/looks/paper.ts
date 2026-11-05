@@ -60,5 +60,4 @@ export const PAPER: Look = {
     legend: 'sentence',
     decisions: 'notes',
   },
-  crutches: { predecessorSeat: true },
 };

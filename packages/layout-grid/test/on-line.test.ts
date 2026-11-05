@@ -45,12 +45,11 @@ describe('seated marks', () => {
     expect(up.labels).toEqual([text({ x: 94, w: 12, y: 160, h: 40 })]);
   });
 
-  it('keep their radius from the start on a line running left, unless they keep the predecessor’s test', () => {
+  it('keep their radius from the start on a line running left', () => {
     const line = route([300, 100], [60, 100]);
     const box = { x: 255, y: 94, w: 35, h: 12 };
     const mark = [{ route: 0, x: 272, y: 100, n: 1 }];
     expect(seatMarks(mark, [text(box)], [line], SIZE).marks[0]?.x).toBe(241.5);
-    expect(seatMarks(mark, [text(box)], [line], { ...SIZE, predecessor: true }).marks[0]?.x).toBe(303.5);
   });
 
   it('go next to the start on a short segment and push the texts behind them, and leave marks clear of texts', () => {

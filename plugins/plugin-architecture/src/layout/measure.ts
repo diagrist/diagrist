@@ -1,6 +1,6 @@
 import { textWidth } from '@diagrist/core';
 import type { Look, LookFont, LookFonts } from '../looks/look.js';
-import type { ArchNode } from '../model/types.js';
+import type { ArchNode, NodeStatus } from '../model/types.js';
 import { tabWidth } from './tab.js';
 
 /** How a node of the `block` family is drawn: a filled box, a lying tube, a standing cylinder, or only its name. */
@@ -12,8 +12,10 @@ const BLOCK_MIN: Readonly<Record<BlockForm, number>> = { box: 64, db: 112, pipe:
 const BLOCK_PAD = 8;
 /** Room in the top right corner for a replica tag or a job's clock, and for a decision mark with `marks: inside`. */
 const MARKER_ROOM = 40;
-/** Room for the status word after the second line, with `status: word`. */
+/** Room for the status word after the second line, with `status: word`, where its words are not at hand. */
 const STATUS_ROOM = 90;
+/** The gap between the second line and the status word after it. */
+export const STATUS_GAP = 8;
 /** Room for the status dot after the name, with `status: dot`. */
 const DOT_ROOM = 16;
 const TUBE = { top: 20, arrow: 16, gap: 8, body: 34 } as const;
@@ -54,23 +56,26 @@ const roundUp = (value: number, grid: number): number => Math.ceil(value / grid)
 
 /**
  * The width a node needs for its texts, icon, status and corner marks, on the grid; centred texts in cards and
- * blocks. A box keeps room for its status as `status` draws it, and for a decision mark with `marks: inside`.
+ * blocks. A box keeps room for its status as `status` draws it, measured in `status` when the words are at hand,
+ * and for a decision mark with `marks: inside`; a card keeps it on both sides of its centred second line.
  */
-export function nodeWidth(n: ArchNode, look: Look): number {
+export function nodeWidth(n: ArchNode, look: Look, status?: Readonly<Record<NodeStatus, string>>): number {
   const { metrics: m, fonts, options: o } = look;
   const label = textWidth(n.label, fonts.name);
   const tech = textWidth(n.tech ?? '', secondLine(n, fonts));
+  const word =
+    !n.status || o.status !== 'word' ? 0 : status ? textWidth(status[n.status], fonts.note) + STATUS_GAP : STATUS_ROOM;
   if (o.nodes === 'block') return roundUp(Math.max(label, tech, 0) + 2 * (m.nodePad + BLOCK_PAD), m.grid);
   if (o.nodes === 'card') {
     if (isCircle(n, look)) return roundUp(Math.max(label, tech, 2 * m.circleR), m.grid);
-    return roundUp(Math.max(label, tech, 0) + 2 * m.nodePad, m.grid);
+    return roundUp(Math.max(label, tech + 2 * word, 0) + 2 * m.nodePad, m.grid);
   }
   if (o.nodeName === 'tab') return roundUp(tabWidth(n, look, tech), m.grid);
   const icon = n.icon ? m.iconSize + m.iconGap : 0;
   const corner = (n.replicas && o.replicas === 'tag') || n.shape === 'job' ? MARKER_ROOM : 0;
   const marker = corner + (o.marks === 'inside' && n.mark ? MARKER_ROOM : 0);
   const dot = o.status === 'dot' && n.status ? DOT_ROOM : 0;
-  const detail = tech + (n.status && o.status === 'word' ? STATUS_ROOM : 0);
+  const detail = tech + word;
   return roundUp(Math.max(label + marker + dot, detail, 0 - icon) + icon + 2 * m.nodePad, m.grid);
 }
 

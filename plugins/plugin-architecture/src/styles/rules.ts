@@ -23,7 +23,7 @@ const TINT = { fill: 0.07, stroke: 0.45 } as const;
 const bold = (size: number) => ({ size, weight: 600 });
 
 /**
- * The rules C4 adds after the base rules, in the predecessor's order, with the rules of a diff picture (`changes`) in
+ * The rules C4 adds after the base rules, with the rules of a diff picture (`changes`) in
  * their place. Only rules whose class the picture uses reach the stylesheet, so pictures without these means keep
  * their bytes. Sizes are those of the look's fonts.
  */
@@ -35,6 +35,7 @@ export function architectureRules(fonts: LookFonts, w: Strokes, changes: readonl
     rule('annotation-box', `fill: ${c.fillMuted}; stroke: ${c.border}; stroke-width: ${w.frame};`),
     rule('annotation-line', `fill: none; stroke: ${c.border}; stroke-width: ${w.frame};`),
     rule('annotation-arrow', `fill: ${c.border}; stroke: none;`),
+    rule('legend-rule', `fill: none; stroke: ${c.grid}; stroke-width: 1;`),
     rule(
       'shape-planned',
       `fill: ${c.fill}; stroke: ${c.stroke}; stroke-width: ${w.shape}; stroke-dasharray: ${DASH.line};`,
