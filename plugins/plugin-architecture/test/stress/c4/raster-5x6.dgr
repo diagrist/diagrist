@@ -1,0 +1,43 @@
+# Pressure: a 5x6 grid of twenty containers with Zs between non-aligned cells, several in each gutter.
+diagram container "Mobilitätsplattform" subtitle="Alle Container im Überblick" locale=de
+grid cols kanal,edge,fach.1,fach.2,extern
+grid rows r1,r2,r3,r4,r5,r6
+
+group plattform "Mobilitätsplattform" own team="Plattformteam"
+group partner "Partner" external
+
+person fahrgast "Fahrgast" tech="bucht unterwegs" at kanal/r2
+person disponent "Disponentin" tech="plant Fahrzeuge" at kanal/r5
+container app "App" tech="Flutter" icon=smartphone at kanal/r3
+container leitstand "Leitstand" tech="Vue" icon=monitor at kanal/r6
+container gateway "API-Gateway" tech="Kong" icon=shield-check at edge/r3 in plattform
+container bff "Leitstand-BFF" tech="Node.js" icon=server at edge/r6 in plattform
+container buchung "Buchung" tech="Kotlin" icon=route at fach.1/r2 in plattform
+container tarif "Tarif" tech="Kotlin" icon=gauge at fach.1/r4 in plattform
+container flotte "Flotte" tech="Go" icon=map-pin at fach.2/r3 in plattform
+container dispo "Disposition" tech="Go" icon=workflow at fach.2/r5 in plattform
+container events "Ereignisbus" tech="Kafka" icon=apachekafka at fach.1/r6 in plattform
+container buchungdb "Buchungen" tech="PostgreSQL" icon=postgresql at fach.1/r1 in plattform
+container flottedb "Fahrzeugdaten" tech="PostgreSQL" icon=postgresql at fach.2/r1 in plattform
+container psp "Zahlungsdienst" tech="Adyen" icon=receipt at extern/r2 in partner
+container telematik "Telematik" tech="MQTT" icon=router at extern/r4 in partner
+container karten "Kartendienst" tech="HERE" icon=globe at extern/r6 in partner
+
+edge fahrgast -> app "bucht"
+edge disponent -> leitstand "plant"
+edge app -> gateway via=HTTPS
+edge leitstand -> bff via=HTTPS
+edge gateway -> buchung "Fahrt buchen"
+edge gateway -> tarif "Preis abfragen"
+edge bff -> dispo "Einsatz planen"
+edge buchung -> buchungdb via=SQL
+edge buchung -> tarif "Preis fixieren"
+edge buchung -> psp "Zahlung autorisieren" via=HTTPS
+edge buchung -> flotte "Fahrzeug reservieren"
+edge flotte -> flottedb via=SQL
+edge telematik ~> flotte "Position melden" via=MQTT
+edge dispo -> flotte "Fahrzeug zuweisen"
+edge dispo ~> events "Einsatz geplant"
+edge buchung ~> events "Fahrt gebucht"
+edge dispo -> karten "Route berechnen" via=HTTPS
+edge tarif -> flottedb "Fahrzeugklasse lesen" via=SQL

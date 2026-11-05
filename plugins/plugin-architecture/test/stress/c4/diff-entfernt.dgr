@@ -1,0 +1,35 @@
+# Pressure: a diff variant that removes three edges and an element and adds a queue, removed and kept edges between the same boxes.
+diagram container "Bestellsystem heute" subtitle="Ist-Zustand" locale=de
+grid cols nutzer,web,dienste,daten
+grid rows oben,mitte,unten
+
+group shop "Onlineshop" own team="Team Shop"
+
+person kunde "Kundin" tech="kauft online" at nutzer/mitte
+container web "Webshop" tech="Next.js" icon=monitor at web/mitte in shop
+container bestell "Bestelldienst" tech="Java" icon=server at dienste/mitte in shop
+container lager "Lagerdienst" tech="Java" icon=warehouse at dienste/unten in shop
+container mail "Mailversand" tech="Cronjob" icon=file-text at dienste/oben in shop
+container db "Shop-Datenbank" tech="PostgreSQL" icon=postgresql at daten/mitte in shop
+
+edge kunde -> web "bestellt"
+edge web -> bestell "Bestellung anlegen" via=REST
+edge bestell -> db "Bestellung speichern" via=SQL
+edge lager -> db "Bestand lesen" via=SQL
+edge mail -> db "offene Bestellungen lesen" via=SQL
+edge bestell -> lager "Ware reservieren" via=REST
+edge web -> lager "Bestand anzeigen" via=REST
+
+variant ziel "Bestellsystem Ziel" subtitle="Ereignisse statt Polling" diff
+  drop container mail
+  drop edge mail -> db
+  drop edge bestell -> lager
+  container bus "Ereignisbus" tech="Kafka" icon=apachekafka at web/unten in shop
+  container benachrichtigung "Benachrichtigung" tech="Kotlin" icon=network at daten/oben in shop
+  container lagerdb "Lager-Datenbank" tech="PostgreSQL" icon=postgresql at daten/unten in shop
+  drop edge lager -> db
+  edge lager -> lagerdb "Bestand lesen" via=SQL
+  edge bestell ~> bus "Bestellung angelegt"
+  edge bus ~> lager "Bestellung angelegt"
+  edge bus ~> benachrichtigung "Bestellung angelegt"
+  edge bestell -> lager "Bestand prüfen" via=REST

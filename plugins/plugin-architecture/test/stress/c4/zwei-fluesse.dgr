@@ -1,0 +1,32 @@
+# Pressure: two numbered flows of five steps each that share three boxes and cross each other, plus two plain edges.
+diagram container "Paketdienst" subtitle="Einlieferung und Zustellung" locale=de
+grid cols kunde,kanal,kern,lager,partner
+grid rows oben,mitte,unten
+
+group netz "Paketnetz" own team="Team Sendung"
+
+person absender "Absender" tech="Onlinehändler" at kunde/oben
+person empfaenger "Empfängerin" tech="zu Hause" at kunde/unten
+container portal "Versandportal" tech="React" icon=monitor at kanal/oben in netz
+container app "Empfänger-App" tech="Swift" icon=smartphone at kanal/unten in netz
+container sendung "Sendungsdienst" tech="Java" icon=package at kern/mitte in netz
+container routing "Routenplanung" tech="Python" icon=route at lager/mitte in netz
+container depot "Depot-System" tech="SAP EWM" icon=warehouse at lager/unten in netz
+container scanner "Scanner-Backend" tech="Go" icon=cpu at lager/oben in netz
+system zoll "Zoll" tech="ATLAS" at partner/oben
+system fahrer "Fahrer-App" tech="Partnerfirma" at partner/unten
+
+flow einliefern primary
+  absender -> portal "Label buchen" via=HTTPS
+  portal -> sendung "Sendung anlegen" via=REST
+  sendung -> zoll "Ausfuhr anmelden" via=EDIFACT
+  scanner ~> sendung "eingeliefert" via=MQTT
+  sendung -> routing "Tour planen"
+flow zustellen accent
+  routing -> depot "Tour freigeben"
+  depot -> fahrer "Tour laden" via=REST
+  fahrer ~> sendung "zugestellt"
+  sendung -> app "Status senden" via=Push
+  empfaenger -> app "verfolgt"
+edge app -> sendung "Ablageort ändern" via=REST
+edge depot -> scanner "Sortierung" via=MQTT

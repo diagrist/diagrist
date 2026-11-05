@@ -1,0 +1,34 @@
+# Pressure: ten components in one container on a 4x4 grid with a component that talks to six others.
+diagram component "Buchungsdienst, Komponenten" subtitle="Innenleben des Buchungsdienstes" locale=de
+grid cols aussen,api,kern,adapter
+grid rows r1,r2,r3,r4
+
+group dienst "Buchungsdienst" own team="Team Buchung"
+
+container gateway "API-Gateway" tech="Kong" icon=shield-check at aussen/r2
+container bus "Ereignisbus" tech="Kafka" icon=apachekafka at aussen/r4
+component rest "REST-Controller" tech="Spring MVC" icon=route at api/r2 in dienst
+component consumer "Event-Consumer" tech="Spring Kafka" icon=network at api/r4 in dienst
+component buchung "Buchungslogik" tech="Domäne" icon=workflow at kern/r2 in dienst
+component regeln "Regelwerk" tech="Drools" icon=settings at kern/r1 in dienst
+component storno "Stornierung" tech="Domäne" icon=split at kern/r3 in dienst
+component outbox "Outbox" tech="Transaktional" icon=archive at kern/r4 in dienst
+component repo "Repository" tech="JPA" icon=database at adapter/r2 in dienst
+component zahlung "Zahlungsadapter" tech="REST-Client" icon=receipt at adapter/r3 in dienst
+component publisher "Publisher" tech="Kafka-Producer" icon=waypoints at adapter/r4 in dienst
+component cache "Cache" tech="Redis" icon=hard-drive at adapter/r1 in dienst
+
+edge gateway -> rest "Buchung anlegen" via=HTTPS
+edge rest -> buchung "anlegen"
+edge buchung -> regeln "Regeln prüfen"
+edge buchung -> repo "speichern"
+edge buchung -> zahlung "autorisieren"
+edge buchung -> outbox "Ereignis ablegen"
+edge buchung -> cache "Verfügbarkeit lesen"
+edge buchung -> storno "Frist prüfen"
+edge storno -> repo "lesen"
+edge storno -> zahlung "erstatten"
+edge outbox -> publisher "weiterreichen"
+edge publisher ~> bus "Buchung erfolgt"
+edge bus ~> consumer "Zahlung eingegangen"
+edge consumer -> storno "stornieren"

@@ -1,0 +1,33 @@
+# Pressure: layout=adaptive with spanning boxes and layers, a hub box spanning four columns with eight edges.
+diagram container "Bürgerportal" subtitle="Dienste einer Kommune" layout=adaptive locale=de
+grid cols a,b,c,d
+grid rows nutzer,portal,dienste,register
+layer nutzer "Nutzer"
+layer portal "Zugang"
+layer dienste "Fachverfahren"
+layer register "Register"
+
+group kommune "Kommune" own team="Digitalisierung"
+
+person buerger "Bürgerin" at a/nutzer
+person firma "Unternehmen" at c/nutzer
+person amt "Sachbearbeitung" at d/nutzer
+container portal "Bürgerportal" tech="Servicekonto, Nachrichten, Bezahlung" icon=globe at a/portal span=d in kommune
+container melde "Meldewesen" tech="Fachverfahren" icon=user-cog at a/dienste in kommune
+container kfz "Kfz-Zulassung" tech="Fachverfahren" icon=key-round at b/dienste in kommune
+container gewerbe "Gewerbeamt" tech="Fachverfahren" icon=building-2 at c/dienste in kommune
+container bau "Bauantrag" tech="Fachverfahren" icon=brick-wall at d/dienste in kommune
+container melderegister "Melderegister" tech="Oracle" icon=database at a/register span=b in kommune
+container gewerberegister "Gewerberegister" tech="PostgreSQL" icon=postgresql at c/register span=d in kommune
+
+edge buerger -> portal "beantragt" via=HTTPS
+edge firma -> portal "meldet Gewerbe an" via=HTTPS
+edge amt -> portal "bearbeitet" via=HTTPS
+edge portal -> melde "Ummeldung"
+edge portal -> kfz "Zulassung"
+edge portal -> gewerbe "Gewerbeanmeldung"
+edge portal -> bau "Bauantrag"
+edge melde -> melderegister via=XMeld
+edge kfz -> melderegister "Halter prüfen" via=XMeld
+edge gewerbe -> gewerberegister via=SQL
+edge bau -> gewerberegister "Bauherr prüfen" via=SQL

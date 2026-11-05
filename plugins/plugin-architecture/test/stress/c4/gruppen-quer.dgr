@@ -1,0 +1,32 @@
+# Pressure: three groups side by side with seven edges across group borders, two of them skipping the middle group.
+diagram container "Versicherungs-IT" subtitle="Drei Bereiche und ihre Schnittstellen" locale=de
+grid cols vertrieb.1,vertrieb.2,bestand.1,bestand.2,schaden.1,schaden.2
+grid rows oben,mitte,unten
+
+group vertrieb "Vertrieb" own team="Team Vertrieb"
+group bestand "Bestand" own team="Team Bestand"
+group schaden "Schaden" own team="Team Schaden"
+
+container rechner "Tarifrechner" tech="React" icon=gauge at vertrieb.1/oben in vertrieb
+container angebot "Angebote" tech="Java" icon=file-text at vertrieb.2/oben in vertrieb
+container makler "Maklerportal" tech="Angular" icon=users at vertrieb.1/mitte in vertrieb
+container vertrag "Verträge" tech="Java" icon=files at bestand.1/mitte in bestand
+container partner "Partner" tech="Java" icon=user-cog at bestand.2/oben in bestand
+container inkasso "Inkasso" tech="COBOL" icon=receipt at bestand.2/unten in bestand
+container bestanddb "Bestandsdaten" tech="Db2" icon=database at bestand.1/unten in bestand
+container meldung "Schadenmeldung" tech="Vue" icon=smartphone at schaden.2/oben in schaden
+container regulierung "Regulierung" tech="Kotlin" icon=workflow at schaden.1/mitte in schaden
+container gutachten "Gutachten" tech="Python" icon=file-cog at schaden.2/unten in schaden
+
+edge rechner -> angebot "Angebot speichern"
+edge makler -> angebot "Angebot abrufen"
+edge angebot -> vertrag "Antrag policieren"
+edge angebot -> partner "Partner anlegen"
+edge vertrag -> bestanddb via=JDBC
+edge vertrag -> inkasso "Beitrag sollstellen"
+edge meldung -> regulierung "Schaden anlegen"
+edge regulierung -> vertrag "Deckung prüfen"
+edge regulierung -> partner "Bankdaten lesen"
+edge regulierung -> gutachten "Gutachten anfordern"
+edge regulierung -> inkasso "Zahlung anweisen"
+edge makler -> regulierung "Schadenstatus lesen"

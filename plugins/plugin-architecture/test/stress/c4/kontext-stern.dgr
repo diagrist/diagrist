@@ -1,0 +1,25 @@
+# Pressure: a context with seven neighbours around one system, several of them two cells away.
+diagram context "Stadtwerke-Portal im Systemkontext" subtitle="Wer und was um das Portal herum" locale=de
+grid cols links,mitte.l,mitte,mitte.r,rechts
+grid rows oben,mitte,unten
+
+person kunde "Privatkunde" tech="Strom und Gas" at links/oben
+person gewerbe "Gewerbekunde" tech="mehrere Lieferstellen" at links/unten
+person service "Kundenservice" tech="bearbeitet Anliegen" at mitte/unten
+system portal "Kundenportal" tech="Verträge, Zählerstände, Rechnungen" at mitte/mitte emph
+system sap "SAP IS-U" tech="Abrechnung" at rechts/mitte
+system msb "Messstellenbetreiber" tech="Smart-Meter-Daten" at rechts/oben
+system zahlung "Zahlungsanbieter" tech="Lastschrift und Karte" at rechts/unten
+system crm "CRM" tech="Kundenhistorie" at mitte/oben
+system mail "Versanddienst" tech="E-Mail und Brief" at links/mitte
+
+edge kunde -> portal "meldet Zählerstand" via=HTTPS
+edge gewerbe -> portal "lädt Rechnungen" via=HTTPS
+edge service -> portal "sieht Anliegen"
+edge portal -> sap "liest Verträge" via=RFC
+edge msb ~> portal "liefert Messwerte" via=AS4
+edge portal -> zahlung "bucht ab" via=HTTPS
+edge portal -> crm "schreibt Kontakte" via=REST
+edge portal -> mail "verschickt Bescheide" via=SMTP
+edge sap -> zahlung "Mandate" via=SEPA
+edge crm -> sap "Kundendaten" via=RFC

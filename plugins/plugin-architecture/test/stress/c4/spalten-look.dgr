@@ -1,0 +1,29 @@
+# Pressure: look=columns with names in the top edge and five edges ending on the same tab-reserved sides.
+diagram container "Zahlungsabwicklung" subtitle="Technisches Datenblatt" look=columns decisions=auto locale=de
+grid cols kanal,kern,anbieter
+grid rows oben,mitte,unten
+
+group zahlung "Zahlungsabwicklung" own team="Team Payment"
+
+container checkout "Checkout" tech="React" icon=monitor at kanal/oben in zahlung
+container app "Shop-App" tech="Kotlin" icon=smartphone at kanal/mitte in zahlung
+container backoffice "Backoffice" tech="Vue" icon=layout-dashboard at kanal/unten in zahlung
+container payment "Payment-Service" tech="Java" icon=server at kern/mitte in zahlung mark=E1
+container ledger "Hauptbuch" tech="PostgreSQL" icon=postgresql at kern/unten in zahlung
+container risk "Risikoprüfung" tech="Python" icon=shield at kern/oben in zahlung
+system adyen "Adyen" tech="Karten" at anbieter/oben
+system paypal "PayPal" tech="Wallet" at anbieter/mitte
+system bank "Hausbank" tech="EBICS" at anbieter/unten
+
+edge checkout -> payment "Zahlung starten" via=REST
+edge app -> payment "Zahlung starten" via=REST
+edge backoffice -> payment "Erstattung" via=REST
+edge payment -> risk "bewerten"
+edge payment -> ledger "buchen" via=SQL
+edge payment -> adyen "autorisieren" via=HTTPS
+edge payment -> paypal "autorisieren" via=HTTPS
+edge ledger -> bank "Sammelüberweisung" via=EBICS
+edge adyen ~> payment "Webhook" via=HTTPS
+edge paypal ~> payment "Webhook" via=HTTPS
+
+adr E1 "Wer kennt die Zahlungsanbieter?" = "Nur der Payment-Service" => "Neue Anbieter ändern keinen Kanal."
