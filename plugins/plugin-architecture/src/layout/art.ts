@@ -110,7 +110,7 @@ function cardParts(n: ArchNode, rect: Rect, look: Look): Pick<BoxArt, 'card' | '
     };
   }
   const top = n.icon !== undefined ? m.cardIconR : 0;
-  const lines = n.tech !== undefined ? m.nodeLineH : 0;
+  const lines = n.tech !== undefined || n.status !== undefined ? m.nodeLineH : 0;
   const labelY = rect.y + top + (rect.h - top - lines) / 2 + m.labelDy;
   const layers = n.replicas !== undefined && look.options.replicas === 'stack' ? Math.min(n.replicas - 1, 2) : 0;
   const stack = Array.from({ length: layers }, (_, i) => {
@@ -152,7 +152,10 @@ export function nodeArt(n: ArchNode, rect: Rect, look: Look): NodeArt {
   const noIcon = { x: 0, y: 0, size: m.iconSize };
   if (family === 'card' || family === 'block') {
     const parts = family === 'card' ? cardParts(n, rect, look) : blockParts(n, rect, look);
-    const status = { x: parts.tech.x + techWidth / 2 + STATUS_GAP, y: parts.tech.y };
+    const status = {
+      x: n.tech === undefined ? parts.tech.x : parts.tech.x + techWidth / 2 + STATUS_GAP,
+      y: parts.tech.y,
+    };
     return { kind: 'box', icon: noIcon, status, clock, replicas: clock, ...parts };
   }
   if (look.options.nodeName === 'tab') {

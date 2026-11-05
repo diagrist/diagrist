@@ -41,6 +41,13 @@ export function cardShapes(p: PlacedElement, art: BoxArt, card: CardArt, texts: 
   out.push({ kind: 'text', ...art.label, text: n.label, role: name, font: 'name', anchor: 'middle' });
   if (n.tech) out.push({ kind: 'text', ...art.tech, text: n.tech, role: 'tech', font: 'note', anchor: 'middle' });
   if (n.status)
-    out.push({ kind: 'text', ...art.status, text: texts.statusInBox[n.status], role: 'status', font: 'note' });
+    out.push({
+      kind: 'text',
+      ...art.status,
+      text: texts.statusInBox[n.status],
+      role: 'status',
+      font: 'note',
+      ...(n.tech ? {} : { anchor: 'middle' as const }),
+    });
   return out;
 }

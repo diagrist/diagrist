@@ -8,7 +8,7 @@ import type { ArchNode } from '../src/model/types.js';
 import { stylesOf } from '../src/styles/index.js';
 import { ARCHITECTURE_ROLES } from '../src/styles/roles.js';
 import { STANDARD_STROKES, standardChanges } from '../src/styles/rules.js';
-import { compileExample, diagram, exampleNames, plugins, source } from './compile.js';
+import { codes, compileExample, diagram, exampleNames, plugins, source } from './compile.js';
 
 const SHOP = ['system shop "Shop" icon=database tech="sells" at b/main', 'system pay "Payments" shape=db at c/main'];
 
@@ -126,5 +126,11 @@ describe('a box is measured by the options that draw it', () => {
   it('gives a box its own width in an adaptive grid only in the `block` family', () => {
     expect(fixedWidth(box({}), choosing({ nodes: 'box' }))).toBeUndefined();
     expect(fixedWidth(box({}), choosing({ nodes: 'block' }))).toBe(nodeWidth(box({}), choosing({ nodes: 'block' })));
+  });
+
+  it('set the status word of a card without a second line on a line of its own, not on the name', () => {
+    const found = diagram('container look=cards', 'container a "Portal" status=planned at b/main');
+    expect(codes(found)).toEqual([]);
+    expect(found.svg).toMatch(/text-anchor="middle" class="label-status">planned</);
   });
 });
