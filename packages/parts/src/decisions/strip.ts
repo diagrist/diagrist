@@ -1,5 +1,6 @@
-import { STANDARD_FONTS, textWidth } from '@diagrist/core';
+import { type Font, STANDARD_FONTS, textWidth } from '@diagrist/core';
 import { MARGIN, type Spot } from '../sheet/header.js';
+import { wrap } from '../text.js';
 import type { Decision } from './adr.js';
 
 /** One card of the decision bar, with the baselines of its three texts. */
@@ -10,6 +11,8 @@ export interface DecisionCard {
   readonly w: number;
   readonly h: number;
   readonly question: Spot;
+  /** The question in lines that fit the card, one `QUESTION_STEP` below the other, where one line does not. */
+  readonly questionLines?: readonly string[];
   readonly choice: Spot;
   readonly consequence: Spot;
 }
@@ -34,31 +37,57 @@ const CARD_H = 78;
 const STRIP_H = 128;
 /** Inner padding of the texts on a card. */
 const CARD_PAD = 12;
+/** Step between the lines of a wrapped question. */
+export const QUESTION_STEP = 14;
+
+/** What the bar measures a question with: the words of an open decision and the font of the note role. */
+export interface QuestionMeasure {
+  readonly open: (who: string) => string;
+  readonly font: Font;
+}
 
 /** The first line of a card: id and question, and who decides while it is open. */
 export const questionText = (d: Decision, open: (who: string) => string): string =>
   `${d.id}  ${d.question}${d.open ? ` ${open(d.open)}` : ''}`;
 
-/** Bar below a picture of width `width` whose content ends at `bodyBottom`. */
-export function decisionStrip(decisions: readonly Decision[], bodyBottom: number, width: number): Strip {
+/**
+ * Bar below a picture of width `width` whose content ends at `bodyBottom`. With `measure`, a question wider than its
+ * card wraps, and every card grows by the lines the longest question adds; without it a kind sizes the picture to
+ * the bar (`stripWidth`).
+ */
+export function decisionStrip(
+  decisions: readonly Decision[],
+  bodyBottom: number,
+  width: number,
+  measure?: QuestionMeasure,
+): Strip {
   const y = bodyBottom + TOP_GAP;
   const heading = { x: MARGIN, y: y - HEADING_DY };
   if (decisions.length === 0) return { y, heading, cards: [], bottom: y };
   const w = (width - 2 * MARGIN - GAP * (decisions.length - 1)) / decisions.length;
+  const lines = decisions.map((d) => {
+    if (!measure) return undefined;
+    const text = questionText(d, measure.open);
+    const room = w - 2 * CARD_PAD;
+    return textWidth(text, measure.font) <= room ? undefined : wrap(text, room, measure.font);
+  });
+  const extra = Math.max(0, ...lines.map((l) => (l ? l.length - 1 : 0))) * QUESTION_STEP;
   const cards = decisions.map((decision, i) => {
     const x = MARGIN + i * (w + GAP);
+    const wrapped = lines[i];
     return {
       decision,
       x,
       y,
       w,
-      h: CARD_H,
+      h: CARD_H + extra,
       question: { x: x + TEXT_X, y: y + QUESTION_DY },
-      choice: { x: x + TEXT_X, y: y + CHOICE_DY },
-      consequence: { x: x + TEXT_X, y: y + CONSEQUENCE_DY },
+      ...(wrapped ? { questionLines: wrapped } : {}),
+      choice: { x: x + TEXT_X, y: y + CHOICE_DY + extra },
+      consequence: { x: x + TEXT_X, y: y + CONSEQUENCE_DY + extra },
     };
   });
-  return { y, heading, cards, bottom: y + STRIP_H };
+  return { y, heading, cards, bottom: y + STRIP_H + extra };
 }
 
 /** The width the bar needs: every card as wide as its longest text, plus the margins of the sheet. */

@@ -1,6 +1,6 @@
 import type { Shape } from '@diagrist/core';
 import type { Words } from '../words.js';
-import { questionText, type Strip } from './strip.js';
+import { QUESTION_STEP, questionText, type Strip } from './strip.js';
 
 const MARK_W = 24;
 const MARK_H = 14;
@@ -23,7 +23,11 @@ export function stripShapes(strip: Strip, words: Pick<Words, 'decisions' | 'open
     const d = card.decision;
     const { x, y, w, h } = card;
     out.push({ kind: 'rect', x, y, w, h, rx: CARD_RX, role: d.open ? 'decisionOpen' : 'decision' });
-    out.push({ kind: 'text', ...card.question, text: questionText(d, words.open), role: 'decisionNote', font: 'note' });
+    const lines = card.questionLines ?? [questionText(d, words.open)];
+    lines.forEach((text, i) => {
+      const at = { x: card.question.x, y: card.question.y + i * QUESTION_STEP };
+      out.push({ kind: 'text', ...at, text, role: 'decisionNote', font: 'note' });
+    });
     out.push({ kind: 'text', ...card.choice, text: d.choice, role: 'decisionChoice', font: 'name' });
     if (d.consequence)
       out.push({ kind: 'text', ...card.consequence, text: d.consequence, role: 'decisionNote', font: 'note' });

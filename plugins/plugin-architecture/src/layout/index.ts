@@ -1,7 +1,7 @@
 import type { Placed, Point, Rect } from '@diagrist/core';
 import type { Locale } from '@diagrist/lang';
 import { bottom, type EdgeLabel, placedOf, type Route, right } from '@diagrist/layout-grid';
-import { decisionStrip, type Legend, legendLayout, type Sheet, type Strip } from '@diagrist/parts';
+import { decisionStrip, type Legend, legendLayout, type Sheet, type Strip, WORDS } from '@diagrist/parts';
 import { lookOf } from '../looks/index.js';
 import type { Look } from '../looks/look.js';
 import type { ArchGroup, ArchitectureModel, ArchNode } from '../model/types.js';
@@ -98,7 +98,10 @@ export function layoutArchitecture(model: ArchitectureModel, texts: Texts, local
     return node ? crestOf(node, look) : 0;
   };
   const notes = noteArts(model.notes, rects, crest, look.fonts.note);
-  const strip = decisionStrip(o.decisions === 'bar' ? model.decisions : [], pl.bottom, pl.width);
+  const strip = decisionStrip(o.decisions === 'bar' ? model.decisions : [], pl.bottom, pl.width, {
+    open: WORDS[locale].open,
+    font: look.fonts.note,
+  });
   const legend =
     o.legend === 'strip'
       ? legendLayout(legendItems(model, routes, marks.length > 0, texts, look.fonts.note), strip.bottom, pl.width)
