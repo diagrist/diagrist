@@ -1,0 +1,33 @@
+# Pressure: three loops back up, one over five steps, each from a decision with a long guard.
+diagram activity "Artikel veröffentlichen" subtitle="Redaktion mit Korrekturschleifen" locale=de
+partition autor "Autorin"
+partition redaktion "Redaktion"
+partition recht "Rechtsabteilung"
+initial start in autor
+merge neu in autor
+action schreiben "Entwurf schreiben" in autor
+action einreichen "Entwurf einreichen" in autor
+action lesen "Entwurf lesen" in redaktion
+decision inhalt "Inhalt in Ordnung?" in redaktion
+action pruefen "Rechtlich prüfen" in recht
+decision rechtlich "Rechtlich unbedenklich?" in recht
+merge setzen in redaktion
+action layout "Layout setzen" in redaktion
+decision freigabe "Chefredaktion zufrieden?" in redaktion
+action veroeffentlichen "Veröffentlichen" in redaktion
+final ende in redaktion
+go start -> neu
+go neu -> schreiben
+go schreiben -> einreichen
+go einreichen -> lesen
+go lesen -> inhalt
+go inhalt -> pruefen "ja"
+go inhalt -> neu else
+go pruefen -> rechtlich
+go rechtlich -> setzen "ja"
+go setzen -> layout
+go rechtlich -> neu else
+go layout -> freigabe
+go freigabe -> veroeffentlichen "ja"
+go freigabe -> setzen else
+go veroeffentlichen -> ende

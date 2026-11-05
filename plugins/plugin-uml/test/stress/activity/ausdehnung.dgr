@@ -1,0 +1,29 @@
+# Pressure: an expansion region with a decision and three branches inside, fed from one lane and read in another.
+diagram activity "Sammelüberweisung" subtitle="Jede Zahlung einzeln prüfen" locale=de
+partition kunde "Firmenkunde"
+partition bank "Bank"
+expansion jede "Zahlungen prüfen" mode=iterative
+initial start in kunde
+action hochladen "Datei hochladen" in kunde output="Zahlungen"
+action iban "IBAN prüfen" in bank expansion=jede input="Zahlung"
+decision gueltig "IBAN gültig?" in bank expansion=jede
+action limit "Limit prüfen" in bank expansion=jede
+action sperre "Sanktionsliste prüfen" in bank expansion=jede
+action markieren "Als fehlerhaft markieren" in bank expansion=jede
+merge weiter in bank expansion=jede
+action ergebnis "Ergebnis festhalten" in bank expansion=jede output="Ergebnis"
+action bericht "Prüfbericht ansehen" in kunde input="Ergebnisse"
+final ende in kunde
+go start -> hochladen
+go hochladen => jede
+go jede => iban
+go iban -> gueltig
+go gueltig -> limit "ja"
+go gueltig -> markieren else
+go limit -> sperre
+go sperre -> weiter
+go markieren -> weiter
+go weiter -> ergebnis
+go ergebnis => jede
+go jede => bericht
+go bericht -> ende

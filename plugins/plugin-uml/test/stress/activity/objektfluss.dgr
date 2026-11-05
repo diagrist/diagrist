@@ -1,0 +1,29 @@
+# Pressure: object flows through pins and two data stores across three lanes, beside the control flow.
+diagram activity "Rechnungseingang" subtitle="Belege fließen durch drei Stellen" locale=de
+partition post "Posteingang"
+partition buchhaltung "Kreditorenbuchhaltung"
+partition fach "Fachabteilung"
+initial start in post
+action scannen "Rechnung scannen" in post output="Scan"
+action auslesen "Daten auslesen" in post input="Scan" output="Rechnungsdaten"
+datastore lieferanten "Lieferantenstamm" in buchhaltung
+action erfassen "Rechnung erfassen" in buchhaltung input="Rechnungsdaten" output="Beleg"
+datastore bestellungen "Bestellungen" in fach
+action abgleichen "Mit Bestellung abgleichen" in fach input="Beleg" output="Prüfergebnis"
+decision passt "Betrag passt?" in fach
+action freigeben "Zahlung freigeben" in buchhaltung input="Prüfergebnis"
+action klaeren "Mit Lieferant klären" in fach
+final ende in buchhaltung
+flowfinal geklaert in fach
+go start -> scannen
+go scannen => auslesen
+go auslesen => erfassen
+go lieferanten => erfassen
+go erfassen => abgleichen
+go bestellungen => abgleichen
+go abgleichen -> passt
+go passt -> freigeben "ja"
+go passt -> klaeren "nein"
+go abgleichen => freigeben
+go freigeben -> ende
+go klaeren -> geklaert

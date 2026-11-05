@@ -1,0 +1,28 @@
+# Pressure: an interruptible region of five nodes with two interrupting edges leaving it into two lanes.
+diagram activity "Wohnungsbesichtigung" subtitle="Abbruch durch Absage oder Vermietung" locale=de
+partition interessent "Interessentin"
+partition makler "Makler"
+interruptible laufend "Besichtigung läuft"
+initial start in interessent
+action anfragen "Besichtigung anfragen" in interessent
+action termin "Termin anbieten" in makler interruptible=laufend
+action besichtigen "Wohnung zeigen" in makler interruptible=laufend
+action unterlagen "Unterlagen sammeln" in makler interruptible=laufend
+accept absage "Absage erhalten" in makler interruptible=laufend
+accept vermietet "Wohnung vermietet" in makler interruptible=laufend
+action absagen "Termin streichen" in makler
+action informieren "Interessentin informieren" in interessent
+action auswaehlen "Mieter auswählen" in makler
+final ende in makler
+flowfinal gestrichen in makler
+flowfinal informiert in interessent
+go start -> anfragen
+go anfragen -> termin
+go termin -> besichtigen
+go besichtigen -> unterlagen
+go unterlagen -> auswaehlen
+go auswaehlen -> ende
+go absage ~> absagen
+go vermietet ~> informieren
+go absagen -> gestrichen
+go informieren -> informiert

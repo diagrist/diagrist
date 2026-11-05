@@ -1,0 +1,40 @@
+# Pressure: a fork into five parallel branches of two steps each across three lanes, joined again.
+diagram activity "Mitarbeiter-Onboarding" subtitle="Fünf Stränge laufen parallel" locale=de
+partition hr "Personal"
+partition it "IT"
+partition team "Team"
+initial start in hr
+action vertrag "Vertrag unterschrieben" in hr
+fork teilen in hr
+action laptop "Laptop bestellen" in it
+action einrichten "Laptop einrichten" in it
+action konto "Konten anlegen" in it
+action rechte "Rechte vergeben" in it
+action pate "Paten bestimmen" in team
+action plan "Einarbeitungsplan schreiben" in team
+action ausweis "Ausweis drucken" in hr
+action schulung "Sicherheitsschulung buchen" in hr
+action platz "Arbeitsplatz vorbereiten" in team
+action stuhl "Möbel bestellen" in team
+join fertig in hr
+action begruessen "Ersten Tag begrüßen" in team
+final ende in team
+go start -> vertrag
+go vertrag -> teilen
+go teilen -> laptop
+go teilen -> konto
+go teilen -> pate
+go teilen -> ausweis
+go teilen -> platz
+go laptop -> einrichten
+go konto -> rechte
+go pate -> plan
+go ausweis -> schulung
+go platz -> stuhl
+go einrichten -> fertig
+go rechte -> fertig
+go plan -> fertig
+go schulung -> fertig
+go stuhl -> fertig
+go fertig -> begruessen
+go begruessen -> ende
