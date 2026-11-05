@@ -129,6 +129,11 @@ export interface GridGroup {
   readonly minWidth?: number;
   /** A column the frame also reaches over, at the height of its members. */
   readonly cover?: string;
+  /**
+   * Where the kind draws the head, from the top left corner of the frame, or from the middle of its top edge with
+   * `origin: 'middle'`. Routes of a channel grid keep out of it instead of out of the whole strip `framePad.top`.
+   */
+  readonly head?: Rect & { readonly origin?: 'middle' };
   readonly source?: Placed['span'];
 }
 
@@ -179,4 +184,10 @@ export interface GridSpec {
    * straight only where the middles of both boxes nearly meet; elsewhere it bends twice between them.
    */
   readonly ports?: 'towards' | 'centred';
+  /**
+   * A fixed grid routes through channels: ends spread on the free stretches of their sides, two edges between the
+   * same boxes never share a port, Z pieces get tracks of their own in their gap, and texts and marks look for a
+   * spot clear of boxes, heads, foreign frames and foreign lines.
+   */
+  readonly channels?: boolean;
 }

@@ -8,7 +8,8 @@ import { clearReserved } from './reserve.js';
 import type { Routed } from './routed.js';
 import { chooseShape, type Lane } from './shape.js';
 
-interface Plan {
+/** An edge of a fixed grid with its boxes, shape, sides and the lane of a Z; `key` is its index. */
+export interface Plan {
   readonly key: number;
   readonly edge: GridEdge;
   readonly a: Box;
@@ -21,19 +22,21 @@ interface Plan {
 
 const isHorizontal = (side: Side) => side === 'left' || side === 'right';
 
-function plans(board: Board): Plan[] {
+/** Shape and sides of every edge whose ends were placed, with obstacles as `obstacles` finds them. */
+export function plans(board: Board, obstacles: typeof obstaclesFor = obstaclesFor): Plan[] {
   const gutters = board.layout.gutters;
   return board.tree.spec.edges.flatMap((edge, key): Plan[] => {
     const a = boxOf(board, edge.from);
     const b = boxOf(board, edge.to);
     if (!a || !b) return [];
-    const sides = chooseShape(a, b, obstaclesFor(board, edge), gutters);
+    const sides = chooseShape(a, b, obstacles(board, edge), gutters);
     const lane = sides.shape === 'Z' ? sides.lane : undefined;
     return [{ key, edge, a, b, lane, shape: sides.shape, fromSide: sides.fromSide, toSide: sides.toSide }];
   });
 }
 
-function endsOf(p: Plan): Ends {
+/** Both ends of a planned edge as the port stage sees them. */
+export function endsOf(p: Plan): Ends {
   const horizA = isHorizontal(p.fromSide);
   const horizB = isHorizontal(p.toSide);
   const straight = p.shape === 'straight';
@@ -63,7 +66,7 @@ function endsOf(p: Plan): Ends {
 }
 
 /** Points of an edge: two for straight, a corner for L, two corners on the lane for Z, five around for a loop. */
-function edgePoints(
+export function edgePoints(
   shape: RouteShape,
   fromSide: Side,
   start: Point,
