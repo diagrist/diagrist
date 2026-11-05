@@ -186,6 +186,8 @@ export interface GridSpec {
    * straight only where the middles of both boxes nearly meet; elsewhere it bends twice between them.
    */
   readonly ports?: 'towards' | 'centred';
+  /** An adaptive grid runs an edge into a wide box under the gap beside its other end as an L down that gap. */
+  readonly drops?: boolean;
   /**
    * A fixed grid routes through channels: ends spread on the free stretches of their sides, two edges between the
    * same boxes never share a port, Z pieces get tracks of their own in their gap, and texts and marks look for a

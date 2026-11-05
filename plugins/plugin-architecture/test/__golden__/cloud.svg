@@ -66,9 +66,9 @@
 <g id="edge-9"><path d="M144 616 L144 688" class="line halo"/><path d="M144 616 L144 688" class="line" marker-end="url(#m-filled)"/></g>
 <g id="edge-10"><path d="M472 616 L472 688" class="line halo"/><path d="M472 616 L472 688" class="line" marker-end="url(#m-filled)"/></g>
 <g id="edge-11"><path d="M800 616 L800 688" class="line halo"/><path d="M800 616 L800 688" class="line" marker-end="url(#m-filled)"/></g>
-<g id="edge-12"><path d="M200 440 L200 456 L248 456 L248 792 L144 792 L144 816" class="line halo"/><path d="M200 440 L200 456 L248 456 L248 792 L144 792 L144 816" class="line dashed" marker-end="url(#m-open)"/></g>
-<g id="edge-13"><path d="M528 440 L528 456 L576 456 L576 792 L472 792 L472 816" class="line halo"/><path d="M528 440 L528 456 L576 456 L576 792 L472 792 L472 816" class="line dashed" marker-end="url(#m-open)"/></g>
-<g id="edge-14"><path d="M744 440 L744 456 L696 456 L696 792 L800 792 L800 816" class="line halo"/><path d="M744 440 L744 456 L696 456 L696 792 L800 792 L800 816" class="line dashed" marker-end="url(#m-open)"/></g>
+<g id="edge-12"><path d="M240 412 L308 412 L308 816" class="line halo"/><path d="M240 412 L308 412 L308 816" class="line dashed" marker-end="url(#m-open)"/></g>
+<g id="edge-13"><path d="M568 412 L613 412 L613 816" class="line halo"/><path d="M568 412 L613 412 L613 816" class="line dashed" marker-end="url(#m-open)"/></g>
+<g id="edge-14"><path d="M704 412 L659 412 L659 816" class="line halo"/><path d="M704 412 L659 412 L659 816" class="line dashed" marker-end="url(#m-open)"/></g>
 <g id="label-0"><text x="134" y="224" text-anchor="end" class="label halo">HTTPS</text></g>
 <g id="label-1"><text x="462" y="224" text-anchor="end" class="label halo">HTTPS</text></g>
 <g id="label-2"><text x="790" y="224" text-anchor="end" class="label halo">HTTPS</text></g>
@@ -81,9 +81,9 @@
 <g id="label-9"><text x="134" y="656" text-anchor="end" class="label halo">SQL</text></g>
 <g id="label-10"><text x="462" y="656" text-anchor="end" class="label halo">SQL</text></g>
 <g id="label-11"><text x="790" y="656" text-anchor="end" class="label halo">SQL</text></g>
-<g id="label-12"><text x="318" y="622" text-anchor="end" class="label halo">Bestellung</text><text x="258" y="634" text-anchor="start" class="label halo">geändert</text></g>
-<g id="label-13"><text x="586" y="622" text-anchor="start" class="label halo">Gerät</text><text x="658" y="634" text-anchor="end" class="label halo">aktualisiert</text></g>
-<g id="label-14"><text x="686" y="538" text-anchor="end" class="label halo">Nachricht</text><text x="686" y="550" text-anchor="end" class="label halo">versendet</text></g>
+<g id="label-12"><text x="298" y="511" text-anchor="end" class="label halo">Bestellung</text><text x="298" y="523" text-anchor="end" class="label halo">geändert</text></g>
+<g id="label-13"><text x="603" y="511" text-anchor="end" class="label halo">Gerät</text><text x="603" y="523" text-anchor="end" class="label halo">aktualisiert</text></g>
+<g id="label-14"><text x="723" y="511" text-anchor="end" class="label halo">Nachricht</text><text x="723" y="523" text-anchor="end" class="label halo">versendet</text></g>
 <line x1="32" y1="936" x2="936" y2="936" class="legend-rule"/>
 <g class="legend"><path d="M32 960 H72" class="line" marker-end="url(#m-filled)"/><text x="84" y="964" class="label-note">synchroner Aufruf</text></g>
 <g class="legend"><path d="M226 960 H266" class="line dashed" marker-end="url(#m-open)"/><text x="278" y="964" class="label-note">asynchrones Domain-Event</text></g>
