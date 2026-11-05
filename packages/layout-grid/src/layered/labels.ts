@@ -53,9 +53,34 @@ export interface Clear {
 const grow = (r: Rect, m: number): Rect => ({ x: r.x - m, y: r.y - m, w: r.w + 2 * m, h: r.h + 2 * m });
 const meets = (a: Rect, b: Rect) => a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h;
 
+/** A vertical piece at an end of a line: the point at the box and how far and which way the piece runs from it. */
+interface Piece {
+  readonly end: Point;
+  readonly run: number;
+  readonly dir: 1 | -1;
+}
+
+/** The vertical pieces at both ends of a line, the one at `port` first. */
+function piecesOf(points: readonly Point[], port: Point): Piece[] {
+  const near = (a: number, b: number) => Math.abs(a - b) < 0.5;
+  const piece = (end: Point | undefined, next: Point | undefined): Piece[] =>
+    end && next && near(end[0], next[0]) && !near(end[1], next[1])
+      ? [{ end, run: Math.abs(next[1] - end[1]), dir: next[1] > end[1] ? 1 : -1 }]
+      : [];
+  const ends = [...piece(points[0], points[1]), ...piece(points.at(-1), points.at(-2))];
+  const atPort = (p: Piece) => near(p.end[0], port[0]) && near(p.end[1], port[1]);
+  return [...ends.filter(atPort), ...ends.filter((p) => !atPort(p))];
+}
+
+/** Steps a label slides by along its line when its seat is taken. */
+const SLIDE = 4;
+
 /**
  * A label at its seat: right of its vertical, `labelGap` from the port, else left of it when something else comes
- * within `margin` on the right. `x` and `y` are the port of the line, `route` the index of its route.
+ * within `margin` on the right. When both are taken it slides along the vertical piece of its own line away from
+ * the port, then along the vertical piece at the other end of the line away from that box, to the first place where
+ * one side is free, and stays at the seat when there is none. `x` and `y` are the port of the line, `route` the
+ * index of its route.
  */
 export function seatLabel(
   seat: Seat,
@@ -67,12 +92,13 @@ export function seatLabel(
 ): EdgeLabel {
   const label = seat.edge.label ?? { text: '', width: 0, size: 0 };
   const h = label.size + 2;
-  const top = seat.at === 'top' ? port[1] + labelGap : port[1] - labelGap - h;
-  const at = (side: 'right' | 'left'): EdgeLabel => {
-    const x = side === 'right' ? port[0] + labelGap : port[0] - labelGap;
-    const box = { x: side === 'right' ? x : x - label.width, y: top, w: label.width, h };
+  const at = (side: 'right' | 'left', piece: Piece, by: number): EdgeLabel => {
+    const [px, py] = piece.end;
+    const x = side === 'right' ? px + labelGap : px - labelGap;
+    const y = piece.dir > 0 ? py + labelGap + by : py - labelGap - h - by;
+    const box = { x: side === 'right' ? x : x - label.width, y, w: label.width, h };
     const anchor: EdgeLabel['anchor'] = side === 'right' ? 'start' : 'end';
-    return { text: label.text, x, y: top + label.size, anchor, box, route, part: 'name' };
+    return { text: label.text, x, y: y + label.size, anchor, box, route, part: 'name' };
   };
   const free = (l: EdgeLabel) => {
     const zone = grow(l.box, clear.margin);
@@ -80,8 +106,15 @@ export function seatLabel(
     const hit = lines.some((o) => o.points.some((p, k) => k > 0 && segmentHitsRect(o.points[k - 1] as Point, p, zone)));
     return !hit && !clear.boxes.some((b) => meets(b, l.box));
   };
-  const right = at('right');
-  if (free(right)) return right;
-  const left = at('left');
-  return free(left) ? left : right;
+  const seated: Piece = { end: port, run: 0, dir: seat.at === 'top' ? 1 : -1 };
+  const first = [at('right', seated, 0), at('left', seated, 0)];
+  const found = first.find(free);
+  if (found) return found;
+  for (const piece of piecesOf(clear.lines[route]?.points ?? [], port)) {
+    for (let by = 0; by <= piece.run - labelGap - h; by += SLIDE) {
+      const slid = [at('right', piece, by), at('left', piece, by)].find(free);
+      if (slid) return slid;
+    }
+  }
+  return first[0] as EdgeLabel;
 }

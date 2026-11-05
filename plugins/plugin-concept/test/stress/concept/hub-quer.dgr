@@ -1,0 +1,39 @@
+# Pressure: a hub whose four extensions also talk to each other, so lines run between docked areas.
+diagram concept "Lernplattform: Kern, Erweiterungen und ihre Querbezüge" locale=de
+type modul "Modul" shape=round
+type daten "Datenbestand" shape=store
+link nutzt "nutzt" from=modul to=modul,daten
+link meldet "meldet an" from=modul to=modul line=dashed
+
+area kern "Kern"
+area labs "Hands-on-Labs" tone=green
+area pruefung "Prüfungstrainer" tone=orange
+area abo "Abonnement" tone=purple
+area team "Firmenlizenzen" tone=sky
+
+item kurse "Kurse" is modul area=kern
+item lernende "Lernende" is modul area=kern
+item fortschritt "Fortschritt" is daten area=kern
+item lab "Lab-Sitzung" is modul area=labs
+item umgebung "Lab-Umgebung" is modul area=labs
+item fragen "Fragenpool" is modul area=pruefung
+item simulation "Prüfungssimulation" is modul area=pruefung
+item tarif "Tarife" is modul area=abo
+item zahlung "Zahlungen" is modul area=abo
+item lizenz "Lizenzen" is modul area=team
+item auswertung "Teamauswertung" is modul area=team
+
+rel kurse nutzt fortschritt
+rel lernende nutzt fortschritt
+rel lab nutzt kurse
+rel umgebung nutzt lab
+rel simulation nutzt fragen
+rel simulation nutzt lernende
+rel fragen nutzt kurse
+rel zahlung nutzt tarif
+rel tarif nutzt lernende
+rel lizenz nutzt tarif
+rel auswertung nutzt fortschritt
+rel lizenz nutzt lernende
+rel lab meldet simulation
+rel auswertung meldet lab

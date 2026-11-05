@@ -1,0 +1,41 @@
+# Pressure: four columns of types with sixteen items and lines that cross two columns, one role holding four controls.
+diagram concept "Zahlungsverkehr: Risiken, Kontrollen und wer sie verantwortet" locale=de
+type prozess "Prozess" shape=round
+type risiko "Risiko"
+type kontrolle "Kontrolle" shape=doc
+type rolle "Rolle" shape=person
+link birgt "birgt" from=prozess to=risiko each=to
+link mindert "mindert" back="gemindert durch" from=kontrolle to=risiko each=to
+link verantwortet "verantwortet" back="verantwortet von" from=rolle to=kontrolle each=to single=to
+item ueberweisung "Überweisung ausführen" is prozess
+item lastschrift "Lastschrift einziehen" is prozess
+item stammdaten "Empfänger anlegen" is prozess
+item fremd "Zahlung an falschen Empfänger" is risiko
+item doppelt "Doppelte Ausführung" is risiko
+item betrug "Betrügerische Lastschrift" is risiko
+item manipulation "Manipulierte Kontodaten" is risiko
+item vier "Vier-Augen-Freigabe ab 10.000 €" is kontrolle
+item abgleich "IBAN-Namensabgleich" is kontrolle
+item dublette "Dublettenprüfung" is kontrolle
+item mandat "Mandatsprüfung" is kontrolle
+item protokoll "Änderungsprotokoll der Stammdaten" is kontrolle
+item zahlungsverkehr "Zahlungsverkehr" is rolle
+item revision "Interne Revision" is rolle
+item it "IT-Betrieb" is rolle
+
+rel ueberweisung birgt fremd
+rel ueberweisung birgt doppelt
+rel lastschrift birgt betrug
+rel lastschrift birgt doppelt
+rel stammdaten birgt manipulation
+rel stammdaten birgt fremd
+rel vier mindert fremd
+rel abgleich mindert fremd
+rel dublette mindert doppelt
+rel mandat mindert betrug
+rel protokoll mindert manipulation
+rel zahlungsverkehr verantwortet vier
+rel zahlungsverkehr verantwortet abgleich
+rel zahlungsverkehr verantwortet mandat
+rel it verantwortet dublette
+rel revision verantwortet protokoll

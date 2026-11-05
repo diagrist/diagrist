@@ -1,4 +1,4 @@
-import type { Point, Rect } from '@diagrist/core';
+import { DEFAULT_THRESHOLDS, type Point, type Rect } from '@diagrist/core';
 import { overlaps, segmentHitsRect, union } from '../geometry.js';
 import type { Route } from '../layout.js';
 import { memberBounds } from '../place/frames.js';
@@ -29,6 +29,9 @@ function towards(items: readonly EdgeLabel[], rect: Rect, side: number): EdgeLab
   });
 }
 
+/** Room a block keeps from the lines of other routes: the line check's least distance of a text (G418). */
+const FOREIGN = DEFAULT_THRESHOLDS.labelClear;
+
 /** Places on a segment, the middle first; the fine eighths help where many frame heads crowd. */
 const FRACTIONS = [0.5, 0.25, 0.75, 0.375, 0.625, 0.125, 0.875];
 
@@ -53,17 +56,18 @@ export function adaptiveLabels(
   blocked.push(...fixed.map((f) => f.box));
   blocked.push(...headStrips(board.layout.groups, m.framePad.top));
   const placed: EdgeLabel[] = [];
-  const clear = (rect: Rect, own = -1) =>
+  const clear = (rect: Rect, mine: number, own = -1) =>
     !blocked.some((b) => overlaps(rect, b, 4)) &&
     !placed.some((p) => overlaps(rect, p.box, 4)) &&
-    !routes.some(
-      (r, k) => k !== own && r.points.slice(1).some((p, i) => segmentHitsRect(r.points[i] as Point, p, rect, 3)),
-    );
+    !routes.some((r, k) => {
+      const pad = k === mine ? 3 : FOREIGN;
+      return k !== own && r.points.slice(1).some((p, i) => segmentHitsRect(r.points[i] as Point, p, rect, pad));
+    });
   routes.forEach((r, route) => {
     const items = texts.filter((t) => t.route === route);
     if (!items.length) return;
     const bounds = union(items.map((i) => i.box));
-    if (keep && clear(bounds)) {
+    if (keep && clear(bounds, route)) {
       placed.push(...items);
       return;
     }
@@ -88,7 +92,7 @@ export function adaptiveLabels(
                 x: horizontal ? x - bounds.w / 2 : x + (side < 0 ? -bounds.w - m.labelGap : m.labelGap),
                 y: horizontal ? y + (side < 0 ? -bounds.h - m.labelGap : m.labelGap) : y - bounds.h / 2,
               };
-          if (clear(rect, onLine ? route : -1)) {
+          if (clear(rect, route, onLine ? route : -1)) {
             const block = moved(items, rect.x - bounds.x, rect.y - bounds.y);
             placed.push(...(horizontal || onLine || keep ? block : towards(block, rect, side)));
             return;

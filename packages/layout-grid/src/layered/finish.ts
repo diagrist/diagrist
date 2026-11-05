@@ -86,11 +86,13 @@ export function finish(spec: LayeredSpec, arrangement: Arrangement): LayeredLayo
   });
   const frame: Frame = { rects, gapTop, first, track: m.track };
   const groupOf = new Map<Link, Group>(groups.flatMap((g) => g.links.map((l) => [l, g] as const)));
+  const taken = { at: new Map<string, number[]>(), gap: m.portGap };
+  for (const [l, at] of ports.bottom) taken.at.set(l.upper, [...(taken.at.get(l.upper) ?? []), at]);
   const routes = spec.edges.flatMap((e): Route[] => {
     const chain = links.filter((l) => l.edge === e.id);
     if (chain.length === 0) {
       if (runs.hidden(e.id)) return [];
-      const beside = below.route(e, frame, tracks);
+      const beside = below.route(e, frame, tracks, taken);
       return beside === undefined ? [] : [beside];
     }
     const points = simplify(

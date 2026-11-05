@@ -1,0 +1,41 @@
+# Pressure: a hub with five extensions, each with two items, all docking at a core of four.
+diagram concept "Versicherungsplattform: Kern und fünf Erweiterungen" locale=de
+type modul "Modul" shape=round
+type extern "Fremdsystem" shape=box
+link nutzt "nutzt" from=modul,extern to=modul
+
+area kern "Kern"
+area kfz "Kfz" tone=sky
+area haftpflicht "Haftpflicht" tone=green
+area leben "Leben" tone=orange
+area makler "Maklerportal" tone=purple
+area inkasso "Inkasso" tone=red
+
+item vertrag "Vertrag" is modul area=kern
+item partner "Partner" is modul area=kern
+item produkt "Produkt" is modul area=kern
+item schaden "Schaden" is modul area=kern
+item kfztarif "Kfz-Tarif" is modul area=kfz
+item telematik "Telematik" is extern area=kfz
+item hpdeckung "Deckungsprüfung" is modul area=haftpflicht
+item hpregress "Regress" is modul area=haftpflicht
+item lebenrente "Rentenrechner" is modul area=leben
+item lebengesund "Gesundheitsfragen" is modul area=leben
+item maklerzugang "Maklerzugang" is modul area=makler
+item courtage "Courtage" is modul area=makler
+item lastschrift "Lastschrift" is modul area=inkasso
+item mahnlauf "Mahnlauf" is modul area=inkasso
+
+rel vertrag nutzt partner
+rel vertrag nutzt produkt
+rel schaden nutzt vertrag
+rel kfztarif nutzt produkt
+rel telematik nutzt kfztarif
+rel hpdeckung nutzt vertrag
+rel hpregress nutzt schaden
+rel lebenrente nutzt produkt
+rel lebengesund nutzt partner
+rel maklerzugang nutzt partner
+rel courtage nutzt vertrag
+rel lastschrift nutzt vertrag
+rel mahnlauf nutzt lastschrift

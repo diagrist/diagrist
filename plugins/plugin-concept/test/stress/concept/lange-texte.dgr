@@ -1,0 +1,28 @@
+# Pressure: three kinds of link, so every line carries a word of three to four words, and fans of each share one gap.
+diagram concept "Onboarding: Wer liefert welche Unterlagen" arrange=layers locale=de
+type stelle "Stelle" shape=person
+type unterlage "Unterlage" shape=doc
+type system "System" shape=box
+link liefert "liefert vor Arbeitsbeginn" from=stelle to=unterlage
+link prueft "prüft auf Vollständigkeit" from=stelle to=unterlage line=dashed
+link speichert "archiviert revisionssicher" from=system to=unterlage line=dotted
+
+item bewerber "Neue Mitarbeiterin" is stelle
+item personal "Personalabteilung" is stelle
+item fuehrung "Führungskraft" is stelle
+item vertrag "Arbeitsvertrag" is unterlage
+item steuer "Steuer-ID und Sozialversicherung" is unterlage
+item zeugnis "Zeugnisse" is unterlage
+item zugang "Zugangsantrag" is unterlage
+item akte "Personalakte" is system
+
+rel bewerber liefert steuer
+rel bewerber liefert zeugnis
+rel personal liefert vertrag
+rel fuehrung liefert zugang
+rel personal prueft steuer
+rel personal prueft zeugnis
+rel fuehrung prueft vertrag
+rel akte speichert vertrag
+rel akte speichert steuer
+rel akte speichert zeugnis

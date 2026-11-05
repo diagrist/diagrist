@@ -1,0 +1,26 @@
+# Pressure: a fan of eight lines out of one orchestrating module to eight targets, two links mixed, in layers.
+diagram concept "Checkout: Der Bestellablauf ruft acht Dienste" arrange=layers locale=de
+type modul "Modul" shape=round
+type dienst "Dienst" shape=box
+type daten "Datenbestand" shape=store
+link ruft "ruft" from=modul to=dienst
+link schreibt "schreibt" from=modul to=daten line=dashed
+
+item checkout "Bestellablauf" is modul
+item preis "Preisberechnung" is dienst
+item steuer "Steuerdienst" is dienst
+item betrug "Betrugsprüfung" is dienst
+item zahlung "Zahlungsdienst" is dienst
+item lager "Lagerreservierung" is dienst
+item versand "Versandplanung" is dienst
+item auftraege "Aufträge" is daten
+item protokoll "Prüfprotokoll" is daten
+
+rel checkout ruft preis
+rel checkout ruft steuer
+rel checkout ruft betrug
+rel checkout ruft zahlung
+rel checkout ruft lager
+rel checkout ruft versand
+rel checkout schreibt auftraege
+rel checkout schreibt protokoll

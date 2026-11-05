@@ -1,0 +1,29 @@
+# Pressure: long lines that skip two and three layers next to a straight chain, so placeholders crowd one gap.
+diagram concept "Datenplattform: Wer liest welche Schicht" arrange=layers locale=de
+type quelle "Quelle" shape=box
+type schicht "Schicht" shape=store
+type nutzer "Nutzer" shape=round
+link liefert "liefert an" from=quelle,schicht to=schicht
+link liest "liest" from=nutzer to=schicht
+
+item crm "CRM" is quelle
+item erp "ERP" is quelle
+item roh "Rohdaten" is schicht
+item bereinigt "Bereinigt" is schicht
+item modelliert "Modelliert" is schicht
+item marts "Data Marts" is schicht
+item controlling "Controlling" is nutzer
+item vertrieb "Vertrieb" is nutzer
+item datenteam "Data Science" is nutzer
+
+rel crm liefert roh
+rel erp liefert roh
+rel roh liefert bereinigt
+rel bereinigt liefert modelliert
+rel modelliert liefert marts
+rel controlling liest marts
+rel vertrieb liest marts
+rel datenteam liest roh
+rel datenteam liest bereinigt
+rel datenteam liest modelliert
+rel vertrieb liest modelliert
