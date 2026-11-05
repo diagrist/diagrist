@@ -1,6 +1,6 @@
 import { MARKER_SHAPES, type Marker, type RoleStyle, rule, STROKES, type StyleRule, textRule } from '@diagrist/core';
 import type { LookFonts, Paint } from '../looks/look.js';
-import type { Strokes } from './rules.js';
+import { iconRules, type Strokes } from './rules.js';
 
 const STROKES_OF_COLUMNS: Strokes = { ...STROKES, line: 1, accent: 2, data: 2, shape: 1.25, emph: 2, frame: 1 };
 
@@ -20,15 +20,6 @@ const INK = {
 } as const;
 
 const r = (...classes: string[]): RoleStyle => ({ classes });
-
-/** Icons in ink, drawn with square ends like the boxes. */
-const iconPaint = (name: 'ink' | 'muted'): Record<string, RoleStyle> => ({
-  [`icon-fill-${name}`]: { classes: [], paint: `fill="${INK.ink}"` },
-  [`icon-line-${name}`]: {
-    classes: [],
-    paint: `fill="none" stroke="${INK.ink}" stroke-width="1.6" stroke-linecap="square" stroke-linejoin="miter"`,
-  },
-});
 
 /**
  * Roles drawn differently from the standard look: one square box for every element whatever its role or status,
@@ -67,8 +58,6 @@ const COLUMNS_ROLES: Readonly<Record<string, RoleStyle>> = {
   marginText: r('margin-text'),
   marginChoice: r('margin-choice'),
   legendText: r('margin-text'),
-  ...iconPaint('ink'),
-  ...iconPaint('muted'),
 };
 
 /** Every arrowhead an open angle, in the colour of its line. */
@@ -85,6 +74,7 @@ function columnsRules(f: LookFonts, w: Strokes): StyleRule[] {
   const line = (color: string, width: number) => `fill: none; stroke: ${color}; stroke-width: ${width};`;
   const text = (color: string, font: LookFonts[keyof LookFonts]) => textRule(`fill: ${color};`, font);
   return [
+    ...iconRules({ ink: c.ink, muted: c.ink }, 1.6, 'square'),
     rule('shape', `fill: ${c.ground}; stroke: ${c.ink}; stroke-width: ${w.shape};`),
     rule('shape-emph', `fill: ${c.ground}; stroke: ${c.accent}; stroke-width: ${w.emph};`),
     rule('zone', `${line(c.rule, w.frame)} stroke-dasharray: 4 4;`),

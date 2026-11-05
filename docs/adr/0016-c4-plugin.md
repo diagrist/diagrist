@@ -31,3 +31,11 @@ from two collections with their own licences.
 
 A new level or element is a table change. Kinds may share rule objects, so `checkPlugin` counts a shared rule once.
 The kernel gained two optional fields for the bytes (`RoleStyle.paint`, `Icon.markup`) that the clean-up removes.
+
+Amendment (2026-11-05): the clean-up is done. The legend separator lost its inline paint with the channel stage
+(ADR 0038); the icons are path data converted once from the markup (rectangles, circles, ellipses, lines and
+polylines as exact paths), drawn as nested `<svg>` and painted by the classes `icon-<stroke>-<colour>`, whose rules
+every look sets. `RoleStyle.paint` and `Icon.markup` are gone. Of 192 PNGs (every example and stress picture in
+every look) 183 stayed byte for byte. In `erweiterungen` the icons inside an area now take the area's ink like the
+outlines, since areas repaint by class (ADR 0033); and the dot of `key-round`, a circle smaller than half its stroke
+that the markup filled black, shows its centre pixel (up to 4 pixels).

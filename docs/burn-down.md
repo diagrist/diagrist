@@ -99,12 +99,13 @@ frames and labels are not handed to the placement check, which would report what
 
 Every C4 picture took a second baseline when fixed grids moved onto the channel stage (ADR 0038); the inline paint of
 the legend separator, `abgeloest`, the predecessor's arithmetic and paper's old test of a seated number went with it.
-Two crutches remain, each with a clean-up of its own.
+Icons went the same way: they are path data drawn by the kernel as a nested `<svg>` and painted by class in every
+look, so `Icon.markup` and `RoleStyle.paint` are gone. Two crutches remain, each with a clean-up of its own.
 
-1. **Icons in the predecessor's form** (`Icon.markup`): `<g transform>` with the markup of Lucide or Simple Icons
-   and inline paint (`icon-<stroke>-<colour>` roles, the last users of `RoleStyle.paint`), where the kernel draws a
-   nested `<svg>` styled by class. Clean-up: derive `paths` from the markup, colour by class, drop `markup` and
-   `paint`.
+1. **Icons keep the predecessor's rounded scale** (`iconShape` in `src/scene/icons.ts`). The predecessor scaled the
+   square of 24 by a factor rounded to a tenth, so an icon of 22 is drawn 21.6 wide, one of 20 19.2 and one of 18
+   (paper) 19.2; the clean form draws the same, so the PNGs stayed pixel for pixel but where ADR 0016 says. Clean-up: draw the icon at the
+   size the look measures, which moves every icon by up to 1.2 pixels.
 2. **Blocks restate base rules** (`blockBase` in `src/looks/blocks.ts`): 13 base rules again with larger fonts and
    strokes. Clean-up: the kernel builds the standard look from measures.
 
