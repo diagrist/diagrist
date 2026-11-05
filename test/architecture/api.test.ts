@@ -1,7 +1,7 @@
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { lineOf, manifest, type Node, nodes, packageOf, parse, repository, sourceFiles, statements } from './source.js';
+import { lineOf, manifest, type Node, packageOf, parse, repository, sourceFiles, statements } from './source.js';
 
 /**
  * The public API of a package is what its package.json exports, listed name by name, and every name in it is
@@ -15,7 +15,7 @@ describe('the public API', () => {
       .filter((file) => packageOf(file) !== undefined && file.includes('/src/'))
       .flatMap((file) => {
         const { source, program } = parse(file);
-        return [...nodes(program)]
+        return statements(program)
           .filter((node) => node.type === 'ExportAllDeclaration')
           .map((node) => `${file}:${lineOf(source, node.start)}`);
       });

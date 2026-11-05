@@ -44,10 +44,17 @@ export function readSource(file: string): string {
   return readFileSync(join(repository, file), 'utf8');
 }
 
+const parsed = new Map<string, { source: string; program: unknown; comments: Comment[] }>();
+
+/** A file read and parsed once per test file, however many of its tests ask for it. */
 export function parse(file: string): { source: string; program: unknown; comments: Comment[] } {
+  const known = parsed.get(file);
+  if (known !== undefined) return known;
   const source = readSource(file);
   const result = parseSync(file, source);
-  return { source, program: result.program, comments: result.comments as Comment[] };
+  const found = { source, program: result.program, comments: result.comments as Comment[] };
+  parsed.set(file, found);
+  return found;
 }
 
 export interface Comment {

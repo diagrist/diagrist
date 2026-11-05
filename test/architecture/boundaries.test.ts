@@ -1,6 +1,6 @@
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { lineOf, manifest, nodes, packageOf, parse, sourceFiles } from './source.js';
+import { lineOf, manifest, packageOf, parse, sourceFiles, statements } from './source.js';
 
 /**
  * Package boundaries are derived from each package.json (ADR 0004): a package may import another Diagrist
@@ -17,7 +17,7 @@ describe('package boundaries', () => {
       const root = packageOf(file) as string;
       const declared = declaredDependencies(root, file.includes('/test/'));
       const { source, program } = parse(file);
-      return [...nodes(program)]
+      return statements(program)
         .filter(
           (node) =>
             node.type === 'ImportDeclaration' ||
