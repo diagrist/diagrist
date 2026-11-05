@@ -86,6 +86,12 @@ describe('the agent skill', () => {
     expect(findings).toEqual([]);
   });
 
+  it('is the one plugin of the Claude Code marketplace, under its own name', () => {
+    const marketplace = JSON.parse(readFileSync(`${root}.claude-plugin/marketplace.json`, 'utf8'));
+    const name = /^name: (.*)$/m.exec(skill)?.[1];
+    expect(marketplace.plugins).toMatchObject([{ name, source: `./${SKILL_DIR}` }]);
+  });
+
   it('lists every rule code of every kind', () => {
     const all = files.map(read).join('\n');
     const codes = kinds.flatMap((kind) => kind.rules.map((rule) => rule.code));

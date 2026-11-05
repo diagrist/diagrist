@@ -27,7 +27,7 @@ and that cannot be generated from tables.
    every link resolves, that every `dgr` command, option and code named exists, and that every `dgr` example in a
    guide checks without a single finding.
 5. **The site serves the folder** under `/skill/`, and `/skill.md` stays as the entry with its links pointing there.
-   It is installed as a folder, from the repository's tarball.
+   It is installed as a folder, as ADR 0037 describes.
 
 ## Consequences
 
