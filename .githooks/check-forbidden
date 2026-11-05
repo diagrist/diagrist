@@ -30,23 +30,19 @@ if [ -f "$paths_file" ]; then
   done
 fi
 
-if [ -f "$content_file" ] || [ -f "$local_file" ]; then
-  content=$( (patterns "$content_file"; patterns "$local_file") )
-  if [ -n "$content" ]; then
-    for f in $files; do
-      case "$f" in .githooks/forbidden-*) continue ;; esac
-      case "$mode" in
-        --staged) blob=$(git show ":$f" 2>/dev/null || true) ;;
-        --range)  blob=$(git show "${2##*..}:$f" 2>/dev/null || true) ;;
-        --all)    blob=$(cat "$root/$f" 2>/dev/null || true) ;;
-      esac
-      printf '%s\n' "$content" | while IFS= read -r c; do
-        if printf '%s' "$blob" | grep -Eq -- "$c"; then
-          echo "forbidden content ($c) in $f" >&2; echo x > "$root/.git/forbidden-hit"
-        fi
-      done
-    done
-    if [ -f "$root/.git/forbidden-hit" ]; then rm -f "$root/.git/forbidden-hit"; fail=1; fi
+content=$( (patterns "$content_file"; patterns "$local_file") )
+if [ -n "$content" ]; then
+  list=$(mktemp)
+  trap 'rm -f "$list"' EXIT
+  printf '%s\n' "$content" > "$list"
+  skip=':(exclude).githooks/forbidden-*'
+  case "$mode" in
+    --staged) hits=$(printf '%s\n' "$files" | tr '\n' '\0' | xargs -0 git -C "$root" grep --cached -nE -f "$list" -- "$skip" || true) ;;
+    --range)  hits=$(printf '%s\n' "$files" | tr '\n' '\0' | xargs -0 git -C "$root" grep -nE -f "$list" "${2##*..}" -- "$skip" || true) ;;
+    --all)    hits=$(git -C "$root" grep -nE -f "$list" -- "$skip" || true) ;;
+  esac
+  if [ -n "$hits" ]; then
+    echo "forbidden content:" >&2; printf '%s\n' "$hits" | sed 's/^/  /' >&2; fail=1
   fi
 fi
 

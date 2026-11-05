@@ -17,6 +17,7 @@
     "docs:uml": "UPDATE_GOLDEN=1 vitest run --project plugin-uml readme",
     "test": "vitest run",
     "check": "pnpm lint && pnpm typecheck && pnpm test && pnpm knip",
+    "verify": "pnpm check && pnpm build && node test/package/check.ts && .githooks/check-forbidden --all && gitleaks git --redact --no-banner --log-level warn --exit-code 1 -c .gitleaks.toml .",
     "changeset": "changeset",
     "knip": "knip"
   },

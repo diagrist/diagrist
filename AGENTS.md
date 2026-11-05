@@ -47,7 +47,8 @@ working **on** Diagrist. Read it fully before changing code. The principles behi
 
 ```sh
 pnpm install          # also activates the git hooks
-pnpm check            # lint, typecheck, tests, knip: must be green before every push
+pnpm check            # lint, typecheck, tests, knip: about 15 s, run it while you work
+pnpm verify           # check, build, the package check, forbidden content and gitleaks: run it once before a push
 pnpm format           # Biome format and safe fixes
 pnpm exec vitest run --project lang   # one package
 pnpm docs:generate    # regenerate every derived file: docs/cli.md, docs/language, README pictures, schemas, the skill's reference, UML codes, NOTICE copies
