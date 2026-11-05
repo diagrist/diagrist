@@ -1,4 +1,4 @@
-import type { Placed, Point, Rect } from '@diagrist/core';
+import { DEFAULT_THRESHOLDS, type Placed, type Point, type Rect } from '@diagrist/core';
 import type { EdgeLabel } from '../label/types.js';
 import type { PlacedGroup, PlacedNode, Route } from '../layout.js';
 import { type CoreFrame, frameOf } from './frame.js';
@@ -7,6 +7,9 @@ import type { Group, Link } from './links.js';
 import type { Ports } from './ports.js';
 import type { Ranked } from './rank.js';
 import type { LayeredSpec } from './spec.js';
+
+/** Room a label keeps from foreign lines, one more than the line check's least distance (G418). */
+const LABEL_CLEAR = DEFAULT_THRESHOLDS.labelClear + 1;
 
 /** A laid out layered picture: boxes, one route per edge, labels, the trunk each edge shares, size and checks. */
 export interface LayeredLayout {
@@ -58,7 +61,7 @@ export function assemble(spec: LayeredSpec, laid: Laid): LayeredLayout {
         ? [ports.bottom.get(l) ?? 0, (rects.get(l.upper)?.y ?? 0) + (rects.get(l.upper)?.h ?? 0)]
         : [ports.top.get(l) ?? 0, rects.get(l.lower)?.y ?? 0];
     const own = new Set(seat.group.links.map((k) => k.edge));
-    const clear = { lines: routes, boxes: [...boxes, ...labels.map((x) => x.box)], margin: m.labelGap };
+    const clear = { lines: routes, boxes: [...boxes, ...labels.map((x) => x.box)], margin: LABEL_CLEAR };
     labels.push(seatLabel(seat, port, index.get(seat.edge.id) ?? 0, m.labelGap, clear, own));
   }
   const nodes = spec.nodes.flatMap((n): PlacedNode[] => {

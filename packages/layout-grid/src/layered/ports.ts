@@ -9,10 +9,15 @@ export interface Ports {
   readonly bottom: Map<Link, number>;
 }
 
-/** One end on a side of a box: the pieces that leave or reach it there together, and where their other ends are. */
+/**
+ * One end on a side of a box: the pieces that leave or reach it there together, where the end would stand
+ * (`toward`), and where the far ends of its pieces are (`beyond`), which orders the ends of a side. The two differ for
+ * the members of a fan or join, which aim straight at their own box but come from the trunk.
+ */
 interface End {
   readonly links: readonly Link[];
   readonly toward: number;
+  readonly beyond: number;
 }
 
 /** Keeps ends this far from the corners of a box. */
@@ -22,8 +27,8 @@ const CORNER = 4;
 
 /**
  * The ends on every side of every box: a fan leaves through one end, a join arrives through one end, every other
- * piece through its own. On a side, ends stand in the order of the other ends, so no two pieces cross at their
- * box, each as near above or below its other end as the side and a gap of `gap` between ends allow; a fan or
+ * piece through its own. On a side, ends stand in the order of the far ends of their pieces, so no two pieces cross
+ * at their box, each as near above or below its other end as the side and a gap of `gap` between ends allow; a fan or
  * join aims at its member nearest the middle, so that member runs straight. Placeholders are a single point. Then every piece whose two ends are the only ones
  * on their sides runs straight where the two boxes share a stretch, and an end that is the only one on its side
  * follows the other end of its piece wherever its box reaches, up to `CORNER` from a corner when the jog it spares
@@ -45,7 +50,9 @@ export function portsOf(
   const add = (box: string, side: 'top' | 'bottom', links: readonly Link[], toward: number) => {
     if (ranked.dummies.has(box)) return;
     const k = `${box}|${side}`;
-    ends.set(k, [...(ends.get(k) ?? []), { links, toward }]);
+    const far = links.map((l) => x.get(side === 'bottom' ? l.lower : l.upper) ?? 0);
+    const beyond = far.reduce((a, b) => a + b, 0) / Math.max(1, far.length);
+    ends.set(k, [...(ends.get(k) ?? []), { links, toward, beyond }]);
   };
   const nearest = (box: string, ids: readonly string[]) => {
     const r = rects.get(box);
@@ -70,7 +77,7 @@ export function portsOf(
     const [box = '', side] = k.split('|');
     const r = rects.get(box);
     if (!r) continue;
-    const sorted = [...list].sort((a, b) => a.toward - b.toward);
+    const sorted = [...list].sort((a, b) => a.beyond - b.beyond || a.toward - b.toward);
     const lo = r.x + inset(r);
     const hi = r.x + r.w - inset(r);
     const step = sorted.length < 2 ? 0 : Math.min(gap, (hi - lo) / (sorted.length - 1));
