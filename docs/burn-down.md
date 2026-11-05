@@ -39,6 +39,12 @@ spec and is compared number for number, as the path finding of state machines wa
 | **Gutters of a channel grid do not grow** (ADR 0038). The tracks of a gap and the texts beside its lines must fit into the gap the author's grid gives; where they do not, the search for a spot takes the one that meets least and the line check reports it. The owner allowed gutters to grow for tracks (D2); no example needs it yet. | The stage reports the room each gap needs, the kind sets `GridRow.gap` and a new `GridColumn.gap` and places a second time (ADR 0015). |
 | **The line check reads lines from the anchors and finds their texts by key** (ADR 0035). `linesOfDrawing` in `core` takes a line per edge anchor, ties a text to the line whose index its key names (`<id><n>.label.<k>`, `label-<n>`), and reads lines that meet at one of their ends as a bundle. A kind that names its texts otherwise, or draws two lines from one point that are no bundle, is read wrongly. Sequence messages hand no `span` with their anchors, so a finding about one would stand at the first line; no example has one. | Lines as `Placed` with an outline and their own key (ADR 0020), handed by the kinds with their bundles and spans; then the key convention goes. |
 
+## Concept (`plugin-concept`)
+
+| Debt | Clean-up |
+|---|---|
+| **Words on lines find no room in a crowded gap** (stress set, `test/stress/concept`). The layered pipeline seats a word beside the start of its line and, when that is taken, slides it along the vertical pieces at both ends of its line; where three links put a word on every line of a narrow gap (`lange-texte`), or a line and its way back run a few pixels apart (`rueckmeldungen`), every spot is taken and the word stays at its seat on a foreign line. `stress-concept.test.ts` keeps them in `PENDING`. | Gaps that grow for the words they hold, as they grow for tracks, or words of two lines (`LayeredEdge.label`). |
+
 ## UML (`plugin-uml`)
 
 ### Sequence diagrams keep the predecessor's bytes (ADR 0008 Nr. 5)

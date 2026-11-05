@@ -1,0 +1,24 @@
+# Pressure: a fan of eight lines into one shared module, all of one link, in layers.
+diagram concept "Plattform: Alle Fachmodule nutzen das Kundenkonto" arrange=layers locale=de
+type modul "Modul" shape=round
+type dienst "Basisdienst" shape=box
+link nutzt "nutzt" from=modul to=dienst
+
+item ausleihe "Ausleihe" is modul
+item rueckgabe "Rückgabe" is modul
+item abo "Abonnements" is modul
+item gutschein "Gutscheine" is modul
+item firmen "Firmenkunden" is modul
+item support "Kundenservice" is modul
+item bonus "Bonusprogramm" is modul
+item mahnung "Mahnwesen" is modul
+item konto "Kundenkonto" is dienst
+
+rel ausleihe nutzt konto
+rel rueckgabe nutzt konto
+rel abo nutzt konto
+rel gutschein nutzt konto
+rel firmen nutzt konto
+rel support nutzt konto
+rel bonus nutzt konto
+rel mahnung nutzt konto

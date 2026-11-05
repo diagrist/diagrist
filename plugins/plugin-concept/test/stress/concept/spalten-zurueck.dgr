@@ -1,0 +1,31 @@
+# Pressure: columns of three types where half the relations point against the reading and are drawn with their back text.
+diagram concept "Produktentwicklung: Anforderungen, Bausteine und Tests" locale=de
+type anforderung "Anforderung" shape=doc
+type baustein "Baustein" shape=box
+type test "Test" shape=round
+link setzt "setzt um" back="umgesetzt von" from=baustein to=anforderung
+link prueft "prüft" back="geprüft durch" from=test to=anforderung,baustein
+
+item login "Anmeldung mit Passkey" is anforderung
+item export "Export als PDF" is anforderung
+item rechte "Rollen und Rechte" is anforderung
+item audit "Prüfpfad" is anforderung
+item auth "Auth-Dienst" is baustein
+item bericht "Berichtsdienst" is baustein
+item policy "Policy-Engine" is baustein
+item log "Ereignisprotokoll" is baustein
+item e2e "Ende-zu-Ende-Test" is test
+item last "Lasttest" is test
+item pen "Penetrationstest" is test
+
+rel auth setzt login
+rel policy setzt rechte
+rel bericht setzt export
+rel log setzt audit
+rel policy setzt audit
+rel e2e prueft login
+rel e2e prueft export
+rel last prueft bericht
+rel pen prueft auth
+rel pen prueft policy
+rel e2e prueft rechte

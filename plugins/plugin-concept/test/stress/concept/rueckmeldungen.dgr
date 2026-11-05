@@ -1,0 +1,25 @@
+# Pressure: a chain over five layers with three reports back up, one of them over four layers.
+diagram concept "Schadensfall: Vom Melden bis zur Auszahlung" arrange=layers locale=de
+type schritt "Schritt" shape=round
+type stelle "Stelle" shape=person
+link folgt "führt zu" from=schritt to=schritt
+link meldet "meldet an" from=schritt to=schritt,stelle line=dashed
+link bearbeitet "bearbeitet" from=stelle to=schritt
+
+item meldung "Schaden melden" is schritt
+item sichtung "Schaden sichten" is schritt
+item gutachten "Gutachten einholen" is schritt
+item regulierung "Schaden regulieren" is schritt
+item auszahlung "Betrag auszahlen" is schritt
+item sachbearbeitung "Sachbearbeitung" is stelle
+item gutachter "Gutachterbüro" is stelle
+
+rel meldung folgt sichtung
+rel sichtung folgt gutachten
+rel gutachten folgt regulierung
+rel regulierung folgt auszahlung
+rel sachbearbeitung bearbeitet sichtung
+rel gutachter bearbeitet gutachten
+rel auszahlung meldet meldung "bestätigt"
+rel regulierung meldet sachbearbeitung "Freigabe"
+rel gutachten meldet sichtung "Rückfrage"

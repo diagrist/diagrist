@@ -1,0 +1,28 @@
+# Pressure: three users each needing the same three services, a complete join that forces crossings in any order.
+diagram concept "Kanäle: Drei Kanäle teilen drei Dienste" arrange=layers locale=de
+type kanal "Kanal" shape=round
+type dienst "Dienst" shape=box
+type daten "Datenbestand" shape=store
+link nutzt "nutzt" from=kanal,dienst to=dienst,daten
+
+item app "App" is kanal
+item web "Website" is kanal
+item callcenter "Callcenter" is kanal
+item katalog "Katalog" is dienst
+item konto "Kundenkonto" is dienst
+item buchung "Buchung" is dienst
+item kunden "Kundendaten" is daten
+item termine "Termine" is daten
+
+rel app nutzt katalog
+rel app nutzt konto
+rel app nutzt buchung
+rel web nutzt katalog
+rel web nutzt konto
+rel web nutzt buchung
+rel callcenter nutzt katalog
+rel callcenter nutzt konto
+rel callcenter nutzt buchung
+rel konto nutzt kunden
+rel buchung nutzt termine
+rel buchung nutzt kunden

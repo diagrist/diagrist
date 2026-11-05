@@ -1,0 +1,41 @@
+# Pressure: a vocabulary of thirteen terms with broader terms, parts and labelled relations crossing the hierarchy.
+diagram concept "Energievertrieb: Begriffe" vocabulary=terms locale=de
+item vertrag "Vertrag" is term
+  "Vereinbarung über die Lieferung von Energie"
+item strom "Stromvertrag" is term
+  "Vertrag über die Lieferung von Strom"
+item gas "Gasvertrag" is term
+  "Vertrag über die Lieferung von Gas"
+item waerme "Wärmevertrag" is term
+  "Vertrag über Fernwärme"
+item tarif "Tarif" is term
+  "Preisblatt, nach dem ein Vertrag abgerechnet wird"
+item grundpreis "Grundpreis" is term
+  "Fester Preis je Monat"
+item arbeitspreis "Arbeitspreis" is term
+  "Preis je Kilowattstunde"
+item zaehler "Zähler" is term
+  "Gerät, das den Verbrauch misst"
+item ablesung "Ablesung" is term
+  "Stand eines Zählers zu einem Zeitpunkt"
+item abschlag "Abschlag" is term
+  "Monatliche Vorauszahlung"
+item rechnung "Jahresrechnung" is term
+  "Abrechnung des Verbrauchs eines Jahres"
+item lieferstelle "Lieferstelle" is term
+  "Ort, an dem Energie entnommen wird"
+item zaehlpunkt "Zählpunkt" is term status=deprecated
+  "Älteres Wort für Lieferstelle"
+
+rel strom is-a vertrag
+rel gas is-a vertrag
+rel waerme is-a vertrag
+rel grundpreis part-of tarif
+rel arbeitspreis part-of tarif
+rel vertrag relates tarif "wird abgerechnet nach"
+rel vertrag relates lieferstelle "beliefert"
+rel zaehler relates lieferstelle "misst an"
+rel ablesung relates zaehler "liest"
+rel rechnung relates ablesung "verwendet"
+rel rechnung relates abschlag "verrechnet"
+rel zaehlpunkt same-as lieferstelle

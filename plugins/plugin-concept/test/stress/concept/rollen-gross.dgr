@@ -1,0 +1,33 @@
+# Pressure: an organisation of fourteen roles in four levels with three deputies standing beside their roles.
+diagram concept "Stadtwerke: Wer berichtet an wen" vocabulary=roles locale=de
+item gf "Geschäftsführung" is role
+item netz "Leitung Netze" is role
+item vertrieb "Leitung Vertrieb" is role
+item it "Leitung IT" is role
+item strom "Netzbetrieb Strom" is role
+item gas "Netzbetrieb Gas" is role
+item leitstelle "Leitstelle" is role
+item privat "Privatkunden" is role
+item gewerbe "Gewerbekunden" is role
+item abrechnung "Abrechnung" is role
+item betrieb "IT-Betrieb" is role
+item anwendungen "Fachanwendungen" is role
+item sicherheit "Informationssicherheit" is role
+item stoerung "Störungsdienst" is role
+
+rel netz reports-to gf
+rel vertrieb reports-to gf
+rel it reports-to gf
+rel strom reports-to netz
+rel gas reports-to netz
+rel leitstelle reports-to netz
+rel stoerung reports-to leitstelle
+rel privat reports-to vertrieb
+rel gewerbe reports-to vertrieb
+rel abrechnung reports-to vertrieb
+rel betrieb reports-to it
+rel anwendungen reports-to it
+rel sicherheit reports-to gf
+rel gas deputy strom
+rel gewerbe deputy privat
+rel anwendungen deputy betrieb

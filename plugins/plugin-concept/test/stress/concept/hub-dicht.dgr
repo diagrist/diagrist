@@ -1,0 +1,50 @@
+# Pressure: a hub with a dense core of seven items and three extensions, 21 boxes in all.
+diagram concept "Warenwirtschaft: Dichter Kern mit drei Erweiterungen" locale=de
+type modul "Modul" shape=round
+type daten "Datenbestand" shape=store
+type extern "Fremdsystem" shape=box
+link nutzt "nutzt" from=modul,extern to=modul,daten,extern
+
+area kern "Kern"
+area shop "Onlineshop" tone=green
+area filiale "Filialen" tone=orange
+area marktplatz "Marktplätze" tone=purple
+
+item artikel "Artikel" is modul area=kern
+item bestand "Bestand" is modul area=kern
+item einkauf "Einkauf" is modul area=kern
+item auftrag "Auftrag" is modul area=kern
+item preise "Preise" is modul area=kern
+item stamm "Stammdaten" is daten area=kern
+item bewegungen "Lagerbewegungen" is daten area=kern
+item warenkorb "Warenkorb" is modul area=shop
+item kasse "Shop-Kasse" is modul area=shop
+item suche "Produktsuche" is modul area=shop
+item psp "Zahlungsanbieter" is extern area=shop
+item pos "Kassensystem" is modul area=filiale
+item umlagerung "Umlagerung" is modul area=filiale
+item inventur "Inventur" is modul area=filiale
+item amazon "Amazon-Anbindung" is modul area=marktplatz
+item ebay "eBay-Anbindung" is modul area=marktplatz
+item feed "Angebotsfeed" is modul area=marktplatz
+item marktplatzapi "Marktplatz-API" is extern area=marktplatz
+
+rel artikel nutzt stamm
+rel preise nutzt artikel
+rel bestand nutzt bewegungen
+rel bestand nutzt artikel
+rel einkauf nutzt bestand
+rel einkauf nutzt artikel
+rel auftrag nutzt bestand
+rel auftrag nutzt preise
+rel warenkorb nutzt preise
+rel kasse nutzt auftrag
+rel kasse nutzt psp
+rel suche nutzt artikel
+rel pos nutzt auftrag
+rel umlagerung nutzt bestand
+rel inventur nutzt bestand
+rel amazon nutzt auftrag
+rel ebay nutzt auftrag
+rel feed nutzt preise
+rel feed nutzt marktplatzapi
