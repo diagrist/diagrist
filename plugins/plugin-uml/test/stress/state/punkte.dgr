@@ -1,0 +1,28 @@
+# Pressure: a composite state with two entry and two exit points, each used by transitions from and to three outside states.
+diagram state "Anmeldung" subtitle="Eintritts- und Austrittspunkte" locale=de
+initial start
+state start_seite "Startseite"
+state login "Anmeldung"
+entrypoint passwort "Passwort" in login
+entrypoint passkey "Passkey" in login
+state eingabe "Eingabe" in login
+state zweiter "Zweiter Faktor" in login
+exitpoint erfolg "Erfolg" in login
+exitpoint gesperrt "Gesperrt" in login
+state konto "Konto"
+state sperre "Gesperrt" entry="Mail an Inhaber"
+state hilfe "Hilfeseite"
+final ende
+go start -> start_seite
+go start_seite -> passwort on="Anmelden"
+go start_seite -> passkey on="Mit Passkey"
+go passwort -> eingabe
+go passkey -> zweiter
+go eingabe -> zweiter on="Passwort richtig"
+go zweiter -> erfolg on="Code richtig"
+go eingabe -> gesperrt on="dritter Fehlversuch"
+go erfolg -> konto
+go gesperrt -> sperre
+go sperre -> hilfe on="Hilfe anfordern"
+go hilfe -> start_seite on="entsperrt"
+go konto -> ende on="Abmelden"

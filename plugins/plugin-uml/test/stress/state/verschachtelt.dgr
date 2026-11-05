@@ -1,0 +1,30 @@
+# Pressure: two composite states, one nested in the other, with transitions from inside to outside across two frames.
+diagram state "Fahrstuhl" subtitle="Betrieb mit verschachtelten Zuständen" locale=de
+initial start
+state betrieb "In Betrieb"
+initial b0 in betrieb
+state stehend "Stehend" in betrieb
+state fahrend "Fahrend" in betrieb
+initial f0 in fahrend
+state beschleunigt "Beschleunigt" in fahrend
+state konstant "Konstante Fahrt" in fahrend
+state bremst "Bremst" in fahrend
+state tueroffen "Tür offen" in betrieb
+state wartung "Wartung" entry="Kabine sperren"
+state notfall "Notfall" entry="Notbremse auslösen"
+final aus
+go start -> betrieb
+go b0 -> stehend
+go stehend -> fahrend on="Ruf"
+go f0 -> beschleunigt
+go beschleunigt -> konstant on="Sollgeschwindigkeit"
+go konstant -> bremst on="Ziel nahe"
+go bremst -> stehend on="angehalten"
+go stehend -> tueroffen on="Tür auf"
+go tueroffen -> stehend on="after(8 s)"
+go betrieb -> wartung on="Wartungsschlüssel"
+go fahrend -> notfall on="Seil reißt"
+go konstant -> notfall on="Übergeschwindigkeit"
+go wartung -> betrieb on="freigeben"
+go notfall -> aus
+go wartung -> aus on="stilllegen"

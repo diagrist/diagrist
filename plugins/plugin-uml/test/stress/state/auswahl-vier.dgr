@@ -1,0 +1,32 @@
+# Pressure: two choices with four guarded branches each, one branch of each looping back.
+diagram state "Retoure" subtitle="Prüfung der Rücksendung" locale=de
+initial start
+state angemeldet "Angemeldet"
+state eingetroffen "Eingetroffen"
+choice zustand
+state neuware "Als Neuware"
+state bware "Als B-Ware"
+state entsorgt "Entsorgt"
+state reklamiert "Beim Hersteller"
+choice erstattung
+state voll "Voll erstattet"
+state teil "Teilweise erstattet"
+state gutschein "Als Gutschein"
+final ende
+go start -> angemeldet
+go angemeldet -> eingetroffen on="Paket gescannt"
+go eingetroffen -> zustand on="geprüft"
+go zustand -> neuware when="originalverpackt"
+go zustand -> bware when="Gebrauchsspuren"
+go zustand -> entsorgt when="defekt durch Kunde"
+go zustand -> reklamiert when=else
+go neuware -> erstattung
+go bware -> erstattung
+go reklamiert -> eingetroffen on="Ersatz geliefert"
+go entsorgt -> ende
+go erstattung -> voll when="Neuware"
+go erstattung -> teil when="B-Ware"
+go erstattung -> gutschein when=else
+go voll -> ende
+go teil -> ende
+go gutschein -> ende

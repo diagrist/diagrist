@@ -1,0 +1,26 @@
+# Pressure: four self transitions and five internal transitions on neighbouring states, loops at crowded corners.
+diagram state "Ladesäule" subtitle="Ladevorgang mit Selbstübergängen" locale=de
+initial start
+state frei "Frei"
+state autorisiert "Autorisiert"
+state laedt "Lädt" do="Leistung regeln"
+state voll "Fahrzeug voll"
+state gestoert "Gestört"
+final ende
+go start -> frei
+go frei -> frei on="Heartbeat"
+go frei -> autorisiert on="Karte erkannt"
+go autorisiert -> autorisiert on="Karte erneut"
+go autorisiert -> laedt on="Stecker verbunden"
+go laedt -> laedt on="Tarifwechsel" do="Zähler neu starten"
+go laedt -> voll on="Strom unter 1 A"
+go voll -> voll on="after(10 min)" do="Blockiergebühr berechnen"
+go voll -> frei on="Stecker gezogen"
+go laedt -> gestoert on="Fehlerstrom"
+go gestoert -> frei on="Reset"
+go gestoert -> ende on="außer Betrieb"
+internal frei on="Display tippen" do="Preis anzeigen"
+internal autorisiert on="Abbruch gedrückt" do="Autorisierung verwerfen"
+internal laedt on="Leistung angefragt" do="Ladekurve senden"
+internal laedt on="Temperatur hoch" do="Leistung drosseln"
+internal voll on="App-Abfrage" do="Status melden"

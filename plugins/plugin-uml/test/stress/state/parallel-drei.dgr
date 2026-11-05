@@ -1,0 +1,36 @@
+# Pressure: a fork into three orthogonal regions of two to three states each, a join and a cancel from inside.
+diagram state "Umzug" subtitle="Drei Stränge laufen parallel" locale=de
+initial start
+state beauftragt "Beauftragt"
+fork teilen
+state durchfuehrung "In Durchführung"
+region packen "Packen" in durchfuehrung
+region transport "Transport" in durchfuehrung
+region melden "Ummelden" in durchfuehrung
+state kartons "Kartons geliefert" in packen
+state gepackt "Gepackt" in packen
+state lkw "Lkw gebucht" in transport
+state unterwegs "Unterwegs" in transport
+state entladen "Entladen" in transport
+state termin "Termin beim Amt" in melden
+state umgemeldet "Umgemeldet" in melden
+join fertig
+state abgeschlossen "Abgeschlossen"
+state abgebrochen "Abgebrochen"
+final ende
+go start -> beauftragt
+go beauftragt -> teilen on="Anzahlung"
+go teilen -> kartons
+go teilen -> lkw
+go teilen -> termin
+go kartons -> gepackt on="alles verstaut"
+go lkw -> unterwegs on="beladen"
+go unterwegs -> entladen on="angekommen"
+go termin -> umgemeldet on="Bescheinigung"
+go gepackt -> fertig
+go entladen -> fertig
+go umgemeldet -> fertig
+go fertig -> abgeschlossen
+go durchfuehrung -> abgebrochen on="Kunde storniert"
+go abgeschlossen -> ende
+go abgebrochen -> ende

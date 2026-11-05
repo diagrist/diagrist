@@ -1,0 +1,22 @@
+# Pressure: a protocol state machine whose eight calls with pre- and postconditions cross between five states.
+diagram state "Dateiupload {protocol}" subtitle="Erlaubte Aufrufe der Upload-API" locale=de
+initial start
+state angelegt "Angelegt"
+state laedt "Lädt hoch"
+state pausiert "Pausiert"
+state pruefung "Wird geprüft"
+state fertig "Verfügbar"
+state verworfen "Verworfen"
+final ende
+go start -> angelegt
+go angelegt -> laedt on="sendeTeil()" when="Teil 1"
+go laedt -> laedt on="sendeTeil()" when="Teile offen"
+go laedt -> pausiert on="pausiere()"
+go pausiert -> laedt on="setzeFort()" post="Offset erhalten"
+go laedt -> pruefung on="schliesse()" when="alle Teile da" post="Prüfsumme berechnet"
+go pruefung -> fertig on="freigeben()" post="Link gültig"
+go pruefung -> verworfen on="verwerfen()" when="Virus gefunden"
+go pausiert -> verworfen on="after(24 h)"
+go angelegt -> verworfen on="abbrechen()"
+go fertig -> ende on="loesche()"
+go verworfen -> ende
