@@ -26,6 +26,8 @@ export interface SignOptions {
   readonly avoid?: readonly Rect[];
   /** Size of every mark, and the room texts keep from a mark besides the pad all of them keep. */
   readonly mark?: { readonly w: number; readonly h: number; readonly room: number };
+  /** Texts already placed, as an adaptive grid's labels: kept where clear instead of where the old rule puts them. */
+  readonly placed?: readonly EdgeLabel[];
   /** Signs beside a route, such as decision marks, `w` by `h`, each with the spots the kind offers it. */
   readonly pins?: { readonly w: number; readonly h: number; readonly at: readonly Pin[] };
 }
@@ -48,7 +50,9 @@ const grown = (r: Rect, by: number): Rect => ({ x: r.x - by, y: r.y - by, w: r.w
  * them or the nearest clear spot along their line. Texts stay where `routeTexts` or `onLineTexts` put them when that
  * spot is clear, else take the first clear spot beside or on their line (`searchBlock`); a route whose texts find
  * none moves its mark along the line until they do. Last, a sign that a text could not avoid moves on to its next
- * clear spot. Other fields of a mark are kept.
+ * clear spot. Texts on one of two upright straight lines between the same boxes may stand beside it where no spot on
+ * it is clear, since a text across the one meets the other. Other fields of a mark are kept. `crowded` names the routes whose texts found no clear spot, for
+ * `gutterRoom`.
  */
 export function signEdges<M extends SeatMark>(
   spec: GridSpec,
@@ -57,10 +61,10 @@ export function signEdges<M extends SeatMark>(
   edgeTexts: readonly EdgeText[],
   marks: readonly M[],
   o: SignOptions,
-): { labels: EdgeLabel[]; marks: M[]; pins: Point[] } {
+): { labels: EdgeLabel[]; marks: M[]; pins: Point[]; crowded: number[] } {
   const board = boardOf(spec, layout);
   const texts = new Map(edgeTexts.map((t) => [t.edge, t]));
-  const named = namedOf(spec, routes, texts, o);
+  const named = o.placed ?? namedOf(spec, routes, texts, o);
   const clear = clearOf(board, routes, o.avoid ?? []);
   const size = o.mark ?? { w: 0, h: 0, room: 0 };
   const search: SearchOptions = { preferFlat: o.preferFlat === true, ...(o.onLine ? { onLine: o.onLine } : {}) };
@@ -92,11 +96,18 @@ export function signEdges<M extends SeatMark>(
   };
   for (const m of marks) put(m, free(m)[0]);
   const chosen = new Map<number, EdgeLabel[]>();
+  const crowded: number[] = [];
   const take = (i: number, block: EdgeLabel[]) => {
     chosen.set(i, block);
     for (const r of rectsOf(block, search)) clear.take(r);
   };
   const first = (i: number) => named.filter((l) => l.route === i);
+  const ends = new Map(spec.edges.map((e) => [e.id, [e.from, e.to].sort().join('|')]));
+  const pairs = routes.map((r) => ends.get(r.edge));
+  const upright = (r: Route | undefined) => r?.points.length === 2 && r.points[0]?.[0] === r.points[1]?.[0];
+  const twin = (i: number) =>
+    upright(routes[i]) && pairs.some((p, k) => k !== i && p !== undefined && p === pairs[i] && upright(routes[k]));
+  const searchOf = (i: number): SearchOptions => (twin(i) ? { ...search, beside: true } : search);
   routes.forEach((_, i) => {
     const block = first(i);
     if (block.length > 0 && blockCost(block, i, clear, search) === 0) take(i, block);
@@ -104,14 +115,14 @@ export function signEdges<M extends SeatMark>(
   routes.forEach((r, i) => {
     const text = texts.get(r.edge);
     if (chosen.has(i) || !text || first(i).length === 0) return;
-    let found: Found = searchBlock(r, i, text, first(i), clear, spec.metrics, search);
+    let found: Found = searchBlock(r, i, text, first(i), clear, spec.metrics, searchOf(i));
     const mark = marks.find((m) => m.route === i);
     const seat = mark && placed.get(mark);
     if (found.cost > 0 && mark && seat) {
       clear.drop(seat.rect);
       for (const p of free(mark).filter((_, k) => k % RETRY === 0)) {
         put(mark, p);
-        const moved = searchBlock(r, i, text, first(i), clear, spec.metrics, search);
+        const moved = searchBlock(r, i, text, first(i), clear, spec.metrics, searchOf(i));
         if (moved.cost === 0) {
           found = moved;
           break;
@@ -123,6 +134,7 @@ export function signEdges<M extends SeatMark>(
         clear.take(seat.rect);
       }
     }
+    if (found.cost > 0) crowded.push(i);
     take(i, found.block);
   });
   const moved = pin.at.map((k, i) => {
@@ -136,5 +148,6 @@ export function signEdges<M extends SeatMark>(
     labels: routes.flatMap((_, i) => chosen.get(i) ?? []),
     marks: marks.map((m) => placed.get(m)?.mark ?? m),
     pins: moved,
+    crowded,
   };
 }

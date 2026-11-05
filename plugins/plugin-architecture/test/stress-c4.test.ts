@@ -14,14 +14,7 @@ const PLACEMENT = ['G400', 'G402'];
  * (`docs/burn-down.md`, "Stress set"). An exemption that is no longer needed fails, so it is removed with the fix.
  */
 const PENDING: Readonly<Record<string, readonly string[]>> = {
-  'adaptiv-spannen.dgr': ['G400/covered', 'G400/texts', 'label/overlap'],
-  'beide-richtungen.dgr': ['ports/order'],
-  'diff-entfernt.dgr#ziel': ['G400/covered', 'label/overlap', 'through'],
-  'komponenten-zehn.dgr': ['G400/texts', 'label/overlap', 'ports/spacing'],
-  'kontext-stern.dgr': ['G400/covered', 'label/overlap'],
-  'lange-texte.dgr': ['G400/covered', 'label/near', 'label/overlap', 'through'],
-  'papier-entscheidungen.dgr': ['label/near', 'through'],
-  'spalten-look.dgr': ['G400/covered', 'label/near', 'label/overlap', 'ports/order', 'ports/spacing', 'through'],
+  'spalten-look.dgr': ['ports/order'],
   'zwei-fluesse.dgr': ['G402'],
 };
 

@@ -123,11 +123,18 @@ function around(
 /**
  * Bent ends of one side, in the order of their other ends, as a train: `spread` apart, twice that between two ends
  * of edges between the same boxes, so their texts find room between them. The train stands inside the free stretches
- * of the side and `spread` clear of its straight ends, its middle as near the middle of the side as that allows, on a
- * tie towards where the other ends lie. Where no train fits beside a single straight end, it parts around it (`around`);
- * where that fails too, the ends spread evenly over the longest free stretch.
+ * of the side, `spread` clear of its straight ends and never between two straight `twins`, its middle as near the
+ * middle of the side as that allows, on a tie towards where the other ends lie. Where no train fits beside a single
+ * straight end, it parts around it (`around`); where that fails too, the ends spread evenly over the longest free
+ * stretch.
  */
-function bentPorts(ends: readonly End[], fixed: readonly number[], free: readonly Range[], spread: number): number[] {
+function bentPorts(
+  ends: readonly End[],
+  fixed: readonly number[],
+  twins: readonly Range[],
+  free: readonly Range[],
+  spread: number,
+): number[] {
   const steps = ends.slice(1).map((e, i) => (pairOf(e) === pairOf(ends[i] as End) ? 2 * spread : spread));
   const offsets = [0];
   for (const d of steps) offsets.push((offsets.at(-1) ?? 0) + d);
@@ -136,7 +143,12 @@ function bentPorts(ends: readonly End[], fixed: readonly number[], free: readonl
   const centre = (lo + hi) / 2;
   const towards = ends.reduce((sum, e) => sum + e.other, 0) / ends.length;
   const fits = (start: number) =>
-    offsets.every((d) => within(start + d, free) && fixed.every((f) => Math.abs(f - start - d) >= spread - 0.5));
+    offsets.every(
+      (d) =>
+        within(start + d, free) &&
+        fixed.every((f) => Math.abs(f - start - d) >= spread - 0.5) &&
+        !twins.some(([a, b]) => start + d > a && start + d < b),
+    );
   const starts: number[] = [];
   for (let s = lo; s + total <= hi + 0.5; s += STEP) if (fits(s)) starts.push(s);
   const cost = (s: number) => Math.abs(s + total / 2 - centre) + Math.abs(s + total / 2 - towards) / 1000;
@@ -170,12 +182,11 @@ export function channelPorts(board: Board, plans: readonly Plan[], spread: numbe
     if (bent.length === 0) continue;
     const free = freeOf(board, first.box, first.side, gap);
     const usable = free.length > 0 ? free : [sideOf(first.box, first.side)];
-    const spots = bentPorts(
-      bent,
-      [...along.entries()].filter(([e]) => list.includes(e)).map(([, v]) => v),
-      usable,
-      spread,
-    );
+    const pairs = new Map<string, number[]>();
+    for (const e of fixed) pairs.set(pairOf(e), [...(pairs.get(pairOf(e)) ?? []), along.get(e) as number]);
+    const twins = [...pairs.values()].filter((v) => v.length > 1).map((v): Range => [Math.min(...v), Math.max(...v)]);
+    const taken = [...along.entries()].filter(([e]) => list.includes(e)).map(([, v]) => v);
+    const spots = bentPorts(bent, taken, twins, usable, spread);
     for (const [i, e] of bent.entries()) along.set(e, spots[i] as number);
   }
   const out = new Map<Plan, Port>();

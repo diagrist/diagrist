@@ -24,6 +24,7 @@ import {
   NUMBER_SIZE,
   TEXT_GAP,
 } from './marks.js';
+import { placeNodeMarks } from './node-marks.js';
 
 /** The texts of the edges, the flow numbers with the rectangles they cover, and the decision marks of a picture. */
 export interface Signs {
@@ -33,6 +34,8 @@ export interface Signs {
   readonly badges: readonly Badge[];
   readonly numbered: readonly { readonly route: number; readonly rect: Rect }[];
   readonly marks: readonly Mark[];
+  /** Routes whose texts found no clear spot in a channel grid, for its gutters to grow (`gutterRoom`). */
+  readonly crowded: readonly number[];
 }
 
 /** The room texts keep from a flow number in a channel grid, besides the pad every sign keeps. */
@@ -62,7 +65,14 @@ export function signsOf(
   if (spec.channels === true) {
     const rects = new Map(placed.nodes.map((p) => [p.id, p.rect]));
     const { badges: free, marks: aside } = marksOf(model, routes, rects, m);
-    const marks = inside(placed, aside);
+    const owners = new Map(model.nodes.flatMap((n) => (n.mark ? [[n.mark, n.id] as const] : [])));
+    const heads = spec.groups.flatMap((g) => {
+      const h = g.head;
+      const r = placed.groups.find((p) => p.id === g.id)?.rect;
+      if (!h || !r) return [];
+      return [{ x: (h.origin === 'middle' ? r.x + r.w / 2 : r.x) + h.x, y: r.y + h.y, w: h.w, h: h.h }];
+    });
+    const marks = o.marks === 'inside' ? inside(placed, aside) : placeNodeMarks(aside, owners, placed, routes, heads);
     const mark = { ...size, room: SIGN_ROOM };
     const onEdges = marks.filter((k) => k.route !== undefined);
     const avoid = marks.filter((k) => k.route === undefined).map(markRect);
@@ -75,10 +85,20 @@ export function signsOf(
       return spot ? { ...k, x: spot[0], y: spot[1] } : k;
     });
     const numbered = signed.marks.map((b) => ({ route: b.route, rect: rectOf(b) }));
-    return { grid: placed, labels: signed.labels, badges: signed.marks, numbered, marks: moved };
+    return {
+      grid: placed,
+      labels: signed.labels,
+      badges: signed.marks,
+      numbered,
+      marks: moved,
+      crowded: signed.crowded,
+    };
   }
-  const found = labelEdges(spec, placed, routes, texts, { preferFlat: o.edgeText.flat, ...onLine });
-  const grid = spec.adaptive ? fitFrames(spec, placed, routes, found) : placed;
+  const labelled = labelEdges(spec, placed, routes, texts, { preferFlat: o.edgeText.flat, ...onLine });
+  const grid = spec.adaptive ? fitFrames(spec, placed, routes, labelled) : placed;
+  const found = spec.adaptive
+    ? signEdges(spec, grid, routes, texts, [], { preferFlat: o.edgeText.flat, ...onLine, placed: labelled }).labels
+    : labelled;
   const rects = new Map(grid.nodes.map((p) => [p.id, p.rect]));
   const { badges: numbers, marks: aside } = marksOf(model, routes, rects, m);
   const { marks: badges, labels } =
@@ -86,5 +106,5 @@ export function signsOf(
       ? seatMarks(numbers, found, routes, { r: size.w / 2, room: NUMBER_ROOM })
       : { marks: numbers, labels: found };
   const numbered = badges.map((b) => ({ route: b.route, rect: rectOf(b) }));
-  return { grid, labels, badges, numbered, marks: inside(grid, aside) };
+  return { grid, labels, badges, numbered, marks: inside(grid, aside), crowded: [] };
 }

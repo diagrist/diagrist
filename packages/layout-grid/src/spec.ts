@@ -59,10 +59,11 @@ export interface GridMetrics {
   readonly lead?: number;
 }
 
-/** A column of the grid; without a width it is `nodeW` wide. */
+/** A column of the grid, `nodeW` wide without a width; `gap` is the least gap right of it, as `GridRow.gap`. */
 export interface GridColumn {
   readonly name: string;
   readonly width?: number;
+  readonly gap?: number;
 }
 
 /** A row of the grid; `gap` is the least gap below it, for kinds that need more room than the grid gives. */

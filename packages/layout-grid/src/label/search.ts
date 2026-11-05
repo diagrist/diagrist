@@ -17,6 +17,8 @@ const LINE_GAP = DEFAULT_THRESHOLDS.labelClear + 1;
 export interface SearchOptions {
   readonly preferFlat: boolean;
   readonly onLine?: OnLine;
+  /** Texts on their line may also stand beside its vertical pieces, as beside a twin too close for a text across. */
+  readonly beside?: boolean;
 }
 
 interface Piece {
@@ -51,7 +53,10 @@ function offsets(len: number, room: number): number[] {
   return out;
 }
 
-/** Every way the texts of a route may stand, in the order they are tried. */
+/**
+ * Every way the texts of a route may stand, in the order they are tried; texts that stand on their line try every
+ * spot on it first and then, with `beside`, the spots beside its vertical pieces.
+ */
 function* candidates(
   route: Route,
   i: number,
@@ -59,9 +64,23 @@ function* candidates(
   m: GridMetrics,
   o: SearchOptions,
 ): Generator<EdgeLabel[]> {
+  yield* waysOf(route, i, text, m, o, o.onLine !== undefined);
+  if (o.onLine && o.beside) yield* waysOf(route, i, text, m, o, false);
+}
+
+/** The ways of `candidates`, on the line with `on`, else beside it. */
+function* waysOf(
+  route: Route,
+  i: number,
+  text: EdgeText,
+  m: GridMetrics,
+  o: SearchOptions,
+  on: boolean,
+): Generator<EdgeLabel[]> {
   const straight = route.points.length === 2;
   for (const piece of piecesOf(route.points, o.preferFlat)) {
-    const places: Place[] = o.onLine
+    if (o.onLine && !on && piece.horizontal) continue;
+    const places: Place[] = on
       ? ['on']
       : piece.horizontal
         ? [...(straight && text.name && text.detail ? (['split'] as const) : []), 'above', 'below']
@@ -70,7 +89,7 @@ function* candidates(
           : ['left', 'right'];
     for (const lines of stacks(text, !piece.horizontal)) {
       const along = piece.horizontal ? widthOf(lines, m) : lines.length * m.labelLineH;
-      for (const d of offsets(piece.len, o.onLine ? along + 2 * END : 0)) {
+      for (const d of offsets(piece.len, on ? along + 2 * END : 0)) {
         const t = 0.5 + d / Math.max(1, piece.len);
         const at: Point = [piece.a[0] + (piece.b[0] - piece.a[0]) * t, piece.a[1] + (piece.b[1] - piece.a[1]) * t];
         for (const place of places) yield placeStack(lines as Line[], at, place, i, m);

@@ -15,7 +15,7 @@ export function columns(tree: Tree): { cols: Column[]; width: number } {
   let x = m.marginX + (m.indent ?? 0);
   tree.spec.cols.forEach((c, i) => {
     const prev = tree.spec.cols[i - 1];
-    if (prev) x += prefix(prev.name) === prefix(c.name) ? m.subColGap : m.colGap;
+    if (prev) x += Math.max(prefix(prev.name) === prefix(c.name) ? m.subColGap : m.colGap, prev.gap ?? 0);
     const w = c.width ?? m.nodeW;
     cols.push({ name: c.name, x, w });
     x += w;

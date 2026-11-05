@@ -21,7 +21,8 @@ export interface RouteMark {
  * them, and marks on routes as texts keyed `<edge>.number`, or by their own name. A mark sits near the start of its edge, so it belongs to
  * the innermost frame around the start that holds it, else to the frame of both ends. In a channel grid texts and
  * marks stand where they find room, so both belong to the innermost frame around either end that holds them, else
- * to the frame of both ends. Spans come from the spec.
+ * to the frame of both ends; so do the texts of an adaptive grid, which move to a clear spot when theirs is not.
+ * Spans come from the spec.
  */
 export function placedOf(
   spec: GridSpec,
@@ -62,7 +63,7 @@ export function placedOf(
     const n = (counts.get(edge) ?? 0) + 1;
     counts.set(edge, n);
     const e = spec.edges.find((x) => x.id === edge);
-    const frame = e && (spec.channels === true ? endFrame(e, l.box) : sharedFrame(tree, e.from, e.to));
+    const frame = e && (spec.channels === true || spec.adaptive ? endFrame(e, l.box) : sharedFrame(tree, e.from, e.to));
     return [{ key: `${edge}.label.${n}`, kind: 'text', rect: l.box, ...within(frame), ...span(e?.source) }];
   });
   const numbers = marks.flatMap((m): Placed[] => {

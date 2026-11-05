@@ -16,6 +16,8 @@ export interface Plan {
   readonly b: Box;
   readonly shape: 'straight' | 'L' | 'Z' | 'loop';
   readonly lane: Lane | undefined;
+  /** The gap of the other axis a Z that bends three times runs along to its second box, after `lane`. */
+  readonly via?: Lane;
   readonly fromSide: Side;
   readonly toSide: Side;
 }
@@ -65,13 +67,16 @@ export function endsOf(p: Plan): Ends {
   };
 }
 
-/** Points of an edge: two for straight, a corner for L, two corners on the lane for Z, five around for a loop. */
+/**
+ * Points of an edge: two for straight, a corner for L, two corners on the lane for Z and a third with `via`, five
+ * around for a loop.
+ */
 export function edgePoints(
   shape: RouteShape,
   fromSide: Side,
   start: Point,
   end: Point,
-  lane: { readonly axis: Lane['axis']; readonly at: number } | undefined,
+  lane: { readonly axis: Lane['axis']; readonly at: number; readonly via?: number } | undefined,
   loopReach: number,
 ): Point[] {
   if (shape === 'straight') return [start, end];
@@ -84,6 +89,9 @@ export function edgePoints(
     const corner: Point = fromSide === 'top' || fromSide === 'bottom' ? [start[0], end[1]] : [end[0], start[1]];
     return [start, corner, end];
   }
+  const via = lane.via;
+  if (via !== undefined && lane.axis === 'col') return [start, [lane.at, start[1]], [lane.at, via], [end[0], via], end];
+  if (via !== undefined) return [start, [start[0], lane.at], [via, lane.at], [via, end[1]], end];
   if (lane.axis === 'col') return [start, [lane.at, start[1]], [lane.at, end[1]], end];
   return [start, [start[0], lane.at], [end[0], lane.at], end];
 }

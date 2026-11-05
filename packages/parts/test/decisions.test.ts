@@ -1,4 +1,4 @@
-import { type Shape, standardStyles, toSvg } from '@diagrist/core';
+import { type Shape, STANDARD_FONTS, standardStyles, textWidth, toSvg } from '@diagrist/core';
 import { checkKind, kind, read, readKind } from '@diagrist/lang';
 import { describe, expect, it } from 'vitest';
 import {
@@ -62,6 +62,40 @@ describe('decision bar', () => {
       2 * 32 + 2 * 12 + 6 * 'E1  Which store holds the orders of every tenant?'.length,
     );
     expect(stripWidth([], WORDS.en.open)).toBe(0);
+  });
+
+  it('wraps a question wider than its card, and every card of the bar grows by the lines it adds', () => {
+    const two = decisions(
+      'adr E1 "Which store holds the orders of every tenant of the platform?" = "Postgres"',
+      'adr E2 "Who?" = "Team A"',
+    );
+    const measure = { open: WORDS.en.open, font: STANDARD_FONTS.note };
+    const flat = decisionStrip(two, 100, 600);
+    const strip = decisionStrip(two, 100, 600, measure);
+    const [first, second] = strip.cards;
+    const lines = first?.questionLines ?? [];
+    expect(lines.length).toBeGreaterThan(1);
+    for (const line of lines) expect(textWidth(line, STANDARD_FONTS.note)).toBeLessThanOrEqual((first?.w ?? 0) - 24);
+    const extra = (lines.length - 1) * 14;
+    expect(second?.questionLines).toBeUndefined();
+    expect([first?.h, second?.h]).toEqual([78 + extra, 78 + extra]);
+    expect(second?.choice.y).toBe((flat.cards[1]?.choice.y ?? 0) + extra);
+    expect(strip.bottom).toBe(flat.bottom + extra);
+    const texts = stripShapes(strip, WORDS.en).flatMap((s) => (s.kind === 'text' ? [s.text] : []));
+    expect(texts).toEqual(expect.arrayContaining([...lines]));
+  });
+
+  it('wraps a consequence wider than its card below the choice, and the bar grows by its lines', () => {
+    const long = decisions(
+      'adr E1 "Who?" = "Team A" => "No credentials with us, but one more dependency on a vendor we do not run"',
+    );
+    const measure = { open: WORDS.en.open, font: STANDARD_FONTS.note };
+    const flat = decisionStrip(long, 100, 400);
+    const card = decisionStrip(long, 100, 400, measure).cards[0];
+    const lines = card?.consequenceLines ?? [];
+    expect(lines.length).toBeGreaterThan(1);
+    expect(card?.choice.y).toBe(flat.cards[0]?.choice.y);
+    expect(card?.h).toBe(78 + (lines.length - 1) * 14);
   });
 
   it('adds nothing to a picture without decisions', () => {
