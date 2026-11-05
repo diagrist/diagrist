@@ -1,0 +1,29 @@
+# Pressure: one abstract superclass with eight subclasses, a fan of eight generalizations into one box.
+diagram class "Zahlungsarten" subtitle="Eine Oberklasse, acht Zahlungsarten" locale=de
+class zahlungsart "Zahlungsart" abstract
+  "- kennung : String"
+  "+ autorisiere(betrag : Geld) : Ergebnis" abstract
+class karte "Kreditkarte"
+  "- pan : String"
+class debit "Debitkarte"
+  "- iban : String"
+class lastschrift "SEPA-Lastschrift"
+  "- mandat : String"
+class paypal "PayPal"
+  "- konto : String"
+class rechnung "Kauf auf Rechnung"
+  "- frist : int"
+class raten "Ratenkauf"
+  "- raten : int"
+class gutschein "Gutschein"
+  "- code : String"
+class wallet "Apple Pay"
+  "- token : String"
+rel karte -|> zahlungsart
+rel debit -|> zahlungsart
+rel lastschrift -|> zahlungsart
+rel paypal -|> zahlungsart
+rel rechnung -|> zahlungsart
+rel raten -|> zahlungsart
+rel gutschein -|> zahlungsart
+rel wallet -|> zahlungsart

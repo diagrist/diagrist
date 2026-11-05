@@ -1,0 +1,24 @@
+# Pressure: a composition chain five classes deep with two associations back to the root over three and four layers.
+diagram class "Bauprojekt" subtitle="Ein Aggregat mit tiefer Komposition" locale=de
+class projekt "Bauprojekt" stereotype="aggregate root"
+  "- nummer : String"
+class abschnitt "Bauabschnitt"
+  "- name : String"
+class gewerk "Gewerk"
+  "- art : String"
+class leistung "Leistungsposition"
+  "- menge : Kommazahl"
+class aufmass "Aufmaß"
+  "- datum : Datum"
+class firma "Nachunternehmer"
+  "- name : String"
+class bauleiter "Bauleiter"
+  "- name : String"
+rel projekt *-- abschnitt source=1 card=1..*
+rel abschnitt *-- gewerk source=1 card=1..*
+rel gewerk *-- leistung source=1 card=1..*
+rel leistung *-- aufmass source=1 card=0..*
+rel gewerk -> firma "vergeben an" source=0..* card=0..1
+rel aufmass -> bauleiter "geprüft von" source=0..* card=1
+rel bauleiter -- projekt "leitet" source=1 card=0..*
+rel firma -- projekt "beteiligt an" source=0..* card=0..*

@@ -1,0 +1,33 @@
+# Pressure: three packages of ports and adapters, adapters realizing ports across package borders in both directions.
+diagram class "Kontoführung" subtitle="Ports und Adapter" locale=de
+package adapter "adapter"
+package anwendung "anwendung"
+package domaene "domaene"
+class rest "KontoRestAdapter" in adapter
+  "+ ueberweise(dto : UeberweisungDto) : Antwort"
+class jpa "KontoJpaAdapter" in adapter
+  "+ lade(id : KontoId) : Konto"
+class kafka "BuchungKafkaAdapter" in adapter
+  "+ veroeffentliche(e : Ereignis) : void"
+interface ueberweisen "Überweisen" in anwendung
+  "+ ueberweise(befehl : Befehl) : void"
+interface laden "KontoLaden" in anwendung
+  "+ lade(id : KontoId) : Konto"
+interface melden "BuchungMelden" in anwendung
+  "+ melde(e : Ereignis) : void"
+class dienst "ÜberweisungsDienst" in anwendung
+  "+ ueberweise(befehl : Befehl) : void"
+class konto "Konto" in domaene
+  "- saldo : Geld"
+  "+ belaste(b : Geld) : void"
+class buchung "Buchung" in domaene
+  "- betrag : Geld"
+rel rest --> ueberweisen "ruft"
+rel dienst --|> ueberweisen
+rel jpa --|> laden
+rel kafka --|> melden
+rel dienst --> laden "nutzt"
+rel dienst --> melden "nutzt"
+rel dienst --> konto "ändert"
+rel konto *-- buchung source=1 card=0..*
+rel jpa --> konto "speichert"

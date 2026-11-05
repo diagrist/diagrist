@@ -1,0 +1,34 @@
+# Pressure: one entity pointing at four enumerations and two classes, a fan of six from one box with roles.
+diagram class "Ticket" subtitle="Ein Ticket und seine Wertelisten" locale=de
+class ticket "Ticket" stereotype="entity"
+  "- nummer : String"
+  "- titel : String"
+  "- eroeffnet : Datum"
+enum prio "Priorität"
+  "NIEDRIG"
+  "MITTEL"
+  "HOCH"
+  "KRITISCH"
+enum status "Status"
+  "NEU"
+  "IN_ARBEIT"
+  "WARTET"
+  "GELOEST"
+enum kanal "Kanal"
+  "EMAIL"
+  "TELEFON"
+  "PORTAL"
+enum kategorie "Kategorie"
+  "STOERUNG"
+  "ANFRAGE"
+  "AENDERUNG"
+class team "Team"
+  "- name : String"
+class kunde "Kunde"
+  "- nummer : String"
+rel ticket -> prio source=0..* card=1 role=prioritaet
+rel ticket -> status source=0..* card=1 role=status
+rel ticket -> kanal source=0..* card=1 role=eingang
+rel ticket -> kategorie source=0..* card=1 role=kategorie
+rel ticket -> team source=0..* card=0..1 role=zustaendig
+rel kunde -- ticket "meldet" source=1 card=0..*

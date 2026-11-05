@@ -1,0 +1,28 @@
+# Pressure: four classes realizing overlapping sets of four interfaces, a lattice of realizations that must cross.
+diagram class "Dokumentenablage" subtitle="Fähigkeiten als Schnittstellen" locale=de
+interface lesbar "Lesbar"
+  "+ lies() : Bytes"
+interface schreibbar "Schreibbar"
+  "+ schreibe(b : Bytes) : void"
+interface versioniert "Versioniert"
+  "+ versionen() : Liste"
+interface signierbar "Signierbar"
+  "+ signiere(z : Zertifikat) : void"
+class pdf "PdfDokument"
+  "- seiten : int"
+class scan "Scan"
+  "- aufloesung : int"
+class vertrag "Vertragsdokument"
+  "- parteien : Liste"
+class notiz "Notiz"
+  "- text : String"
+rel pdf --|> lesbar
+rel pdf --|> signierbar
+rel scan --|> lesbar
+rel vertrag --|> lesbar
+rel vertrag --|> schreibbar
+rel vertrag --|> versioniert
+rel vertrag --|> signierbar
+rel notiz --|> lesbar
+rel notiz --|> schreibbar
+rel notiz --|> versioniert

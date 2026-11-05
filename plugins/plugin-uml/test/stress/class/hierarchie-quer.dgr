@@ -1,0 +1,32 @@
+# Pressure: a two-level hierarchy of seven classes with three associations across its branches.
+diagram class "Fuhrpark" subtitle="Fahrzeuge, Fahrer und Wartung" locale=de
+class fahrzeug "Fahrzeug" abstract
+  "- kennzeichen : String"
+class pkw "Pkw" abstract
+  "- sitze : int"
+class nutz "Nutzfahrzeug" abstract
+  "- nutzlast : int"
+class elektro "Elektro-Pkw"
+  "- reichweite : int"
+class verbrenner "Verbrenner-Pkw"
+  "- hubraum : int"
+class transporter "Transporter"
+  "- laderaum : int"
+class lkw "Lkw"
+  "- achsen : int"
+class fahrer "Fahrer"
+  "- klasse : String"
+class ladekarte "Ladekarte"
+  "- nummer : String"
+class werkstatt "Werkstatt"
+  "- name : String"
+rel pkw -|> fahrzeug
+rel nutz -|> fahrzeug
+rel elektro -|> pkw
+rel verbrenner -|> pkw
+rel transporter -|> nutz
+rel lkw -|> nutz
+rel elektro -- ladekarte source=1 card=0..1
+rel lkw -- fahrer "gefahren von" source=0..* card=1..*
+rel werkstatt -- fahrzeug "wartet" source=0..1 card=0..*
+rel fahrer -- transporter "fährt" source=0..* card=0..*

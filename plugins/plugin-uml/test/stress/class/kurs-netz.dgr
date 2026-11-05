@@ -1,0 +1,24 @@
+# Pressure: an association class and an n-ary association among six classes with labelled associations around them.
+diagram class "Hochschule" subtitle="Einschreibung, Prüfung und Raumplanung" locale=de
+class student "Studierende"
+  "- matrikel : String"
+class modul "Modul"
+  "- kuerzel : String"
+class pruefung "Prüfung"
+  "- termin : Datum"
+class dozent "Lehrende"
+  "- name : String"
+class raum "Raum"
+  "- nummer : String"
+class belegung "Belegung"
+  "- semester : String"
+class note "Note"
+  "- wert : Kommazahl"
+assoc termin "Lehrveranstaltung"
+rel student -- modul source=0..* card=0..* class=belegung
+rel termin -- modul card=1
+rel termin -- dozent card=1..*
+rel termin -- raum card=1
+rel modul *-- pruefung source=1 card=1..*
+rel student -- pruefung "legt ab" source=0..* card=0..* class=note
+rel dozent -- pruefung "bewertet" source=1 card=0..*

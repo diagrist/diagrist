@@ -1,0 +1,19 @@
+# Pressure: six associations with names, roles and multiplicities between four classes, so texts crowd every gap.
+diagram class "Krankenhaus" subtitle="Personen, Fälle und Stationen" locale=de
+class patient "Patient"
+  "- versichertennummer : String"
+class fall "Behandlungsfall"
+  "- aufnahme : Datum"
+class arzt "Arzt"
+  "- lanr : String"
+class station "Station"
+  "- bezeichnung : String"
+class befund "Befund"
+  "- text : String"
+rel patient -- fall "hat" source=1 card=0..*
+rel arzt -- fall "behandelt" source=1..* card=0..* role=behandelnde srole=aerzte
+rel arzt -- fall "verantwortet" source=1 card=0..* role=faelle srole=hauptverantwortlich
+rel fall -> station "liegt auf" source=0..* card=1
+rel arzt -- station "arbeitet auf" source=1..* card=1..*
+rel fall *-- befund source=1 card=0..*
+rel arzt -- befund "erstellt" source=1 card=0..*

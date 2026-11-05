@@ -1,0 +1,41 @@
+# Pressure: a domain model of fourteen classes with generalization, composition and associations mixed in one picture.
+diagram class "Versicherung" subtitle="Domänenmodell Sachversicherung" locale=de
+class partner "Partner" abstract
+  "- nummer : String"
+class person "Person"
+  "- geburtsdatum : Datum"
+class firma "Firma"
+  "- handelsregister : String"
+class vertrag "Vertrag"
+  "- beginn : Datum"
+class deckung "Deckung"
+  "- summe : Geld"
+class baustein "Baustein" abstract
+  "- beitrag : Geld"
+class hausrat "Hausrat"
+class wohngebaeude "Wohngebäude"
+class glas "Glasbruch"
+class schaden "Schaden"
+  "- datum : Datum"
+class zahlung "Schadenzahlung"
+  "- betrag : Geld"
+class vermittler "Vermittler"
+  "- agentur : String"
+class objekt "Versichertes Objekt"
+  "- adresse : Adresse"
+enum sparte "Sparte"
+  "HAUSRAT"
+  "GEBAEUDE"
+rel person -|> partner
+rel firma -|> partner
+rel partner -- vertrag "schließt ab" source=1 card=0..*
+rel vertrag *-- deckung source=1 card=1..*
+rel deckung -> baustein source=0..* card=1
+rel hausrat -|> baustein
+rel wohngebaeude -|> baustein
+rel glas -|> baustein
+rel vertrag -- schaden "meldet" source=1 card=0..*
+rel schaden *-- zahlung source=1 card=0..*
+rel vermittler -- vertrag "betreut" source=0..1 card=0..*
+rel vertrag -> objekt source=0..* card=1..*
+rel baustein -> sparte source=0..* card=1
