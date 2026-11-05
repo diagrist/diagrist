@@ -55,9 +55,10 @@ Every line is a sentence the reader has to read, so each one must earn its place
 - **Keep one direction.** If dependencies point down, all of them point down. A picture whose arrows point
   whichever way they happen to point has nothing to read along. `concept` and `class` lay out in layers by
   direction, so a consistent direction gives a calm picture by itself.
-- **Use few kinds of line.** Solid for "uses", dashed for "notifies" is already two things to learn. With one or
-  two kinds of link, `concept` writes the verbs in the legend instead of on every line, which keeps the picture
-  quiet.
+- **Use few kinds of line.** Solid for "uses", dashed for "notifies" is already two things to learn. As long as
+  the lines of its links differ, `concept` writes the verbs in the legend instead of on every line, which keeps the
+  picture quiet; a link without `line=` takes a line no other link of the picture shows, so up to three links with
+  one head need no words on their lines.
 - **Avoid cycles, unless the cycle is the message.** A cycle forces a line against the reading direction. If it is
   real, such as a state machine's retry, let it be. If it is accidental, it usually means one of its lines is a
   different kind of relation.

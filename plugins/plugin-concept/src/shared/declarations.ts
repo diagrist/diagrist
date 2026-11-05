@@ -38,6 +38,8 @@ export interface LinkDecl {
   readonly from: readonly string[];
   readonly to: readonly string[];
   readonly line: LineName;
+  /** The author chose the line with `line=`; otherwise a picture may draw it otherwise to tell it from another link. */
+  readonly lined?: true;
   readonly head: HeadName;
   readonly each?: End;
   readonly single?: End;

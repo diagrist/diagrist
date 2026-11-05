@@ -79,3 +79,13 @@ describe('frames ordered by the pipeline', () => {
     expect(out).toBeLessThan(down);
   });
 });
+
+describe('tracks into one box', () => {
+  it('keep two pieces that enter one box apart, so they do not read as one line', () => {
+    const nodes = [box('a'), box('b'), box('c'), box('r', 64)];
+    const edges = [edge('a', 'r', { bundle: 'j' }), edge('b', 'r', { bundle: 'j' }), edge('c', 'r')];
+    const l = lay({ nodes, edges, layers: [['a', 'b', 'c'], ['r']] });
+    const level = (id: string) => l.routes.find((r) => r.edge === id)?.points[1]?.[1];
+    expect(level('c-r')).not.toBe(level('a-r'));
+  });
+});

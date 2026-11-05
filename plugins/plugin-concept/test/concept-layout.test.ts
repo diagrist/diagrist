@@ -77,6 +77,37 @@ describe('concept layout', () => {
     expect(second?.points[0]).toEqual(first?.points[0]);
     expect(first?.points).toHaveLength(4);
   });
+
+  const chain = [
+    'type t "T"',
+    'link feeds "liefert an" from=t to=t',
+    'link reads "liest" from=t to=t',
+    'item src "Quelle" is t',
+    'item a "A" is t',
+    'item b "B" is t',
+    'item c "C" is t',
+    'item user "Nutzer mit langem Namen" is t',
+    'rel src feeds a',
+    'rel a feeds b',
+    'rel b feeds c',
+    'rel user reads a',
+    'rel user reads b',
+  ];
+
+  it('draws two links that would look alike with different lines and keeps their words in the legend', () => {
+    const svg = concept('arrange=layers', ...chain).svg ?? '';
+    const lines = [...svg.matchAll(/<path d="M[^"]*" class="([^"]*)" marker-end/g)].map((m) => m[1]);
+    expect(new Set(lines).size).toBe(2);
+    expect(svg.match(/>liest</g)).toHaveLength(1);
+    const words = concept('arrange=layers', ...chain.map((l) => (l.startsWith('link') ? `${l} line=solid` : l)));
+    expect((words.svg ?? '').match(/>liest</g)?.length).toBeGreaterThan(1);
+  });
+
+  it('sets a chain of links straight below its head, whatever lines leave it beside', () => {
+    const result = concept('arrange=layers', ...chain);
+    const centre = (id: string) => rectOf(result, id).x + rectOf(result, id).w / 2;
+    expect([centre('b'), centre('c')]).toEqual([centre('a'), centre('a')]);
+  });
 });
 
 describe('arrangement', () => {

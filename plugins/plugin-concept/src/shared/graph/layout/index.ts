@@ -7,6 +7,7 @@ import type { Graph, GraphWords, Item, Relation } from '../model.js';
 import { inGrid, inLayers } from './arranged.js';
 import { inColumns } from './columns.js';
 import type { PlacedHead, PlacedVerb } from './heads.js';
+import { distinctLines } from './lines.js';
 import { GRAPH_FONTS as F, type ItemBox } from './metrics.js';
 import { drawn, edgeId } from './spec.js';
 
@@ -83,16 +84,18 @@ function legendText(s: Sample, locale: Locale, w: GraphWords): string {
 /**
  * Lays out a graph picture on `layout-grid`: a picture in columns on its grid with the heads of the columns, any
  * other in layers by the layered pipeline; then the legend of what the picture does not say itself, unless
- * `options` leave it out.
+ * `options` leave it out. Links the legend alone tells apart are drawn with lines that differ (`distinctLines`).
  */
 export function layoutGraph(
-  m: Graph,
+  model: Graph,
   w: GraphWords,
   title: string,
   locale: Locale,
   options: { readonly legend: boolean; readonly heads: boolean } = { legend: true, heads: true },
 ): GraphLayout {
-  const at = inColumns(m) ? inGrid(m, locale, options.heads) : inLayers(m, locale);
+  const columns = inColumns(model);
+  const m = distinctLines(model, (id) => columns && model.links.get(id)?.bare === false);
+  const at = columns ? inGrid(m, locale, options.heads) : inLayers(m, locale);
   const { boxes, routes, labels, heads } = at;
   const byId = new Map(m.items.map((i) => [i.id, i]));
   const items = at.nodes.flatMap((p): PlacedItem[] => {

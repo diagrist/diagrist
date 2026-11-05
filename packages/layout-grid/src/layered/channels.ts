@@ -10,6 +10,11 @@ export interface TrackPiece {
   readonly bottoms: readonly number[];
   readonly x1: number;
   readonly x2: number;
+  /**
+   * The boxes the piece leaves above and enters below, as `up:<id>` and `down:<id>`; two pieces that leave or enter one
+   * box keep `APART` from each other on a shared track.
+   */
+  readonly boxes?: readonly string[];
   track: number;
 }
 
@@ -21,7 +26,11 @@ export interface Piece extends TrackPiece {
 /** Two pieces need different tracks when they come this close along the gap. */
 const NEAR = 8;
 
-const overlap = (a: TrackPiece, b: TrackPiece) => a.x1 < b.x2 + NEAR && b.x1 < a.x2 + NEAR;
+/** Two pieces at one box need different tracks when they come this close, or they read as one line into it. */
+const APART = 48;
+
+const near = (a: TrackPiece, b: TrackPiece) => (a.boxes?.some((n) => b.boxes?.includes(n)) ? APART : NEAR);
+const overlap = (a: TrackPiece, b: TrackPiece) => a.x1 < b.x2 + near(a, b) && b.x1 < a.x2 + near(a, b);
 const inside = (v: number, p: TrackPiece) => v > p.x1 + 0.5 && v < p.x2 - 0.5;
 
 /**
@@ -47,7 +56,8 @@ export function piecesOf(groups: readonly Group[], ports: Ports): Piece[] {
     const x1 = Math.min(...all);
     const x2 = Math.max(...all);
     if (g.kind === 'single' && x2 - x1 <= 1) return [];
-    return [{ group: g, tops, bottoms, x1, x2, track: 0 }];
+    const boxes = [...new Set(g.links.flatMap((l) => [`up:${l.upper}`, `down:${l.lower}`]))];
+    return [{ group: g, tops, bottoms, x1, x2, boxes, track: 0 }];
   });
 }
 
