@@ -1,0 +1,32 @@
+# Pressure: three packages with five relations across package borders, two of them dependencies against the layers.
+diagram class "Mietwagen" subtitle="Drei Module und ihre Querbezüge" locale=de
+package buchung "buchung"
+package flotte "flotte"
+package abrechnung "abrechnung"
+class reservierung "Reservierung" in buchung
+  "- von : Datum"
+  "- bis : Datum"
+class kunde "Kunde" in buchung
+  "- fuehrerschein : String"
+class station "Station" in flotte
+  "- ort : String"
+class fahrzeug "Fahrzeug" in flotte
+  "- kennzeichen : String"
+class klasse "Fahrzeugklasse" in flotte
+  "- tagespreis : Geld"
+class rechnung "Rechnung" in abrechnung
+  "- nummer : String"
+class tarif "Tarif" in abrechnung
+  "+ preis(k : Fahrzeugklasse, tage : int) : Geld"
+class zahlung "Zahlung" in abrechnung
+  "- betrag : Geld"
+rel kunde -- reservierung "bucht" source=1 card=0..*
+rel reservierung -> klasse source=0..* card=1
+rel reservierung -> station "Abholung" source=0..* card=1
+rel station *-- fahrzeug source=1 card=0..*
+rel fahrzeug -> klasse source=0..* card=1
+rel rechnung -> reservierung source=0..1 card=1
+rel rechnung *-- zahlung source=1 card=0..*
+rel tarif --> klasse "liest"
+rel rechnung --> tarif "berechnet mit"
+rel kunde -- rechnung "erhält" source=1 card=0..*

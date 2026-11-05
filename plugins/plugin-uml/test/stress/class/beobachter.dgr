@@ -1,0 +1,30 @@
+# Pressure: observer and strategy patterns side by side, interfaces realized by three classes each and a dependency between the patterns.
+diagram class "Preisalarm" subtitle="Beobachter und Strategie" locale=de
+interface beobachter "PreisBeobachter"
+  "+ aktualisiere(p : Preis) : void"
+class kurs "Kursquelle"
+  "+ melde(b : PreisBeobachter) : void"
+  "+ benachrichtige() : void"
+class push "PushAlarm"
+  "+ aktualisiere(p : Preis) : void"
+class mail "MailAlarm"
+  "+ aktualisiere(p : Preis) : void"
+class depot "DepotAnzeige"
+  "+ aktualisiere(p : Preis) : void"
+interface regel "AlarmRegel"
+  "+ trifft(p : Preis) : boolean"
+class schwelle "Schwellwert"
+  "- grenze : Geld"
+class prozent "Prozentänderung"
+  "- prozent : int"
+class trend "Trendbruch"
+  "- tage : int"
+rel kurs -> beobachter source=1 card=0..* role=beobachter
+rel push --|> beobachter
+rel mail --|> beobachter
+rel depot --|> beobachter
+rel schwelle --|> regel
+rel prozent --|> regel
+rel trend --|> regel
+rel push -> regel source=0..* card=1 role=regel
+rel mail -> regel source=0..* card=1 role=regel
