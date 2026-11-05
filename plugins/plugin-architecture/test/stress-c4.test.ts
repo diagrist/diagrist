@@ -42,6 +42,7 @@ describe('the stress set of C4 pictures', () => {
 
   it('keeps every count within its budget: crossings, jogs, parallels, bends and the rest may only fall', () => {
     expect(new Set(Object.keys(entries).map((k) => k.split('#')[0])).size).toBe(names.length);
-    expect(compareBudget(golden, entries)).toMatchObject({ status: expect.stringMatching(/^(match|written)$/) });
+    const result = compareBudget(golden, entries);
+    expect(result.status === 'written' ? { status: 'match' } : result).toEqual({ status: 'match' });
   });
 });
