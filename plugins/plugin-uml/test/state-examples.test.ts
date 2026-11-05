@@ -2,20 +2,22 @@ import { compile } from '@diagrist/core';
 import { compareGolden } from '@diagrist/testkit';
 import { describe, expect, it } from 'vitest';
 import { umlPlugin } from '../src/index.js';
-import { exampleHashes, golden, stateNames, stateSource } from './compile.js';
+import { examplePictures, golden, stateNames, stateSource } from './compile.js';
 
 const plugins = [umlPlugin];
+const pictures = examplePictures('state');
 
 describe('state machine examples', () => {
-  it('all keep their pictures, checked by a SHA-256 per example', () => {
-    expect(compareGolden(golden('state-examples.sha256'), exampleHashes('state'))).toEqual({ status: 'match' });
-  });
-
   it.each(stateNames)('%s compiles without findings, twice to the same bytes', (name) => {
     const first = compile(stateSource(name), { plugins });
     expect(first.diagnostics).toEqual([]);
     expect(first.svg).toBeDefined();
     expect(compile(stateSource(name), { plugins }).svg).toBe(first.svg);
+    pictures.keep(name, first.svg ?? '');
+  });
+
+  it('all keep their pictures, checked by a SHA-256 per example', () => {
+    expect(compareGolden(golden('state-examples.sha256'), pictures.hashes())).toEqual({ status: 'match' });
   });
 
   it.each(['auftrag-parallel', 'freigabe-unterautomat'])('%s renders the reviewed picture', (name) => {
