@@ -9,6 +9,7 @@ import { channelSteps } from './channels.js';
 import type { RouteContext } from './context.js';
 import { type Loop, placeLoops, stateLoop } from './loops.js';
 import { spreadRails } from './rails.js';
+import { unslant } from './slants.js';
 import { centreSteps, cornerSteps, foldBacks } from './steps.js';
 
 /** The routes of a state machine and what belongs to them by index. */
@@ -31,13 +32,14 @@ function pointNodes(spec: GridSpec, grid: GridLayout): GridNode[] {
 }
 
 const tidy = (routes: readonly Route[], c: RouteContext) =>
-  cornerSteps(channelSteps(centreSteps(spreadRails(foldBacks(routes), c), c), c), c);
+  cornerSteps(channelSteps(centreSteps(spreadRails(foldBacks(unslant(routes, c)), c), c), c), c);
 
 /**
  * Routes of a state machine on `layout-grid`: the kind chooses the sides of each transition per attempt, keeps
  * frames of foreign states out of its way and lays loops itself; the grid searches the ways. A first pass shows where
  * other lines dock; then each loop moves to the freest corner of its state and the router lays the rest around it.
- * Rails, steps and corners are tidied after each pass.
+ * Rails, steps and corners are tidied after each pass, after a transition the grid found no way for is drawn
+ * orthogonal where it can.
  */
 export function routeStates(m: StateModel, spec: GridSpec, grid: GridLayout): Routing {
   const items = m.diagram.transitions.flatMap((t, i) => {
