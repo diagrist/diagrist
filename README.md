@@ -143,8 +143,10 @@ so a tool does not have to parse text.
 The agent skill in [`skills/diagrist`](skills/diagrist/SKILL.md) tells an agent how to work with Diagrist: settle
 the question, look the grammar up, write the file, check it until nothing is reported, and look at the PNG before
 handing it over. Its guides say what makes a picture good enough to show stakeholders, which kind answers which
-question and how to show a core with its extensions; its reference holds every kind, one file each. Copy the
-folder to where your agent looks for skills.
+question and how to show a core with its extensions; its reference holds every kind, one file each. Install it
+with `npx skills add https://diagrist.com` for any agent, or in Claude Code with
+`/plugin install diagrist --marketplace diagrist/diagrist`; [For agents](https://diagrist.com/docs/agents/) lists
+every way.
 
 The language pages, the CLI reference, the JSON Schema and the skill's reference are generated from the same
 tables that check the diagrams, so they cannot drift from what Diagrist accepts.

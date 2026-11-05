@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
+  "name": "diagrist",
+  "description": "The Diagrist agent skill: write, check and render .dgr diagrams good enough to show to stakeholders.",
+  "owner": {
+    "name": "Diagrist",
+    "url": "https://diagrist.com"
+  },
+  "plugins": [
+    {
+      "name": "diagrist",
+      "source": "./skills/diagrist",
+      "description": "Write, change, check and render Diagrist diagrams with the dgr command line, and make pictures good enough to show to stakeholders.",
+      "homepage": "https://diagrist.com/docs/agents/",
+      "repository": "https://github.com/diagrist/diagrist",
+      "license": "Apache-2.0",
+      "keywords": ["diagrams", "diagrams-as-code", "uml", "c4", "architecture"]
+    }
+  ]
+}

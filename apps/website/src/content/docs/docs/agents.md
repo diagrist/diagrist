@@ -54,13 +54,37 @@ with areas, and what to look at before handing a picture over. A generated refer
 language and the codes, one file each, so an agent reads only the kind it draws. The guides' examples are
 checked by the tests, and the reference comes from the same tables as `dgr`.
 
-Read it at [/skill.md](/skill.md). To install the whole folder where your agent looks for skills, for Claude Code
-for example:
+Read it at [/skill.md](/skill.md). Install the whole folder in one of three ways; each installs the same files.
+
+**Any agent, from this site.** The site publishes the skill by the
+[Agent Skills discovery](https://github.com/cloudflare/agent-skills-discovery-rfc) convention, an index at
+[/.well-known/agent-skills/index.json](/.well-known/agent-skills/index.json) that names the folder as an archive
+with its digest. The `skills` installer reads it and copies the skill to Claude Code, Codex, Cursor and the other
+agents it finds:
 
 ```sh
-mkdir -p .claude/skills
-curl -sL https://codeload.github.com/diagrist/diagrist/tar.gz/main \
-  | tar -xz -C .claude/skills --strip-components=2 diagrist-main/skills/diagrist
+npx skills add https://diagrist.com
+```
+
+`npx skills add diagrist/diagrist` installs the same folder from the repository.
+
+**Claude Code, as a plugin.** The repository is a plugin marketplace, so Claude Code installs the skill and keeps it
+current with every change on `main`:
+
+```sh
+/plugin install diagrist --marketplace diagrist/diagrist
+```
+
+On versions before 2.1.275, add the marketplace first with `/plugin marketplace add diagrist/diagrist`, then run
+`/plugin install diagrist@diagrist`.
+
+**As a file.** [diagrist.zip](/.well-known/agent-skills/diagrist.zip) holds the folder with `SKILL.md` at its root,
+for an agent that takes skills as an upload, such as claude.ai under Settings, Capabilities. The same folder as
+[diagrist.tar.gz](/.well-known/agent-skills/diagrist.tar.gz) unpacks into a skills directory:
+
+```sh
+mkdir -p .claude/skills/diagrist
+curl -sL https://diagrist.com/.well-known/agent-skills/diagrist.tar.gz | tar -xz -C .claude/skills/diagrist
 ```
 
 ## The docs as text
