@@ -16,7 +16,7 @@ const PENDING: Readonly<Record<string, readonly string[]>> = {
   'lange-ereignisse.dgr': ['label/near', 'through'],
   'parallel-drei.dgr': ['label/near', 'through'],
   'protokoll.dgr': ['label/near', 'through'],
-  'punkte.dgr': ['label/near', 'label/overlap'],
+  'punkte.dgr': ['label/overlap'],
   'schleifen.dgr': ['label/near'],
   'storno-ueberall.dgr': ['label/near', 'ports/spacing', 'through'],
 };
