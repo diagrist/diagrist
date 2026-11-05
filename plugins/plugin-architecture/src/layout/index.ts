@@ -1,6 +1,6 @@
 import type { Placed, Point, Rect } from '@diagrist/core';
 import type { Locale } from '@diagrist/lang';
-import { bottom, type EdgeLabel, placedOf, placeGrid, type Route, right, routeEdges } from '@diagrist/layout-grid';
+import { bottom, type EdgeLabel, placedOf, type Route, right } from '@diagrist/layout-grid';
 import { decisionStrip, type Legend, legendLayout, type Sheet, type Strip } from '@diagrist/parts';
 import { lookOf } from '../looks/index.js';
 import type { Look } from '../looks/look.js';
@@ -10,6 +10,7 @@ import type { Texts } from '../texts/index.js';
 import { type NodeArt, nodeArt } from './art.js';
 import { type BandSheet, bandFrameOf, bandSheetOf } from './bands/index.js';
 import { type Context, contextOf } from './focus.js';
+import { placeSigned } from './grown.js';
 import { type FrameHead, frameHead } from './heads.js';
 import { headTexts, insideTexts } from './inside.js';
 import { type LayerArt, layerArts } from './layers.js';
@@ -17,7 +18,6 @@ import { legendItems, type Sample } from './legend.js';
 import { type Badge, type Mark, markRect } from './marks.js';
 import { type NoteArt, noteArts } from './notes.js';
 import { sheetFor } from './sheet.js';
-import { signsOf } from './signs.js';
 import { crestOf, gridSpecOf } from './spec.js';
 
 /** An element in the picture with everything inside it. */
@@ -70,10 +70,9 @@ export function layoutArchitecture(model: ArchitectureModel, texts: Texts, local
   const look = lookOf(model);
   const { metrics: m, options: o } = look;
   const frame = bandFrameOf(model, look);
-  const { spec, texts: edgeTexts } = gridSpecOf(frame.model, look, texts, frame);
-  const grid = placeGrid(spec);
-  const routes = routeEdges(spec, grid);
-  const { grid: pl, labels, badges, numbered, marks } = signsOf(model, spec, grid, routes, edgeTexts, look);
+  const given = gridSpecOf(frame.model, look, texts, frame);
+  const { spec, routes, signs: signed } = placeSigned(model, given.spec, given.texts, look);
+  const { grid: pl, labels, badges, numbered, marks } = signed;
   const lines: readonly (readonly Point[])[] = spec.adaptive ? routes.map((r) => r.points) : [];
   const byId = new Map(model.nodes.map((n) => [n.id, n]));
   const nodes = pl.nodes.flatMap((p) => {

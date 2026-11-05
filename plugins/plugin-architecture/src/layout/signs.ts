@@ -33,6 +33,8 @@ export interface Signs {
   readonly badges: readonly Badge[];
   readonly numbered: readonly { readonly route: number; readonly rect: Rect }[];
   readonly marks: readonly Mark[];
+  /** Routes whose texts found no clear spot in a channel grid, for its gutters to grow (`gutterRoom`). */
+  readonly crowded: readonly number[];
 }
 
 /** The room texts keep from a flow number in a channel grid, besides the pad every sign keeps. */
@@ -75,10 +77,20 @@ export function signsOf(
       return spot ? { ...k, x: spot[0], y: spot[1] } : k;
     });
     const numbered = signed.marks.map((b) => ({ route: b.route, rect: rectOf(b) }));
-    return { grid: placed, labels: signed.labels, badges: signed.marks, numbered, marks: moved };
+    return {
+      grid: placed,
+      labels: signed.labels,
+      badges: signed.marks,
+      numbered,
+      marks: moved,
+      crowded: signed.crowded,
+    };
   }
-  const found = labelEdges(spec, placed, routes, texts, { preferFlat: o.edgeText.flat, ...onLine });
-  const grid = spec.adaptive ? fitFrames(spec, placed, routes, found) : placed;
+  const labelled = labelEdges(spec, placed, routes, texts, { preferFlat: o.edgeText.flat, ...onLine });
+  const grid = spec.adaptive ? fitFrames(spec, placed, routes, labelled) : placed;
+  const found = spec.adaptive
+    ? signEdges(spec, grid, routes, texts, [], { preferFlat: o.edgeText.flat, ...onLine, placed: labelled }).labels
+    : labelled;
   const rects = new Map(grid.nodes.map((p) => [p.id, p.rect]));
   const { badges: numbers, marks: aside } = marksOf(model, routes, rects, m);
   const { marks: badges, labels } =
@@ -86,5 +98,5 @@ export function signsOf(
       ? seatMarks(numbers, found, routes, { r: size.w / 2, room: NUMBER_ROOM })
       : { marks: numbers, labels: found };
   const numbered = badges.map((b) => ({ route: b.route, rect: rectOf(b) }));
-  return { grid, labels, badges, numbered, marks: inside(grid, aside) };
+  return { grid, labels, badges, numbered, marks: inside(grid, aside), crowded: [] };
 }

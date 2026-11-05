@@ -10,6 +10,7 @@ export {
   type Side,
 } from './geometry.js';
 export { grow } from './grow.js';
+export { type GutterRoom, gutterRoom, widen } from './label/gutters.js';
 export { type LabelOptions, labelEdges, placeLabels } from './label/index.js';
 export { cheapest, type Occupancy, occupancy } from './label/occupancy.js';
 export type { OnLine } from './label/on-line.js';

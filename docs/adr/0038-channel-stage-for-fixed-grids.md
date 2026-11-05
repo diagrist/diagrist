@@ -1,7 +1,7 @@
 # 38. A channel stage for fixed grids: ports, tracks and signs that keep clear
 
 Date: 2026-11-05. Status: accepted by the owner (05.11.2026, plan "C4 to zero line findings", decisions D1 to D5).
-Builds on ADR 0015, 0016, 0021, 0034 and 0035.
+Builds on ADR 0015, 0016, 0021, 0034 and 0035. Amended the same day: gutters grow (D2), see the last section.
 
 ## Context
 
@@ -43,8 +43,8 @@ the track assigner above all, can serve a fixed grid as well.
    the frame of both ends: a text beside a line that leaves a frame may stand inside it.
 
 The plan proposed a gutter that grows when its tracks need more room (D2) and a fallback for texts of a removed edge
-that leave their place to a kept twin (D3). Neither was needed: the C4 examples find their tracks and their spots
-without them. Labels beside vertical pieces come from one search for all pieces instead of a second function next
+that leave their place to a kept twin (D3). Neither was needed for the C4 examples; the stress set needed D2 (see the
+amendment). Labels beside vertical pieces come from one search for all pieces instead of a second function next
 to the layered pipeline's `seatLabel`, which seats one label per edge at its start and knows no frames.
 
 ## Consequences
@@ -52,6 +52,31 @@ to the layered pipeline's `seatLabel`, which seats one label per edge at its sta
 C4 moved onto the stage with a second byte baseline for every C4 picture, and into the kernel's line check with a
 `labelNear` of 10, its label gap (D1), after its adaptive router learnt to keep a lead of 24 pixels into a head
 (`GridMetrics.lead`); `lineCheck: false` is gone, and no C4 example has a line or placement finding. A kind with a hand-placed grid gets presentable lines without a layout
-of its own; the search for spots is a few thousand cheap tests per picture. Gutters do not grow yet, so a crowded gap
-can still run out of tracks or room for texts; the search then takes the spot that meets least, and the line check
-says so.
+of its own; the search for spots is a few thousand cheap tests per picture. Gutters did not grow at first, so a crowded gap
+could run out of tracks or room for texts; the amendment below lets them grow.
+
+## Amendment: gutters grow, and four smaller rules (D2)
+
+The C4 stress set showed what the examples did not: a long text between the tracks of a gap, a box with more ends on
+one side than it holds, a Z that runs through a box on every gap it may take, and texts on two upright twins. So:
+
+1. **Gutters grow.** `signEdges` names the routes whose texts found no clear spot (`crowded`). `gutterRoom` asks, per
+   gap between columns and rows, for the room its tracks need, `laneGap` from either border, and for each crowded
+   text the growth of the one gap where it needs the least: beside a piece across the gap, or along a piece that runs
+   into it, between the piece's end or the gap's border and the outermost track, which stays centred. The kind sets
+   the room with `widen` as `GridColumn.gap` (new) and `GridRow.gap` and places again, at most three times, and keeps
+   a round only when fewer texts stay crowded. The author's grid stays; only its gaps widen.
+2. **A Z that crowds a side moves.** Where the ends of a side ask more than its free stretches hold, straight ends
+   centred twice the port spread apart and bent ones beside them, a Z between two boxes of one column or row takes
+   the gap on the other side of them, any other Z the gap across, if that runs through nothing and its new sides hold
+   it (`relieve`).
+3. **A Z blocked on every gap bends three times** (`detour`): out into a gap beside its first box, along it into a
+   gap of the other axis beside its second box, and in. Of the free ways, the one that crosses the fewest other
+   routes, then the shortest.
+4. **No bent end between straight twins**, whose gap belongs to their texts; and texts on two upright straight twins
+   in a look whose texts stand on their line may stand beside it, where a text across one would meet the other.
+5. **An adaptive grid's texts take part in the search for spots** (`SignOptions.placed`): those its labelling placed
+   stay where they are clear, the others move, and like a channel grid's they belong to the frame of either end.
+
+No example changed a byte: their texts found clear spots before. In the stress set the hard findings fell from 45 to
+3, in two pictures the burn-down names.

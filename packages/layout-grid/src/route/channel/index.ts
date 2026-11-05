@@ -4,8 +4,10 @@ import { type Board, type Box, obstaclesFor } from '../boxes.js';
 import { edgePoints, type Plan, plans } from '../grid.js';
 import { portPoint } from '../ports.js';
 import type { Routed } from '../routed.js';
+import { detour } from './detour.js';
 import { freeOf, intersect } from './free.js';
 import { channelPorts } from './ports.js';
+import { relieve } from './relieve.js';
 import { zLanes } from './tracks.js';
 
 const flat = (side: Side): boolean => side === 'top' || side === 'bottom';
@@ -71,17 +73,9 @@ function belowCaption(board: Board, r: Routed): Routed {
   return { ...r, points };
 }
 
-/**
- * Routes of a fixed grid through its channels (ADR 0038): shape and sides as `gridRoutes` chooses them, with the
- * heads of frames where their kind draws them as obstacles; ends spread over the free stretches of their sides, two
- * edges between the same boxes on ports of their own; and the middle pieces of the Zs of one gap on tracks of their
- * own; an end below a node starts below its caption. A route the kind laid itself is kept, as a loop.
- */
-export function channelRoutes(board: Board): Routed[] {
+/** The routes of planned edges: ports per side, tracks per gap, the points between and the ends below captions. */
+function routesOf(board: Board, planned: readonly Plan[]): Routed[] {
   const m = board.tree.spec.metrics;
-  const planned = plans(board, (b, e) => obstaclesFor(b, e, true)).map((p) =>
-    bendUnshared(board, straightIfFacing(board, p, m.laneGap), m.laneGap),
-  );
   const ports = channelPorts(board, planned, m.portSpread, m.laneGap);
   const lanes = zLanes(planned, ports, m.laneGap);
   return planned.map((p): Routed => {
@@ -91,9 +85,33 @@ export function channelRoutes(board: Board): Routed[] {
     const start = portPoint(p.a.rect, p.fromSide, port.from);
     const end = portPoint(p.b.rect, p.toSide, port.to);
     const at = lanes.get(p);
-    const lane = p.lane && at !== undefined ? { axis: p.lane.axis, at } : undefined;
+    const lane = p.lane && at !== undefined ? { axis: p.lane.axis, ...at } : undefined;
     const points = edgePoints(p.shape, p.fromSide, start, end, lane, p.edge.loopReach ?? m.loopReach);
     const routed = { edge: p.edge, from: p.a, to: p.b, shape: p.shape, points, fromSide: p.fromSide, toSide: p.toSide };
     return belowCaption(board, routed);
   });
+}
+
+/**
+ * Routes of a fixed grid through its channels (ADR 0038): shape and sides as `gridRoutes` chooses them, with the
+ * heads of frames where their kind draws them as obstacles; ends spread over the free stretches of their sides, two
+ * edges between the same boxes on ports of their own; and the middle pieces of the Zs of one gap on tracks of their
+ * own. A Z that crowds a side moves to another gap (`relieve`), and one that runs through a box on every gap bends
+ * three times (`detour`), the way that crosses the fewest of the other routes. An end below a node starts below its
+ * caption. A route the kind laid itself is kept, as a loop.
+ */
+export function channelRoutes(board: Board): Routed[] {
+  const m = board.tree.spec.metrics;
+  const planned = relieve(
+    board,
+    plans(board, (b, e) => obstaclesFor(b, e, true)).map((p) =>
+      bendUnshared(board, straightIfFacing(board, p, m.laneGap), m.laneGap),
+    ),
+    m.portSpread,
+    m.laneGap,
+  );
+  const first = routesOf(board, planned);
+  const others = (i: number) => first.filter((_, k) => k !== i).map((r) => r.points);
+  const detoured = planned.map((p, i) => detour(board, p, others(i)));
+  return detoured.some((p, i) => p !== planned[i]) ? routesOf(board, detoured) : first;
 }

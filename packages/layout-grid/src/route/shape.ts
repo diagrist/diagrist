@@ -51,6 +51,13 @@ function zigzag(a: Box, b: Box, lane: Lane): Sides {
 
 type Blocked = (p1: Point, p2: Point) => boolean;
 
+/** A Z between `a` and `b` over `lane`, with its sides, when none of its three pieces runs through `obstacles`. */
+export function freeZigzag(a: Box, b: Box, lane: Lane, obstacles: readonly Box[]): Sides | undefined {
+  const blocked = (p1: Point, p2: Point) =>
+    obstacles.some((o) => o.id !== a.id && o.id !== b.id && segmentHitsRect(p1, p2, o.rect, 4));
+  return zigzagBlocked(a, b, lane, blocked) ? undefined : zigzag(a, b, lane);
+}
+
 function zigzagBlocked(a: Box, b: Box, lane: Lane, blocked: Blocked): boolean {
   const s = zigzag(a, b, lane);
   const start: Point =
