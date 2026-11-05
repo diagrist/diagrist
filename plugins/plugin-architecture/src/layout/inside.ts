@@ -28,7 +28,10 @@ export function insideTexts(nodes: readonly PlacedElement[], look: Look, texts: 
     const tech =
       n.tech === undefined ? undefined : line(art.tech, textWidth(n.tech, secondLine(n, fonts)), fonts.note, middle);
     const word = n.status && o.status === 'word' ? texts.statusInBox[n.status] : undefined;
-    const status = word === undefined ? undefined : line(art.status, textWidth(word, fonts.note), fonts.note, false);
+    const status =
+      word === undefined
+        ? undefined
+        : line(art.status, textWidth(word, fonts.note), fonts.note, middle && n.tech === undefined);
     const second = tech && status ? { ...tech, w: status.x + status.w - tech.x } : (tech ?? status);
     return [
       ...(n.label ? [{ key: `${n.id}.name`, rect: name, ...own }] : []),
