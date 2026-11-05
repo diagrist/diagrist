@@ -80,3 +80,25 @@ one side than it holds, a Z that runs through a box on every gap it may take, an
 
 No example changed a byte: their texts found clear spots before. In the stress set the hard findings fell from 45 to
 3, in two pictures the burn-down names.
+
+## Amendment: follow-ups from looking at the stress set
+
+1. **Facing ends keep apart.** Two Zs through one gap whose ends on the sides facing each other across it stood at
+   one height ran on one another there, or read as one line through the gap (`komponenten-zehn`). The ends of both
+   sides are then placed together as one train (`apartFacing`), and the single straight edge between them may move
+   off the middle to make room. A side whose bent ends all lead one way and do not fit beside its single straight end
+   moves that end too, instead of parting the train around it. Four stress pictures traded an overlap, counted as
+   `parallel`, for the crossing it hid; their crossing budgets were raised by hand for that count alone.
+2. **A detour stays inside the frames of its boxes.** Of the ways a blocked Z may bend three times, those that keep
+   every corner inside the frames holding both boxes come first, then the fewest crossings, then the shortest. In
+   `diff-entfernt` a line between two members of one frame ran out of it and around the whole picture to save one
+   crossing; it now runs up the gap beside its box for one crossing more, which its budget was raised by.
+3. **An empty column takes no room.** A column of a channel grid that no node stands in or reaches over and no frame
+   covers is as wide as nothing, so only its gaps stay between its neighbours. `kontext-stern` names two such columns
+   to set its neighbours two cells away from the middle; they took 384 pixels of nothing, and the picture shrinks from
+   1728 to 1344 pixels wide.
+4. **Long texts wrap.** No line of an edge's text that the search for spots places runs wider than 16 sizes of the
+   label font, two or three words, where its words allow: a longer name or detail wraps word by word into lines as
+   alike as the width allows, a detail first between its parts joined by ` · `. A text kept where the old rule put
+   it is kept only within that width too. Gutters grow for the wrapped text, so `lange-texte` shrinks from 1344 to
+   1152 pixels wide; no example changed, their texts fit before.

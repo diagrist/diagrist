@@ -1,7 +1,7 @@
 import { DEFAULT_THRESHOLDS, type Point, type Rect } from '@diagrist/core';
 import type { Route } from '../layout.js';
 import type { GridMetrics } from '../spec.js';
-import { type Line, type Place, placeStack, stacks, widthOf } from './blocks.js';
+import { type Line, type Place, placeStack, stacks, widthOf, wrapWidth } from './blocks.js';
 import type { Clear } from './clear.js';
 import type { OnLine } from './on-line.js';
 import type { EdgeLabel, EdgeText } from './types.js';
@@ -87,7 +87,7 @@ function* waysOf(
         : text.accent
           ? ['right', 'left']
           : ['left', 'right'];
-    for (const lines of stacks(text, !piece.horizontal)) {
+    for (const lines of stacks(text, !piece.horizontal, m)) {
       const along = piece.horizontal ? widthOf(lines, m) : lines.length * m.labelLineH;
       for (const d of offsets(piece.len, on ? along + 2 * END : 0)) {
         const t = 0.5 + d / Math.max(1, piece.len);
@@ -111,6 +111,10 @@ export function blockCost(
   return n;
 }
 
+/** Whether a line of `block` runs wider than `wrapWidth` though it could wrap. */
+export const tooWide = (block: readonly EdgeLabel[], m: GridMetrics): boolean =>
+  block.some((l) => l.box.w > wrapWidth(m) + 0.5 && l.text.includes(' '));
+
 /** The block of a route's texts as placed and what it meets; 0 is a clear spot. */
 export interface Found {
   readonly block: EdgeLabel[];
@@ -118,9 +122,9 @@ export interface Found {
 }
 
 /**
- * The texts of route `i` as one block: kept at `first` when that spot is clear, else at the first clear spot beside
- * or on one of its pieces, longest first and nearest the middle, wrapped where that helps; without one, where it
- * meets the least.
+ * The texts of route `i` as one block: kept at `first` when that spot is clear and no line of it runs wider than
+ * `wrapWidth`, else at the first clear spot beside or on one of its pieces, longest first and nearest the middle,
+ * wrapped where that helps; without one, where it meets the least.
  */
 export function searchBlock(
   route: Route,
@@ -131,7 +135,7 @@ export function searchBlock(
   m: GridMetrics,
   o: SearchOptions,
 ): Found {
-  let best: Found = { block: first, cost: blockCost(first, i, clear, o) };
+  let best: Found = { block: first, cost: tooWide(first, m) ? Infinity : blockCost(first, i, clear, o) };
   if (best.cost === 0) return best;
   for (const block of candidates(route, i, text, m, o)) {
     const c = blockCost(block, i, clear, o, best.cost);

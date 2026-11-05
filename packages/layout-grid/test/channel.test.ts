@@ -89,4 +89,48 @@ describe('the channel stage of a fixed grid', () => {
     const x = layout.nodes.find((n) => n.id === 'x')?.rect;
     expect(ends(routes[0])[0][1]).toBe((x?.y ?? 0) + (x?.h ?? 0) + 30);
   });
+
+  it('keeps two Zs crossing one gap off each other where they meet the facing sides', () => {
+    const s = spec('a b', 'r1 r2', ['x@a/r1', 'y@b/r1', 'u@a/r2', 'v@b/r2'], {
+      edges: [edge('x', 'y'), edge('u', 'v'), edge('x', 'v'), edge('u', 'y')],
+    });
+    const { routes } = routed(channels(s));
+    expect(routes.map((r) => r.shape)).toEqual(['straight', 'straight', 'Z', 'Z']);
+    const flats = routes.flatMap((r, i) =>
+      r.points.slice(1).flatMap((q, k) => {
+        const p = r.points[k] as Point;
+        return p[1] === q[1] ? [{ i, y: q[1], lo: Math.min(p[0], q[0]), hi: Math.max(p[0], q[0]) }] : [];
+      }),
+    );
+    for (const f of flats)
+      for (const g of flats.filter((h) => h.i > f.i && Math.abs(h.y - f.y) < 16))
+        expect([f.i, g.i, Math.min(f.hi, g.hi) <= Math.max(f.lo, g.lo) ? 'apart' : 'overlap']).toEqual([
+          f.i,
+          g.i,
+          'apart',
+        ]);
+    const heights = routes.slice(2).flatMap((r) => [r.points[0]?.[1], r.points.at(-1)?.[1]]);
+    expect(new Set(heights).size).toBe(4);
+  });
+
+  it('bends a Z blocked on every gap three times inside the frame that holds both its boxes', () => {
+    const s = spec(
+      'n w d x',
+      'o m u',
+      ['k@n/m', 'web@w/m', 'b@d/m', 'l@d/u', 'bus@w/u', 'mail@d/o', 'ben@x/o', 'db@x/m'],
+      {
+        groups: [group('f', ['web', 'b', 'l', 'bus', 'mail', 'ben', 'db'])],
+        edges: [edge('bus', 'ben'), edge('web', 'b'), edge('web', 'l')],
+      },
+    );
+    const { layout, routes } = routed(channels(s));
+    const frame = layout.groups.find((g) => g.id === 'f')?.rect;
+    if (!frame) throw new Error('missing');
+    const route = routes[0];
+    expect(route?.points).toHaveLength(5);
+    for (const [x, y] of route?.points ?? []) {
+      expect(x).toBeGreaterThanOrEqual(frame.x);
+      expect(y).toBeGreaterThanOrEqual(frame.y);
+    }
+  });
 });

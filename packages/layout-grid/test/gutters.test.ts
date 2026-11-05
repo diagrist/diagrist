@@ -17,10 +17,15 @@ const signed = (s: GridSpec, texts: readonly EdgeText[]) => {
   const routes = routeEdges(s, layout);
   return { layout, routes, ...signEdges(s, layout, routes, texts, [], {}) };
 };
-const LONG: EdgeText = {
+const WORDS: EdgeText = {
   edge: 'e0',
   name: 'Kontosalden und Positionen aller Kunden',
   detail: 'täglich 01:00 · 2 Mio. Sätze',
+};
+const LONG: EdgeText = {
+  ...WORDS,
+  name: 'Kontosalden-und-Positionen-aller-Kunden',
+  detail: 'täglich-01:00-2-Mio.-Sätze',
 };
 const segments = (r: Route) => r.points.slice(1).map((q, i) => [r.points[i] as Point, q] as const);
 const through = (r: Route, box: Rect) =>
@@ -48,6 +53,24 @@ describe('gaps of a channel grid that grow for their texts (ADR 0038, D2)', () =
     expect(second.crowded).toEqual([]);
     const k = second.layout.cols[1];
     expect(k?.x).toBe((first.layout.cols[1]?.x ?? 0) + gap);
+  });
+
+  it('wraps a long text into lines of two or three words beside the tracks instead of widening the gap', () => {
+    const s: GridSpec = {
+      ...spec('a b', 'r1 r2 r3', ['k@a/r2', 'h@a/r1', 'c@a/r3', 's@b/r2'], {
+        edges: [edge('k', 's', { id: 'e0' }), edge('h', 's', { id: 'e1' }), edge('c', 's', { id: 'e2' })],
+      }),
+      channels: true,
+    };
+    const { crowded, labels } = signed(s, [WORDS]);
+    expect(crowded).toEqual([]);
+    expect(labels.map((l) => l.text)).toEqual([
+      'Kontosalden und',
+      'Positionen aller Kunden',
+      'täglich 01:00',
+      '2 Mio. Sätze',
+    ]);
+    for (const l of labels) expect(l.box.w).toBeLessThanOrEqual(16 * s.metrics.labelFont.size);
   });
 
   it('asks nothing when every text found its spot, so the grid keeps its measures', () => {

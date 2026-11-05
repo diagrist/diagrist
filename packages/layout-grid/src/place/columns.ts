@@ -1,22 +1,32 @@
 import type { Column } from '../layout.js';
 import type { GridNode } from '../spec.js';
-import { partition, type Tree } from './extent.js';
+import { nodeExtent, partition, type Tree } from './extent.js';
 import { reserveFrames } from './reserve.js';
 
 const prefix = (name: string): string => name.split('.')[0] ?? name;
 
+/** Whether no node stands in column `i` or reaches over it, and no frame covers it. */
+const empty = (tree: Tree, i: number): boolean =>
+  !tree.spec.nodes.some((n) => {
+    const e = nodeExtent(tree, n.id);
+    return e !== undefined && e.cols[0] <= i && e.cols[1] >= i;
+  }) && !tree.spec.groups.some((g) => g.cover === tree.colNames[i]);
+
 /**
- * Columns from left to right. Neighbours with the same prefix before a dot stand closer. An adaptive grid widens
- * columns to what their nodes ask and moves them apart for the pads of frames between them.
+ * Columns from left to right. Neighbours with the same prefix before a dot stand closer. An empty column of a
+ * channel grid takes no room but its gaps, so boxes two columns apart stay apart without a column of nothing between
+ * them. An adaptive grid widens columns to what their nodes ask and moves them apart for the pads of frames between
+ * them.
  */
 export function columns(tree: Tree): { cols: Column[]; width: number } {
   const m = tree.spec.metrics;
   const cols: Column[] = [];
+  const channels = tree.spec.channels === true && !tree.spec.adaptive;
   let x = m.marginX + (m.indent ?? 0);
   tree.spec.cols.forEach((c, i) => {
     const prev = tree.spec.cols[i - 1];
     if (prev) x += Math.max(prefix(prev.name) === prefix(c.name) ? m.subColGap : m.colGap, prev.gap ?? 0);
-    const w = c.width ?? m.nodeW;
+    const w = c.width ?? (channels && empty(tree, i) ? 0 : m.nodeW);
     cols.push({ name: c.name, x, w });
     x += w;
   });

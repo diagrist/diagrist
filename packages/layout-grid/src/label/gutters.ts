@@ -53,7 +53,7 @@ const meet = (a: readonly [number, number], b: readonly [number, number]): boole
 
 /** The narrowest way a text stacks, and the flattest: widths and heights of its blocks. */
 function sizes(text: EdgeText, m: GridSpec['metrics']): { narrow: number; tall: number; wide: number; flat: number } {
-  const all: Line[][] = [...stacks(text, true), ...stacks(text, false)];
+  const all: Line[][] = [...stacks(text, true, m), ...stacks(text, false, m)];
   const measured = all.map((lines) => ({ w: widthOf(lines, m), h: lines.length * m.labelLineH }));
   const narrow = measured.reduce((a, b) => (b.w < a.w ? b : a), measured[0] ?? { w: 0, h: 0 });
   const flat = measured.reduce((a, b) => (b.h < a.h ? b : a), measured[0] ?? { w: 0, h: 0 });

@@ -94,6 +94,9 @@ describe('look=columns', () => {
         'grid rows top',
         'system x "X" tech="one" at a/top mark=E1',
         'system y "Y" tech="two" at e/top',
+        'system p "P" at b/top',
+        'system q "Q" at c/top',
+        'system r "R" at d/top',
         'adr E1 "Which?" = "This one" => "Because."',
       ).svg ?? '';
     const noteX = (svg: string) => Number(svg.match(/<text x="([\d.]+)" y="[\d.]+" class="margin-id">E1</)?.[1]);
