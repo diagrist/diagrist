@@ -1,0 +1,26 @@
+# Pressure: a composite state with deep history entered from three states outside, and an exit from every substate.
+diagram state "Waschmaschine" subtitle="Unterbrechen und fortsetzen" locale=de
+initial start
+state bereit "Bereit"
+state programm "Programm läuft"
+initial p0 in programm
+history zurueck in programm deep
+state waschen "Waschen" in programm
+state spuelen "Spülen" in programm
+state schleudern "Schleudern" in programm
+state pause "Pausiert"
+state stoerung "Störung" entry="Fehlercode anzeigen"
+state ende_prog "Fertig"
+final aus
+go start -> bereit
+go bereit -> programm on="Start"
+go p0 -> waschen
+go waschen -> spuelen on="after(40 min)"
+go spuelen -> schleudern on="after(15 min)"
+go schleudern -> ende_prog on="after(10 min)"
+go programm -> pause on="Pause gedrückt"
+go pause -> zurueck on="Start"
+go programm -> stoerung on="Wasser fehlt"
+go stoerung -> zurueck on="Fehler behoben"
+go stoerung -> bereit on="abbrechen"
+go ende_prog -> aus on="Tür geöffnet"

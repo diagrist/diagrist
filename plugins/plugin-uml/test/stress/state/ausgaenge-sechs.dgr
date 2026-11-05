@@ -1,0 +1,26 @@
+# Pressure: a fan of six transitions out of one state into six different outcomes, each with trigger and guard.
+diagram state "Kreditantrag" subtitle="Sechs Ausgänge aus der Prüfung" locale=de
+initial start
+state eingegangen "Eingegangen"
+state pruefung "In Prüfung" do="Bonität und Unterlagen prüfen"
+state bewilligt "Bewilligt"
+state abgelehnt "Abgelehnt"
+state nachforderung "Unterlagen fehlen"
+state gegenangebot "Gegenangebot"
+state zurueckgezogen "Zurückgezogen"
+state eskaliert "Bei Kreditkommission"
+final ende
+go start -> eingegangen
+go eingegangen -> pruefung on="vollständig"
+go pruefung -> bewilligt on="entscheiden" when="Score ≥ 600"
+go pruefung -> abgelehnt on="entscheiden" when="Score < 400"
+go pruefung -> gegenangebot on="entscheiden" when="400 ≤ Score < 600"
+go pruefung -> nachforderung on="Lücke gefunden"
+go pruefung -> zurueckgezogen on="Kunde zieht zurück"
+go pruefung -> eskaliert on="Betrag > 250.000 €"
+go bewilligt -> ende
+go abgelehnt -> ende
+go gegenangebot -> ende on="angenommen"
+go nachforderung -> ende on="after(30 Tage)"
+go zurueckgezogen -> ende
+go eskaliert -> ende on="Beschluss"

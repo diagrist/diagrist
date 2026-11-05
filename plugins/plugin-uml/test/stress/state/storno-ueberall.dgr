@@ -1,0 +1,24 @@
+# Pressure: a join of five cancellations from five states into one, beside the main chain.
+diagram state "Reisebuchung" subtitle="Stornieren ist bis zur Abreise möglich" locale=de
+initial start
+state anfrage "Angefragt"
+state angebot "Angebot erstellt"
+state gebucht "Gebucht"
+state angezahlt "Angezahlt"
+state bezahlt "Voll bezahlt"
+state unterwegs "Auf Reise"
+state storniert "Storniert" entry="Stornogebühr berechnen"
+final ende
+go start -> anfrage
+go anfrage -> angebot on="Angebot senden"
+go angebot -> gebucht on="annehmen"
+go gebucht -> angezahlt on="Anzahlung"
+go angezahlt -> bezahlt on="Restzahlung"
+go bezahlt -> unterwegs on="Abreise"
+go unterwegs -> ende on="Rückkehr"
+go anfrage -> storniert on="stornieren"
+go angebot -> storniert on="stornieren"
+go gebucht -> storniert on="stornieren"
+go angezahlt -> storniert on="stornieren"
+go bezahlt -> storniert on="stornieren"
+go storniert -> ende

@@ -1,0 +1,22 @@
+# Pressure: direction=right with a chain of seven states and two long back transitions under it.
+diagram state "Pull Request" subtitle="Von Entwurf bis Merge" direction=right locale=de
+initial start
+state entwurf "Entwurf"
+state offen "Offen"
+state review "Im Review"
+state aenderung "Änderungen angefragt"
+state genehmigt "Genehmigt"
+state ci "CI läuft"
+state gemerged "Gemerged"
+final ende
+go start -> entwurf
+go entwurf -> offen on="bereit"
+go offen -> review on="Reviewer zugewiesen"
+go review -> aenderung on="Änderungen angefragt"
+go aenderung -> review on="neuer Commit"
+go review -> genehmigt on="genehmigt"
+go genehmigt -> ci on="Merge angefordert"
+go ci -> gemerged on="grün"
+go ci -> offen on="rot"
+go gemerged -> ende
+go genehmigt -> entwurf on="zurück in Entwurf"

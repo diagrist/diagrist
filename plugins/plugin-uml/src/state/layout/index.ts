@@ -14,7 +14,7 @@ import type { StateModel } from '../model.js';
 import { stretchBars } from './bars.js';
 import { stateCells } from './cells.js';
 import { frameGrowth } from './growth.js';
-import { transitionTexts } from './labels.js';
+import { rightTwins, transitionTexts } from './labels.js';
 import { STATE_FONTS as F, STATE as S } from './metrics.js';
 import { placedState } from './placed.js';
 import { placeBorderPoints } from './points/index.js';
@@ -71,7 +71,9 @@ export function layoutState(m: StateModel, words: PictureTexts): StateLayout {
     const placed = placeBorderPoints(m, stretchBars(placeGrid(spec), m));
     const routing = routeStates(m, spec, placed);
     const { routes, context } = routing;
-    const texts = routes.flatMap((r, i) => transitionTexts(context.lines[i] ?? [], r, i));
+    const ends = new Map(routing.spec.edges.map((e) => [e.id, [e.from, e.to].sort().join('|')]));
+    const twins = rightTwins(routes, (r) => ends.get(r.edge) ?? r.edge);
+    const texts = routes.flatMap((r, i) => transitionTexts(context.lines[i] ?? [], r, i, twins.has(i)));
     const labels = placeLabels(routing.spec, placed, routes, texts);
     const reserve = outerReserve(routes, labels);
     if (reserve > 0 && run < 2 * PASSES) {

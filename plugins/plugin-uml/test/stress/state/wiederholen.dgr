@@ -1,0 +1,21 @@
+# Pressure: a chain of six states with three retries back up, one of them over four layers.
+diagram state "Zahlungsauftrag" subtitle="Wiederholungen bei Fehlern" locale=de
+initial start
+state erfasst "Erfasst"
+state validiert "Validiert"
+state gesendet "An Bank gesendet"
+state bestaetigt "Von Bank bestätigt"
+state gebucht "Gebucht"
+state fehler "Fehlgeschlagen" entry="Alarm auslösen"
+final ende
+go start -> erfasst
+go erfasst -> validiert on="prüfen"
+go validiert -> gesendet on="senden"
+go gesendet -> bestaetigt on="Quittung"
+go bestaetigt -> gebucht on="buchen"
+go gebucht -> ende
+go gesendet -> validiert on="Zeitüberschreitung" when="Versuche < 3"
+go bestaetigt -> erfasst on="Rückweisung" do="Daten korrigieren"
+go gebucht -> gesendet on="Storno der Bank"
+go gesendet -> fehler on="Zeitüberschreitung" when="Versuche = 3"
+go fehler -> ende

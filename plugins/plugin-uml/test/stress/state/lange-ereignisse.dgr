@@ -1,0 +1,17 @@
+# Pressure: every transition carries trigger, guard and effect, so long two-line texts sit in every gap.
+diagram state "Mietvertrag" subtitle="Ereignisse mit Bedingung und Wirkung" locale=de
+initial start
+state entwurf "Entwurf"
+state unterschrieben "Unterschrieben"
+state laufend "Laufend" do="Miete monatlich einziehen"
+state gekuendigt "Gekündigt"
+state beendet "Beendet"
+final ende
+go start -> entwurf
+go entwurf -> unterschrieben on="beide Parteien unterschreiben" when="Kaution hinterlegt" do="Übergabetermin vereinbaren"
+go unterschrieben -> laufend on="Mietbeginn erreicht" do="Schlüssel übergeben und Protokoll anlegen"
+go laufend -> gekuendigt on="Kündigung eingegangen" when="Frist von drei Monaten eingehalten" do="Auszugstermin bestätigen"
+go laufend -> gekuendigt on="fristlose Kündigung" when="zwei Monatsmieten offen" do="Rechtsabteilung informieren"
+go gekuendigt -> beendet on="Auszug" do="Kaution abrechnen"
+go gekuendigt -> laufend on="Kündigung zurückgenommen" when="Vermieter stimmt zu"
+go beendet -> ende
