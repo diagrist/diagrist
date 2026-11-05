@@ -1,0 +1,33 @@
+# Pressure: seventeen nodes without lanes, two decisions with three branches each and a merge that joins five lines.
+diagram activity "Paketzustellung" subtitle="Zustellversuch an der Haustür" locale=de
+initial start
+action ankommen "An Adresse ankommen"
+decision da "Empfänger da?"
+action uebergeben "Paket übergeben"
+action nachbar "Bei Nachbarn abgeben"
+decision ablage "Ablageort vereinbart?"
+action ablegen "Am Ablageort ablegen"
+action packstation "In Packstation legen"
+action filiale "In Filiale bringen"
+action karte "Benachrichtigung einwerfen"
+action foto "Foto als Nachweis"
+merge zugestellt
+action scannen "Zustellung scannen"
+final ende
+go start -> ankommen
+go ankommen -> da
+go da -> uebergeben "ja"
+go da -> nachbar "Nachbar da"
+go da -> ablage else
+go ablage -> ablegen "ja"
+go ablage -> packstation "Packstation nah"
+go ablage -> filiale else
+go ablegen -> foto
+go foto -> zugestellt
+go uebergeben -> zugestellt
+go nachbar -> karte
+go karte -> zugestellt
+go packstation -> zugestellt
+go filiale -> zugestellt
+go zugestellt -> scannen
+go scannen -> ende

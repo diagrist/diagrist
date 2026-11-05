@@ -1,0 +1,36 @@
+# Pressure: five lanes with a process that goes back and forth between the outer lanes and a loop over three lanes.
+diagram activity "Bauantrag" subtitle="Fünf Beteiligte vom Antrag bis zur Genehmigung" locale=de
+partition bauherr "Bauherrin"
+partition architekt "Architekt"
+partition amt "Bauamt"
+partition statik "Prüfstatiker"
+partition nachbarn "Nachbarn"
+initial start in bauherr
+action beauftragen "Planung beauftragen" in bauherr
+merge planen in architekt
+action plaene "Pläne zeichnen" in architekt
+action einreichen "Antrag einreichen" in architekt
+action vollstaendig "Vollständigkeit prüfen" in amt
+fork beteiligen in amt
+action statikpruefung "Statik prüfen" in statik
+action anhoerung "Nachbarn anhören" in nachbarn
+join ergebnisse in amt
+decision genehmigt "Genehmigungsfähig?" in amt
+action bescheid "Bescheid erteilen" in amt
+action bauen "Bau beginnen" in bauherr
+final ende in bauherr
+go start -> beauftragen
+go beauftragen -> planen
+go planen -> plaene
+go plaene -> einreichen
+go einreichen -> vollstaendig
+go vollstaendig -> beteiligen
+go beteiligen -> statikpruefung
+go beteiligen -> anhoerung
+go statikpruefung -> ergebnisse
+go anhoerung -> ergebnisse
+go ergebnisse -> genehmigt
+go genehmigt -> bescheid "ja"
+go genehmigt -> planen else
+go bescheid -> bauen
+go bauen -> ende

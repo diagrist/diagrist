@@ -1,0 +1,43 @@
+# Pressure: four decisions in a row, each with a branch that ends early, so finals stand beside the main path.
+diagram activity "Kreditkarte beantragen" subtitle="Vier Prüfungen hintereinander" locale=de
+partition kunde "Kundin"
+partition bank "Bank"
+initial start in kunde
+action antrag "Antrag ausfüllen" in kunde
+action identitaet "Identität prüfen" in bank
+decision ident "Ausweis gültig?" in bank
+action schufa "Schufa abfragen" in bank
+decision score "Score ausreichend?" in bank
+action limit "Limit festlegen" in bank
+merge belegt in bank
+decision einkommen "Einkommen belegt?" in bank
+action vertrag "Vertrag senden" in bank
+action unterschrift "Vertrag unterschreiben" in kunde
+decision zurueck "Rechtzeitig zurück?" in bank
+action karte "Karte versenden" in bank
+merge absagen in bank
+action absage1 "Absage senden" in bank
+action nachweis "Nachweis anfordern" in bank
+final ende in kunde
+flowfinal verfallen in bank
+final abgelehnt in bank
+go start -> antrag
+go antrag -> identitaet
+go identitaet -> ident
+go ident -> schufa "ja"
+go ident -> absagen "nein"
+go schufa -> score
+go score -> limit "ja"
+go score -> absagen "nein"
+go limit -> belegt
+go belegt -> einkommen
+go einkommen -> vertrag "ja"
+go einkommen -> nachweis "nein"
+go nachweis -> belegt
+go vertrag -> unterschrift
+go unterschrift -> zurueck
+go zurueck -> karte "ja"
+go zurueck -> verfallen "nein"
+go karte -> ende
+go absage1 -> abgelehnt
+go absagen -> absage1

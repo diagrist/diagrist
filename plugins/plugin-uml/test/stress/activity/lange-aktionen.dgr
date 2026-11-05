@@ -1,0 +1,27 @@
+# Pressure: actions whose texts wrap to two lines and guards of four words, in two lanes side by side.
+diagram activity "Störungsmeldung" subtitle="Vom Anruf bis zur Lösung" locale=de
+partition hotline "Service-Hotline"
+partition technik "Technischer Außendienst"
+initial start in hotline
+action aufnehmen "Störung mit Kundennummer und Adresse aufnehmen" in hotline
+decision bekannt "Störung im Gebiet schon bekannt?" in hotline
+action verweisen "Kunden auf bekannte Großstörung verweisen" in hotline
+action ferndiagnose "Ferndiagnose am Hausanschluss durchführen" in technik
+decision behoben "Mit Ferndiagnose behoben?" in technik
+action einsatz "Einsatz vor Ort mit Ersatzteilen planen" in technik
+action reparieren "Hausanschluss reparieren und protokollieren" in technik
+merge erledigt in hotline
+action rueckmelden "Rückmeldung an Kunden mit Ticketnummer geben" in hotline
+final ende in hotline
+go start -> aufnehmen
+go aufnehmen -> bekannt
+go bekannt -> verweisen "bereits als Großstörung erfasst"
+go bekannt -> ferndiagnose else
+go ferndiagnose -> behoben
+go behoben -> erledigt "Verbindung wieder stabil"
+go behoben -> einsatz else
+go einsatz -> reparieren
+go reparieren -> erledigt
+go verweisen -> erledigt
+go erledigt -> rueckmelden
+go rueckmelden -> ende

@@ -1,0 +1,28 @@
+# Pressure: four swimlanes with a hand-over between non-neighbouring lanes at every step.
+diagram activity "Urlaubsantrag" subtitle="Vier Beteiligte, Übergaben über zwei Bahnen" locale=de
+partition mitarbeiter "Mitarbeiterin"
+partition team "Teamleitung"
+partition personal "Personalabteilung"
+partition system "HR-System"
+initial start in mitarbeiter
+action stellen "Antrag stellen" in mitarbeiter
+action erfassen "Antrag erfassen" in system
+action pruefen "Antrag prüfen" in team
+decision ok "Vertretung geklärt?" in team
+action ablehnen "Ablehnung begründen" in team
+action resturlaub "Resturlaub prüfen" in personal
+action buchen "Urlaub buchen" in system
+action mitteilen "Bescheid lesen" in mitarbeiter
+merge zusammen in mitarbeiter
+final ende in mitarbeiter
+go start -> stellen
+go stellen -> erfassen
+go erfassen -> pruefen
+go pruefen -> ok
+go ok -> resturlaub "ja"
+go ok -> ablehnen "nein"
+go resturlaub -> buchen
+go buchen -> zusammen
+go ablehnen -> zusammen
+go zusammen -> mitteilen
+go mitteilen -> ende

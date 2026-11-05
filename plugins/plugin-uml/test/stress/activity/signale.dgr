@@ -1,0 +1,30 @@
+# Pressure: send and accept signals bouncing between three lanes four times, hand-overs in both directions.
+diagram activity "Arzttermin online" subtitle="Nachrichten zwischen Patientin, Praxis und Kasse" locale=de
+partition patient "Patientin"
+partition praxis "Praxis"
+partition kasse "Krankenkasse"
+initial start in patient
+send anfrage "Terminanfrage" in patient
+accept anfrage_ein "Anfrage erhalten" in praxis
+action pruefen "Versicherung prüfen" in praxis
+send kv "Versichertenstatus anfragen" in praxis
+accept kv_ein "Anfrage erhalten" in kasse
+action status "Status ermitteln" in kasse
+send antwort "Status senden" in kasse
+accept antwort_ein "Status erhalten" in praxis
+send vorschlag "Terminvorschlag" in praxis
+accept vorschlag_ein "Vorschlag erhalten" in patient
+action bestaetigen "Termin bestätigen" in patient
+final ende in patient
+go start -> anfrage
+go anfrage -> anfrage_ein
+go anfrage_ein -> pruefen
+go pruefen -> kv
+go kv -> kv_ein
+go kv_ein -> status
+go status -> antwort
+go antwort -> antwort_ein
+go antwort_ein -> vorschlag
+go vorschlag -> vorschlag_ein
+go vorschlag_ein -> bestaetigen
+go bestaetigen -> ende

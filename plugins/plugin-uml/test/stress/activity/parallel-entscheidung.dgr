@@ -1,0 +1,45 @@
+# Pressure: a fork whose three branches each hold a decision with its own merge, joined again in another lane.
+diagram activity "Release" subtitle="Drei Prüfungen parallel vor der Auslieferung" locale=de
+partition dev "Entwicklung"
+partition qa "Qualitätssicherung"
+partition ops "Betrieb"
+initial start in dev
+action bauen "Release bauen" in dev
+fork pruefen in dev
+action tests "Tests laufen lassen" in qa
+decision gruen "Alle grün?" in qa
+action fixen "Fehler beheben" in dev
+merge qa_ok in qa
+action scan "Sicherheitsscan" in ops
+decision luecken "Lücken gefunden?" in ops
+action patchen "Abhängigkeiten aktualisieren" in dev
+merge ops_ok in ops
+action notes "Release Notes schreiben" in dev
+decision review "Review ok?" in dev
+action ueberarbeiten "Notes überarbeiten" in dev
+merge dev_ok in dev
+join bereit in ops
+action ausrollen "Ausrollen" in ops
+final ende in ops
+go start -> bauen
+go bauen -> pruefen
+go pruefen -> tests
+go pruefen -> scan
+go pruefen -> notes
+go tests -> gruen
+go gruen -> qa_ok "ja"
+go gruen -> fixen "nein"
+go fixen -> qa_ok
+go scan -> luecken
+go luecken -> ops_ok "nein"
+go luecken -> patchen "ja"
+go patchen -> ops_ok
+go notes -> review
+go review -> dev_ok "ja"
+go review -> ueberarbeiten "nein"
+go ueberarbeiten -> dev_ok
+go qa_ok -> bereit
+go ops_ok -> bereit
+go dev_ok -> bereit
+go bereit -> ausrollen
+go ausrollen -> ende

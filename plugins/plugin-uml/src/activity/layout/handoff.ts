@@ -75,9 +75,10 @@ export function acceptMerges(merges: readonly GraphFlow[], laneOf: ReadonlyMap<s
 }
 
 /**
- * The first hand-over whose horizontal line would run through a foreign node or a long edge: in its layer something
- * that does not belong to its group lies between the two lanes (inclusive). `check` picks the hand-overs that are
- * checked; the groups are always formed by all `merges`.
+ * The first hand-over whose horizontal line would run through a foreign node or a long edge: in its layer a node
+ * other than its two ends lies between the two lanes (inclusive), of another group or of its own, as when a chain
+ * of hand-overs jumps a lane and comes back. `check` picks the hand-overs that are
+ * checked, by default all `merges`.
  */
 export function conflicting(
   merges: readonly GraphFlow[],
@@ -89,13 +90,12 @@ export function conflicting(
 ): GraphFlow | undefined {
   const layer = (id: string) => layerOf.get(id) ?? 0;
   const lane = (id: string) => laneOf.get(id) ?? 0;
-  const find = representatives(merges);
   return check.find((m) => {
     const l = layer(m.from);
     const lo = Math.min(lane(m.from), lane(m.to));
     const hi = Math.max(lane(m.from), lane(m.to));
     const inRange = (k: number) => k >= lo && k <= hi;
-    const nodes = ids.some((id) => find(id) !== find(m.from) && layer(id) === l && inRange(lane(id)));
+    const nodes = ids.some((id) => id !== m.from && id !== m.to && layer(id) === l && inRange(lane(id)));
     const long = forward.some((f) => layer(f.from) < l && l < layer(f.to) && inRange(lane(f.from)));
     return nodes || long;
   });
