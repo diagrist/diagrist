@@ -17,7 +17,7 @@ export function arrange(spec: LayeredSpec): Arrangement {
   const given = spec.layers;
   const ranked = rank(spec, given && new Map(given.flatMap((layer, l) => layer.map((n) => [n, l] as const))));
   const neighbours = neighboursOf(spec, ranked);
-  const places = new Map(given?.flatMap((layer) => layer.map((n, i) => [n, i] as const)));
+  const places = new Map(spec.reorder ? [] : given?.flatMap((layer) => layer.map((n, i) => [n, i] as const)));
   return { ranked, neighbours, layers: orderRanked(spec, ranked, neighbours, new Map(), places) };
 }
 

@@ -177,3 +177,8 @@ function improve(
   }
   return polish(best, adj, layerOf, cost);
 }
+
+/** An order improved by swapping neighbours and moving single nodes to their best place, while that lowers `cost`. */
+export function refine(layers: Layers, adj: Adjacency, layerOf: ReadonlyMap<string, number>, cost: OrderCost): Layers {
+  return sift(polish(layers, adj, layerOf, cost), adj, layerOf, cost);
+}

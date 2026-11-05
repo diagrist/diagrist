@@ -1,4 +1,6 @@
-import { orderLayers } from '../layers/order.js';
+import { orderLayers, refine } from '../layers/order.js';
+import { clustered, framesBroken } from './clusters.js';
+import { framePaths } from './paths.js';
 import type { Ranked } from './rank.js';
 import type { LayeredSpec } from './spec.js';
 
@@ -6,7 +8,10 @@ import type { LayeredSpec } from './spec.js';
 const DUMMY_WEIGHT = 8;
 /** What one foreign node between two members of a cluster costs, against 10 for a crossing. */
 const CLUSTER_SPREAD = 3;
-/** What a node kept to the outside of its layer costs for every other node beyond it: more than any crossing. */
+/**
+ * What a node kept to the outside of its layer costs for every other node beyond it, and what a foreign node inside a
+ * frame costs: more than any crossing.
+ */
 const PINNED = 10_000;
 
 /** The links between nodes of neighbouring layers and within a layer, with their weights. */
@@ -121,10 +126,12 @@ function reachOf(
 
 /**
  * The order of every layer, placeholders included: the barycentre sweeps and the thorough search of `layers`, with
- * a cost that weighs each crossing by the weights of both pieces, keeps nodes beside each other near, and counts
+ * a cost that weighs each crossing by the weights of both pieces, keeps nodes beside each other near, counts a long
+ * edge passing between them as the crossing it is, and counts
  * every foreign node standing between two members of one cluster, so clusters stay together where that is cheap.
  * A node in `pins` keeps to the left or right end of its layer, and nodes in `given` keep the order of their places
- * there, so only the placeholders find their places among them.
+ * there, so only the placeholders find their places among them. Frames are hard clusters: the nodes of a frame stand
+ * together in every layer and sibling frames in one order through the layers they share (`clustered`).
  */
 export function orderRanked(
   spec: LayeredSpec,
@@ -136,6 +143,7 @@ export function orderRanked(
   const cluster = new Map(spec.nodes.flatMap((n) => (n.cluster === undefined ? [] : [[n.id, n.cluster] as const])));
   const w = (a: string, b: string) => links.weight.get(key(a, b)) ?? 1;
   const kept = pins.size > 0 || given.size > 0;
+  const passing = (between: readonly string[]) => between.filter((n) => ranked.dummies.has(n)).length;
   const reach = new WeakMap<object, Reach>();
   const cost = (
     layers: string[][],
@@ -151,12 +159,21 @@ export function orderRanked(
       const pieces: (readonly [number, number, number])[] = [];
       for (const a of layer) for (const [b, wb] of down.get(a) ?? []) pieces.push([at(a), at(b), wb]);
       total += 10 * crossed(pieces);
-      for (const a of layer) for (const b of beside.get(a) ?? []) total += Math.abs(at(a) - at(b)) - 1;
+      for (const a of layer)
+        for (const b of beside.get(a) ?? []) {
+          total += Math.abs(at(a) - at(b)) - 1;
+          if (at(a) < at(b)) total += 10 * DUMMY_WEIGHT * passing(layer.slice(at(a) + 1, at(b)));
+        }
       if (kept) total += PINNED * misplaced(layer, pins, given);
       if (cluster.size > 0) total += CLUSTER_SPREAD * spread(layer, cluster);
     }
     return total;
   };
   const nodes = [...spec.nodes.map((n) => n.id), ...ranked.dummies];
-  return orderLayers(nodes, ranked.layerOf, links.adj, true, cost);
+  if ((spec.frames ?? []).length === 0) return orderLayers(nodes, ranked.layerOf, links.adj, true, cost);
+  const fp = framePaths(spec, ranked);
+  const hard: typeof cost = (layers, adj, layerOf) => cost(layers, adj, layerOf) + PINNED * framesBroken(layers, fp);
+  const first = orderLayers(nodes, ranked.layerOf, links.adj, true, hard);
+  const together = clustered(first, fp, (layers) => hard(layers, links.adj, ranked.layerOf));
+  return refine(together, links.adj, ranked.layerOf, hard);
 }

@@ -32,7 +32,9 @@ const CORNER = 4;
  * join aims at its member nearest the middle, so that member runs straight. Placeholders are a single point. Then every piece whose two ends are the only ones
  * on their sides runs straight where the two boxes share a stretch, and an end that is the only one on its side
  * follows the other end of its piece wherever its box reaches, up to `CORNER` from a corner when the jog it spares
- * is shorter than `jog`: no small jogs. `inset` keeps ends off the corners.
+ * is shorter than `jog`: no small jogs. `inset` keeps ends off the corners. `aside` are ends on the bottom of `upper`
+ * of lines that run below their layer to `lower` beside it; they take their place in the order like the others, so
+ * the outermost goes to the line whose other end lies furthest out.
  */
 export function portsOf(
   groups: readonly Group[],
@@ -43,6 +45,7 @@ export function portsOf(
   snap = 8,
   inset: (r: Rect) => number = corners,
   jog = 24,
+  aside: readonly Link[] = [],
 ): Ports {
   const top = new Map<Link, number>();
   const bottom = new Map<Link, number>();
@@ -69,6 +72,7 @@ export function portsOf(
     if (g.kind === 'join') add(lowers[0] as string, 'top', g.links, nearest(lowers[0] as string, uppers));
     else for (const l of g.links) add(l.lower, 'top', [l], x.get(g.kind === 'fan' ? l.lower : l.upper) ?? 0);
   }
+  for (const l of aside) add(l.upper, 'bottom', [l], x.get(l.lower) ?? 0);
   for (const l of groups.flatMap((g) => g.links)) {
     if (ranked.dummies.has(l.upper)) bottom.set(l, x.get(l.upper) ?? 0);
     if (ranked.dummies.has(l.lower)) top.set(l, x.get(l.lower) ?? 0);

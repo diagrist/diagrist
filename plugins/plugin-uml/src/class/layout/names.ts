@@ -18,13 +18,19 @@ export interface Taken {
 
 const grow = (r: Rect, m: number): Rect => ({ x: r.x - m, y: r.y - m, w: r.w + 2 * m, h: r.h + 2 * m });
 
-/** A name of width `w` at its place beside the segment from `p` to `q`, above or below, right or left of it. */
-function beside(text: string, w: number, p: Point, q: Point, side: 1 | -1, route: number): EdgeLabel {
+/** Steps a name slides by along a horizontal piece when the middle is taken. */
+const SLIDE = 16;
+
+/**
+ * A name of width `w` at its place beside the segment from `p` to `q`, above or below, right or left of it; along a
+ * horizontal piece `slide` pixels from its middle.
+ */
+function beside(text: string, w: number, p: Point, q: Point, side: 1 | -1, route: number, slide = 0): EdgeLabel {
   const size = STANDARD_FONTS.label.size;
   const gap = LAYERED.labelGap;
   const h = size + 2;
   if (p[1] === q[1]) {
-    const x = (p[0] + q[0]) / 2;
+    const x = (p[0] + q[0]) / 2 + slide;
     const top = side < 0 ? p[1] - gap - h : p[1] + gap;
     return { text, x, y: top + size, anchor: 'middle', box: { x: x - w / 2, y: top, w, h }, route, part: 'name' };
   }
@@ -50,7 +56,10 @@ function isFree(l: EdgeLabel, taken: Taken, names: readonly Rect[]): boolean {
   );
 }
 
-/** Places for a name along a route: above or below its longest horizontal pieces, then beside its vertical ones. */
+/**
+ * Places for a name along a route: above or below its longest horizontal pieces, from the middle outwards, then
+ * beside its vertical ones.
+ */
 function placesOf(text: string, w: number, r: Route, i: number): EdgeLabel[] {
   const pieces = r.points
     .slice(1)
@@ -60,8 +69,14 @@ function placesOf(text: string, w: number, r: Route, i: number): EdgeLabel[] {
     );
   const flat = pieces.filter(([p, q]) => p[1] === q[1]);
   const upright = pieces.filter(([p, q]) => p[0] === q[0]);
+  const slides = ([p, q]: readonly [Point, Point]) => {
+    const reach = Math.floor((Math.abs(q[0] - p[0]) - w) / 2 / SLIDE - 1);
+    return [0, ...Array.from({ length: Math.max(0, reach) }, (_, k) => [(k + 1) * SLIDE, -(k + 1) * SLIDE]).flat()];
+  };
   return [
-    ...flat.flatMap(([p, q]) => [beside(text, w, p, q, -1, i), beside(text, w, p, q, 1, i)]),
+    ...flat.flatMap((piece) =>
+      slides(piece).flatMap((d) => [-1, 1].map((side) => beside(text, w, piece[0], piece[1], side as 1 | -1, i, d))),
+    ),
     ...upright.flatMap(([p, q]) => [beside(text, w, p, q, 1, i), beside(text, w, p, q, -1, i)]),
   ];
 }

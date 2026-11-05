@@ -55,8 +55,8 @@ function marks(m: ClassModel, grid: GridLayout): MarkSpot[] {
 const EDGE = 48;
 
 /**
- * Layout of a class diagram on the layered pipeline of `layout-grid`: classes in the layers and order of the
- * automatic grid, placed and routed by the pipeline, packages as its frames; names beside their lines, end texts at
+ * Layout of a class diagram on the layered pipeline of `layout-grid`: classes in the layers of the automatic
+ * grid, ordered, placed and routed by the pipeline, packages as its frames; names beside their lines, end texts at
  * the ends, legs at the vertices of their diamond; then association classes, notes, marks and the decision bar.
  */
 export function layoutClass(m: ClassModel, words: PictureTexts): ClassLayout {
