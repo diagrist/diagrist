@@ -24,6 +24,7 @@ import {
   NUMBER_SIZE,
   TEXT_GAP,
 } from './marks.js';
+import { placeNodeMarks } from './node-marks.js';
 
 /** The texts of the edges, the flow numbers with the rectangles they cover, and the decision marks of a picture. */
 export interface Signs {
@@ -64,7 +65,14 @@ export function signsOf(
   if (spec.channels === true) {
     const rects = new Map(placed.nodes.map((p) => [p.id, p.rect]));
     const { badges: free, marks: aside } = marksOf(model, routes, rects, m);
-    const marks = inside(placed, aside);
+    const owners = new Map(model.nodes.flatMap((n) => (n.mark ? [[n.mark, n.id] as const] : [])));
+    const heads = spec.groups.flatMap((g) => {
+      const h = g.head;
+      const r = placed.groups.find((p) => p.id === g.id)?.rect;
+      if (!h || !r) return [];
+      return [{ x: (h.origin === 'middle' ? r.x + r.w / 2 : r.x) + h.x, y: r.y + h.y, w: h.w, h: h.h }];
+    });
+    const marks = o.marks === 'inside' ? inside(placed, aside) : placeNodeMarks(aside, owners, placed, routes, heads);
     const mark = { ...size, room: SIGN_ROOM };
     const onEdges = marks.filter((k) => k.route !== undefined);
     const avoid = marks.filter((k) => k.route === undefined).map(markRect);

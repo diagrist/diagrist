@@ -16,6 +16,7 @@ import { headTexts, insideTexts } from './inside.js';
 import { type LayerArt, layerArts } from './layers.js';
 import { legendItems, type Sample } from './legend.js';
 import { type Badge, type Mark, markRect } from './marks.js';
+import { nodeMarkTexts } from './node-marks.js';
 import { type NoteArt, noteArts } from './notes.js';
 import { sheetFor } from './sheet.js';
 import { crestOf, gridSpecOf } from './spec.js';
@@ -140,6 +141,7 @@ export function layoutArchitecture(model: ArchitectureModel, texts: Texts, local
       ]),
       ...insideTexts(nodes, look, texts),
       ...headTexts(frames, spec.groups),
+      ...nodeMarkTexts(marks, new Map(model.nodes.flatMap((n) => (n.mark ? [[n.mark, n.id] as const] : []))), pl),
     ],
   };
 }
