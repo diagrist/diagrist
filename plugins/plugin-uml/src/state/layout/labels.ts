@@ -51,9 +51,10 @@ function line(text: string, x: number, y: number, anchor: EdgeLabel['anchor'], r
 
 /**
  * The label of a transition: left of vertical pieces, above horizontal ones, right of a loop. Rails on the right or
- * below carry their text outside. Collisions are solved after this by `placeLabels`.
+ * below carry their text outside, and so does the right one of two lines side by side between the same states
+ * (`twin`). Collisions are solved after this by `placeLabels`.
  */
-export function transitionTexts(lines: readonly string[], r: Route, route: number): EdgeLabel[] {
+export function transitionTexts(lines: readonly string[], r: Route, route: number, twin = false): EdgeLabel[] {
   if (!lines.length || r.points.length < 2) return [];
   const self = r.shape === 'loop';
   const [a, b] = labelSegment(r);
@@ -63,8 +64,33 @@ export function transitionTexts(lines: readonly string[], r: Route, route: numbe
     const base = outside ? my + S.labelGap + F.label.size : my - S.labelGap - (lines.length - 1) * S.labelLineH;
     return lines.map((l, i) => line(l, mx, base + i * S.labelLineH, 'middle', route));
   }
-  const right = self ? r.fromSide === 'right' : outside;
+  const right = self ? r.fromSide === 'right' : outside || twin;
   const x = right ? mx + S.labelGap : mx - S.labelGap;
   const y0 = my - ((lines.length - 1) * S.labelLineH) / 2 + Math.round(F.label.size * 0.4);
   return lines.map((l, i) => line(l, x, y0 + i * S.labelLineH, right ? 'start' : 'end', route));
+}
+
+/**
+ * The routes whose text goes right of their line: of two transitions between the same states whose texts stand
+ * beside vertical pieces next to each other, the right one, so the two texts face away from each other. `pairOf`
+ * names the two states of a route, the same whichever way it runs.
+ */
+export function rightTwins(routes: readonly Route[], pairOf: (r: Route) => string): ReadonlySet<number> {
+  const vertical = routes.map((r) => {
+    const [a, b] = labelSegment(r);
+    const upright = r.shape !== 'loop' && !isRail(r) && a[0] === b[0] && a[1] !== b[1];
+    return upright ? { x: a[0], lo: Math.min(a[1], b[1]), hi: Math.max(a[1], b[1]) } : undefined;
+  });
+  const twins = new Set<number>();
+  routes.forEach((r, i) => {
+    const mine = vertical[i];
+    if (mine === undefined) return;
+    const beside = routes.some((o, j) => {
+      const other = vertical[j];
+      if (j === i || other === undefined || pairOf(o) !== pairOf(r) || other.x >= mine.x) return false;
+      return other.lo < mine.hi && other.hi > mine.lo;
+    });
+    if (beside) twins.add(i);
+  });
+  return twins;
 }
