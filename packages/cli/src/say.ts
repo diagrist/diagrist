@@ -34,9 +34,9 @@ const TEXTS: Readonly<Record<TextName, Texts>> = {
   noFindings: { en: (v) => `${v.file}: no findings`, de: (v) => `${v.file}: keine Befunde` },
   metrics: {
     en: (v) =>
-      `${v.picture}: ${v.lines} lines, ${v.crossings} crossings, ${v.bends} bends (at most ${v.maxBends} on one line), ${v.length} px of line, ${v.width} × ${v.height} px`,
+      `${v.picture}: ${v.lines} lines, ${v.crossings} crossings, ${v.overlaps} stretches on one another, ${v.bends} bends (at most ${v.maxBends} on one line, ${v.avoidable} avoidable), ${v.length} px of line, ${v.width} × ${v.height} px (${v.aspect} : 1)`,
     de: (v) =>
-      `${v.picture}: ${v.lines} Linien, ${v.crossings} Kreuzungen, ${v.bends} Knicke (höchstens ${v.maxBends} an einer Linie), ${v.length} px Linie, ${v.width} × ${v.height} px`,
+      `${v.picture}: ${v.lines} Linien, ${v.crossings} Kreuzungen, ${v.overlaps} Strecken aufeinander, ${v.bends} Knicke (höchstens ${v.maxBends} an einer Linie, ${v.avoidable} vermeidbar), ${v.length} px Linie, ${v.width} × ${v.height} px (${v.aspect} : 1)`,
   },
   watching: { en: (v) => `watching ${v.file}, Ctrl+C ends`, de: (v) => `beobachte ${v.file}, Strg+C beendet` },
   changed: { en: (v) => `changed ${v.file}`, de: (v) => `geändert: ${v.file}` },

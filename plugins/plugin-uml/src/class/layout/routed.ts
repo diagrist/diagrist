@@ -1,15 +1,16 @@
-import { type Rect, segmentMeetsRect, segmentsIntersect } from '@diagrist/core';
+import type { Rect } from '@diagrist/core';
 import {
   type EdgeLabel,
   type GridLayout,
   type LayeredLayout,
   layoutLayered,
-  polylineLength,
+  linesOfLaid,
   type Route,
+  type Score,
+  scoreOf,
 } from '@diagrist/layout-grid';
 import type { ClassRelation } from '../diagram.js';
 import type { ClassModel } from '../model.js';
-import { packagesAround } from '../model.js';
 import type { Cell } from './blocks.js';
 import { classCells } from './cells.js';
 import { legsAtVertices } from './extras.js';
@@ -28,12 +29,6 @@ export interface Routed {
   /** Edges drawn on a common trunk, by edge id. */
   readonly trunks: ReadonlyMap<string, string>;
 }
-
-/**
- * Weights of a trial: a line through a foreign class weighs more than any length, a crossing more than a detour,
- * and a bend reads worse than a straight line of the same length.
- */
-const WEIGHT = { error: 1000, crossing: 60, pixelsPerPoint: 20, bend: 6 } as const;
 
 /** A loop at the right side of a class: out to the right, down below the class and back into its bottom. */
 function loop(r: Rect, reach: number): Route {
@@ -96,42 +91,35 @@ function routeOn(m: ClassModel, cells: ReadonlyMap<string, Cell>): Routed {
   return { grid, routes: legsAtVertices(routes, relations, m, grid), relations, labels, trunks: layout.trunks };
 }
 
-const segments = (r: Route) => r.points.slice(1).map((q, k) => [r.points[k] ?? q, q] as const);
-
-/** What speaks against a trial, and whether nothing does: no line through a class or across another. */
-function judge(m: ClassModel, t: Routed): { cost: number; clean: boolean } {
-  const ownedBy = (id: string, end: string | undefined) => id === end || packagesAround(m, id).some((p) => p === end);
-  const errors = t.routes.filter((r, i) => {
-    const rel = t.relations[i];
-    const foreign = t.grid.nodes.filter((n) => !ownedBy(n.id, rel?.from) && !ownedBy(n.id, rel?.to));
-    return foreign.some((n) => segments(r).some(([p, q]) => segmentMeetsRect(p, q, n.rect, -1)));
-  }).length;
-  const shared = (a: Route, b: Route) =>
-    t.trunks.get(a.edge) !== undefined && t.trunks.get(a.edge) === t.trunks.get(b.edge);
-  const meet = (a: Route, b: Route) =>
-    !shared(a, b) && segments(a).some(([p, q]) => segments(b).some(([u, v]) => segmentsIntersect(p, q, u, v)));
-  const crossings = t.routes.reduce((sum, a, i) => sum + t.routes.slice(i + 1).filter((b) => meet(a, b)).length, 0);
-  const length = t.routes.reduce((sum, r) => sum + polylineLength(r.points), 0);
-  const bends = t.routes.reduce((sum, r) => sum + Math.max(0, r.points.length - 2), 0);
-  const cost =
-    WEIGHT.error * errors + WEIGHT.crossing * crossings + length / WEIGHT.pixelsPerPoint + WEIGHT.bend * bends;
-  return { cost, clean: errors + crossings === 0 };
+/** What speaks against a trial by `scoreOf`, and whether nothing hard does: no line through a box or across another. */
+function judge(t: Routed): Score {
+  return scoreOf(
+    linesOfLaid({
+      nodes: t.grid.nodes,
+      routes: t.routes,
+      ends: t.relations.map((r) => [r?.from ?? '', r?.to ?? '']),
+      labels: t.labels,
+      frames: t.grid.groups,
+      width: t.grid.width,
+      height: t.grid.bottom,
+    }),
+  );
 }
 
 /**
  * The boxes and lines of a class diagram. With many packages on the top level the arrangements of the search are
- * laid out in turn: the first without errors and crossings stays, since every trial costs a layout, else the
- * cheapest.
+ * laid out in turn: the first without a line through a box and without crossings stays, since every trial costs a
+ * layout, else the cheapest by `scoreOf`.
  */
 export function routeClass(m: ClassModel): Routed {
   const [first = new Map(), ...others] = classCells(m);
   const start = routeOn(m, first);
   if (!others.length) return start;
-  let best = { ...start, ...judge(m, start) };
+  let best = { ...start, ...judge(start) };
   for (const cells of others) {
     if (best.clean) break;
     const trial = routeOn(m, cells);
-    const verdict = judge(m, trial);
+    const verdict = judge(trial);
     if (verdict.cost < best.cost) best = { ...trial, ...verdict };
   }
   return best;

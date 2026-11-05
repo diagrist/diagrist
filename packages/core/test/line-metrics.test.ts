@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
   type Anchors,
-  avoidableBends,
   type LineNode,
   type LineRoute,
   lineMetrics,
@@ -27,8 +26,10 @@ describe('line metrics', () => {
     expect(lineMetrics({ nodes, routes })).toEqual({
       lines: 4,
       crossings: 2,
+      overlaps: 1,
       bends: 4,
       maxBends: 2,
+      avoidable: 0,
       length: 1140,
       parentsOff: 1,
       parentOffset: 20,
@@ -36,6 +37,7 @@ describe('line metrics', () => {
       childOffset: 10,
       width: 490,
       height: 240,
+      aspect: 2,
     });
   });
 
@@ -48,6 +50,28 @@ describe('line metrics', () => {
     ];
     const m = lineMetrics({ nodes, routes, width: 600, height: 300 });
     expect([m.parentsOff, m.childrenOff, m.width, m.height]).toEqual([0, 0, 600, 300]);
+  });
+});
+
+describe('lines on one another and the shape of the picture', () => {
+  it('count stretches where two foreign lines lie on one another, not those of a bundle or a pixel apart', () => {
+    const nodes = [box('a', 0, 0), box('b', 0, 200), box('c', 200, 0), box('d', 200, 200)];
+    const routes = [
+      line('1', 'a', 'd', [40, 40], [40, 120], [240, 120], [240, 200]),
+      line('2', 'c', 'b', [240, 40], [240, 120], [40, 120], [40, 200]),
+      line('3', 'c', 'd', [250, 40], [250, 200]),
+    ];
+    expect(lineMetrics({ nodes, routes }).overlaps).toBe(1);
+    const bundled = routes.map((r) => ({ ...r, bundles: ['x'] }));
+    expect(lineMetrics({ nodes, routes: bundled }).overlaps).toBe(0);
+    const apart = [routes[0] as LineRoute, line('2', 'c', 'b', [242, 40], [242, 122], [40, 122], [40, 200])];
+    expect(lineMetrics({ nodes, routes: apart }).overlaps).toBe(0);
+  });
+
+  it('measure the longer side over the shorter, a picture of no size as a square', () => {
+    expect(lineMetrics({ nodes: [], routes: [], width: 900, height: 300 }).aspect).toBe(3);
+    expect(lineMetrics({ nodes: [], routes: [], width: 200, height: 300 }).aspect).toBe(1.5);
+    expect(lineMetrics({ nodes: [], routes: [] }).aspect).toBe(1);
   });
 });
 
@@ -141,6 +165,8 @@ describe('lines of a drawing', () => {
 });
 
 describe('avoidable bends', () => {
+  const avoidableBends = (input: Parameters<typeof lineMetrics>[0]) => lineMetrics(input).avoidable;
+
   it('count a bent line whose boxes share a stretch for a straight one, unless a box stands in the way', () => {
     const nodes = [box('a', 0, 0), box('b', 30, 200)];
     const bent = line('1', 'a', 'b', [40, 40], [40, 120], [70, 120], [70, 200]);
