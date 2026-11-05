@@ -2,7 +2,9 @@ import { textWidth } from '@diagrist/core';
 import type { EdgeText, GridColumn, GridGroup, GridMetrics, GridNode, GridSpec, Pads } from '@diagrist/layout-grid';
 import type { Look } from '../looks/look.js';
 import type { ArchEdge, ArchGroup, ArchitectureModel, ArchNode } from '../model/types.js';
+import type { Texts } from '../texts/index.js';
 import { signedLabel } from './diff.js';
+import { headRect } from './head-rect.js';
 import { fixedWidth, isCircle, isFigure, nodeHeight, nodeWidth, secondLine } from './measure.js';
 import { tabStretch } from './tab.js';
 
@@ -35,12 +37,23 @@ function pads(g: ArchGroup, model: ArchitectureModel, look: Look): Pads {
   };
 }
 
-/** A column of only people is as wide as their longest text, at least `personW`. */
-function column(name: string, model: ArchitectureModel, look: Look): GridColumn {
+/**
+ * A column of only people is as wide as their longest text, at least `personW`. In a fixed grid a column holding
+ * boxes is as wide as the widest box alone in its place needs for its texts, at least `nodeW`, so no text runs past
+ * the right edge of its box; an adaptive grid asks its nodes itself (`demand`).
+ */
+function column(name: string, model: ArchitectureModel, look: Look, words: Texts): GridColumn {
   const { metrics: m, fonts } = look;
   const people = model.nodes.filter((n) => isFigure(n, look) && n.at?.col === name);
-  const others = model.nodes.some((n) => !isFigure(n, look) && n.at?.col === name);
-  if (people.length === 0 || others) return { name };
+  const others = model.nodes.filter((n) => !isFigure(n, look) && n.at?.col === name);
+  if (people.length === 0 || others.length > 0) {
+    const alone = others.filter(
+      (n) =>
+        !model.adaptive && !n.slot && n.width === undefined && !isCircle(n, look) && (n.span?.col ?? name) === name,
+    );
+    const widest = Math.max(m.nodeW, ...alone.map((n) => nodeWidth(n, look, words.statusInBox)));
+    return widest > m.nodeW ? { name, width: widest } : { name };
+  }
   const texts = people.flatMap((n) => [
     textWidth(n.label, fonts.name),
     n.tech ? textWidth(n.tech, secondLine(n, fonts)) : 0,
@@ -54,18 +67,18 @@ export const crestOf = (n: ArchNode, look: Look): number =>
 
 /**
  * The stretches of a node's sides no edge docks on: the name in the top edge with `nodeName: tab`, and below a card's
- * icon circle, there in an adaptive grid only, as the predecessor kept it free (docs/burn-down.md).
+ * icon circle.
  */
-function reserveOf(n: ArchNode, adaptive: boolean, look: Look): GridNode['reserve'] {
+function reserveOf(n: ArchNode, look: Look): GridNode['reserve'] {
   const tab = tabStretch(n, look);
   if (tab) return { top: tab };
   const crest = crestOf(n, look);
-  return crest > 0 && adaptive ? { top: { from: -crest, to: crest, origin: 'middle' } } : undefined;
+  return crest > 0 ? { top: { from: -crest, to: crest, origin: 'middle' } } : undefined;
 }
 
 function gridNode(n: ArchNode, at: NonNullable<ArchNode['at']>, adaptive: boolean, look: Look): GridNode {
   const { metrics: m, fonts } = look;
-  const reserve = reserveOf(n, adaptive, look);
+  const reserve = reserveOf(n, look);
   const circle = isCircle(n, look);
   const own = look.options.nodes === 'block' || n.height !== undefined ? nodeHeight(n, look) : undefined;
   const fixed = adaptive ? fixedWidth(n, look) : undefined;
@@ -90,19 +103,23 @@ function gridNode(n: ArchNode, at: NonNullable<ArchNode['at']>, adaptive: boolea
     rowHeight: nodeHeight(n, look),
     demand,
     shape: circle ? 'circle' : 'box',
-    ...(circle ? { caption: { ...caption, below: caption.below + (n.tech ? m.nodeLineH : 0) } } : {}),
+    ...(circle || isFigure(n, look)
+      ? { caption: { ...caption, below: caption.below + (n.tech ? m.nodeLineH : 0) } }
+      : {}),
     ...(reserve ? { reserve } : {}),
     source: n.source,
   };
 }
 
-function gridGroup(g: ArchGroup, model: ArchitectureModel, look: Look): GridGroup {
+function gridGroup(g: ArchGroup, model: ArchitectureModel, look: Look, texts: Texts): GridGroup {
+  const head = headRect(g, look, g.team ?? (g.role ? texts.roles[g.role] : ''));
   return {
     id: g.id,
     ...(g.parent ? { parent: g.parent } : {}),
     members: g.members,
     pads: pads(g, model, look),
     ...(g.cover ? { cover: g.cover } : {}),
+    ...(head ? { head } : {}),
     source: g.source,
   };
 }
@@ -144,6 +161,7 @@ function gridMetricsOf({ metrics: m, fonts, options }: Look, start: GridStart): 
 export function gridSpecOf(
   model: ArchitectureModel,
   look: Look,
+  words: Texts,
   start: GridStart = { firstRowY: look.metrics.firstRowY, indent: 0 },
 ): { spec: GridSpec; texts: EdgeText[] } {
   const nodes = model.nodes.flatMap((n) => (n.at ? [gridNode(n, n.at, model.adaptive, look)] : []));
@@ -166,13 +184,14 @@ export function gridSpecOf(
     };
   });
   const spec: GridSpec = {
-    cols: model.cols.map((name) => column(name, model, look)),
+    cols: model.cols.map((name) => column(name, model, look, words)),
     rows: model.rows.map((name) => ({ name })),
     nodes,
-    groups: model.groups.map((g) => gridGroup(g, model, look)),
+    groups: model.groups.map((g) => gridGroup(g, model, look, words)),
     edges,
     metrics: gridMetricsOf(look, start),
     adaptive: model.adaptive,
+    channels: !model.adaptive,
   };
   return { spec, texts };
 }

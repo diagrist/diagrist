@@ -17,6 +17,15 @@ function overlay(base: readonly StyleRule[], own: readonly StyleRule[], usedOnly
 }
 
 /**
+ * The rules that paint the arrowheads are always written: the kernel counts the classes of shapes as used, not those
+ * of markers, so a look that writes only used rules would draw its heads in SVG's black fill.
+ */
+const marked = (rules: readonly StyleRule[], markers: Styles['markers']): StyleRule[] => {
+  const names = new Set(markers.map((m) => m.name));
+  return rules.map((r) => (names.has(r.name) && r.always !== true ? { ...r, always: true } : r));
+};
+
+/**
  * The style table of a look, one way for every look: the standard look with the C4 roles, rules and icons, the
  * look's roles and rules laid over them, the root in the font of `paint.root`, and canvas and arrowheads where the
  * look sets its own.
@@ -36,7 +45,10 @@ export function stylesOf(look: Look): Styles {
     fontSize: root.size,
     ...compact({ fontKerning, canvas, markers, areaColors }),
     markerSize: look.metrics.markerSize,
-    rules: overlay(base.rules, paint.rules(fonts, paint.strokes), paint.usedOnly === true),
+    rules: marked(
+      overlay(base.rules, paint.rules(fonts, paint.strokes), paint.usedOnly === true),
+      markers ?? base.markers,
+    ),
     icons: ICONS,
   };
 }

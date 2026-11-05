@@ -20,10 +20,7 @@ export interface Texts {
   readonly roles: Readonly<Record<Role, string>>;
   /** The status beside the second line of a box, and in the legend and description. */
   readonly status: Readonly<Record<NodeStatus, string>>;
-  /**
-   * The status as the box writes it. German keeps the predecessor's `abgeloest` until the clean-up with a second
-   * baseline (ADR 0008 Nr. 5, docs/burn-down.md); legend and description already write `abgelöst`.
-   */
+  /** The status as the box writes it after its second line. */
   readonly statusInBox: Readonly<Record<NodeStatus, string>>;
   readonly shapes: Readonly<Record<NodeShape, string>>;
   /** The changes of a diff picture (ADR 0021), in the legend and as the start of a sentence of the description. */

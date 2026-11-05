@@ -81,4 +81,12 @@ describe('the channel stage of a fixed grid', () => {
     expect(routed(channels(s)).routes[0]?.shape).toBe('straight');
     expect(routed(s).routes[0]?.shape).toBe('Z');
   });
+
+  it('starts a line below the caption of the node it leaves downwards', () => {
+    const figure = { id: 'x', col: 'a', row: 'r1', caption: { w: 60, below: 30 } } as const;
+    const s = spec('a', 'r1 r2', [figure, 'y@a/r2'], { edges: [edge('x', 'y')] });
+    const { layout, routes } = routed(channels(s));
+    const x = layout.nodes.find((n) => n.id === 'x')?.rect;
+    expect(ends(routes[0])[0][1]).toBe((x?.y ?? 0) + (x?.h ?? 0) + 30);
+  });
 });

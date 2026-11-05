@@ -3,6 +3,7 @@ import type { Look } from '../looks/look.js';
 import type { ArchGroup } from '../model/types.js';
 import type { Spot } from './art.js';
 import { linesHit } from './geometry.js';
+import { BLOCK_DY, TITLE_INSET, TITLE_PAD } from './head-rect.js';
 import { headingSize, tagWidth } from './spec.js';
 
 /** Head and tag of a frame, from its finished rectangle. */
@@ -17,10 +18,7 @@ export interface FrameHead {
   readonly tag?: { readonly rect: Rect; readonly text: Spot };
 }
 
-const TITLE_INSET = 24;
-const TITLE_PAD = 8;
 const SIDE_DY = 1;
-const BLOCK_DY = 4;
 
 /**
  * Where the head of a frame stands: on the side for `heading=side`, else as `groups.head` of the look says: top left,

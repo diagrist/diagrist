@@ -60,20 +60,21 @@ tile flow (`flow=` on groups and in the header), framed groups (`style=`, `line=
 chips, an own `legend`, end marks of edges (`from-box=` and the like), `form=ellipse`, and the layout checks the
 predecessor ran on routes (E204, E206, W203, W206, W207, W492).
 
-## Examples and byte identity
+## Examples and their pictures
 
 The examples under `examples/architecture` and `examples/patterns` are the predecessor's, converted by the rules
-above, and render its SVG and PNG byte for byte with `locale=de`. The examples under `examples/radverleih`, a bike
-rental with its context, its components, an as-is and a target picture and a decision paper, were written for
+above; their pictures matched its SVG and PNG byte for byte with `locale=de` until fixed grids moved onto the
+channel stage of `layout-grid` (ADR 0038), which took a second baseline. The examples under `examples/radverleih`, a
+bike rental with its context, its components, an as-is and a target picture and a decision paper, were written for
 Diagrist. Two more files each (`*-paper.dgr`, `*-columns.dgr`) draw `radverleih/kontext`, `radverleih/komponenten`
 and `architecture/cloud` in `look=paper` and `look=columns`, and their hashes are in `test/__golden__/paper.sha256`
 and `columns.sha256`. `test/__golden__/examples.sha256` holds the SHA-256 of every reviewed picture, and three of
 them are golden files; `look=cards` variants of the plain examples are kept the same way
-(`test/__golden__/cards.sha256`). The crutches that keep the bytes are listed in
-`docs/burn-down.md`.
+(`test/__golden__/cards.sha256`). The crutches left from the predecessor's bytes are listed in `docs/burn-down.md`.
 
-The kernel's placement check (G400, G402) reports a few labels and flow numbers in the examples that reach into a frame they
-do not belong to. The predecessor did not check that; the pictures show it, and fixing it changes their bytes.
+On a fixed grid no example breaks a hard rule of the kernel's line check, and the placement check (G400, G402)
+reports nothing: lines get ports and tracks of their own, flow numbers and texts find a spot clear of boxes, frames
+they do not belong to and foreign lines, and a column is as wide as its widest box needs.
 
 ## Icons
 

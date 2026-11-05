@@ -107,11 +107,6 @@ export interface Look {
   readonly fonts: LookFonts;
   readonly paint: Paint;
   readonly options: LookOptions;
-  /**
-   * What a look keeps of the predecessor for its bytes until its own fixes (docs/burn-down.md): its test of the spot
-   * of a seated flow number on lines running left or up.
-   */
-  readonly crutches?: { readonly predecessorSeat: boolean };
 }
 
 /** A text as a font of the look sets it: in capitals when the font says so, measured and drawn alike. */

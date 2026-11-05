@@ -1,4 +1,4 @@
-import type { Rect } from '@diagrist/core';
+import type { Point, Rect } from '@diagrist/core';
 import { longestSegment, pointAlong, polylineLength, type Route } from '@diagrist/layout-grid';
 import type { LookOptions } from '../looks/look.js';
 import type { ArchitectureModel, ArchNode } from '../model/types.js';
@@ -35,6 +35,9 @@ export const NUMBER_ROOM = 6;
 const MARK_SIZE = { w: 24, h: 14 } as const;
 
 /** The rectangle a decision mark takes, for what keeps clear of it. */
+/** The size of a decision mark. */
+export const MARK = MARK_SIZE;
+
 export const markRect = (k: Mark): Rect => ({
   x: k.x - MARK_SIZE.w / 2,
   y: k.y - MARK_SIZE.h / 2,
@@ -43,6 +46,24 @@ export const markRect = (k: Mark): Rect => ({
 
 const MARK_BACK = 24;
 const MARK_ASIDE = 24;
+/** How far apart the further spots of a decision mark on an edge lie along it. */
+const MARK_STEP = 16;
+
+/**
+ * The spots a decision mark on an edge may take in a channel grid, best first: `MARK_BACK` before the end, right of
+ * the direction of travel, then left, then each `MARK_STEP` further back, as long as the edge is long enough; then
+ * the same again twice `MARK_STEP` further aside, above or below the texts of the edge.
+ */
+export function markSpots(points: readonly Point[]): { at: Point; on: Point }[] {
+  const length = polylineLength(points);
+  const out: { at: Point; on: Point }[] = [];
+  for (const aside of [MARK_ASIDE, MARK_ASIDE + 2 * MARK_STEP])
+    for (let back = MARK_BACK; back === MARK_BACK || back <= length - MARK_BACK; back += MARK_STEP) {
+      const { p, dir } = pointAlong(points, Math.max(0, length - back));
+      for (const side of [1, -1]) out.push({ at: [p[0] - dir[1] * aside * side, p[1] + dir[0] * aside * side], on: p });
+    }
+  return out;
+}
 const CORNER_DX = 20;
 const CORNER_DY = 2;
 

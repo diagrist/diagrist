@@ -126,7 +126,7 @@ export const ARCHITECTURE_ROLES: Readonly<Record<string, RoleStyle>> = {
   layerBox: r('annotation-box'),
   layerArrow: r('annotation-arrow'),
   layerText: r('label-note'),
-  legendRule: { classes: ['line'], paint: `stroke="${COLORS.grid}" stroke-width="1"` },
+  legendRule: r('legend-rule'),
   ...edgeRoles(),
   ...iconRoles(),
   ...each((t) => [`tint-${t}`, r(`tint-${t}`)]),

@@ -1,17 +1,6 @@
 import type { Placed, Point, Rect } from '@diagrist/core';
 import type { Locale } from '@diagrist/lang';
-import {
-  bottom,
-  type EdgeLabel,
-  fitFrames,
-  labelEdges,
-  placedOf,
-  placeGrid,
-  type Route,
-  right,
-  routeEdges,
-  seatMarks,
-} from '@diagrist/layout-grid';
+import { bottom, type EdgeLabel, placedOf, placeGrid, type Route, right, routeEdges } from '@diagrist/layout-grid';
 import { decisionStrip, type Legend, legendLayout, type Sheet, type Strip } from '@diagrist/parts';
 import { lookOf } from '../looks/index.js';
 import type { Look } from '../looks/look.js';
@@ -22,11 +11,13 @@ import { type NodeArt, nodeArt } from './art.js';
 import { type BandSheet, bandFrameOf, bandSheetOf } from './bands/index.js';
 import { type Context, contextOf } from './focus.js';
 import { type FrameHead, frameHead } from './heads.js';
+import { headTexts, insideTexts } from './inside.js';
 import { type LayerArt, layerArts } from './layers.js';
 import { legendItems, type Sample } from './legend.js';
-import { type Badge, type Mark, markRect, marksInside, marksOf, NUMBER_ROOM, NUMBER_SIZE, TEXT_GAP } from './marks.js';
+import { type Badge, type Mark, markRect } from './marks.js';
 import { type NoteArt, noteArts } from './notes.js';
 import { sheetFor } from './sheet.js';
+import { signsOf } from './signs.js';
 import { crestOf, gridSpecOf } from './spec.js';
 
 /** An element in the picture with everything inside it. */
@@ -79,12 +70,10 @@ export function layoutArchitecture(model: ArchitectureModel, texts: Texts, local
   const look = lookOf(model);
   const { metrics: m, options: o } = look;
   const frame = bandFrameOf(model, look);
-  const { spec, texts: edgeTexts } = gridSpecOf(frame.model, look, frame);
+  const { spec, texts: edgeTexts } = gridSpecOf(frame.model, look, texts, frame);
   const grid = placeGrid(spec);
   const routes = routeEdges(spec, grid);
-  const onLine = o.edgeText.place === 'onLine' ? { onLine: { pad: TEXT_GAP, avoid: [] } } : {};
-  const found = labelEdges(spec, grid, routes, edgeTexts, { preferFlat: o.edgeText.flat, ...onLine });
-  const pl = spec.adaptive ? fitFrames(spec, grid, routes, found) : grid;
+  const { grid: pl, labels, badges, numbered, marks } = signsOf(model, spec, grid, routes, edgeTexts, look);
   const lines: readonly (readonly Point[])[] = spec.adaptive ? routes.map((r) => r.points) : [];
   const byId = new Map(model.nodes.map((n) => [n.id, n]));
   const nodes = pl.nodes.flatMap((p) => {
@@ -96,18 +85,6 @@ export function layoutArchitecture(model: ArchitectureModel, texts: Texts, local
     return group ? [{ group, rect: p.rect, head: frameHead(p.rect, group, look, lines) }] : [];
   });
   const rects = new Map(pl.nodes.map((p) => [p.id, p.rect]));
-  const { badges: numbers, marks: aside } = marksOf(model, routes, rects, m);
-  const size = NUMBER_SIZE[o.numbers.form];
-  const { marks: badges, labels } =
-    o.numbers.seat === 'seated'
-      ? seatMarks(numbers, found, routes, {
-          r: size.w / 2,
-          room: NUMBER_ROOM,
-          predecessor: look.crutches?.predecessorSeat === true,
-        })
-      : { marks: numbers, labels: found };
-  const numbered = badges.map((b) => ({ route: b.route, rect: { x: b.x - size.w / 2, y: b.y - size.h / 2, ...size } }));
-  const marks = o.marks === 'inside' ? marksInside(aside, model.nodes, rects) : aside;
   const signs = [...numbered.map((b) => b.rect), ...marks.map(markRect)];
   const bands = bandSheetOf(frame, { grid: pl, routes, labels, signs }, texts, BAND_WORDS[locale], look);
   const routeRight = Math.max(0, ...routes.flatMap((r) => r.points.map((p) => p[0])));
@@ -154,6 +131,13 @@ export function layoutArchitecture(model: ArchitectureModel, texts: Texts, local
     ...(sheet ? { sheet } : {}),
     width: sheet?.width ?? width,
     height: sheet?.height ?? (legend ? Math.max(strip.bottom + m.legendReserve, legend.bottom) : body + m.margin),
-    placed: placedOf(spec, pl, routes, labels, numbered),
+    placed: [
+      ...placedOf(spec, pl, routes, labels, [
+        ...numbered,
+        ...marks.flatMap((k) => (k.route === undefined ? [] : [{ route: k.route, rect: markRect(k), name: 'mark' }])),
+      ]),
+      ...insideTexts(nodes, look, texts),
+      ...headTexts(frames, spec.groups),
+    ],
   };
 }

@@ -10,13 +10,15 @@ export interface RouteMark {
   /** Index of the route. */
   readonly route: number;
   readonly rect: Rect;
+  /** What the mark is, the last part of its key: `number` when left out. */
+  readonly name?: string;
 }
 
 /**
  * What the grid placed, for the kernel's placement check (ADR 0010): frames and nodes as boxes inside their frames,
  * ellipses and circles (whose rectangle is their square) with their outline, labels as texts keyed
  * `<edge>.label.<n>` inside the innermost frame holding both ends of their edge, which `fitFrames` grows around
- * them, and marks on routes as texts keyed `<edge>.number`. A mark sits near the start of its edge, so it belongs to
+ * them, and marks on routes as texts keyed `<edge>.number`, or by their own name. A mark sits near the start of its edge, so it belongs to
  * the innermost frame around the start that holds it, else to the frame of both ends. In a channel grid texts and
  * marks stand where they find room, so both belong to the innermost frame around either end that holds them, else
  * to the frame of both ends. Spans come from the spec.
@@ -71,7 +73,7 @@ export function placedOf(
       spec.channels === true
         ? endFrame(e, m.rect)
         : (framesAround(tree, e.from).find((id) => holds(id, m.rect)) ?? sharedFrame(tree, e.from, e.to));
-    return [{ key: `${edge}.number`, kind: 'text', rect: m.rect, ...within(frame), ...span(e.source) }];
+    return [{ key: `${edge}.${m.name ?? 'number'}`, kind: 'text', rect: m.rect, ...within(frame), ...span(e.source) }];
   });
   return [...groups, ...nodes, ...texts, ...numbers];
 }

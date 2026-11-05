@@ -8,6 +8,8 @@ import type { EdgeLabel, EdgeText } from './types.js';
 
 /** How far apart the spots along a piece are tried. */
 const STEP = 4;
+/** Room a block standing on its line keeps from either end of its piece, for the arrowhead and the box. */
+const END = 12;
 /** A text keeps one pixel more from foreign lines than the line check asks, against rounding. */
 const LINE_GAP = DEFAULT_THRESHOLDS.labelClear + 1;
 
@@ -68,7 +70,7 @@ function* candidates(
           : ['left', 'right'];
     for (const lines of stacks(text, !piece.horizontal)) {
       const along = piece.horizontal ? widthOf(lines, m) : lines.length * m.labelLineH;
-      for (const d of offsets(piece.len, o.onLine ? along + 2 * STEP : 0)) {
+      for (const d of offsets(piece.len, o.onLine ? along + 2 * END : 0)) {
         const t = 0.5 + d / Math.max(1, piece.len);
         const at: Point = [piece.a[0] + (piece.b[0] - piece.a[0]) * t, piece.a[1] + (piece.b[1] - piece.a[1]) * t];
         for (const place of places) yield placeStack(lines as Line[], at, place, i, m);
@@ -77,9 +79,18 @@ function* candidates(
   }
 }
 
-/** What a block of texts on route `i` meets, by `clearOf`: 0 for a clear spot. */
-export const blockCost = (block: readonly EdgeLabel[], i: number, clear: Clear, o: SearchOptions): number =>
-  rectsOf(block, o).reduce((n, r) => n + clear.cost(r, i, LINE_GAP, o.onLine !== undefined), 0);
+/** What a block of texts on route `i` meets, by `clearOf`: 0 for a clear spot; counting stops at `limit`. */
+export function blockCost(
+  block: readonly EdgeLabel[],
+  i: number,
+  clear: Clear,
+  o: SearchOptions,
+  limit: number = Infinity,
+): number {
+  let n = 0;
+  for (const r of rectsOf(block, o)) if (n < limit) n += clear.cost(r, i, LINE_GAP, o.onLine !== undefined, limit - n);
+  return n;
+}
 
 /** The block of a route's texts as placed and what it meets; 0 is a clear spot. */
 export interface Found {
@@ -101,11 +112,10 @@ export function searchBlock(
   m: GridMetrics,
   o: SearchOptions,
 ): Found {
-  const cost = (block: readonly EdgeLabel[]) => blockCost(block, i, clear, o);
-  let best: Found = { block: first, cost: cost(first) };
+  let best: Found = { block: first, cost: blockCost(first, i, clear, o) };
   if (best.cost === 0) return best;
   for (const block of candidates(route, i, text, m, o)) {
-    const c = cost(block);
+    const c = blockCost(block, i, clear, o, best.cost);
     if (c < best.cost) best = { block, cost: c };
     if (c === 0) break;
   }

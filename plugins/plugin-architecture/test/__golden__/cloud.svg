@@ -27,6 +27,7 @@
   .dia .annotation-box { fill: #f4f4f5; stroke: #a1a1aa; stroke-width: 1; }
   .dia .annotation-line { fill: none; stroke: #a1a1aa; stroke-width: 1; }
   .dia .annotation-arrow { fill: #a1a1aa; stroke: none; }
+  .dia .legend-rule { fill: none; stroke: #e4e4e7; stroke-width: 1; }
   .dia .replica { fill: #f4f4f5; stroke: #a1a1aa; stroke-width: 1; }
   .dia .replica-text { fill: #52525b; font-weight: 700; font-size: 9px; }
 </style><rect width="1230" height="1024" fill="#fafafa"/><defs><marker id="m-open" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto"><path d="M1 1 L11 6 L1 11" class="arrow-open" stroke-linecap="round"/></marker><marker id="m-filled" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto"><path d="M1 1 L11 6 L1 11 Z" class="arrow-filled" stroke-linecap="round"/></marker><marker id="m-open-accent" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto"><path d="M1 1 L11 6 L1 11" class="arrow-open-accent" stroke-linecap="round"/></marker><marker id="m-filled-accent" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto"><path d="M1 1 L11 6 L1 11 Z" class="arrow-filled-accent" stroke-linecap="round"/></marker></defs>
@@ -83,7 +84,7 @@
 <g id="label-12"><text x="318" y="626" text-anchor="end" class="label halo">Bestellung</text><text x="318" y="638" text-anchor="end" class="label halo">geändert</text></g>
 <g id="label-13"><text x="658" y="626" text-anchor="end" class="label halo">Gerät</text><text x="658" y="638" text-anchor="end" class="label halo">aktualisiert</text></g>
 <g id="label-14"><text x="686" y="540" text-anchor="end" class="label halo">Nachricht</text><text x="686" y="552" text-anchor="end" class="label halo">versendet</text></g>
-<line x1="32" y1="936" x2="936" y2="936" class="line" stroke="#e4e4e7" stroke-width="1"/>
+<line x1="32" y1="936" x2="936" y2="936" class="legend-rule"/>
 <g class="legend"><path d="M32 960 H72" class="line" marker-end="url(#m-filled)"/><text x="84" y="964" class="label-note">synchroner Aufruf</text></g>
 <g class="legend"><path d="M226 960 H266" class="line dashed" marker-end="url(#m-open)"/><text x="278" y="964" class="label-note">asynchrones Domain-Event</text></g>
 <g class="legend"><rect x="462" y="953" width="40" height="14" rx="4" class="frame-own"/><text x="514" y="964" class="label-note">eigenes System</text></g>
