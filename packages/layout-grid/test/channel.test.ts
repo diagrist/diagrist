@@ -112,4 +112,25 @@ describe('the channel stage of a fixed grid', () => {
     const heights = routes.slice(2).flatMap((r) => [r.points[0]?.[1], r.points.at(-1)?.[1]]);
     expect(new Set(heights).size).toBe(4);
   });
+
+  it('bends a Z blocked on every gap three times inside the frame that holds both its boxes', () => {
+    const s = spec(
+      'n w d x',
+      'o m u',
+      ['k@n/m', 'web@w/m', 'b@d/m', 'l@d/u', 'bus@w/u', 'mail@d/o', 'ben@x/o', 'db@x/m'],
+      {
+        groups: [group('f', ['web', 'b', 'l', 'bus', 'mail', 'ben', 'db'])],
+        edges: [edge('bus', 'ben'), edge('web', 'b'), edge('web', 'l')],
+      },
+    );
+    const { layout, routes } = routed(channels(s));
+    const frame = layout.groups.find((g) => g.id === 'f')?.rect;
+    if (!frame) throw new Error('missing');
+    const route = routes[0];
+    expect(route?.points).toHaveLength(5);
+    for (const [x, y] of route?.points ?? []) {
+      expect(x).toBeGreaterThanOrEqual(frame.x);
+      expect(y).toBeGreaterThanOrEqual(frame.y);
+    }
+  });
 });

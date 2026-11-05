@@ -1,4 +1,4 @@
-import type { Point } from '@diagrist/core';
+import type { Point, Rect } from '@diagrist/core';
 import { bottom, cx, cy, right, type Side, segmentHitsRect, segmentsCross } from '../../geometry.js';
 import { type Board, type Box, obstaclesFor } from '../boxes.js';
 import type { Plan } from '../grid.js';
@@ -7,11 +7,19 @@ import { freeZigzag, type Lane } from '../shape.js';
 /** The gaps on either side of a column or row, by their number. */
 const around = (index: number): number[] => [index - 1, index];
 
+const inside = (r: Rect, p: Point): boolean => p[0] >= r.x && p[0] <= right(r) && p[1] >= r.y && p[1] <= bottom(r);
+
 const length = (points: readonly Point[]): number =>
   points.slice(1).reduce((n, q, i) => {
     const p = points[i] as Point;
     return n + Math.abs(q[0] - p[0]) + Math.abs(q[1] - p[1]);
   }, 0);
+
+/** Whether cost `a` is lower than `b`, comparing their numbers in order. */
+const before = (a: readonly number[], b: readonly number[]): boolean => {
+  const k = a.findIndex((n, i) => n !== b[i]);
+  return k >= 0 && (a[k] as number) < (b[k] as number);
+};
 
 /** The way out of a box towards a gap, across the gap's axis: the side and the point in its middle. */
 function out(box: Box, lane: Lane): { side: Side; at: Point } {
@@ -28,7 +36,7 @@ function out(box: Box, lane: Lane): { side: Side; at: Point } {
  * A Z that runs through a box on every gap it may take, such as a line to a corner of the grid with boxes on both of
  * its Ls, bends three times instead: out of its first box into a gap beside it, along that gap into a gap of the other
  * axis beside its second box, and along that into the box. Of the ways that run through nothing, the one that
- * crosses the fewest `others`, then the shortest; a Z
+ * stays inside the frames holding both boxes, then the one that crosses the fewest `others`, then the shortest; a Z
  * without one stays as it is, and the line check reports it.
  */
 export function detour(board: Board, p: Plan, others: readonly (readonly Point[])[]): Plan {
@@ -43,6 +51,10 @@ export function detour(board: Board, p: Plan, others: readonly (readonly Point[]
     });
   const blocked = (points: readonly Point[]) =>
     points.slice(1).some((q, i) => obstacles.some((o) => segmentHitsRect(points[i] as Point, q, o.rect, 4)));
+  const frames = board.layout.groups
+    .map((g) => g.rect)
+    .filter((r) => [p.a.rect, p.b.rect].every((b) => inside(r, [cx(b), cy(b)])));
+  const leaves = (points: readonly Point[]) => points.filter((q) => frames.some((r) => !inside(r, q))).length;
   const crossings = (points: readonly Point[]) =>
     points
       .slice(1)
@@ -56,7 +68,7 @@ export function detour(board: Board, p: Plan, others: readonly (readonly Point[]
           ),
         0,
       );
-  let best: { plan: Plan; cost: readonly [number, number] } | undefined;
+  let best: { plan: Plan; cost: readonly number[] } | undefined;
   for (const [first, second] of [
     ['col', 'row'],
     ['row', 'col'],
@@ -71,8 +83,8 @@ export function detour(board: Board, p: Plan, others: readonly (readonly Point[]
             ? [from.at, [lane.at, from.at[1]], corner, [to.at[0], via.at], to.at]
             : [from.at, [from.at[0], lane.at], corner, [via.at, to.at[1]], to.at];
         if (blocked(points)) continue;
-        const cost = [crossings(points), length(points)] as const;
-        if (!best || cost[0] < best.cost[0] || (cost[0] === best.cost[0] && cost[1] < best.cost[1]))
+        const cost = [leaves(points), crossings(points), length(points)];
+        if (!best || before(cost, best.cost))
           best = { plan: { ...p, fromSide: from.side, toSide: to.side, lane, via }, cost };
       }
     }

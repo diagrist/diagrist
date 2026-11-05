@@ -89,3 +89,7 @@ No example changed a byte: their texts found clear spots before. In the stress s
    off the middle to make room. A side whose bent ends all lead one way and do not fit beside its single straight end
    moves that end too, instead of parting the train around it. Four stress pictures traded an overlap, counted as
    `parallel`, for the crossing it hid; their crossing budgets were raised by hand for that count alone.
+2. **A detour stays inside the frames of its boxes.** Of the ways a blocked Z may bend three times, those that keep
+   every corner inside the frames holding both boxes come first, then the fewest crossings, then the shortest. In
+   `diff-entfernt` a line between two members of one frame ran out of it and around the whole picture to save one
+   crossing; it now runs up the gap beside its box for one crossing more, which its budget was raised by.
