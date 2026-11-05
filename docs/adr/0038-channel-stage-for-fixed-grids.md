@@ -93,3 +93,7 @@ No example changed a byte: their texts found clear spots before. In the stress s
    every corner inside the frames holding both boxes come first, then the fewest crossings, then the shortest. In
    `diff-entfernt` a line between two members of one frame ran out of it and around the whole picture to save one
    crossing; it now runs up the gap beside its box for one crossing more, which its budget was raised by.
+3. **An empty column takes no room.** A column of a channel grid that no node stands in or reaches over and no frame
+   covers is as wide as nothing, so only its gaps stay between its neighbours. `kontext-stern` names two such columns
+   to set its neighbours two cells away from the middle; they took 384 pixels of nothing, and the picture shrinks from
+   1728 to 1344 pixels wide.

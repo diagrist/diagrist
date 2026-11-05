@@ -23,6 +23,18 @@ describe('placing a fixed grid', () => {
     expect(layout.nodes.map((n) => n.id)).toEqual(['p']);
   });
 
+  it('gives an empty column of a channel grid no width, only its gaps, and keeps it in other grids', () => {
+    const s = spec('a b c', 'r', ['x@a/r', 'y@c/r']);
+    const gapOf = (layout: ReturnType<typeof placeGrid>) => {
+      const [x, y] = ['x', 'y'].map((id) => layout.nodes.find((n) => n.id === id)?.rect);
+      return (y?.x ?? 0) - ((x?.x ?? 0) + (x?.w ?? 0));
+    };
+    expect(gapOf(placeGrid({ ...s, channels: true }))).toBe(2 * METRICS.colGap);
+    expect(gapOf(placeGrid(s))).toBe(2 * METRICS.colGap + METRICS.nodeW);
+    const spanned = spec('a b c', 'r s', ['x@a/r', 'y@c/r', { id: 'z', col: 'a', row: 's', to: { col: 'b' } }]);
+    expect(gapOf(placeGrid({ ...spanned, channels: true }))).toBe(2 * METRICS.colGap + METRICS.nodeW);
+  });
+
   it('wraps frames around their members with pads, nested ones inside their parents, parents first', () => {
     const layout = placeGrid(
       spec('a b', 'r', ['x@a/r', 'y@b/r'], {
