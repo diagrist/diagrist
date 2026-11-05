@@ -17,15 +17,25 @@ export function examplesOf(kind: string): { names: readonly string[]; source: (n
 }
 
 /**
- * One line per example of a kind, the SHA-256 of its SVG and its path below `examples/`, as `sha256sum` writes them:
- * the content of `<kind>-examples.sha256`, which keeps every example's picture.
+ * The pictures of a kind's examples as each example's own test compiles them, and the hash file they make: one line
+ * per example, the SHA-256 of its SVG and its path below `examples/`, as `sha256sum` writes them, the content of
+ * `<kind>-examples.sha256`. Each example is compiled once in its own test, so no test compiles them all.
  */
-export function exampleHashes(kind: string): string {
-  const { names, source } = examplesOf(kind);
+export function examplePictures(kind: string): { keep: (name: string, svg: string) => void; hashes: () => string } {
+  const { names } = examplesOf(kind);
+  const pictures = new Map<string, string>();
   const sha256 = (text: string) => createHash('sha256').update(text).digest('hex');
-  return names
-    .map((name) => `${sha256(compile(source(name), { plugins: [umlPlugin] }).svg ?? '')}  ${kind}/${name}\n`)
-    .join('');
+  return {
+    keep: (name, svg) => void pictures.set(name, svg),
+    hashes: () =>
+      names
+        .map((name) => {
+          const svg = pictures.get(name);
+          if (svg === undefined) throw new Error(`${kind}/${name} was not compiled: run the whole file, not one test`);
+          return `${sha256(svg)}  ${kind}/${name}\n`;
+        })
+        .join(''),
+  };
 }
 
 /** Compiles lines of a diagram of `kind` with the UML plugin, adding the header. */

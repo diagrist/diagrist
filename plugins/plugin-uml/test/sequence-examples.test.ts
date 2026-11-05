@@ -2,9 +2,10 @@ import { compile } from '@diagrist/core';
 import { compareGolden } from '@diagrist/testkit';
 import { describe, expect, it } from 'vitest';
 import { umlPlugin } from '../src/index.js';
-import { exampleHashes, golden, sequenceNames, sequenceSource } from './compile.js';
+import { examplePictures, golden, sequenceNames, sequenceSource } from './compile.js';
 
 const plugins = [umlPlugin];
+const pictures = examplePictures('sequence');
 
 describe('sequence examples', () => {
   it.each(sequenceNames)('%s compiles without findings, twice to the same bytes', (name) => {
@@ -12,6 +13,11 @@ describe('sequence examples', () => {
     expect(first.diagnostics).toEqual([]);
     expect(first.svg).toBeDefined();
     expect(compile(sequenceSource(name), { plugins }).svg).toBe(first.svg);
+    pictures.keep(name, first.svg ?? '');
+  });
+
+  it('all render the bytes of the predecessor, checked by a SHA-256 per example', () => {
+    expect(compareGolden(golden('sequence-examples.sha256'), pictures.hashes())).toEqual({ status: 'match' });
   });
 
   it.each(['oauth-pkce', 'bestellung-saga', 'bestellung-saga-cards', 'oauth-callback'])(
@@ -21,10 +27,6 @@ describe('sequence examples', () => {
       expect(compareGolden(golden(`sequence-${name}.svg`), svg)).toEqual({ status: 'match' });
     },
   );
-
-  it('all render the bytes of the predecessor, checked by a SHA-256 per example', () => {
-    expect(compareGolden(golden('sequence-examples.sha256'), exampleHashes('sequence'))).toEqual({ status: 'match' });
-  });
 
   it('describes a diagram in German with locale=de', () => {
     const text = compile(sequenceSource('bestellung-bestaetigen.dgr'), { plugins }).description ?? '';
