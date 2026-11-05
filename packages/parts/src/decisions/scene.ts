@@ -29,8 +29,11 @@ export function stripShapes(strip: Strip, words: Pick<Words, 'decisions' | 'open
       out.push({ kind: 'text', ...at, text, role: 'decisionNote', font: 'note' });
     });
     out.push({ kind: 'text', ...card.choice, text: d.choice, role: 'decisionChoice', font: 'name' });
-    if (d.consequence)
-      out.push({ kind: 'text', ...card.consequence, text: d.consequence, role: 'decisionNote', font: 'note' });
+    const notes = card.consequenceLines ?? (d.consequence ? [d.consequence] : []);
+    notes.forEach((text, i) => {
+      const at = { x: card.consequence.x, y: card.consequence.y + i * QUESTION_STEP };
+      out.push({ kind: 'text', ...at, text, role: 'decisionNote', font: 'note' });
+    });
   }
   return out;
 }

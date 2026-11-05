@@ -85,6 +85,19 @@ describe('decision bar', () => {
     expect(texts).toEqual(expect.arrayContaining([...lines]));
   });
 
+  it('wraps a consequence wider than its card below the choice, and the bar grows by its lines', () => {
+    const long = decisions(
+      'adr E1 "Who?" = "Team A" => "No credentials with us, but one more dependency on a vendor we do not run"',
+    );
+    const measure = { open: WORDS.en.open, font: STANDARD_FONTS.note };
+    const flat = decisionStrip(long, 100, 400);
+    const card = decisionStrip(long, 100, 400, measure).cards[0];
+    const lines = card?.consequenceLines ?? [];
+    expect(lines.length).toBeGreaterThan(1);
+    expect(card?.choice.y).toBe(flat.cards[0]?.choice.y);
+    expect(card?.h).toBe(78 + (lines.length - 1) * 14);
+  });
+
   it('adds nothing to a picture without decisions', () => {
     const strip = decisionStrip([], 100, 600);
     expect(stripShapes(strip, WORDS.en)).toEqual([]);
