@@ -4,13 +4,15 @@ import type { Arrangement } from './arrange.js';
 import { besideRoutes, sideOf } from './beside.js';
 import { assignTracks, gapHeight, type Piece, piecesOf } from './channels.js';
 import { clearCore, coords } from './coords.js';
-import { clearHeads, framesOf } from './frames.js';
+import { framesOf } from './frames.js';
 import { type Frame, linkPoints, simplify } from './geometry.js';
+import { clearHeads } from './heads.js';
 import { labelRoom, seatsOf } from './labels.js';
 import { type Group, groupsOf, type Link, linksOf } from './links.js';
 import { assemble, type LayeredLayout } from './output.js';
 import { portsOf } from './ports.js';
 import { runsOf } from './runs.js';
+import { keptInside } from './shift.js';
 import type { LayeredSpec } from './spec.js';
 
 export type { LayeredLayout } from './output.js';
@@ -34,13 +36,20 @@ export function finish(spec: LayeredSpec, arrangement: Arrangement): LayeredLayo
   const headRoom = spec.hub ? pad + spec.hub.head.size + 2 + 2 * m.labelGap : 0;
   const above = (l: number) => (l === (inCore[0] ?? -2) - 1 ? headRoom : 0) + fr.head(l + 1);
   const under = (l: number) => (l === inCore.at(-1) ? pad + m.labelGap : 0) + fr.foot(l);
-  const x = coords({ layers, width, gap, links: neighbours, ranked }, m.left);
-  clearCore(x, layers, width, core, arrangement.pins ?? new Map(), m.colGap + pad);
-  fr.clear(x, layers, width, m.colGap);
-  const flat = new Map([...x].map(([id, cx]) => [id, { x: cx - width(id) / 2, y: 0, w: width(id), h: 0 }]));
+  const place = () => {
+    const placed = coords({ layers, width, gap, links: neighbours, ranked }, m.left);
+    clearCore(placed, layers, width, core, arrangement.pins ?? new Map(), m.colGap + pad);
+    fr.clear(placed, layers, width, m.colGap);
+    const flat = new Map([...placed].map(([id, cx]) => [id, { x: cx - width(id) / 2, y: 0, w: width(id), h: 0 }]));
+    const ports = portsOf(groups, ranked, flat, placed, m.portGap, undefined, undefined, undefined, below.ends);
+    return { x: placed, flat, ports };
+  };
+  const below = besideRoutes(ranked, layers);
   const links = linksOf(spec, ranked).filter((l) => !runs.hidden(l.edge));
   const groups = groupsOf(spec, ranked, layers, links);
-  const ports = portsOf(groups, ranked, flat, x, m.portGap);
+  let { x, flat, ports } = place();
+  const entries = links.map((l) => ({ upper: l.upper, lower: l.lower, x: ports.top.get(l) ?? 0 }));
+  if (fr.heads(entries, flat)) ({ x, flat, ports } = place());
   const seats = seatsOf(spec.edges, groups, ranked);
   const pieceOf = new Map<Group, Piece>();
   const tracks = layers.map((_, l) => {
@@ -51,7 +60,6 @@ export function finish(spec: LayeredSpec, arrangement: Arrangement): LayeredLayo
     for (const p of pieces) pieceOf.set(p.group, p);
     return assignTracks(pieces);
   });
-  const below = besideRoutes(ranked, layers);
   const headsUp = new Set(
     spec.edges.flatMap((e) =>
       ranked.down.get(e.id) === false ? [ranked.layerOf.get(ranked.chains.get(e.id)?.[0] ?? '') ?? -1] : [],
@@ -86,13 +94,11 @@ export function finish(spec: LayeredSpec, arrangement: Arrangement): LayeredLayo
   });
   const frame: Frame = { rects, gapTop, first, track: m.track };
   const groupOf = new Map<Link, Group>(groups.flatMap((g) => g.links.map((l) => [l, g] as const)));
-  const taken = { at: new Map<string, number[]>(), gap: m.portGap };
-  for (const [l, at] of ports.bottom) taken.at.set(l.upper, [...(taken.at.get(l.upper) ?? []), at]);
   const routes = spec.edges.flatMap((e): Route[] => {
     const chain = links.filter((l) => l.edge === e.id);
     if (chain.length === 0) {
       if (runs.hidden(e.id)) return [];
-      const beside = below.route(e, frame, tracks, taken);
+      const beside = below.route(e, frame, tracks, ports.bottom);
       return beside === undefined ? [] : [beside];
     }
     const points = simplify(
@@ -108,7 +114,9 @@ export function finish(spec: LayeredSpec, arrangement: Arrangement): LayeredLayo
   });
   const frames = spec.frames && fr.rects(rects, bandTop, gapTop);
   const real = new Map([...rects].filter(([n]) => !dummy(n)));
-  return assemble(spec, {
+  const outer = (spec.frames ?? []).filter((f) => f.parent === undefined).map((f) => f.pad);
+  const floor = outer.length > 0 ? m.left - Math.max(...outer) : 0;
+  const laid = assemble(spec, {
     ranked,
     layers,
     rects,
@@ -119,4 +127,5 @@ export function finish(spec: LayeredSpec, arrangement: Arrangement): LayeredLayo
     core,
     ...(frames ? { frames: clearHeads(frames, spec, routes, real) } : {}),
   });
+  return keptInside(laid, floor);
 }

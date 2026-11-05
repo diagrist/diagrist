@@ -111,8 +111,12 @@ export interface LayeredSpec {
    */
   readonly layers?: readonly (readonly string[])[];
   /**
-   * Frames around boxes, drawn parents first. They need `layers`, in which the boxes of each frame
-   * stand together in every layer the frame spans, and frames stand in the same order in every layer they share.
+   * With `layers`, take from them only the layer of every box and order each layer anew, as without them.
+   */
+  readonly reorder?: boolean;
+  /**
+   * Frames around boxes, drawn parents first. The order keeps the boxes of each frame together in every layer it
+   * spans and frames in one order in every layer they share; with `layers` kept as given, the kind does so.
    */
   readonly frames?: readonly LayeredFrame[];
 }

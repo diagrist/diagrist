@@ -53,7 +53,7 @@
 <g id="edge-5"><path d="M512 246 L512 316" class="line halo"/><path d="M512 246 L512 316" class="line dashed" marker-end="url(#m-uml-open)"/></g>
 <g id="label-0"><text x="766" y="391" text-anchor="middle" class="label halo">erteilt</text><text x="830" y="413" text-anchor="end" class="label halo">0..*</text><text x="702" y="413" text-anchor="start" class="label halo">1</text></g>
 <g id="label-1"><text x="935" y="528" text-anchor="start" class="label halo">1..*</text><text x="935" y="483" text-anchor="start" class="label halo">1</text></g>
-<g id="label-2"><text x="228" y="238" text-anchor="end" class="label halo">nutzt</text></g>
+<g id="label-2"><text x="228" y="270" text-anchor="end" class="label halo">nutzt</text></g>
 <g id="label-4"><text x="262" y="285" text-anchor="start" class="label halo">«import»</text></g>
 <g id="label-5"><text x="518" y="285" text-anchor="start" class="label halo">«import»</text></g>
 </svg>

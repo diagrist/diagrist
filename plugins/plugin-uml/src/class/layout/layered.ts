@@ -113,9 +113,9 @@ function framesOf(m: ClassModel, placed: ReadonlySet<string>): LayeredFrame[] {
 }
 
 /**
- * A class diagram as a layered picture: classifiers and diamonds in the layers and order of the automatic grid
- * (`cells`), relations between them as edges, packages as frames. Relations with a package at an end and those of a
- * classifier with itself are drawn by the kind.
+ * A class diagram as a layered picture: classifiers and diamonds in the layers of the automatic grid (`cells`), which
+ * the pipeline orders anew with every package as a hard cluster, relations between them as edges, packages as frames.
+ * Relations with a package at an end and those of a classifier with itself are drawn by the kind.
  */
 export function classLayered(m: ClassModel, cells: ReadonlyMap<string, Cell>): LayeredSpec {
   const boxes = [
@@ -142,6 +142,7 @@ export function classLayered(m: ClassModel, cells: ReadonlyMap<string, Cell>): L
     edges: [...edges, ...tethers(m, placed)],
     metrics: { ...LAYERED, top: frames.length > 0 ? LAYERED.top - CLASS.tabH - CLASS.packagePad : LAYERED.top },
     layers,
+    reorder: true,
     ...(frames.length > 0 ? { frames } : {}),
   };
 }

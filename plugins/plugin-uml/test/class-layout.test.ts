@@ -96,8 +96,8 @@ describe('class layout', () => {
     ];
     expect(shipping.y + shipping.h).toBeLessThan(web.y);
     expect(web.y + web.h).toBeLessThan(orders.y);
-    expect(payment.x + payment.w).toBeLessThan(orders.x);
-    expect(orders.x + orders.w).toBeLessThan(catalogue.x);
+    expect(catalogue.x + catalogue.w).toBeLessThan(orders.x);
+    expect(orders.x + orders.w).toBeLessThan(payment.x);
     expect([payment.y, catalogue.y]).toEqual([orders.y, orders.y]);
     expect(payment.y + payment.h).toBeLessThan(orders.y + orders.h);
     expect(catalogue.y + catalogue.h).toBe(payment.y + payment.h);

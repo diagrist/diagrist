@@ -40,7 +40,10 @@ export interface Laid {
   readonly frames?: readonly PlacedGroup[];
 }
 
-/** Seats the labels, then gathers boxes, labels, the frame of a hub and the frames, and measures the picture. */
+/**
+ * Seats the labels clear of the lines and the borders of the frames, then gathers boxes, labels, the frame of a hub
+ * and the frames, and measures the picture.
+ */
 export function assemble(spec: LayeredSpec, laid: Laid): LayeredLayout {
   const m = spec.metrics;
   const { ranked, layers, rects, routes, ports, groups, core } = laid;
@@ -54,6 +57,17 @@ export function assemble(spec: LayeredSpec, laid: Laid): LayeredLayout {
     return r ? [r] : [];
   });
   const labels: EdgeLabel[] = [];
+  const borders = (laid.frames ?? []).map(({ id, rect: r }): Route => {
+    const [x2, y2] = [r.x + r.w, r.y + r.h];
+    const points: Point[] = [
+      [r.x, r.y],
+      [x2, r.y],
+      [x2, y2],
+      [r.x, y2],
+      [r.x, r.y],
+    ];
+    return { edge: `frame:${id}`, points, shape: 'orthogonal', fromSide: 'top', toSide: 'top' };
+  });
   for (const seat of laid.seats) {
     const l = seat.group.links[0] as Link;
     const port: Point =
@@ -61,7 +75,11 @@ export function assemble(spec: LayeredSpec, laid: Laid): LayeredLayout {
         ? [ports.bottom.get(l) ?? 0, (rects.get(l.upper)?.y ?? 0) + (rects.get(l.upper)?.h ?? 0)]
         : [ports.top.get(l) ?? 0, rects.get(l.lower)?.y ?? 0];
     const own = new Set(seat.group.links.map((k) => k.edge));
-    const clear = { lines: routes, boxes: [...boxes, ...labels.map((x) => x.box)], margin: LABEL_CLEAR };
+    const clear = {
+      lines: [...routes, ...borders],
+      boxes: [...boxes, ...labels.map((x) => x.box)],
+      margin: LABEL_CLEAR,
+    };
     labels.push(seatLabel(seat, port, index.get(seat.edge.id) ?? 0, m.labelGap, clear, own));
   }
   const nodes = spec.nodes.flatMap((n): PlacedNode[] => {
