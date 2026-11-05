@@ -49,3 +49,11 @@ State machines route forward transitions through its ports and tracks and keep t
 findings to the three nested rails of `fahrgastraum`, which ADR 0035 reads as no breach. Activity diagrams share its track assigner (L7): from 7
 findings to none. Every kind on the pipeline asserts the line check over its examples; C4 keeps its grid. The search of the hub runs the
 pipeline a few dozen times; pictures are small (under forty boxes), so a hub takes well under a second.
+
+## Amendment (05.11.2026)
+
+Decision 3 counted links: with three or more, every line carried the word of its link. A picture of two links with
+the same line then had a legend that could not tell them apart, and one of three links filled narrow gaps with words.
+Now the words stand on the lines only while two links of a picture in layers still look alike; a link without
+`line=` takes the first of `solid`, `dashed` and `dotted` that no other link of the picture shows with its head, and
+lines of dashes or dots share a trunk only out of one item, where their dashes start together.

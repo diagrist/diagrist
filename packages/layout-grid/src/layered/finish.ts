@@ -3,7 +3,8 @@ import type { Route } from '../layout.js';
 import type { Arrangement } from './arrange.js';
 import { besideRoutes, sideOf } from './beside.js';
 import { assignTracks, gapHeight, type Piece, piecesOf } from './channels.js';
-import { clearCore, coords } from './coords.js';
+import { coords, spinesOf } from './coords.js';
+import { clearCore } from './fence.js';
 import { framesOf } from './frames.js';
 import { type Frame, linkPoints, simplify } from './geometry.js';
 import { clearHeads } from './heads.js';
@@ -36,8 +37,9 @@ export function finish(spec: LayeredSpec, arrangement: Arrangement): LayeredLayo
   const headRoom = spec.hub ? pad + spec.hub.head.size + 2 + 2 * m.labelGap : 0;
   const above = (l: number) => (l === (inCore[0] ?? -2) - 1 ? headRoom : 0) + fr.head(l + 1);
   const under = (l: number) => (l === inCore.at(-1) ? pad + m.labelGap : 0) + fr.foot(l);
+  const spines = spec.hub ? [] : spinesOf(spec.edges, ranked);
   const place = () => {
-    const placed = coords({ layers, width, gap, links: neighbours, ranked }, m.left);
+    const placed = coords({ layers, width, gap, links: neighbours, ranked, spines }, m.left);
     clearCore(placed, layers, width, core, arrangement.pins ?? new Map(), m.colGap + pad);
     fr.clear(placed, layers, width, m.colGap);
     const flat = new Map([...placed].map(([id, cx]) => [id, { x: cx - width(id) / 2, y: 0, w: width(id), h: 0 }]));

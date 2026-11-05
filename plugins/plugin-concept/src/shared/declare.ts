@@ -90,6 +90,7 @@ export const linkOf = (s: LinkLine, origin: Origin): LinkDecl => ({
   from: s.attributes.from ?? [],
   to: s.attributes.to ?? [],
   line: s.attributes.line ?? 'solid',
+  ...(s.attributes.line === undefined ? {} : { lined: true as const }),
   head: s.attributes.head ?? 'arrow',
   ...(s.attributes.each === undefined ? {} : { each: s.attributes.each }),
   ...(s.attributes.single === undefined ? {} : { single: s.attributes.single }),

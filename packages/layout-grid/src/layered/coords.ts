@@ -13,6 +13,8 @@ export interface CoordsInput {
   readonly gap: (left: string, right: string) => number;
   readonly links: Neighbours;
   readonly ranked: Ranked;
+  /** Links of a chain, upper end first, which stand straight where their layers have room: see `spinesOf`. */
+  readonly spines?: readonly (readonly [string, string])[];
 }
 
 /** Passes alternate down and up; each pulls the nodes of a layer towards their partners in the layer before. */
@@ -124,8 +126,8 @@ function centre(input: CoordsInput, x: Xs): void {
 /**
  * The centre of every node: layers packed from the left, then passes that pull each layer towards its partners
  * in the layer before as far as real widths and gaps allow, placeholder chains straightened, parents centred over
- * their children and single children set exactly below their parent. Shifted so the leftmost box starts at `left`
- * and rounded to whole pixels.
+ * their children and single children set exactly below their parent, then the links of chains straight, top down.
+ * Shifted so the leftmost box starts at `left` and rounded to whole pixels.
  */
 export function coords(input: CoordsInput, left: number): Xs {
   const x: Xs = new Map();
@@ -145,40 +147,40 @@ export function coords(input: CoordsInput, left: number): Xs {
   }
   straighten(input, x);
   centre(input, x);
+  for (const [upper, lower] of input.spines ?? [])
+    if (!tryMove(input, x, lower, x.get(upper) ?? 0)) tryMove(input, x, upper, x.get(lower) ?? 0);
   const min = Math.min(...[...x].map(([n, v]) => v - input.width(n) / 2));
   return new Map([...x].map(([n, v]) => [n, Math.round(v - min + left)]));
 }
 
+/** An edge as `spinesOf` reads it: its ends, its bundle, and whether it is drawn. */
+interface SpineEdge {
+  readonly id: string;
+  readonly bundle?: string;
+  readonly hidden?: boolean;
+}
+
 /**
- * Boxes kept to the left or right of a core moved out past the widest layer of the core, `gap` beyond its edge, with
- * whatever stands beyond them in their layer; they already stand at the outside of their layer, so the order holds.
+ * The links of chains: edges between neighbouring layers whose upper end has no other edge of the same bundle
+ * going down and whose lower end takes no other edge of it from above, two or more in a row, such as a pipeline of
+ * stages each handing on to one next. Edges without a bundle count as one kind. Top down, so a chain straightens
+ * from its head.
  */
-export function clearCore(
-  x: Xs,
-  layers: readonly (readonly string[])[],
-  width: (id: string) => number,
-  core: ReadonlySet<string>,
-  pins: ReadonlyMap<string, 'left' | 'right'>,
-  gap: number,
-): void {
-  const inner = [...core].filter((n) => x.has(n));
-  if (inner.length === 0 || pins.size === 0) return;
-  const left = Math.min(...inner.map((n) => (x.get(n) ?? 0) - width(n) / 2));
-  const right = Math.max(...inner.map((n) => (x.get(n) ?? 0) + width(n) / 2));
-  for (const layer of layers) {
-    const outer = layer.filter((n) => pins.get(n) === 'right');
-    const first = outer[0];
-    if (first !== undefined) {
-      const shift = Math.max(0, right + gap - ((x.get(first) ?? 0) - width(first) / 2));
-      for (const n of layer.slice(layer.indexOf(first))) x.set(n, (x.get(n) ?? 0) + shift);
-    }
-    const inside = layer.filter((n) => pins.get(n) === 'left').at(-1);
-    if (inside !== undefined) {
-      const shift = Math.max(0, (x.get(inside) ?? 0) + width(inside) / 2 - (left - gap));
-      for (const n of layer.slice(0, layer.indexOf(inside) + 1)) x.set(n, (x.get(n) ?? 0) - shift);
-    }
-  }
-  const min = Math.min(...[...x].map(([n, v]) => v - width(n) / 2));
-  const keep = Math.min(...[...x].filter(([n]) => !pins.has(n)).map(([n, v]) => v - width(n) / 2));
-  if (min < keep) for (const [n, v] of x) x.set(n, v + (keep - min));
+export function spinesOf(edges: readonly SpineEdge[], ranked: Ranked): [string, string][] {
+  const ends = edges.flatMap((e) => {
+    const chain = ranked.chains.get(e.id);
+    const [upper, lower] = [chain?.[0], chain?.at(-1)];
+    return e.hidden === true || upper === undefined || lower === undefined
+      ? []
+      : [{ key: e.bundle ?? '', upper, lower, short: chain?.length === 2 }];
+  });
+  const count = (side: 'upper' | 'lower', n: string, key: string) =>
+    ends.filter((e) => e[side] === n && e.key === key).length;
+  const links = ends.filter(
+    (e) => e.short && count('upper', e.upper, e.key) === 1 && count('lower', e.lower, e.key) === 1,
+  );
+  return links
+    .filter((e) => links.some((f) => f.lower === e.upper || f.upper === e.lower))
+    .sort((a, b) => (ranked.layerOf.get(a.upper) ?? 0) - (ranked.layerOf.get(b.upper) ?? 0))
+    .map((e): [string, string] => [e.upper, e.lower]);
 }
