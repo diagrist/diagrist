@@ -11,7 +11,6 @@ const { names, source } = stressSet(new URL('stress/activity/', import.meta.url)
  * (`docs/burn-down.md`, "Stress set"). An exemption that is no longer needed fails, so it is removed with the fix.
  */
 const PENDING: Readonly<Record<string, readonly string[]>> = {
-  'entscheidungen-kette.dgr': ['label/near', 'label/overlap', 'ports/spacing', 'through', 'through/own'],
   'fuenf-bahnen.dgr': ['through'],
   'parallel-entscheidung.dgr': ['label/near', 'through'],
 };

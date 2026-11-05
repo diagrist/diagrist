@@ -19,9 +19,15 @@ const gutterAbove = (ap: ActivityPlacement, layer: number) => {
   return gap ? (gap.top + gap.bottom) / 2 : 0;
 };
 
+/** Run out of a side before a turn, and the least run into a head. */
+const RUN = 16;
+const LEAD = 24;
+
 /**
  * A forward edge: out of a diamond at the side, else straight down; horizontal pieces only in the gaps between
- * layers, over the waypoints of long edges; into a diamond at the side, else from the top.
+ * layers, over the waypoints of long edges; into a diamond at the side, else from the top. An edge into the side of a
+ * diamond that faces it turns down just after it leaves its source, and comes in straight; one into the far side
+ * goes around it.
  */
 function forward(ap: ActivityPlacement, f: RankedFlow, from: Port, to: Port): Point[] {
   const pts: Point[] = [from.at];
@@ -32,7 +38,12 @@ function forward(ap: ActivityPlacement, f: RankedFlow, from: Port, to: Port): Po
   }));
   const layerTo = ap.ranks.layerOf.get(f.to) ?? 0;
   const sideIn = to.side === 'left' || to.side === 'right';
-  const outside = to.side === 'left' ? Math.min(x, to.at[0]) - 16 : Math.max(x, to.at[0]) + 16;
+  const toward = to.side === 'left' ? x + RUN + LEAD <= to.at[0] : x - RUN - LEAD >= to.at[0];
+  const outside = toward
+    ? x + (to.side === 'left' ? RUN : -RUN)
+    : to.side === 'left'
+      ? Math.min(x, to.at[0]) - RUN
+      : Math.max(x, to.at[0]) + RUN;
   const sideOut = from.side === 'left' || from.side === 'right';
   const lastX = sideIn ? (waypoints.at(-1)?.x ?? (sideOut ? outside : x)) : to.at[0];
   if (sideOut) {
