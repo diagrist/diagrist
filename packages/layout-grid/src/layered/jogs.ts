@@ -22,6 +22,10 @@ export interface Unjogging {
   readonly settle: (x: Xs) => Placement;
   /** The nodes that move with `n` as a group, the boxes of its frame. */
   readonly blockOf: (n: string) => readonly string[];
+  /** What the whole picture of a placement costs, drawn and measured (`scoreOf`). */
+  readonly price: (p: Placement) => number;
+  /** Links of chains (`spinesOf`), upper end first, which a far move may not bend. */
+  readonly spines: readonly (readonly [string, string])[];
 }
 
 /** A jog shorter than this reads as a slip (the line check's limit for lines into a head). */
@@ -37,11 +41,14 @@ function score(groups: readonly Group[], ports: Ports): [number, number] {
 const better = (a: [number, number], b: [number, number]) => a[0] < b[0] || (a[0] === b[0] && a[1] < b[1]);
 
 /**
- * Bends taken out by moving boxes sideways: for every piece whose ends stand less than `JOG` apart, its lower box,
- * else its upper box, moves by the jog; for any bent piece, the frame of its lower end, else of its upper end, moves
- * as a whole, such as a package under the line that enters it. A move needs room in every layer and stays when fewer
- * pieces bend after it, or as many with fewer small jogs. A placeholder moves with all of its chain, which keeps the
- * chain straight.
+ * Bends taken out by moving boxes sideways (layout plan R1, and R2 as a pass after the placement): for every piece
+ * whose ends stand less than `JOG` apart, its lower box, else its upper box, moves by the jog. A piece that bends by
+ * more moves the same way, a placeholder chain first, so a box the pull of placeholders took away from its real
+ * neighbour comes back under it; such a move must not bend a link of a chain (`spines`) and stays only when the
+ * whole picture, drawn, costs no more by `scoreOf`. For any bent piece, the frame of its lower end, else of its
+ * upper end, moves as a whole, such as a package under the line that enters it. A move needs room in every layer
+ * and stays when fewer pieces bend after it, or as many with fewer small jogs. A placeholder moves with all of its
+ * chain, which keeps the chain straight.
  */
 export function unjog(u: Unjogging, start: Placement): Placement {
   let best = start;
@@ -60,16 +67,27 @@ export function unjog(u: Unjogging, start: Placement): Placement {
         (!still(right) || to <= (x.get(right as string) ?? 0) - sep(n, right as string) + 0.5)
       );
     });
-  const attempt = (moving: readonly string[], d: number): boolean => {
+  const spineLinks = u.groups.flatMap((g) =>
+    g.links.filter((l) => g.kind === 'single' && u.spines.some(([a, b]) => a === l.upper && b === l.lower)),
+  );
+  const bentSpines = (p: Placement) =>
+    spineLinks.filter((l) => Math.abs((p.ports.top.get(l) ?? 0) - (p.ports.bottom.get(l) ?? 0)) > 0.5).length;
+  let cost: number | undefined;
+  const attempt = (moving: readonly string[], d: number, priced: boolean): boolean => {
     if (moving.length === 0 || !fits(best.x, moving, d)) return false;
     const x = new Map(best.x);
     for (const m of moving) x.set(m, (x.get(m) ?? 0) + d);
     const tried = u.settle(x);
     const s = score(u.groups, tried.ports);
     if (!better(s, scored)) return false;
-    [best, scored] = [tried, s];
+    if (priced && bentSpines(tried) > bentSpines(best)) return false;
+    const after = priced ? u.price(tried) : undefined;
+    if (after !== undefined) cost ??= u.price(best);
+    if (after !== undefined && after > (cost ?? after)) return false;
+    [best, scored, cost] = [tried, s, after];
     return true;
   };
+  const placeholders = (moving: readonly string[]) => moving.filter((n) => u.ranked.dummies.has(n)).length;
   const chainOf = (l: Link, n: string) =>
     u.ranked.dummies.has(n) ? (u.ranked.chains.get(l.edge) ?? []).slice(1, -1) : [n];
   for (const g of u.groups) {
@@ -81,16 +99,16 @@ export function unjog(u: Unjogging, start: Placement): Placement {
       const block = u.blockOf(n);
       return block.length > 1 && !block.includes(n === l.lower ? l.upper : l.lower) ? block : [];
     };
-    const near: [readonly string[], number][] = [
-      [chainOf(l, l.lower), -off],
-      [chainOf(l, l.upper), off],
+    const near: [readonly string[], number, boolean][] = [
+      [chainOf(l, l.lower), -off, !small],
+      [chainOf(l, l.upper), off, !small],
     ];
-    const tries: [readonly string[], number][] = [
-      ...(small ? near : []),
-      [frame(l.lower), -off],
-      [frame(l.upper), off],
+    const tries: [readonly string[], number, boolean][] = [
+      ...(small ? near : [...near].sort((a, b) => placeholders(b[0]) - placeholders(a[0]))),
+      [frame(l.lower), -off, false],
+      [frame(l.upper), off, false],
     ];
-    tries.some(([moving, d]) => attempt(moving, d));
+    tries.some(([moving, d, priced]) => attempt(moving, d, priced));
   }
   return best;
 }
