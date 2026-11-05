@@ -57,8 +57,9 @@ layers, notes, the decision bar and the legend are drawn by the plugin and `@dia
 
 Everything else that the examples use reads as before. Left out for now, each listed in `docs/burn-down.md`: the
 tile flow (`flow=` on groups and in the header), framed groups (`style=`, `line=`, `icon=` on `group`), accents and
-chips, an own `legend`, end marks of edges (`from-box=` and the like), `form=ellipse`, and the layout checks the
-predecessor ran on routes (E204, E206, W203, W206, W207, W492).
+chips, an own `legend`, end marks of edges (`from-box=` and the like) and `form=ellipse`. The layout checks the
+predecessor ran on routes (E204, E206, W203, W206, W207, W492) are the kernel's line check now (G410 to G418,
+ADR 0035), which C4 takes part in with a `labelNear` of 10, its label gap.
 
 ## Examples and their pictures
 
@@ -72,8 +73,8 @@ and `columns.sha256`. `test/__golden__/examples.sha256` holds the SHA-256 of eve
 them are golden files; `look=cards` variants of the plain examples are kept the same way
 (`test/__golden__/cards.sha256`). The crutches left from the predecessor's bytes are listed in `docs/burn-down.md`.
 
-On a fixed grid no example breaks a hard rule of the kernel's line check, and the placement check (G400, G402)
-reports nothing: lines get ports and tracks of their own, flow numbers and texts find a spot clear of boxes, frames
+No example breaks a hard rule of the kernel's line check, and the placement check (G400, G402) reports nothing. On
+a fixed grid lines get ports and tracks of their own, flow numbers and texts find a spot clear of boxes, frames
 they do not belong to and foreign lines, and a column is as wide as its widest box needs.
 
 ## Icons

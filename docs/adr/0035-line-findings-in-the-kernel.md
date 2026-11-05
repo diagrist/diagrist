@@ -1,6 +1,7 @@
 # 35. Line findings in the kernel: `dgr check` reports bad lines
 
-Date: 2026-11-04. Status: accepted by the owner (04.11.2026). Builds on ADR 0010, 0020 and 0034.
+Date: 2026-11-04. Status: accepted by the owner (04.11.2026). Builds on ADR 0010, 0020 and 0034. Amended by ADR 0038:
+C4 takes part with a `labelNear` of 10.
 
 ## Context
 

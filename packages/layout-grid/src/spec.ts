@@ -55,6 +55,8 @@ export interface GridMetrics {
   readonly endGap?: number;
   /** Extra gap below every row of an adaptive grid, for parts sticking out of nodes such as icons on cards. */
   readonly rowOverhang?: number;
+  /** Least straight run of an adaptive route into its head, where the gap holds it; `laneGap` when left out. */
+  readonly lead?: number;
 }
 
 /** A column of the grid; without a width it is `nodeW` wide. */
@@ -184,6 +186,8 @@ export interface GridSpec {
    * straight only where the middles of both boxes nearly meet; elsewhere it bends twice between them.
    */
   readonly ports?: 'towards' | 'centred';
+  /** An adaptive grid runs an edge into a wide box under the gap beside its other end as an L down that gap. */
+  readonly drops?: boolean;
   /**
    * A fixed grid routes through channels: ends spread on the free stretches of their sides, two edges between the
    * same boxes never share a port, Z pieces get tracks of their own in their gap, and texts and marks look for a

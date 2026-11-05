@@ -150,3 +150,23 @@ describe('straight lines', () => {
     expect(points[1]?.[1]).toBe((rect('p').y + rect('p').h + rect('c').y) / 2);
   });
 });
+
+describe('drops in an adaptive grid', () => {
+  it('run an edge into a wide box under the gap beside its node as one bend, sharing a gap evenly', () => {
+    const wide = { id: 'w', col: 'a', row: 'r3', to: { col: 'c' } } as const;
+    const s = spec('a b c', 'r1 r2 r3', ['x@a/r1', 'y@b/r1', 'z@c/r1', 'k@a/r2', 'm@b/r2', 'n@c/r2', wide], {
+      edges: [edge('x', 'w'), edge('y', 'w'), edge('z', 'w')],
+      adaptive: true,
+      drops: true,
+    });
+    const { routes } = routed(s);
+    expect(routes.map((r) => [r.fromSide, r.toSide, r.points.length])).toEqual([
+      ['right', 'top', 3],
+      ['right', 'top', 3],
+      ['left', 'top', 3],
+    ]);
+    const [, middle, last] = routes.map((r) => r.points[1]?.[0] ?? 0);
+    expect((last ?? 0) - (middle ?? 0)).toBeGreaterThanOrEqual(16);
+    expect(routed({ ...s, drops: false }).routes.some((r) => r.points.length !== 3)).toBe(true);
+  });
+});

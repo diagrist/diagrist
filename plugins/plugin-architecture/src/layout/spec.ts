@@ -1,4 +1,4 @@
-import { textWidth } from '@diagrist/core';
+import { DEFAULT_THRESHOLDS, textWidth } from '@diagrist/core';
 import type { EdgeText, GridColumn, GridGroup, GridMetrics, GridNode, GridSpec, Pads } from '@diagrist/layout-grid';
 import type { Look } from '../looks/look.js';
 import type { ArchEdge, ArchGroup, ArchitectureModel, ArchNode } from '../model/types.js';
@@ -151,6 +151,7 @@ function gridMetricsOf({ metrics: m, fonts, options }: Look, start: GridStart): 
     labelLineH: m.labelLineH,
     labelGap: m.labelGap,
     rowOverhang: options.nodes === 'card' ? m.cardIconR : 0,
+    lead: DEFAULT_THRESHOLDS.lead,
   };
 }
 
@@ -192,6 +193,7 @@ export function gridSpecOf(
     metrics: gridMetricsOf(look, start),
     adaptive: model.adaptive,
     channels: !model.adaptive,
+    drops: model.adaptive,
   };
   return { spec, texts };
 }

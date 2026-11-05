@@ -5,6 +5,7 @@ import { adaptivePorts, type PortRequest } from './adaptive-ports.js';
 import { type Board, groupKey, headStrips } from './boxes.js';
 import { bundlePlans } from './bundle.js';
 import { zRoute } from './centred.js';
+import { dropRoutes } from './drop.js';
 import type { Routed } from './routed.js';
 import { searchPath, simplify } from './search.js';
 import { trunkPaths } from './trunk.js';
@@ -18,7 +19,8 @@ function offset(point: Point, side: Side, gap: number): Point {
 
 /**
  * One attempt in a given order and `mode`: straight connections first, as they read best; then the trunks of
- * bundles around them; then every other edge by path search around nodes, foreign head strips and laid routes.
+ * bundles around them; then every other edge, with `drops`, as an L into a wide box under the gap beside it where
+ * that is free (`dropRoute`), else by path search around nodes, foreign head strips and laid routes.
  */
 function routeAttempt(routes: readonly Routed[], board: Board, mode: number, attempt: number): Routed[] {
   const used: Point[][] = [];
@@ -64,6 +66,15 @@ function routeAttempt(routes: readonly Routed[], board: Board, mode: number, att
       used.push(points);
     });
   }
+  const heads = (r: Routed) =>
+    headers.filter((_, i) => {
+      const id = groupKey((board.layout.groups[i] as { id: string }).id);
+      return id !== r.from.id && id !== r.to.id;
+    });
+  const open = routes.map((r, i) =>
+    fixed.has(i) || bundled.has(i) || r.shape === 'loop' || !plans[i] ? undefined : r,
+  );
+  const drops = board.tree.spec.drops === true ? dropRoutes(open, board, heads, used, gap) : new Map<number, Routed>();
   return routes.map((r, index) => {
     const done = fixed.get(index);
     if (done) return done;
@@ -73,6 +84,8 @@ function routeAttempt(routes: readonly Routed[], board: Board, mode: number, att
     }
     const plan = plans[index];
     if (!plan) return r;
+    const drop = drops.get(index);
+    if (drop) return drop;
     const z = board.tree.spec.ports === 'centred' ? zOf(r, plan, port, board, used, gap) : undefined;
     if (z) return z;
     return searched(r, plan, plans, port, board, { obstacles, headers, used, gap });

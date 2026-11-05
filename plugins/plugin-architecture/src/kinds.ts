@@ -13,7 +13,8 @@ import { TEXTS } from './texts/index.js';
 /**
  * One C4 level as a kind: the shared tables with the level's elements, model, rules, layout on `layout-grid`,
  * the style table of its look, and a description. Each level draws diff pictures (ADR 0021). Its lines stay out of
- * the kernel's line check while they keep the grid's router (burn-down).
+ * the kernel's line check with one threshold of its own: C4 sets its texts its label gap of 10 pixels from their line
+ * (ADR 0038).
  */
 function architectureKind(level: Level) {
   return defineKind({
@@ -31,7 +32,7 @@ function architectureKind(level: Level) {
     },
     describe: (model, { locale }) => describeArchitecture(model, TEXTS[locale], WORDS[locale]),
     diff: true,
-    lineCheck: false,
+    lineCheck: { labelNear: 10 },
   });
 }
 
