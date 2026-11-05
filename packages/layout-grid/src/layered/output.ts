@@ -104,6 +104,7 @@ export function assemble(spec: LayeredSpec, laid: Laid): LayeredLayout {
       spec.hub,
       [...core].flatMap((n) => rects.get(n) ?? []),
       m.labelGap,
+      routes.map((r) => r.points),
     );
   if (fence) placed.push({ key: 'hub.head', kind: 'text', rect: fence.head.box });
   const right = Math.max(0, ...xs, fence ? fence.rect.x + fence.rect.w : 0);
