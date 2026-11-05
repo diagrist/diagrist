@@ -80,3 +80,12 @@ one side than it holds, a Z that runs through a box on every gap it may take, an
 
 No example changed a byte: their texts found clear spots before. In the stress set the hard findings fell from 45 to
 3, in two pictures the burn-down names.
+
+## Amendment: follow-ups from looking at the stress set
+
+1. **Facing ends keep apart.** Two Zs through one gap whose ends on the sides facing each other across it stood at
+   one height ran on one another there, or read as one line through the gap (`komponenten-zehn`). The ends of both
+   sides are then placed together as one train (`apartFacing`), and the single straight edge between them may move
+   off the middle to make room. A side whose bent ends all lead one way and do not fit beside its single straight end
+   moves that end too, instead of parting the train around it. Four stress pictures traded an overlap, counted as
+   `parallel`, for the crossing it hid; their crossing budgets were raised by hand for that count alone.
