@@ -66,9 +66,25 @@ function straightPorts(board: Board, plans: readonly Plan[], spread: number, gap
   return out;
 }
 
-/** Order of the ends on one side: by where their other box lies, nested Ls and parallel Zs between the same boxes. */
+/** How far the other box of an end lies out from its side, across the side. */
+function beyond(e: End): number {
+  const other = e.at === 'from' ? e.plan.b : e.plan.a;
+  const across: Side = flat(e.side) ? 'left' : 'top';
+  return Math.abs(middle(sideOf(other, across)) - middle(sideOf(e.box, across)));
+}
+
+/**
+ * Order of the ends on one side: by where their other box lies; of two Ls that turn the same way, the one that
+ * reaches further out first in the direction of the turn, so the two nest instead of crossing; nested Ls and parallel
+ * Zs between the same boxes.
+ */
 function byOther(e: End, f: End): number {
   if (e.other !== f.other) return e.other - f.other;
+  if (e.plan.shape === 'L' && f.plan.shape === 'L') {
+    const later = e.other >= middle(sideOf(e.box, e.side)) ? 1 : -1;
+    const apart = later * (beyond(f) - beyond(e));
+    if (apart !== 0) return apart;
+  }
   const sign = (x: End) => (x.plan.shape === 'L' && x.other < middle(sideOf(x.box, x.side)) ? -1 : 1);
   return (e.plan.key - f.plan.key) * sign(e);
 }
