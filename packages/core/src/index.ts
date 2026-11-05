@@ -15,6 +15,7 @@ export { lineFindings } from './lines/index.js';
 export { type LineMetrics, lineMetrics } from './lines/metrics.js';
 export type { LineCheck } from './lines/report.js';
 export {
+  DEFAULT_THRESHOLDS,
   LINE_RULES,
   type LineFinding,
   type LineFrame,

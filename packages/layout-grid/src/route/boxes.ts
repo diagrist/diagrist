@@ -67,14 +67,25 @@ function endNodes(board: Board, id: string): readonly string[] {
 export const headStrips = (groups: readonly PlacedGroup[], height: number): Rect[] =>
   groups.map((g) => ({ ...g.rect, h: height }));
 
-/** Obstacles of an edge in a fixed grid: all nodes and head strips except its own ends and their members. */
-export function obstaclesFor(board: Board, edge: GridEdge): Box[] {
+/** The head of a placed frame where its kind draws it (`GridGroup.head`), else the strip `framePad.top` deep. */
+export function headOf(board: Board, g: PlacedGroup): Rect {
+  const head = board.tree.group(g.id)?.head;
+  if (!head) return { x: g.rect.x, y: g.rect.y, w: g.rect.w, h: board.tree.spec.metrics.framePad.top };
+  const x = head.origin === 'middle' ? g.rect.x + g.rect.w / 2 + head.x : g.rect.x + head.x;
+  return { x, y: g.rect.y + head.y, w: head.w, h: head.h };
+}
+
+/**
+ * Obstacles of an edge in a fixed grid: all nodes and head strips except its own ends and their members. With
+ * `heads` a frame's head is where its kind draws it, as channel grids read it.
+ */
+export function obstaclesFor(board: Board, edge: GridEdge, heads = false): Box[] {
   const own = new Set<string>([...endNodes(board, edge.from), ...endNodes(board, edge.to)]);
   for (const end of [edge.from, edge.to]) if (!board.node(end) && board.tree.group(end)) own.add(groupKey(end));
   const height = board.tree.spec.metrics.framePad.top;
   const headers: Box[] = board.layout.groups.map((g) => ({
     id: groupKey(g.id),
-    rect: { x: g.rect.x, y: g.rect.y, w: g.rect.w, h: height },
+    rect: heads ? headOf(board, g) : { x: g.rect.x, y: g.rect.y, w: g.rect.w, h: height },
     colIndex: -1,
     rowIndex: -1,
   }));
