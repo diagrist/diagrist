@@ -32,7 +32,9 @@ const CORNER = 4;
  * join aims at its member nearest the middle, so that member runs straight. Placeholders are a single point. Then every piece whose two ends are the only ones
  * on their sides runs straight where the two boxes share a stretch, and an end that is the only one on its side
  * follows the other end of its piece wherever its box reaches, up to `CORNER` from a corner when the jog it spares
- * is shorter than `jog`: no small jogs. `inset` keeps ends off the corners. `aside` are ends on the bottom of `upper`
+ * is shorter than `jog`: no small jogs. Last, a piece still bent runs straight wherever both its ends can slide to one
+ * vertical between their neighbours on their sides: a port need not stand in the middle. `inset` keeps ends off the
+ * corners. `aside` are ends on the bottom of `upper`
  * of lines that run below their layer to `lower` beside it; they take their place in the order like the others, so
  * the outermost goes to the line whose other end lies furthest out.
  */
@@ -77,6 +79,7 @@ export function portsOf(
     if (ranked.dummies.has(l.upper)) bottom.set(l, x.get(l.upper) ?? 0);
     if (ranked.dummies.has(l.lower)) top.set(l, x.get(l.lower) ?? 0);
   }
+  const order = new Map<string, { ends: readonly End[]; step: number }>();
   for (const [k, list] of ends) {
     const [box = '', side] = k.split('|');
     const r = rects.get(box);
@@ -91,6 +94,7 @@ export function portsOf(
       wanted.map(() => 1),
       sorted.slice(1).map(() => step),
     );
+    order.set(k, { ends: sorted, step });
     const shift = Math.min(0, hi - (placed.at(-1) ?? hi)) + Math.max(0, lo - (placed[0] ?? lo));
     sorted.forEach((e, i) => {
       const at = Math.round((placed[i] ?? 0) + shift);
@@ -137,6 +141,30 @@ export function portsOf(
     else if (Math.abs(b - t) <= snap && real(l.lower) && alone(l.lower, 'top')) top.set(l, b);
     else if (real(l.upper) && alone(l.upper, 'bottom') && near(l.upper, t)) bottom.set(l, t);
     else if (real(l.lower) && alone(l.lower, 'top') && near(l.lower, b)) top.set(l, b);
+  }
+  const room = (box: string, side: 'top' | 'bottom', l: Link): [number, number] => {
+    if (ranked.dummies.has(box)) return [x.get(box) ?? 0, x.get(box) ?? 0];
+    const at = side === 'bottom' ? bottom : top;
+    const { ends: list = [], step = gap } = order.get(`${box}|${side}`) ?? {};
+    const i = list.findIndex((e) => e.links.includes(l));
+    const [prev, next] = [list[i - 1]?.links[0], list[i + 1]?.links[0]];
+    const [lo, hi] = range(box);
+    return [
+      Math.max(lo, prev === undefined ? lo : (at.get(prev) ?? lo) + step),
+      Math.min(hi, next === undefined ? hi : (at.get(next) ?? hi) - step),
+    ];
+  };
+  for (const g of groups) {
+    const l = g.links[0] as Link;
+    if (g.kind !== 'single' || bottom.get(l) === top.get(l)) continue;
+    const [a, b] = [room(l.upper, 'bottom', l), room(l.lower, 'top', l)];
+    const [lo, hi] = [Math.max(a[0], b[0]), Math.min(a[1], b[1])];
+    if (lo > hi) continue;
+    const mid = ((bottom.get(l) ?? 0) + (top.get(l) ?? 0)) / 2;
+    const at = Math.round(Math.min(hi, Math.max(lo, mid)));
+    if (at < lo || at > hi) continue;
+    bottom.set(l, at);
+    top.set(l, at);
   }
   return { top, bottom };
 }

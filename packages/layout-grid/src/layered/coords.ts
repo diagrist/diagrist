@@ -68,14 +68,22 @@ function tryMove(input: CoordsInput, x: Xs, n: string, to: number): boolean {
   return true;
 }
 
-/** Every chain of placeholders on one vertical: at its upper end, else its lower end, else where it stands most. */
+/**
+ * Every chain of placeholders on one vertical: under the middle of its upper end, else over that of its lower end,
+ * else as near where it stands most as the side of either end reaches, so its port can slide there, else there.
+ */
 function straighten(input: CoordsInput, x: Xs): void {
   for (const chain of input.ranked.chains.values()) {
     const inner = chain.slice(1, -1);
     if (inner.length === 0) continue;
-    const ends = [x.get(chain[0] as string) ?? 0, x.get(chain.at(-1) as string) ?? 0];
+    const ends = [chain[0] as string, chain.at(-1) as string];
     const middle = [...inner.map((d) => x.get(d) ?? 0)].sort((a, b) => a - b)[Math.floor(inner.length / 2)] ?? 0;
-    for (const target of [...ends, middle]) {
+    const within = (n: string) => {
+      const reach = Math.max(0, input.width(n) / 2 - Math.min(16, input.width(n) / 4));
+      const c = x.get(n) ?? 0;
+      return Math.min(c + reach, Math.max(c - reach, middle));
+    };
+    for (const target of [...ends.map((n) => x.get(n) ?? 0), ...ends.map(within), middle]) {
       const saved = inner.map((d) => x.get(d) ?? 0);
       if (inner.every((d) => tryMove(input, x, d, target))) break;
       inner.forEach((d, i) => {
@@ -147,6 +155,7 @@ export function coords(input: CoordsInput, left: number): Xs {
   }
   straighten(input, x);
   centre(input, x);
+  straighten(input, x);
   for (const [upper, lower] of input.spines ?? [])
     if (!tryMove(input, x, lower, x.get(upper) ?? 0)) tryMove(input, x, upper, x.get(lower) ?? 0);
   const min = Math.min(...[...x].map(([n, v]) => v - input.width(n) / 2));

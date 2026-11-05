@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   type Anchors,
+  avoidableBends,
   type LineNode,
   type LineRoute,
   lineMetrics,
@@ -136,5 +137,17 @@ describe('lines of a drawing', () => {
     const reversed = anchors.edges.map((e) => ({ ...e, points: [...e.points].reverse() }));
     const read = linesOfDrawing({ anchors: { ...anchors, edges: reversed }, placed });
     expect(read.routes.map((r) => r.bundles)).toEqual([['at 60.0,100.0'], ['at 60.0,100.0']]);
+  });
+});
+
+describe('avoidable bends', () => {
+  it('count a bent line whose boxes share a stretch for a straight one, unless a box stands in the way', () => {
+    const nodes = [box('a', 0, 0), box('b', 30, 200)];
+    const bent = line('1', 'a', 'b', [40, 40], [40, 120], [70, 120], [70, 200]);
+    expect(avoidableBends({ nodes, routes: [bent] })).toBe(1);
+    expect(avoidableBends({ nodes, routes: [line('2', 'a', 'b', [60, 40], [60, 200])] })).toBe(0);
+    const wall = { id: 'w', rect: rect(0, 100, 200, 20) };
+    expect(avoidableBends({ nodes: [...nodes, wall], routes: [bent] })).toBe(0);
+    expect(avoidableBends({ nodes: [box('a', 0, 0), box('c', 300, 200)], routes: [{ ...bent, to: 'c' }] })).toBe(0);
   });
 });

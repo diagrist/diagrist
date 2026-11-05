@@ -3,11 +3,12 @@ import type { Route } from '../layout.js';
 import type { Arrangement } from './arrange.js';
 import { besideRoutes, sideOf } from './beside.js';
 import { assignTracks, gapHeight, type Piece, piecesOf } from './channels.js';
-import { coords, spinesOf } from './coords.js';
+import { coords, spinesOf, type Xs } from './coords.js';
 import { clearCore } from './fence.js';
 import { framesOf } from './frames.js';
 import { type Frame, linkPoints, simplify } from './geometry.js';
 import { clearHeads } from './heads.js';
+import { type Placement, unjog } from './jogs.js';
 import { labelRoom, seatsOf } from './labels.js';
 import { type Group, groupsOf, type Link, linksOf } from './links.js';
 import { assemble, type LayeredLayout } from './output.js';
@@ -38,13 +39,17 @@ export function finish(spec: LayeredSpec, arrangement: Arrangement): LayeredLayo
   const above = (l: number) => (l === (inCore[0] ?? -2) - 1 ? headRoom : 0) + fr.head(l + 1);
   const under = (l: number) => (l === inCore.at(-1) ? pad + m.labelGap : 0) + fr.foot(l);
   const spines = spec.hub ? [] : spinesOf(spec.edges, ranked);
-  const place = () => {
-    const placed = coords({ layers, width, gap, links: neighbours, ranked, spines }, m.left);
-    clearCore(placed, layers, width, core, arrangement.pins ?? new Map(), m.colGap + pad);
+  const settle = (placed: Xs): Placement => {
     fr.clear(placed, layers, width, m.colGap);
     const flat = new Map([...placed].map(([id, cx]) => [id, { x: cx - width(id) / 2, y: 0, w: width(id), h: 0 }]));
     const ports = portsOf(groups, ranked, flat, placed, m.portGap, undefined, undefined, undefined, below.ends);
     return { x: placed, flat, ports };
+  };
+  const place = () => {
+    const placed = coords({ layers, width, gap, links: neighbours, ranked, spines }, m.left);
+    clearCore(placed, layers, width, core, arrangement.pins ?? new Map(), m.colGap + pad);
+    const settled = settle(placed);
+    return spec.hub ? settled : unjog({ layers, width, gap, groups, ranked, settle, blockOf: fr.block }, settled);
   };
   const below = besideRoutes(ranked, layers);
   const links = linksOf(spec, ranked).filter((l) => !runs.hidden(l.edge));
