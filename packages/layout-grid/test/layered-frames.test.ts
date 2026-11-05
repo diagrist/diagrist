@@ -89,3 +89,19 @@ describe('tracks into one box', () => {
     expect(level('c-r')).not.toBe(level('a-r'));
   });
 });
+
+describe('straight lines', () => {
+  it('slide a port off the middle so a line runs straight where its two boxes share a stretch', () => {
+    const nodes = [box('a', 240), box('d'), box('c'), box('b', 240)];
+    const edges = [edge('a', 'c'), edge('a', 'b'), edge('d', 'b')];
+    const l = lay({
+      nodes,
+      edges,
+      layers: [
+        ['a', 'd'],
+        ['c', 'b'],
+      ],
+    });
+    expect(l.routes.find((r) => r.edge === 'a-b')?.points).toHaveLength(2);
+  });
+});

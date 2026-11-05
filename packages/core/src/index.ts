@@ -10,6 +10,7 @@ export { checkPlugin } from './check.js';
 export type { Compilation, CompileOptions } from './compile.js';
 export { compile, localeAttribute } from './compile.js';
 export type { Point, Rect } from './geometry.js';
+export { avoidableBends } from './lines/avoidable.js';
 export { linesOfDrawing } from './lines/drawing.js';
 export { lineFindings } from './lines/index.js';
 export { type LineMetrics, lineMetrics } from './lines/metrics.js';

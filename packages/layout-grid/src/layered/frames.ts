@@ -27,6 +27,8 @@ export interface Frames {
     entries: readonly { readonly upper: string; readonly lower: string; readonly x: number }[],
     boxes: ReadonlyMap<string, Rect>,
   ): boolean;
+  /** The nodes of the innermost frame around `n`, placeholders included, or `n` alone. */
+  block(n: string): readonly string[];
   /** The rectangle of every frame around its boxes, `tops` and `bottoms` being those of the layers. */
   rects(boxes: ReadonlyMap<string, Rect>, tops: readonly number[], bottoms: readonly number[]): PlacedGroup[];
 }
@@ -38,6 +40,7 @@ const NONE: Frames = {
   foot: () => 0,
   clear: () => undefined,
   heads: () => false,
+  block: (n) => [n],
   rects: () => [],
 };
 
@@ -108,6 +111,10 @@ export function framesOf(spec: LayeredSpec, ranked: Ranked): Frames {
       const grown = [...need].filter(([, n]) => n > 0);
       for (const [f, n] of grown) extra.set(f, (extra.get(f) ?? 0) + n);
       return grown.length > 0;
+    },
+    block: (n) => {
+      const f = path(n).at(-1);
+      return f === undefined ? [n] : [...fp.paths].filter(([, p]) => p.includes(f)).map(([m]) => m);
     },
     rects: (boxes, tops, bottoms) => framed(boxes, tops, bottoms),
   };
