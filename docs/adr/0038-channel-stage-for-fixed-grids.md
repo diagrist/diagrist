@@ -49,8 +49,9 @@ to the layered pipeline's `seatLabel`, which seats one label per edge at its sta
 
 ## Consequences
 
-C4 moves onto the stage in the next change, with a second byte baseline for every C4 picture, and then into the line
-check with a `labelNear` of 10, its label gap. A kind with a hand-placed grid gets presentable lines without a layout
+C4 moved onto the stage with a second byte baseline for every C4 picture, and into the kernel's line check with a
+`labelNear` of 10, its label gap (D1), after its adaptive router learnt to keep a lead of 24 pixels into a head
+(`GridMetrics.lead`); `lineCheck: false` is gone, and no C4 example has a line or placement finding. A kind with a hand-placed grid gets presentable lines without a layout
 of its own; the search for spots is a few thousand cheap tests per picture. Gutters do not grow yet, so a crowded gap
 can still run out of tracks or room for texts; the search then takes the spot that meets least, and the line check
 says so.

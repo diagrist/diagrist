@@ -55,6 +55,8 @@ export interface GridMetrics {
   readonly endGap?: number;
   /** Extra gap below every row of an adaptive grid, for parts sticking out of nodes such as icons on cards. */
   readonly rowOverhang?: number;
+  /** Least straight run of an adaptive route into its head, where the gap holds it; `laneGap` when left out. */
+  readonly lead?: number;
 }
 
 /** A column of the grid; without a width it is `nodeW` wide. */

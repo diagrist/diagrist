@@ -197,7 +197,7 @@ check over the picture can hold it.
 | Sheet | Every picture has a title, the name of its kind, and a status line (kicker) with a date or work state when the file gives one; a picture wider than 1,100 CSS pixels gets a warning with the width and the advice to move notes below. | header parts in `parts`; width check in `dgr check` |
 | Typography | Names and texts in a proportional face, identifiers, protocols, ports and code in mono; capitals only for kickers and micro labels of at least 9.5 px; no text smaller than 9 px; names never set in capitals. | look fonts are data, a test over the font roles |
 | Labels present | Every label of the model is a real `<text>` in the SVG, never a `foreignObject`, and a test finds each one. | test over the compiled SVG |
-| Nothing crossed | No edge runs through a label, a node or a group head; a number sits clear of the frame it crosses. | the kernel's line check (G410 to G418, ADR 0034, 0035) in `dgr check`, asserted over the examples of every kind but C4 (burn-down) |
+| Nothing crossed | No edge runs through a label, a node or a group head; a number sits clear of the frame it crosses. | the kernel's line check (G410 to G418, ADR 0034, 0035) in `dgr check`, asserted over the examples of every kind |
 | Nesting | Frames nest at most two deep; a third frame is a warning that suggests columns and rows. | rule over groups |
 
 ## Layouts

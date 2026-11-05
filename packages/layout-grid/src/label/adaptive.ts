@@ -14,14 +14,31 @@ function moved(items: readonly EdgeLabel[], dx: number, dy: number): EdgeLabel[]
   }));
 }
 
+/**
+ * The lines of a block beside a vertical segment, each flush with the side of the block that faces the segment, so
+ * a short line does not stand off its route. Lines already flush keep their anchor.
+ */
+function towards(items: readonly EdgeLabel[], rect: Rect, side: number): EdgeLabel[] {
+  const right = rect.x + rect.w;
+  return items.map((item) => {
+    if (side > 0 && item.box.x > rect.x + 0.5)
+      return { ...item, x: rect.x, anchor: 'start', box: { ...item.box, x: rect.x } };
+    if (side < 0 && item.box.x + item.box.w < right - 0.5)
+      return { ...item, x: right, anchor: 'end', box: { ...item.box, x: right - item.box.w } };
+    return item;
+  });
+}
+
 /** Places on a segment, the middle first; the fine eighths help where many frame heads crowd. */
 const FRACTIONS = [0.5, 0.25, 0.75, 0.375, 0.625, 0.125, 0.875];
 
 /**
  * Labels of an adaptive grid move as one block per route: over the segments from the longest, the places in
  * `FRACTIONS`, both sides, the first spot clear of nodes, head strips, `fixed` texts, routes and labels placed
- * before. Without one they stay where they are. With `keep`, labels already on a free spot stay there. With `onLine`
- * a block stands on its own route, centred on the segment, and only other routes count as in its way.
+ * before; beside a vertical segment the lines of a moved block stand flush towards it. Without a spot they stay
+ * where they are. With `keep`, labels already on a free spot stay there and a moved block keeps its lines as the
+ * kind set them. With `onLine` a block stands on its own route, centred on the segment, and only other routes count
+ * as in its way.
  */
 export function adaptiveLabels(
   board: Board,
@@ -72,7 +89,8 @@ export function adaptiveLabels(
                 y: horizontal ? y + (side < 0 ? -bounds.h - m.labelGap : m.labelGap) : y - bounds.h / 2,
               };
           if (clear(rect, onLine ? route : -1)) {
-            placed.push(...moved(items, rect.x - bounds.x, rect.y - bounds.y));
+            const block = moved(items, rect.x - bounds.x, rect.y - bounds.y);
+            placed.push(...(horizontal || onLine || keep ? block : towards(block, rect, side)));
             return;
           }
         }
