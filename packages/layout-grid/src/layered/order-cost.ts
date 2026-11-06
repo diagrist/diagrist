@@ -1,6 +1,8 @@
 import type { OrderCost } from '../layers/sift.js';
 import type { Neighbours } from './order.js';
+import type { SpanPricing } from './order-span.js';
 import { crossed, misplaced, spread } from './order-terms.js';
+import { type TrunkSite, trunkCrossings } from './order-trunks.js';
 import type { Ranked } from './rank.js';
 
 /** What one foreign node between two members of a cluster costs, against 10 for a crossing. */
@@ -51,6 +53,10 @@ export interface RankedCost {
   readonly given: ReadonlyMap<string, number>;
   /** The weight of a piece through placeholders, by which a long edge passing between neighbours counts. */
   readonly dummyWeight: number;
+  /** The estimated length across of the pieces and what a pixel of it costs, against 10 for a crossing. */
+  readonly span?: { readonly pricing: SpanPricing; readonly perPixel: number };
+  /** Where trunks may be crossed by pieces of their own box, by the layer of the pieces' other ends (`trunkSites`). */
+  readonly trunks?: ReadonlyMap<number, readonly TrunkSite[]>;
 }
 
 /**
@@ -62,6 +68,8 @@ export interface RankedCost {
  */
 export function rankedCost(c: RankedCost): OrderCost {
   const { ranked, cluster, pins, given } = c;
+  const px = c.span?.perPixel ?? 0;
+  const span = c.span?.pricing;
   const kept = pins.size > 0 || given.size > 0;
   const passing = (layer: readonly string[], from: number, to: number) => {
     let count = 0;
@@ -69,6 +77,15 @@ export function rankedCost(c: RankedCost): OrderCost {
     return count;
   };
   const { down, beside } = reachOf(c.links, ranked.layerOf);
+  const sitesOf = new Map<string, TrunkSite[]>();
+  for (const sites of c.trunks?.values() ?? [])
+    for (const site of sites)
+      for (const e of [...site.members, ...site.others]) sitesOf.set(e.other, [...(sitesOf.get(e.other) ?? []), site]);
+  /** The trunk crossings that the places of `moved` among the rest of their layer decide. */
+  const trunked = (moved: readonly string[], at: (m: string) => number) => {
+    const sites = [...new Set(moved.flatMap((m) => sitesOf.get(m) ?? []))];
+    return sites.length === 0 ? 0 : trunkCrossings(sites, at);
+  };
   const up = new Map<string, (readonly [string, number])[]>();
   for (const [a, list] of down)
     for (const [b, w] of list) {
@@ -96,19 +113,23 @@ export function rankedCost(c: RankedCost): OrderCost {
       }
     if (kept) total += PINNED * misplaced(layer, pins, given);
     if (cluster.size > 0) total += CLUSTER_SPREAD * spread(layer, cluster);
+    const sites = c.trunks?.get(ranked.layerOf.get(layer[0] ?? '') ?? -1);
+    if (sites !== undefined) total += trunkCrossings(sites, at);
     return total;
   };
   const whole = (layers: string[][]) => {
     const pos = new Map<string, number>();
     for (const layer of layers) placesOf(layer, pos);
     const at = (n: string) => pos.get(n) ?? 0;
-    return layers.reduce((sum, layer, l) => sum + across(layers, l, at) + own(layer, at), 0);
+    const length = span === undefined ? 0 : px * span.whole(layers);
+    return layers.reduce((sum, layer, l) => sum + across(layers, l, at) + own(layer, at), length);
   };
   const near = (layers: string[][], l: number) => {
     const pos = new Map<string, number>();
     for (const k of [l - 1, l, l + 1]) placesOf(layers[k], pos);
     const at = (n: string) => pos.get(n) ?? 0;
-    return across(layers, l - 1, at) + across(layers, l, at) + own(layers[l] ?? [], at);
+    const length = span === undefined ? 0 : px * span.near(layers, l);
+    return across(layers, l - 1, at) + across(layers, l, at) + own(layers[l] ?? [], at) + length;
   };
   /** Weighted crossings of the pieces of `n` with those of `v`, `v` standing left of `n`, and right of it. */
   const pairCost = (n: string, v: string, pos: ReadonlyMap<string, number>): [number, number] => {
@@ -135,21 +156,25 @@ export function rankedCost(c: RankedCost): OrderCost {
     const pairs = others.map((v) => pairCost(n, v, pos));
     const index = new Map(others.map((m, i) => [m, i]));
     const still = !kept && cluster.size === 0 && others.every((m) => (beside.get(m) ?? []).length === 0);
+    const trunk = sitesOf.has(n);
     let leftOf = 0;
     let rightOf = pairs.reduce((s, p) => s + p[1], 0);
+    const lengths = span?.places(layers, l, n);
     return Array.from({ length: others.length + 1 }, (_, to) => {
       if (to > 0) {
         const [l0, r0] = pairs[to - 1] as [number, number];
         [leftOf, rightOf] = [leftOf + l0, rightOf - r0];
       }
-      if (still && (beside.get(n) ?? []).length === 0) return leftOf + rightOf;
-      const layer = [...others.slice(0, to), n, ...others.slice(to)];
+      const length = px * (lengths?.[to] ?? 0);
       const at = (m: string) => {
         if (m === n) return to;
         const i = index.get(m) ?? 0;
         return i < to ? i : i + 1;
       };
-      return leftOf + rightOf + own(layer, at);
+      if (still && (beside.get(n) ?? []).length === 0)
+        return leftOf + rightOf + length + (trunk ? trunked([n], at) : 0);
+      const layer = [...others.slice(0, to), n, ...others.slice(to)];
+      return leftOf + rightOf + own(layer, at) + length;
     });
   };
   const swap = (layers: string[][], l: number, i: number) => {
@@ -158,14 +183,16 @@ export function rankedCost(c: RankedCost): OrderCost {
     const pos = new Map<string, number>();
     for (const k of [l - 1, l + 1]) placesOf(layers[k], pos);
     const [left, right] = pairCost(n, v, pos);
+    const length = span === undefined ? 0 : px * span.swap(layers, l, i);
     const still = !kept && cluster.size === 0 && layer.every((m) => (beside.get(m) ?? []).length === 0);
-    if (still) return left - right;
     const at = (list: readonly string[]) => {
       const p = new Map(list.map((m, k) => [m, k]));
       return (m: string) => p.get(m) ?? 0;
     };
     const turned = [...layer.slice(0, i), v, n, ...layer.slice(i + 2)];
-    return left - right + own(turned, at(turned)) - own(layer, at(layer));
+    if (still && !sitesOf.has(n) && !sitesOf.has(v)) return left - right + length;
+    if (still) return left - right + length + trunked([n, v], at(turned)) - trunked([n, v], at(layer));
+    return left - right + own(turned, at(turned)) - own(layer, at(layer)) + length;
   };
   return Object.assign((layers: string[][]) => whole(layers), { near, places, swap });
 }

@@ -3,6 +3,7 @@ import { clearOfAside } from './aside.js';
 import { isotoneApart } from './isotone.js';
 import type { Group, Link } from './links.js';
 import type { Ranked } from './rank.js';
+import { straightTrunks } from './trunks.js';
 
 /** Where every piece leaves its upper end and reaches its lower end, by `Link`. */
 export interface Ports {
@@ -180,5 +181,6 @@ export function portsOf(
     top.set(l, at);
   }
   clearOfAside(groups, aside, top, bottom, room, gap, (n) => ranked.dummies.has(n));
+  straightTrunks(groups, top, bottom, room, jog, (n) => ranked.dummies.has(n));
   return { top, bottom };
 }

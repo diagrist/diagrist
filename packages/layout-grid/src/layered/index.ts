@@ -1,5 +1,6 @@
 import { scoreOf } from '../score.js';
-import { arrange, arrangeHub, planHub } from './arrange.js';
+import { arrangeHub, planHub } from './arrange.js';
+import { laidOut } from './detour.js';
 import { finish, type LayeredLayout } from './finish.js';
 import { anchorFrameEnds, released } from './frame-ends.js';
 import type { Side } from './hub.js';
@@ -22,7 +23,7 @@ const ROUNDS = 4;
  */
 function plain(spec: LayeredSpec): LayeredLayout {
   const boxes = new Set(spec.nodes.map((n) => n.id));
-  if (spec.edges.every((e) => boxes.has(e.from) && boxes.has(e.to))) return finish(spec, arrange(spec));
+  if (spec.edges.every((e) => boxes.has(e.from) && boxes.has(e.to))) return laidOut(spec);
   const layers =
     spec.layers ??
     (() => {
@@ -33,7 +34,7 @@ function plain(spec: LayeredSpec): LayeredLayout {
       return out;
     })();
   const anchored = anchorFrameEnds(spec, layers);
-  return released(spec, finish(anchored.spec, arrange(anchored.spec)), anchored.ends);
+  return laidOut(anchored.spec, (l) => released(spec, l, anchored.ends), spec);
 }
 
 /**

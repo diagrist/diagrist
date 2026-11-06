@@ -49,6 +49,12 @@ export interface GraphEdge {
   readonly weight?: number;
   /** Edges of one key may share a trunk, as a fan out of one node or a join into one. */
   readonly bundle?: string;
+  /**
+   * `whole` keeps every edge of the bundle on one trunk at its shared node, however the other ends stand, for
+   * notations that draw one symbol at that node for all of them; by default a trunk only gathers ends that stand
+   * side by side, with no foreign box between them.
+   */
+  readonly trunk?: 'whole';
   readonly label?: GraphLabel;
   /**
    * How the line runs: `orthogonal` between layers and beside them, `loop` out of a side of its box and back into

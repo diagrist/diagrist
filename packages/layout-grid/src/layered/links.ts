@@ -17,6 +17,8 @@ export interface Link {
 export interface Group {
   readonly kind: 'single' | 'fan' | 'join';
   readonly links: readonly Link[];
+  /** The group holds every piece of a bundle that keeps one `whole` trunk at its node. */
+  readonly whole?: boolean;
 }
 
 /** Every piece of every edge, chain by chain, in the order of the edges. */
@@ -54,7 +56,8 @@ function runs(
 /**
  * The pieces in groups: pieces of one bundle leaving the same box form a fan for every run of boxes they reach
  * that stand together, the rest of one bundle entering the same box a join for every run of boxes they come from,
- * and every other piece stands alone. Groups come in the order of their first piece.
+ * and every other piece stands alone. A bundle whose edges keep one `whole` trunk forms one fan or join however its
+ * other ends stand. Groups come in the order of their first piece.
  */
 export function groupsOf(
   spec: LayeredSpec,
@@ -63,6 +66,7 @@ export function groupsOf(
   links: readonly Link[],
 ): Group[] {
   const bundle = new Map(spec.edges.map((e) => [e.id, e.bundle]));
+  const whole = new Set(spec.edges.flatMap((e) => (e.trunk === 'whole' && e.bundle !== undefined ? [e.bundle] : [])));
   const real = (n: string) => !ranked.dummies.has(n);
   const keyed = (l: Link, end: string) => {
     const b = bundle.get(l.edge);
@@ -81,11 +85,13 @@ export function groupsOf(
       const first = members[0] as Link;
       const layer = layers[first.gap + (kind === 'fan' ? 1 : 0)] ?? [];
       const other = (l: Link) => (kind === 'fan' ? l.lower : l.upper);
-      for (const run of runs(members, other, layer, ranked.dummies)) {
+      const b = bundle.get(first.edge);
+      const one = b !== undefined && whole.has(b);
+      for (const run of one ? [members] : runs(members, other, layer, ranked.dummies)) {
         if (run.length < 2) continue;
         const order = (l: Link) => links.indexOf(l);
         for (const l of run) used.add(l);
-        groups.push({ kind, links: [...run].sort((a, b) => order(a) - order(b)) });
+        groups.push({ kind, links: [...run].sort((a, b) => order(a) - order(b)), ...(one ? { whole: true } : {}) });
       }
     }
   };

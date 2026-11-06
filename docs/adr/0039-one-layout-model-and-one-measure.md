@@ -176,7 +176,7 @@ stress budgets count, such as bends a straight line could spare, reached no sear
 ## Consequences
 
 Placeholders cross a frame only where it lies wholly between the ends of their line; a frame beside a line's way is
-still gone around, since the cost of an order knows length only between chain moves that cost the same (see
+still gone around where the way round is shorter than a crossing is worth (see the amendment of 06.11.2026 and
 `docs/burn-down.md`, the order and length). The leaf search lays a picture out once more for
 every place a leaf frame may take, like the hub search; pictures without such frames pay nothing. A layout stage that
 wants to compare two of its own variants can now ask the same question the check answers.
@@ -201,3 +201,29 @@ in the frame for one crossing more, raised in its budget by hand. A column whose
 the middle keeps all its lines on one spine, the column of the narrower box (`look=columns`). And a gap asks room
 for lanes only where they run beside each other, and shared trunks count once. The C4 stress set keeps nothing in
 `PENDING`; `cloud` in `look=cards` has no line finding, `cloud-columns` stands on three spines.
+
+## Amendment: shared trunks and the price of a detour (owner decisions of 06.11.2026)
+
+**One trunk for the realizations of an interface.** UML draws every generalization and every realization into one
+target on one trunk with one triangle. An edge may now ask for that (`GraphEdge.trunk: 'whole'`): its bundle forms one
+fan or join at the shared box however the other ends stand, where until now a box between two of them split the
+trunk, so `Fahrzeug` in `hierarchie-quer` and `Signierbar` in `schnittstellen` drew two triangles. Class diagrams ask
+it for generalizations and realizations. The order counts a piece of the same box whose other end stands between
+members of such a trunk as the crossings it makes with the trunk (`trunkSites`), the tracks count a crossing of a
+whole trunk once per pair of lines, as the check does, and a whole trunk moves onto a member whose end slipped less
+than a jog beside it. Other bundles, such as the links of concept pictures, keep trunks of ends side by side: a bus
+that gathers every link of two groups (`raute`) would read "each uses each", a notation no kind has.
+
+**A crossing is worth 600 pixels of detour** (`DETOUR`). Where a line can avoid a crossing only by a detour longer than
+that, it crosses. The order stage prices it: after the order of fewest crossings, a refinement prices the estimated
+length across of every piece as well, weighted as its crossings are, 10/600 per pixel against 10 a crossing
+(`spanPricing`, by layer, by place and by swap as the crossings are, so the search stays incremental). Where that
+moves anything, both orders are drawn without the passes that move boxes, and the shorter stays only where its
+crossings and length together cost less, a crossing 600 pixels, and it has no more lines on one another and no more
+lines through boxes or texts, ports out of order, texts near lines, lines side by side, jogs or short pieces; only the
+order that stays is laid out in full (`laidOut`). The order alone would not do: it estimates where boxes stand, and a
+refinement trusted on its own gave pictures new crossings and lines through texts. Placeholders between two boxes
+drawn beside each other share the room the line between them asks, so a line that crosses there passes clear of the
+texts at its ends. `scoreOf` keeps length at 0.1 a pixel: its searches move boxes, where a few pixels of line must not
+buy a bend. `beobachter` now crosses `Kursquelle → PreisBeobachter` once instead of running `PushAlarm → AlarmRegel`
+round the top, 768 px shorter, a trade its budget names (a crossing and a bend a straight line could spare).

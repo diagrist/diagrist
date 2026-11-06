@@ -1,8 +1,8 @@
 import { layerGraph } from '../layers/index.js';
 import { framedLeaves } from '../layers/nest.js';
 import { scoreOf } from '../score.js';
-import { arrange } from './arrange.js';
-import { finish, type LayeredLayout } from './finish.js';
+import { laidOut } from './detour.js';
+import type { LayeredLayout } from './finish.js';
 import { anchorFrameEnds, released } from './frame-ends.js';
 import { layeredLines } from './output.js';
 import type { LayeredSpec } from './spec.js';
@@ -25,7 +25,7 @@ export function layoutLeaves(spec: LayeredSpec, graph: NonNullable<LayeredSpec['
     const known = seen.get(key);
     if (known) return known;
     const anchored = anchorFrameEnds({ ...spec, layers, reorder: true }, layers);
-    const layout = released(spec, finish(anchored.spec, arrange(anchored.spec)), anchored.ends);
+    const layout = laidOut(anchored.spec, (l) => released(spec, l, anchored.ends), spec);
     const priced = { layout, cost: scoreOf(layeredLines(spec, layout)).cost };
     seen.set(key, priced);
     return priced;

@@ -4,6 +4,7 @@ import { scoreOf } from '../score.js';
 import type { Arrangement } from './arrange.js';
 import { type Around, bendSides } from './bend.js';
 import { besideRoutes, sideOf } from './beside.js';
+import { roomAcross } from './beside-room.js';
 import { assignTracks, gapHeight, type Piece, piecesOf } from './channels.js';
 import { coords, spinesOf, type Xs } from './coords.js';
 import { clearCore } from './fence.js';
@@ -41,7 +42,8 @@ export function finish(spec: LayeredSpec, arrangement: Arrangement): LayeredLayo
   const loops = loopsOf(spec, m, ranked, layers);
   const base = (a: string, b: string) =>
     dummy(a) && dummy(b) ? m.track : dummy(a) || dummy(b) ? m.colGap / 2 : m.colGap + (fenced(a, b) ? pad : 0);
-  const gap = (a: string, b: string) => Math.max(base(a, b), runs.room(a, b)) + fr.walls(a, b) + loops.room(a, b);
+  const room = roomAcross(layers, dummy, runs.room);
+  const gap = (a: string, b: string) => Math.max(base(a, b), room(a, b)) + fr.walls(a, b) + loops.room(a, b);
   const inCore = layers.flatMap((layer, l) => (layer.some((n) => core.has(n)) ? [l] : []));
   const headRoom = spec.hub ? pad + spec.hub.head.size + 2 + 2 * m.labelGap : 0;
   const above = (l: number) => (l === (inCore[0] ?? -2) - 1 ? headRoom : 0) + fr.head(l + 1);
@@ -70,7 +72,7 @@ export function finish(spec: LayeredSpec, arrangement: Arrangement): LayeredLayo
     const placed = coords({ layers, width, gap, links: neighbours, ranked, spines }, m.left);
     clearCore(placed, layers, width, core, arrangement.pins ?? new Map(), m.colGap + pad);
     const settled = settle(placed);
-    if (spec.hub) return settled;
+    if (spec.hub || arrangement.rough === true) return settled;
     const straight = unjog({ layers, width, gap, groups, ranked, settle, blockOf: fr.block, price, spines }, settled);
     return squeezed({ layers, width, gap, blocks: fr.outer(), left: m.left, settle, price }, straight);
   };

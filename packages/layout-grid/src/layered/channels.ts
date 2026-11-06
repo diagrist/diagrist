@@ -15,6 +15,12 @@ export interface TrackPiece {
    * box keep `APART` from each other on a shared track.
    */
   readonly boxes?: readonly string[];
+  /**
+   * The lines the piece carries, each as the place of its vertical from above and of its vertical below. With them, a
+   * crossing counts once for every pair of lines that meets there, as the line check counts it, so a trunk that
+   * carries four lines weighs four where a foreign piece crosses it.
+   */
+  readonly lines?: readonly (readonly [number, number])[];
   track: number;
 }
 
@@ -40,12 +46,25 @@ const inside = (v: number, p: TrackPiece) => v > p.x1 + 0.5 && v < p.x2 - 0.5;
 const beside = (a: TrackPiece, b: TrackPiece, apart: number) =>
   apart <= 0 ? 0 : a.bottoms.reduce((n, u) => n + b.tops.filter((t) => Math.abs(t - u) < apart).length, 0);
 
+/** The lines of `p` whose horizontal passes `v`, or 1 where `v` is inside a piece that names no lines. */
+const passing = (p: TrackPiece, v: number) =>
+  p.lines === undefined
+    ? inside(v, p)
+      ? 1
+      : 0
+    : p.lines.filter(([t, u]) => Math.min(t, u) < v - 0.5 && Math.max(t, u) > v + 0.5).length;
+
+/** The verticals of `p` from above (`0`) or below (`1`), one per line it carries where it names them. */
+const verticals = (p: TrackPiece, end: 0 | 1) => p.lines?.map((l) => l[end]) ?? (end === 0 ? p.tops : p.bottoms);
+
 /**
- * Crossings when `a` runs above `b`: verticals of `b` coming down through `a`, of `a` going down through `b`. A pair
- * of verticals side by side counts twice, as two lines that close read as one.
+ * Crossings when `a` runs above `b`: verticals of `b` coming down through `a`, of `a` going down through `b`, each
+ * line pair once. A pair of verticals side by side counts twice, as two lines that close read as one.
  */
 const over = (a: TrackPiece, b: TrackPiece, apart: number) =>
-  b.tops.filter((t) => inside(t, a)).length + a.bottoms.filter((u) => inside(u, b)).length + 2 * beside(a, b, apart);
+  verticals(b, 0).reduce((n, t) => n + passing(a, t), 0) +
+  verticals(a, 1).reduce((n, u) => n + passing(b, u), 0) +
+  2 * beside(a, b, apart);
 
 /** The horizontal pieces of one gap: every group whose ends are not on one vertical, with the ends of its verticals. */
 export function piecesOf(groups: readonly Group[], ports: Ports): Piece[] {
@@ -57,7 +76,8 @@ export function piecesOf(groups: readonly Group[], ports: Ports): Piece[] {
     const x2 = Math.max(...all);
     if (g.kind === 'single' && x2 - x1 <= 1) return [];
     const boxes = [...new Set(g.links.flatMap((l) => [`up:${l.upper}`, `down:${l.lower}`]))];
-    return [{ group: g, tops, bottoms, x1, x2, boxes, track: 0 }];
+    const lines = g.links.map((l) => [ports.bottom.get(l) ?? 0, ports.top.get(l) ?? 0] as const);
+    return [{ group: g, tops, bottoms, x1, x2, boxes, ...(g.whole ? { lines } : {}), track: 0 }];
   });
 }
 
