@@ -84,15 +84,17 @@ describe('state machine layout', () => {
     const separator = /<line x1="([\d.]+)" y1="[\d.]+" x2="([\d.]+)" y2="([\d.]+)" class="line dashed"\/>/.exec(p.svg);
     expect(separator?.[1]).toBe(separator?.[2]);
     expect(Number(separator?.[3])).toBe(frame.y + frame.h);
-    expect(Number(separator?.[1])).toBeGreaterThan(p.node('kommissioniert').x + p.node('kommissioniert').w);
-    expect(Number(separator?.[1])).toBeLessThan(p.node('offen').x);
+    const [left, right] = [p.node('kommissioniert'), p.node('offen')].sort((a, b) => a.x - b.x);
+    expect(Number(separator?.[1])).toBeGreaterThan((left?.x ?? 0) + (left?.w ?? 0));
+    expect(Number(separator?.[1])).toBeLessThan(right?.x ?? 0);
   });
 
   it('puts an exit point on the border of its state, facing its way out', () => {
     const p = picture('auftrag-parallel');
     const frame = p.frame('bearbeitung');
-    expect(cx(p.node('storno'))).toBe(frame.x + frame.w);
+    expect([frame.x, frame.x + frame.w]).toContain(cx(p.node('storno')));
     expect(p.edge('offen', 'storno').at(-1)?.[1]).toBe(cy(p.node('storno')));
+    expect(p.edge('storno', 'storniert')[0]?.[1]).toBe(cy(p.node('storno')));
   });
 
   it('joins points of neighbouring submachines by a straight line across the gap, from left to right', () => {

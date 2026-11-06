@@ -1,14 +1,13 @@
 import { type Placed, textWidth } from '@diagrist/core';
-import type { EdgeLabel, GridLayout, Route } from '@diagrist/layout-grid';
+import type { EdgeLabel, GridLayout, PlacedGroup, Route } from '@diagrist/layout-grid';
 import { decisionStrip, HEADER, type Header, MARGIN, type Strip, stripWidth, type Words } from '@diagrist/parts';
 import { type NoteArt, noteArts } from '../../shared/notes.js';
 import type { StateModel } from '../model.js';
-import { gridState } from './grid.js';
-import { laidState, onEngine } from './laid.js';
+import { laidState } from './laid.js';
 import { STATE_FONTS as F, STATE as S } from './metrics.js';
 import { placedState } from './placed.js';
 import { type PointName, pointNames } from './points/names.js';
-import type { TransitionEnds } from './route/context.js';
+import type { TransitionEnds } from './transitions.js';
 
 /** The texts of the picture the layout measures: the title line, and the suffix of open decisions. */
 export type PictureTexts = Pick<Words, 'open'> & {
@@ -22,6 +21,8 @@ export interface StateLayout {
   readonly width: number;
   readonly height: number;
   readonly grid: GridLayout;
+  /** The orthogonal regions, each filling its part of its state. */
+  readonly regions: readonly PlacedGroup[];
   readonly routes: readonly Route[];
   /** Ends of each route, by route index. */
   readonly ends: readonly TransitionEnds[];
@@ -33,29 +34,29 @@ export interface StateLayout {
   readonly placed: readonly Placed[];
 }
 
-/**
- * Layout of a state machine: laid out by the layout engine (`laidState`) where it can, else on the adaptive grid
- * (`gridState`); then names of points, notes, marks and the decision bar.
- */
+/** Layout of a state machine: laid out by the layout engine (`laidState`), then names of points, notes, marks and the decision bar. */
 export function layoutState(m: StateModel, words: PictureTexts): StateLayout {
-  const { spec, grid: fitted, routes, labels, context } = onEngine(m) ? laidState(m) : gridState(m);
+  const { spec, grid: fitted, routes, labels, context, regions } = laidState(m);
   const notes = noteArts(m.diagram.notes, fitted, routes, labels);
+  const names = pointNames(m, fitted, routes, labels);
+  const named = [...names.values()].map((n) => (n.anchor === 'start' ? n.x + textWidth(n.text, F.note) : n.x));
   const bottom = Math.max(fitted.bottom, ...notes.map((n) => n.rect.y + n.rect.h + S.padBottom));
   const width = Math.ceil(
     Math.max(
       fitted.width,
       ...notes.map((n) => n.rect.x + n.rect.w + S.marginX),
+      ...named.map((x) => x + S.margin),
       textWidth(words.title, F.title) + 2 * MARGIN,
       stripWidth(m.diagram.decisions, words.open),
     ),
   );
   const strip = decisionStrip(m.diagram.decisions, bottom, width);
-  const names = pointNames(m, fitted, routes, labels);
   return {
     header: HEADER,
     width,
     height: Math.ceil((strip.cards.length > 0 ? strip.bottom : bottom) + S.margin),
     grid: fitted,
+    regions,
     routes,
     ends: context.ends,
     labels,

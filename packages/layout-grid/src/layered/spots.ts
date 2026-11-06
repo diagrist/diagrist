@@ -83,7 +83,8 @@ const shifted = (d: Drawn, dx: number): Drawn => ({
  * clear spot beside or on its line, the longest piece first and nearest its middle, wrapped where that helps. An
  * edge with a text that runs through no gap (`chained` names those that do), such as one drawn beside its layer,
  * starts beside the middle of its longest horizontal piece. `crowded` names the routes whose texts found no clear
- * spot. A picture reaching left of 0, as rails may before it is moved inside, is searched moved right.
+ * spot. A picture whose lines come nearer to 0 than its widest text, as rails may before it is moved inside, is
+ * searched moved right, so a text may stand left of its line where the picture then grows.
  */
 export function spotLabels(
   spec: LayeredSpec,
@@ -91,7 +92,12 @@ export function spotLabels(
   first: readonly EdgeLabel[],
   chained: ReadonlySet<string>,
 ): { labels: EdgeLabel[]; crowded: number[] } {
-  const low = Math.min(0, ...drawn.routes.flatMap((r) => r.points.map((p) => p[0])), ...first.map((l) => l.box.x));
+  const widest = Math.max(0, ...spec.edges.map((e) => e.label?.width ?? 0)) + spec.metrics.labelGap;
+  const low = Math.min(
+    0,
+    ...drawn.routes.flatMap((r) => r.points.map((p) => p[0] - widest)),
+    ...first.map((l) => l.box.x),
+  );
   if (low < 0) {
     const dx = Math.ceil(-low) + spec.metrics.left;
     const found = spotLabels(

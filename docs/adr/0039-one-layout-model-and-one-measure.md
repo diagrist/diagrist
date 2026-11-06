@@ -227,3 +227,27 @@ drawn beside each other share the room the line between them asks, so a line tha
 texts at its ends. `scoreOf` keeps length at 0.1 a pixel: its searches move boxes, where a few pixels of line must not
 buy a bend. `beobachter` now crosses `Kursquelle → PreisBeobachter` once instead of running `PushAlarm → AlarmRegel`
 round the top, 768 px shorter, a trade its budget names (a crossing and a bend a straight line could spare).
+
+## Amendment: every state machine on the layout graph (plan P8)
+
+The state machines that stayed on the adaptive grid moved as well, with four stages around the layered ones
+(`graph/stages.ts`), each a field of the contract and each handing a picture without it back byte for byte:
+
+| Field | Stage | What it does |
+|---|---|---|
+| `GraphContainer.kind` `part` | `graph/parts.ts` | Parts are laid out as frames, then stretched until the parts of one parent fill it side by side (or stacked), meeting in the middle of the gap between them; the kind draws its dividers where two meet. Orthogonal regions are parts of their state. |
+| `GraphNode.shape` `bar` | `graph/bars.ts` | A line out of the bottom or into the top of a bar loses its jog next to the bar, and the bar reaches over all its lines. Where the bar wants to be wider than laid out, the picture is laid out again with the bar that wide, up to three times, so the placement keeps its room. Fork and join are bars. |
+| `GraphNode.dock` | `graph/docks.ts`, `dock-place.ts`, `dock-texts.ts` | A node docked on the outline of a frame or box leaves the graph: a line through it, from outside the frame to inside or back, is laid out as one edge and cut where it crosses the outline, the node centred there; a line from outside runs to the host and ends on its outline; the one line of a node with nothing outside runs beside its partner, the node moved out to the frame's side. The texts of cut lines are seated anew at their own part by the spot search, and stay where the stages set them where their part has no room. Entry and exit points are docked nodes. |
+| `GraphGiven.direction` `right` | `graph/turn.ts` | The graph is laid out down with the sides of its boxes and texts swapped and turned a quarter to the left, so texts the stages seat right of a line stand above it; the spot search then runs once more on the turned picture with the real texts. |
+
+`layout/grid.ts`, `cells.ts`, `gaps.ts`, `growth.ts`, `scope.ts`, `sides.ts`, `bars.ts`, `points/index.ts`,
+`points/pairs.ts`, `points/penalty.ts` and `layout/route` of the kind are gone. The rails of the pipeline counted a
+rail placed before as crossed where the new one held it inside its stretch, and not where it lay across the new
+one's ends; the count is the right way round now (`fahrgastraum` 488 px of line less, no crossing). The state stress
+set keeps nothing in `PENDING`: `parallel-drei` loses its crossing, its line through a text and its text near a
+foreign line, `punkte` its text on a point's name and its lines on one another. `quer-rechts` is the named trade:
+one bend a straight line could spare, for six fewer bends, a fifth less line and a third less height.
+
+The spot search of the pipeline searches a picture moved right where its lines come nearer to the left edge than its
+widest text, not only where they reach past it, so a text may take a spot left of its line and the picture grows
+there instead of a gap growing for a text that found none: `lange-ereignisse` is 56 px lower again, as before #59.
