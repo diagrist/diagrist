@@ -1,4 +1,13 @@
-import { DEFAULT_THRESHOLDS, type Drawing, lineFindings, linesOfDrawing, type Plugin, type Rect } from '@diagrist/core';
+import { readFileSync } from 'node:fs';
+import {
+  compile,
+  DEFAULT_THRESHOLDS,
+  type Drawing,
+  lineFindings,
+  linesOfDrawing,
+  type Plugin,
+  type Rect,
+} from '@diagrist/core';
 import { describe, expect, it } from 'vitest';
 import { context } from '../src/kinds.js';
 import { compileExample, exampleNames, plugins } from './compile.js';
@@ -49,4 +58,10 @@ describe('the lines of C4 pictures', () => {
       expect(drawings.slice(-pictures.length).flatMap(closePairs)).toEqual([]);
     },
   );
+
+  it('wrap a long name beside a short upright line no more than the room along it asks', () => {
+    const stress = new URL('stress/c4/adaptiv-spannen.dgr', import.meta.url);
+    const { svg } = compile(readFileSync(stress, 'utf8'), { plugins });
+    expect(svg).toContain('>meldet Gewerbe an<');
+  });
 });
