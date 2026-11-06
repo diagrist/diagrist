@@ -39,7 +39,8 @@ function turnedLabel(l: GraphLabel): GraphLabel {
 
 /**
  * A graph whose layers run left to right (`given.direction` `right`) as the stages lay it out, down: every box with
- * its sides swapped, every label turned (`turnedLabel`), the left margin at the top as well, and frames padded by their head on
+ * its sides swapped, every label turned (`turnedLabel`), the end that stands first the other one, since the start of
+ * a layer comes to its bottom, the left margin at the top as well, and frames padded by their head on
  * every side, since the stages keep a head's room only at the top. Any other graph is handed back as it is.
  */
 export function turnGraph(graph: LayoutGraph): LayoutGraph {
@@ -48,7 +49,13 @@ export function turnGraph(graph: LayoutGraph): LayoutGraph {
   return {
     ...graph,
     nodes: graph.nodes.map((n) => ({ ...n, width: n.height, height: n.width })),
-    edges: graph.edges.map((e): GraphEdge => (e.label ? { ...e, label: turnedLabel(e.label) } : e)),
+    edges: graph.edges.map(
+      (e): GraphEdge => ({
+        ...e,
+        ...(e.label ? { label: turnedLabel(e.label) } : {}),
+        ...(e.first === undefined ? {} : { first: e.first === 'to' ? 'from' : 'to' }),
+      }),
+    ),
     ...(graph.containers
       ? {
           containers: graph.containers.map((c) => ({

@@ -68,6 +68,8 @@ export interface LayeredEdge {
   readonly run?: { readonly from?: number; readonly to?: number };
   /** The least distance between `from` and `to` when the edge is drawn beside, between neighbours of one layer. */
   readonly room?: number;
+  /** With rank 0, the end that stands first in the layer, left of the other. */
+  readonly first?: 'from' | 'to';
   /**
    * Where the edge runs up the layers or past a layer, it runs on a rail instead of through them: out of a side of
    * `from`, beside everything between its ends and into the same side of `to`, where both ends stand outermost in
