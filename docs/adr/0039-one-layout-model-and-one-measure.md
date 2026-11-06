@@ -33,6 +33,14 @@ stress budgets count, such as bends a straight line could spare, reached no sear
    a crossing or a jog more, because it changes one side at a time and the jog it now refuses was the way to the
    better picture. Measured over every trial of the four hub pictures, any weight up to 3 for these, and up to 20
    for avoidable bends, chooses as before; no picture of an example or a stress fixture changes a byte.
+4. **Lines run straight by moving what stands in their way, priced by the measure.** After the placement, a piece
+   that bends by more than a slip moves a placeholder chain, else a box, by its whole offset within the room of its
+   layer, where until now only slips under 24 pixels were taken out. Such a move stays when fewer pieces bend, no
+   link of a chain bends, and the whole picture, drawn, costs no more by `scoreOf`. This is the plan's rule R1 for
+   any offset and its R2 in a form that works: a box that the pull of placeholders took away from its real
+   neighbour comes back under it after the placement, while the placement keeps the weights that order the layers
+   (R2 as a separate pull weight added four hard breaches to the class stress set). The guard on chains keeps the
+   straight pipeline of `ueberspringen`, which a move of `Data Marts` toward its readers would bend.
 
 ## Consequences
 

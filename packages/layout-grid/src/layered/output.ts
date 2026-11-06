@@ -1,6 +1,7 @@
-import { DEFAULT_THRESHOLDS, type Placed, type Point, type Rect } from '@diagrist/core';
+import { DEFAULT_THRESHOLDS, type LineInput, type Placed, type Point, type Rect } from '@diagrist/core';
 import type { EdgeLabel } from '../label/types.js';
 import type { PlacedGroup, PlacedNode, Route } from '../layout.js';
+import { linesOfLaid } from '../score.js';
 import { type CoreFrame, frameOf } from './frame.js';
 import { type Seat, seatLabel } from './labels.js';
 import type { Group, Link } from './links.js';
@@ -138,4 +139,19 @@ export function assemble(spec: LayeredSpec, laid: Laid): LayeredLayout {
     ...(fence ? { frame: fence } : {}),
     ...(laid.frames ? { frames: laid.frames } : {}),
   };
+}
+
+/** The lines of a laid out picture as the line check reads them, with the frames and the head of its core. */
+export function layeredLines(spec: LayeredSpec, layout: LayeredLayout): LineInput {
+  const ends = new Map(spec.edges.map((e) => [e.id, [e.from, e.to] as const]));
+  const core = layout.frame === undefined ? [] : [{ id: 'core', rect: layout.frame.rect, head: layout.frame.head.box }];
+  return linesOfLaid({
+    nodes: layout.nodes,
+    routes: layout.routes,
+    ends: layout.routes.map((r) => ends.get(r.edge) ?? ['', '']),
+    labels: layout.labels,
+    frames: [...core, ...(layout.frames ?? [])],
+    width: layout.width,
+    height: layout.bottom,
+  });
 }

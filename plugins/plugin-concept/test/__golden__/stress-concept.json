@@ -1,5 +1,5 @@
 {
-  "begriffe-netz.dgr": {"counts":{"crossings":0,"overlaps":0,"avoidable":0,"jog":0,"parallel":0,"bends":0},"measures":{"lines":12,"bends":10,"maxBends":2,"length":2421,"parentsOff":2,"parentOffset":69,"childrenOff":0,"childOffset":0,"width":1537,"height":624,"aspect":2.5}},
+  "begriffe-netz.dgr": {"counts":{"crossings":0,"overlaps":0,"avoidable":0,"jog":0,"parallel":0,"bends":0},"measures":{"lines":12,"bends":8,"maxBends":2,"length":2575,"parentsOff":2,"parentOffset":69,"childrenOff":0,"childOffset":0,"width":1537,"height":624,"aspect":2.5}},
   "fan-acht.dgr": {"counts":{"crossings":0,"overlaps":0,"avoidable":0,"jog":0,"parallel":0,"bends":0},"measures":{"lines":8,"bends":16,"maxBends":2,"length":3264,"parentsOff":0,"parentOffset":0,"childrenOff":0,"childOffset":0,"width":1416,"height":328,"aspect":4.3}},
   "fan-aus.dgr": {"counts":{"crossings":0,"overlaps":0,"avoidable":0,"jog":0,"parallel":0,"bends":0},"measures":{"lines":8,"bends":16,"maxBends":2,"length":3276,"parentsOff":0,"parentOffset":0,"childrenOff":0,"childOffset":0,"width":1488,"height":328,"aspect":4.5}},
   "hub-dicht.dgr": {"counts":{"crossings":1,"overlaps":0,"avoidable":1,"jog":0,"parallel":0,"bends":0},"measures":{"lines":19,"bends":30,"maxBends":2,"length":6360,"parentsOff":0,"parentOffset":0,"childrenOff":0,"childOffset":0,"width":1640,"height":801,"aspect":2}},

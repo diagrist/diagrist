@@ -1,5 +1,6 @@
 import type { Rect } from '@diagrist/core';
 import type { Route } from '../layout.js';
+import { scoreOf } from '../score.js';
 import type { Arrangement } from './arrange.js';
 import { besideRoutes, sideOf } from './beside.js';
 import { assignTracks, gapHeight, type Piece, piecesOf } from './channels.js';
@@ -11,7 +12,7 @@ import { clearHeads } from './heads.js';
 import { type Placement, unjog } from './jogs.js';
 import { labelRoom, seatsOf } from './labels.js';
 import { type Group, groupsOf, type Link, linksOf } from './links.js';
-import { assemble, type LayeredLayout } from './output.js';
+import { assemble, type LayeredLayout, layeredLines } from './output.js';
 import { portsOf } from './ports.js';
 import { runsOf } from './runs.js';
 import { keptInside } from './shift.js';
@@ -49,90 +50,103 @@ export function finish(spec: LayeredSpec, arrangement: Arrangement): LayeredLayo
     const placed = coords({ layers, width, gap, links: neighbours, ranked, spines }, m.left);
     clearCore(placed, layers, width, core, arrangement.pins ?? new Map(), m.colGap + pad);
     const settled = settle(placed);
-    return spec.hub ? settled : unjog({ layers, width, gap, groups, ranked, settle, blockOf: fr.block }, settled);
+    if (spec.hub) return settled;
+    const price = (p: Placement) => scoreOf(layeredLines(spec, draw(p))).cost;
+    return unjog({ layers, width, gap, groups, ranked, settle, blockOf: fr.block, price, spines }, settled);
   };
   const below = besideRoutes(ranked, layers);
   const links = linksOf(spec, ranked).filter((l) => !runs.hidden(l.edge));
   const groups = groupsOf(spec, ranked, layers, links);
-  let { x, flat, ports } = place();
-  const entries = links.map((l) => ({ upper: l.upper, lower: l.lower, x: ports.top.get(l) ?? 0 }));
-  if (fr.heads(entries, flat)) ({ x, flat, ports } = place());
   const seats = seatsOf(spec.edges, groups, ranked);
-  const pieceOf = new Map<Group, Piece>();
-  const tracks = layers.map((_, l) => {
-    const pieces = piecesOf(
-      groups.filter((g) => g.links[0]?.gap === l),
+  const draw = ({ x, ports }: Placement): LayeredLayout => {
+    const pieceOf = new Map<Group, Piece>();
+    const tracks = layers.map((_, l) => {
+      const pieces = piecesOf(
+        groups.filter((g) => g.links[0]?.gap === l),
+        ports,
+      );
+      for (const p of pieces) pieceOf.set(p.group, p);
+      return assignTracks(pieces);
+    });
+    const headsUp = new Set(
+      spec.edges.flatMap((e) =>
+        ranked.down.get(e.id) === false ? [ranked.layerOf.get(ranked.chains.get(e.id)?.[0] ?? '') ?? -1] : [],
+      ),
+    );
+    const run = (l: number) => (headsUp.has(l) ? m.lead : m.tail);
+    const first = layers.map(
+      (_, l) => Math.max(run(l), runs.top(l), labelRoom(seats, l, 'top', m.labelGap)) + under(l),
+    );
+    const last = layers.map(
+      (_, l) => Math.max(m.lead, runs.bottom(l), labelRoom(seats, l, 'bottom', m.labelGap)) + above(l),
+    );
+    const rects = new Map<string, Rect>();
+    const gapTop: number[] = [];
+    const bandTop: number[] = [];
+    let y = m.top + (inCore[0] === 0 ? headRoom : 0) + fr.head(0);
+    layers.forEach((layer, l) => {
+      const band = Math.max(0, ...layer.map((n) => size.get(n)?.height ?? 0));
+      bandTop.push(y);
+      for (const n of layer) {
+        const h = size.get(n)?.height ?? band;
+        rects.set(n, { x: (x.get(n) ?? 0) - width(n) / 2, y: y + (band - h) / 2, w: width(n), h });
+      }
+      gapTop.push(y + band);
+      const extra = below.count(l);
+      const needed = (tracks[l] ?? 0) + extra;
+      const measure = {
+        first: first[l] ?? m.tail,
+        track: m.track,
+        last: last[l] ?? m.lead,
+        min: m.rowGapMin,
+      };
+      y += band + (l === layers.length - 1 && extra === 0 ? 0 : gapHeight(needed, measure));
+    });
+    const frame: Frame = { rects, gapTop, first, track: m.track };
+    const groupOf = new Map<Link, Group>(groups.flatMap((g) => g.links.map((l) => [l, g] as const)));
+    const routes = spec.edges.flatMap((e): Route[] => {
+      const chain = links.filter((l) => l.edge === e.id);
+      if (chain.length === 0) {
+        if (runs.hidden(e.id)) return [];
+        const beside = below.route(e, frame, tracks, ports.bottom);
+        return beside === undefined ? [] : [beside];
+      }
+      const points = simplify(
+        chain.flatMap((l) => {
+          const g = groupOf.get(l) as Group;
+          return linkPoints(l, g, pieceOf.get(g), ports, frame);
+        }),
+      );
+      const drawn = ranked.down.get(e.id) === false ? [...points].reverse() : points;
+      return [
+        {
+          edge: e.id,
+          points: drawn,
+          shape: 'orthogonal',
+          fromSide: sideOf(drawn, 'from'),
+          toSide: sideOf(drawn, 'to'),
+        },
+      ];
+    });
+    const frames = spec.frames && fr.rects(rects, bandTop, gapTop);
+    const real = new Map([...rects].filter(([n]) => !dummy(n)));
+    const outer = (spec.frames ?? []).filter((f) => f.parent === undefined).map((f) => f.pad);
+    const floor = outer.length > 0 ? m.left - Math.max(...outer) : 0;
+    const laid = assemble(spec, {
+      ranked,
+      layers,
+      rects,
+      routes,
+      seats,
       ports,
-    );
-    for (const p of pieces) pieceOf.set(p.group, p);
-    return assignTracks(pieces);
-  });
-  const headsUp = new Set(
-    spec.edges.flatMap((e) =>
-      ranked.down.get(e.id) === false ? [ranked.layerOf.get(ranked.chains.get(e.id)?.[0] ?? '') ?? -1] : [],
-    ),
-  );
-  const run = (l: number) => (headsUp.has(l) ? m.lead : m.tail);
-  const first = layers.map((_, l) => Math.max(run(l), runs.top(l), labelRoom(seats, l, 'top', m.labelGap)) + under(l));
-  const last = layers.map(
-    (_, l) => Math.max(m.lead, runs.bottom(l), labelRoom(seats, l, 'bottom', m.labelGap)) + above(l),
-  );
-  const rects = new Map<string, Rect>();
-  const gapTop: number[] = [];
-  const bandTop: number[] = [];
-  let y = m.top + (inCore[0] === 0 ? headRoom : 0) + fr.head(0);
-  layers.forEach((layer, l) => {
-    const band = Math.max(0, ...layer.map((n) => size.get(n)?.height ?? 0));
-    bandTop.push(y);
-    for (const n of layer) {
-      const h = size.get(n)?.height ?? band;
-      rects.set(n, { x: (x.get(n) ?? 0) - width(n) / 2, y: y + (band - h) / 2, w: width(n), h });
-    }
-    gapTop.push(y + band);
-    const extra = below.count(l);
-    const needed = (tracks[l] ?? 0) + extra;
-    const measure = {
-      first: first[l] ?? m.tail,
-      track: m.track,
-      last: last[l] ?? m.lead,
-      min: m.rowGapMin,
-    };
-    y += band + (l === layers.length - 1 && extra === 0 ? 0 : gapHeight(needed, measure));
-  });
-  const frame: Frame = { rects, gapTop, first, track: m.track };
-  const groupOf = new Map<Link, Group>(groups.flatMap((g) => g.links.map((l) => [l, g] as const)));
-  const routes = spec.edges.flatMap((e): Route[] => {
-    const chain = links.filter((l) => l.edge === e.id);
-    if (chain.length === 0) {
-      if (runs.hidden(e.id)) return [];
-      const beside = below.route(e, frame, tracks, ports.bottom);
-      return beside === undefined ? [] : [beside];
-    }
-    const points = simplify(
-      chain.flatMap((l) => {
-        const g = groupOf.get(l) as Group;
-        return linkPoints(l, g, pieceOf.get(g), ports, frame);
-      }),
-    );
-    const drawn = ranked.down.get(e.id) === false ? [...points].reverse() : points;
-    return [
-      { edge: e.id, points: drawn, shape: 'orthogonal', fromSide: sideOf(drawn, 'from'), toSide: sideOf(drawn, 'to') },
-    ];
-  });
-  const frames = spec.frames && fr.rects(rects, bandTop, gapTop);
-  const real = new Map([...rects].filter(([n]) => !dummy(n)));
-  const outer = (spec.frames ?? []).filter((f) => f.parent === undefined).map((f) => f.pad);
-  const floor = outer.length > 0 ? m.left - Math.max(...outer) : 0;
-  const laid = assemble(spec, {
-    ranked,
-    layers,
-    rects,
-    routes,
-    seats,
-    ports,
-    groups,
-    core,
-    ...(frames ? { frames: clearHeads(frames, spec, routes, real) } : {}),
-  });
-  return keptInside(laid, floor);
+      groups,
+      core,
+      ...(frames ? { frames: clearHeads(frames, spec, routes, real) } : {}),
+    });
+    return keptInside(laid, floor);
+  };
+  let placement = place();
+  const entries = links.map((l) => ({ upper: l.upper, lower: l.lower, x: placement.ports.top.get(l) ?? 0 }));
+  if (fr.heads(entries, placement.flat)) placement = place();
+  return draw(placement);
 }

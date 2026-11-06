@@ -1,6 +1,7 @@
-import { linesOfLaid, scoreOf } from '../score.js';
+import { scoreOf } from '../score.js';
 import { arrange, arrangeHub, planHub } from './arrange.js';
 import { finish, type LayeredLayout } from './finish.js';
+import { layeredLines } from './output.js';
 import type { LayeredSpec } from './spec.js';
 
 export type { LayeredLayout } from './finish.js';
@@ -18,11 +19,10 @@ export function layoutLayered(spec: LayeredSpec): LayeredLayout {
   const hub = spec.hub;
   if (hub === undefined) return finish(spec, arrange(spec));
   const plan = planHub(spec, hub.core);
-  const ends = new Map(spec.edges.map((e) => [e.id, [e.from, e.to] as const]));
   const sides = [...plan.first];
   const priced = (s: readonly (typeof sides)[number][]) => {
     const layout = finish(spec, arrangeHub(spec, plan, s));
-    return { layout, cost: scoreOf(linesOf(layout, ends)).cost };
+    return { layout, cost: scoreOf(layeredLines(spec, layout)).cost };
   };
   let best = priced(sides);
   for (let round = 0, better = true; round < ROUNDS && better; round++) {
@@ -42,18 +42,4 @@ export function layoutLayered(spec: LayeredSpec): LayeredLayout {
     });
   }
   return best.layout;
-}
-
-/** The lines of a laid out picture with the ends of its edges, the frames and the head of its core. */
-function linesOf(layout: LayeredLayout, ends: ReadonlyMap<string, readonly [string, string]>) {
-  const core = layout.frame === undefined ? [] : [{ id: 'core', rect: layout.frame.rect, head: layout.frame.head.box }];
-  return linesOfLaid({
-    nodes: layout.nodes,
-    routes: layout.routes,
-    ends: layout.routes.map((r) => ends.get(r.edge) ?? ['', '']),
-    labels: layout.labels,
-    frames: [...core, ...(layout.frames ?? [])],
-    width: layout.width,
-    height: layout.bottom,
-  });
 }
