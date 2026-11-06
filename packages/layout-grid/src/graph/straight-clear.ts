@@ -100,8 +100,7 @@ const inside = (r: Rect, f: Rect, pad: number, top: number) =>
  * much, in turn: a box with no room in its layer moves what stands in its way.
  */
 function shoved(rects: Moved, id: string, to: Rect, axis: 'x' | 'y'): Moved {
-  const from = rects.get(id) ?? to;
-  const d = to[axis] - from[axis];
+  const d = to[axis] - (rects.get(id) ?? to)[axis];
   const trial = new Map(rects).set(id, to);
   const queue = [id];
   for (let at = queue.shift(); at !== undefined && d !== 0; at = queue.shift()) {
