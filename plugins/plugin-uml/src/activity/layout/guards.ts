@@ -1,6 +1,6 @@
 import type { Point } from '@diagrist/core';
 import type { Flow } from '../diagram.js';
-import { ACT, SIZE } from './metrics.js';
+import { ACT, SIZE, widthOf } from './metrics.js';
 import type { PlacedNode, Placement } from './place.js';
 import type { ActivityText } from './regions.js';
 import type { Routed } from './route.js';
@@ -35,7 +35,42 @@ function placeGuard(text: string, p: readonly Point[], side: 1 | -1, route: numb
   return { text, x: a[0] + side * g, y, anchor: side > 0 ? 'start' : 'end', route };
 }
 
-/** Guards and weights of all edges, in the order of the routes. */
+/** Distance below which a text seems to belong to a line (G418). */
+const NEAR = 12;
+
+/** The heights of the foreign horizontal pieces that come nearer than `NEAR` to a guard; none when it is clear. */
+function nearBy(t: GuardText, routes: readonly Routed[]): number[] {
+  const w = widthOf.label(t.text);
+  const x = t.anchor === 'start' ? t.x : t.anchor === 'end' ? t.x - w : t.x - w / 2;
+  const [top, bottom] = [t.y - SIZE.label - NEAR, t.y + 3 + NEAR];
+  return routes.flatMap((r, i) =>
+    i === t.route
+      ? []
+      : r.points.slice(1).flatMap((b, k) => {
+          const a = r.points[k] as Point;
+          const [lo, hi] = [Math.min(a[0], b[0]), Math.max(a[0], b[0])];
+          const [y1, y2] = [Math.min(a[1], b[1]), Math.max(a[1], b[1])];
+          const meets = y2 > top && y1 < bottom && hi > x - NEAR && lo < x + w + NEAR;
+          return meets ? [y2] : [];
+        }),
+  );
+}
+
+/**
+ * A guard on a vertical start that a foreign line comes too near to tries the other side of its line, then stands
+ * below that line, while its own vertical reaches so far.
+ */
+function clearGuard(t: GuardText, p: readonly Point[], routes: readonly Routed[]): GuardText {
+  const [a, b] = [p[0], p[1]];
+  if (!a || !b || a[1] === b[1] || nearBy(t, routes).length === 0) return t;
+  const flipped: GuardText = { ...t, x: 2 * a[0] - t.x, anchor: t.anchor === 'start' ? 'end' : 'start' };
+  if (nearBy(flipped, routes).length === 0) return flipped;
+  const y = Math.max(...nearBy(t, routes)) + NEAR + SIZE.label;
+  const lowered: GuardText = { ...t, y };
+  return y + NEAR < Math.max(a[1], b[1]) && nearBy(lowered, routes).length === 0 ? lowered : t;
+}
+
+/** Guards and weights of all edges, in the order of the routes, each clear of foreign lines where it can be. */
 export function guardTexts(routes: readonly Routed[]): GuardText[] {
   return routes.flatMap((r, i) => {
     const text = guardLabel(r.flow);
@@ -44,7 +79,7 @@ export function guardTexts(routes: readonly Routed[]): GuardText[] {
     const right = others.some((o) => o.fromSide === 'right');
     const left = others.some((o) => o.fromSide === 'left');
     const placed = placeGuard(text, r.points, right && !left ? -1 : 1, i);
-    return placed ? [placed] : [];
+    return placed ? [clearGuard(placed, r.points, routes)] : [];
   });
 }
 

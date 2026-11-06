@@ -10,10 +10,7 @@ const { names, source } = stressSet(new URL('stress/activity/', import.meta.url)
  * Hard rules a fixture still breaks, by picture, kept in the budget instead until the layout learns to avoid them
  * (`docs/burn-down.md`, "Stress set"). An exemption that is no longer needed fails, so it is removed with the fix.
  */
-const PENDING: Readonly<Record<string, readonly string[]>> = {
-  'fuenf-bahnen.dgr': ['through'],
-  'parallel-entscheidung.dgr': ['label/near', 'through'],
-};
+const PENDING: Readonly<Record<string, readonly string[]>> = {};
 
 const entries: Record<string, BudgetEntry> = {};
 
