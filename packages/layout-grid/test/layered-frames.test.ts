@@ -108,13 +108,14 @@ describe('frames ordered by the pipeline', () => {
     expect(inside).toBe(false);
   });
 
-  it('end a line with a frame at an end on the outline of the frame, below a head worn as a tab', () => {
+  it('end a line with a frame at an end on the outline of the frame, below a head worn as a tab, its text at the middle between the frames', () => {
     const nodes = [box('s'), box('t1'), box('t2')];
     const frames = [
       { ...frame('up', ['s']), tab: true },
       { ...frame('down', ['t1', 't2']), tab: true },
     ];
-    const edges = [edge('t1', 't2', { rank: 'beside' }), edge('up', 'down', { id: 'imports' })];
+    const label = { text: 'importiert', width: 60, size: 10 };
+    const edges = [edge('t1', 't2', { rank: 'beside' }), edge('up', 'down', { id: 'imports', label })];
     const l = lay({ nodes, edges, layers: [['s'], ['t1', 't2']], reorder: true, frames });
     const [up, down] = [rectOf(l, 'up'), rectOf(l, 'down')];
     const line = l.routes.find((r) => r.edge === 'imports')?.points ?? [];
@@ -123,6 +124,10 @@ describe('frames ordered by the pipeline', () => {
     const x = line.at(-1)?.[0] ?? 0;
     expect(x).toBeGreaterThan(down.x + 80);
     expect(x).toBeLessThan(Math.min(up.x + up.w, down.x + down.w));
+    const text = l.labels[0]?.box ?? { x: 0, y: 0, w: 0, h: 0 };
+    expect(line).toHaveLength(2);
+    expect(text.x).toBe(x + 6);
+    expect(text.y + text.h / 2).toBe((up.y + up.h + down.y) / 2);
   });
 
   it('keep a line entering a frame from above as far beside its head as the frame asks', () => {

@@ -82,6 +82,32 @@ describe('signs of a channel grid', () => {
     expect(checkPlacement(placed, { width: layout.width, height: layout.bottom + 32 })).toEqual([]);
   });
 
+  it('keep texts as far from the outline of a frame around an end as from a foreign line', () => {
+    const s = spec('a b', 'r1 r2', ['x@a/r1', 'y@b/r1', 'z@b/r2'], {
+      groups: [group('f', ['y', 'z'])],
+      edges: [edge('x', 'y'), edge('y', 'z')],
+    });
+    const texts = [
+      { edge: 'x-y', name: 'a rather long name', detail: 'HTTPS/JSON' },
+      { edge: 'y-z', name: 'a rather long name', detail: 'HTTPS/JSON' },
+    ];
+    const { layout, labels } = signed(s, texts);
+    const frame = layout.groups[0]?.rect;
+    if (!frame) throw new Error('missing');
+    const gaps = labels.map(({ box: b }) => {
+      const dx = Math.max(frame.x - b.x - b.w, b.x - frame.x - frame.w);
+      const dy = Math.max(frame.y - b.y - b.h, b.y - frame.y - frame.h);
+      const inside = Math.min(
+        b.x - frame.x,
+        b.y - frame.y,
+        frame.x + frame.w - b.x - b.w,
+        frame.y + frame.h - b.y - b.h,
+      );
+      return dx > 0 || dy > 0 ? Math.max(dx, dy) : inside;
+    });
+    expect(Math.min(...gaps)).toBeGreaterThanOrEqual(6);
+  });
+
   it('set a sign beside its line, never across a foreign line from it', () => {
     const s = { ...spec('a b', 'r', ['x@a/r', 'y@b/r'], { edges: [edge('x', 'y'), edge('y', 'x')] }), channels: true };
     const layout = placeGrid(s);

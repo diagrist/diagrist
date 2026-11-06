@@ -1,7 +1,7 @@
 import type { Point, Rect } from '@diagrist/core';
-import type { Route } from '../layout.js';
+import type { PlacedGroup, Route } from '../layout.js';
 import type { LayeredLayout } from './output.js';
-import type { LayeredFrame, LayeredSpec } from './spec.js';
+import type { LayeredEdge, LayeredFrame, LayeredSpec } from './spec.js';
 
 /** An edge with a frame at an end, laid out to a box of that frame: the frame of each such end. */
 type FrameEnds = ReadonlyMap<string, { readonly from?: string; readonly to?: string }>;
@@ -76,6 +76,20 @@ function cut(route: Route, at: 'from' | 'to', r: Rect, top: number): Route {
   if (!between(v, inner[vertical ? 1 : 0], outer[vertical ? 1 : 0])) return route;
   points[0] = vertical ? [inner[0], v] : [v, inner[1]];
   return { ...route, points: at === 'from' ? points : points.reverse() };
+}
+
+/**
+ * The stretch of route `route` of `edge` outside the frames at its ends: cut at the outline of the frame, placed among
+ * `frames`, at each end where the edge names a frame (`LayeredEdge.framed`), and not below a head worn as a tab,
+ * since a text there would stand inside the frame.
+ */
+export function outsideFrames(route: Route, edge: LayeredEdge, frames: readonly PlacedGroup[]): Route {
+  let out = route;
+  for (const end of ['from', 'to'] as const) {
+    const r = frames.find((f) => f.id === edge.framed?.[end])?.rect;
+    if (r) out = cut(out, end, r, 0);
+  }
+  return out;
 }
 
 /**

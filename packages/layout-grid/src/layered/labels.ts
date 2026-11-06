@@ -113,3 +113,20 @@ export function seatAt(seat: Seat, port: Point, route: number, labelGap: number)
     part: 'name' as const,
   }));
 }
+
+/**
+ * A label at the middle of a straight upright line `points` of a single edge, right of it, centred on half its
+ * length (owner decision D1): where a hand would write it, and plainly its line's where two lines leave one box.
+ * Undefined for a line that bends.
+ */
+export function middleSeat(
+  seat: Seat,
+  points: readonly Point[],
+  route: number,
+  labelGap: number,
+): EdgeLabel[] | undefined {
+  const [a, b] = points;
+  if (points.length !== 2 || !a || !b || a[0] !== b[0]) return undefined;
+  const middle = (a[1] + b[1]) / 2 - labelGap - heightOf(seat.edge.label) / 2;
+  return seatAt({ ...seat, at: 'top' }, [a[0], middle], route, labelGap);
+}

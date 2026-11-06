@@ -4,7 +4,8 @@ import type { PlacedGroup, PlacedNode, Route } from '../layout.js';
 import { linesOfLaid } from '../score.js';
 import { cornerSeat } from './docks.js';
 import { type CoreFrame, frameOf } from './frame.js';
-import { type Seat, seatAt } from './labels.js';
+import { outsideFrames } from './frame-ends.js';
+import { middleSeat, type Seat, seatAt } from './labels.js';
 import type { Group, Link } from './links.js';
 import type { Ports } from './ports.js';
 import type { Ranked } from './rank.js';
@@ -65,6 +66,11 @@ export function assemble(spec: LayeredSpec, laid: Laid): Assembled {
   const first = laid.seats.flatMap((seat) => {
     const corner = cornerSeat(seat, ports, rects, index.get(seat.edge.id) ?? 0, m.labelGap);
     if (corner) return corner;
+    const route = index.get(seat.edge.id) ?? 0;
+    const line = routes[route];
+    const shown = line && seat.group.kind === 'single' && outsideFrames(line, seat.edge, laid.frames ?? []);
+    const middle = shown && middleSeat(seat, shown.points, route, m.labelGap);
+    if (middle) return middle;
     const l = seat.group.links[0] as Link;
     const port: Point =
       seat.at === 'top'

@@ -122,9 +122,10 @@ export interface Found {
 }
 
 /**
- * The texts of route `i` as one block: kept at `first` when that spot is clear and no line of it runs wider than
- * `wrapWidth`, else at the first clear spot beside or on one of its pieces, longest first and nearest the middle,
- * wrapped where that helps; without one, where it meets the least.
+ * The texts of route `i` as one block: kept at `first` when that spot is clear, no line of it runs wider than
+ * `wrapWidth` and it keeps `crowding`'s distance from the texts of other routes; else at the clear spot beside or on
+ * one of its pieces, longest first and nearest the middle, wrapped where that helps, that comes least near those
+ * texts, the first such one on a tie; without a clear spot, where it meets the least.
  */
 export function searchBlock(
   route: Route,
@@ -135,12 +136,18 @@ export function searchBlock(
   m: GridMetrics,
   o: SearchOptions,
 ): Found {
+  const crowding = (block: readonly EdgeLabel[]) => rectsOf(block, o).reduce((n, r) => n + clear.crowding(r, i), 0);
   let best: Found = { block: first, cost: tooWide(first, m) ? Infinity : blockCost(first, i, clear, o) };
-  if (best.cost === 0) return best;
+  let near = best.cost === 0 ? crowding(first) : Infinity;
+  if (near === 0) return best;
   for (const block of candidates(route, i, text, m, o)) {
-    const c = blockCost(block, i, clear, o, best.cost);
-    if (c < best.cost) best = { block, cost: c };
-    if (c === 0) break;
+    const c = blockCost(block, i, clear, o, Math.max(1, best.cost));
+    const k = c === 0 ? crowding(block) : Infinity;
+    if (c < best.cost || (c === 0 && k < near)) {
+      best = { block, cost: c };
+      near = k;
+    }
+    if (near === 0) break;
   }
   return best;
 }
