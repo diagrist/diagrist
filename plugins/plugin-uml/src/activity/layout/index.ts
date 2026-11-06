@@ -2,6 +2,7 @@ import { type Placed, textWidth } from '@diagrist/core';
 import { right } from '@diagrist/layout-grid';
 import { decisionStrip, HEADER, type Header, MARGIN, type Strip, stripWidth, type Words } from '@diagrist/parts';
 import type { ActivityModel } from '../model/index.js';
+import { slideExpansions } from './expansion-slide.js';
 import { layoutGraph } from './graph.js';
 import { type GuardText, placeQuestions } from './guards.js';
 import { laidActivity } from './laid.js';
@@ -76,7 +77,8 @@ export function layoutActivity(m: ActivityModel, words: PictureTexts): ActivityL
   const g = layoutGraph(m);
   const laid = laidActivity(g);
   const questioned = placeQuestions({ nodes: laid.nodes }, laid.routes);
-  const { placement, routes } = placePins(questioned, laid.routes, g);
+  const pinned = placePins(questioned, laid.routes, g);
+  const { placement, routes } = slideExpansions(pinned.placement, pinned.routes, laid.regions);
   const guards = laid.guards;
   const nodes = [...placement.nodes.values()];
   const regions = nameRegions(laid.regions, routes, placement);

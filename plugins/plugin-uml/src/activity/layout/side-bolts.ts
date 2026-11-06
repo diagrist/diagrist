@@ -2,6 +2,7 @@ import type { Point, Rect } from '@diagrist/core';
 import { type Graph, type GraphFlow, isHandlerFlow } from './graph.js';
 import type { Laid } from './laid.js';
 import { ACT, SIZE } from './metrics.js';
+import { meets, piecesOf, through } from './pieces.js';
 import { SIDE_PIN_SLOT } from './pin-docks.js';
 import type { Routed } from './placement.js';
 
@@ -54,26 +55,9 @@ function sideRoute(flow: GraphFlow, p: Rect, h: Rect): Routed | undefined {
   return { flow, points, fromSide: right ? 'right' : 'left', toSide: right ? 'left' : 'right' };
 }
 
-/** Does the piece from `a` to `b` pass through the inside of `r`? */
-function through(a: Point, b: Point, r: Rect): boolean {
-  return (
-    Math.min(a[0], b[0]) < r.x + r.w &&
-    Math.max(a[0], b[0]) > r.x &&
-    Math.min(a[1], b[1]) < r.y + r.h &&
-    Math.max(a[1], b[1]) > r.y
-  );
-}
-
-/** Do two axis-parallel pieces cross or touch? */
-function meets(a: Point, b: Point, c: Point, d: Point): boolean {
-  const overlap = (k: 0 | 1) =>
-    Math.min(a[k], b[k]) <= Math.max(c[k], d[k]) && Math.min(c[k], d[k]) <= Math.max(a[k], b[k]);
-  return overlap(0) && overlap(1);
-}
-
 /** Whether a route passes no box but its own two and meets no other route. */
 function clear(route: Routed, laid: Laid, others: readonly Routed[]): boolean {
-  const pieces = route.points.slice(1).map((b, k) => [route.points[k] as Point, b] as const);
+  const pieces = piecesOf(route.points);
   const boxes = [...laid.nodes.values()].filter((n) => n.id !== route.flow.from && n.id !== route.flow.to);
   if (pieces.some(([a, b]) => boxes.some((n) => through(a, b, n.rect)))) return false;
   return others.every((o) =>

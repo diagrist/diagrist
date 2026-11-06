@@ -327,3 +327,10 @@ middle; it then draws the bolt itself from the side of its action facing the han
 that side of the handler, below the first (`sideBolts`), so the exception pins stand below each other as UML draws
 them. Where that bolt would pass a box or meet a line, or the handler stands above or below its action, the rail
 stays. `karten-belasten` is 836 px wide again, 373 px of line less.
+
+**Expansion nodes slide over their pins.** The pins of an action come after the layout, so the line between an
+expansion node and a pin inside its region bent at the pin wherever the pins of a side were spread over the box
+(`preise-berechnen`: all four). The activity kind now slides an expansion node along the outline of its region until
+that line runs straight, where the node with its name stays clear of every box and text, the line outside takes up the
+bend without a slip, and no moved line passes a box or meets another (`slideExpansions`): `Positionen` and `Preise`
+run straight, 12 to 8 bends. Docking expansion nodes in the engine stays open (`docs/burn-down.md`).
