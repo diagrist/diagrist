@@ -1,18 +1,13 @@
 import { orderLayers, refine } from '../layers/order.js';
+import type { OrderCost } from '../layers/sift.js';
 import { clustered, framesBroken } from './clusters.js';
+import { PINNED, rankedCost } from './order-cost.js';
 import { framePaths } from './paths.js';
 import type { Ranked } from './rank.js';
 import type { LayeredSpec } from './spec.js';
 
 /** The weight of a piece of an edge through placeholders: crossing a long edge costs that much more. */
 const DUMMY_WEIGHT = 8;
-/** What one foreign node between two members of a cluster costs, against 10 for a crossing. */
-const CLUSTER_SPREAD = 3;
-/**
- * What a node kept to the outside of its layer costs for every other node beyond it, and what a foreign node inside a
- * frame costs: more than any crossing.
- */
-const PINNED = 10_000;
 
 /** The links between nodes of neighbouring layers and within a layer, with their weights. */
 export interface Neighbours {
@@ -45,85 +40,6 @@ export function neighboursOf(spec: LayeredSpec, ranked: Ranked): Neighbours {
   return { adj, weight };
 }
 
-/** The crossings among the pieces between two layers, each piece as its two places and its weight, weighted. */
-function crossed(pairs: readonly (readonly [number, number, number])[]): number {
-  let total = 0;
-  for (let i = 0; i < pairs.length; i++) {
-    const [p0, p1, pw] = pairs[i] as readonly [number, number, number];
-    for (let j = i + 1; j < pairs.length; j++) {
-      const [q0, q1, qw] = pairs[j] as readonly [number, number, number];
-      if ((p0 - q0) * (p1 - q1) < 0) total += pw * qw;
-    }
-  }
-  return total;
-}
-
-/** Nodes of a layer standing beyond one kept to the outside, or before one whose given place is earlier. */
-function misplaced(
-  layer: readonly string[],
-  pins: ReadonlyMap<string, 'left' | 'right'>,
-  given: ReadonlyMap<string, number>,
-): number {
-  let total = 0;
-  layer.forEach((n, i) => {
-    const pin = pins.get(n);
-    const wrong = pin === 'left' ? layer.slice(0, i) : pin === 'right' ? layer.slice(i + 1) : [];
-    total += wrong.filter((m) => pins.get(m) !== pin).length;
-    const place = given.get(n);
-    if (place !== undefined) total += layer.slice(i + 1).filter((m) => (given.get(m) ?? place) < place).length;
-  });
-  return total;
-}
-
-/** Foreign nodes standing between the first and the last member of a cluster in a layer, over all clusters. */
-function spread(layer: readonly string[], cluster: ReadonlyMap<string, string>): number {
-  const ends = new Map<string, [number, number, number]>();
-  for (let i = 0; i < layer.length; i++) {
-    const c = cluster.get(layer[i] as string);
-    if (c === undefined) continue;
-    const e = ends.get(c);
-    if (e === undefined) ends.set(c, [i, i, 1]);
-    else [e[1], e[2]] = [i, e[2] + 1];
-  }
-  let total = 0;
-  for (const [first, last, members] of ends.values()) total += last - first + 1 - members;
-  return total;
-}
-
-/** The neighbours of each node in the next layer with the weight of the piece, and those in its own layer. */
-interface Reach {
-  readonly down: ReadonlyMap<string, readonly (readonly [string, number])[]>;
-  readonly beside: ReadonlyMap<string, readonly string[]>;
-}
-
-/**
- * The neighbours an order is priced by, read once per search: the layers of the nodes do not change while their
- * order does, so the cost of an order only looks up places.
- */
-function reachOf(
-  adj: ReadonlyMap<string, readonly string[]>,
-  layerOf: ReadonlyMap<string, number>,
-  w: (a: string, b: string) => number,
-  cache: WeakMap<object, Reach>,
-): Reach {
-  const down = new Map<string, (readonly [string, number])[]>();
-  const beside = new Map<string, string[]>();
-  for (const [a, all] of adj) {
-    const l = layerOf.get(a);
-    down.set(
-      a,
-      all.filter((b) => l !== undefined && layerOf.get(b) === l + 1).map((b) => [b, w(a, b)] as const),
-    );
-    beside.set(
-      a,
-      all.filter((b) => l !== undefined && layerOf.get(b) === l),
-    );
-  }
-  const reach = { down, beside };
-  cache.set(adj, reach);
-  return reach;
-}
-
 /**
  * The order of every layer, placeholders included: the barycentre sweeps and the thorough search of `layers`, with
  * a cost that weighs each crossing by the weights of both pieces, keeps nodes beside each other near, counts a long
@@ -141,38 +57,18 @@ export function orderRanked(
   given: ReadonlyMap<string, number> = new Map(),
 ): string[][] {
   const cluster = new Map(spec.nodes.flatMap((n) => (n.cluster === undefined ? [] : [[n.id, n.cluster] as const])));
-  const w = (a: string, b: string) => links.weight.get(key(a, b)) ?? 1;
-  const kept = pins.size > 0 || given.size > 0;
-  const passing = (between: readonly string[]) => between.filter((n) => ranked.dummies.has(n)).length;
-  const reach = new WeakMap<object, Reach>();
-  const cost = (
-    layers: string[][],
-    adj: ReadonlyMap<string, readonly string[]>,
-    layerOf: ReadonlyMap<string, number>,
-  ) => {
-    const { down, beside } = reach.get(adj) ?? reachOf(adj, layerOf, w, reach);
-    const pos = new Map<string, number>();
-    for (const layer of layers) for (let i = 0; i < layer.length; i++) pos.set(layer[i] as string, i);
-    const at = (n: string) => pos.get(n) ?? 0;
-    let total = 0;
-    for (const layer of layers) {
-      const pieces: (readonly [number, number, number])[] = [];
-      for (const a of layer) for (const [b, wb] of down.get(a) ?? []) pieces.push([at(a), at(b), wb]);
-      total += 10 * crossed(pieces);
-      for (const a of layer)
-        for (const b of beside.get(a) ?? []) {
-          total += Math.abs(at(a) - at(b)) - 1;
-          if (at(a) < at(b)) total += 10 * DUMMY_WEIGHT * passing(layer.slice(at(a) + 1, at(b)));
-        }
-      if (kept) total += PINNED * misplaced(layer, pins, given);
-      if (cluster.size > 0) total += CLUSTER_SPREAD * spread(layer, cluster);
-    }
-    return total;
-  };
+  const cost = rankedCost({ ranked, links, cluster, pins, given, dummyWeight: DUMMY_WEIGHT });
   const nodes = [...spec.nodes.map((n) => n.id), ...ranked.dummies];
   if ((spec.frames ?? []).length === 0) return orderLayers(nodes, ranked.layerOf, links.adj, true, cost);
   const fp = framePaths(spec, ranked);
-  const hard: typeof cost = (layers, adj, layerOf) => cost(layers, adj, layerOf) + PINNED * framesBroken(layers, fp);
+  const broken = (layers: string[][]) => PINNED * framesBroken(layers, fp);
+  const near = cost.near as NonNullable<OrderCost['near']>;
+  const hard: OrderCost = Object.assign(
+    (layers: string[][]) => cost(layers, links.adj, ranked.layerOf) + broken(layers),
+    {
+      near: (layers: string[][], l: number) => near(layers, l) + broken(layers),
+    },
+  );
   const first = orderLayers(nodes, ranked.layerOf, links.adj, true, hard);
   const together = clustered(first, fp, (layers) => hard(layers, links.adj, ranked.layerOf));
   return refine(together, links.adj, ranked.layerOf, hard);

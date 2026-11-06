@@ -1,8 +1,4 @@
-type Layers = string[][];
-type Adjacency = ReadonlyMap<string, readonly string[]>;
-
-/** What an order of the layers costs; lower is better. `layerCost` unless the caller brings its own. */
-export type OrderCost = (layers: Layers, adj: Adjacency, layerOf: ReadonlyMap<string, number>) => number;
+import { type Adjacency, type Layers, type OrderCost, polish, sift } from './sift.js';
 
 const SWEEPS = 8;
 
@@ -51,60 +47,6 @@ function sweep(layers: Layers, adj: Adjacency, layerOf: ReadonlyMap<string, numb
     const keyed = (layers[l] ?? []).map((n, i) => ({ n, k: key(n), i }));
     layers[l] = keyed.sort((a, b) => a.k - b.k || a.i - b.i).map((x) => x.n);
   }
-}
-
-/** Swaps neighbours as long as that lowers the cost. */
-function polish(layers: Layers, adj: Adjacency, layerOf: ReadonlyMap<string, number>, cost: OrderCost): Layers {
-  let current = cost(layers, adj, layerOf);
-  for (let improved = true; improved; ) {
-    improved = false;
-    for (const layer of layers)
-      for (let i = 0; i + 1 < layer.length; i++) {
-        swap(layer, i);
-        const next = cost(layers, adj, layerOf);
-        if (next < current) {
-          current = next;
-          improved = true;
-        } else swap(layer, i);
-      }
-  }
-  return layers;
-}
-
-function swap(layer: string[], i: number): void {
-  const a = layer[i] as string;
-  layer[i] = layer[i + 1] as string;
-  layer[i + 1] = a;
-}
-
-/** Moves each node to the place in its layer where the cost is lowest, as long as that lowers it. */
-function sift(layers: Layers, adj: Adjacency, layerOf: ReadonlyMap<string, number>, cost: OrderCost): Layers {
-  let current = cost(layers, adj, layerOf);
-  for (let improved = true; improved; ) {
-    improved = false;
-    for (const layer of layers)
-      for (const n of [...layer]) {
-        const from = layer.indexOf(n);
-        layer.splice(from, 1);
-        let best = from;
-        let lowest = Number.POSITIVE_INFINITY;
-        for (let to = 0; to <= layer.length; to++) {
-          layer.splice(to, 0, n);
-          const c = cost(layers, adj, layerOf);
-          if (c < lowest || (c === lowest && to === from)) {
-            lowest = c;
-            best = to;
-          }
-          layer.splice(to, 1);
-        }
-        layer.splice(best, 0, n);
-        if (lowest < current) {
-          current = lowest;
-          improved = true;
-        }
-      }
-  }
-  return layers;
 }
 
 /** The layers filled in the order of `nodes`. */
