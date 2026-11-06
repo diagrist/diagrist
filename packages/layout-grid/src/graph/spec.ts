@@ -92,6 +92,11 @@ export interface GraphEdge {
   readonly ends?: { readonly from?: GraphLabel; readonly to?: GraphLabel };
   /** Not drawn: the edge only holds its ends near each other in layers and places. */
   readonly hidden?: boolean;
+  /**
+   * With rank `up` or `down`, `to` may stand on the other side of `from` where that clearly saves crossings, such as a
+   * contract drawn below the boxes that fulfil it (`graph/either.ts`); all such edges into one node turn together.
+   */
+  readonly either?: boolean;
   /** The least straight run out of `from` and into `to`, for symbols and texts at the ends. */
   readonly run?: { readonly from?: number; readonly to?: number };
   /** The least distance between the ends when the edge is drawn beside, between neighbours of one layer. */

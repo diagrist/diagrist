@@ -27,8 +27,11 @@ interface End {
   readonly hold: number;
 }
 
-/** The hold of an end whose piece comes along a trunk, so it yields to the ends of pieces that run straight. */
-const YIELD = 0.01;
+/**
+ * The hold of an end whose piece comes along a trunk, so it yields to the ends of pieces that run straight: little
+ * enough that it pulls no such end off its line by a pixel.
+ */
+const YIELD = 0.0001;
 
 /** Keeps ends this far from the corners of a box. */
 const corners = (r: Rect) => Math.min(16, r.w / 4);

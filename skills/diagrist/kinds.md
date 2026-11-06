@@ -84,6 +84,9 @@ stands `at column/row`. Here you do the placing, so place for reading.
 - Choose the relation by what it means: generalisation for "is a", composition for "owns and dies with",
   association for "knows". A picture where everything is an association says nothing.
 - Use packages for modules. The layout keeps each package together.
+- Expect a superclass or an interface above the classes below it. Where several classes realize overlapping sets of
+  interfaces, the layout may put an interface below them when that saves crossings clearly; the triangle then points
+  down, which UML allows. If a picture needs every interface on top, split the lattice instead.
 
 ## `usecase`: what each user can do
 

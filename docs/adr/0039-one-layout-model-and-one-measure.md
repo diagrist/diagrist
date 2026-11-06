@@ -389,3 +389,41 @@ boxes, lines on one another and side by side; `lange-namen` once (`Bürgerin →
 `drei-subjekte` no longer crosses. The names of subjects are now placed texts (`<subject>.name`), so a line through
 one is a finding; `vier-subjekte` keeps one line through a box (`Überweisen → Zahlung ausführen` past
 `Zahlungsnetz`, in `PENDING`). All nine examples are drawn anew, none with a finding.
+
+## Amendment: proposals for class diagrams (06.11.2026)
+
+**Frames with only free edges count as leaves.** The search for where leaf frames stand (`layoutLeaves`) tried the
+rows above, beside and below the partner only for frames with one edge; a frame whose lifted edges are all `free`
+has the same freedom with more partners. Such a frame is now a leaf of its strongest partner, the one it has the most
+edges with, then the one with the most edges of its own, then the one met last (`layers/free-blocks.ts`, read by
+`leavesOf` through `LayerGraph.blocks`). `katalog` in `pakete-quer` stands beside `bestellwesen`, so `web` stands
+over it and `erzeugt` runs straight: 1,964 to 1,474 px of line, 1,232 to 1,498 px wide, bends kept at 2.
+`pakete-drei` loses its crossing (1 to 0) for 2 bends more (6 to 8), 916 × 1,007 instead of 1,137 × 818 px.
+
+**Short moves take their neighbours along, and roles stand near the tip.** In `beobachter` the lines of `PushAlarm`
+and `MailAlarm` to `AlarmRegel` jogged where the layer of the three alarms stood packed: the move that would straighten
+one had no room past its neighbour. The pass that takes out bends (`unjog`) now tries a move of up to 48 px that has
+no room once more with everything beyond it in its layer taken along (`layered/shove.ts`), in pictures of up to 40
+pieces, since each try draws the whole picture (`dg-n-big` stays at 0.76 s; without the limit it took 4 s). The
+ends of a trunk's members yield to a straight piece beside them with a hold so small that it no longer pulls that
+piece a pixel off its line (`YIELD`). A role of a class diagram takes the free place nearest the tip, opposite its
+multiplicity or beyond it on its side, so the second `regel` stands below its `1`. In `beobachter` `PushAlarm →
+AlarmRegel` runs straight and `MailAlarm → AlarmRegel` keeps one turn no move spares: its crossing kept, avoidable
+bends 1 to 0, bends 14 to 12; `schichten` 4 to 2 bends; the concept picture `rueckmeldungen` 2 to 1 jogs,
+2 to 0 avoidable bends and 1 to 0 lines side by side, one line with 4 bends instead of 2. Of the four fixes the
+analysis proposed, the room beside a line split by the texts at its ends straightened `MailAlarm` too but bent the
+trunk of `AlarmRegel` for 132 px more line, and placeholders as near their end as their room allows changed only
+`hexagonal`, 46 px longer; both were measured and left out.
+
+**Interfaces may stand below their classes (owner decision C).** Four interfaces over four classes with overlapping
+sets of realizations form a lattice that two rows cannot draw without about five crossings. An edge may now say that
+its target may stand on the other side of its source (`GraphEdge.either`): `layoutGraph` lays such a picture out as
+the notation puts it and, where that crosses, once more for every set of up to four of its targets turned to the
+other side, and keeps a turned picture only where it costs less by `scoreOf` with one crossing added for each turned
+target (`graph/either.ts`), so a superclass or interface stays on top unless that clearly saves crossings. Class
+diagrams mark generalizations and realizations so. `schnittstellen` turns `Lesbar` below the four classes: 5 to 1
+crossings, 18 to 14 bends, 3,340 to 2,520 px of line, 988 × 553 px; no other picture changes, and a picture without
+crossings is laid out once. Pricing whole trunks in the order stage as one piece was not built: of the stress
+pictures, only `schnittstellen` and `beobachter` still cross, the one crossing of the first is the least two rows
+allow for `Schreibbar` and `Versioniert` over the same two classes, and the second is the trade of a detour, so the
+rule would change no picture yet.

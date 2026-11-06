@@ -81,8 +81,8 @@ const CLEAR = 12;
 /**
  * Multiplicities and roles at both ends of every relation. The multiplicity stands below or right of the line, the
  * role opposite; when the place is taken by a box, a text, a line or the border of a package, both swap sides, and
- * then they move along the line. A role that finds no place opposite stands beyond the multiplicity on its side, as
- * between two lines that join the same classes.
+ * then they move along the line. A role takes the free place nearest the end of the line, opposite the multiplicity
+ * or beyond it on its side, as between two lines that join the same classes; opposite wins a tie.
  */
 export function endLabels(
   relations: readonly (ClassRelation | undefined)[],
@@ -117,15 +117,12 @@ export function endLabels(
         const box = item(count, end, side, idx, 0).box;
         const beyond = end.tip[1] === end.next[1] ? box.w + CLASS.endAside : box.h + 2;
         const other: 1 | -1 = side === 1 ? -1 : 1;
-        out.push(
-          seek(role, other, SHIFTS) ??
-            seek(
-              role,
-              side,
-              SHIFTS.map((k) => k + beyond),
-            ) ??
-            item(role, end, other, idx, 0),
-        );
+        const spots = [
+          ...SHIFTS.map((k) => ({ k, s: other })),
+          ...SHIFTS.map((k) => ({ k: k + beyond, s: side })),
+        ].sort((a, b) => a.k - b.k || (a.s === other ? -1 : 0) - (b.s === other ? -1 : 0));
+        const near = spots.map(({ k, s }) => item(role, end, s, idx, k)).find((t) => free(t.box, idx));
+        out.push(near ?? item(role, end, other, idx, 0));
       } else if (role) out.push(place(role, side));
     }
   });

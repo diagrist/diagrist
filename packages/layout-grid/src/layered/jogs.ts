@@ -3,6 +3,7 @@ import type { Xs } from './coords.js';
 import type { Group, Link } from './links.js';
 import type { Ports } from './ports.js';
 import type { Ranked } from './rank.js';
+import { SHOVE, SHOVE_PIECES, shoved } from './shove.js';
 
 /** A placement with the ports it gives. */
 export interface Placement {
@@ -39,7 +40,9 @@ const ROUNDS = 3;
  * link of a chain (`spines`); of the moves that fit, the one whose whole picture, drawn, costs least by `scoreOf`
  * stays, if it costs less than the picture before, or as much and leaves bent lines that pass fewer layers
  * (`bentReach`), so of two lines only one of which can run straight the longer one does. So a box leaves the axis of
- * its parent only where the line it straightens is worth more than the centring it gives up.
+ * its parent only where the line it straightens is worth more than the centring it gives up. A box or chain that has
+ * no room for a short move, up to `SHOVE`, also tries it with the boxes beyond it in that direction taken along
+ * (`shoved`), in pictures of up to `SHOVE_PIECES` pieces, since every such try draws the whole picture.
  */
 export function unjog(u: Unjogging, start: Placement): Placement {
   let best = start;
@@ -78,6 +81,7 @@ export function unjog(u: Unjogging, start: Placement): Placement {
     return { placement, cost: u.price(placement) };
   };
   const links = u.groups.flatMap((g) => (g.kind === 'single' ? g.links : []));
+  const shoving = links.length <= SHOVE_PIECES;
   const reach = new Map<string, number>();
   for (const l of links) reach.set(l.edge, (reach.get(l.edge) ?? 0) + 1);
   const bentReach = (p: Placement) =>
@@ -88,6 +92,8 @@ export function unjog(u: Unjogging, start: Placement): Placement {
           .map((l) => l.edge),
       ),
     ].reduce((sum, e) => sum + (reach.get(e) ?? 0), 0);
+  const alongWith = (moving: readonly string[], d: number) =>
+    shoved(moving, d, layerOf, (n) => (u.ranked.dummies.has(n) ? [] : u.blockOf(n)));
   const chainOf = (l: Link, n: string) =>
     u.ranked.dummies.has(n) ? (u.ranked.chains.get(l.edge) ?? []).slice(1, -1) : [n];
   for (let round = 0, moved = true; moved && round < ROUNDS; round++) {
@@ -110,6 +116,10 @@ export function unjog(u: Unjogging, start: Placement): Placement {
       [frame(l.lower), -off],
       [frame(l.upper), off],
     ];
+    const blocked = tries
+      .slice(0, 2)
+      .filter(([moving, d]) => shoving && Math.abs(d) <= SHOVE && moving.length > 0 && !fits(best.x, moving, d));
+    tries.push(...blocked.map(([moving, d]): [readonly string[], number] => [alongWith(moving, d), d]));
     const options = tries.flatMap(([moving, d]) => tried(moving, d) ?? []);
     const cheapest = options.reduce<(typeof options)[number] | undefined>(
       (a, b) => (a && a.cost <= b.cost ? a : b),
