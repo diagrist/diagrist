@@ -41,6 +41,12 @@ stress budgets count, such as bends a straight line could spare, reached no sear
    neighbour comes back under it after the placement, while the placement keeps the weights that order the layers
    (R2 as a separate pull weight added four hard breaches to the class stress set). The guard on chains keeps the
    straight pipeline of `ueberspringen`, which a move of `Data Marts` toward its readers would bend.
+5. **One order per side, and the side a line bends to.** The ends on a side of a box stand in the order of their
+   other ends; an end that comes along the trunk of a fan or join holds its place lightly, so it gives way to a
+   piece that can run straight. An end on the top of a box keeps a port gap away from the vertical of a line that
+   runs beside the layer above, which crosses the whole gap, so the two never lie on one another. A line beside its
+   layer that is no neighbours' runs below the layer or above it, whichever costs less by `scoreOf`, tried line by
+   line (the plan's R3; its `apart` for tracks stays out, measured at 5 to 13 crossings in `raute`).
 
 ## Consequences
 

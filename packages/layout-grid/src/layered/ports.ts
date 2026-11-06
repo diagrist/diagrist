@@ -1,4 +1,5 @@
 import type { Rect } from '@diagrist/core';
+import { clearOfAside } from './aside.js';
 import { isotoneApart } from './isotone.js';
 import type { Group, Link } from './links.js';
 import type { Ranked } from './rank.js';
@@ -18,7 +19,12 @@ interface End {
   readonly links: readonly Link[];
   readonly toward: number;
   readonly beyond: number;
+  /** How hard the end holds to `toward`: little for a member of a fan or join, which comes from its trunk. */
+  readonly hold: number;
 }
+
+/** The hold of an end whose piece comes along a trunk, so it yields to the ends of pieces that run straight. */
+const YIELD = 0.01;
 
 /** Keeps ends this far from the corners of a box. */
 const corners = (r: Rect) => Math.min(16, r.w / 4);
@@ -36,7 +42,8 @@ const CORNER = 4;
  * vertical between their neighbours on their sides: a port need not stand in the middle. `inset` keeps ends off the
  * corners. `aside` are ends on the bottom of `upper`
  * of lines that run below their layer to `lower` beside it; they take their place in the order like the others, so
- * the outermost goes to the line whose other end lies furthest out.
+ * the outermost goes to the line whose other end lies furthest out; `atop` are the like ends on the top of `lower`
+ * of lines that run above their layer.
  */
 export function portsOf(
   groups: readonly Group[],
@@ -48,16 +55,17 @@ export function portsOf(
   inset: (r: Rect) => number = corners,
   jog = 24,
   aside: readonly Link[] = [],
+  atop: readonly Link[] = [],
 ): Ports {
   const top = new Map<Link, number>();
   const bottom = new Map<Link, number>();
   const ends = new Map<string, End[]>();
-  const add = (box: string, side: 'top' | 'bottom', links: readonly Link[], toward: number) => {
+  const add = (box: string, side: 'top' | 'bottom', links: readonly Link[], toward: number, hold = 1) => {
     if (ranked.dummies.has(box)) return;
     const k = `${box}|${side}`;
     const far = links.map((l) => x.get(side === 'bottom' ? l.lower : l.upper) ?? 0);
     const beyond = far.reduce((a, b) => a + b, 0) / Math.max(1, far.length);
-    ends.set(k, [...(ends.get(k) ?? []), { links, toward, beyond }]);
+    ends.set(k, [...(ends.get(k) ?? []), { links, toward, beyond, hold }]);
   };
   const nearest = (box: string, ids: readonly string[]) => {
     const r = rects.get(box);
@@ -70,11 +78,16 @@ export function portsOf(
     const lowers = g.links.map((l) => l.lower);
     const uppers = g.links.map((l) => l.upper);
     if (g.kind === 'fan') add(uppers[0] as string, 'bottom', g.links, nearest(uppers[0] as string, lowers));
-    else for (const l of g.links) add(l.upper, 'bottom', [l], x.get(g.kind === 'join' ? l.upper : l.lower) ?? 0);
+    else
+      for (const l of g.links)
+        add(l.upper, 'bottom', [l], x.get(g.kind === 'join' ? l.upper : l.lower) ?? 0, g.kind === 'join' ? YIELD : 1);
     if (g.kind === 'join') add(lowers[0] as string, 'top', g.links, nearest(lowers[0] as string, uppers));
-    else for (const l of g.links) add(l.lower, 'top', [l], x.get(g.kind === 'fan' ? l.lower : l.upper) ?? 0);
+    else
+      for (const l of g.links)
+        add(l.lower, 'top', [l], x.get(g.kind === 'fan' ? l.lower : l.upper) ?? 0, g.kind === 'fan' ? YIELD : 1);
   }
   for (const l of aside) add(l.upper, 'bottom', [l], x.get(l.lower) ?? 0);
+  for (const l of atop) add(l.lower, 'top', [l], x.get(l.upper) ?? 0);
   for (const l of groups.flatMap((g) => g.links)) {
     if (ranked.dummies.has(l.upper)) bottom.set(l, x.get(l.upper) ?? 0);
     if (ranked.dummies.has(l.lower)) top.set(l, x.get(l.lower) ?? 0);
@@ -91,7 +104,7 @@ export function portsOf(
     const wanted = sorted.map((e) => Math.min(hi, Math.max(lo, e.toward)));
     const placed = isotoneApart(
       wanted,
-      wanted.map(() => 1),
+      sorted.map((e) => e.hold),
       sorted.slice(1).map(() => step),
     );
     order.set(k, { ends: sorted, step });
@@ -166,5 +179,6 @@ export function portsOf(
     bottom.set(l, at);
     top.set(l, at);
   }
+  clearOfAside(groups, aside, top, bottom, room, gap, (n) => ranked.dummies.has(n));
   return { top, bottom };
 }

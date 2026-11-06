@@ -21,7 +21,11 @@ import type { LayeredSpec } from './spec.js';
 export type { LayeredLayout } from './output.js';
 
 /** Positions, ports, tracks, routes and labels of an arranged picture. */
-export function finish(spec: LayeredSpec, arrangement: Arrangement): LayeredLayout {
+export function finish(
+  spec: LayeredSpec,
+  arrangement: Arrangement,
+  up: ReadonlySet<string> = new Set(),
+): LayeredLayout {
   const m = spec.metrics;
   const { ranked, neighbours, layers } = arrangement;
   const core = new Set(spec.hub?.core ?? []);
@@ -43,7 +47,18 @@ export function finish(spec: LayeredSpec, arrangement: Arrangement): LayeredLayo
   const settle = (placed: Xs): Placement => {
     fr.clear(placed, layers, width, m.colGap);
     const flat = new Map([...placed].map(([id, cx]) => [id, { x: cx - width(id) / 2, y: 0, w: width(id), h: 0 }]));
-    const ports = portsOf(groups, ranked, flat, placed, m.portGap, undefined, undefined, undefined, below.ends);
+    const ports = portsOf(
+      groups,
+      ranked,
+      flat,
+      placed,
+      m.portGap,
+      undefined,
+      undefined,
+      undefined,
+      below.ends,
+      below.tops,
+    );
     return { x: placed, flat, ports };
   };
   const place = () => {
@@ -54,7 +69,7 @@ export function finish(spec: LayeredSpec, arrangement: Arrangement): LayeredLayo
     const price = (p: Placement) => scoreOf(layeredLines(spec, draw(p))).cost;
     return unjog({ layers, width, gap, groups, ranked, settle, blockOf: fr.block, price, spines }, settled);
   };
-  const below = besideRoutes(ranked, layers);
+  const below = besideRoutes(ranked, layers, up, m.lead);
   const links = linksOf(spec, ranked).filter((l) => !runs.hidden(l.edge));
   const groups = groupsOf(spec, ranked, layers, links);
   const seats = seatsOf(spec.edges, groups, ranked);
@@ -83,7 +98,8 @@ export function finish(spec: LayeredSpec, arrangement: Arrangement): LayeredLayo
     const rects = new Map<string, Rect>();
     const gapTop: number[] = [];
     const bandTop: number[] = [];
-    let y = m.top + (inCore[0] === 0 ? headRoom : 0) + fr.head(0);
+    const overFirst = below.count(-1);
+    let y = m.top + (inCore[0] === 0 ? headRoom : 0) + fr.head(0) + (overFirst > 0 ? overFirst * m.track + m.lead : 0);
     layers.forEach((layer, l) => {
       const band = Math.max(0, ...layer.map((n) => size.get(n)?.height ?? 0));
       bandTop.push(y);
@@ -108,7 +124,7 @@ export function finish(spec: LayeredSpec, arrangement: Arrangement): LayeredLayo
       const chain = links.filter((l) => l.edge === e.id);
       if (chain.length === 0) {
         if (runs.hidden(e.id)) return [];
-        const beside = below.route(e, frame, tracks, ports.bottom);
+        const beside = below.route(e, frame, tracks, ports);
         return beside === undefined ? [] : [beside];
       }
       const points = simplify(
