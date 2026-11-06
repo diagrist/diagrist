@@ -142,6 +142,24 @@ stress budgets count, such as bends a straight line could spare, reached no sear
     one another traded for two crossings, which the topology of three lanes needs), and a guard a foreign line
     comes near moves to the other side of its line or below the foreign one.
 
+12. **Rails, and state machines on the layout graph** (plan P8). An edge of the profile `rail` that runs up the layers
+    or past a layer leaves the order without placeholders and runs on a rail: out of a side of one end, along a
+    track beside every box, placeholder, foreign frame and text of a line between its ends, into the same side of
+    the other end. It takes a side where both ends stand outermost in their layers and no loop takes that side;
+    where none does, the order runs again with both ends pinned to the side they stand nearer, and a rail whose ends
+    still stand inside runs through the layers, one per new order. Rails are placed shortest first, each outside
+    the ones before it on its side by the room of their texts, on the side where it crosses fewer of them; the ends
+    on one side of a box stand rising rails first, inner ones higher, then arriving ones, outer ones higher, so no
+    end crosses another rail. A rail's text starts beside its track, outside it. A frame holding both ends of a rail
+    grows around it and its text, and so does a frame around a text of a line inside it that found no clear spot
+    within. `given.last` puts nodes, such as final states, below every other node of their frame. A fan or join
+    whose lines carry texts seats each text beside its own branch, not one at the trunk. State machines that flow
+    down and have no entry or exit points, regions or bars hand a layout graph: simple vertices as nodes, the
+    initial pseudostates first, composite states as frames with their name field and compartment as head,
+    transitions as `rail` edges with texts wrapped at the line-text wrap, the lines of pseudostates and final states
+    on one trunk, final states `last`; the kind's rails, steps, corners, loops and label placement are not used for
+    them. The others stay on the adaptive grid until their fields come (`sides` for points, `part` for regions).
+
 ## Consequences
 
 Placeholders cross a frame only where it lies wholly between the ends of their line; a frame beside a line's way is

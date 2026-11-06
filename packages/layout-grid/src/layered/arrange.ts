@@ -1,6 +1,7 @@
 import { dock, type Extension, extensions, firstSides, type Side } from './hub.js';
 import { lanesOf } from './lanes.js';
 import { type Neighbours, neighboursOf, orderRanked } from './order.js';
+import { arrangeRails, type RailSide } from './rail-order.js';
 import { type Ranked, rank } from './rank.js';
 import type { LayeredSpec } from './spec.js';
 
@@ -11,12 +12,16 @@ export interface Arrangement {
   readonly layers: string[][];
   /** Boxes kept outside the core of a hub, at its left or right. */
   readonly pins?: ReadonlyMap<string, 'left' | 'right'>;
+  /** The sides each rail may run beside, by edge, where both its ends stand outermost. */
+  readonly rails?: ReadonlyMap<string, readonly RailSide[]>;
 }
 
 /** The layers and their order along the edges of a plain picture, or as the kind gave them in `layers`. */
 export function arrange(spec: LayeredSpec): Arrangement {
   const given = spec.layers;
-  const ranked = rank(spec, given && new Map(given.flatMap((layer, l) => layer.map((n) => [n, l] as const))));
+  const fixed = given && new Map(given.flatMap((layer, l) => layer.map((n) => [n, l] as const)));
+  if (spec.edges.some((e) => e.rail === true)) return arrangeRails(spec, fixed);
+  const ranked = rank(spec, fixed);
   const neighbours = neighboursOf(spec, ranked);
   const places = new Map(spec.reorder ? [] : given?.flatMap((layer) => layer.map((n, i) => [n, i] as const)));
   const layers = lanesOf(spec, ranked).sort(orderRanked(spec, ranked, neighbours, new Map(), places));

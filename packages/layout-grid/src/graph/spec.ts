@@ -52,9 +52,11 @@ export interface GraphEdge {
   readonly label?: GraphLabel;
   /**
    * How the line runs: `orthogonal` between layers and beside them, `loop` out of a side of its box and back into
-   * it, which an edge from a node to itself takes anyway. Rails beside a layer (layout plan P8) are the next one.
+   * it, which an edge from a node to itself takes anyway, and `rail` like `orthogonal` but, where it runs up the
+   * layers or past a layer, on a rail beside them: out of a side of `from`, beside everything between and into that
+   * side of `to`.
    */
-  readonly profile?: 'orthogonal' | 'loop';
+  readonly profile?: 'orthogonal' | 'loop' | 'rail';
   /** Not drawn: the edge only holds its ends near each other in layers and places. */
   readonly hidden?: boolean;
   /** The least straight run out of `from` and into `to`, for symbols and texts at the ends. */
@@ -102,6 +104,8 @@ export interface GraphGiven {
    * over so many boxes, and a frame that hangs at one other is tried beside, above and below it.
    */
   readonly perLayer?: number;
+  /** With `perLayer`: nodes that stand below every other node of their frame, such as the ends of a flow. */
+  readonly last?: readonly string[];
 }
 
 /**
