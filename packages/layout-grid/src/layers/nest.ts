@@ -70,6 +70,7 @@ function blockOf(n: Nesting, chain: (id: string) => readonly string[], owner: st
     maxPerLayer: graph.maxPerLayer,
     sizes: new Map(kids.map((k) => [k, size(k)])),
     widths: new Map(kids.map((k) => [k, places(k)])),
+    blocks: new Set(inner.keys()),
     ...(graph.thorough === true ? { thorough: true } : {}),
     ...(graph.moves === undefined ? {} : { moves: graph.moves }),
   };

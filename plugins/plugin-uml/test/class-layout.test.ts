@@ -85,7 +85,7 @@ describe('class layout', () => {
     expect(end[0]).toBeGreaterThan(domain.x + 72);
   });
 
-  it('stacks five packages in layers as compact blocks, leaves beside or below their partner, and no lines cross', () => {
+  it('stacks five packages in layers as compact blocks, a package with only associations beside its partner, and no lines cross', () => {
     const p = picture('pakete-quer');
     const ids = ['web', 'bestellung', 'zahlung', 'katalog', 'versand'];
     const [web, orders, payment, catalogue, shipping] = ids.map((id) => p.frame(id)) as [Rect, Rect, Rect, Rect, Rect];
@@ -93,7 +93,9 @@ describe('class layout', () => {
     for (const [i, a] of ids.entries())
       for (const b of ids.slice(i + 1)) expect(apart(p.frame(a), p.frame(b))).toBe(true);
     expect(web.y + web.h).toBeLessThan(orders.y);
-    expect([catalogue.y, payment.y]).toEqual([web.y, orders.y]);
+    expect([catalogue.y, payment.y]).toEqual([orders.y, orders.y]);
+    expect(catalogue.x + catalogue.w).toBeLessThan(orders.x);
+    expect(p.edge('controller', 'auftrag')).toHaveLength(2);
     expect(orders.x + orders.w).toBeLessThan(payment.x);
     expect(orders.y + orders.h).toBeLessThan(shipping.y);
     const right = Math.max(...ids.map((id) => p.frame(id).x + p.frame(id).w));

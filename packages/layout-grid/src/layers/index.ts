@@ -112,6 +112,7 @@ export function layerGraph(graph: LayerGraph): Layered {
       ...(graph.sizes === undefined ? {} : { sizes: graph.sizes }),
       ...(graph.widths === undefined ? {} : { widths: graph.widths }),
       ...(graph.moves === undefined ? {} : { moves: graph.moves }),
+      ...(graph.blocks === undefined ? {} : { blocks: graph.blocks }),
     });
     const width =
       graph.widths === undefined

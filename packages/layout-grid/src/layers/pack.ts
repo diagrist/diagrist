@@ -1,3 +1,4 @@
+import { freeBlocks } from './free-blocks.js';
 import type { LayerGraph } from './graph.js';
 
 /** `by` more of `key`, one by default. */
@@ -6,7 +7,10 @@ const bump = <K>(map: Map<K, number>, key: K, by = 1) => map.set(key, (map.get(k
 /** Places beside a node for its leaves, one at each side, and as many in the row above it and in the row below. */
 const NEAR = 2;
 
-/** The leaves of `free` edges, each with its node: nodes whose one edge is `free` and whose partner has others. */
+/**
+ * The leaves of `free` edges, each with its node: nodes whose one edge is `free` and whose partner has others, and
+ * blocks of frames whose edges are all `free` (`freeBlocks`).
+ */
 export function leavesOf(graph: LayerGraph): Map<string, string> {
   const edges = graph.edges.filter((e) => e.from !== e.to);
   const degree = new Map<string, number>();
@@ -18,6 +22,7 @@ export function leavesOf(graph: LayerGraph): Map<string, string> {
       [e.to, e.from],
     ] as const)
       if (e.rank === 'free' && degree.get(leaf) === 1 && (degree.get(node) ?? 0) > 1) leafOf.set(leaf, node);
+  for (const [leaf, node] of freeBlocks(graph.blocks, edges, degree)) if (!leafOf.has(leaf)) leafOf.set(leaf, node);
   return leafOf;
 }
 

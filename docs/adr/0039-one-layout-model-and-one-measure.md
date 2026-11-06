@@ -389,3 +389,13 @@ boxes, lines on one another and side by side; `lange-namen` once (`Bürgerin →
 `drei-subjekte` no longer crosses. The names of subjects are now placed texts (`<subject>.name`), so a line through
 one is a finding; `vier-subjekte` keeps one line through a box (`Überweisen → Zahlung ausführen` past
 `Zahlungsnetz`, in `PENDING`). All nine examples are drawn anew, none with a finding.
+
+## Amendment: proposals for class diagrams (06.11.2026)
+
+**Frames with only free edges count as leaves.** The search for where leaf frames stand (`layoutLeaves`) tried the
+rows above, beside and below the partner only for frames with one edge; a frame whose lifted edges are all `free`
+has the same freedom with more partners. Such a frame is now a leaf of its strongest partner, the one it has the most
+edges with, then the one with the most edges of its own, then the one met last (`layers/free-blocks.ts`, read by
+`leavesOf` through `LayerGraph.blocks`). `katalog` in `pakete-quer` stands beside `bestellwesen`, so `web` stands
+over it and `erzeugt` runs straight: 1,964 to 1,474 px of line, 1,232 to 1,498 px wide, bends kept at 2.
+`pakete-drei` loses its crossing (1 to 0) for 2 bends more (6 to 8), 916 × 1,007 instead of 1,137 × 818 px.

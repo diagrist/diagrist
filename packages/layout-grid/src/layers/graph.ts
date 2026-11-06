@@ -44,6 +44,11 @@ export interface LayerGraph {
    * the row below. The others take the first of these with room.
    */
   readonly moves?: ReadonlyMap<string, -1 | 0 | 1>;
+  /**
+   * Nodes that stand for a frame laid out as a block of its own (`layerNested`). One whose edges are all `free` is a
+   * leaf of its strongest partner however many partners it has (`freeBlocks`).
+   */
+  readonly blocks?: ReadonlySet<string>;
 }
 
 /** A frame around nodes for the layering: the nodes directly in it and the frame it stands in. */
