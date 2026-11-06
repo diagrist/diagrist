@@ -1,4 +1,4 @@
-import { depths, type Parts, type Side, towardActors } from './parts.js';
+import { depths, type Parts, type Side, slide, towardActors } from './parts.js';
 import { type Plan, slice } from './plan.js';
 
 /**
@@ -19,9 +19,11 @@ export function acrossPlan(
   for (let b = 0; b < count; b++) {
     const part = slice(p, band, b);
     const local = depths(part);
-    towardActors(part, local, new Map(part.actors.map((a) => [a.id, laneOf(a.id) > b ? 'right' : 'left'])));
-    start.push(next);
     const width = part.cases.length ? Math.max(0, ...local.values()) + 1 : 0;
+    const toward = new Map(part.actors.map((a): [string, Side] => [a.id, laneOf(a.id) > b ? 'right' : 'left']));
+    slide(part, local, toward, width);
+    towardActors(part, local, toward);
+    start.push(next);
     for (const [id, d] of local) depth.set(id, next + d);
     next += width + (b < count - 1 ? 1 : 0);
   }

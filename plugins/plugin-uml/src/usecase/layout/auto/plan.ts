@@ -1,5 +1,5 @@
 import type { UseCaseModel } from '../../model.js';
-import { casesOf, depths, families, type Parts, type Side, towardActors } from './parts.js';
+import { casesOf, depths, families, type Parts, type Side, slide, towardActors } from './parts.js';
 import { sides } from './sides.js';
 
 /**
@@ -26,8 +26,9 @@ export function bandIndex(model: UseCaseModel): (id: string) => number {
 /** Below each other: the base left, actors left or right of the one column of subjects. */
 export function stackedPlan(p: Parts, side: Map<string, Side>): Plan {
   const depth = depths(p);
-  towardActors(p, depth, side);
   const columns = Math.max(0, ...depth.values()) + 1;
+  slide(p, depth, side, columns);
+  towardActors(p, depth, side);
   return {
     side,
     depth,
