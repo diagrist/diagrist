@@ -4,6 +4,7 @@ import type { SeqGate } from '../model/gates.js';
 import type { SequenceModel } from '../model/types.js';
 import { type Bar, dock } from './bars.js';
 import type { BoxArt } from './boxes.js';
+import type { FrameArt } from './frames.js';
 import { labelWidth, type Measured, type SeqCtx } from './text.js';
 import type { SeqMessageArt, SeqShape } from './types.js';
 
@@ -85,19 +86,15 @@ export function snapToFrame(art: SeqMessageArt, rect: Rect, c: SeqCtx, outward =
   return { ...art, points, label: [...art.label, ...name] };
 }
 
-/** Formal gates of fragments onto their frames; `frames` lists the frames in the order of the fragments. */
+/** Formal gates of fragments onto their frames. */
 export function snapFragmentGates(
-  m: SequenceModel,
   messages: readonly SeqMessageArt[],
-  frames: readonly SeqShape[],
+  frames: readonly FrameArt[],
   c: SeqCtx,
 ): SeqMessageArt[] {
-  const rects = frames.flatMap((s) => (s.kind === 'rect' && s.role === 'frame' ? [s.rect] : []));
   const byId = new Map<string, Rect>();
-  m.fragments.forEach((f, k) => {
-    const rect = rects[k];
-    if (f.event.id && rect && !byId.has(f.event.id)) byId.set(f.event.id, rect);
-  });
+  for (const f of frames)
+    if (f.fragment.event.id && !byId.has(f.fragment.event.id)) byId.set(f.fragment.event.id, f.rect);
   return messages.map((art) => {
     const rect = art.via === undefined ? undefined : byId.get(art.via);
     return rect ? snapToFrame(art, rect, c) : art;

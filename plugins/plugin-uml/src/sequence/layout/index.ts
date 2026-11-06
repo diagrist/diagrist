@@ -11,6 +11,7 @@ import type { SequenceModel } from '../model/types.js';
 import { body, extent, lowest, type Parts } from './body.js';
 import { columns, widenNotes } from './columns.js';
 import { dividerArts, dividerBoxWidth } from './dividers.js';
+import { dividerPlaced } from './placed.js';
 import { rows } from './rows.js';
 import { measureEvent, SEQ_CTX } from './text.js';
 import type { SequenceLayout } from './types.js';
@@ -61,6 +62,7 @@ export function layoutSequence(m: SequenceModel, words: PictureTexts): SequenceL
     ...placed,
     guides: [...placed.guides, ...dividers.lines],
     annotations: [...placed.annotations, ...dividers.boxes],
+    placed: [...placed.placed, ...dividerPlaced(m, dividers.rects)],
     strip,
   };
 }

@@ -1,4 +1,4 @@
-import type { Point, Rect } from '@diagrist/core';
+import type { Placed, Point, Rect } from '@diagrist/core';
 import type { Header, Strip } from '@diagrist/parts';
 import type { MessageKind } from '../diagram.js';
 
@@ -111,5 +111,7 @@ export interface SequenceLayout {
   readonly guides: readonly SeqShape[];
   /** On top: brackets and texts of time constraints, text boxes of dividers. */
   readonly annotations: readonly SeqShape[];
+  /** What the placement check and the line check read (`sequencePlaced`). */
+  readonly placed: readonly Placed[];
   readonly strip: Strip;
 }

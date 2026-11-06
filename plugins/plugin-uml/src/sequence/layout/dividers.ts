@@ -1,3 +1,4 @@
+import type { Rect } from '@diagrist/core';
 import type { SequenceModel } from '../model/types.js';
 import type { Rows } from './rows.js';
 import type { SeqCtx } from './text.js';
@@ -8,6 +9,8 @@ export interface Dividers {
   readonly lines: readonly SeqShape[];
   /** Text boxes, on top. */
   readonly boxes: readonly SeqShape[];
+  /** The outline of each text box, with the index of its divider. */
+  readonly rects: readonly { readonly index: number; readonly rect: Rect }[];
 }
 
 /** Width of the text box of a divider; the picture is at least this wide. */
@@ -22,6 +25,7 @@ export function dividerArts(m: SequenceModel, rows: Rows, left: number, right: n
   const s = c.s;
   const lines: SeqShape[] = [];
   const boxes: SeqShape[] = [];
+  const rects: { index: number; rect: Rect }[] = [];
   m.diagram.events.forEach((e, i) => {
     if (e.type !== 'divider') return;
     const y = rows.y[i] ?? 0;
@@ -30,10 +34,12 @@ export function dividerArts(m: SequenceModel, rows: Rows, left: number, right: n
     if (!e.label) return;
     const w = dividerBoxWidth(e.label, c);
     const cx = (left + right) / 2;
+    const rect = { x: cx - w / 2, y: y - s.dividerH / 2, w, h: s.dividerH };
+    rects.push({ index: i, rect });
     boxes.push(
-      { kind: 'rect', rect: { x: cx - w / 2, y: y - s.dividerH / 2, w, h: s.dividerH }, role: 'tag' },
+      { kind: 'rect', rect, role: 'tag' },
       { kind: 'text', at: { x: cx, y: y + c.s.textMid }, text: e.label, role: 'tag', anchor: 'middle' },
     );
   });
-  return { lines, boxes };
+  return { lines, boxes, rects };
 }

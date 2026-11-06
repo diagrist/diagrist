@@ -43,8 +43,8 @@ export function sequenceScene(l: SequenceLayout, m: SequenceModel, words: Words 
   return withAreaLegend(scene, d.areas, usedAreas(m), cards ? 'cardBox' : 'head');
 }
 
-/** Heads as nodes, messages as edges in drawing order; a sequence diagram has no groups. */
-export function sequenceAnchors(l: SequenceLayout): Anchors {
+/** Heads as nodes, messages as edges in drawing order with the line that writes them; a sequence diagram has no groups. */
+export function sequenceAnchors(l: SequenceLayout, m: SequenceModel): Anchors {
   return {
     width: l.width,
     height: l.height,
@@ -56,6 +56,12 @@ export function sequenceAnchors(l: SequenceLayout): Anchors {
       to: art.to,
       domId: domId.edge(k),
       points: art.points,
+      ...spanOf(m, art.index),
     })),
   };
+}
+
+function spanOf(m: SequenceModel, index: number) {
+  const span = m.diagram.events[index]?.span;
+  return span ? { span } : {};
 }
