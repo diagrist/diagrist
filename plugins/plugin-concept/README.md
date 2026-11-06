@@ -54,7 +54,9 @@ The vocabularies `terms` and `roles` bring the declarations of two common pictur
 definitions, broader terms above narrower ones, parts and synonyms, and a rule that asks to mark one of two
 synonyms `status=deprecated`. `roles` has who reports to whom, each role to one lead at most and never in a circle,
 and who stands in for whom. The items are layered along their relations by `@diagrist/layout-grid`, and the
-legend shows the types, links and statuses the picture uses.
+legend shows the types, links and statuses the picture uses. Where every item of one type relates to every item of
+another by one link, without texts of their own, the layers draw the relations as a bus: one shared line that each
+item above joins and each item below takes from, read as "each with each".
 
 ## `vocabulary`
 

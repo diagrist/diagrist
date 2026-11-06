@@ -20,14 +20,17 @@ export interface Arranged {
   readonly placed: readonly Placed[];
   /** The frame around the core of a hub, with its head. */
   readonly frame?: CoreFrame;
+  /** The bus each relation drawn on one runs on, by the id of its edge. */
+  readonly buses?: ReadonlyMap<string, string>;
 }
 
 /** A picture in layers, laid out by the layered pipeline of `layout-grid` (plan L3). */
 export function inLayers(m: Graph, locale: Locale): Arranged {
-  const { layout, boxes } = layeredGraph(m, locale);
+  const { layout, boxes, buses } = layeredGraph(m, locale);
   return {
     ...layout,
     boxes,
+    buses,
     heads: [],
     verbs: [],
     width: layout.width + MARGIN,

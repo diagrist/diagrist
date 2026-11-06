@@ -33,6 +33,10 @@ vocabulary forbids.
 - Diagrist chooses the arrangement. It uses **columns** when most relations join items of different types (a
   story read from left to right), a **hub** when a core area is extended by two areas or more, and **layers**
   otherwise. Set `arrange=` only when the choice does not fit the question.
+- When every item of one type relates to every item of another by one link, such as three channels that each use
+  the same three services, the layers draw the relations as a **bus**: one shared line that every item above joins
+  and every item below takes from, with an arrowhead at each item below. A bus reads "each with each". Write all the
+  pairs; leave one out, or give one its own text, and every pair is drawn as its own line again.
 - For a core and its extensions, use areas and let the hub draw them ([areas.md](areas.md)). The core stands
   framed in the middle, the extensions dock at its sides, and every line points into the core.
 - When several pictures share a subject, write the types and links once as a `vocabulary` file and build on it

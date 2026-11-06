@@ -33,6 +33,8 @@ export interface PlacedLine {
   readonly relation: Relation;
   /** The relation's index in source order, which its DOM id carries. */
   readonly index: number;
+  /** The bus it runs on, shared with every other relation of a complete set (`busesOf`). */
+  readonly bus?: string;
 }
 
 /** Everything the scene draws, in picture pixels. */
@@ -109,7 +111,8 @@ export function layoutGraph(
   const lines = routes.flatMap((route): PlacedLine[] => {
     const found = byEdge.get(route.edge);
     const link = found && m.links.get(found.relation.link);
-    return found && link ? [{ route, link, ...found }] : [];
+    const bus = at.buses?.get(route.edge);
+    return found && link ? [{ route, link, ...found, ...(bus === undefined ? {} : { bus }) }] : [];
   });
   const lineOf = new Map(lines.map((l) => [l.route.edge, l.relation]));
   const related = labels.map((l) => {
