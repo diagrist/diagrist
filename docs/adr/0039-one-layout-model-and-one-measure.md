@@ -69,7 +69,9 @@ stress budgets count, such as bends a straight line could spare, reached no sear
    parent's move relieves a layer does `wrap` cut it by count. `LayeredEdge` keeps its ranks; class pictures hand
    the pipeline the graph of their layers (decision 8).
 7. **Texts on lines break into lines.** A text wider than the wrap of line texts (`WRAP_EM`, sixteen sizes of its
-   font, the wrap C4 got for its channel grid) breaks between its words (`wrapWithin`), and a class name that starts
+   font, the wrap C4 got for its channel grid) breaks between its words (`wrapWithin`), never before a token that
+   only closes or punctuates (`%`, `]`, `,`), after an operator or between a number and its unit, and inside a
+   `[...]` guard only where it must, before `und` first, then before an operator; and a class name that starts
    with a keyword in guillemets, such as `«bind» <K → String, V → Kunde>`, keeps the keyword on a line of its own.
    The pipeline seats such a label as one block beside its line, the gap growing for every line, and hands one text
    per line, keyed `<edge>.label.<n>`, the lines of a text moving together; where it moves them is decision 9.
