@@ -416,6 +416,35 @@ by side is not clean of these, which takes the same picture with fewer layouts.
 the pass, 706 to 620 px high; no other picture changes. `zwei-systeme` compiles in 1.4 instead of 2.0 s,
 `vier-subjekte` in 1.0 instead of 1.9 s, `stadtwerke`, which now tries other columns, in 1.1 instead of 0.7 s.
 
+## Amendment: compact use case subjects and actors beside them (06.11.2026)
+
+Three causes kept the pictures with several subjects from reading well. A use case that hangs on actors at the
+right moved to the last of the columns its subject shared with others, so a subject beside a deeper one grew as wide
+as that one and stood empty in a corner (`Kreditsystem` in `vier-subjekte`). It now moves to the last column of its
+own subject, and a subject narrower than its columns stands as a whole in those next to the lane most of its lines
+lead to (`slide`, `towardActors` in `auto/parts.ts`).
+
+The step that moves boxes off straight lines (`graph/straight-clear.ts`) let a line graze a foreign frame by 8 px,
+while the price counts a line within 6 px of one as passing it (amendment above). A pass no move cleared made
+`stadtwerke` choose `Servicemitarbeiter` at the outer right, its lines across `CRM` and into the top of
+`Abrechnung`. The step now uses the distance of the price, and a box with no room along its layer takes along what
+stands in its way, as `shove` does in the layered stages; `Servicemitarbeiter` stands in the lane between the
+subjects it uses.
+
+A note on a subject at the edge of the picture found its spot beside the picture, which the spot search counted as
+lying on a box, although the sheet grows around every note (`free.ts`). `zwei-systeme` was never clean for it, in
+every arrangement. The search now keeps only the left margin and the top of the picture, and a note on a line or a
+frame line costs as much as a text on a line instead of nothing, which kept `notizen` from taking a note across the
+frame of its subject once the first layout counted as clean. Side by side, every set of columns is laid out once, and
+once one is clean another wins where it is cheaper by 20, the price of a bend, not of a jog: `zwei-systeme` takes
+`ERP` left of `Webshop`, with the clerk, the customer and the shipping provider together between both.
+
+`zwei-systeme` 2,535 to 2,079 px of line, 1,630 × 661 to 1,736 × 608 px; `stadtwerke` 2,218 to 2,206 px, 620 to
+706 px high; `vier-subjekte` 2,560 to 3,114 px, the two lines to `Auskunftei` and `Risikomanagement` now cross the
+empty column beside the narrower `Kreditsystem`; `notizen` 1,288 to 1,233 px; `zwei-subjekte` 2,619 to 2,658 px.
+No count of the stress budgets rises. Medians of nine runs of `dgr check`, interleaved with the build before:
+`zwei-systeme` 0.36 instead of 0.81 s, `stadtwerke` 0.45 instead of 0.69 s, `vier-subjekte` 0.70 as before.
+
 ## Amendment: proposals for class diagrams (06.11.2026)
 
 **Frames with only free edges count as leaves.** The search for where leaf frames stand (`layoutLeaves`) tried the
