@@ -58,7 +58,7 @@ export const COLUMNS: Look = {
     replicas: 'stack',
     groups: { form: 'band', head: 'corner' },
     edgeText: { place: 'beside', flat: false, ground: 'halo' },
-    numbers: { seat: 'seated', form: 'disc' },
+    numbers: { form: 'disc' },
     marks: 'inside',
     focus: 'dim',
     layers: 'bands',

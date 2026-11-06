@@ -51,8 +51,6 @@ export interface LookOptions {
     readonly ground: 'halo' | 'gap';
   };
   readonly numbers: {
-    /** Flow numbers where the layout puts them, or moved along their segment clear of the texts on the line. */
-    readonly seat: 'free' | 'seated';
     /** Drawn as `(3)` on a rounded plate, or as the digit in a small disc. */
     readonly form: 'plate' | 'disc';
   };

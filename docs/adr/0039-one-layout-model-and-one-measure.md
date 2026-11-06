@@ -132,3 +132,24 @@ Placeholders cross a frame only where it lies wholly between the ends of their l
 still gone around, since the cost of an order knows no length. The leaf search lays a picture out once more for
 every place a leaf frame may take, like the hub search; pictures without such frames pay nothing. A layout stage that
 wants to compare two of its own variants can now ask the same question the check answers.
+
+## Amendment: the adaptive C4 grid on the channel stage (plan P10)
+
+An adaptive C4 grid takes its places from the author's columns and rows, as a fixed one does; only the widths and
+gaps grow to the content. Of the stages, it needs the ports, tracks and texts, not layers, order or coordinates, so
+it moved onto the engine piece that already serves fixed grids, the channel stage of ADR 0038, instead of
+`layoutGraph` (D8): `GridSpec.channels` with `adaptive` routes through `route/channel/adaptive.ts`, and C4 sets
+`channels` for every grid and signs every grid in one way, a text of an adaptive grid staying where `labelEdges`
+seats it while that is clear and frames of an adaptive grid growing around the signed texts afterwards; the look option `numbers.seat` (ADR 0023), which only the old way read, is gone. Three things stay the adaptive grid's own: bundles keep their trunks, an edge into a wide box
+drops down the gap beside its narrow end (`drops`, #30), and an edge with a `lane` keeps to that column. The path
+search of the adaptive router is left as the fallback for a route that still runs through a node, and no picture
+needs it.
+
+Four rules came with it, for fixed grids as well. Two routes that end on one side of a box and cross each other
+swap their places there when that crosses fewer routes, a straight one moving as a whole (`untangle`). A Z between
+two boxes of one column or row takes the gap on the other side when its own lies outside a frame holding both boxes,
+and `relieve` no longer moves it out (`keepInside`); like a detour (ADR 0038), `zwei-fluesse` keeps its line and text
+in the frame for one crossing more, raised in its budget by hand. A column whose names in the top edge reach past
+the middle keeps all its lines on one spine, the column of the narrower box (`look=columns`). And a gap asks room
+for lanes only where they run beside each other, and shared trunks count once. The C4 stress set keeps nothing in
+`PENDING`; `cloud` in `look=cards` has no line finding, `cloud-columns` stands on three spines.

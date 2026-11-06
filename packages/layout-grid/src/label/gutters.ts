@@ -107,10 +107,11 @@ export function gutterRoom(
     pieces.flatMap((list) =>
       list.filter((q) => inside(g, q) && (!besides || meet(span(q, q.upright), span(besides, q.upright)))),
     );
-  for (const g of gaps) {
-    const lanes = lanesOf(g, undefined).map((q) => at(g, q));
-    if (lanes.length > 1) ask(g, Math.max(...lanes) - Math.min(...lanes) + 2 * m.laneGap);
-  }
+  for (const g of gaps)
+    for (const p of lanesOf(g, undefined)) {
+      const lanes = [...new Set(lanesOf(g, p).map((q) => at(g, q)))];
+      if (lanes.length > 1) ask(g, Math.max(...lanes) - Math.min(...lanes) + 2 * m.laneGap);
+    }
   const texts = new Map(edgeTexts.map((t) => [t.edge, t]));
   for (const i of crowded) {
     const route = routes[i];

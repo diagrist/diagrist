@@ -33,7 +33,7 @@ export const CARDS: Look = {
     replicas: 'stack',
     groups: { form: 'frame', head: 'onLine' },
     edgeText: { place: 'beside', flat: true, ground: 'halo' },
-    numbers: { seat: 'free', form: 'plate' },
+    numbers: { form: 'plate' },
     marks: 'aside',
     focus: 'accent',
     layers: 'boxes',

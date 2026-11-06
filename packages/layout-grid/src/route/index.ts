@@ -2,7 +2,9 @@ import type { GridLayout, Route } from '../layout.js';
 import type { GridSpec } from '../spec.js';
 import { adaptiveRoutes } from './adaptive.js';
 import { boardOf } from './boxes.js';
+import { adaptiveChannelRoutes } from './channel/adaptive.js';
 import { channelRoutes } from './channel/index.js';
+import { untangle } from './channel/untangle.js';
 import { gridRoutes } from './grid.js';
 import { withLead } from './lead.js';
 import { toRoute } from './routed.js';
@@ -18,8 +20,16 @@ import { straightRoutes } from './straight.js';
 export function routeEdges(spec: GridSpec, layout: GridLayout): Route[] {
   const board = boardOf(spec, layout);
   if (spec.lines === 'straight') return straightRoutes(board).map(toRoute);
-  if (spec.channels === true && !spec.adaptive)
-    return snapToOutlines(insetLaneEnds(channelRoutes(board), spec.metrics.nodeH / 2), board).map(toRoute);
+  if (spec.channels === true && spec.adaptive) {
+    const routed = adaptiveChannelRoutes(board);
+    const lead = spec.metrics.lead;
+    const done = lead !== undefined ? withLead(routed, board, lead, spec.metrics.laneGap) : routed;
+    return snapToOutlines(insetLaneEnds(done, spec.metrics.nodeH / 2), board).map(toRoute);
+  }
+  if (spec.channels === true)
+    return snapToOutlines(insetLaneEnds(untangle(channelRoutes(board), board), spec.metrics.nodeH / 2), board).map(
+      toRoute,
+    );
   const routed = gridRoutes(board);
   const adapted = spec.adaptive ? adaptiveRoutes(routed, board) : routed;
   const lead = spec.metrics.lead;
