@@ -47,8 +47,8 @@ describe('a diagram that uses another file', () => {
   it('reads the used file relative to the source and builds its own pictures only', async () => {
     const result = await callJson(['build', 'papers/paper.dgr'], { files: used });
     expect(result.json.pictures).toEqual([
-      { variant: null, output: 'papers/paper.svg', png: null },
-      { variant: 'mine', output: 'papers/paper.mine.svg', png: null },
+      { variant: null, output: 'papers/paper.svg', png: null, description: null },
+      { variant: 'mine', output: 'papers/paper.mine.svg', png: null, description: null },
     ]);
   });
 

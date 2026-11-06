@@ -23,6 +23,8 @@ export interface Picture {
   readonly svg?: string;
   /** The measures of its lines by name, such as `crossings` and `bends`; present with `svg`. */
   readonly metrics?: Readonly<Record<string, number>>;
+  /** The picture in words, from the kind's `describe`, in the language of the `locale=` header; present with `svg`. */
+  readonly description?: string;
 }
 
 /** What the engine gives back for one source: its pictures, the findings, and the files it needs. */

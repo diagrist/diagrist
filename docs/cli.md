@@ -147,7 +147,8 @@ With `--json`, besides the fields of every document:
 | `file` | The rendered source. |
 | `output` | Path of the first written SVG, the base unless `--variant` picks another; `null` when nothing was written. |
 | `png` | Path of the PNG beside `output`, `null` without `--png` or when nothing was written. |
-| `pictures` | Every picture asked for: `{ variant, output, png }`, `variant` `null` for the base, the paths `null` when nothing was written. |
+| `description` | The picture of `output` in words, in the language of the `locale=` header, so an agent can read what it drew; `null` when nothing was written. |
+| `pictures` | Every picture asked for: `{ variant, output, png, description }`, `variant` `null` for the base, the paths and the description `null` when nothing was written. |
 | `diagnostics` | All findings, see "Diagnostics". |
 
 ## dgr grammar
