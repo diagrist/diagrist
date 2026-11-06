@@ -2,9 +2,11 @@ import { orderLayers, refine } from '../layers/order.js';
 import type { OrderCost } from '../layers/sift.js';
 import { chainsAside } from './chains.js';
 import { clustered, framesBroken } from './clusters.js';
+import { lanesOf } from './lanes.js';
 import { PINNED, rankedCost } from './order-cost.js';
 import { lengthOf } from './order-length.js';
 import { spanPricing } from './order-span.js';
+import { inversions } from './order-terms.js';
 import { trunkSites } from './order-trunks.js';
 import { framePaths } from './paths.js';
 import type { Ranked } from './rank.js';
@@ -100,7 +102,14 @@ export function shortened(
   return moved.every((l, i) => l.every((n, k) => layers[i]?.[k] === n)) ? undefined : moved;
 }
 
-/** The cost of an order by crossings and the rest, the same with its length (`long`), and the estimated length. */
+/** Pairs of nodes, in any layer, whose lanes stand in the wrong order. */
+const lanesBroken = (layers: readonly string[][], lane: ReadonlyMap<string, number>): number =>
+  layers.reduce((n, layer) => n + inversions(layer, lane), 0);
+
+/**
+ * The cost of an order by crossings and the rest, the same with its length (`long`), and the estimated length; a
+ * frame broken or a lane out of its order costs `PINNED`.
+ */
 function costsOf(
   spec: LayeredSpec,
   ranked: Ranked,
@@ -117,10 +126,14 @@ function costsOf(
   const trunks = trunkSites(spec, ranked, weight);
   const base = { ranked, links, cluster, pins, given, dummyWeight: DUMMY_WEIGHT, trunks };
   const fp = (spec.frames ?? []).length === 0 ? undefined : framePaths(spec, ranked);
+  const lanes = lanesOf(spec, ranked);
+  const lane = new Map([...ranked.layerOf.keys()].map((n) => [n, lanes.of(n) ?? -1] as const));
+  const laned = (spec.lanes ?? []).length > 0;
   const framed = (c: OrderCost): OrderCost => {
-    if (fp === undefined) return c;
+    if (fp === undefined && !laned) return c;
     const near = c.near as NonNullable<OrderCost['near']>;
-    const broken = (layers: string[][]) => PINNED * framesBroken(layers, fp);
+    const out = (layers: string[][]) => (fp ? framesBroken(layers, fp) : 0) + (laned ? lanesBroken(layers, lane) : 0);
+    const broken = (layers: string[][]) => PINNED * out(layers);
     return Object.assign((layers: string[][]) => c(layers, links.adj, ranked.layerOf) + broken(layers), {
       near: (layers: string[][], l: number) => near(layers, l) + broken(layers),
     });

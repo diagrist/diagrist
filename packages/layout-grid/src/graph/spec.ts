@@ -7,7 +7,10 @@ export interface GraphNode {
   readonly id: string;
   readonly width: number;
   readonly height: number;
-  /** `bar` is a node drawn across its branches, splitting or merging them: it stretches over their ends, which leave it straight. */
+  /**
+   * `bar` is a node drawn across its branches, splitting or merging them: it stretches over their ends, which leave
+   * it straight above or below their other end (`graph/bars.ts`, `layered/bar-docks.ts`).
+   */
   readonly shape?: 'box' | 'ellipse' | 'bar';
   /**
    * The frame or node whose outline the node sits on, such as a point of a box that holds others: a line through it
@@ -15,11 +18,13 @@ export interface GraphNode {
    */
   readonly dock?: string;
   /**
-   * The sides ends may take. The layered stages place ends on the top and bottom and, between neighbours of one
-   * layer, on the facing sides, so a node that names others is not yet honoured; kinds whose shapes dock at fixed
-   * corners or sides give them here for the stages that will read them (ADR 0039).
+   * The sides ends may take, each at the middle of its side, as at the corners of a diamond: ends on the top and
+   * bottom meet in one point, and the outermost line whose other end lies beyond the box leaves or enters it at the
+   * middle of that side where the row between is free (ADR 0039).
    */
   readonly sides?: readonly Side[];
+  /** How far texts the kind sets beside the node reach out of it; no other box comes nearer. */
+  readonly reach?: { readonly left: number; readonly right: number };
   /** Nodes of one cluster, such as one area, stand together in their layer where that costs no crossing. */
   readonly cluster?: string;
   readonly source?: Placed['span'];
@@ -66,9 +71,9 @@ export interface GraphEdge {
    * How the line runs: `orthogonal` between layers and beside them, `loop` out of a side of its box and back into
    * it, which an edge from a node to itself takes anyway, and `rail` like `orthogonal` but, where it runs up the
    * layers or past a layer, on a rail beside them: out of a side of `from`, beside everything between and into that
-   * side of `to`.
+   * side of `to`; `back` takes a rail only where it runs up the layers, as a loop back does.
    */
-  readonly profile?: 'orthogonal' | 'loop' | 'rail';
+  readonly profile?: 'orthogonal' | 'loop' | 'rail' | 'back';
   /** Not drawn: the edge only holds its ends near each other in layers and places. */
   readonly hidden?: boolean;
   /** The least straight run out of `from` and into `to`, for symbols and texts at the ends. */
@@ -83,8 +88,9 @@ export interface GraphEdge {
  * frames inside it as one block of layers, and edges may end on it; `core` is the core of a hub, which the other
  * clusters dock at, in a light frame with a head that names it. A `lane` is a hard column (layout plan P9): lanes
  * stand side by side in the order given, every layer keeps them so, and an edge ranked `beside` between two lanes
- * puts its ends in one layer. `part`, a part of a box that holds others (P8), is laid out as a frame and then
- * stretched with its siblings until together they fill their parent, side by side or stacked (`graph/parts.ts`).
+ * puts its ends in one layer; a lane is at least as wide as its head and reaches `top` above the first layer.
+ * `part`, a part of a box that holds others (P8), is laid out as a frame and then stretched with its siblings until
+ * together they fill their parent, side by side or stacked (`graph/parts.ts`).
  */
 export interface GraphContainer {
   readonly id: string;

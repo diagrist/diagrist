@@ -8,7 +8,12 @@ export interface LayeredNode {
   readonly height: number;
   /** Nodes of one cluster, such as one area, stand together in their layer where that costs no crossing. */
   readonly cluster?: string;
-  readonly shape?: 'box' | 'ellipse';
+  /** `bar`: a bar that grows over the ends of its lines, each straight above or below its other end. */
+  readonly shape?: 'box' | 'ellipse' | 'bar';
+  /** The sides ends may take, each at the middle of its side, as at the corners of a diamond. */
+  readonly sides?: readonly ('top' | 'bottom' | 'left' | 'right')[];
+  /** How far texts the kind sets beside the node reach out of it; no other box comes nearer. */
+  readonly reach?: { readonly left: number; readonly right: number };
   readonly source?: Placed['span'];
 }
 
@@ -66,9 +71,9 @@ export interface LayeredEdge {
   /**
    * Where the edge runs up the layers or past a layer, it runs on a rail instead of through them: out of a side of
    * `from`, beside everything between its ends and into the same side of `to`, where both ends stand outermost in
-   * their layers.
+   * their layers. `up` takes a rail only where the edge runs up the layers.
    */
-  readonly rail?: boolean;
+  readonly rail?: boolean | 'up';
   readonly source?: Placed['span'];
 }
 
@@ -159,5 +164,13 @@ export interface LayeredSpec {
    * Lanes, left to right: hard columns, each the nodes it names, `pad` from its edges (ADR 0039). Every layer keeps
    * the nodes of a lane together and the lanes in this order, and every lane gets a column of its own.
    */
-  readonly lanes?: readonly { readonly id: string; readonly members: readonly string[]; readonly pad: number }[];
+  readonly lanes?: readonly {
+    readonly id: string;
+    readonly members: readonly string[];
+    readonly pad: number;
+    /** The least width of the lane's column, such as that of its head. */
+    readonly width?: number;
+    /** How far the column reaches above the top of the first layer, for its head. */
+    readonly top?: number;
+  }[];
 }

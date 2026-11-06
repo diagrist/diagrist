@@ -54,18 +54,18 @@ export function specOf(graph: LayoutGraph): LayeredSpec {
   const containers = graph.containers ?? [];
   const core = given.arrangement === 'hub' ? containers.find((c) => c.kind === 'core') : undefined;
   const frames = containers.filter((c) => c.kind !== 'core' && c.kind !== 'lane').map(frameOf);
-  const lanes = containers.filter((c) => c.kind === 'lane').map((c) => ({ id: c.id, members: c.members, pad: c.pad }));
+  const lanes = containers
+    .filter((c) => c.kind === 'lane')
+    .map((c) => ({ id: c.id, members: c.members, pad: c.pad, width: c.head.width, top: c.top }));
   const edges = graph.edges.map(
     ({ rank, profile, ...e }): LayeredEdge => ({
       ...e,
       rank: RANKS[rank],
-      ...(profile === 'rail' ? { rail: true } : {}),
+      ...(profile === 'rail' ? { rail: true } : profile === 'back' ? { rail: 'up' as const } : {}),
     }),
   );
   return {
-    nodes: graph.nodes.map(({ sides: _, dock: __, shape, ...n }) =>
-      shape === undefined ? n : { ...n, shape: shape === 'bar' ? 'box' : shape },
-    ),
+    nodes: graph.nodes.map(({ dock: _, ...n }) => n),
     edges,
     metrics: graph.metrics,
     ...(core

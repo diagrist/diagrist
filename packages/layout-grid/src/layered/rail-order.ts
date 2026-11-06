@@ -1,5 +1,7 @@
 import type { Arrangement } from './arrange.js';
+import { lanesOf } from './lanes.js';
 import { neighboursOf, orderRanked } from './order.js';
+import { laneRailSides } from './rail-lanes.js';
 import { type Ranked, rank } from './rank.js';
 import type { LayeredEdge, LayeredSpec } from './spec.js';
 
@@ -21,7 +23,15 @@ function outermost(n: string, ranked: Ranked, layers: readonly (readonly string[
  */
 function sidesOf(spec: LayeredSpec, ranked: Ranked, layers: readonly (readonly string[])[]): Map<string, RailSide[]> {
   const looped = new Set(spec.edges.flatMap((e) => (e.from === e.to ? [e.from] : [])));
-  const sides = (n: string) => outermost(n, ranked, layers).filter((s) => s === 'left' || !looped.has(n));
+  const given = new Map(spec.nodes.flatMap((n) => (n.sides ? [[n.id, n.sides] as const] : [])));
+  const may = (n: string, s: RailSide) => (s === 'left' || !looped.has(n)) && given.get(n)?.includes(s) !== false;
+  if ((spec.lanes ?? []).length > 0) {
+    const lane = lanesOf(spec, ranked);
+    const at = (n: string) => lane.of(n) ?? 0;
+    const both = (e: LayeredEdge) => (['left', 'right'] as const).filter((s) => may(e.from, s) && may(e.to, s));
+    return laneRailSides(ranked.rails ?? [], ranked, layers, at, both);
+  }
+  const sides = (n: string) => outermost(n, ranked, layers).filter((s) => may(n, s));
   return new Map(
     (ranked.rails ?? []).map((e) => {
       const to = sides(e.to);
@@ -55,7 +65,7 @@ export function arrangeRails(spec: LayeredSpec, fixed?: ReadonlyMap<string, numb
   for (let round = 0; ; round++) {
     const ranked = rank(spec, fixed, chained);
     const neighbours = neighboursOf(spec, ranked);
-    const layers = orderRanked(spec, ranked, neighbours, pins, places);
+    const layers = lanesOf(spec, ranked).sort(orderRanked(spec, ranked, neighbours, pins, places));
     const rails = sidesOf(spec, ranked, layers);
     const failed = (ranked.rails ?? []).filter((e) => (rails.get(e.id) ?? []).length === 0);
     if (failed.length === 0) return { ranked, neighbours, layers, rails };

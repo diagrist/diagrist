@@ -1,6 +1,6 @@
 import { assignLayers } from '../layers/assign.js';
 import { acyclic, type LayerEdge } from '../layers/graph.js';
-import { handOvers } from './hand-overs.js';
+import { blockedHandOver, handOvers, nodeLanes } from './hand-overs.js';
 import type { LayeredEdge, LayeredSpec } from './spec.js';
 
 /**
@@ -58,7 +58,8 @@ function shorten(
 
 /**
  * The layer of every node: as `fixed` says, else along the edges, cycles cut and edges from lone sources short, the
- * ends of a hand-over between lanes in one layer (`handOvers`).
+ * ends of a hand-over between lanes in one layer (`handOvers`) unless its line would pass a box or a long line of a
+ * lane between (`blockedHandOver`), and one that cannot join its ends one layer down.
  */
 function layersOf(
   spec: LayeredSpec,
@@ -66,20 +67,36 @@ function layersOf(
   fixed?: ReadonlyMap<string, number>,
 ): Map<string, number> {
   if (fixed !== undefined) return compact(new Map(spec.nodes.map((n) => [n.id, fixed.get(n.id) ?? 0])));
-  const find = handOvers(spec);
+  const banned = new Set<string>();
+  for (;;) {
+    const find = handOvers(spec, banned);
+    const grouped = joinedLayers(spec, edges, find);
+    if ((spec.lanes ?? []).length === 0) return grouped;
+    const bad = blockedHandOver(spec, edges, find, grouped);
+    if (bad === undefined) return new Map(spec.nodes.map((n) => [n.id, grouped.get(find(n.id)) ?? 0]));
+    banned.add(bad);
+  }
+}
+
+/** The layer of every group of nodes a hand-over joins (`find`), by its representative. */
+function joinedLayers(
+  spec: LayeredSpec,
+  edges: readonly LayeredEdge[],
+  find: (id: string) => string,
+): Map<string, number> {
   const nodes = [...new Set(spec.nodes.map((n) => find(n.id)))];
+  const lane = (spec.lanes ?? []).length > 0 ? nodeLanes(spec) : undefined;
+  const across = (e: LayerEdge) => lane !== undefined && e.rank === 0 && lane.get(e.from) !== lane.get(e.to);
   const asLayers = edges
     .map(layerEdge)
-    .map((e) => ({ ...e, from: find(e.from), to: find(e.to) }))
+    .map((e) => ({ ...e, from: find(e.from), to: find(e.to), ...(across(e) ? { rank: 1 as const } : {}) }))
     .filter((e) => e.from !== e.to);
   const ranked = acyclic(nodes, asLayers);
   const side = asLayers.filter((e) => e.rank === 0);
   const held = new Set(side.flatMap((e) => [e.from, e.to]));
   const layer = assignLayers(nodes, ranked, side);
   shorten(nodes, ranked, held, layer);
-  const grouped = compact(layer);
-  if ((spec.lanes ?? []).length === 0) return grouped;
-  return new Map(spec.nodes.map((n) => [n.id, grouped.get(find(n.id)) ?? 0]));
+  return compact(layer);
 }
 
 /**
@@ -104,7 +121,8 @@ export function rank(spec: LayeredSpec, fixed?: ReadonlyMap<string, number>, cha
       beside.push(e);
       continue;
     }
-    if (e.rail === true && (a > b || b - a > 1) && chained?.has(e.id) !== true) {
+    const railed = e.rail === 'up' ? a > b : e.rail === true && (a > b || b - a > 1);
+    if (railed && chained?.has(e.id) !== true) {
       rails.push(e);
       continue;
     }
