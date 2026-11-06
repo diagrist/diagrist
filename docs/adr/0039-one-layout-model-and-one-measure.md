@@ -334,3 +334,10 @@ expansion node and a pin inside its region bent at the pin wherever the pins of 
 that line runs straight, where the node with its name stays clear of every box and text, the line outside takes up the
 bend without a slip, and no moved line passes a box or meets another (`slideExpansions`): `Positionen` and `Preise`
 run straight, 12 to 8 bends. Docking expansion nodes in the engine stays open (`docs/burn-down.md`).
+
+**Trunks keep their own tracks.** Two whole trunks of one gap (`GraphEdge.trunk`) shared a track wherever they did
+not meet, and stood one track apart where they did, so in `schnittstellen` the trunks of `Signierbar` and
+`Versioniert` read as one line and four trunks ran 16 px apart through each other's verticals. Two whole trunks now
+share a track only where their ends lie twice `APART` apart, and one runs two tracks below the other where they meet
+(`assignTracks`): each trunk of `schnittstellen` has its own level, 32 px from the next, for 64 px of height and its
+5 crossings kept. `hierarchie-quer`, whose two trunks lie far apart, keeps its one track.

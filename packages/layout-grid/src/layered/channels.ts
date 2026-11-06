@@ -35,7 +35,11 @@ const NEAR = 8;
 /** Two pieces at one box need different tracks when they come this close, or they read as one line into it. */
 const APART = 48;
 
-const near = (a: TrackPiece, b: TrackPiece) => (a.boxes?.some((n) => b.boxes?.includes(n)) ? APART : NEAR);
+/** Is the piece the trunk of lines that share one symbol (`GraphEdge.trunk`)? It names its lines. */
+const whole = (p: TrackPiece) => p.lines !== undefined;
+
+const near = (a: TrackPiece, b: TrackPiece) =>
+  whole(a) && whole(b) ? 2 * APART : a.boxes?.some((n) => b.boxes?.includes(n)) ? APART : NEAR;
 const overlap = (a: TrackPiece, b: TrackPiece) => a.x1 < b.x2 + near(a, b) && b.x1 < a.x2 + near(a, b);
 const inside = (v: number, p: TrackPiece) => v > p.x1 + 0.5 && v < p.x2 - 0.5;
 
@@ -84,7 +88,9 @@ export function piecesOf(groups: readonly Group[], ports: Ports): Piece[] {
 /**
  * Tracks for the pieces of one gap. The order from the top is built greedily: next comes the piece that loses the
  * most crossings by running above the pieces still left rather than below them, ties to the leftmost. A piece then
- * takes the track below the lowest earlier piece it meets, so pieces that do not meet share a track. With `apart`,
+ * takes the track below the lowest earlier piece it meets, so pieces that do not meet share a track; two trunks of
+ * lines that share a symbol share one only twice `APART` apart, and one runs two tracks below the other where they meet, so each reads as its own
+ * line through the verticals of the others. With `apart`,
  * a vertical going down from one piece and one coming down into another closer than that count as crossings too,
  * where the order of the two would put them side by side. Returns how many tracks the gap needs.
  */
@@ -100,7 +106,9 @@ export function assignTracks(pieces: TrackPiece[], apart = 0): number {
   }
   for (const [i, p] of order.entries()) {
     const above = order.slice(0, i).filter((q) => overlap(p, q));
-    p.track = above.length === 0 ? 0 : Math.max(...above.map((q) => q.track)) + 1;
+    const lowest = Math.max(-1, ...above.map((q) => q.track));
+    const twice = whole(p) && above.some((q) => q.track === lowest && whole(q));
+    p.track = lowest + (twice ? 2 : 1);
   }
   return order.length === 0 ? 0 : Math.max(...order.map((p) => p.track)) + 1;
 }
