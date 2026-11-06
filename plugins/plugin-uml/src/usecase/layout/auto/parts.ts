@@ -26,17 +26,6 @@ export function depths(p: Parts): Map<string, number> {
   return new Map(layers.flatMap((layer, l) => layer.map((id) => [id, l] as const)));
 }
 
-/** Neighbours without direction: associations, include, extend and generalizations. */
-export function neighbours(p: Parts): Map<string, string[]> {
-  const out = new Map<string, string[]>([...p.actors, ...p.cases].map((m) => [m.id, []]));
-  for (const r of p.relations) {
-    if (r.from === r.to) continue;
-    out.get(r.from)?.push(r.to);
-    out.get(r.to)?.push(r.from);
-  }
-  return out;
-}
-
 /** Use cases an actor takes part in through associations, or the actors of a use case. */
 export const casesOf = (id: string, p: Parts): string[] =>
   p.relations.flatMap((r) => (r.kind !== 'association' ? [] : r.from === id ? [r.to] : r.to === id ? [r.from] : []));

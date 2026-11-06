@@ -348,3 +348,44 @@ box grew by that room where the pin stood in the middle (`objektfluss` 1,009 px 
 picture out once more where some name took less room than it was given, with the room each took (`Graph.pinReach`),
 and keeps that layout only where no name then reaches further (`laidWithPins`): `objektfluss` 853 px, `ausdehnung`
 821, `karten-belasten` 813, `preise-berechnen` 751 and `zahlung-ausnahme` 1,195 px wide, nothing else changed.
+
+## Amendment: every use case diagram on the layout graph (plan P11)
+
+Use case diagrams hand a layout graph (`usecase/layout/graph.ts`), turned to run right: the columns of the kind's plan
+as given layers whose order the order stage chooses (`given.order` `free`, the first user of `reorder` since class
+diagrams), actors in the outer lanes and, with subjects side by side, in the lanes between them, use cases by their
+depth of include, extend and generalization, subjects as frames, every relation an edge of the profile `straight`. The
+kind keeps the plan (which arrangement of subjects, which side an actor takes, which column a use case), and prices
+the arrangements and the sides of families of actors by the line check (`usecase/layout/price.ts`: `scoreOf` on what
+the kernel checks, a note on a box or text and a line through a foreign subject added). Its own row search
+(`auto/solve.ts`, `swap.ts`, `search.ts`, `spread.ts`, `rows.ts`, `grid.ts`), the fit of rows for notes (`fit.ts`) and
+the label search (`labels.ts`, `inside.ts`, `line.ts`, `annotate.ts`) are gone, and with them the last use of
+`placeGrid` and `routeEdges` with `lines: 'straight'`. What the engine learnt for it:
+
+| Field or rule | Where | What it does |
+|---|---|---|
+| `GraphEdge.profile` `straight` | `graph/straight.ts` | The layered stages lay the edge out hidden, so it orders and places its ends but takes no port, track or route; once the boxes stand it is drawn as one slanted piece from outline to outline on the line between the middles (`straightRoute`), after the other routes. |
+| `GraphNode.body` | `graph/straight-route.ts` | The part of a box at its top middle lines end on: the figure of an actor above its name, an ellipse above room kept for a note. A line leaving a body that is no ellipse downwards ends below the box, so it does not strike through the name. |
+| boxes in the way | `graph/straight-clear.ts` | Where a straight line runs through a box it does not join, through the head of a frame or through a frame holding neither of its ends, the box it passes or an end of the line moves along its layer (up to 128 px) or into the gap beside it (up to 96 px), within the picture, its frames and their pads and outside other frames, while lines through boxes and heads (ten each), crossings and passes cost less. The layered stages place a box for lines between layers; a straight line that cuts across a layer passes where its placeholder is not. |
+| frames of turned layers | `graph/straight-frames.ts` | A turned frame keeps the room of its head on every side (see the state amendment); in a straight picture, without lines along its sides, it closes back to its pad at the right and the bottom. Pictures with other lines keep their frames byte for byte. |
+| texts along straight lines | `label/along.ts`, `label/inside.ts`, `label/line.ts` | The spot search the burn-down asked to move into the library: the text of a line beside its middle, then further along, first above or left of it; a text of `GraphEdge.ends` (multiplicities) a little back from its end on the freer side, further back where lines part, and inside the frame the line leaves near that end. A spot costs for every line that meets its own at no end and comes nearer than `labelClear` of the line check, and for its own line further than `labelNear`; `occupancy` reads an ellipse by its rectangle, as the check does. |
+| `GraphEdge.first` | `layered/order-first.ts`, `graph/turn.ts` | With rank `beside`, the end that stands first in the layer, a pair the other way round costing as much as a broken frame; a turned graph swaps it, so `to` stands above `from` where the layers run right. A general actor or use case stands above its special one. |
+
+Notes keep the kind's field search around their anchor (`usecase/layout/free.ts`), run on the laid out picture;
+where a note finds no clear spot, the picture is laid out once more with room as large as the note kept beside its
+anchor (below the use case it hangs on or, for an extend, below the extending one, the box grown and its ellipse the
+body; an empty box beside an actor or a subject), as rows kept free did on the old grid, and the cheaper picture
+stays, a note on a box or text costing as much as a line through a box. Notes as boxes of the graph beside their
+anchor were tried and drew worse: a box as wide as a condition sticks out of its column, and the lines of its
+neighbours cross it (`extend-viele` three lines through notes).
+
+The use case stress set (`test/stress/usecase`, eleven pictures, added with the old layout as its baseline) went from
+13 lines through boxes or texts to 1, 4 texts near foreign lines to 0, 2 texts on something to 0, lines on one another
+and side by side from 1 each to 0, and from 2 crossings to 4, the named trade: `faelle-generalisierung` crosses once
+(`Support-Agent → Ticket schließen` over the generalization `Ticket eskalieren → Ticket lösen`) for 3 lines through
+boxes, lines on one another and side by side; `lange-namen` once (`Bürgerin → Meldebescheinigung` over
+`Wohnsitzwechsel → Melderegister`) for 4 lines through texts, 2 texts near foreign lines and one on a box;
+`vier-subjekte` twice instead of once, for one line through a box and one text near a foreign line less;
+`drei-subjekte` no longer crosses. The names of subjects are now placed texts (`<subject>.name`), so a line through
+one is a finding; `vier-subjekte` keeps one line through a box (`Überweisen → Zahlung ausführen` past
+`Zahlungsnetz`, in `PENDING`). All nine examples are drawn anew, none with a finding.

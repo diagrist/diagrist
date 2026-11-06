@@ -64,6 +64,4 @@ export interface Comment {
   readonly link: readonly [Point, Point];
   /** Lines of a note on an element; the lines of an extend note are labels of their line. */
   readonly lines: readonly { readonly text: string; readonly x: number; readonly y: number }[];
-  /** Weighed conflicts of box and link; 0 is a free spot. */
-  readonly conflicts: number;
 }

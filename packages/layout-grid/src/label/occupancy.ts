@@ -15,8 +15,8 @@ const CAPTION_AIR = 8;
 const COST = { node: 100, text: 20, line: 10, frame: 5 } as const;
 
 /**
- * Taken room for free placements, such as labels and notes on straight lines: nodes, lines, frame lines and texts
- * already set. `cost` is 0 for a free box, else the weighted number of conflicts. `link` weighs a connector line
+ * Taken room for free placements, such as labels and notes on straight lines: nodes, an ellipse by its rectangle as
+ * the line check reads it, lines, frame lines and texts already set. `cost` is 0 for a free box, else the weighted number of conflicts. `link` weighs a connector line
  * from `a` to `b` (nodes except `skip`, routes except index `own`, texts, frame lines it crosses). `take` adds a box.
  */
 export interface Occupancy {
@@ -57,23 +57,7 @@ export function occupancy(
     area !== undefined &&
     (box.x < area.x || box.y < area.y || box.x + box.w > area.x + area.w || box.y + box.h > area.y + area.h);
   const onNode = (box: Rect) =>
-    layout.nodes.filter((n) => {
-      if (!overlaps(box, n.rect, shapes.get(n.id)?.caption ? CAPTION_AIR : AIR)) return false;
-      const e = ellipse(n);
-      if (!e) return true;
-      const corners: Point[] = [
-        [box.x, box.y],
-        [box.x + box.w, box.y],
-        [box.x + box.w, box.y + box.h],
-        [box.x, box.y + box.h],
-      ];
-      const centre: Point = [box.x + box.w / 2, box.y + box.h / 2];
-      const c: Point = [e.cx, e.cy];
-      return (
-        segmentMeetsEllipse(centre, centre, c, e.rx, e.ry, AIR) ||
-        corners.some((p, i) => segmentMeetsEllipse(p, corners[(i + 1) % 4] as Point, c, e.rx, e.ry, AIR))
-      );
-    }).length;
+    layout.nodes.filter((n) => overlaps(box, n.rect, shapes.get(n.id)?.caption ? CAPTION_AIR : AIR)).length;
   const ends = (r: Route): [Point, Point] => [r.points[0] as Point, r.points.at(-1) as Point];
   return {
     cost: (box) =>
