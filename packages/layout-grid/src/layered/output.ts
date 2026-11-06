@@ -12,6 +12,9 @@ import type { LayeredSpec } from './spec.js';
 /** Room a label keeps from foreign lines, one more than the line check's least distance (G418). */
 const LABEL_CLEAR = DEFAULT_THRESHOLDS.labelClear + 1;
 
+/** The weight of a soft line in the measure: its bends count half, and it does not count for centring. */
+const SOFT = 0.5;
+
 /** A laid out layered picture: boxes, one route per edge, labels, the trunk each edge shares, size and checks. */
 export interface LayeredLayout {
   readonly nodes: readonly PlacedNode[];
@@ -141,14 +144,19 @@ export function assemble(spec: LayeredSpec, laid: Laid): LayeredLayout {
   };
 }
 
-/** The lines of a laid out picture as the line check reads them, with the frames and the head of its core. */
+/**
+ * The lines of a laid out picture as the line check reads them, with the frames and the head of its core, each
+ * weighted as the measure weighs it: a main path more, a soft line less.
+ */
 export function layeredLines(spec: LayeredSpec, layout: LayeredLayout): LineInput {
   const ends = new Map(spec.edges.map((e) => [e.id, [e.from, e.to] as const]));
+  const weight = new Map(spec.edges.map((e) => [e.id, e.strength === 'soft' ? SOFT : Math.max(1, e.weight ?? 1)]));
   const core = layout.frame === undefined ? [] : [{ id: 'core', rect: layout.frame.rect, head: layout.frame.head.box }];
   return linesOfLaid({
     nodes: layout.nodes,
     routes: layout.routes,
     ends: layout.routes.map((r) => ends.get(r.edge) ?? ['', '']),
+    weights: layout.routes.map((r) => weight.get(r.edge) ?? 1),
     labels: layout.labels,
     frames: [...core, ...(layout.frames ?? [])],
     width: layout.width,

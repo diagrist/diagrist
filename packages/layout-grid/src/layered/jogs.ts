@@ -28,31 +28,21 @@ export interface Unjogging {
   readonly spines: readonly (readonly [string, string])[];
 }
 
-/** A jog shorter than this reads as a slip (the line check's limit for lines into a head). */
-const JOG = 24;
-
-/** The pieces that bend, and of them those that bend by less than `JOG`. */
-function score(groups: readonly Group[], ports: Ports): [number, number] {
-  const singles = groups.flatMap((g) => (g.kind === 'single' ? [g.links[0] as Link] : []));
-  const offs = singles.map((l) => Math.abs((ports.bottom.get(l) ?? 0) - (ports.top.get(l) ?? 0)));
-  return [offs.filter((d) => d > 0.5).length, offs.filter((d) => d > 0.5 && d < JOG).length];
-}
-
-const better = (a: [number, number], b: [number, number]) => a[0] < b[0] || (a[0] === b[0] && a[1] < b[1]);
+/** Rounds over all pieces: a move can make room for the next, such as a box moved under a line that now bends above. */
+const ROUNDS = 3;
 
 /**
  * Bends taken out by moving boxes sideways (layout plan R1, and R2 as a pass after the placement): for every piece
- * whose ends stand less than `JOG` apart, its lower box, else its upper box, moves by the jog. A piece that bends by
- * more moves the same way, a placeholder chain first, so a box the pull of placeholders took away from its real
- * neighbour comes back under it; such a move must not bend a link of a chain (`spines`) and stays only when the
- * whole picture, drawn, costs no more by `scoreOf`. For any bent piece, the frame of its lower end, else of its
- * upper end, moves as a whole, such as a package under the line that enters it. A move needs room in every layer
- * and stays when fewer pieces bend after it, or as many with fewer small jogs. A placeholder moves with all of its
- * chain, which keeps the chain straight.
+ * that bends, its lower box or placeholder chain moves by the offset, or its upper one, or the frame of its lower
+ * end, else of its upper end, as a whole, such as a package under the line that enters it. A placeholder moves with
+ * all of its chain, which keeps the chain straight. A move needs room in every layer it touches and must not bend a
+ * link of a chain (`spines`); of the moves that fit, the one whose whole picture, drawn, costs least by `scoreOf`
+ * stays, if it costs less than the picture before. So a box leaves the axis of its parent only where the line it
+ * straightens is worth more than the centring it gives up.
  */
 export function unjog(u: Unjogging, start: Placement): Placement {
   let best = start;
-  let scored = score(u.groups, start.ports);
+  let cost = u.price(start);
   const layerOf = (n: string) => u.layers[u.ranked.layerOf.get(n) ?? -1] ?? [];
   const sep = (a: string, b: string) => (u.width(a) + u.width(b)) / 2 + u.gap(a, b);
   const fits = (x: Xs, moving: readonly string[], d: number) =>
@@ -72,43 +62,43 @@ export function unjog(u: Unjogging, start: Placement): Placement {
   );
   const bentSpines = (p: Placement) =>
     spineLinks.filter((l) => Math.abs((p.ports.top.get(l) ?? 0) - (p.ports.bottom.get(l) ?? 0)) > 0.5).length;
-  let cost: number | undefined;
-  const attempt = (moving: readonly string[], d: number, priced: boolean): boolean => {
-    if (moving.length === 0 || !fits(best.x, moving, d)) return false;
+  const tried = (moving: readonly string[], d: number): { placement: Placement; cost: number } | undefined => {
+    if (moving.length === 0 || !fits(best.x, moving, d)) return undefined;
     const x = new Map(best.x);
     for (const m of moving) x.set(m, (x.get(m) ?? 0) + d);
-    const tried = u.settle(x);
-    const s = score(u.groups, tried.ports);
-    if (!better(s, scored)) return false;
-    if (priced && bentSpines(tried) > bentSpines(best)) return false;
-    const after = priced ? u.price(tried) : undefined;
-    if (after !== undefined) cost ??= u.price(best);
-    if (after !== undefined && after > (cost ?? after)) return false;
-    [best, scored, cost] = [tried, s, after];
-    return true;
+    const placement = u.settle(x);
+    if (bentSpines(placement) > bentSpines(best)) return undefined;
+    return { placement, cost: u.price(placement) };
   };
-  const placeholders = (moving: readonly string[]) => moving.filter((n) => u.ranked.dummies.has(n)).length;
   const chainOf = (l: Link, n: string) =>
     u.ranked.dummies.has(n) ? (u.ranked.chains.get(l.edge) ?? []).slice(1, -1) : [n];
-  for (const g of u.groups) {
+  for (let round = 0, moved = true; moved && round < ROUNDS; round++) {
+    moved = false;
+    for (const g of u.groups) moved = step(g) || moved;
+  }
+  return best;
+
+  function step(g: Group): boolean {
     const l = g.links[0] as Link;
     const off = (best.ports.top.get(l) ?? 0) - (best.ports.bottom.get(l) ?? 0);
-    if (g.kind !== 'single' || Math.abs(off) < 0.5) continue;
-    const small = Math.abs(off) < JOG;
+    if (g.kind !== 'single' || Math.abs(off) < 0.5) return false;
     const frame = (n: string) => {
       const block = u.blockOf(n);
       return block.length > 1 && !block.includes(n === l.lower ? l.upper : l.lower) ? block : [];
     };
-    const near: [readonly string[], number, boolean][] = [
-      [chainOf(l, l.lower), -off, !small],
-      [chainOf(l, l.upper), off, !small],
+    const tries: [readonly string[], number][] = [
+      [chainOf(l, l.lower), -off],
+      [chainOf(l, l.upper), off],
+      [frame(l.lower), -off],
+      [frame(l.upper), off],
     ];
-    const tries: [readonly string[], number, boolean][] = [
-      ...(small ? near : [...near].sort((a, b) => placeholders(b[0]) - placeholders(a[0]))),
-      [frame(l.lower), -off, false],
-      [frame(l.upper), off, false],
-    ];
-    tries.some(([moving, d, priced]) => attempt(moving, d, priced));
+    const options = tries.flatMap(([moving, d]) => tried(moving, d) ?? []);
+    const cheapest = options.reduce<(typeof options)[number] | undefined>(
+      (a, b) => (a && a.cost <= b.cost ? a : b),
+      undefined,
+    );
+    if (cheapest === undefined || cheapest.cost >= cost) return false;
+    [best, cost] = [cheapest.placement, cheapest.cost];
+    return true;
   }
-  return best;
 }

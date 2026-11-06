@@ -1,4 +1,4 @@
-import { type LayerEdge, type Layered, layerGraph } from '@diagrist/layout-grid';
+import { type LayerEdge, type Layered, type LayerGraph, layerGraph } from '@diagrist/layout-grid';
 import type { ClassModel } from '../model.js';
 import { arrangements } from './arrange.js';
 import { type Block, type Cell, flatten, LEAF, stack } from './blocks.js';
@@ -42,7 +42,8 @@ function chains(m: ClassModel): (id: string) => readonly string[] {
  * dependent packages stand above each other like classes and every package stays a rectangle. The top level with
  * many packages gives the most promising arrangements of a search, the layered one among them.
  */
-function blockChoices(m: ClassModel, edges: readonly LayerEdge[], owner: string | undefined): Block[] {
+function blockChoices(m: ClassModel, graph: Pick<LayerGraph, 'edges' | 'sizes'>, owner: string | undefined): Block[] {
+  const { edges } = graph;
   const chain = chains(m);
   const lift = (id: string): string | undefined => {
     const c = chain(id);
@@ -57,15 +58,16 @@ function blockChoices(m: ClassModel, edges: readonly LayerEdge[], owner: string 
     .sort((a, b) => a.span.line - b.span.line)
     .map((x) => x.id);
   if (!kids.length) return [LEAF];
-  const inner = new Map(kids.map((k) => [k, filled.has(k) ? (blockChoices(m, edges, k)[0] ?? LEAF) : LEAF]));
+  const inner = new Map(kids.map((k) => [k, filled.has(k) ? (blockChoices(m, graph, k)[0] ?? LEAF) : LEAF]));
   const lifted = edges.flatMap((e): LayerEdge[] => {
     const from = lift(e.from);
     const to = lift(e.to);
     return from && to && from !== to && kids.includes(from) && kids.includes(to) ? [{ ...e, from, to }] : [];
   });
   const stated = edges.filter((e) => e.rank === 1 && kids.includes(e.from) && kids.includes(e.to));
-  const agreed = lifted.filter((e) => e.rank === 0 || !stated.some((s) => s.from === e.to && s.to === e.from));
-  const first = layerGraph({ nodes: kids, edges: agreed, maxPerLayer: CLASS.perLayer });
+  const agreed = lifted.filter((e) => e.rank !== 1 || !stated.some((s) => s.from === e.to && s.to === e.from));
+  const sizes = new Map(kids.map((k) => [k, filled.has(k) ? Number.MAX_SAFE_INTEGER : (graph.sizes?.get(k) ?? 0)]));
+  const first = layerGraph({ nodes: kids, edges: agreed, maxPerLayer: CLASS.perLayer, sizes });
   const packages = kids.filter((k) => inner.get(k) !== LEAF).length;
   const cost = (a: Layered) => spread(stack(a, inner), inner, edges, lift);
   const search = owner === undefined && packages >= ARRANGE_FROM;
@@ -84,5 +86,5 @@ function blockChoices(m: ClassModel, edges: readonly LayerEdge[], owner: string 
  * top level there are several grids to try, the most promising first.
  */
 export function classCells(m: ClassModel): ReadonlyMap<string, Cell>[] {
-  return blockChoices(m, classGraph(m, m.diagram.packages.length > 0).edges, undefined).map((b) => b.cells);
+  return blockChoices(m, classGraph(m, m.diagram.packages.length > 0), undefined).map((b) => b.cells);
 }

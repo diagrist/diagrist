@@ -1,6 +1,8 @@
 import { assignLayers } from './assign.js';
+import { fitLayers } from './fit.js';
 import { acyclic, type Layered, type LayerGraph, neighbours } from './graph.js';
 import { orderLayers } from './order.js';
+import { leavesOf, packLeaves } from './pack.js';
 import { positions } from './positions.js';
 
 function compact(layer: Map<string, number>): Map<string, number> {
@@ -47,8 +49,11 @@ function layersOf(graph: LayerGraph): Map<string, number> {
   const fixed = graph.fixed;
   if (fixed !== undefined) return new Map(graph.nodes.map((n) => [n, fixed.get(n) ?? 0]));
   const ranked = acyclic(graph.nodes, graph.edges);
-  const side = graph.edges.filter((e) => e.rank === 0 && e.from !== e.to);
-  return compact(lowest(assignLayers(graph.nodes, ranked, side), graph.last ?? []));
+  const side = graph.edges.filter((e) => e.rank !== 1 && e.from !== e.to);
+  const assigned = lowest(assignLayers(graph.nodes, ranked, side), graph.last ?? []);
+  const leaves = leavesOf(graph);
+  const fitted = fitLayers(graph.nodes, ranked, side, assigned, graph.maxPerLayer, (n) => !leaves.has(n));
+  return compact(packLeaves(graph, fitted, leaves));
 }
 
 function single(graph: LayerGraph): Layered {
@@ -79,6 +84,7 @@ export function layerGraph(graph: LayerGraph): Layered {
       last: graph.last ?? [],
       ...(graph.thorough === true ? { thorough: true } : {}),
       ...(graph.fixed === undefined ? {} : { fixed: graph.fixed }),
+      ...(graph.sizes === undefined ? {} : { sizes: graph.sizes }),
     });
     const width = Math.max(...part.position.values()) + 1;
     if (x > 0 && x + width > graph.maxPerLayer) {

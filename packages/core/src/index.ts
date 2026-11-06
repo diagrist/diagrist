@@ -12,7 +12,7 @@ export { compile, localeAttribute } from './compile.js';
 export type { Point, Rect } from './geometry.js';
 export { bundleLines, linesOfDrawing } from './lines/drawing.js';
 export { lineFindings } from './lines/index.js';
-export { type LineMetrics, lineMetrics } from './lines/metrics.js';
+export { type LineCentring, type LineMetrics, lineCentring, lineMetrics } from './lines/metrics.js';
 export type { LineCheck } from './lines/report.js';
 export {
   DEFAULT_THRESHOLDS,
