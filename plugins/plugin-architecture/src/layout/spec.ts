@@ -192,7 +192,7 @@ export function gridSpecOf(
     edges,
     metrics: gridMetricsOf(look, start),
     adaptive: model.adaptive,
-    channels: !model.adaptive,
+    channels: true,
     drops: model.adaptive,
   };
   return { spec, texts };

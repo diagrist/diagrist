@@ -85,8 +85,9 @@ export function signsOf(
       return spot ? { ...k, x: spot[0], y: spot[1] } : k;
     });
     const numbered = signed.marks.map((b) => ({ route: b.route, rect: rectOf(b) }));
+    const boxes = [...signed.labels, ...numbered.map((n) => ({ route: n.route, box: n.rect }))];
     return {
-      grid: placed,
+      grid: spec.adaptive ? fitFrames(spec, placed, routes, boxes) : placed,
       labels: signed.labels,
       badges: signed.marks,
       numbered,

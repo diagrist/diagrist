@@ -20,7 +20,8 @@ function spineOf(board: Board, box: Box, gap: number): number | undefined {
 
 /**
  * Straight edges between the same two boxes run `spread` apart around the middle of what their sides share, each
- * in the free stretches of both sides; a column of reserved sides keeps its spine. An edge whose boxes share no free
+ * in the free stretches of both sides; a column of reserved sides keeps its spine, the column of the narrower box,
+ * wherever a reserved stretch of the column reaches past the middle, so its lines stand on one x. An edge whose boxes share no free
  * stretch gets no place and bends instead.
  */
 function straightPorts(board: Board, plans: readonly Plan[], spread: number, gap: number): Map<Plan, number> {
@@ -37,8 +38,10 @@ function straightPorts(board: Board, plans: readonly Plan[], spread: number, gap
     const [a, b] = [sideOf(first.a, first.fromSide), sideOf(first.b, first.toSide)];
     const shared: Range = [Math.max(a[0], b[0]), Math.min(a[1], b[1])];
     const centre = middle(a) === middle(b) ? middle(a) : middle(shared);
-    const spine = flat(first.fromSide) ? spineOf(board, first.a, gap) : undefined;
-    const c = within(centre, ranges) || spine === undefined || !within(spine, ranges) ? centre : spine;
+    const narrow = first.b.rect.w < first.a.rect.w ? first.b : first.a;
+    const spine = flat(first.fromSide) ? spineOf(board, narrow, gap) : undefined;
+    const kept = spine === undefined || !within(spine, ranges) || (within(centre, ranges) && spine <= centre);
+    const c = kept ? centre : spine;
     members.forEach((p, i) => {
       const at = nearest(c + (i - (members.length - 1) / 2) * spread, ranges);
       if (at !== undefined) out.set(p, at);

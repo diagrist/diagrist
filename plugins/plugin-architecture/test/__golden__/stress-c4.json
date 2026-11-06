@@ -1,5 +1,5 @@
 {
-  "adaptiv-spannen.dgr": {"counts":{"crossings":0,"overlaps":0,"avoidable":0,"jog":0,"parallel":0,"bends":0},"measures":{"lines":11,"bends":0,"maxBends":0,"length":888,"parentsOff":0,"parentOffset":0,"childrenOff":0,"childOffset":0,"width":1558,"height":744,"aspect":2.1}},
+  "adaptiv-spannen.dgr": {"counts":{"crossings":0,"overlaps":0,"avoidable":0,"jog":0,"parallel":0,"bends":0},"measures":{"lines":11,"bends":0,"maxBends":0,"length":822,"parentsOff":0,"parentOffset":0,"childrenOff":0,"childOffset":0,"width":1558,"height":744,"aspect":2.1}},
   "beide-richtungen.dgr": {"counts":{"crossings":0,"overlaps":0,"avoidable":0,"jog":0,"parallel":0,"bends":0},"measures":{"lines":11,"bends":2,"maxBends":2,"length":1712,"parentsOff":0,"parentOffset":0,"childrenOff":0,"childOffset":0,"width":944,"height":680,"aspect":1.4}},
   "bloecke.dgr": {"counts":{"crossings":3,"overlaps":0,"avoidable":1,"jog":0,"parallel":0,"bends":0},"measures":{"lines":13,"bends":10,"maxBends":2,"length":4788,"parentsOff":0,"parentOffset":0,"childrenOff":0,"childOffset":0,"width":1608,"height":800,"aspect":2}},
   "diff-entfernt.dgr": {"counts":{"crossings":0,"overlaps":0,"avoidable":0,"jog":0,"parallel":0,"bends":0},"measures":{"lines":7,"bends":3,"maxBends":1,"length":1692,"parentsOff":0,"parentOffset":0,"childrenOff":0,"childOffset":0,"width":1168,"height":680,"aspect":1.7}},
