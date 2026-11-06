@@ -3,6 +3,8 @@ import type { EdgeLabel } from '../label/types.js';
 import type { PlacedGroup, Route } from '../layout.js';
 import type { Loops } from './loops.js';
 import type { Assembled } from './output.js';
+import type { RailEnds } from './rail-docks.js';
+import type { RailTextAt } from './rail-texts.js';
 import type { Railed } from './rails.js';
 import type { LayeredEdge, LayeredMetrics, LayeredSpec } from './spec.js';
 
@@ -22,21 +24,26 @@ export function holders(spec: LayeredSpec): Map<string, Set<string>> {
   return out;
 }
 
-/** The text of a rail beside its track, outside it, one line per line of its label, centred on the track. */
-function railLabels(e: LayeredEdge, route: Route, at: number, m: LayeredMetrics): EdgeLabel[] {
+/**
+ * The text of a rail, one line per line of its label: in `on`, the place over or under an end piece the rails found
+ * for it, flush towards the box, or else beside the track, outside it, centred between its ends.
+ */
+function railLabels(e: LayeredEdge, route: Route, at: number, m: LayeredMetrics, on?: Rect): EdgeLabel[] {
   const text = e.label;
   if (text === undefined) return [];
   const lines = text.lines ?? [{ text: text.text, width: text.width }];
   const [, [x, y1], [, y2]] = route.points as [Point, Point, Point];
   const line = text.size + 2;
-  const top = (y1 + y2) / 2 - (lines.length * line) / 2;
+  const top = on?.y ?? (y1 + y2) / 2 - (lines.length * line) / 2;
   const left = route.fromSide === 'left';
+  const flush = on === undefined ? (left ? x - m.labelGap : x + m.labelGap) : left ? on.x + on.w : on.x;
+  const end = left;
   return lines.map((l, i) => ({
     text: l.text,
-    x: left ? x - m.labelGap : x + m.labelGap,
+    x: flush,
     y: top + i * line + text.size,
-    anchor: left ? ('end' as const) : ('start' as const),
-    box: { x: left ? x - m.labelGap - l.width : x + m.labelGap, y: top + i * line, w: l.width, h: line },
+    anchor: end ? ('end' as const) : ('start' as const),
+    box: { x: end ? flush - l.width : flush, y: top + i * line, w: l.width, h: line },
     route: at,
     part: 'name' as const,
   }));
@@ -46,7 +53,11 @@ function railLabels(e: LayeredEdge, route: Route, at: number, m: LayeredMetrics)
  * The frames grown for the rails inside them: each reaches its pad beyond the rails and texts it holds, and every
  * frame around it reaches its own pad beyond it.
  */
-export function grownFrames(frames: readonly PlacedGroup[], railed: Railed, spec: LayeredSpec): PlacedGroup[] {
+export function grownFrames(
+  frames: readonly PlacedGroup[],
+  railed: Pick<Railed, 'reach'>,
+  spec: LayeredSpec,
+): PlacedGroup[] {
   if (railed.reach.size === 0) return [...frames];
   const byId = new Map((spec.frames ?? []).map((f) => [f.id, f]));
   const rects = new Map(frames.map((f) => [f.id, f.rect]));
@@ -76,7 +87,11 @@ export function looseTexts(
 ): EdgeLabel[] {
   return routes.flatMap((r, i) => {
     const e = r.shape === 'loop' || railed.routes.has(r.edge) ? spec.edges.find((k) => k.id === r.edge) : undefined;
-    return e === undefined ? [] : r.shape === 'loop' ? loops.labels(e, r, i) : railLabels(e, r, i, m);
+    return e === undefined
+      ? []
+      : r.shape === 'loop'
+        ? loops.labels(e, r, i)
+        : railLabels(e, r, i, m, railed.texts.get(e.id));
   });
 }
 
@@ -103,7 +118,31 @@ export function holdTexts(spec: LayeredSpec, laid: Assembled): Assembled {
     }
   }
   if (reach.size === 0) return laid;
-  const grown = grownFrames(frames, { routes: new Map(), reach }, spec);
+  const grown = grownFrames(frames, { reach }, spec);
   const width = Math.max(laid.width, ...grown.map((f) => f.rect.x + f.rect.w));
   return { ...laid, frames: grown, width };
+}
+
+/** How far each frame holding both ends of a rail must reach for it and, beside its track, its text. */
+export function railReach(
+  laid: readonly (RailEnds & { readonly edge: LayeredEdge })[],
+  held: ReadonlyMap<string, ReadonlySet<string>>,
+  where: ReadonlyMap<string, RailTextAt>,
+  m: LayeredMetrics,
+): Map<string, { left: number; right: number }> {
+  const reach = new Map<string, { left: number; right: number }>();
+  for (const l of laid) {
+    const outer = where.get(l.edge.id) === 'beside' ? (l.edge.label?.width ?? 0) + 2 * m.labelGap : 0;
+    for (const f of held.get(l.lower) ?? []) {
+      if (held.get(l.upper)?.has(f) !== true) continue;
+      const was = reach.get(f) ?? { left: Number.POSITIVE_INFINITY, right: Number.NEGATIVE_INFINITY };
+      reach.set(
+        f,
+        l.side === 'left'
+          ? { ...was, left: Math.min(was.left, l.at - outer) }
+          : { ...was, right: Math.max(was.right, l.at + outer) },
+      );
+    }
+  }
+  return reach;
 }

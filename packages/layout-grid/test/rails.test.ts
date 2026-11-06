@@ -108,4 +108,28 @@ describe('rails', () => {
       expect(x >= t.x && x <= t.x + t.w && y >= t.y && y <= t.y + t.h, id).toBe(true);
     }
   });
+
+  it('set a text beside the box the line starts from, on the piece out of it, where the piece is long enough', () => {
+    const l = layoutGraph(
+      flow({
+        nodes: [box('top', 360), box('a'), box('b')],
+        edges: [rail('top', 'a'), rail('a', 'b'), rail('b', 'top', 'zurück')],
+        given: { perLayer: Number.POSITIVE_INFINITY },
+      }),
+    );
+    const r = routeOf(l, 'b-top');
+    const text = l.labels.find((t) => t.text === 'zurück');
+    const [x0, y0] = r?.points[0] ?? [0, 0];
+    const track = r?.points[1]?.[0] ?? 0;
+    const b = rectOf(l, 'b');
+    expect(x0 === b.x || x0 === b.x + b.w).toBe(true);
+    const at = text?.box ?? { x: 0, y: 0, w: 0, h: 0 };
+    expect(at.y).toBeGreaterThan(y0);
+    expect(at.y - y0).toBeLessThanOrEqual(METRICS.labelGap);
+    expect(Math.min(at.x, at.x + at.w)).toBeGreaterThanOrEqual(Math.min(x0, track));
+    expect(Math.max(at.x, at.x + at.w)).toBeLessThanOrEqual(Math.max(x0, track));
+    expect(Math.abs(at.x - x0) <= METRICS.labelGap || Math.abs(at.x + at.w - x0) <= METRICS.labelGap).toBe(true);
+    const right = Math.max(...l.nodes.map((n) => n.rect.x + n.rect.w), track);
+    expect(Math.max(...l.labels.map((t) => t.box.x + t.box.w))).toBeLessThanOrEqual(right);
+  });
 });

@@ -5,7 +5,7 @@ import { grownFrames } from './rail-frames.js';
 import { drawRails, type Railed } from './rails.js';
 import type { LayeredSpec } from './spec.js';
 
-const NONE: Railed = { routes: new Map(), reach: new Map() };
+const NONE: Railed = { routes: new Map(), reach: new Map(), texts: new Map() };
 
 /**
  * A placed picture before its rails: boxes, boxes with the room of their loops, the frames around them where the
