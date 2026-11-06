@@ -39,9 +39,22 @@ function sideDocks(group: readonly Pin[], r: Rect, side: Side): Point[] {
 }
 
 /**
- * Attachment points of several pins on one side: on top and bottom side by side with equal air, each square with its
- * name; left and right below each other by the height of their counterpart. A single pin sits where its edge
- * arrives, without an edge in the middle.
+ * Where the lines of pins on the top or bottom arrive, when every pin has a line, every end lies on the side clear of
+ * its corners and each stands a square, its name and air away from the one before: the pins then sit there, so no
+ * line bends into its pin. Undefined otherwise.
+ */
+function arrivals(group: readonly Pin[], r: Rect, widths: readonly number[]): number[] | undefined {
+  const xs = group.map((p) => end(p)?.[0]);
+  if (!xs.every((x): x is number => x !== undefined)) return undefined;
+  if (!xs.every((x) => x >= r.x + ACT.pin && x <= r.x + r.w - ACT.pin)) return undefined;
+  const apart = xs.slice(1).every((x, i) => x - (xs[i] ?? 0) >= (widths[i] ?? 0) + ACT.pinGap);
+  return apart ? xs : undefined;
+}
+
+/**
+ * Attachment points of several pins on one side: on top and bottom where their lines arrive if they fit there
+ * (`arrivals`), else side by side with equal air, each square with its name; left and right below each other by the
+ * height of their counterpart. A single pin sits where its edge arrives, without an edge in the middle.
  */
 export function docks(group: readonly Pin[], r: Rect): Point[] {
   const [only] = group;
@@ -57,6 +70,8 @@ export function docks(group: readonly Pin[], r: Rect): Point[] {
   if (side === 'left' || side === 'right') return sideDocks(group, r, side);
   const y = side === 'top' ? r.y : r.y + r.h;
   const widths = group.map((p) => ACT.pin + ACT.pinGap + widthOf.label(p.name));
+  const arrived = arrivals(group, r, widths);
+  if (arrived) return arrived.map((x): Point => [x, y]);
   const gap = Math.max(0, (r.w - widths.reduce((a, b) => a + b, 0)) / (group.length + 1));
   let x = r.x + gap;
   return widths.map((w): Point => {

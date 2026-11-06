@@ -427,3 +427,12 @@ crossings is laid out once. Pricing whole trunks in the order stage as one piece
 pictures, only `schnittstellen` and `beobachter` still cross, the one crossing of the first is the least two rows
 allow for `Schreibbar` and `Versioniert` over the same two classes, and the second is the trade of a detour, so the
 rule would change no picture yet.
+## Amendment: state machines and activity diagrams, the approved proposals (06.11.2026)
+
+**Pins stand where their lines arrive.** Two or more pins on the top or bottom of an action were spread evenly over
+it, wherever their lines arrived, and each line bent into its pin. They now stand at the ends of their lines where
+every pin of the side has one, each end lies on the side clear of its corners, and each stands a square, its name and
+air from the one before (`arrivals` in `activity/layout/pin-docks.ts`); else they are spread as before. Once the pins
+stand under their lines, `slideExpansions` finds room for `Preisliste` and `Fehler` too: `preise-berechnen` 8 to 4
+bends, the 2 a straight line could spare gone, 89 px of line less, no other picture changed. Ends that carry their
+width into the port stage, which would place the pins in the engine, stay open (`docs/burn-down.md`).
