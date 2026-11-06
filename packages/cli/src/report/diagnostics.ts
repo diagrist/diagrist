@@ -1,5 +1,5 @@
 import { type Diagnostic, formatDiagnostic, type Locale } from '@diagrist/lang';
-import type { Finding } from '../engine.js';
+import type { PhrasedDiagnostic } from '../engine.js';
 import { say } from '../say.js';
 
 /** Meaning of each field of a diagnostic in `--json`, for the reference. */
@@ -14,15 +14,15 @@ export const DIAGNOSTIC_FIELDS: Readonly<Record<string, string>> = {
 };
 
 /** Phrases the diagnostics of the language itself, for commands that need no engine. */
-export function languageFindings(diagnostics: readonly Diagnostic[], locale: Locale): Finding[] {
+export function languageFindings(diagnostics: readonly Diagnostic[], locale: Locale): PhrasedDiagnostic[] {
   return diagnostics.map((found) => ({ ...found, message: formatDiagnostic(found, locale) }));
 }
 
-export function hasError(findings: readonly Finding[]): boolean {
+export function hasError(findings: readonly PhrasedDiagnostic[]): boolean {
   return findings.some((finding) => finding.severity === 'error');
 }
 
-export function diagnosticJson(file: string, finding: Finding): Readonly<Record<string, unknown>> {
+export function diagnosticJson(file: string, finding: PhrasedDiagnostic): Readonly<Record<string, unknown>> {
   const { code, severity, span, values, message, picture } = finding;
   const { file: other, ...place } = span;
   return {
@@ -41,7 +41,7 @@ export function diagnosticLines(
   file: string,
   source: string,
   files: Readonly<Record<string, string>>,
-  findings: readonly Finding[],
+  findings: readonly PhrasedDiagnostic[],
   locale: Locale,
 ): string[] {
   return findings.map((d) => diagnosticText(file, (d.span.file ? files[d.span.file] : source) ?? '', d, locale));
@@ -56,7 +56,7 @@ const UNPRINTABLE = /(?!\t)[\p{Cc}\p{Cs}]/gu;
  * Tabs before the span are kept in the marker line, so the marker stays aligned. What a terminal would act on is
  * shown as U+FFFD, one for one, so a source cannot steer the terminal and the marker stays in place.
  */
-export function diagnosticText(file: string, source: string, finding: Finding, locale: Locale): string {
+export function diagnosticText(file: string, source: string, finding: PhrasedDiagnostic, locale: Locale): string {
   const { line, column, length } = finding.span;
   const message = finding.message.replace(UNPRINTABLE, '\uFFFD');
   const where = `${finding.span.file ?? file}:${line}:${column}  ${finding.picture ? `[${finding.picture}]  ` : ''}`;

@@ -1,7 +1,7 @@
 import type { Diagnostic, Grammar, Locale, Need } from '@diagrist/lang';
 
 /** A diagnostic with its text in the requested locale. The engine phrases it, because it owns the catalogue. */
-export interface Finding extends Diagnostic {
+export interface PhrasedDiagnostic extends Diagnostic {
   readonly message: string;
 }
 
@@ -29,7 +29,7 @@ export interface Picture {
 export interface Compilation {
   /** The base picture first, then one per variant. */
   readonly pictures: readonly Picture[];
-  readonly diagnostics: readonly Finding[];
+  readonly diagnostics: readonly PhrasedDiagnostic[];
   /** Every file the source reads, with the place that names it; read the missing ones and compile again. */
   readonly needs: readonly Need[];
 }
