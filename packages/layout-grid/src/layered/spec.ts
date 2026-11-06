@@ -131,8 +131,8 @@ export interface LayeredFrame {
   readonly parent?: string;
   readonly pad: number;
   readonly top: number;
-  /** The head at the top left corner, inside the room `top`. */
-  readonly head: { readonly width: number; readonly height: number };
+  /** The head at the top left corner, inside the room `top`, and the room a line passing it keeps beside it. */
+  readonly head: { readonly width: number; readonly height: number; readonly air?: number };
   /**
    * The head stands on the frame as a tab, so its outline runs `head.height` below the top of its rectangle, where a
    * line ending at the frame from above ends.

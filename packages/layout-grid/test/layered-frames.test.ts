@@ -131,6 +131,19 @@ describe('frames ordered by the pipeline', () => {
     expect(x).toBeLessThan(Math.min(up.x + up.w, down.x + down.w));
   });
 
+  it('keep a line entering a frame from above as far beside its head as the frame asks', () => {
+    const passing = (air?: number) => {
+      const head = { width: 80, height: 20, ...(air === undefined ? {} : { air }) };
+      const frames = [{ ...frame('f', ['b']), head, tab: true }];
+      const l = lay({ nodes: [box('a', 40), box('b', 40)], edges: [edge('a', 'b')], frames });
+      const x = l.routes.find((r) => r.edge === 'a-b')?.points[0]?.[0] ?? 0;
+      return x - rectOf(l, 'f').x - head.width;
+    };
+    expect(passing()).toBeGreaterThanOrEqual(12);
+    expect(passing()).toBeLessThan(40);
+    expect(passing(40)).toBeGreaterThanOrEqual(40);
+  });
+
   it('draw a loop beside its box, with room for it before the next box', () => {
     const l = lay({ nodes: [box('a'), box('b')], edges: [edge('a', 'a', { id: 'self' }), edge('a', 'b')] });
     const loop = l.routes.find((r) => r.edge === 'self');

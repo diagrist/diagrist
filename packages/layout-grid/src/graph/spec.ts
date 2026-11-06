@@ -121,8 +121,17 @@ export interface GraphContainer {
   /** Room between the frame and what it holds at the sides and the bottom, and at the top. */
   readonly pad: number;
   readonly top: number;
-  /** The head at the top left corner, measured by the kind; a core's head names it with `text` in a font of `size`. */
-  readonly head: { readonly width: number; readonly height: number; readonly text?: string; readonly size?: number };
+  /**
+   * The head at the top left corner, measured by the kind; a core's head names it with `text` in a font of `size`. A
+   * line passing the head keeps `air` beside it, 12 unless the kind gives more.
+   */
+  readonly head: {
+    readonly width: number;
+    readonly height: number;
+    readonly text?: string;
+    readonly size?: number;
+    readonly air?: number;
+  };
   /** The head stands on the frame as a tab, so its outline runs `head.height` below its top. */
   readonly tab?: boolean;
   /**
