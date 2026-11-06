@@ -46,7 +46,9 @@ stress budgets count, such as bends a straight line could spare, reached no sear
    (R2 as a separate pull weight added four hard breaches to the class stress set). The guard on chains keeps the
    straight pipeline of `ueberspringen`, which a move of `Data Marts` toward its readers would bend. The measure
    decides every move: of the moves that fit for a bent piece (its lower box or chain, its upper one, the frame of
-   either), the cheapest whole picture stays if it costs less, in rounds until none does; no count of bent pieces
+   either), the cheapest whole picture stays if it costs less, in rounds until none does, or costs as much and leaves
+   the bent lines passing fewer layers, so of two lines only one of which can run straight the longer one does
+   (`speichert` in `hexagonal` straight down to `Konto`, `ändert` bent instead); no count of bent pieces
    gates a move first, and slips and frame moves are priced like the rest.
 5. **One order per side, and the side a line bends to.** The ends on a side of a box stand in the order of their
    other ends; an end that comes along the trunk of a fan or join holds its place lightly, so it gives way to a

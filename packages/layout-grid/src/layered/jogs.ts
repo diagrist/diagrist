@@ -37,8 +37,9 @@ const ROUNDS = 3;
  * end, else of its upper end, as a whole, such as a package under the line that enters it. A placeholder moves with
  * all of its chain, which keeps the chain straight. A move needs room in every layer it touches and must not bend a
  * link of a chain (`spines`); of the moves that fit, the one whose whole picture, drawn, costs least by `scoreOf`
- * stays, if it costs less than the picture before. So a box leaves the axis of its parent only where the line it
- * straightens is worth more than the centring it gives up.
+ * stays, if it costs less than the picture before, or as much and leaves bent lines that pass fewer layers
+ * (`bentReach`), so of two lines only one of which can run straight the longer one does. So a box leaves the axis of
+ * its parent only where the line it straightens is worth more than the centring it gives up.
  */
 export function unjog(u: Unjogging, start: Placement): Placement {
   let best = start;
@@ -76,6 +77,17 @@ export function unjog(u: Unjogging, start: Placement): Placement {
     if (bentSpines(placement) > bentSpines(best)) return undefined;
     return { placement, cost: u.price(placement) };
   };
+  const links = u.groups.flatMap((g) => (g.kind === 'single' ? g.links : []));
+  const reach = new Map<string, number>();
+  for (const l of links) reach.set(l.edge, (reach.get(l.edge) ?? 0) + 1);
+  const bentReach = (p: Placement) =>
+    [
+      ...new Set(
+        links
+          .filter((l) => Math.abs((p.ports.top.get(l) ?? 0) - (p.ports.bottom.get(l) ?? 0)) > 0.5)
+          .map((l) => l.edge),
+      ),
+    ].reduce((sum, e) => sum + (reach.get(e) ?? 0), 0);
   const chainOf = (l: Link, n: string) =>
     u.ranked.dummies.has(n) ? (u.ranked.chains.get(l.edge) ?? []).slice(1, -1) : [n];
   for (let round = 0, moved = true; moved && round < ROUNDS; round++) {
@@ -103,7 +115,8 @@ export function unjog(u: Unjogging, start: Placement): Placement {
       (a, b) => (a && a.cost <= b.cost ? a : b),
       undefined,
     );
-    if (cheapest === undefined || cheapest.cost >= cost) return false;
+    if (cheapest === undefined || cheapest.cost > cost) return false;
+    if (cheapest.cost === cost && bentReach(cheapest.placement) >= bentReach(best)) return false;
     [best, cost, seen] = [cheapest.placement, cheapest.cost, new Map()];
     return true;
   }
