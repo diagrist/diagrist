@@ -1,6 +1,7 @@
 import { type Anchors, domId, markAreas, type Scene, type Shape } from '@diagrist/core';
 import { headerShapes, markShapes, stripShapes, type Words, withAreaLegend } from '@diagrist/parts';
 import { actorArt } from '../layout/actor.js';
+import { anchorsOf } from '../layout/anchors.js';
 import { useCaseArt } from '../layout/ellipse.js';
 import type { PictureTexts, UseCaseLayout } from '../layout/index.js';
 import { SUBJECT_TITLE } from '../layout/spec.js';
@@ -69,20 +70,5 @@ export function useCaseScene(l: UseCaseLayout, m: UseCaseModel, words: Words & P
 }
 
 /** Actors and use cases as nodes, subjects as groups, relations as edges in drawing order. */
-export function useCaseAnchors(l: UseCaseLayout): Anchors {
-  return {
-    width: l.width,
-    height: l.height,
-    nodes: l.grid.nodes.map((n) => ({ id: n.id, domId: domId.node(n.id), rect: n.rect })),
-    groups: l.grid.groups.map((g) => ({ id: g.id, domId: domId.group(g.id), rect: g.rect })),
-    edges: l.drawn.map((d, k) => ({
-      index: k,
-      from: d.relation.from,
-      to: d.relation.to,
-      domId: domId.edge(k),
-      ...(l.labels.some((x) => x.route === d.route) ? { labelId: domId.label(k) } : {}),
-      points: l.routes[d.route]?.points ?? [],
-      span: d.relation.span,
-    })),
-  };
-}
+export const useCaseAnchors = (l: UseCaseLayout): Anchors =>
+  anchorsOf({ layout: l.grid, labels: l.labels, routes: l.routes }, l.drawn, l);

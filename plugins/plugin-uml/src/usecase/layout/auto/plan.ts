@@ -3,23 +3,15 @@ import { casesOf, depths, families, type Parts, type Side, towardActors } from '
 import { sides } from './sides.js';
 
 /**
- * Column plan of the automatic grid: a column per use case, a lane per actor and the abstract x of actors. Below each
- * other there are two lanes (left, right); side by side one more than subjects: left of the first, between each two,
- * right of the last.
+ * Column plan of a use case diagram: the side of every actor, a column per use case and the column of every actor's
+ * lane, which the layout graph takes as its layers. Below each other there are two lanes (left, right); side by side
+ * one more than subjects: left of the first, between each two, right of the last.
  */
 export interface Plan {
-  readonly across: boolean;
   readonly side: Map<string, Side>;
   readonly depth: Map<string, number>;
-  readonly columns: number;
-  /** Lane per actor; actors of one lane stand in one column of the grid. */
-  readonly lane: ReadonlyMap<string, number>;
-  /** x of an actor in the abstract grid, where the column of a use case is its x. */
+  /** x of an actor's lane, where the column of a use case is its x. */
   readonly actorX: ReadonlyMap<string, number>;
-  readonly cols: readonly string[];
-  readonly colOf: ReadonlyMap<string, string>;
-  /** Subjects in rows and columns of a grid: row and column of the subject per use case. */
-  readonly grid?: { readonly row: (id: string) => number; readonly column: (id: string) => number };
 }
 
 /** Subject per use case as its number in declaration order; use cases without subject and actors after them. */
@@ -36,19 +28,10 @@ export function stackedPlan(p: Parts, side: Map<string, Side>): Plan {
   const depth = depths(p);
   towardActors(p, depth, side);
   const columns = Math.max(0, ...depth.values()) + 1;
-  const has = (s: Side) => p.actors.some((a) => side.get(a.id) === s);
-  const inner = Array.from({ length: columns }, (_, c) => `u${c + 1}`);
-  const colOf = new Map<string, string>(p.cases.map((u) => [u.id, inner[depth.get(u.id) ?? 0] ?? 'u1']));
-  for (const a of p.actors) colOf.set(a.id, side.get(a.id) === 'right' ? 'ar' : 'al');
   return {
-    across: false,
     side,
     depth,
-    columns,
-    lane: new Map(p.actors.map((a) => [a.id, side.get(a.id) === 'right' ? 1 : 0])),
     actorX: new Map(p.actors.map((a) => [a.id, side.get(a.id) === 'right' ? columns : -1])),
-    cols: [...(has('left') ? ['al'] : []), ...inner, ...(has('right') ? ['ar'] : [])],
-    colOf,
   };
 }
 

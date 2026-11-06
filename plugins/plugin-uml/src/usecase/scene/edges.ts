@@ -1,7 +1,7 @@
 import type { Shape } from '@diagrist/core';
 import type { EdgeLabel } from '@diagrist/layout-grid';
 import type { Comment } from '../layout/art.js';
-import type { Drawn } from '../layout/labels.js';
+import type { Drawn } from '../layout/drawn.js';
 import { UC } from '../layout/metrics.js';
 
 const ROLE = {
