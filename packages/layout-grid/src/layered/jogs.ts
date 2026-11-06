@@ -29,6 +29,8 @@ export interface Unjogging {
   readonly spines: readonly (readonly [string, string])[];
   /** How many drawings the removal may price, the start included (`jogPrices`); none leaves the start as it is. */
   readonly prices?: number;
+  /** The move that centres the shared box of a fan or join with its column (`symmetryOf`), if any. */
+  readonly centred?: (g: Group, x: Xs) => readonly [readonly string[], number] | undefined;
 }
 
 /** Rounds over all pieces: a move can make room for the next, such as a box moved under a line that now bends above. */
@@ -45,7 +47,8 @@ const ROUNDS = 3;
  * its parent only where the line it straightens is worth more than the centring it gives up. A box or chain that has
  * no room for a short move, up to `SHOVE`, also tries it with the boxes beyond it in that direction taken along
  * (`shoved`), in pictures of up to `SHOVE_PIECES` pieces, since every such try draws the whole picture. Once
- * `prices` drawings are priced, no further move is tried.
+ * `prices` drawings are priced, no further move is tried. A fan or join tries the one move `centred` offers
+ * instead, its shared box with its column to the middle of its members.
  */
 export function unjog(u: Unjogging, start: Placement): Placement {
   if (u.prices === 0) return start;
@@ -109,9 +112,25 @@ export function unjog(u: Unjogging, start: Placement): Placement {
   return best;
 
   function step(g: Group): boolean {
+    const options = triesOf(g).flatMap(([moving, d]) => tried(moving, d) ?? []);
+    const cheapest = options.reduce<(typeof options)[number] | undefined>(
+      (a, b) => (a && a.cost <= b.cost ? a : b),
+      undefined,
+    );
+    if (cheapest === undefined || cheapest.cost > cost) return false;
+    if (cheapest.cost === cost && bentReach(cheapest.placement) >= bentReach(best)) return false;
+    [best, cost, seen] = [cheapest.placement, cheapest.cost, new Map()];
+    return true;
+  }
+
+  function triesOf(g: Group): (readonly [readonly string[], number])[] {
+    if (g.kind !== 'single') {
+      const centre = u.centred?.(g, best.x);
+      return centre ? [centre] : [];
+    }
     const l = g.links[0] as Link;
     const off = (best.ports.top.get(l) ?? 0) - (best.ports.bottom.get(l) ?? 0);
-    if (g.kind !== 'single' || Math.abs(off) < 0.5) return false;
+    if (Math.abs(off) < 0.5) return [];
     const frame = (n: string) => {
       const block = u.blockOf(n);
       return block.length > 1 && !block.includes(n === l.lower ? l.upper : l.lower) ? block : [];
@@ -125,15 +144,6 @@ export function unjog(u: Unjogging, start: Placement): Placement {
     const blocked = tries
       .slice(0, 2)
       .filter(([moving, d]) => shoving && Math.abs(d) <= SHOVE && moving.length > 0 && !fits(best.x, moving, d));
-    tries.push(...blocked.map(([moving, d]): [readonly string[], number] => [alongWith(moving, d), d]));
-    const options = tries.flatMap(([moving, d]) => tried(moving, d) ?? []);
-    const cheapest = options.reduce<(typeof options)[number] | undefined>(
-      (a, b) => (a && a.cost <= b.cost ? a : b),
-      undefined,
-    );
-    if (cheapest === undefined || cheapest.cost > cost) return false;
-    if (cheapest.cost === cost && bentReach(cheapest.placement) >= bentReach(best)) return false;
-    [best, cost, seen] = [cheapest.placement, cheapest.cost, new Map()];
-    return true;
+    return [...tries, ...blocked.map(([moving, d]): [readonly string[], number] => [alongWith(moving, d), d])];
   }
 }

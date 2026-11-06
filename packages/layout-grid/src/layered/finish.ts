@@ -27,6 +27,7 @@ import { runsOf } from './runs.js';
 import { keptInside } from './shift.js';
 import type { LayeredSpec } from './spec.js';
 import { squeezed } from './squeeze.js';
+import { symmetryOf } from './symmetry.js';
 
 export type { LayeredLayout } from './output.js';
 
@@ -80,15 +81,17 @@ export function finish(spec: LayeredSpec, arrangement: Arrangement): LayeredLayo
     const settled = settle(placed);
     if (spec.hub || arrangement.rough === true) return settled;
     const prices = jogPrices(groups.length);
-    const jogging = { layers, width, gap, groups, ranked, settle, blockOf: fr.block, price, spines, prices };
+    const centred = symmetry.move;
+    const jogging = { layers, width, gap, groups, ranked, settle, blockOf: fr.block, price, spines, prices, centred };
     const straight = unjog(jogging, settled);
     return squeezed({ layers, width, gap, blocks: fr.outer(), left: m.left, settle, price }, straight);
   };
-  const price = (p: Placement) => scoreOf(layeredLines(spec, draw(p))).cost;
+  const price = (p: Placement) => scoreOf(layeredLines(spec, draw(p))).cost + symmetry.cost(p.x);
   let below = besideRoutes(ranked, layers, new Set(), m.lead);
   const links = linksOf(spec, ranked).filter((l) => !runs.hidden(l.edge));
   const groups = groupsOf(spec, ranked, layers, links);
   const seats = seatsOf(spec.edges, groups, ranked);
+  const symmetry = symmetryOf({ groups, ranked, spines, lane: ln.of });
   let grown: ReadonlySet<string> = new Set();
   const draw = ({ x, ports }: Placement): Assembled => {
     const pieceOf = new Map<Group, Piece>();

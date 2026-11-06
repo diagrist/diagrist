@@ -436,3 +436,16 @@ air from the one before (`arrivals` in `activity/layout/pin-docks.ts`); else the
 stand under their lines, `slideExpansions` finds room for `Preisliste` and `Fehler` too: `preise-berechnen` 8 to 4
 bends, the 2 a straight line could spare gone, 89 px of line less, no other picture changed. Ends that carry their
 width into the port stage, which would place the pins in the engine, stay open (`docs/burn-down.md`).
+
+**A merge stands in the middle of its branches.** The placement weighs a placeholder eight times a box, so a merge
+whose one branch comes through placeholders stood under that branch, and no move of `unjog` offered the middle
+(`ausdehnung`: `Als fehlerhaft markieren` over the merge, `Sanktionsliste prüfen` hooking 400 px across). A fan or
+join whose lines all run down, with a placeholder among its pieces, two or more real members and all of them in the
+lane of its shared box, now tries one move of its own: the shared box with its column (the links of chains below a
+join or above a fan, within its lane) to the middle of its outermost members (`layered/symmetry.ts`). The price of
+`finish` adds half a unit per pixel such a box stands off that middle, as `scoreOf` prices a box off its children;
+`lineCentring` in the kernel is untouched, since a measure there knows no groups or rails and moved eight pictures
+when tried, `schleifen` for the worse. A parent over children of the next layer is not priced: the placement centres
+it already, and where it does not, it keeps its place for a reason (`beobachter`, `auswahl-vier` drew worse when
+those were priced too). `ausdehnung` 102 px of line less for one bend more, `reklamation` 82 px less, `ohne-bahnen`
+and `parallel-entscheidung` their merges between their branches; no count of a stress budget rose.

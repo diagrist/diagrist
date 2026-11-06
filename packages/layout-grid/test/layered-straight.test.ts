@@ -68,3 +68,27 @@ describe('lines beside a layer', () => {
     expect(onOneAnother).toEqual([]);
   });
 });
+
+describe('fans and joins pulled off their middle', () => {
+  it('bring a merge whose branch comes through placeholders under the middle of its branches, with its column', () => {
+    const diamond = (id: string) => ({ ...box(id, 40), sides: ['top', 'bottom', 'left', 'right'] as const });
+    const nodes = [box('p'), diamond('d'), box('a'), box('s', 240), box('b', 280), diamond('m'), box('r'), box('t')];
+    const edges = [
+      edge('p', 'd'),
+      { ...edge('d', 'a'), bundle: 'out:d' },
+      { ...edge('d', 'b'), bundle: 'out:d' },
+      edge('a', 's'),
+      { ...edge('s', 'm'), bundle: 'into:m' },
+      { ...edge('b', 'm'), bundle: 'into:m' },
+      edge('m', 'r'),
+      edge('r', 't'),
+    ];
+    const l = lay(nodes, edges);
+    const cx = (id: string) => {
+      const r = l.nodes.find((n) => n.id === id)?.rect;
+      return r ? r.x + r.w / 2 : Number.NaN;
+    };
+    expect(cx('m')).toBeCloseTo((cx('s') + cx('b')) / 2, 0);
+    for (const id of ['r', 't']) expect(cx(id), id).toBeCloseTo(cx('m'), 0);
+  });
+});
