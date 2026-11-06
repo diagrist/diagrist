@@ -45,3 +45,12 @@ export function spread(layer: readonly string[], cluster: ReadonlyMap<string, st
   for (const [first, last, members] of ends.values()) total += last - first + 1 - members;
   return total;
 }
+
+/** Pairs of a layer whose lanes stand in the wrong order. */
+export function inversions(layer: readonly string[], lane: ReadonlyMap<string, number>): number {
+  let count = 0;
+  for (let i = 0; i < layer.length; i++)
+    for (let j = i + 1; j < layer.length; j++)
+      if ((lane.get(layer[i] as string) ?? 0) > (lane.get(layer[j] as string) ?? 0)) count++;
+  return count;
+}

@@ -15,6 +15,8 @@ export interface CoordsInput {
   readonly ranked: Ranked;
   /** Links of a chain, upper end first, which stand straight where their layers have room: see `spinesOf`. */
   readonly spines?: readonly (readonly [string, string])[];
+  /** Nodes whose ends stand at fixed points, such as the tip of a diamond, so a chain cannot slide along them. */
+  readonly fixed?: (n: string) => boolean;
 }
 
 /** Passes alternate down and up; each pulls the nodes of a layer towards their partners in the layer before. */
@@ -79,7 +81,7 @@ function straighten(input: CoordsInput, x: Xs): void {
     const ends = [chain[0] as string, chain.at(-1) as string];
     const middle = [...inner.map((d) => x.get(d) ?? 0)].sort((a, b) => a - b)[Math.floor(inner.length / 2)] ?? 0;
     const within = (n: string) => {
-      const reach = Math.max(0, input.width(n) / 2 - Math.min(16, input.width(n) / 4));
+      const reach = input.fixed?.(n) ? 0 : Math.max(0, input.width(n) / 2 - Math.min(16, input.width(n) / 4));
       const c = x.get(n) ?? 0;
       return Math.min(c + reach, Math.max(c - reach, middle));
     };

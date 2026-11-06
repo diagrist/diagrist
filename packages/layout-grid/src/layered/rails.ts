@@ -1,6 +1,7 @@
 import type { Point, Rect } from '@diagrist/core';
 import type { PlacedGroup, Route } from '../layout.js';
 import { holders } from './rail-frames.js';
+import { type LaneOf, laneTrack, railCrossings, railLane } from './rail-lanes.js';
 import type { RailSide } from './rail-order.js';
 import { stretch, texts } from './rail-room.js';
 import type { LayeredEdge, LayeredMetrics, LayeredSpec } from './spec.js';
@@ -17,6 +18,10 @@ export interface RailInput {
   readonly frames: readonly PlacedGroup[];
   /** The other lines: a rail passes beyond the text each may carry beside its longest upright piece. */
   readonly lines: readonly Route[];
+  /** The lane of every node and placeholder, in a picture with lanes: a rail runs beside its own lane. */
+  readonly lane?: LaneOf;
+  /** The sides of boxes a line other than a rail takes already, as `box|side`: a rail takes another where it may. */
+  readonly taken?: ReadonlySet<string>;
 }
 
 /** One rail as placed: its ends by layer, its side, its track and its text's room. */
@@ -66,24 +71,30 @@ function place(
     const { lo, hi } = stretch(e, upper, lower);
     const both = (f: string) => held.get(e.from)?.has(f) === true && held.get(e.to)?.has(f) === true;
     const reach = (side: RailSide) => texts(input.lines, side, top, bottom, m, spec);
+    const passed = [...input.rects].filter(([n]) => layer(n) >= layer(up) && layer(n) <= layer(low));
     const beside = [
-      ...[...input.rects].filter(([n]) => layer(n) >= layer(up) && layer(n) <= layer(low)).map(([, r]) => r),
+      ...passed.map(([, r]) => r),
       ...input.frames.filter((f) => !both(f.id) && f.rect.y < bottom && f.rect.y + f.rect.h > top).map((f) => f.rect),
     ];
     const allowed = input.sides.get(e.id) ?? ['left'];
     const unlooped = allowed.filter((side) => !looped(up, side) && !looped(low, side));
-    const free = unlooped.length > 0 ? unlooped : allowed;
+    const untaken = unlooped.filter((s) => !input.taken?.has(`${up}|${s}`) && !input.taken?.has(`${low}|${s}`));
+    const free = untaken.length > 0 ? untaken : unlooped.length > 0 ? unlooped : allowed;
     const tried = free.map((side) => {
       const own =
-        side === 'left'
-          ? Math.min(...beside.map((r) => r.x), ...reach(side)) - m.lead
-          : Math.max(...beside.map(right), ...reach(side)) + m.lead;
+        input.lane !== undefined
+          ? laneTrack(side, passed, input.lane, railLane(e, side, input.lane), m.lead)
+          : side === 'left'
+            ? Math.min(...beside.map((r) => r.x), ...reach(side)) - m.lead
+            : Math.max(...beside.map(right), ...reach(side)) + m.lead;
       const inner = laid.filter((p) => p.side === side && p.lo < hi && p.hi > lo);
       const outer = inner.map((p) => (side === 'left' ? p.at - p.room : p.at + p.room));
       const crossed = inner.filter((p) => p.lo < lo || p.hi > hi).length;
       const at = side === 'left' ? Math.min(own, ...outer) : Math.max(own, ...outer);
       const edge = (r: Rect) => (side === 'left' ? r.x : right(r));
-      return { side, at, cost: CROSSING * crossed + Math.abs(at - edge(upper)) + Math.abs(at - edge(lower)) };
+      const across = input.lane === undefined ? 0 : railCrossings(side, at, upper, lower, input.lines);
+      const cost = CROSSING * (crossed + across) + Math.abs(at - edge(upper)) + Math.abs(at - edge(lower));
+      return { side, at, cost };
     });
     const best = tried.reduce<(typeof tried)[number] | undefined>((a, b) => (a && a.cost <= b.cost ? a : b), undefined);
     if (best === undefined) continue;
@@ -96,9 +107,15 @@ function place(
 /**
  * The ends of the rails on each side of a box, top first: those leaving it upward, inner rails first, then those
  * arriving from below, outer rails first, so no piece out of the box crosses a rail of another; `portGap` apart, or
- * closer where the side is short, around its middle.
+ * closer where the side is short, around its middle; on a box whose ends stand at the middle of their sides
+ * (`LayeredNode.sides`), all at its middle.
  */
-function docks(laid: readonly Laid[], rects: ReadonlyMap<string, Rect>, m: LayeredMetrics): Map<string, number> {
+function docks(
+  laid: readonly Laid[],
+  rects: ReadonlyMap<string, Rect>,
+  m: LayeredMetrics,
+  fixed: ReadonlySet<string>,
+): Map<string, number> {
   const ends = new Map<string, { key: string; up: boolean; reach: number }[]>();
   for (const l of laid)
     for (const [n, up] of [
@@ -118,7 +135,10 @@ function docks(laid: readonly Laid[], rects: ReadonlyMap<string, Rect>, m: Layer
       ...list.filter((x) => x.up).sort((a, b) => a.reach - b.reach),
       ...list.filter((x) => !x.up).sort((a, b) => b.reach - a.reach),
     ];
-    const step = ordered.length > 1 ? Math.min(m.portGap, (r.h - 8) / (ordered.length - 1)) : 0;
+    const step =
+      ordered.length > 1 && !fixed.has(at.split('|')[0] ?? '')
+        ? Math.min(m.portGap, (r.h - 8) / (ordered.length - 1))
+        : 0;
     ordered.forEach((x, i) => {
       out.set(x.key, r.y + r.h / 2 + (i - (ordered.length - 1) / 2) * step);
     });
@@ -140,7 +160,7 @@ export interface Railed {
 export function drawRails(input: RailInput, m: LayeredMetrics, spec: LayeredSpec): Railed {
   const held = holders(spec);
   const laid = place(input, m, held, spec);
-  const y = docks(laid, input.boxes, m);
+  const y = docks(laid, input.boxes, m, new Set(spec.nodes.flatMap((n) => (n.sides ? [n.id] : []))));
   const routes = new Map<string, Route>();
   const reach = new Map<string, { left: number; right: number }>();
   for (const l of laid) {

@@ -1,18 +1,20 @@
 import type { Rect } from '@diagrist/core';
-import type { Route } from '../layout.js';
 import { scoreOf } from '../score.js';
 import type { Arrangement } from './arrange.js';
 import { type Around, bendSides } from './bend.js';
-import { besideRoutes, sideOf } from './beside.js';
+import { besideRoutes } from './beside.js';
 import { roomAcross } from './beside-room.js';
 import { assignTracks, gapHeight, type Piece, piecesOf } from './channels.js';
-import { coords, spinesOf, type Xs } from './coords.js';
+import { spinesOf, type Xs } from './coords.js';
+import { barRects, dockEnds } from './docks.js';
+import { edgeRoutes, uncornered } from './edge-routes.js';
 import { clearCore } from './fence.js';
 import { framesOf } from './frames.js';
-import { type Frame, linkPoints, simplify } from './geometry.js';
+import type { Frame } from './geometry.js';
 import { clearHeads, clearOfHeads } from './heads.js';
 import { type Placement, unjog } from './jogs.js';
 import { labelRoom, seatsOf } from './labels.js';
+import { laneCoords } from './lane-coords.js';
 import { lanesOf } from './lanes.js';
 import { type Group, groupsOf, type Link, linksOf } from './links.js';
 import { loopsOf } from './loops.js';
@@ -43,7 +45,9 @@ export function finish(spec: LayeredSpec, arrangement: Arrangement): LayeredLayo
   const base = (a: string, b: string) =>
     dummy(a) && dummy(b) ? m.track : dummy(a) || dummy(b) ? m.colGap / 2 : m.colGap + (fenced(a, b) ? pad : 0);
   const room = roomAcross(layers, dummy, runs.room);
-  const gap = (a: string, b: string) => Math.max(base(a, b), room(a, b)) + fr.walls(a, b) + loops.room(a, b);
+  const reach = (id: string) => size.get(id)?.reach ?? { left: 0, right: 0 };
+  const gap = (a: string, b: string) =>
+    Math.max(base(a, b), room(a, b)) + fr.walls(a, b) + loops.room(a, b) + reach(a).right + reach(b).left;
   const inCore = layers.flatMap((layer, l) => (layer.some((n) => core.has(n)) ? [l] : []));
   const headRoom = spec.hub ? pad + spec.hub.head.size + 2 + 2 * m.labelGap : 0;
   const above = (l: number) => (l === (inCore[0] ?? -2) - 1 ? headRoom : 0) + fr.head(l + 1);
@@ -66,10 +70,11 @@ export function finish(spec: LayeredSpec, arrangement: Arrangement): LayeredLayo
       below.ends,
       below.tops,
     );
-    return { x: placed, flat, ports };
+    const docking = { spec, ranked, layers, groups, rects: flat, x: placed, run: m.portGap };
+    return { x: placed, flat, ports: { ...ports, corners: dockEnds(docking, ports) } };
   };
   const place = () => {
-    const placed = coords({ layers, width, gap, links: neighbours, ranked, spines }, m.left);
+    const placed = laneCoords(spec, { layers, width, gap, links: neighbours, ranked, spines }, m.left, ln.of);
     clearCore(placed, layers, width, core, arrangement.pins ?? new Map(), m.colGap + pad);
     const settled = settle(placed);
     if (spec.hub || arrangement.rough === true) return settled;
@@ -84,9 +89,10 @@ export function finish(spec: LayeredSpec, arrangement: Arrangement): LayeredLayo
   let grown: ReadonlySet<string> = new Set();
   const draw = ({ x, ports }: Placement): Assembled => {
     const pieceOf = new Map<Group, Piece>();
+    const routed = uncornered(groups, ports);
     const tracks = layers.map((_, l) => {
       const pieces = piecesOf(
-        groups.filter((g) => g.links[0]?.gap === l),
+        routed.filter((g) => g.links[0]?.gap === l),
         ports,
       );
       for (const p of pieces) pieceOf.set(p.group, p);
@@ -127,41 +133,23 @@ export function finish(spec: LayeredSpec, arrangement: Arrangement): LayeredLayo
       };
       y += band + (l === layers.length - 1 && extra === 0 ? 0 : gapHeight(needed, measure));
     });
+    barRects(spec, rects, links, ports, m.lead);
     const frame: Frame = { rects, gapTop, first, track: m.track };
     const widened = loops.widened(rects);
-    const groupOf = new Map<Link, Group>(groups.flatMap((g) => g.links.map((l) => [l, g] as const)));
-    const lines = spec.edges.flatMap((e): Route[] => {
-      const chain = links.filter((l) => l.edge === e.id);
-      const box = e.from === e.to ? rects.get(e.from) : undefined;
-      if (e.from === e.to) return box === undefined || runs.hidden(e.id) ? [] : [loops.route(e, box)];
-      if (chain.length === 0) {
-        if (runs.hidden(e.id) || arrangement.rails?.has(e.id)) return [];
-        const beside = below.route(e, frame, tracks, ports);
-        return beside === undefined ? [] : [beside];
-      }
-      const points = simplify(
-        chain.flatMap((l) => {
-          const g = groupOf.get(l) as Group;
-          return linkPoints(l, g, pieceOf.get(g), ports, frame);
-        }),
-      );
-      const drawn = ranked.down.get(e.id) === false ? [...points].reverse() : points;
-      return [
-        {
-          edge: e.id,
-          points: drawn,
-          shape: 'orthogonal',
-          fromSide: sideOf(drawn, 'from'),
-          toSide: sideOf(drawn, 'to'),
-        },
-      ];
-    });
+    const groupOf = new Map<Link, Group>(routed.flatMap((g) => g.links.map((l) => [l, g] as const)));
+    const rails = arrangement.rails;
+    const route = { spec, ranked, links, groupOf, pieceOf, ports, frame, rects, tracks, runs, loops, below };
+    const lines = edgeRoutes({ ...route, ...(rails ? { rails } : {}) });
     const around = spec.frames && fr.rects(widened, bandTop, gapTop);
-    const { railed, routes, frames } = railsOn(spec, arrangement, { boxes: rects, rects: widened, around, lines });
+    const lane = (spec.lanes ?? []).length > 0 ? { lane: (id: string) => ln.of(id) ?? 0 } : {};
+    const taken = ports.corners?.taken;
+    const before = { boxes: rects, rects: widened, around, lines, ...lane, ...(taken ? { taken } : {}) };
+    const { railed, routes, frames } = railsOn(spec, arrangement, before);
     const loose = looseTexts(spec, routes, railed, loops, m);
     const real = new Map([...rects].filter(([n]) => !dummy(n)));
     const outer = (spec.frames ?? []).filter((f) => f.parent === undefined).map((f) => f.pad);
-    const floor = outer.length > 0 ? m.left - Math.max(...outer) : railed.routes.size > 0 ? m.left : 0;
+    const edge = railed.routes.size > 0 ? m.left + (spec.lanes?.[0]?.pad ?? 0) : 0;
+    const floor = outer.length > 0 ? m.left - Math.max(...outer) : edge;
     const laid = assemble(spec, {
       ranked,
       layers,
@@ -191,6 +179,12 @@ export function finish(spec: LayeredSpec, arrangement: Arrangement): LayeredLayo
   }
   placement = clearOfHeads(placement, { links, frames: fr, settle, place, price });
   let { crowded, ...drawn } = draw(placement);
+  const wanted = ln.room(drawn, placement.x, width, m.lead);
+  if (wanted.some((r) => r.left > 0 || r.right > 0)) {
+    ln.grow(wanted);
+    placement = settle(placement.x);
+    ({ crowded, ...drawn } = draw(placement));
+  }
   if (seats.some((s) => crowded.includes(s.edge.id))) {
     grown = new Set(crowded);
     ({ crowded, ...drawn } = draw(placement));

@@ -53,9 +53,11 @@ function spanOf(
 /**
  * The graph laid out once more with every bar as wide as its lines want it (`stretchBars`), where one wants more,
  * so the placement keeps the room free that the bar then takes; undefined where none does. Boxes of the bar's own
- * layer do not stop a line here, the wider bar moves them aside.
+ * layer do not stop a line here, the wider bar moves them aside. In a picture with lanes, where a bar spans lanes
+ * that each place their own boxes, the boxes in its way move instead (`belowBlockers`).
  */
 export function widenBars(graph: LayoutGraph, layout: LayeredLayout): LayoutGraph | undefined {
+  if ((graph.containers ?? []).some((c) => c.kind === 'lane')) return belowBlockers(graph, layout);
   const ends = new Map(graph.edges.map((e) => [e.id, e]));
   const boxes = layout.nodes.map((n) => n.rect);
   const wide = new Map(
@@ -102,4 +104,31 @@ export function stretchBars(graph: LayoutGraph, layout: LayeredLayout): LayeredL
     return n === undefined ? p : { ...p, rect: n.rect };
   });
   return { ...layout, nodes, routes, placed };
+}
+
+/** How far a box of its layer keeps from a bar in a picture with lanes. */
+const CLEAR = 10;
+
+/**
+ * The graph laid out once more with every box that a bar of its layer runs through above the bar, held there by a
+ * hidden edge to it, so the bar moves a layer down; undefined where no bar runs through a box.
+ */
+function belowBlockers(graph: LayoutGraph, layout: LayeredLayout): LayoutGraph | undefined {
+  const bars = new Set(graph.nodes.flatMap((n) => (n.shape === 'bar' ? [n.id] : [])));
+  const blocked = layout.nodes.flatMap((b) =>
+    bars.has(b.id)
+      ? layout.nodes
+          .filter((n) => n.row === b.row && !bars.has(n.id) && overlaps(b.rect, n.rect, CLEAR))
+          .map((n) => [n.id, b.id] as const)
+      : [],
+  );
+  if (blocked.length === 0) return undefined;
+  const edges = blocked.map(([from, to]) => ({
+    id: `bar:${from}:${to}`,
+    from,
+    to,
+    rank: 'down' as const,
+    hidden: true,
+  }));
+  return { ...graph, edges: [...graph.edges, ...edges] };
 }

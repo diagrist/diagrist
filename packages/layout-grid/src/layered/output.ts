@@ -2,6 +2,7 @@ import type { LineInput, Placed, Point, Rect } from '@diagrist/core';
 import type { EdgeLabel } from '../label/types.js';
 import type { PlacedGroup, PlacedNode, Route } from '../layout.js';
 import { linesOfLaid } from '../score.js';
+import { cornerSeat } from './docks.js';
 import { type CoreFrame, frameOf } from './frame.js';
 import { type Seat, seatAt } from './labels.js';
 import type { Group, Link } from './links.js';
@@ -62,6 +63,8 @@ export function assemble(spec: LayeredSpec, laid: Laid): Assembled {
     groups.flatMap((g, i) => (g.kind === 'single' ? [] : g.links.map((l) => [l.edge, `${g.kind}-${i}`] as const))),
   );
   const first = laid.seats.flatMap((seat) => {
+    const corner = cornerSeat(seat, ports, rects, index.get(seat.edge.id) ?? 0, m.labelGap);
+    if (corner) return corner;
     const l = seat.group.links[0] as Link;
     const port: Point =
       seat.at === 'top'

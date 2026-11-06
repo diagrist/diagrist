@@ -1,5 +1,6 @@
 import type { Rect } from '@diagrist/core';
 import { clearOfAside } from './aside.js';
+import type { Corners } from './docks.js';
 import { isotoneApart } from './isotone.js';
 import type { Group, Link } from './links.js';
 import type { Ranked } from './rank.js';
@@ -9,6 +10,8 @@ import { straightTrunks } from './trunks.js';
 export interface Ports {
   readonly top: Map<Link, number>;
   readonly bottom: Map<Link, number>;
+  /** The pieces that leave or enter their box at a corner (`dockEnds`). */
+  readonly corners?: Corners;
 }
 
 /**
