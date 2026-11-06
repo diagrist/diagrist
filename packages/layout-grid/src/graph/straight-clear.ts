@@ -71,6 +71,27 @@ function costOf(
   return cost;
 }
 
+/**
+ * The moves along `axis` that take `r` off the line from `p` to `q`, each way: first by `ROOM`, then by the least the
+ * line check asks, more than `CLEAR`, in whole pixels and as far as the steps go; none where the line misses it.
+ */
+function clearing([p, q]: [Point, Point], r: Rect, axis: 'x' | 'y'): number[] {
+  if (!segmentMeetsRect(p, q, r, CLEAR)) return [];
+  const [u, v] = axis === 'y' ? ([0, 1] as const) : ([1, 0] as const);
+  const [a, b] = [p[u], q[u]];
+  const at = (w: number) => (a === b ? [p[v], q[v]] : [p[v] + ((q[v] - p[v]) * (w - a)) / (b - a)]);
+  const [lo, size] = axis === 'y' ? [r.x, r.w] : [r.y, r.h];
+  const seen = [...at(Math.max(lo - CLEAR, Math.min(a, b))), ...at(Math.min(lo + size + CLEAR, Math.max(a, b)))];
+  const [start, length] = axis === 'y' ? [r.y, r.h] : [r.x, r.w];
+  const limit = Math.max(...STEPS);
+  return [ROOM, CLEAR + 1]
+    .flatMap((gap) => [
+      Math.ceil(Math.max(...seen) + gap - start),
+      Math.floor(Math.min(...seen) - gap - start - length),
+    ])
+    .filter((d) => Math.abs(d) <= limit);
+}
+
 const apart = (a: Rect, b: Rect, gap: number) =>
   a.x + a.w + gap <= b.x || b.x + b.w + gap <= a.x || a.y + a.h + gap <= b.y || b.y + b.h + gap <= a.y;
 const inside = (r: Rect, f: Rect, pad: number, top: number) =>
@@ -79,7 +100,8 @@ const inside = (r: Rect, f: Rect, pad: number, top: number) =>
 /**
  * Boxes moved where a straight line runs through a box it does not join, through the head of a frame or through a
  * frame holding neither of its ends: of the moves of a box a line passes or of an
- * end of such a line, along its layer by up to 128 pixels or into the gaps beside it by up to 96, that keep it `ROOM`
+ * end of such a line, along its layer by up to 128 pixels, just off a line that runs through it, or into the gaps
+ * beside it by up to 96, that keep it `ROOM`
  * from every other box, inside the picture as it stands, inside its frames by their pads and their top and outside the
  * others, the one that costs least by lines through boxes
  * and crossings stays while it costs less, in rounds. The layered stages place boxes for lines between layers, which a
@@ -131,6 +153,10 @@ export function clearStraight(
       const shifts = [
         ...STEPS.map((d) => (across === 'y' ? [0, d] : [d, 0])),
         ...ASIDE.map((d) => (across === 'y' ? [d, 0] : [0, d])),
+        ...straight.flatMap((e) => {
+          const ends = id === e.from || id === e.to ? undefined : endsOf(e, nodes, best);
+          return ends ? clearing(ends, r, across).map((d) => (across === 'y' ? [0, d] : [d, 0])) : [];
+        }),
       ];
       for (const [dx, dy] of shifts) {
         const moved = { ...r, x: r.x + (dx ?? 0), y: r.y + (dy ?? 0) };
