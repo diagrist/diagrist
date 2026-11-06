@@ -4,15 +4,15 @@ import {
   type LayeredFrame,
   type LayeredNode,
   type LayeredSpec,
+  type LayerFrame,
   WRAP_EM,
   wrapWithin,
 } from '@diagrist/layout-grid';
 import type { ClassRelation } from '../diagram.js';
 import type { ClassModel } from '../model.js';
 import { packagesAround } from '../model.js';
-import type { Cell } from './blocks.js';
 import { classHeight, classWidth } from './box.js';
-import { legOf } from './graph.js';
+import { classGraph, legOf } from './graph.js';
 import { crossEnds, HEAD_AT_END, HEAD_AT_START, headLength } from './heads.js';
 import { CLASS, CLASS_FONTS as F, LAYERED, tabWidth } from './metrics.js';
 
@@ -142,6 +142,24 @@ function framesOf(m: ClassModel, placed: ReadonlySet<string>): LayeredFrame[] {
             pad: CLASS.packageSide,
             top: CLASS.tabH + CLASS.packagePad,
             head: { width: tabWidth(p.label), height: CLASS.tabH },
+            tab: true,
+          },
+        ]
+      : [],
+  );
+}
+
+/** Every package as a frame of the layering: the classifiers and diamonds directly in it, and its parent. */
+function layerFrames(m: ClassModel): LayerFrame[] {
+  const home = (id: string) => m.classifiers.get(id)?.package ?? m.associations.get(id)?.package;
+  const boxes = [...m.diagram.classifiers, ...m.diagram.associations].map((c) => c.id);
+  return m.diagram.packages.flatMap((p): LayerFrame[] =>
+    m.packages.get(p.id) === p
+      ? [
+          {
+            id: p.id,
+            members: boxes.filter((id) => home(id) === p.id),
+            ...(p.parent !== undefined && m.packages.has(p.parent) ? { parent: p.parent } : {}),
           },
         ]
       : [],
@@ -149,36 +167,32 @@ function framesOf(m: ClassModel, placed: ReadonlySet<string>): LayeredFrame[] {
 }
 
 /**
- * A class diagram as a layered picture: classifiers and diamonds in the layers of the automatic grid (`cells`), which
- * the pipeline orders anew with every package as a hard cluster, relations between them as edges, packages as frames.
- * Relations with a package at an end and those of a classifier with itself are drawn by the kind.
+ * A class diagram as a layered picture: classifiers and diamonds layered by the class graph (`classGraph`), every
+ * package a block of layers of its own, which the pipeline orders with every package as a hard cluster; relations
+ * between them, with a package at an end and of a classifier with itself as edges, packages as frames.
  */
-export function classLayered(m: ClassModel, cells: ReadonlyMap<string, Cell>): LayeredSpec {
+export function classLayered(m: ClassModel): LayeredSpec {
+  const packaged = m.diagram.packages.length > 0;
+  const layering = { ...classGraph(m, packaged), ...(packaged ? { frames: layerFrames(m) } : {}) };
+  const placed = new Set(layering.nodes);
   const boxes = [
     ...m.diagram.classifiers.map((c) => ({ id: c.id, width: classWidth(c), height: classHeight(c), source: c.span })),
     ...m.diagram.associations.map((a) => ({ id: a.id, width: CLASS.naryW, height: CLASS.naryH, source: a.span })),
-  ].filter((b) => cells.has(b.id));
-  const placed = new Set(boxes.map((b) => b.id));
+  ].filter((b) => placed.has(b.id));
   const nodes = boxes.map((b): LayeredNode => {
     const cluster = packagesAround(m, b.id)[0];
     return cluster === undefined ? b : { ...b, cluster };
   });
-  const rows = [...new Set([...cells.values()].map((c) => c.row))].sort((a, b) => a - b);
-  const layers = rows.map((row) =>
-    [...placed]
-      .filter((id) => cells.get(id)?.row === row)
-      .sort((a, b) => (cells.get(a)?.cross ?? 0) - (cells.get(b)?.cross ?? 0)),
-  );
-  const edges = m.diagram.relations.flatMap((r, i) =>
-    r.from !== r.to && placed.has(r.from) && placed.has(r.to) ? [edgeOf(m, r, i)] : [],
-  );
   const frames = framesOf(m, placed);
+  const ends = new Set([...placed, ...frames.map((f) => f.id)]);
+  const edges = m.diagram.relations.flatMap((r, i) =>
+    ends.has(r.from) && ends.has(r.to) && (r.from !== r.to || placed.has(r.from)) ? [edgeOf(m, r, i)] : [],
+  );
   return {
     nodes,
     edges: [...edges, ...tethers(m, placed)],
     metrics: { ...LAYERED, top: frames.length > 0 ? LAYERED.top - CLASS.tabH - CLASS.packagePad : LAYERED.top },
-    layers,
-    reorder: true,
+    layering,
     ...(frames.length > 0 ? { frames } : {}),
   };
 }

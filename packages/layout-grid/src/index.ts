@@ -26,7 +26,7 @@ export { layoutLayered } from './layered/index.js';
 export type { LayeredEdge, LayeredFrame, LayeredMetrics, LayeredNode, LayeredSpec } from './layered/spec.js';
 export { type StackedLine, type StackedPorts, stackedPorts, stackedTracks } from './layered/stacked.js';
 export { assignLayers } from './layers/assign.js';
-export type { LayerEdge, Layered, LayerGraph } from './layers/graph.js';
+export type { LayerEdge, Layered, LayerFrame, LayerGraph } from './layers/graph.js';
 export { acyclic, neighbours } from './layers/graph.js';
 export { layerGraph } from './layers/index.js';
 export { layerCost } from './layers/order.js';

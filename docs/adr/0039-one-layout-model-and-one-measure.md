@@ -66,8 +66,8 @@ stress budgets count, such as bends a straight line could spare, reached no sear
    and below `Ticket` instead of in a row 1,320 px wide. A layer still too full moves the parent of some of its
    nodes down a layer with everything below it, rather than cutting the last members of a family off into a row of
    their own: `Glasbruch` stands with its siblings and `Person` and `Firma` directly under `Partner`. Only where no
-   parent's move relieves a layer does `wrap` cut it by count. `LayeredEdge` keeps its ranks; class pictures reach
-   the pipeline with the layers this gives.
+   parent's move relieves a layer does `wrap` cut it by count. `LayeredEdge` keeps its ranks; class pictures hand
+   the pipeline the graph of their layers (decision 8).
 7. **Texts on lines break into lines.** A text wider than the wrap of line texts (`WRAP_EM`, sixteen sizes of its
    font, the wrap C4 got for its channel grid) breaks between its words (`wrapWithin`), and a class name that starts
    with a keyword in guillemets, such as `«bind» <K → String, V → Kunde>`, keeps the keyword on a line of its own.
@@ -75,10 +75,24 @@ stress budgets count, such as bends a straight line could spare, reached no sear
    per line, keyed `<edge>.label.<n>`; the class kind moves the lines of a name together. Seating stays the
    pipeline's own (`seatLabel`): the spot search of the channel grid (`signEdges`) does not run on it yet.
 
+8. **Frames are blocks of layers, ends of edges and no walls** (plan P5, rule R5, owner decisions D2 and D4).
+   `layerGraph` lays out every frame first as a block of layers of its own and then layers it in its parent's level
+   like one node as wide as its widest layer (`LayerGraph.frames`, `widths`), the edges of its nodes lifted to it.
+   The pipeline takes such a graph as `LayeredSpec.layering` and orders each layer anew; where a frame is the leaf of
+   a `free` edge, it lays the picture out with the frame beside its partner, above and below it and keeps the
+   cheapest by `scoreOf`, as the side search of a hub does. The block search of class diagrams (`cells.ts`,
+   `arrange.ts`, `spread.ts`, `blocks.ts`, `rough-path.ts`) and its estimate are gone: `pakete-quer` lays its five
+   packages out in three rows at 2.1 : 1, no line crossing. An edge may name a frame at an end: it runs to the box
+   of the frame most linked to the other end, takes its place, port and track there, and is cut at the frame's
+   outline, below a head worn as a tab (`LayeredFrame.tab`); the kind's own router of such lines is gone. A line
+   that has to pass a frame lying wholly between its ends runs through it, and the order moves the placeholders of a
+   whole chain to an end of their frame at once, which single moves cannot reach (`speichert` in `hexagonal`). An
+   edge from a box to itself is a loop beside the box, on the side no line beside its layer takes, its gap grown for
+   it and its text.
+
 ## Consequences
 
-The block search (`spread.ts`) still estimates lines in half columns before anything is laid out; it has no lines
-to measure and goes with the blocks (plan P5), which need layers that weigh the height of a frame against the lines
-it lengthens before they can go: without the search, `pakete-quer` lays its five packages out in a row at 3.4 : 1.
-Placeholders that cross a frame they have no end in, at a cost (R5), need an order that knows length, since the way
-around a frame costs an order nothing. Frames as ends of edges and loops as a route profile stay with the kind. A layout stage that wants to compare two of its own variants can now ask the same question the check answers.
+Placeholders cross a frame only where it lies wholly between the ends of their line; a frame beside a line's way is
+still gone around, since the cost of an order knows no length. The leaf search lays a picture out once more for
+every place a leaf frame may take, like the hub search; pictures without such frames pay nothing. A layout stage that
+wants to compare two of its own variants can now ask the same question the check answers.

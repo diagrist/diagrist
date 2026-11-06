@@ -28,6 +28,29 @@ export interface LayerGraph {
   readonly fixed?: ReadonlyMap<string, number>;
   /** How much room each node takes, such as its area; of the leaves of `free` edges, the small ones stay beside. */
   readonly sizes?: ReadonlyMap<string, number>;
+  /**
+   * How many places each node takes in its layer, 1 by default, such as a frame laid out as a block of its own:
+   * layers fill, wrap and take leaves by these places rather than by the count of their nodes.
+   */
+  readonly widths?: ReadonlyMap<string, number>;
+  /**
+   * Frames around nodes: each frame's nodes stand in a block of layers of their own, laid out first, and the frame
+   * then takes part in the layering of its parent like one node as wide as its widest layer and as high as its
+   * layers, the edges of its nodes lifted to it (`layerNested`).
+   */
+  readonly frames?: readonly LayerFrame[];
+  /**
+   * Where some leaves of `free` edges stand by their node, as a search tries it: -1 in the row above, 0 beside, 1 in
+   * the row below. The others take the first of these with room.
+   */
+  readonly moves?: ReadonlyMap<string, -1 | 0 | 1>;
+}
+
+/** A frame around nodes for the layering: the nodes directly in it and the frame it stands in. */
+export interface LayerFrame {
+  readonly id: string;
+  readonly members: readonly string[];
+  readonly parent?: string;
 }
 
 /** Layers from top to bottom and a position per node in half columns; neighbours in a layer stand at least 1 apart. */

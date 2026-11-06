@@ -23,8 +23,10 @@ export const prefix = (a: readonly string[], b: readonly string[]): number => {
  * The frames around every node: a box stands in the frame that lists it and in that frame's parents. A placeholder of
  * an edge stands in the frames around its upper end that reach its layer, so a line runs down inside the frame it
  * leaves as long as that frame lasts, else in those around its lower end that reach it, so a line enters its target's
- * frame where that begins, else in the frames both ends share. A line therefore crosses the border of a frame only
- * where it leaves or enters it, never through a frame it has no end in.
+ * frame where that begins, else in the frames both ends share. Where a frame beside those lies wholly between the
+ * layers of the ends, the line runs through it rather than around it (layout plan R5, owner decision D2), and the
+ * placeholder stands in that frame too; otherwise a line crosses the border of a frame only where it leaves or enters
+ * it.
  */
 export function framePaths(spec: LayeredSpec, ranked: Ranked): FramePaths {
   const list = spec.frames ?? [];
@@ -56,6 +58,17 @@ export function framePaths(spec: LayeredSpec, ranked: Ranked): FramePaths {
       i++;
     return path.slice(0, i);
   };
+  /** A frame beside the frames both ends share that spans layer `l` and lies wholly between the ends' layers. */
+  const between = (nodes: readonly string[], shared: readonly string[], l: number) => {
+    const [top, bottom] = [
+      ranked.layerOf.get(nodes[0] as string) ?? 0,
+      ranked.layerOf.get(nodes.at(-1) as string) ?? 0,
+    ];
+    return list.find((f) => {
+      const [first, last] = span.get(f.id) ?? [-1, -1];
+      return f.parent === shared.at(-1) && first > top && last < bottom && first <= l && l <= last;
+    })?.id;
+  };
   for (const [edge, nodes] of ranked.chains) {
     const [a, b] = [paths.get(nodes[0] as string) ?? [], paths.get(nodes.at(-1) as string) ?? []];
     const shared = a.slice(0, prefix(a, b));
@@ -63,7 +76,11 @@ export function framePaths(spec: LayeredSpec, ranked: Ranked): FramePaths {
       if (!d.startsWith(`d:${edge}:`)) continue;
       const l = ranked.layerOf.get(d) ?? 0;
       const [up, low] = [reaching(a, l), reaching(b, l)];
-      paths.set(d, up.length > shared.length ? up : low.length > shared.length ? low : shared);
+      const across = between(nodes, shared, l);
+      paths.set(
+        d,
+        up.length > shared.length ? up : low.length > shared.length ? low : across ? [...shared, across] : shared,
+      );
     }
   }
   return { byId, paths, span, chain };

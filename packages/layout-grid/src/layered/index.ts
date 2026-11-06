@@ -1,8 +1,11 @@
 import { scoreOf } from '../score.js';
 import { arrange, arrangeHub, planHub } from './arrange.js';
 import { finish, type LayeredLayout } from './finish.js';
+import { anchorFrameEnds, released } from './frame-ends.js';
 import type { Side } from './hub.js';
+import { layoutLeaves } from './leaves.js';
 import { layeredLines } from './output.js';
+import { rank } from './rank.js';
 import type { LayeredSpec } from './spec.js';
 
 export type { LayeredLayout } from './finish.js';
@@ -14,7 +17,27 @@ export type { LayeredLayout } from './finish.js';
 const ROUNDS = 4;
 
 /**
- * Lays out a layered picture (plan L2–L4): layers with placeholders, an order that weighs crossings, positions with
+ * A picture without hub, its lines with a frame at an end ending on the frame (`anchorFrameEnds`). Such a picture is
+ * layered without those lines first, unless the kind gave the layers.
+ */
+function plain(spec: LayeredSpec): LayeredLayout {
+  const boxes = new Set(spec.nodes.map((n) => n.id));
+  if (spec.edges.every((e) => boxes.has(e.from) && boxes.has(e.to))) return finish(spec, arrange(spec));
+  const layers =
+    spec.layers ??
+    (() => {
+      const ranked = rank({ ...spec, edges: spec.edges.filter((e) => boxes.has(e.from) && boxes.has(e.to)) });
+      const deepest = Math.max(0, ...ranked.layerOf.values());
+      const out: string[][] = Array.from({ length: deepest + 1 }, () => []);
+      for (const [n, l] of ranked.layerOf) if (!ranked.dummies.has(n)) out[l]?.push(n);
+      return out;
+    })();
+  const anchored = anchorFrameEnds(spec, layers);
+  return released(spec, finish(anchored.spec, arrange(anchored.spec)), anchored.ends);
+}
+
+/**
+ * Lays out a layered picture (plan L2–L4): layers with placeholders, or as `layering` gives them (`layoutLeaves`), an order that weighs crossings, positions with
  * real widths, fans and joins, ports, tracks per gap, routes and one label per line or trunk. A hub docks its
  * extensions at the sides of its core: starting from the first guess, each round lays out every arrangement that
  * moves one extension, or two together, to another side it may take, and the cheapest by `scoreOf` stays while it
@@ -22,7 +45,8 @@ const ROUNDS = 4;
  */
 export function layoutLayered(spec: LayeredSpec): LayeredLayout {
   const hub = spec.hub;
-  if (hub === undefined) return finish(spec, arrange(spec));
+  if (hub === undefined && spec.layering !== undefined) return layoutLeaves(spec, spec.layering);
+  if (hub === undefined) return plain(spec);
   const plan = planHub(spec, hub.core);
   const sides = [...plan.first];
   const priced = (s: readonly Side[]) => {

@@ -1,6 +1,6 @@
-# Five packages of an online shop with relations across them: from four packages on one level the layout searches
-# an arrangement in which linked classes of different packages stand close (swapping and moving the package blocks),
-# and keeps the one with the fewest crossings and shortest lines after trial layouts.
+# Five packages of an online shop with relations across them: every package is laid out as a block of layers of its
+# own, and the blocks are layered like classes; a package linked to one other only stands beside it, above or below
+# it, wherever the picture costs least.
 diagram class "Onlineshop" subtitle="Fünf Pakete mit Querbeziehungen" locale=de
 package web "web"
 package bestellung "bestellwesen"
