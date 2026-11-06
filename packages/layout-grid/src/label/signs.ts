@@ -47,7 +47,8 @@ const grown = (r: Rect, by: number): Rect => ({ x: r.x - by, y: r.y - by, w: r.w
  * its edge, foreign lines and what was placed before it (`clearOf`). Signs beside a route come first, at the first
  * clear spot the kind offers, else at its first. Marks on the route such as flow numbers follow, where the kind put
  * them or the nearest clear spot along their line. Texts stay where `routeTexts` or `onLineTexts` put them when that
- * spot is clear, else take the first clear spot beside or on their line (`searchBlock`); a route whose texts find
+ * spot is clear, else the clear spot beside or on their line that comes least near the texts of other routes
+ * (`searchBlock`); a route whose texts find
  * none moves its mark along the line until they do. Last, a sign that a text could not avoid moves on to its next
  * clear spot. Texts on one of two upright straight lines between the same boxes may stand beside it where no spot on
  * it is clear, since a text across the one meets the other. Other fields of a mark are kept. `crowded` names the routes whose texts found no clear spot, for
@@ -98,7 +99,7 @@ export function signEdges<M extends SeatMark>(
   const crowded: number[] = [];
   const take = (i: number, block: EdgeLabel[]) => {
     chosen.set(i, block);
-    for (const r of rectsOf(block, search)) clear.take(r);
+    for (const r of rectsOf(block, search)) clear.take(r, i);
   };
   const first = (i: number) => named.filter((l) => l.route === i);
   const ends = new Map(spec.edges.map((e) => [e.id, [e.from, e.to].sort().join('|')]));

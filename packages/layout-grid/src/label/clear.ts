@@ -1,4 +1,4 @@
-import type { Point, Rect } from '@diagrist/core';
+import { DEFAULT_THRESHOLDS, type Point, type Rect } from '@diagrist/core';
 import { overlaps, segmentHitsRect } from '../geometry.js';
 import type { Route } from '../layout.js';
 import { framesAround } from '../placed.js';
@@ -7,6 +7,8 @@ import { type Board, headOf } from '../route/boxes.js';
 /** Room a text or mark keeps from boxes and heads, and from what was placed before it. */
 const PAD = 4;
 const TAKEN = 2;
+/** How near a text may come to a text of another line before its spot is priced: the gap kept from a foreign line. */
+const NEAR = DEFAULT_THRESHOLDS.labelClear;
 
 /** What a spot for the texts or marks of a route must keep clear of, and what was placed so far. */
 export interface Clear {
@@ -18,9 +20,22 @@ export interface Clear {
    * its own. A free spot meets nothing. Counting stops at `limit`.
    */
   readonly cost: (rect: Rect, route: number, lineGap: number, onLine: boolean, limit?: number) => number;
-  /** Marks a placed rectangle as taken, and frees it again. */
-  readonly take: (rect: Rect) => void;
+  /**
+   * The price of a free rectangle on route `route` for its nearness to the texts of other routes: for each such text
+   * nearer than `NEAR`, the pixels it lacks. Nothing is forbidden by it; of two free spots the cheaper reads more
+   * clearly as its own line's, since texts of two lines close together read as one.
+   */
+  readonly crowding: (rect: Rect, route: number) => number;
+  /** Marks a placed rectangle as taken, as a text of route `route` where given, and frees it again. */
+  readonly take: (rect: Rect, route?: number) => void;
   readonly drop: (rect: Rect) => void;
+}
+
+/** The distance between two rectangles that do not overlap, 0 for two that do. */
+function apart(a: Rect, b: Rect): number {
+  const dx = Math.max(0, b.x - a.x - a.w, a.x - b.x - b.w);
+  const dy = Math.max(0, b.y - a.y - a.h, a.y - b.y - b.h);
+  return Math.hypot(dx, dy);
 }
 
 /** Whether `r` lies inside `outer` and keeps `gap` from its outline on every side. */
@@ -74,9 +89,20 @@ export function clearOf(board: Board, routes: readonly Route[], taken: readonly 
     }
     return n;
   };
+  const texts = new Map<Rect, number>();
+  const crowding = (rect: Rect, route: number): number => {
+    let n = 0;
+    for (const [t, own] of texts) if (own !== route) n += Math.max(0, NEAR - apart(rect, t));
+    return n;
+  };
+  const take = (rect: Rect, route?: number) => {
+    placed.push(rect);
+    if (route !== undefined) texts.set(rect, route);
+  };
   const drop = (rect: Rect) => {
     const i = placed.indexOf(rect);
     if (i >= 0) placed.splice(i, 1);
+    texts.delete(rect);
   };
-  return { cost, take: (rect) => placed.push(rect), drop };
+  return { cost, crowding, take, drop };
 }

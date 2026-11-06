@@ -1,4 +1,13 @@
-import { compile, type Drawing, type LineFinding, lineFindings, linesOfDrawing, type Plugin } from '@diagrist/core';
+import { readFileSync } from 'node:fs';
+import {
+  compile,
+  type Drawing,
+  type LineFinding,
+  lineFindings,
+  linesOfDrawing,
+  type Plugin,
+  type Rect,
+} from '@diagrist/core';
 import { describe, expect, it } from 'vitest';
 import { umlPlugin } from '../src/index.js';
 import { stateNames, stateSource } from './compile.js';
@@ -19,6 +28,10 @@ function findingsOf(source: string): LineFinding[] {
   compile(source, { plugins: [recorded] });
   return lineFindings(linesOfDrawing(drawings[0] as Drawing));
 }
+
+/** The distance between two rectangles, 0 where they meet. */
+const apart = (a: Rect, b: Rect) =>
+  Math.hypot(Math.max(0, b.x - a.x - a.w, a.x - b.x - b.w), Math.max(0, b.y - a.y - a.h, a.y - b.y - b.h));
 
 const key = (f: LineFinding) => [f.rule, f.detail ?? '', ...f.edges].join(' ');
 
@@ -46,6 +59,16 @@ const fanned = (direction: string) =>
 describe('the lines of state machines', () => {
   it.each([...stateNames].sort())('%s breaks no hard rule of the line check', (name) => {
     expect(findingsOf(stateSource(name)).map(key)).toEqual([]);
+  });
+
+  it('keeps the text of a bent line away from the text of its neighbour where a spot further off is free', () => {
+    findingsOf(readFileSync(new URL('stress/state/protokoll.dgr', import.meta.url), 'utf8'));
+    const texts = (drawings[0]?.placed ?? []).filter((p) => p.kind === 'text' && p.key.includes('.label.'));
+    const edge = (k: string) => k.slice(0, k.indexOf('.label.'));
+    const gaps = texts.flatMap((a, i) =>
+      texts.slice(i + 1).flatMap((b) => (edge(a.key) === edge(b.key) ? [] : [apart(a.rect, b.rect)])),
+    );
+    expect(Math.min(...gaps)).toBeGreaterThanOrEqual(12);
   });
 
   it.each(['down', 'right'])('steps forward transitions on tracks without a breach, flowing %s', (direction) => {
