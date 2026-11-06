@@ -26,7 +26,7 @@ export interface Clear {
    * clearly as its own line's, since texts of two lines close together read as one.
    */
   readonly crowding: (rect: Rect, route: number) => number;
-  /** Marks a placed rectangle as taken, as a text of route `route` where given, and frees it again. */
+  /** Marks a placed rectangle as taken, as a text of route `route` where given, and frees one of its place again. */
   readonly take: (rect: Rect, route?: number) => void;
   readonly drop: (rect: Rect) => void;
 }
@@ -99,10 +99,12 @@ export function clearOf(board: Board, routes: readonly Route[], taken: readonly 
     placed.push(rect);
     if (route !== undefined) texts.set(rect, route);
   };
+  const same = (a: Rect, b: Rect) => a.x === b.x && a.y === b.y && a.w === b.w && a.h === b.h;
   const drop = (rect: Rect) => {
-    const i = placed.indexOf(rect);
-    if (i >= 0) placed.splice(i, 1);
-    texts.delete(rect);
+    const i = placed.findIndex((r) => same(r, rect));
+    if (i < 0) return;
+    texts.delete(placed[i] as Rect);
+    placed.splice(i, 1);
   };
   return { cost, crowding, take, drop };
 }

@@ -4,6 +4,7 @@ import type { GridLayout, Route } from '../layout.js';
 import { boardOf } from '../route/boxes.js';
 import type { GridSpec } from '../spec.js';
 import { clearOf } from './clear.js';
+import { giveWay } from './give-way.js';
 import { namedOf } from './named.js';
 import type { OnLine } from './on-line.js';
 import { blockCost, type Found, rectsOf, type SearchOptions, searchBlock, tooWide } from './search.js';
@@ -48,11 +49,12 @@ const grown = (r: Rect, by: number): Rect => ({ x: r.x - by, y: r.y - by, w: r.w
  * clear spot the kind offers, else at its first. Marks on the route such as flow numbers follow, where the kind put
  * them or the nearest clear spot along their line. Texts stay where `routeTexts` or `onLineTexts` put them when that
  * spot is clear, else the clear spot beside or on their line that comes least near the texts of other routes
- * (`searchBlock`); a route whose texts find
- * none moves its mark along the line until they do. Last, a sign that a text could not avoid moves on to its next
- * clear spot. Texts on one of two upright straight lines between the same boxes may stand beside it where no spot on
- * it is clear, since a text across the one meets the other. Other fields of a mark are kept. `crowded` names the routes whose texts found no clear spot, for
- * `gutterRoom`.
+ * (`searchBlock`); a route whose texts find none moves its mark along the line until they do. Then a text that came
+ * near a text of another line is sought again with all others seated, so an earlier one gives way to a later one
+ * (`giveWay`). Last, a sign that a text could not avoid moves on to its next clear spot. Texts on one of two upright
+ * straight lines between the same boxes may stand beside it where no spot on it is clear, since a text across the
+ * one meets the other. Other fields of a mark are kept. `crowded` names the routes whose texts found no clear spot,
+ * for `gutterRoom`.
  */
 export function signEdges<M extends SeatMark>(
   spec: GridSpec,
@@ -137,6 +139,15 @@ export function signEdges<M extends SeatMark>(
     if (found.cost > 0) crowded.push(i);
     take(i, found.block);
   });
+  const seek = (i: number) => {
+    const r = routes[i] as Route;
+    const text = texts.get(r.edge);
+    const block = chosen.get(i) ?? [];
+    return text ? searchBlock(r, i, text, first(i), clear, spec.metrics, searchOf(i)) : { block, cost: 0 };
+  };
+  const rects = (block: readonly EdgeLabel[]) => rectsOf(block, search);
+  const cost = (block: readonly EdgeLabel[], i: number) => blockCost(block, i, clear, searchOf(i));
+  const cleared = new Set(giveWay({ chosen, rects, cost, seek }, clear));
   const moved = pin.at.map((k, i) => {
     const { spot, rect } = pins[i] as (typeof pins)[number];
     clear.drop(rect);
@@ -148,6 +159,6 @@ export function signEdges<M extends SeatMark>(
     labels: routes.flatMap((_, i) => chosen.get(i) ?? []),
     marks: marks.map((m) => placed.get(m)?.mark ?? m),
     pins: moved,
-    crowded,
+    crowded: crowded.filter((i) => !cleared.has(i)),
   };
 }
