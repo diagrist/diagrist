@@ -5,6 +5,7 @@ import {
   fitFrames,
   type GridLayout,
   type GridSpec,
+  labelEdges,
   type Route,
   signEdges,
 } from '@diagrist/layout-grid';
@@ -40,8 +41,9 @@ const SIGN_ROOM = 2;
 
 /**
  * Flow numbers, decision marks and edge texts, through the channels of the grid: numbers first, clear of boxes,
- * frames, foreign lines and marks, and then the texts clear of all of them. Frames of an adaptive grid then grow
- * around the routes between their own nodes and the texts and numbers on them.
+ * frames, foreign lines and marks, and then the texts clear of all of them. A text of an adaptive grid stays where
+ * `labelEdges` seats it while that is clear; frames of an adaptive grid then grow around the routes between their own
+ * nodes and the texts and numbers on them.
  */
 export function signsOf(
   model: ArchitectureModel,
@@ -74,7 +76,17 @@ export function signsOf(
   const at = onEdges.map((k) => ({ route: k.route ?? 0, spots: markSpots(routes[k.route ?? 0]?.points ?? []) }));
   const pins = { ...MARK, at };
   const flat = o.edgeText.flat;
-  const signed = signEdges(spec, placed, routes, texts, free, { preferFlat: flat, ...onLine, avoid, mark, pins });
+  const seats = spec.adaptive
+    ? { placed: labelEdges(spec, placed, routes, texts, { preferFlat: flat, ...onLine }) }
+    : {};
+  const signed = signEdges(spec, placed, routes, texts, free, {
+    preferFlat: flat,
+    ...onLine,
+    avoid,
+    mark,
+    pins,
+    ...seats,
+  });
   const moved = marks.map((k) => {
     const spot = signed.pins[onEdges.indexOf(k)];
     return spot ? { ...k, x: spot[0], y: spot[1] } : k;

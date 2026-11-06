@@ -19,9 +19,25 @@ function spineOf(board: Board, box: Box, gap: number): number | undefined {
 }
 
 /**
+ * Whether a box of one column only, in the column of `box`, has a stretch reserved from the start of its top or
+ * bottom side, such as a name in the top edge, that reaches past `centre`: then every line of the column keeps to
+ * the spine right of the names. A stretch centred on its side, such as an icon circle, moves only the lines it meets.
+ */
+function namesPast(board: Board, box: Box, centre: number, gap: number): boolean {
+  return board.nodes.some((n) => {
+    const node = board.node(n.id);
+    if (n.colIndex !== box.colIndex || !node || (node.to?.col ?? node.col) !== node.col) return false;
+    return (['top', 'bottom'] as const).some((side) => {
+      const at = reservedOn(node, n.rect, side);
+      return node.reserve?.[side]?.origin !== 'middle' && at !== undefined && at[1] + gap > centre;
+    });
+  });
+}
+
+/**
  * Straight edges between the same two boxes run `spread` apart around the middle of what their sides share, each
  * in the free stretches of both sides; a column of reserved sides keeps its spine, the column of the narrower box,
- * wherever a reserved stretch of the column reaches past the middle, so its lines stand on one x. An edge whose boxes share no free
+ * where its middle is reserved or a name of the column reaches past it (`namesPast`), so its lines stand on one x. An edge whose boxes share no free
  * stretch gets no place and bends instead.
  */
 function straightPorts(board: Board, plans: readonly Plan[], spread: number, gap: number): Map<Plan, number> {
@@ -40,7 +56,8 @@ function straightPorts(board: Board, plans: readonly Plan[], spread: number, gap
     const centre = middle(a) === middle(b) ? middle(a) : middle(shared);
     const narrow = first.b.rect.w < first.a.rect.w ? first.b : first.a;
     const spine = flat(first.fromSide) ? spineOf(board, narrow, gap) : undefined;
-    const kept = spine === undefined || !within(spine, ranges) || (within(centre, ranges) && spine <= centre);
+    const named = spine !== undefined && namesPast(board, narrow, centre, gap);
+    const kept = spine === undefined || !within(spine, ranges) || (within(centre, ranges) && !named);
     const c = kept ? centre : spine;
     members.forEach((p, i) => {
       const at = nearest(c + (i - (members.length - 1) / 2) * spread, ranges);

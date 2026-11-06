@@ -139,8 +139,8 @@ An adaptive C4 grid takes its places from the author's columns and rows, as a fi
 gaps grow to the content. Of the stages, it needs the ports, tracks and texts, not layers, order or coordinates, so
 it moved onto the engine piece that already serves fixed grids, the channel stage of ADR 0038, instead of
 `layoutGraph` (D8): `GridSpec.channels` with `adaptive` routes through `route/channel/adaptive.ts`, and C4 sets
-`channels` for every grid and signs every grid in one way, frames of an adaptive grid growing around the signed
-texts afterwards; the look option `numbers.seat` (ADR 0023), which only the old way read, is gone. Three things stay the adaptive grid's own: bundles keep their trunks, an edge into a wide box
+`channels` for every grid and signs every grid in one way, a text of an adaptive grid staying where `labelEdges`
+seats it while that is clear and frames of an adaptive grid growing around the signed texts afterwards; the look option `numbers.seat` (ADR 0023), which only the old way read, is gone. Three things stay the adaptive grid's own: bundles keep their trunks, an edge into a wide box
 drops down the gap beside its narrow end (`drops`, #30), and an edge with a `lane` keeps to that column. The path
 search of the adaptive router is left as the fallback for a route that still runs through a node, and no picture
 needs it.
