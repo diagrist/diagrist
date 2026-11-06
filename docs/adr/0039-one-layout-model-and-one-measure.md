@@ -414,3 +414,16 @@ bends 1 to 0, bends 14 to 12; `schichten` 4 to 2 bends; the concept picture `rue
 analysis proposed, the room beside a line split by the texts at its ends straightened `MailAlarm` too but bent the
 trunk of `AlarmRegel` for 132 px more line, and placeholders as near their end as their room allows changed only
 `hexagonal`, 46 px longer; both were measured and left out.
+
+**Interfaces may stand below their classes (owner decision C).** Four interfaces over four classes with overlapping
+sets of realizations form a lattice that two rows cannot draw without about five crossings. An edge may now say that
+its target may stand on the other side of its source (`GraphEdge.either`): `layoutGraph` lays such a picture out as
+the notation puts it and, where that crosses, once more for every set of up to four of its targets turned to the
+other side, and keeps a turned picture only where it costs less by `scoreOf` with one crossing added for each turned
+target (`graph/either.ts`), so a superclass or interface stays on top unless that clearly saves crossings. Class
+diagrams mark generalizations and realizations so. `schnittstellen` turns `Lesbar` below the four classes: 5 to 1
+crossings, 18 to 14 bends, 3,340 to 2,520 px of line, 988 × 553 px; no other picture changes, and a picture without
+crossings is laid out once. Pricing whole trunks in the order stage as one piece was not built: of the stress
+pictures, only `schnittstellen` and `beobachter` still cross, the one crossing of the first is the least two rows
+allow for `Schreibbar` and `Versioniert` over the same two classes, and the second is the trade of a detour, so the
+rule would change no picture yet.

@@ -3,6 +3,7 @@ import type { LayeredLayout } from '../layered/output.js';
 import type { LayeredEdge, LayeredFrame, LayeredSpec } from '../layered/spec.js';
 import type { LayerEdge, LayerGraph } from '../layers/graph.js';
 import type { CellGraph, CellLayout } from './cells.js';
+import { eitherWay } from './either.js';
 import { layoutCells } from './grid.js';
 import type { GraphContainer, GraphEdge, GraphRank, LayoutGraph } from './spec.js';
 import { staged } from './stages.js';
@@ -61,7 +62,7 @@ export function specOf(graph: LayoutGraph): LayeredSpec {
     .filter((c) => c.kind === 'lane')
     .map((c) => ({ id: c.id, members: c.members, pad: c.pad, width: c.head.width, top: c.top }));
   const edges = graph.edges.map(
-    ({ rank, profile, ...e }): LayeredEdge => ({
+    ({ rank, profile, either: _, ...e }): LayeredEdge => ({
       ...e,
       rank: RANKS[rank],
       ...(profile === 'rail' ? { rail: true } : profile === 'back' ? { rail: 'up' as const } : {}),
@@ -90,15 +91,13 @@ export function specOf(graph: LayoutGraph): LayeredSpec {
 /**
  * Lays out a layout graph (ADR 0039): layers, order, positions, ports, tracks, routes and texts, each stage on the
  * data the graph gives and priced by `scoreOf` where it searches, straight lines drawn once the boxes stand
- * (`drawStraight`); a graph with the author's cells (`given.cells`) in its grid, through the channel stage. The same
+ * (`drawStraight`), targets of `either` edges on the side that crosses least (`eitherWay`); a graph with the author's cells (`given.cells`) in its grid, through the channel stage. The same
  * graph gives the same picture.
  */
 export function layoutGraph(graph: CellGraph): CellLayout;
 export function layoutGraph(graph: LayoutGraph): LayeredLayout;
 export function layoutGraph(graph: LayoutGraph): LayeredLayout | CellLayout {
   if (graph.given?.cells) return layoutCells(graph as CellGraph);
-  return drawStraight(
-    graph,
-    staged(hideStraight(graph), (g) => layoutLayered(specOf(g)), specOf),
-  );
+  const chosen = eitherWay(graph, (g) => staged(hideStraight(g), (h) => layoutLayered(specOf(h)), specOf), specOf);
+  return drawStraight(chosen.graph, chosen.layout);
 }

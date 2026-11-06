@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { compile, type Rect, segmentsIntersect } from '@diagrist/core';
 import { describe, expect, it } from 'vitest';
 import { umlPlugin } from '../src/index.js';
@@ -27,6 +28,18 @@ describe('class layout', () => {
     expect(cx(room)).toBeLessThan(cx(double));
     expect(p.edge('einzelzimmer', 'zimmer').at(-1)).toEqual(p.edge('doppelzimmer', 'zimmer').at(-1));
     expect(p.edge('einzelzimmer', 'zimmer').at(-1)).toEqual([cx(room), room.y + room.h]);
+  });
+
+  it('turns an interface below the classes that realize it where that clearly saves crossings, the others above', () => {
+    const source = readFileSync(new URL('stress/class/schnittstellen.dgr', import.meta.url), 'utf8');
+    const result = compile(source, { plugins: [umlPlugin] });
+    const rect = (id: string) => result.anchors?.nodes.find((n) => n.id === id)?.rect ?? { x: 0, y: 0, w: 0, h: 0 };
+    const classes = ['pdf', 'scan', 'vertrag', 'notiz'].map(rect);
+    const bottom = Math.max(...classes.map((r) => r.y + r.h));
+    expect(rect('lesbar').y).toBeGreaterThan(bottom);
+    for (const id of ['signierbar', 'schreibbar', 'versioniert'])
+      expect(rect(id).y + rect(id).h).toBeLessThan(Math.min(...classes.map((r) => r.y)));
+    expect(result.diagnostics.filter((d) => d.code === 'G410')).toHaveLength(1);
   });
 
   it('puts the whole above its parts and the diamond at the whole', () => {

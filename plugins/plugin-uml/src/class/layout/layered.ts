@@ -82,7 +82,8 @@ export function nameLines(r: ClassRelation): { text: string; width: number }[] {
 
 /**
  * How a relation runs between the layers: the head where UML wants it, a common trunk for generalizations and
- * realizations of one target (a shared triangle) and for the legs below one diamond, straight runs long enough
+ * realizations of one target (a shared triangle), which may stand below its sources where that clearly saves
+ * crossings, and for the legs below one diamond, straight runs long enough
  * for the symbols and texts at both ends, and room for both when it runs beside.
  */
 function edgeOf(m: ClassModel, r: ClassRelation, i: number, rank: GraphRank): GraphEdge {
@@ -100,7 +101,11 @@ function edgeOf(m: ClassModel, r: ClassRelation, i: number, rank: GraphRank): Gr
     rank,
     ...(HIERARCHY.has(r.kind) ? { weight: 2 } : {}),
     ...(r.kind === 'dependency' ? { strength: 'soft' as const } : {}),
-    ...(shared ? { bundle: shared, trunk: 'whole' as const } : leg ? { bundle: `leg:${leg.diamond}` } : {}),
+    ...(shared
+      ? { bundle: shared, trunk: 'whole' as const, either: true }
+      : leg
+        ? { bundle: `leg:${leg.diamond}` }
+        : {}),
     run: {
       from: endRun(r, 'from') + (name === undefined ? 0 : lines.length * (font.size + 2) + LAYERED.labelGap),
       to: endRun(r, 'to'),
