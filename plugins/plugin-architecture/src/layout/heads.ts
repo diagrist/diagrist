@@ -2,9 +2,10 @@ import { type Point, type Rect, textWidth } from '@diagrist/core';
 import type { Look } from '../looks/look.js';
 import type { ArchGroup } from '../model/types.js';
 import type { Spot } from './art.js';
+import { tagWidth } from './frame-cell.js';
 import { linesHit } from './geometry.js';
 import { BLOCK_DY, TITLE_INSET, TITLE_PAD } from './head-rect.js';
-import { headingSize, tagWidth } from './spec.js';
+import { headingSize } from './spec.js';
 
 /** Head and tag of a frame, from its finished rectangle. */
 export interface FrameHead {

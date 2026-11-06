@@ -278,3 +278,33 @@ straight line could spare 3 to 0. `Genehmigungsfähig?` keeps clear of the lane 
 now runs inside the lane of its merge, and no branch leaves a corner for a stub into the gap. Expansion nodes are not
 docked (`GraphNode.dock`): a line through them carries pins and a keyword stands beside them, which the cut lines of
 `placeDocks` do not keep yet (see `docs/burn-down.md`).
+
+## Amendment: C4 grids on the layout graph (one contract)
+
+C4 pictures called the grid's entry points themselves (`placeGrid`, `routeEdges`, `labelEdges`, `signEdges`,
+`fitFrames`, `gutterRoom` and `widen`), while every other kind hands a layout graph to `layoutGraph`. They hand one
+now. Its boxes are nodes (a circle an `ellipse`, the width it asks of its columns as `width`, the height it asks of its
+row as `height`), its groups `frame` containers (the room below as `pad`, above as `top`, the size of the head as
+`head`), its edges unranked, and the author's grid goes into `given.cells` (`GraphCells`, `graph/cells.ts`):
+
+| Field | What it carries |
+|---|---|
+| `cols`, `rows` | The columns and rows of the grid, with widths and least gaps. |
+| `cells` | Per node its column and row, the last ones of its area, its slot, its own width and height, `exact`, a caption below it and the stretches of its sides no line docks on. |
+| `frames` | Per frame the room at its left and right, a column it reaches over too, where its head stands, its source. |
+| `lanes` | The column an edge keeps to. |
+| `adaptive` | Columns and gaps grow to the content, as with `layout=adaptive`; else the grid is fixed. |
+| `metrics` | The measures of the grid the graph's measures do not give; those give gaps, tracks, port gap, lead, label gap and the top left corner. |
+| `texts`, `preferFlat`, `onLine`, `signs` | The texts of the lines and how they stand, and signs: numbers on lines, pins beside them near the head, signs at a corner of a node, inside it where the kind says how far. |
+
+`layoutGraph` lays out a graph with cells in the grid and the channel stage instead of the layered stages
+(`graph/grid.ts`): it places, routes and signs, widens the gaps and places again as before (ADR 0038, D2), lets the
+frames of an adaptive grid grow around their routes and texts, and returns a `CellLayout` with the grid, the routes,
+texts, numbers, pins and corner signs, and what the placement check reads of them. The searches for the spots of signs
+at corners and pins beside a line moved from C4 into the library (`graph/corners.ts`). The plugin calls none of the
+grid's entry points any more. All C4 examples and stress pictures, each in all five looks, 192 pictures, are byte for
+byte the same, and so is every picture of the other kinds.
+
+With one way into the channel stage, three pieces beside it had no user and went: `seatMarks`, the older search that
+moved marks off the texts on their line, `placeLabels` with the path of `adaptiveLabels` that kept labels a kind had
+placed, and the branch of `labelEdges` that set the texts of a channel grid through `signEdges` a second time.

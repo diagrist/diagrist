@@ -1,65 +1,7 @@
-import { checkPlacement, type Point, textWidth } from '@diagrist/core';
+import { checkPlacement, textWidth } from '@diagrist/core';
 import { describe, expect, it } from 'vitest';
-import {
-  type EdgeLabel,
-  type GridSpec,
-  labelEdges,
-  type OnLine,
-  placedOf,
-  placeGrid,
-  type Route,
-  routeEdges,
-  seatMarks,
-} from '../src/index.js';
+import { type GridSpec, labelEdges, type OnLine, placedOf, placeGrid, routeEdges } from '../src/index.js';
 import { edge, group, METRICS, overlap, spec } from './fixture.js';
-
-const route = (...points: Point[]): Route => ({
-  edge: 'e',
-  points,
-  shape: 'straight',
-  fromSide: 'right',
-  toSide: 'left',
-});
-const text = (box: EdgeLabel['box']): EdgeLabel => ({
-  text: 'reads',
-  x: box.x + box.w / 2,
-  y: box.y + box.h,
-  anchor: 'middle',
-  box,
-  route: 0,
-  part: 'name',
-});
-const SIZE = { r: 7.5, room: 6 };
-const seated = (r: Route, at: { x: number; y: number }, box: EdgeLabel['box']) =>
-  seatMarks([{ route: 0, ...at, n: 1 }], [text(box)], [r], SIZE);
-
-describe('seated marks', () => {
-  it('move off the texts on their line to the side facing the start, whichever way the line runs', () => {
-    const across = { y: 94, h: 12 };
-    const right = seated(route([60, 100], [300, 100]), { x: 180, y: 100 }, { x: 160, w: 40, ...across });
-    expect(right.marks).toEqual([{ route: 0, x: 146.5, y: 100, n: 1 }]);
-    const left = seated(route([300, 100], [60, 100]), { x: 180, y: 100 }, { x: 160, w: 40, ...across });
-    expect(left.marks[0]?.x).toBe(213.5);
-    const up = seated(route([100, 300], [100, 60]), { x: 100, y: 180 }, { x: 94, w: 12, y: 160, h: 40 });
-    expect(up.marks[0]?.y).toBe(213.5);
-    expect(up.labels).toEqual([text({ x: 94, w: 12, y: 160, h: 40 })]);
-  });
-
-  it('keep their radius from the start on a line running left', () => {
-    const line = route([300, 100], [60, 100]);
-    const box = { x: 255, y: 94, w: 35, h: 12 };
-    const mark = [{ route: 0, x: 272, y: 100, n: 1 }];
-    expect(seatMarks(mark, [text(box)], [line], SIZE).marks[0]?.x).toBe(241.5);
-  });
-
-  it('go next to the start on a short segment and push the texts behind them, and leave marks clear of texts', () => {
-    const short = seated(route([60, 100], [120, 100]), { x: 90, y: 100 }, { x: 70, y: 94, w: 40, h: 12 });
-    expect(short.marks[0]?.x).toBe(69.5);
-    expect(short.labels[0]?.box.x).toBe(83);
-    const far = seated(route([60, 100], [300, 100]), { x: 80, y: 100 }, { x: 200, y: 94, w: 40, h: 12 });
-    expect(far.marks[0]?.x).toBe(80);
-  });
-});
 
 function onLine(s: GridSpec, line: OnLine) {
   const layout = placeGrid(s);

@@ -7,8 +7,7 @@ import { clearOf } from './clear.js';
 import { namedOf } from './named.js';
 import type { OnLine } from './on-line.js';
 import { blockCost, type Found, rectsOf, type SearchOptions, searchBlock, tooWide } from './search.js';
-import type { SeatMark } from './seat.js';
-import { markAt, spotsOf } from './spots.js';
+import { markAt, type SeatMark, spotsOf } from './spots.js';
 import type { EdgeLabel, EdgeText } from './types.js';
 
 /** Every how many clear spots of a mark a text that found no room tries again. */
