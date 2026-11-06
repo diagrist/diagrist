@@ -84,7 +84,7 @@ export function measureEvent(event: SequenceEvent, c: SeqCtx, number?: number): 
   const s = c.s;
   if (event.type === 'message') return messageText(event.label, number, event.mark, c);
   if (event.type === 'note') return wrap(event.text, s.noteMaxW, 'note', c);
-  if (event.type === 'ref') return { lines: [event.label], w: c.width(event.label, 'tag') };
+  if (event.type === 'ref') return { lines: [event.label], w: c.width(event.label, 'name') };
   if (event.type === 'invariant') {
     const text = event.state ? event.text : `{${event.text}}`;
     return { lines: [text], w: c.width(text, 'message') };

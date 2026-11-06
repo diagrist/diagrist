@@ -2,7 +2,7 @@ import { FOUND, LOST } from '../diagram.js';
 import { fragmentGateSide } from '../model/fragment-side.js';
 import type { SequenceModel } from '../model/types.js';
 import { gateLength } from './gates.js';
-import { boxWidth, labelWidth, type Measured, type SeqCtx } from './text.js';
+import { boxWidth, labelWidth, type Measured, measureEvent, type SeqCtx } from './text.js';
 
 /** Minimum distance between the centres of the lifelines at index `left` and `right` (`left < right`). */
 export interface Need {
@@ -100,7 +100,7 @@ function refNeed(m: SequenceModel, i: number, width: number, ctx: SeqCtx): Need 
   const covered = ref.over.map(index).filter((k) => k !== undefined);
   if (lifeline === undefined || covered.length === 0) return undefined;
   const [first, last] = [Math.min(...covered), Math.max(...covered)];
-  const label = { lines: [ref.label], w: ctx.width(ref.label, 'tag') };
+  const label = measureEvent(ref, ctx);
   const reach = first === last ? boxWidth(ref, label, ctx) / 2 : tokens.overhang;
   const name = gate.name ? ctx.width(gate.name, 'message') + 2 * tokens.gateNameGap : 0;
   const distance = Math.max(width + 2 * tokens.labelPadX, name) + tokens.barW + tokens.barLevel + reach;
