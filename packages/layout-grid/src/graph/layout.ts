@@ -25,7 +25,7 @@ const frameOf = (c: GraphContainer): LayeredFrame => ({
   ...(c.parent === undefined ? {} : { parent: c.parent }),
   pad: c.pad,
   top: c.top,
-  head: { width: c.head.width, height: c.head.height },
+  head: { width: c.head.width, height: c.head.height, ...(c.head.air === undefined ? {} : { air: c.head.air }) },
   ...(c.tab === true ? { tab: true } : {}),
   ...(c.opaque === true ? { opaque: true } : {}),
 });

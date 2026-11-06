@@ -2,7 +2,7 @@ import type { Rect } from '@diagrist/core';
 import type { PlacedGroup } from '../layout.js';
 import { clearFrames } from './clear.js';
 import type { Xs } from './coords.js';
-import { AIR } from './heads.js';
+import { airOf } from './heads.js';
 import { type FramePaths, framePaths, prefix } from './paths.js';
 import type { Ranked } from './rank.js';
 import type { LayeredFrame, LayeredSpec } from './spec.js';
@@ -37,10 +37,14 @@ export interface Frames {
   rects(boxes: ReadonlyMap<string, Rect>, tops: readonly number[], bottoms: readonly number[]): PlacedGroup[];
 }
 
-/** A frame whose head a line entering from above would cross: the room it needs at the left and the nodes entered. */
+/**
+ * A frame whose head a line entering from above would cross: the room it needs at the left, the air beside its head
+ * that room includes, and the nodes entered.
+ */
 export interface HeadNeed {
   readonly frame: string;
   readonly need: number;
+  readonly air: number;
   readonly nodes: readonly string[];
 }
 
@@ -80,7 +84,7 @@ export function framesOf(spec: LayeredSpec, ranked: Ranked): Frames {
   };
   const room = (l: number, end: 0 | 1) =>
     Math.max(0, ...placed.filter((f) => span.get(f.id)?.[end] === l).map((f) => stack(f, end)));
-  const head = (f: string) => (fp.byId.get(f)?.head.width ?? 0) + AIR;
+  const head = (f: string) => (fp.byId.get(f)?.head.width ?? 0) + airOf(fp.byId.get(f));
   const extra = new Map<string, number>();
   const first = new Map(placed.map((f) => [f.id, span.get(f.id)?.[0]]));
   const framed = (boxes: ReadonlyMap<string, Rect>, tops: readonly number[], bottoms: readonly number[]) => {
@@ -123,7 +127,7 @@ export function framesOf(spec: LayeredSpec, ranked: Ranked): Frames {
           const n = r.x + head(f) - x;
           if (n > 0) need.set(f, { need: Math.max(was.need, n), nodes: [...was.nodes, lower] });
         }
-      return [...need].map(([frame, n]) => ({ frame, ...n }));
+      return [...need].map(([frame, n]) => ({ frame, air: airOf(fp.byId.get(frame)), ...n }));
     },
     widen: (needs, sign = 1) => {
       for (const { frame, need } of needs) extra.set(frame, (extra.get(frame) ?? 0) + sign * need);

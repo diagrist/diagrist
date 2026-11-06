@@ -3,16 +3,19 @@ import type { PlacedGroup } from '../layout.js';
 import type { Frames } from './frames.js';
 import type { Placement } from './jogs.js';
 import type { Link } from './links.js';
-import type { LayeredSpec } from './spec.js';
+import type { LayeredFrame, LayeredSpec } from './spec.js';
 
-/** Room between the head of a frame and a line passing it. */
-export const AIR = 12;
+/** Room between the head of a frame and a line passing it, unless the frame gives its own (`LayeredFrame.head`). */
+const AIR = 12;
+
+/** The room a line passing the head of `frame` keeps beside it. */
+export const airOf = (frame: LayeredFrame | undefined): number => frame?.head.air ?? AIR;
 
 const meets = (a: Rect, b: Rect) => a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h;
 const holds = (a: Rect, b: Rect) => a.x <= b.x && a.y <= b.y && a.x + a.w >= b.x + b.w && a.y + a.h >= b.y + b.h;
 
 /**
- * Frames whose head a line crosses grow to the left until the head stands `AIR` beside the leftmost such line, unless
+ * Frames whose head a line crosses grow to the left until the head stands its air beside the leftmost such line, unless
  * they would then reach a box or frame they do not hold; frames around them grow along. Inner frames come last.
  */
 export function clearHeads(
@@ -26,7 +29,8 @@ export function clearHeads(
   for (const g of [...out].reverse()) {
     const head = byId.get(g.id)?.head;
     if (head === undefined) continue;
-    const [x0, x1] = [g.rect.x, g.rect.x + head.width + AIR];
+    const air = airOf(byId.get(g.id));
+    const [x0, x1] = [g.rect.x, g.rect.x + head.width + air];
     const [y0, y1] = [g.rect.y, g.rect.y + head.height];
     const xs = lines.flatMap((l) =>
       l.points.slice(1).flatMap((q, k) => {
@@ -37,7 +41,7 @@ export function clearHeads(
       }),
     );
     if (xs.length === 0) continue;
-    const shift = g.rect.x - (Math.min(...xs) - head.width - AIR);
+    const shift = g.rect.x - (Math.min(...xs) - head.width - air);
     if (shift <= 0) continue;
     const grown = { ...g.rect, x: g.rect.x - shift, w: g.rect.w + shift };
     const mine = new Set(out.filter((o) => holds(g.rect, o.rect)).map((o) => o.id));
@@ -70,10 +74,12 @@ export interface HeadWork {
 }
 
 /**
- * A placement in which no line entering a frame from above crosses its head: the nodes such lines enter moved right
- * past the head, what stands beyond them making room, or else the frames widened at the left (`Frames.widen`), so the
- * frame keeps an empty strip below its head. The first wins where it leaves no head crossed and the picture drawn
- * costs no more by its price than the widened one and its strips (`STRIP`).
+ * A placement in which no line entering a frame from above crosses its head, the cheapest by `price` of three: the
+ * nodes such lines enter moved right past the head, what stands beyond them making room, where that leaves no head
+ * crossed; the frames widened at the left (`Frames.widen`), so the frame keeps an empty strip below its head; and the
+ * placement as it is, where every such line passes beside the head proper and only short of its air, which the frame
+ * then takes from the left as far as nothing stands there (`clearHeads`). A widened or unchanged frame pays for its
+ * strip (`STRIP`); on a tie the earlier wins.
  */
 export function clearOfHeads(placement: Placement, w: HeadWork): Placement {
   const needsOf = (p: Placement) =>
@@ -83,13 +89,17 @@ export function clearOfHeads(placement: Placement, w: HeadWork): Placement {
     );
   const needs = needsOf(placement);
   if (needs.length === 0) return placement;
+  const strip = STRIP * needs.reduce((sum, n) => sum + n.need, 0);
   const x = new Map(placement.x);
   for (const { need, nodes } of needs) for (const n of new Set(nodes)) x.set(n, (x.get(n) ?? 0) + need);
   const moved = w.settle(x);
-  const cost = needsOf(moved).length === 0 ? w.price(moved) : Number.POSITIVE_INFINITY;
+  const priced = [{ p: moved, cost: needsOf(moved).length === 0 ? w.price(moved) : Number.POSITIVE_INFINITY }];
+  const kept = needs.every((n) => n.need <= n.air) ? w.price(placement) + strip : Number.POSITIVE_INFINITY;
   w.frames.widen(needs);
   const widened = w.place();
-  if (cost > w.price(widened) + STRIP * needs.reduce((sum, n) => sum + n.need, 0)) return widened;
+  priced.push({ p: widened, cost: w.price(widened) + strip }, { p: placement, cost: kept });
   w.frames.widen(needs, -1);
-  return moved;
+  const best = priced.reduce((a, b) => (b.cost < a.cost ? b : a));
+  if (best.p === widened) w.frames.widen(needs);
+  return best.p;
 }
