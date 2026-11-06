@@ -29,7 +29,7 @@ const apart = (a: Rect, b: Rect) =>
 
 /** Pairs of texts of different lines nearer than the gap a text keeps from a foreign line, by their keys. */
 function closePairs(d: Drawing): string[] {
-  const { labels } = linesOfDrawing(d);
+  const labels = linesOfDrawing(d).labels ?? [];
   return labels.flatMap((a, i) =>
     labels
       .slice(i + 1)

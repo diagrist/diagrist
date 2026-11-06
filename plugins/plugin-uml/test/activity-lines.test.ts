@@ -35,7 +35,7 @@ describe('the lines of activity pictures', () => {
     drawings.length = 0;
     const stress = new URL('stress/activity/parallel-entscheidung.dgr', import.meta.url);
     compile(readFileSync(stress, 'utf8'), { plugins: [recorded] });
-    const { routes, labels } = linesOfDrawing(drawings[0] as Drawing);
+    const { routes, labels = [] } = linesOfDrawing(drawings[0] as Drawing);
     const turning = routes.find((r) => r.from === 'luecken' && r.points.length > 2);
     const [start, corner] = turning?.points ?? [];
     const guard = labels.find((l) => l.edge === turning?.edge)?.box;

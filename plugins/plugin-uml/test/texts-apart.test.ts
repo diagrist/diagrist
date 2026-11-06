@@ -21,7 +21,7 @@ const apart = (a: Rect, b: Rect) =>
 function closest(path: string): number {
   drawings.length = 0;
   compile(readFileSync(new URL(path, import.meta.url), 'utf8'), { plugins: [recorded] });
-  const { labels } = linesOfDrawing(drawings[0] as Drawing);
+  const labels = linesOfDrawing(drawings[0] as Drawing).labels ?? [];
   const gaps = labels.flatMap((a, i) =>
     labels.slice(i + 1).flatMap((b) => (a.edge === b.edge ? [] : [apart(a.box, b.box)])),
   );
