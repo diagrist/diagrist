@@ -59,7 +59,7 @@ export function laidState(m: StateModel): Laid {
       row: 'r',
       width: n.width,
       height: n.height,
-      ...(n.shape ? { shape: n.shape } : {}),
+      ...(n.shape === 'ellipse' ? { shape: n.shape } : {}),
       ...(n.source ? { source: n.source } : {}),
     })),
     groups: (graph.containers ?? []).map((c) => ({

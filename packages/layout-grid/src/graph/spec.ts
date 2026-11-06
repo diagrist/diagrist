@@ -7,7 +7,13 @@ export interface GraphNode {
   readonly id: string;
   readonly width: number;
   readonly height: number;
-  readonly shape?: 'box' | 'ellipse';
+  /** `bar` is a node drawn across its branches, splitting or merging them: it stretches over their ends, which leave it straight. */
+  readonly shape?: 'box' | 'ellipse' | 'bar';
+  /**
+   * The frame or node whose outline the node sits on, such as a point of a box that holds others: a line through it
+   * runs straight across the outline, the node centred where it crosses (`graph/docks.ts`).
+   */
+  readonly dock?: string;
   /**
    * The sides ends may take. The layered stages place ends on the top and bottom and, between neighbours of one
    * layer, on the facing sides, so a node that names others is not yet honoured; kinds whose shapes dock at fixed
@@ -77,8 +83,8 @@ export interface GraphEdge {
  * frames inside it as one block of layers, and edges may end on it; `core` is the core of a hub, which the other
  * clusters dock at, in a light frame with a head that names it. A `lane` is a hard column (layout plan P9): lanes
  * stand side by side in the order given, every layer keeps them so, and an edge ranked `beside` between two lanes
- * puts its ends in one layer. `part`, a part of a box that holds others (P8), is laid out as a frame until its own
- * rules come.
+ * puts its ends in one layer. `part`, a part of a box that holds others (P8), is laid out as a frame and then
+ * stretched with its siblings until together they fill their parent, side by side or stacked (`graph/parts.ts`).
  */
 export interface GraphContainer {
   readonly id: string;
@@ -112,6 +118,8 @@ export interface GraphGiven {
   readonly perLayer?: number;
   /** With `perLayer`: nodes that stand below every other node of their frame, such as the ends of a flow. */
   readonly last?: readonly string[];
+  /** `right` turns the layers across: they run left to right, the picture laid out down and turned (`graph/turn.ts`). */
+  readonly direction?: 'down' | 'right';
 }
 
 /**
