@@ -390,6 +390,29 @@ boxes, lines on one another and side by side; `lange-namen` once (`Bürgerin →
 one is a finding; `vier-subjekte` keeps one line through a box (`Überweisen → Zahlung ausführen` past
 `Zahlungsnetz`, in `PENDING`). All nine examples are drawn anew, none with a finding.
 
+## Amendment: use case subjects in the columns the layout prefers (06.11.2026)
+
+Side by side, the order stage of the kind put the subjects into columns by an estimate: subjects an actor shares
+next to each other, then fewest rows between them, the declaration order on a tie. Which subjects share a column, and
+so which stand below each other, only the layout graph decides, so the estimate tied where the pictures did not:
+`vier-subjekte` kept two crossings in the lane between its columns and `stadtwerke` a line that cut the corner of
+`Kundenportal` on its way to `Abrechnung`, while other sets of columns had neither. The price counted the corner
+only from 8 px inside the frame, so that picture passed as clean.
+
+Now the declared set of columns is laid out and refined by flips as before, and only where it keeps a line through a
+box, a crossing or a line past a foreign subject are the other sets of columns laid out, up to six, the most promising
+first by their first layout, until one has none; another set wins by fewer of these, or on as many by 150 less
+(`auto/index.ts`, `auto/order.ts`). A line passes a foreign subject where it comes within 6 px of its frame, the room
+the line check keeps from boxes (`price.ts`). Side by side, an actor whose lines would run across the columns of its
+subject from the side its score gives, and not from the other, takes the other, so a system actor of a base use case
+stands left of it rather than reach it past the cases it includes (`sides.ts`); below each other the flips decide,
+since the rule there turned `faelle-generalisierung` to two crossings. Below each other is laid out only where side
+by side is not clean of these, which takes the same picture with fewer layouts.
+
+`vier-subjekte` 2 to 0 crossings, 2,891 to 2,560 px of line, 1,304 × 659 to 1,320 × 667 px; `stadtwerke` loses
+the pass, 706 to 620 px high; no other picture changes. `zwei-systeme` compiles in 1.4 instead of 2.0 s,
+`vier-subjekte` in 1.0 instead of 1.9 s, `stadtwerke`, which now tries other columns, in 1.1 instead of 0.7 s.
+
 ## Amendment: proposals for class diagrams (06.11.2026)
 
 **Frames with only free edges count as leaves.** The search for where leaf frames stand (`layoutLeaves`) tried the

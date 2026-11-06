@@ -11,9 +11,12 @@ interface Scored {
 
 /**
  * Side per actor: given with `side=`; else for the whole family (a role and its specializations) by the mean
- * column of its use cases, system actors rather right. So the generalization stays short.
+ * column of its use cases, system actors rather right. So the generalization stays short. Where subjects stand side
+ * by side (`shared`), the lane on either side may be shared with the actors of a neighbour, and a family whose lines
+ * would run across other columns from its side and not from the other takes the other: a system that takes part in a
+ * base use case stands left of it rather than reach it past the cases it includes.
  */
-export function sides(p: Parts, depth: ReadonlyMap<string, number>): Map<string, Side> {
+export function sides(p: Parts, depth: ReadonlyMap<string, number>, shared = false): Map<string, Side> {
   const last = Math.max(0, ...depth.values());
   const byId = new Map(p.actors.map((a) => [a.id, a]));
   const scored = families(p).map((members): Scored => {
@@ -25,7 +28,9 @@ export function sides(p: Parts, depth: ReadonlyMap<string, number>): Map<string,
     const linked = members.flatMap((id) => casesOf(id, p).filter((c) => isLinked(c, p)));
     const far = (to: Side) =>
       last > 0 && linked.some((c) => (to === 'right' ? (depth.get(c) ?? 0) < last : (depth.get(c) ?? 0) > 0));
-    return { members, score, fixed, far, side: score >= 0.5 ? 'right' : 'left' };
+    const by: Side = score >= 0.5 ? 'right' : 'left';
+    const other: Side = by === 'right' ? 'left' : 'right';
+    return { members, score, fixed, far, side: shared && far(by) && !far(other) ? other : by };
   });
   balance(scored);
   const side = new Map<string, Side>();
