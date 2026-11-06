@@ -58,13 +58,14 @@ describe('rails', () => {
     }
   });
 
-  it('stagger longer rails outside shorter ones on one side, and keep the text of each between it and the next', () => {
+  it('share a track where one rail stands above the other, stagger one it passes outside, and keep texts between', () => {
     const l = layoutGraph(chain);
     const track = (id: string) => routeOf(l, id)?.points[1]?.[0] ?? 0;
-    const [short, long] = [routeOf(l, 'b-a'), routeOf(l, 'd-b')];
-    if (short?.fromSide === long?.fromSide) {
-      const out = short?.fromSide === 'left' ? -1 : 1;
-      expect(out * (track('d-b') - track('b-a'))).toBeGreaterThan(0);
+    const [short, long, past] = [routeOf(l, 'b-a'), routeOf(l, 'd-b'), routeOf(l, 'a-e')];
+    if (short?.fromSide === long?.fromSide) expect(track('d-b')).toBe(track('b-a'));
+    if (past?.fromSide === long?.fromSide) {
+      const out = past?.fromSide === 'left' ? -1 : 1;
+      expect(out * (track('a-e') - track('d-b'))).toBeGreaterThan(6 * 'noch einmal'.length);
     }
     const text = l.labels.find((t) => t.text === 'zurück');
     const r = routeOf(l, 'b-a');

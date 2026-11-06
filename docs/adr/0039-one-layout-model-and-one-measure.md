@@ -150,7 +150,8 @@ stress budgets count, such as bends a straight line could spare, reached no sear
     the other end. It takes a side where both ends stand outermost in their layers and no loop takes that side;
     where none does, the order runs again with both ends pinned to the side they stand nearer, and a rail whose ends
     still stand inside runs through the layers, one per new order. Rails are placed shortest first, each outside
-    the ones before it on its side by the room of their texts, on the side where it crosses fewer of them; the ends
+    the ones before it on its side by the room of their texts where their stretches meet (from the middle of one end
+    to the middle of the other, as high as the text at least), so rails one above the other share a track, on the side where it crosses fewer of them; the ends
     on one side of a box stand rising rails first, inner ones higher, then arriving ones, outer ones higher, so no
     end crosses another rail. A rail's text starts beside its track, outside it. A frame holding both ends of a rail
     grows around it and its text, and so does a frame around a text of a line inside it that found no clear spot
