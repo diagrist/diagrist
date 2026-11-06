@@ -16,7 +16,7 @@ export function sideReach(g: Graph, n: ActivityNode): { left: number; right: num
   const either = n.kind === 'decision' && !n.port ? Math.max(left, right) : 0;
   const alone = [n.inputs, n.outputs].flatMap((side) => (side.length === 1 ? side : []));
   const names = alone.map((p) => widthOf.label(p) + ACT.pin / 2 + ACT.pinGap);
-  const pins = Math.max(0, ...names.map((w) => w - Math.min(16, s.w / 4)));
+  const pins = g.pinReach?.get(n.id) ?? Math.max(0, ...names.map((w) => w - Math.min(16, s.w / 4)));
   const bolts = g.flows.filter((f) => isHandlerFlow(f) && f.to === n.id && f.held !== true);
   const later = bolts.slice(1).flatMap((f) => (isHandlerFlow(f) ? [boltRoom(f.exception) - 4 * ACT.bolt] : []));
   const exception = Math.max(0, ...later);

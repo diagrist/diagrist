@@ -22,6 +22,8 @@ export interface Graph {
   readonly partitions: readonly Partition[];
   readonly regions: readonly Region[];
   readonly expansions: readonly Expansion[];
+  /** The room right of a node its pin names took in a layout before, by node, instead of `sideReach`'s guess. */
+  readonly pinReach?: ReadonlyMap<string, number>;
 }
 
 /** Is the edge the bolt of an exception handler? */

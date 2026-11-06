@@ -341,3 +341,10 @@ not meet, and stood one track apart where they did, so in `schnittstellen` the t
 share a track only where their ends lie twice `APART` apart, and one runs two tracks below the other where they meet
 (`assignTracks`): each trunk of `schnittstellen` has its own level, 32 px from the next, for 64 px of height and its
 5 crossings kept. `hierarchie-quer`, whose two trunks lie far apart, keeps its one track.
+
+**Pin names take the room they need.** Before the layout, the name of a pin alone on the top or bottom of a box is
+given room as if its square stood at the right end, since the pin goes where its line arrives; a lane holding such a
+box grew by that room where the pin stood in the middle (`objektfluss` 1,009 px wide). The activity kind now lays a
+picture out once more where some name took less room than it was given, with the room each took (`Graph.pinReach`),
+and keeps that layout only where no name then reaches further (`laidWithPins`): `objektfluss` 853 px, `ausdehnung`
+821, `karten-belasten` 813, `preise-berechnen` 751 and `zahlung-ausnahme` 1,195 px wide, nothing else changed.
