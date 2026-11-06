@@ -54,6 +54,16 @@ stress budgets count, such as bends a straight line could spare, reached no sear
    runs beside the layer above, which crosses the whole gap, so the two never lie on one another. A line beside its
    layer that is no neighbours' runs below the layer or above it, whichever costs less by `scoreOf`, tried line by
    line (the plan's R3; its `apart` for tracks stays out, measured at 5 to 13 crossings in `raute`).
+6. **Leaves are packed, and full layers keep families together** (plan R4, owner decision D3). An edge of the
+   layering may be `free`: its ends would rather stand side by side, but a leaf, a node whose one edge is `free`,
+   stands beside its node only while that has a place at either side; the smallest leaves take those places, the
+   next two stand in the row above the node, the next two in the row below, no row over `maxPerLayer`. Class
+   associations are `free`, sized by the area of their boxes, so the enumerations of `aufzaehlungen` stand above
+   and below `Ticket` instead of in a row 1,320 px wide. A layer still too full moves the parent of some of its
+   nodes down a layer with everything below it, rather than cutting the last members of a family off into a row of
+   their own: `Glasbruch` stands with its siblings and `Person` and `Firma` directly under `Partner`. Only where no
+   parent's move relieves a layer does `wrap` cut it by count. `LayeredEdge` keeps its ranks; class pictures reach
+   the pipeline with the layers this gives.
 
 ## Consequences
 

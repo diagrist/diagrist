@@ -1,21 +1,23 @@
 import type { LayerEdge, LayerGraph } from '@diagrist/layout-grid';
 import type { ClassRelation, RelationKind } from '../diagram.js';
 import type { ClassModel } from '../model.js';
+import { classHeight, classWidth } from './box.js';
 import { CLASS } from './metrics.js';
 
 /**
  * How a relation orders the layers: superclasses and interfaces above, the whole above its parts, the user above
- * what it uses. Associations would rather stand side by side.
+ * what it uses. Associations would rather stand side by side, but a class at the end of no other relation may stand
+ * above or below its partner where its layer has no room (`free`, layout plan R4, owner decision D3).
  */
-const RANK: Readonly<Record<RelationKind, 'up' | 'down' | 'side'>> = {
+const RANK: Readonly<Record<RelationKind, 'up' | 'down' | 'free'>> = {
   generalization: 'up',
   realization: 'up',
   composition: 'down',
   aggregation: 'down',
   dependency: 'down',
-  association: 'side',
-  directed: 'side',
-  bidirectional: 'side',
+  association: 'free',
+  directed: 'free',
+  bidirectional: 'free',
 };
 
 /** Places around the diamond in the order of its legs; from the fifth leg on, further below. */
@@ -62,7 +64,8 @@ function naryEdges(m: ClassModel): { legs: Map<ClassRelation, LayerEdge>; tether
 }
 
 /**
- * The class diagram as input of the layering; packages count as ends only when `packages` is set. An association
+ * The class diagram as input of the layering, with the area of every box; packages count as ends only when
+ * `packages` is set. An association
  * class stands one layer below both ends of its association, in the middle below the line.
  */
 export function classGraph(m: ClassModel, packages = false): LayerGraph {
@@ -82,8 +85,12 @@ export function classGraph(m: ClassModel, packages = false): LayerGraph {
           ]
         : [];
     const rank = RANK[r.kind];
-    if (rank === 'side') return [{ from, to, rank: 0 }, ...tether];
+    if (rank === 'free') return [{ from, to, rank: 'free' }, ...tether];
     return [rank === 'up' ? { from: to, to: from, rank: 1 } : { from, to, rank: 1 }, ...tether];
   });
-  return { nodes, edges: [...edges, ...nary.tethers], maxPerLayer: CLASS.perLayer };
+  const sizes = new Map([
+    ...m.diagram.classifiers.map((c) => [c.id, classWidth(c) * classHeight(c)] as const),
+    ...m.diagram.associations.map((a) => [a.id, CLASS.naryW * CLASS.naryH] as const),
+  ]);
+  return { nodes, edges: [...edges, ...nary.tethers], maxPerLayer: CLASS.perLayer, sizes };
 }

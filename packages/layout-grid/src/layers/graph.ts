@@ -1,11 +1,13 @@
 /**
- * An edge for the layering. `rank` 1 puts `to` below `from`; `rank` 0 wants both side by side in one layer. The
- * layering knows ids and edges only, never a diagram kind.
+ * An edge for the layering. `rank` 1 puts `to` below `from`; `rank` 0 wants both side by side in one layer;
+ * `free` would rather have them side by side, but lets a leaf at one end, a node with no other edge, stand above or
+ * below the other end where its layer has no room (layout plan R4). The layering knows ids and edges only, never a
+ * diagram kind.
  */
 export interface LayerEdge {
   readonly from: string;
   readonly to: string;
-  readonly rank: 0 | 1;
+  readonly rank: 0 | 1 | 'free';
 }
 
 /**
@@ -24,6 +26,8 @@ export interface LayerGraph {
    * order within the layers. A node it leaves out stands in the first layer.
    */
   readonly fixed?: ReadonlyMap<string, number>;
+  /** How much room each node takes, such as its area; of the leaves of `free` edges, the small ones stay beside. */
+  readonly sizes?: ReadonlyMap<string, number>;
 }
 
 /** Layers from top to bottom and a position per node in half columns; neighbours in a layer stand at least 1 apart. */

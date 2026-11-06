@@ -29,6 +29,32 @@ describe('layering a graph', () => {
     expect(wide.layers.map((l) => l.length)).toEqual([1, 2, 1]);
   });
 
+  it('packs the leaves of free edges around their node: the two smallest beside it, then above, then below', () => {
+    const leaves = ['l1', 'l2', 'l3', 'l4', 'l5', 'l6'];
+    const graph: LayerGraph = {
+      nodes: ['hub', ...leaves],
+      edges: leaves.map((l) => ({ from: 'hub', to: l, rank: 'free' as const })),
+      maxPerLayer: 5,
+      sizes: new Map(leaves.map((l, i) => [l, 60 - 10 * i])),
+    };
+    const layers = layerGraph(graph).layers.map((l) => [...l].sort());
+    expect(layers).toEqual([
+      ['l3', 'l4'],
+      ['hub', 'l5', 'l6'],
+      ['l1', 'l2'],
+    ]);
+  });
+
+  it('keeps a family together where a full layer would cut off its last member: the parent moves down with it', () => {
+    const graph: LayerGraph = {
+      nodes: ['p', 'q', 'a', 'b', 'c', 'x', 'y', 'z'],
+      edges: [...ranked('p>a p>b p>c q>x q>y q>z'), { from: 'p', to: 'q', rank: 'free' }],
+      maxPerLayer: 5,
+    };
+    const layers = layerGraph(graph).layers.map((l) => [...l].sort());
+    expect(layers).toEqual([['q'], ['p', 'x', 'y', 'z'], ['a', 'b', 'c']]);
+  });
+
   it('gives the same layers whatever order equal costs come in', () => {
     const graph: LayerGraph = {
       nodes: ['a', 'b', 'c', 'd', 'e'],

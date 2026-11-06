@@ -8,7 +8,7 @@ const ROUNDS = 40;
 /** Edges with a rank keep their direction: the source stays in a layer above the target. */
 const keepsRanks = (layers: Layers, edges: readonly LayerEdge[]) => {
   const layerOf = new Map(layers.flatMap((layer, l) => layer.map((n) => [n, l] as const)));
-  return edges.every((e) => e.rank === 0 || (layerOf.get(e.from) ?? 0) < (layerOf.get(e.to) ?? 0));
+  return edges.every((e) => e.rank !== 1 || (layerOf.get(e.from) ?? 0) < (layerOf.get(e.to) ?? 0));
 };
 
 const without = (layers: Layers, n: string) => layers.map((layer) => layer.filter((m) => m !== n));
