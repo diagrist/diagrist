@@ -41,7 +41,8 @@ function endsOf(e: GraphEdge, nodes: ReadonlyMap<string, GraphNode>, rects: Move
 
 /**
  * Lines through boxes they do not join or through the heads of frames, ten each, crossings of lines that share no
- * end, and lines through frames that hold neither of their ends or closer past them than `CLEAR`.
+ * end, and lines through frames that hold neither of their ends or closer past them than `CLEAR`, as the line check
+ * keeps lines from boxes.
  */
 function costOf(
   edges: readonly GraphEdge[],
@@ -96,32 +97,14 @@ const inside = (r: Rect, f: Rect, pad: number, top: number) =>
   r.x >= f.x + pad && r.y >= f.y + top && r.x + r.w <= f.x + f.w - pad && r.y + r.h <= f.y + f.h - pad;
 
 /**
- * `id` moved to `to`, and the boxes beyond it along `axis` that it would come nearer than `ROOM` taken along by as
- * much, in turn: a box with no room in its layer moves what stands in its way.
- */
-function shoved(rects: Moved, id: string, to: Rect, axis: 'x' | 'y'): Moved {
-  const d = to[axis] - (rects.get(id) ?? to)[axis];
-  const trial = new Map(rects).set(id, to);
-  const queue = [id];
-  for (let at = queue.shift(); at !== undefined && d !== 0; at = queue.shift()) {
-    const r = trial.get(at) ?? to;
-    for (const [o, q] of trial)
-      if (!queue.includes(o) && o !== at && !apart(r, q, ROOM) && (q[axis] - r[axis]) * d > 0 && q === rects.get(o)) {
-        trial.set(o, { ...q, [axis]: q[axis] + d });
-        queue.push(o);
-      }
-  }
-  return trial;
-}
-
-/**
  * Boxes moved where a straight line runs through a box it does not join, through the head of a frame or through or
- * close past a frame holding neither of its ends: of the moves of a box a line passes or of an end of such a line,
- * along its layer by up to 128 pixels, taking along what stands in its way (`shoved`), just off a line that runs
- * through it, or into the gaps beside it by up to 96, that keep every moved box `ROOM` from every other, inside the
- * picture as it stands, inside its frames by their pads and their top and outside the others, the one that costs least
- * by lines through boxes and crossings stays while it costs less, in rounds. The layered stages place boxes for lines
- * between layers, which a straight line leaves where it cuts across a layer.
+ * close past a frame holding neither of its ends: of the moves of a box a line passes or of an
+ * end of such a line, along its layer by up to 128 pixels, just off a line that runs through it, or into the gaps
+ * beside it by up to 96, that keep it `ROOM`
+ * from every other box, inside the picture as it stands, inside its frames by their pads and their top and outside the
+ * others, the one that costs least by lines through boxes
+ * and crossings stays while it costs less, in rounds. The layered stages place boxes for lines between layers, which a
+ * straight line leaves where it cuts across a layer.
  */
 export function clearStraight(
   graph: LayoutGraph,
@@ -174,19 +157,13 @@ export function clearStraight(
       ];
       for (const [dx, dy] of shifts) {
         const moved = { ...r, x: r.x + (dx ?? 0), y: r.y + (dy ?? 0) };
-        const along = (across === 'y' ? dx : dy) === 0;
-        const trial = along ? shoved(best, id, moved, across) : new Map(best).set(id, moved);
-        const fits = [...trial].every(([m, at]) => {
-          if (at === best.get(m)) return true;
-          const framed = m === id ? { own, foreign } : frameOf(m);
-          return (
-            inside(at, hull, 0, 0) &&
-            [...trial].every(([o, q]) => o === m || apart(at, q, ROOM)) &&
-            framed.own.every((f) => inside(at, f.rect, pads.get(f.id)?.pad ?? 0, pads.get(f.id)?.top ?? 0)) &&
-            framed.foreign.every((f) => apart(at, f.rect, 0))
-          );
-        });
+        const fits =
+          inside(moved, hull, 0, 0) &&
+          [...best].every(([o, q]) => o === id || apart(moved, q, ROOM)) &&
+          own.every((f) => inside(moved, f.rect, pads.get(f.id)?.pad ?? 0, pads.get(f.id)?.top ?? 0)) &&
+          foreign.every((f) => apart(moved, f.rect, 0));
         if (!fits) continue;
+        const trial = new Map(best).set(id, moved);
         const c = costOf(straight, nodes, trial, heads, passed);
         if (c < (next?.cost ?? cost)) next = { rects: trial, cost: c };
       }

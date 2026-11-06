@@ -51,15 +51,14 @@ function rowsDown(p: Parts, band: (id: string) => number): number {
  * The layout of a use case diagram (layout plan P11): a plan of columns, laid out by the layout graph, which orders
  * every column. Several subjects stand below each other, unless an actor takes part in more than one or the picture
  * would grow too tall; then side by side, more than three in columns whose subjects the order stacks, or as
- * `direction` says otherwise. Side by side, every set of columns of the order stage is laid out once, since which
- * subjects share a column only the layout shows; the declared one first, with its families of actors on the other
- * side while it is not clean. While the best leaves a line through a box, a crossing or a line past a foreign subject,
- * the others try their families too, the most promising first; once one is clean, another wins only as it is laid out
- * first and cheaper by `SWITCH`, so shorter lines and a smaller picture choose the order of the subjects. Below
- * each other is tried only where side by side is not clean of these, and wins where it has fewer. Notes take free
- * spots; where one finds none, the picture is laid out once more with room for it beside its anchor, and the cheaper
- * stays, a note on a box or text costing as much as a line through a box, one on a line or frame line as a text on a
- * line.
+ * `direction` says otherwise. Side by side, every set of columns of the order stage is laid out, since which
+ * subjects share a column only the layout shows, and while one is not clean its families of actors try the other
+ * side; the declared set first, another wins by fewer lines through boxes, crossings and lines past a foreign subject,
+ * or on as many where it is cheaper by `SWITCH`, so shorter lines and a smaller picture choose the order of the
+ * subjects. Below each other is tried only where side by side is not clean of these, and wins where it has fewer. Notes
+ * take free spots; where one finds none near its anchor, the picture is laid out once more with room for it beside its
+ * anchor, and the cheaper stays, a note on a box or text costing as much as a line through a box, one on a line or
+ * frame line as a text on a line.
  */
 export function arrangeUseCase(m: UseCaseModel, price: Price): Laid {
   const p: Parts = { actors: m.diagram.actors, cases: m.diagram.cases, relations: m.diagram.relations.filter(isKnown) };
@@ -92,7 +91,8 @@ export function arrangeUseCase(m: UseCaseModel, price: Price): Laid {
     let best = flipped(first ?? across(declared));
     rest.sort((a, b) => a.first.bad - b.first.bad || a.first.cost - b.first.cost);
     for (const c of rest) {
-      const got = best.clean ? c.first : flipped(c);
+      if (best.clean && c.first.bad > 1) continue;
+      const got = flipped(c);
       if (got.bad < best.bad || (got.bad === best.bad && got.cost < best.cost - SWITCH)) best = got;
     }
     return best;

@@ -17,11 +17,18 @@ const ANCHOR = [0.2, 0.8] as const;
 /** A box over the area of a subject counts like a node, so the note of a subject stays outside. */
 const INSIDE = 100;
 
-/** A note that found no free spot, and whether it lies on a node or a text rather than near a line or frame. */
+/**
+ * A note that found no free spot near its anchor: whether it lies on a node or a text rather than near a line or
+ * frame, or found a free spot only further off than `FAR`.
+ */
 export interface Crowded {
   readonly id: string;
   readonly on: boolean;
+  readonly far: boolean;
 }
+
+/** A link longer than this, with a free spot at its end, makes a note crowded too: room nearer is worth a layout. */
+const FAR = 64;
 
 /** The least conflict of a note on a text, as `occupancy` weighs it; a note on a line or frame line costs less. */
 const ON_TEXT = 20;
@@ -40,7 +47,11 @@ interface Anchor {
  * A note at the nearest spot without nodes, lines, frame lines and texts whose link crosses nothing, else the one
  * with the fewest conflicts, and how many it has. The box is taken.
  */
-function placed(n: NoteBox, a: Anchor, room: Occupancy): { readonly comment: Comment; readonly conflicts: number } {
+function placed(
+  n: NoteBox,
+  a: Anchor,
+  room: Occupancy,
+): { readonly comment: Comment; readonly conflicts: number; readonly reach: number } {
   const span = 2 * REACH + 1;
   const options = Array.from({ length: span ** 2 }, (_, k) => {
     const cx = a.centre[0] + (Math.floor(k / span) - REACH) * UC.noteStep;
@@ -56,10 +67,10 @@ function placed(n: NoteBox, a: Anchor, room: Occupancy): { readonly comment: Com
   const chosen = cheapest(options, (o) => o.rect, room, extra) ?? options[0];
   const owner = { ...(a.on === undefined ? {} : { on: a.on }), ...(a.own < 0 ? {} : { route: a.own }) };
   if (!chosen)
-    return { comment: commentAt({ x: 0, y: 0, w: n.width, h: n.height }, [], a.centre, owner), conflicts: 1 };
+    return { comment: commentAt({ x: 0, y: 0, w: n.width, h: n.height }, [], a.centre, owner), conflicts: 1, reach: 0 };
   const conflicts = room.cost(chosen.rect) + extra(chosen);
   room.take(chosen.rect);
-  return { comment: commentAt(chosen.rect, n.texts, chosen.p, owner), conflicts };
+  return { comment: commentAt(chosen.rect, n.texts, chosen.p, owner), conflicts, reach: chosen.reach };
 }
 
 /** Where the search for a note starts and how its link starts, by what it hangs on. */
@@ -129,7 +140,8 @@ export function freeNotes(
     const a = anchorOf(n, anchors, frames);
     if (!a) return [];
     const got = placed(n, a, room);
-    if (got.conflicts > 0) crowded.push({ id: n.id, on: got.conflicts >= ON_TEXT });
+    if (got.conflicts > 0 || got.reach > FAR)
+      crowded.push({ id: n.id, on: got.conflicts >= ON_TEXT, far: got.conflicts === 0 });
     return [{ id: n.id, c: got.comment }];
   });
   return { comments, crowded };
