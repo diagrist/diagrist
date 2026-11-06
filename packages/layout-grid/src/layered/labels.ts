@@ -37,9 +37,18 @@ export function seatsOf(edges: readonly LayeredEdge[], groups: readonly Group[],
   return seats;
 }
 
-/** The room a gap needs for its labels at its top and at its bottom: the highest label there and its gaps. */
+/** The lines of a label, each with its width: its own lines, or its text as one. */
+const linesOf = (label: NonNullable<LayeredEdge['label']>) => label.lines ?? [{ text: label.text, width: label.width }];
+
+/** The height of a label: its lines, each as high as its font and two pixels. */
+const heightOf = (label: LayeredEdge['label']) => (label ? linesOf(label).length * (label.size + 2) : 0);
+
+/**
+ * The room a gap needs for its labels at its top and at its bottom: the highest label there and its gaps, so the gap
+ * grows for a label of several lines.
+ */
 export function labelRoom(seats: readonly Seat[], gap: number, at: Seat['at'], labelGap: number): number {
-  const sizes = seats.filter((s) => s.gap === gap && s.at === at).map((s) => (s.edge.label?.size ?? 0) + 2);
+  const sizes = seats.filter((s) => s.gap === gap && s.at === at).map((s) => heightOf(s.edge.label));
   return sizes.length === 0 ? 0 : Math.max(...sizes) + 2 * labelGap;
 }
 
@@ -80,7 +89,7 @@ const SLIDE = 4;
  * within `margin` on the right. When both are taken it slides along the vertical piece of its own line away from
  * the port, then along the vertical piece at the other end of the line away from that box, to the first place where
  * one side is free, and stays at the seat when there is none. `x` and `y` are the port of the line, `route` the
- * index of its route.
+ * index of its route. A label of several lines is placed as one block and comes back as one text per line.
  */
 export function seatLabel(
   seat: Seat,
@@ -89,9 +98,10 @@ export function seatLabel(
   labelGap: number,
   clear: Clear,
   own: ReadonlySet<string>,
-): EdgeLabel {
+): EdgeLabel[] {
   const label = seat.edge.label ?? { text: '', width: 0, size: 0 };
-  const h = label.size + 2;
+  const line = label.size + 2;
+  const h = heightOf(label);
   const at = (side: 'right' | 'left', piece: Piece, by: number): EdgeLabel => {
     const [px, py] = piece.end;
     const x = side === 'right' ? px + labelGap : px - labelGap;
@@ -100,6 +110,12 @@ export function seatLabel(
     const anchor: EdgeLabel['anchor'] = side === 'right' ? 'start' : 'end';
     return { text: label.text, x, y: y + label.size, anchor, box, route, part: 'name' };
   };
+  const split = (block: EdgeLabel): EdgeLabel[] =>
+    linesOf(label).map((l, i) => {
+      const y = block.box.y + i * line;
+      const box = { x: block.anchor === 'start' ? block.x : block.x - l.width, y, w: l.width, h: line };
+      return { ...block, text: l.text, y: y + label.size, box };
+    });
   const free = (l: EdgeLabel) => {
     const zone = grow(l.box, clear.margin);
     const lines = clear.lines.filter((o) => !own.has(o.edge));
@@ -109,12 +125,12 @@ export function seatLabel(
   const seated: Piece = { end: port, run: 0, dir: seat.at === 'top' ? 1 : -1 };
   const first = [at('right', seated, 0), at('left', seated, 0)];
   const found = first.find(free);
-  if (found) return found;
+  if (found) return split(found);
   for (const piece of piecesOf(clear.lines[route]?.points ?? [], port)) {
     for (let by = 0; by <= piece.run - labelGap - h; by += SLIDE) {
       const slid = [at('right', piece, by), at('left', piece, by)].find(free);
-      if (slid) return slid;
+      if (slid) return split(slid);
     }
   }
-  return first[0] as EdgeLabel;
+  return split(first[0] as EdgeLabel);
 }

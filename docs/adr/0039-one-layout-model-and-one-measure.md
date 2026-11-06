@@ -68,6 +68,12 @@ stress budgets count, such as bends a straight line could spare, reached no sear
    their own: `Glasbruch` stands with its siblings and `Person` and `Firma` directly under `Partner`. Only where no
    parent's move relieves a layer does `wrap` cut it by count. `LayeredEdge` keeps its ranks; class pictures reach
    the pipeline with the layers this gives.
+7. **Texts on lines break into lines.** A text wider than the wrap of line texts (`WRAP_EM`, sixteen sizes of its
+   font, the wrap C4 got for its channel grid) breaks between its words (`wrapWithin`), and a class name that starts
+   with a keyword in guillemets, such as `«bind» <K → String, V → Kunde>`, keeps the keyword on a line of its own.
+   The pipeline seats such a label as one block beside its line, the gap growing for every line, and hands one text
+   per line, keyed `<edge>.label.<n>`; the class kind moves the lines of a name together. Seating stays the
+   pipeline's own (`seatLabel`): the spot search of the channel grid (`signEdges`) does not run on it yet.
 
 ## Consequences
 

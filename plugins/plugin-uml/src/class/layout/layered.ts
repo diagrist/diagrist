@@ -1,5 +1,12 @@
 import { STANDARD_FONTS, textWidth } from '@diagrist/core';
-import type { LayeredEdge, LayeredFrame, LayeredNode, LayeredSpec } from '@diagrist/layout-grid';
+import {
+  type LayeredEdge,
+  type LayeredFrame,
+  type LayeredNode,
+  type LayeredSpec,
+  WRAP_EM,
+  wrapWithin,
+} from '@diagrist/layout-grid';
 import type { ClassRelation } from '../diagram.js';
 import type { ClassModel } from '../model.js';
 import { packagesAround } from '../model.js';
@@ -53,6 +60,27 @@ export function nameOf(r: ClassRelation): string | undefined {
 }
 
 /**
+ * The lines of a relation's words as they stand beside it: where they run wider than the wrap of line texts
+ * (`WRAP_EM`), a keyword in guillemets at their start, such as `«bind»`, on a line of its own and the rest broken
+ * between its words as needed; one line otherwise.
+ */
+export function nameLines(r: ClassRelation): { text: string; width: number }[] {
+  const font = STANDARD_FONTS.label;
+  const measure = (t: string) => textWidth(t, font);
+  const max = WRAP_EM * font.size;
+  const name = nameOf(r);
+  if (name === undefined) return [];
+  const keyword = /^(«[^»]+»)\s+(.+)$/.exec(name);
+  const lines =
+    measure(name) <= max
+      ? [name]
+      : keyword
+        ? [keyword[1] as string, ...wrapWithin(keyword[2] as string, max, measure)]
+        : wrapWithin(name, max, measure);
+  return lines.map((text) => ({ text, width: measure(text) }));
+}
+
+/**
  * How a relation runs between the layers: the head where UML wants it, a common trunk for generalizations and
  * realizations of one target (a shared triangle) and for the legs below one diamond, straight runs long enough
  * for the symbols and texts at both ends, and room for both when it runs beside.
@@ -62,7 +90,8 @@ function edgeOf(m: ClassModel, r: ClassRelation, i: number): LayeredEdge {
   const leg = legOf(m, r);
   const name = nameOf(r);
   const font = STANDARD_FONTS.label;
-  const named = name === undefined ? 0 : textWidth(name, font);
+  const lines = nameLines(r);
+  const named = Math.max(0, ...lines.map((l) => l.width));
   const room = 2 * Math.max(endWidth(r, 'from'), endWidth(r, 'to')) + named + 2 * AIR;
   return {
     id: edgeId(i),
@@ -72,9 +101,14 @@ function edgeOf(m: ClassModel, r: ClassRelation, i: number): LayeredEdge {
     ...(HIERARCHY.has(r.kind) ? { weight: 2 } : {}),
     ...(r.kind === 'dependency' ? { strength: 'soft' as const } : {}),
     ...(shared ? { bundle: shared } : leg ? { bundle: `leg:${leg.diamond}` } : {}),
-    run: { from: endRun(r, 'from') + (name === undefined ? 0 : font.size + 2 + LAYERED.labelGap), to: endRun(r, 'to') },
+    run: {
+      from: endRun(r, 'from') + (name === undefined ? 0 : lines.length * (font.size + 2) + LAYERED.labelGap),
+      to: endRun(r, 'to'),
+    },
     room: Math.ceil(room / CLASS.grid) * CLASS.grid,
-    ...(name === undefined ? {} : { label: { text: name, width: named, size: font.size } }),
+    ...(name === undefined
+      ? {}
+      : { label: { text: name, width: named, size: font.size, ...(lines.length > 1 ? { lines } : {}) } }),
     source: r.span,
   };
 }

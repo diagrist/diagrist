@@ -84,7 +84,7 @@ export function assemble(spec: LayeredSpec, laid: Laid): LayeredLayout {
       boxes: [...boxes, ...labels.map((x) => x.box)],
       margin: LABEL_CLEAR,
     };
-    labels.push(seatLabel(seat, port, index.get(seat.edge.id) ?? 0, m.labelGap, clear, own));
+    labels.push(...seatLabel(seat, port, index.get(seat.edge.id) ?? 0, m.labelGap, clear, own));
   }
   const nodes = spec.nodes.flatMap((n): PlacedNode[] => {
     const r = rects.get(n.id);
@@ -115,9 +115,10 @@ export function assemble(spec: LayeredSpec, laid: Laid): LayeredLayout {
         ...(s?.source ? { span: s.source } : {}),
       };
     }),
-    ...labels.map((l): Placed => {
+    ...labels.map((l, i): Placed => {
       const e = spec.edges.find((k) => k.id === routes[l.route]?.edge);
-      return { key: `${e?.id ?? ''}.label.1`, kind: 'text', rect: l.box, ...(e?.source ? { span: e.source } : {}) };
+      const n = labels.slice(0, i).filter((k) => k.route === l.route).length + 1;
+      return { key: `${e?.id ?? ''}.label.${n}`, kind: 'text', rect: l.box, ...(e?.source ? { span: e.source } : {}) };
     }),
   ];
   const fence =

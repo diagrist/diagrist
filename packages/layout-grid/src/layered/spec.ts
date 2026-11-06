@@ -37,7 +37,16 @@ export interface LayeredEdge {
    * The label of the edge, measured by the kind: its text, its width and the size of its font. It stands beside the
    * start of the line, or beside the trunk the edge shares, once per trunk.
    */
-  readonly label?: { readonly text: string; readonly width: number; readonly size: number };
+  readonly label?: {
+    readonly text: string;
+    readonly width: number;
+    readonly size: number;
+    /**
+     * The text broken into lines, top first, each measured, as the kind wrapped it (`wrapWithin`); the label then
+     * stands as one block as wide as `width`, its widest line.
+     */
+    readonly lines?: readonly { readonly text: string; readonly width: number }[];
+  };
   /**
    * The edge is not drawn: it only holds its ends near each other in layers and places, such as a box hung below
    * the line it belongs to. It takes no port and no track and gets no route.
