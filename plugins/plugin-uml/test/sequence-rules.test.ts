@@ -53,6 +53,13 @@ describe('sequence rules', () => {
     expect([...new Set(CASES.map(([code]) => code))].sort()).toEqual([...rules].sort());
   });
 
+  it('points U400 at the unknown end or at over=, not at the keyword', () => {
+    const at = (...lines: string[]) => sequence(...ab, ...lines).diagnostics.find((d) => d.code === 'U400')?.span;
+    expect(at('msg a ~> c "to nobody"')).toMatchObject({ column: 10, length: 1 });
+    expect(at('msg c ~> a "from nobody"')).toMatchObject({ column: 5, length: 1 });
+    expect(at('note "n" over=a,x')).toMatchObject({ column: 10 });
+  });
+
   it('draws the picture despite warnings, but not with an error', () => {
     expect(sequence(...ab, 'msg a -> b "call"').svg).toBeDefined();
     expect(sequence(...ab, 'msg b --> a "ok"').svg).toBeUndefined();

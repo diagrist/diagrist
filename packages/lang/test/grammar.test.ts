@@ -45,6 +45,14 @@ describe('readKind', () => {
     if (message?.keyword === 'msg') expectTypeOf(message.arrow).toEqualTypeOf<'->' | '-->'>();
   });
 
+  it('keeps where each argument and attribute was written, so a finding can point at its token', () => {
+    const reading = readAs(sequence, ...login);
+    const [client] = reading.statements;
+    const message = reading.statements.find((s) => s.keyword === 'alt')?.children[0];
+    expect(client?.spans).toMatchObject({ id: { line: 2, column: 13, length: 6 } });
+    expect(message?.spans).toMatchObject({ from: { line: 5, column: 7 }, to: { line: 5, column: 17, length: 3 } });
+  });
+
   it('reads lines without a keyword through the line form of their block', () => {
     const reading = readAs(
       structure,

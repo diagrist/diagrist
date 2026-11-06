@@ -43,10 +43,10 @@ describe('the CLI with the real kernel and the UML plugin', () => {
     const german = await call(['check', 'x.dgr', '--locale', 'de'], { files: { 'x.dgr': source }, engine });
     expect(english.exitCode).toBe(1);
     expect(english.json.diagnostics).toMatchObject([
-      { code: 'U400', severity: 'error', span: { line: 3 }, values: { found: 'b', known: '`a`' } },
       { code: 'U901', severity: 'warning', span: { line: 3 } },
+      { code: 'U400', severity: 'error', span: { line: 3, column: 10 }, values: { found: 'b', known: '`a`' } },
     ]);
-    expect(german.stdout).toContain('x.dgr:3:1  U400  Fehler:');
+    expect(german.stdout).toContain('x.dgr:3:10  U400  Fehler:');
     expect(german.stdout).not.toContain('is no declared lifeline');
   });
 

@@ -1,11 +1,17 @@
 import type { Finding } from '@diagrist/core';
-import { list } from '@diagrist/lang';
+import { list, type Span } from '@diagrist/lang';
 import { implementing } from '../../spec/catalog.js';
 import { INTERACTIONS } from '../../spec/interactions.js';
-import { FOUND, LOST, type MessageEvent } from '../diagram.js';
+import { FOUND, LOST, type MessageEvent, type SequenceEvent } from '../diagram.js';
 import { defineRule, isFrameGate, referencedLifelines } from './shared.js';
 
 const RESERVED: readonly string[] = [LOST, FOUND];
+
+/** Where the lifeline `id` is named: the end of a message that names it, or `over=`. */
+function endSpan(e: MessageEvent | Extract<SequenceEvent, { type: 'note' | 'ref' }>, id: string): Span {
+  if (e.type === 'message') return e.from === id ? e.ends.from : e.ends.to;
+  return e.overSpan ?? e.span;
+}
 
 export const unknownLifeline = implementing(
   { uml: [INTERACTIONS.lifeline] },
@@ -19,7 +25,7 @@ export const unknownLifeline = implementing(
         e.type === 'message' || e.type === 'note' || e.type === 'ref'
           ? referencedLifelines(e, m.gateIds)
               .filter((id) => !m.participants.has(id))
-              .map((found) => ({ span: e.span, values: { found, known: list(known) } }))
+              .map((found) => ({ span: endSpan(e, found), values: { found, known: list(known) } }))
           : [],
       );
     },

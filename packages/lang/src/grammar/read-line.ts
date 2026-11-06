@@ -29,12 +29,13 @@ export interface LineInput {
 /** Reads one line against its spec. Returns the values, or nothing when the line has errors. */
 export function readLine(spec: LineSpec, input: LineInput, context: LineContext): Record<string, unknown> | undefined {
   const found = context.diagnostics.length;
-  const values: Record<string, unknown> = { line: input.line, span: input.start };
+  const spans: Record<string, Span> = {};
+  const values: Record<string, unknown> = { line: input.line, span: input.start, spans };
   if (input.origin !== undefined) values.origin = input.origin;
-  const next = readArguments(spec, input, values, context);
+  const next = readArguments(spec, input, values, spans, context);
   values.flags = Object.fromEntries(Object.keys(spec.flags).map((flag) => [flag, false]));
-  values.clauses = readTail(spec, input, next, values.flags as Record<string, boolean>, context);
-  values.attributes = readAttributes(spec, input, context);
+  values.clauses = readTail(spec, input, next, values.flags as Record<string, boolean>, spans, context);
+  values.attributes = readAttributes(spec, input, spans, context);
   return context.diagnostics.length === found ? values : undefined;
 }
 
@@ -42,6 +43,7 @@ function readArguments(
   spec: LineSpec,
   input: LineInput,
   values: Record<string, unknown>,
+  spans: Record<string, Span>,
   context: LineContext,
 ): number {
   let index = 0;
@@ -53,6 +55,7 @@ function readArguments(
         : { ok: false as const };
     if (token !== undefined && result.ok) {
       values[argument.name] = track(argument.name, argument.value, result.value, token, input, context);
+      spans[argument.name] = token.span;
       index++;
     } else if (argument.optional) {
       values[argument.name] = undefined;
@@ -95,6 +98,7 @@ function readTail(
   input: LineInput,
   start: number,
   flags: Record<string, boolean>,
+  spans: Record<string, Span>,
   context: LineContext,
 ): Record<string, unknown> {
   const clauses: Record<string, unknown> = {};
@@ -111,6 +115,7 @@ function readTail(
       const result = clause.value.tokens.includes(value.kind) ? clause.value.read(value.value) : { ok: false as const };
       if (result.ok) {
         clauses[token.value] = track(token.value, clause.value, result.value, value, input, context);
+        spans[token.value] = value.span;
       } else {
         report(context, LANG_CODES.invalidValue, value.span, {
           name: token.value,
@@ -131,7 +136,12 @@ function readTail(
   return clauses;
 }
 
-function readAttributes(spec: LineSpec, input: LineInput, context: LineContext): Record<string, unknown> {
+function readAttributes(
+  spec: LineSpec,
+  input: LineInput,
+  spans: Record<string, Span>,
+  context: LineContext,
+): Record<string, unknown> {
   const attributes: Record<string, unknown> = {};
   for (const attribute of input.attributes) {
     const definition = spec.attributes[attribute.key];
@@ -146,6 +156,7 @@ function readAttributes(spec: LineSpec, input: LineInput, context: LineContext):
     const result = definition.value.read(attribute.value);
     if (result.ok) {
       attributes[attribute.key] = track(`${attribute.key}=`, definition.value, result.value, attribute, input, context);
+      spans[`${attribute.key}=`] = attribute.span;
     } else {
       report(context, LANG_CODES.invalidValue, attribute.span, {
         name: `${attribute.key}=`,
