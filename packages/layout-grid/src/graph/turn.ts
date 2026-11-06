@@ -71,9 +71,28 @@ export function turnGraph(graph: LayoutGraph): LayoutGraph {
 }
 
 /**
+ * The middle of the lines of a text set in `room`: the middle of the room, or, where an upright piece of its own line
+ * runs beside the room no further than `gap`, as near that piece as the widest line lets, as the room was set
+ * against it before the turn.
+ */
+function middleIn(room: Rect, widest: number, route: readonly Point[], gap: number): number {
+  const mid = room.x + room.w / 2;
+  const beside = route.slice(1).flatMap((p, i) => {
+    const q = route[i] as Point;
+    const meets = p[0] === q[0] && Math.min(p[1], q[1]) < room.y + room.h && Math.max(p[1], q[1]) > room.y;
+    return meets ? [p[0]] : [];
+  });
+  const slack = (room.w - widest) / 2;
+  if (beside.some((x) => x >= room.x + room.w && x <= room.x + room.w + gap)) return mid + slack;
+  if (beside.some((x) => x <= room.x && x >= room.x - gap)) return mid - slack;
+  return mid;
+}
+
+/**
  * A picture laid out by `turnGraph` turned a quarter to the left, its right edge to the top margin: boxes, frames,
  * lines and their sides, size; each
- * label's text set in the room its turned label took, its lines centred there, and moved by the one spot search
+ * label's text set in the room its turned label took, its lines centred there or against an upright piece of its line
+ * beside the room (`middleIn`), and moved by the one spot search
  * where that room is not clear of what turned around it (`respotTexts`).
  */
 export function turnBack(
@@ -108,7 +127,8 @@ export function turnBack(
     const line = label.size + 2;
     const lines = linesOf(label);
     const top = room.y + (room.h - lines.length * line) / 2;
-    const mid = room.x + room.w / 2;
+    const widest = Math.max(...lines.map((l) => l.width));
+    const mid = middleIn(room, widest, routes[route]?.points ?? [], graph.metrics.labelGap + 1);
     return lines.map((l, i) => ({
       text: l.text,
       x: mid,

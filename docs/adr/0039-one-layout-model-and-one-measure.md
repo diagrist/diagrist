@@ -163,7 +163,10 @@ stress budgets count, such as bends a straight line could spare, reached no sear
     the ones before it on its side by the room of their texts where their stretches meet (from the middle of one end
     to the middle of the other, as high as the text at least), so rails one above the other share a track, on the side where it crosses fewer of them; the ends
     on one side of a box stand rising rails first, inner ones higher, then arriving ones, outer ones higher, so no
-    end crosses another rail. A rail's text starts beside its track, outside it. A frame holding both ends of a rail
+    end crosses another rail. A rail's text stands on the piece out of the box the line starts from, beside that
+    box, else on the piece at the other end, where the piece holds it clear of boxes, frame outlines, lines and
+    texts and, in a picture with lanes, the line stays in one lane; otherwise beside its track, outside it, and
+    only then does it take room between rails. A frame holding both ends of a rail
     grows around it and its text, and so does a frame around a text of a line inside it that found no clear spot
     within. `given.last` puts nodes, such as final states, below every other node of their frame. A fan or join
     whose lines carry texts seats each text beside its own branch, not one at the trunk. State machines that flow

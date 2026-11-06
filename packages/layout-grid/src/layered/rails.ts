@@ -1,9 +1,11 @@
 import type { Point, Rect } from '@diagrist/core';
 import type { PlacedGroup, Route } from '../layout.js';
-import { holders } from './rail-frames.js';
+import { railDocks } from './rail-docks.js';
+import { holders, railReach } from './rail-frames.js';
 import { type LaneOf, laneTrack, railCrossings, railLane } from './rail-lanes.js';
 import type { RailSide } from './rail-order.js';
 import { stretch, texts } from './rail-room.js';
+import { besideText, nextTextAt, pieceText, type RailPieces, type RailTextAt } from './rail-texts.js';
 import type { LayeredEdge, LayeredMetrics, LayeredSpec } from './spec.js';
 
 /** What the rails of a picture are drawn from: their edges and sides, the boxes and frames, the layers. */
@@ -54,6 +56,7 @@ function place(
   m: LayeredMetrics,
   held: ReadonlyMap<string, ReadonlySet<string>>,
   spec: LayeredSpec,
+  where: ReadonlyMap<string, RailTextAt>,
 ): Laid[] {
   const layer = (n: string) => input.layerOf.get(n) ?? 0;
   const span = (e: LayeredEdge) => Math.abs(layer(e.from) - layer(e.to));
@@ -68,7 +71,7 @@ function place(
       return r !== undefined && w !== undefined && (side === 'left' ? w.x < r.x : right(w) > right(r));
     };
     const [top, bottom] = [upper.y, lower.y + lower.h];
-    const { lo, hi } = stretch(e, upper, lower);
+    const { lo, hi } = stretch(e, upper, lower, where.get(e.id) ?? 'beside', m.labelGap);
     const both = (f: string) => held.get(e.from)?.has(f) === true && held.get(e.to)?.has(f) === true;
     const reach = (side: RailSide) => texts(input.lines, side, top, bottom, m, spec);
     const passed = [...input.rects].filter(([n]) => layer(n) >= layer(up) && layer(n) <= layer(low));
@@ -98,52 +101,10 @@ function place(
     });
     const best = tried.reduce<(typeof tried)[number] | undefined>((a, b) => (a && a.cost <= b.cost ? a : b), undefined);
     if (best === undefined) continue;
-    const room = label(e) > 0 ? label(e) + 2 * m.labelGap + m.track / 2 : m.track;
+    const room = where.get(e.id) === 'beside' ? label(e) + 2 * m.labelGap + m.track / 2 : m.track;
     laid.push({ edge: e, upper: up, lower: low, side: best.side, at: best.at, room, lo, hi });
   }
   return laid;
-}
-
-/**
- * The ends of the rails on each side of a box, top first: those leaving it upward, inner rails first, then those
- * arriving from below, outer rails first, so no piece out of the box crosses a rail of another; `portGap` apart, or
- * closer where the side is short, around its middle; on a box whose ends stand at the middle of their sides
- * (`LayeredNode.sides`), all at its middle.
- */
-function docks(
-  laid: readonly Laid[],
-  rects: ReadonlyMap<string, Rect>,
-  m: LayeredMetrics,
-  fixed: ReadonlySet<string>,
-): Map<string, number> {
-  const ends = new Map<string, { key: string; up: boolean; reach: number }[]>();
-  for (const l of laid)
-    for (const [n, up] of [
-      [l.lower, true],
-      [l.upper, false],
-    ] as const) {
-      const r = rects.get(n);
-      if (r === undefined) continue;
-      const reach = Math.abs(l.at - (l.side === 'left' ? r.x : right(r)));
-      const at = `${n}|${l.side}`;
-      ends.set(at, [...(ends.get(at) ?? []), { key: `${l.edge.id}|${up ? 'lower' : 'upper'}`, up, reach }]);
-    }
-  const out = new Map<string, number>();
-  for (const [at, list] of ends) {
-    const r = rects.get(at.split('|')[0] ?? '') as Rect;
-    const ordered = [
-      ...list.filter((x) => x.up).sort((a, b) => a.reach - b.reach),
-      ...list.filter((x) => !x.up).sort((a, b) => b.reach - a.reach),
-    ];
-    const step =
-      ordered.length > 1 && !fixed.has(at.split('|')[0] ?? '')
-        ? Math.min(m.portGap, (r.h - 8) / (ordered.length - 1))
-        : 0;
-    ordered.forEach((x, i) => {
-      out.set(x.key, r.y + r.h / 2 + (i - (ordered.length - 1) / 2) * step);
-    });
-  }
-  return out;
 }
 
 /** The rails of a picture laid out: their routes by edge, and the room each frame holding both ends of one needs. */
@@ -151,41 +112,72 @@ export interface Railed {
   readonly routes: ReadonlyMap<string, Route>;
   /** How far left and right of its boxes each frame must reach for the rails and texts inside it. */
   readonly reach: ReadonlyMap<string, { readonly left: number; readonly right: number }>;
+  /** The texts of rails set over or under an end piece, by edge; the others stand beside their track. */
+  readonly texts: ReadonlyMap<string, Rect>;
+}
+
+/** A rail laid out as a route: out of its lower end, along its track, into its upper end, turned for the edge. */
+function routeOf(l: Laid, boxes: ReadonlyMap<string, Rect>, y: ReadonlyMap<string, number>): Route {
+  const [lower, upper] = [boxes.get(l.lower) as Rect, boxes.get(l.upper) as Rect];
+  const x = (r: Rect) => (l.side === 'left' ? r.x : right(r));
+  const [y1, y2] = [y.get(`${l.edge.id}|lower`) ?? 0, y.get(`${l.edge.id}|upper`) ?? 0];
+  const rising: Point[] = [
+    [x(lower), y1],
+    [l.at, y1],
+    [l.at, y2],
+    [x(upper), y2],
+  ];
+  const points = l.edge.from === l.lower ? rising : rising.reverse();
+  return { edge: l.edge.id, points, shape: 'orthogonal', fromSide: l.side, toSide: l.side };
+}
+
+/** The end pieces of a rail as drawn by `routeOf`. */
+function piecesOf(l: Laid, route: Route): RailPieces {
+  const [a, b] = [route.points[0] as Point, route.points.at(-1) as Point];
+  const [low, up] = l.edge.from === l.lower ? [a, b] : [b, a];
+  return { side: l.side, at: l.at, upper: { x: up[0], y: up[1] }, lower: { x: low[0], y: low[1] } };
 }
 
 /**
  * Draws the rails (layout plan P8, `LayeredEdge.rail`): out of a side of one end, along the track beside the layers
- * between, into the same side of the other end. A frame holding both ends holds the rail and its text.
+ * between, into the same side of the other end. A text stands beside the box the line starts from, over the piece
+ * out of it where that is the upper end and under it where the lower, else at the other end, where it stands clear
+ * there (`pieceText`) and, in a picture with lanes, the line stays in one lane, whose borders are not drawn yet, so its rail needs no room for it beside the track; else beside the track, and the rails are
+ * placed anew. A frame holding both ends holds the rail and its text.
  */
 export function drawRails(input: RailInput, m: LayeredMetrics, spec: LayeredSpec): Railed {
   const held = holders(spec);
-  const laid = place(input, m, held, spec);
-  const y = docks(laid, input.boxes, m, new Set(spec.nodes.flatMap((n) => (n.sides ? [n.id] : []))));
-  const routes = new Map<string, Route>();
-  const reach = new Map<string, { left: number; right: number }>();
-  for (const l of laid) {
-    const [lower, upper] = [input.boxes.get(l.lower) as Rect, input.boxes.get(l.upper) as Rect];
-    const x = (r: Rect) => (l.side === 'left' ? r.x : right(r));
-    const [y1, y2] = [y.get(`${l.edge.id}|lower`) ?? 0, y.get(`${l.edge.id}|upper`) ?? 0];
-    const rising: Point[] = [
-      [x(lower), y1],
-      [l.at, y1],
-      [l.at, y2],
-      [x(upper), y2],
-    ];
-    const points = l.edge.from === l.lower ? rising : rising.reverse();
-    routes.set(l.edge.id, { edge: l.edge.id, points, shape: 'orthogonal', fromSide: l.side, toSide: l.side });
-    const outer = label(l.edge) > 0 ? label(l.edge) + 2 * m.labelGap : 0;
-    for (const f of held.get(l.lower) ?? []) {
-      if (held.get(l.upper)?.has(f) !== true) continue;
-      const was = reach.get(f) ?? { left: Number.POSITIVE_INFINITY, right: Number.NEGATIVE_INFINITY };
-      reach.set(
-        f,
-        l.side === 'left'
-          ? { ...was, left: Math.min(was.left, l.at - outer) }
-          : { ...was, right: Math.max(was.right, l.at + outer) },
-      );
+  const fixed = new Set(spec.nodes.flatMap((n) => (n.sides ? [n.id] : [])));
+  const layer = (n: string) => input.layerOf.get(n) ?? 0;
+  const first = (e: LayeredEdge): RailTextAt => (layer(e.from) < layer(e.to) ? 'upper' : 'lower');
+  const lane = input.lane;
+  const onPiece = (e: LayeredEdge) => lane === undefined || lane(e.from) === lane(e.to);
+  const where = new Map(
+    input.edges.flatMap((e) => (label(e) > 0 ? [[e.id, onPiece(e) ? first(e) : ('beside' as const)]] : [])),
+  );
+  for (;;) {
+    const laid = place(input, m, held, spec, where);
+    const y = railDocks(laid, input.boxes, m, fixed);
+    const routes = new Map(laid.map((l) => [l.edge.id, routeOf(l, input.boxes, y)]));
+    const texts = new Map<string, Rect>();
+    const pieces = new Map(laid.map((l) => [l.edge.id, piecesOf(l, routes.get(l.edge.id) as Route)]));
+    const aside = laid.filter((l) => where.get(l.edge.id) === 'beside');
+    const clutter = { boxes: [...input.rects.values()], frames: input.frames.map((f) => f.rect), texts: [] as Rect[] };
+    clutter.texts.push(...aside.map((l) => besideText(l.edge, pieces.get(l.edge.id) as RailPieces, m.labelGap)));
+    let moved = false;
+    for (const l of laid) {
+      const at = where.get(l.edge.id);
+      if (at === undefined || at === 'beside') continue;
+      const lines = [...input.lines, ...[...routes.values()].filter((r) => r.edge !== l.edge.id)];
+      const box = pieceText(l.edge, pieces.get(l.edge.id) as RailPieces, at, m.labelGap, { ...clutter, lines });
+      if (box === undefined) {
+        where.set(l.edge.id, nextTextAt(at, first(l.edge)));
+        moved = true;
+        break;
+      }
+      texts.set(l.edge.id, box);
+      clutter.texts.push(box);
     }
+    if (!moved) return { routes, reach: railReach(laid, held, where, m), texts };
   }
-  return { routes, reach };
 }

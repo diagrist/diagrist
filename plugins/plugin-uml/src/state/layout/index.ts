@@ -67,6 +67,6 @@ export function layoutState(m: StateModel, words: PictureTexts): StateLayout {
       return id ? [{ id, x: p.rect.x + p.rect.w + 20, y: p.rect.y - 2 }] : [];
     }),
     strip,
-    placed: placedState(m, { spec, grid: fitted, routes, labels, names, notes }),
+    placed: placedState(m, { spec, grid: fitted, routes, labels, names, notes, regions }),
   };
 }
