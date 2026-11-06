@@ -9,19 +9,21 @@ import { placedAll } from './placed.js';
 
 /** What a note costs that lies on a box or text: as much as a line through a box. */
 const CROWDED = 10_000;
-/** A line that only grazes the corner of a subject, by less than this, does not pass it. */
-const GRAZE = 8;
-/** What a line costs that runs through a subject holding neither of its ends: as much as a crossing. */
+/**
+ * Room a line keeps from the frame of a subject that holds neither of its ends, as the line check keeps it from
+ * boxes: a line that cuts the corner of a frame, or passes it closer than this, reads as if it belonged to it.
+ */
+const CLEAR = 6;
+/** What a line costs that runs through or along a subject holding neither of its ends: as much as a crossing. */
 const FOREIGN = 1_000;
 
-/** Lines that run through the frame of a subject holding neither of their ends, which reads as if they belonged to it. */
+/** Lines that run through, or too close past, the frame of a subject holding neither of their ends. */
 function foreignPasses(m: UseCaseModel, laid: Laid): number {
   return drawnOf(m, laid.routes).reduce((n, d) => {
-    const [p, q] = [laid.routes[d.route]?.points[0], laid.routes[d.route]?.points.at(-1)];
-    if (p === undefined || q === undefined) return n;
+    const points = laid.routes[d.route]?.points ?? [];
     const ends = [d.relation.from, d.relation.to].map((id) => m.cases.get(id)?.subject);
-    const inner = (r: Rect) => ({ x: r.x + GRAZE, y: r.y + GRAZE, w: r.w - 2 * GRAZE, h: r.h - 2 * GRAZE });
-    return n + laid.layout.groups.filter((g) => !ends.includes(g.id) && segmentMeetsRect(p, q, inner(g.rect))).length;
+    const passes = (r: Rect) => points.slice(1).some((q, i) => segmentMeetsRect(points[i] ?? q, q, r, CLEAR));
+    return n + laid.layout.groups.filter((g) => !ends.includes(g.id) && passes(g.rect)).length;
   }, 0);
 }
 

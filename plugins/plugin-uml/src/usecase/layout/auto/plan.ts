@@ -66,7 +66,7 @@ export function acrossSides(
   const fixed = new Set<string>();
   const local = Array.from({ length: count }, (_, b) => {
     const part = slice(p, band, b);
-    return sides(part, depths(part));
+    return sides(part, depths(part), true);
   });
   for (const members of families(p)) {
     const bands = bandsOf(members, p, band);
