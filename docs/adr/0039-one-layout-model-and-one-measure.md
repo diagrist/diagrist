@@ -72,6 +72,7 @@ stress budgets count, such as bends a straight line could spare, reached no sear
 ## Consequences
 
 The block search (`spread.ts`) still estimates lines in half columns before anything is laid out; it has no lines
-to measure and goes with the blocks (plan P5). Raising the tie-breaking weights belongs to the changes that make
-coordinates and ports leave no jogs and overlaps behind (plan P2, P3), each with the stress budgets to show what it
-buys. A layout stage that wants to compare two of its own variants can now ask the same question the check answers.
+to measure and goes with the blocks (plan P5), which need layers that weigh the height of a frame against the lines
+it lengthens before they can go: without the search, `pakete-quer` lays its five packages out in a row at 3.4 : 1.
+Placeholders that cross a frame they have no end in, at a cost (R5), need an order that knows length, since the way
+around a frame costs an order nothing. Frames as ends of edges and loops as a route profile stay with the kind. A layout stage that wants to compare two of its own variants can now ask the same question the check answers.
