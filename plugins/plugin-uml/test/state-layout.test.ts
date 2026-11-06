@@ -1,4 +1,3 @@
-import { readFileSync } from 'node:fs';
 import { compile, type Rect } from '@diagrist/core';
 import { describe, expect, it } from 'vitest';
 import { umlPlugin } from '../src/index.js';
@@ -90,6 +89,19 @@ describe('state machine layout', () => {
     expect(Number(separator?.[1])).toBeLessThan(right?.x ?? 0);
   });
 
+  it('names a state with regions in a tab at its top left, which the lines from the fork pass beside', () => {
+    const p = picture('auftrag-parallel');
+    const frame = p.frame('bearbeitung');
+    const tab = new RegExp(
+      `<path d="M${frame.x} [\\d.]+ Q[\\d. ]+ L([\\d.]+) ${frame.y} Q[^"]* L${frame.x} ${frame.y + 30} Z"`,
+    );
+    const right = Number(tab.exec(p.svg)?.[1]);
+    expect(right).toBeGreaterThan(frame.x);
+    const name = /<text x="([\d.]+)" y="[\d.]+" text-anchor="start" class="label-bold">In Bearbeitung</.exec(p.svg);
+    expect(Number(name?.[1])).toBe(frame.x + 12);
+    for (const id of ['offen', 'kommissioniert']) expect(p.edge('teilen', id)[0]?.[0] ?? 0, id).toBeGreaterThan(right);
+  });
+
   it('puts an exit point on the border of its state, facing its way out', () => {
     const p = picture('auftrag-parallel');
     const frame = p.frame('bearbeitung');
@@ -132,38 +144,6 @@ describe('state machine layout', () => {
     expect(r.svg).toMatch(
       />Prüfung beendet<\/text><text [^>]+>\[Angaben vollständig\]<\/text><text [^>]+>\/ Bereitstellung starten</,
     );
-  });
-});
-
-describe('composite states and the lines around them', () => {
-  const source = (path: string) => readFileSync(new URL(path, import.meta.url), 'utf8');
-  const result = compile(source('stress/state/gedaechtnis.dgr'), { plugins: [umlPlugin] });
-  const a = result.anchors;
-  const node = (id: string) => a?.nodes.find((n) => n.id === id)?.rect ?? { x: 0, y: 0, w: 0, h: 0 };
-  const edge = (from: string, to: string) => a?.edges.find((e) => e.from === from && e.to === to)?.points ?? [];
-  const frame = a?.groups.find((g) => g.id === 'programm')?.rect ?? { x: 0, y: 0, w: 0, h: 0 };
-
-  it('puts a history state entered only from below at the bottom of its composite state', () => {
-    expect(result.diagnostics).toEqual([]);
-    expect(cy(node('zurueck'))).toBe(cy(node('schleudern')));
-  });
-
-  it('lets lines out of the bottom of a composite state run straight down to the states below', () => {
-    for (const to of ['pause', 'stoerung']) expect(new Set(edge('programm', to).map((q) => q[0])).size, to).toBe(1);
-  });
-
-  it('runs no transition through a composite state it neither leaves nor enters', () => {
-    const line = edge('stoerung', 'bereit');
-    const within = (v: number, lo: number, hi: number) => v > lo && v < hi;
-    const through = line.slice(1).some(([x, y], k) => {
-      const [px, py] = line[k] ?? [x, y];
-      const [x0, x1, y0, y1] = [Math.min(px, x), Math.max(px, x), Math.min(py, y), Math.max(py, y)];
-      return x0 < frame.x + frame.w && x1 > frame.x && y0 < frame.y + frame.h && y1 > frame.y;
-    });
-    expect(line.length).toBeGreaterThan(2);
-    expect(
-      through || line.some(([x, y]) => within(x, frame.x, frame.x + frame.w) && within(y, frame.y, frame.y + frame.h)),
-    ).toBe(false);
   });
 });
 

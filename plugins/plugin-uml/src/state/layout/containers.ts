@@ -18,8 +18,9 @@ export function homeOf(m: StateModel, id: string): string | undefined {
 
 /**
  * Composite states as frames with their name field and compartment as head, and their orthogonal regions as parts
- * of them (ADR 0039, 12): a state with regions holds no pad of its own, its regions stand side by side in it, each
- * with its name at the top left, and fill it when laid out, so a divider runs where two meet. A state with entry or
+ * of them (ADR 0039, 12): a state with regions holds no pad of its own and wears its name as a tab (`tab`, UML 2.5.1
+ * Figure 14.5), its compartment below the outline, its regions stand side by side in it, each with its name at the
+ * top left, and fill it when laid out, so a divider runs where two meet. A state with entry or
  * exit points keeps half a point more room inside, so a line through a point runs straight into its head. No
  * transition runs through a composite state it neither leaves nor enters (`opaque`): it would read as one of its own.
  */
@@ -56,7 +57,8 @@ export function stateContainers(m: StateModel, members: readonly string[]): Grap
         ...(parent === undefined ? {} : { parent }),
         pad: parted ? 0 : pad,
         top: parted ? head : head + pad,
-        head: { width: textWidth(v.label ?? '', F.name) + 2 * S.padX, height: head },
+        head: { width: textWidth(v.label ?? '', F.name) + 2 * S.padX, height: parted ? S.headH : head },
+        ...(parted ? { tab: true } : {}),
         opaque: true,
       },
     ];

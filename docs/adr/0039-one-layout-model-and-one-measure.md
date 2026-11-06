@@ -468,3 +468,12 @@ bring the other end under it (`acrossFrames`, the ends marked `LayeredEdge.frame
 both bends a straight line could spare gone, 8 to 6 bends, 2,980 to 2,501 px of line, 758 to 919 px wide, since
 `abbrechen` now goes round the composite state; drawn through it the picture would be 1,638 px of line, which the
 decision trades away. `verschachtelt` puts the initial state of `Fahrend` over its first state. No example changes.
+
+**A state with regions wears its name as a tab** (owner decision A). The engine kept the head of a composite state as
+a tab at its top left (`head.width`, `clearOfHeads`), while the kind drew a name field across the whole state, so the
+lines from a fork into the regions of `auftrag-parallel` crossed the field and the name stepped aside between them.
+A state with orthogonal regions is now drawn as UML 2.5.1 shows one (14.2.4, Figure 14.5): its name in a tab resting
+on the outside of its top side at the left, the regions directly below the outline (`state/scene/tab.ts`), and the
+kind hands the frame with `tab: true` and the tab as its head, so frame ends are cut below it and lines from above
+keep `AIR` beside it. Composite states without regions keep their name field. The lines were already clear of the
+tab, so `auftrag-parallel` and `parallel-drei` keep every measure; only their drawing changes.
