@@ -15,7 +15,10 @@ export interface Position {
 
 /** What `complete` proposes at a position, and which part of the line an accepted item replaces. */
 export interface Completion {
-  /** The word typed so far, which an item replaces; after `key=` only the part behind `=`. Empty at a space. */
+  /**
+   * The word typed so far, which an item replaces; after `key=` only the part behind `=`, and in a list such as
+   * `a,b` only the part behind the last comma. Empty at a space.
+   */
   readonly span: Span;
   /** What the tables allow here and what starts with the typed word, in table order. */
   readonly items: readonly CompletionItem[];
@@ -37,8 +40,8 @@ export function complete(source: string, position: Position, kind: KindSpec): Co
   const lines = source.split(/\r\n?|\n/);
   const before = (lines[position.line - 1] ?? '').slice(0, Math.max(0, position.column - 1));
   const typed = /[^\s"]*$/.exec(before)?.[0] ?? '';
-  const equals = typed.indexOf('=');
-  const prefix = typed.slice(equals + 1);
+  const value = typed.slice(typed.indexOf('=') + 1);
+  const prefix = value.slice(value.lastIndexOf(',') + 1);
   const at = span(position.line, position.column - prefix.length, prefix.length);
   const scanned = scan(before);
   const inText = scanned.diagnostics.some((d) => d.code === LANG_CODES.unterminatedString);

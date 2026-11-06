@@ -8,6 +8,7 @@ import { refBoxes, snapFragmentGates } from './gates.js';
 import { headArt } from './heads.js';
 import { messageArts, messageExtent } from './messages.js';
 import { outerFrame } from './outer.js';
+import { sequencePlaced } from './placed.js';
 import { obstacles } from './rail-spot.js';
 import { railArts } from './rails.js';
 import type { Rows } from './rows.js';
@@ -104,12 +105,12 @@ export function body(p: Parts, shift: number): Body {
   const boxes = boxArts(m, r, xs, p.texts, c);
   const refs = refBoxes(m, boxes);
   const placed = messageArts({ m, rows: r, xs, bars: all, createdHeads, texts: p.texts, refBoxes: refs }, c);
-  const frames = frameArts({ m, rows: r, xs, messages: placed, boxes, bars: all }, c);
-  const messages = snapFragmentGates(m, placed, frames, c);
+  const frames = frameArts({ m, rows: r, xs, messages: placed, boxes, bars: all, createdHeads }, c);
+  const messages = snapFragmentGates(placed, frames.arts, c);
   const base: Body = {
     lifelines,
     activations: all.map((b) => ({ kind: 'rect', rect: b.rect, role: 'activation' })),
-    frames,
+    frames: frames.shapes,
     boxes: boxes.flatMap((b) => b.shapes),
     bounds: boxes.map((b) => b.rect),
     messages,
@@ -117,6 +118,7 @@ export function body(p: Parts, shift: number): Body {
     marks: [...coregionArts(p, xs), ...destroyMarks(p, xs)],
     guides: [],
     annotations: [],
+    placed: [],
   };
   const [minX, maxX] = extent(base);
   const rails = railArts({ m, messages, bars: all, xs, obstacles: obstacles(base), minX, maxX }, c);
@@ -126,7 +128,9 @@ export function body(p: Parts, shift: number): Body {
     guides: rails.guides,
     annotations: rails.shapes,
   };
-  if (m.framed === undefined) return railed;
+  const parts = { m, heads, boxes, frames: frames.arts, constraints: rails.texts };
+  if (m.framed === undefined) return { ...railed, placed: sequencePlaced({ ...parts, messages }) };
   const outer = outerFrame(m.framed, extent(railed), lowest(lifelines), messages, c);
-  return { ...railed, frames: [...outer.shapes, ...railed.frames], messages: outer.messages };
+  const placedAll = sequencePlaced({ ...parts, messages: outer.messages, outer });
+  return { ...railed, frames: [...outer.shapes, ...railed.frames], messages: outer.messages, placed: placedAll };
 }

@@ -35,7 +35,7 @@ export function railLifelines(
 
 /** Width of a rail: tick, room and the text in `{...}`. */
 const railWidth = (text: string, c: SeqCtx): number =>
-  c.s.railTick + 2 * c.s.railTextGap + c.width(`{${text}}`, c.s.messageSize) + 2 * c.s.knockout;
+  c.s.railTick + 2 * c.s.railTextGap + c.width(`{${text}}`, 'message') + 2 * c.s.knockout;
 
 /**
  * Room for the bracket left of its lifeline (the left one of those both messages touch, where the bracket has

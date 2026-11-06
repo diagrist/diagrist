@@ -1,4 +1,5 @@
 import type { Rect } from '@diagrist/core';
+import type { Span } from '@diagrist/lang';
 import type { Constraint } from '../diagram.js';
 import type { SequenceModel } from '../model/types.js';
 import { type Bar, dock } from './bars.js';
@@ -12,6 +13,8 @@ export interface Rails {
   readonly guides: readonly SeqShape[];
   readonly shapes: readonly SeqShape[];
   readonly bounds: readonly Rect[];
+  /** The ground of each constraint's text, with the line that writes the constraint. */
+  readonly texts: readonly { readonly rect: Rect; readonly span: Span }[];
 }
 
 export interface RailInputs {
@@ -59,7 +62,7 @@ function resolve(k: Constraint, input: RailInputs, ids: ReadonlyMap<string, numb
   const anchor = x === undefined ? undefined : Math.min(x, ...near(lifeline).map((b) => b.rect.x));
   const anchorR = xr === undefined ? undefined : Math.max(xr, ...near(right).map((b) => b.rect.x + b.rect.w));
   const leftmost = lifeline !== undefined && lifeline === input.m.order[0];
-  return { text, w: c.width(text, c.s.messageSize), top, bottom, ends, anchor, anchorR, leftmost };
+  return { text, w: c.width(text, 'message'), top, bottom, ends, anchor, anchorR, leftmost, span: k.span };
 }
 
 /**
@@ -76,7 +79,12 @@ export function railArts(input: RailInputs, c: SeqCtx): Rails {
     .map((k) => resolve(k, input, ids, c))
     .filter((p) => p !== undefined)
     .sort((a, b) => a.bottom - a.top - (b.bottom - b.top) || a.top - b.top);
-  const out = { guides: [] as SeqShape[], shapes: [] as SeqShape[], bounds: [] as Rect[] };
+  const out = {
+    guides: [] as SeqShape[],
+    shapes: [] as SeqShape[],
+    bounds: [] as Rect[],
+    texts: [] as Rails['texts'][number][],
+  };
   const draw = (p: Placed, x: number, side: Side = -1) => {
     const parts = pieces(p, x, side, c);
     const tick = x + side * s.railTick;
@@ -99,6 +107,7 @@ export function railArts(input: RailInputs, c: SeqCtx): Rails {
       },
     );
     out.bounds.push(parts.back);
+    out.texts.push({ rect: parts.back, span: p.span });
     return parts;
   };
   const taken: Obstacle[] = [];

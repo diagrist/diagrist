@@ -71,12 +71,7 @@ function guardNeeds(m: SequenceModel, ctx: SeqCtx): Need[] {
   const index = new Map(m.order.map((id, k) => [id, k]));
   const last = m.diagram.events.length - 1;
   const reach = (text: string, tag: number) =>
-    tag +
-    2 * tokens.guardGap +
-    ctx.width(text, tokens.messageSize) -
-    tokens.framePadX +
-    tokens.barW / 2 +
-    tokens.barLevel;
+    tag + 2 * tokens.guardGap + ctx.width(text, 'message') - tokens.framePadX + tokens.barW / 2 + tokens.barLevel;
   return m.fragments.flatMap((f) => {
     const covered = m.diagram.events
       .slice(f.index, (f.end ?? last) + 1)
@@ -145,6 +140,6 @@ export function widenNotes(m: SequenceModel, texts: readonly Measured[], cols: C
     if (e.type !== 'note' || e.over.length < 2) return text;
     const xs = e.over.map((id) => cols.x.get(id)).filter((x) => x !== undefined);
     const room = Math.max(...xs) - Math.min(...xs) + 2 * tokens.overhang - 2 * tokens.notePad - tokens.noteFold;
-    return room > tokens.noteMaxW ? wrap(e.text, room, ctx.noteSize, ctx) : text;
+    return room > tokens.noteMaxW ? wrap(e.text, room, 'note', ctx) : text;
   });
 }

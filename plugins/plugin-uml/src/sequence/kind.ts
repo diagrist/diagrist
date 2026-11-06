@@ -18,7 +18,12 @@ export const sequenceKind = defineKind({
   layout: (model, { locale }) => {
     const words = { ...WORDS[locale], title: imageTitle(SEQUENCE_NAME[locale], model.diagram.title) };
     const layout = layoutSequence(model, words);
-    return { scene: sequenceScene(layout, model, words), styles: SEQUENCE_STYLES, anchors: sequenceAnchors(layout) };
+    return {
+      scene: sequenceScene(layout, model, words),
+      styles: SEQUENCE_STYLES,
+      anchors: sequenceAnchors(layout, model),
+      placed: layout.placed,
+    };
   },
   describe: (model, { locale }) => describeSequence(model, locale),
 });

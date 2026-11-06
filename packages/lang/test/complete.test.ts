@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { arg, attr, complete, id, type KindSpec, kind, ref, statement } from '../src/index.js';
+import { arg, attr, complete, id, type KindSpec, kind, ref, statement, type Value, word } from '../src/index.js';
 import { sequence, structure } from './fixtures/kinds.js';
 
 /** Completes at the `|` in the lines, which is removed from the source. */
@@ -96,6 +96,31 @@ describe('complete', () => {
       ],
     });
     expect(labels(at(steps, 'diagram steps "S"', 'step id=first', 'step', 'after |'))).toEqual(['first']);
+  });
+
+  it('offers the ids a value suggests besides its own forms, and in a list only after the last comma', () => {
+    const end: Value<string> = { ...word(), type: 'end', suggests: ['node'] };
+    const ends: Value<string> = { ...word(), type: 'ends', suggests: ['node'] };
+    const wires = kind('wires', {
+      doc: 'Wires.',
+      statements: [
+        statement('node', { doc: 'A node.', examples: ['node a'], arguments: [arg('id', id(), 'Name.')] }),
+        statement('wire', {
+          doc: 'A wire.',
+          examples: ['wire a over=a,b'],
+          arguments: [arg('to', end, 'A node, or `open`.')],
+          attributes: { over: attr(ends, 'Nodes, comma separated.') },
+        }),
+      ],
+    });
+    const nodes = ['diagram wires "W"', 'node api', 'node db'];
+    expect(at(wires, ...nodes, 'wire |').items).toEqual([
+      { label: 'api', kind: 'id', doc: 'Declared by `node` in line 2.' },
+      { label: 'db', kind: 'id', doc: 'Declared by `node` in line 3.' },
+    ]);
+    const listed = at(wires, ...nodes, 'wire open over=api,d|');
+    expect(labels(listed)).toEqual(['db']);
+    expect(listed.span).toEqual({ line: 4, column: 20, length: 1 });
   });
 
   it('offers nothing inside a text or a comment', () => {

@@ -1,11 +1,13 @@
 import type { Rect } from '@diagrist/core';
 import { tagShapes } from './boxes.js';
 import { snapToFrame } from './gates.js';
-import type { SeqCtx } from './text.js';
+import { type SeqCtx, tagWidth } from './text.js';
 import type { SeqMessageArt, SeqShape } from './types.js';
 
 export interface Outer {
   readonly shapes: readonly SeqShape[];
+  readonly rect: Rect;
+  readonly tag: Rect;
   readonly messages: readonly SeqMessageArt[];
 }
 
@@ -29,8 +31,11 @@ export function outerFrame(
     w: extent[1] - extent[0] + 2 * s.framePadX,
     h: bottom + s.framePadBottom - top,
   };
+  const tag = `sd ${name}`;
   return {
-    shapes: [{ kind: 'rect', rect, role: 'frame' }, ...tagShapes(`sd ${name}`, rect.x, rect.y, c)],
+    shapes: [{ kind: 'rect', rect, role: 'frame' }, ...tagShapes(tag, rect.x, rect.y, c)],
+    rect,
+    tag: { x: rect.x, y: rect.y, w: tagWidth(tag, c), h: s.tagH },
     messages: messages.map((m) => (m.via === undefined ? snapToFrame(m, rect, c, true) : m)),
   };
 }

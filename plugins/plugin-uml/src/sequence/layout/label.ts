@@ -16,7 +16,7 @@ export function messageLabel(
 ): SeqShape[] {
   const total = labelWidth(text, c);
   if (total === 0) return [];
-  const { lineH: lh, messageSize: size, knockout, descent, textMid } = c.s;
+  const { lineH: lh, knockout, descent, textMid } = c.s;
   const left = anchor === 'middle' ? x - total / 2 : x;
   const back: Rect = {
     x: left - knockout,
@@ -34,11 +34,11 @@ export function messageLabel(
       return;
     }
     const prefix = `${text.number} `;
-    const start = anchor === 'middle' ? center - c.width(line, size) / 2 : left;
+    const start = anchor === 'middle' ? center - c.width(line, 'message') / 2 : left;
     out.push({ kind: 'text', at: { x: start, y }, text: text.number, role: 'number', anchor: 'start' });
     const rest = line.slice(prefix.length);
     if (rest)
-      out.push({ kind: 'text', at: { x: start + c.width(prefix, size), y }, text: rest, role, anchor: 'start' });
+      out.push({ kind: 'text', at: { x: start + c.width(prefix, 'message'), y }, text: rest, role, anchor: 'start' });
   });
   if (text.mark) out.push({ kind: 'mark', id: text.mark, x: left + total - c.s.markW / 2, y: firstBaseline - textMid });
   return out;
@@ -50,7 +50,7 @@ export function messageLabel(
  */
 export function durationText(text: string, x1: number, y1: number, x2: number, y2: number, c: SeqCtx): SeqShape[] {
   const t = `{${text}}`;
-  const w = c.width(t, c.s.messageSize);
+  const w = c.width(t, 'message');
   const [mx, my] = [(x1 + x2) / 2, (y1 + y2) / 2];
   const { knockout, descent } = c.s;
   const left = x1 <= x2 ? mx - knockout - w : mx + knockout;

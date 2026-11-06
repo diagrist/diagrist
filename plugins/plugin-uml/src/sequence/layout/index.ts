@@ -5,12 +5,12 @@
  * regrouped, since `a + b + c` and `a + (b + c)` may differ in the last bit. A refactor here must keep every example's
  * hash in `test/__golden__/sequence-examples.sha256`.
  */
-import { FONT_SIZE } from '@diagrist/core';
 import { decisionStrip, HEADER, MARGIN, stripWidth, type Words } from '@diagrist/parts';
 import type { SequenceModel } from '../model/types.js';
 import { body, extent, lowest, type Parts } from './body.js';
 import { columns, widenNotes } from './columns.js';
 import { dividerArts, dividerBoxWidth } from './dividers.js';
+import { dividerPlaced } from './placed.js';
 import { rows } from './rows.js';
 import { measureEvent, SEQ_CTX } from './text.js';
 import type { SequenceLayout } from './types.js';
@@ -38,7 +38,7 @@ export function layoutSequence(m: SequenceModel, words: PictureTexts): SequenceL
   const [start] = extent(body(parts, 0));
   const placed = body(parts, Math.ceil(MARGIN - start));
   const [left, right] = extent(placed);
-  const titleW = c.width(words.title, FONT_SIZE.title, true);
+  const titleW = c.width(words.title, 'title');
   const frameBottoms = placed.frames.flatMap((f) => (f.kind === 'rect' ? [f.rect.y + f.rect.h] : []));
   const bottom = Math.max(lowest(placed.lifelines), ...frameBottoms);
   const labels = m.diagram.events.flatMap((e) =>
@@ -61,6 +61,7 @@ export function layoutSequence(m: SequenceModel, words: PictureTexts): SequenceL
     ...placed,
     guides: [...placed.guides, ...dividers.lines],
     annotations: [...placed.annotations, ...dividers.boxes],
+    placed: [...placed.placed, ...dividerPlaced(m, dividers.rects)],
     strip,
   };
 }

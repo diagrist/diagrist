@@ -23,6 +23,8 @@ export interface GrammarField {
   /** What each choice stands for, by choice, when the table says it. */
   readonly meanings?: Readonly<Record<string, string>>;
   readonly refersTo?: readonly string[];
+  /** Keywords of the statements whose ids the value may name besides its own forms, unchecked by `lang`. */
+  readonly suggests?: readonly string[];
 }
 
 /** One line as data, the shape shared by statements, line forms and the header. */
@@ -128,6 +130,7 @@ function field(name: string, doc: string, value: Value<unknown>): GrammarField {
     ...(value.choices ? { choices: value.choices } : {}),
     ...(value.meanings ? { meanings: value.meanings } : {}),
     ...(value.refersTo ? { refersTo: value.refersTo } : {}),
+    ...(value.suggests ? { suggests: value.suggests } : {}),
   };
 }
 

@@ -1,23 +1,21 @@
-import { FONT_SIZE, textWidth } from '@diagrist/core';
+import { textWidth } from '@diagrist/core';
 import type { FragmentEvent, Participant, SequenceEvent } from '../diagram.js';
+import { FONTS } from '../styles.js';
 import { SEQUENCE_TOKENS, type SequenceTokens } from './tokens.js';
 
-/** What the parts of the sequence layout share: measures, font sizes, measuring. */
+/** A font role of the style table, which the layout measures a text in as the picture draws it. */
+export type SeqFont = keyof typeof FONTS;
+
+/** What the parts of the sequence layout share: measures, and measuring in a font role. */
 export interface SeqCtx {
   readonly s: SequenceTokens;
-  readonly nameSize: number;
-  readonly stereoSize: number;
-  readonly noteSize: number;
-  width(text: string, size: number, bold?: boolean): number;
+  width(text: string, font: SeqFont): number;
 }
 
-/** Measures, font sizes and text measuring of every sequence picture. */
+/** Measures and text measuring of every sequence picture. */
 export const SEQ_CTX: SeqCtx = {
   s: SEQUENCE_TOKENS,
-  nameSize: FONT_SIZE.node,
-  stereoSize: FONT_SIZE.note,
-  noteSize: FONT_SIZE.note,
-  width: (text, size, bold) => textWidth(text, { size, weight: bold ? 600 : 400 }),
+  width: (text, font) => textWidth(text, FONTS[font]),
 };
 
 /** The guard UML shows for an `else` without one; a keyword of the notation, the same in every locale. */
@@ -36,18 +34,18 @@ export const labelWidth = (text: Measured, c: SeqCtx): number =>
   text.w + (text.mark ? (text.w > 0 ? c.s.markGap : 0) + c.s.markW : 0);
 
 /** Wraps at spaces as soon as a line would get wider than `max`. */
-export function wrap(text: string, max: number, size: number, c: SeqCtx): Measured {
+export function wrap(text: string, max: number, font: SeqFont, c: SeqCtx): Measured {
   const lines: string[] = [];
   let current = '';
   for (const word of text.split(' ')) {
     const next = current ? `${current} ${word}` : word;
-    if (current && c.width(next, size) > max) {
+    if (current && c.width(next, font) > max) {
       lines.push(current);
       current = word;
     } else current = next;
   }
   if (current || lines.length === 0) lines.push(current);
-  return { lines, w: Math.max(...lines.map((l) => c.width(l, size))) };
+  return { lines, w: Math.max(...lines.map((l) => c.width(l, font))) };
 }
 
 /** `ignore` and `consider` list messages instead of a guard (UML 2.5.1, 17.6.3). */
@@ -73,7 +71,7 @@ export const operandGuard = (guard: string | undefined, marker: string): string 
 function messageText(label: string | undefined, number: number | undefined, mark: string | undefined, c: SeqCtx) {
   const s = c.s;
   const text = [number, label].filter((x) => x !== undefined).join(' ');
-  const wrapped = text ? wrap(text, s.labelMaxW, s.messageSize, c) : { lines: [], w: 0 };
+  const wrapped = text ? wrap(text, s.labelMaxW, 'message', c) : { lines: [], w: 0 };
   return {
     ...wrapped,
     ...(number !== undefined ? { number: String(number) } : {}),
@@ -85,18 +83,18 @@ function messageText(label: string | undefined, number: number | undefined, mark
 export function measureEvent(event: SequenceEvent, c: SeqCtx, number?: number): Measured {
   const s = c.s;
   if (event.type === 'message') return messageText(event.label, number, event.mark, c);
-  if (event.type === 'note') return wrap(event.text, s.noteMaxW, c.noteSize, c);
-  if (event.type === 'ref') return { lines: [event.label], w: c.width(event.label, s.messageSize, true) };
+  if (event.type === 'note') return wrap(event.text, s.noteMaxW, 'note', c);
+  if (event.type === 'ref') return { lines: [event.label], w: c.width(event.label, 'name') };
   if (event.type === 'invariant') {
     const text = event.state ? event.text : `{${event.text}}`;
-    return { lines: [text], w: c.width(text, s.messageSize) };
+    return { lines: [text], w: c.width(text, 'message') };
   }
   return { lines: [], w: 0 };
 }
 
 /** Width of the tag with the operator (`alt`, `ref`). */
 export const tagWidth = (operator: string, c: SeqCtx): number =>
-  c.width(operator, c.s.messageSize, true) + 2 * c.s.tagPadX + c.s.tagCut;
+  c.width(operator, 'tag') + 2 * c.s.tagPadX + c.s.tagCut;
 
 /** Width of a reference or note before it is laid over its lifelines. */
 export function boxWidth(event: SequenceEvent, text: Measured, c: SeqCtx): number {
@@ -113,8 +111,8 @@ export const isFigure = (p: Participant): boolean =>
 /** Width and height of a head from name and stereotype. */
 export function headSize(p: Participant, c: SeqCtx): { readonly w: number; readonly h: number } {
   const s = c.s;
-  const name = c.width(p.label, c.nameSize, true);
-  const stereo = p.stereotype ? c.width(`«${p.stereotype}»`, c.stereoSize) : 0;
+  const name = c.width(p.label, 'name');
+  const stereo = p.stereotype ? c.width(`«${p.stereotype}»`, 'note') : 0;
   const text = Math.max(name, stereo);
   const extra = p.stereotype ? s.stereoH : 0;
   if (isFigure(p)) return { w: Math.max(s.figureH, text), h: s.figureH + s.lineH + extra + s.labelLift };

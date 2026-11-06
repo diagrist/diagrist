@@ -4,6 +4,7 @@ import type { SeqGate } from '../model/gates.js';
 import type { SequenceModel } from '../model/types.js';
 import { type Bar, dock } from './bars.js';
 import type { BoxArt } from './boxes.js';
+import type { FrameArt } from './frames.js';
 import { labelWidth, type Measured, type SeqCtx } from './text.js';
 import type { SeqMessageArt, SeqShape } from './types.js';
 
@@ -19,7 +20,7 @@ const openLength = (text: Measured, c: SeqCtx): number =>
 
 /** Length of a message with an open end: label or gate name, at least `lostLen`. */
 export const gateLength = (text: Measured, name: string | undefined, c: SeqCtx): number =>
-  Math.max(openLength(text, c), name ? c.width(name, c.s.messageSize) + 2 * c.s.labelPadX : 0);
+  Math.max(openLength(text, c), name ? c.width(name, 'message') + 2 * c.s.labelPadX : 0);
 
 /**
  * Name of a gate below the line, from the edge `x` in direction `dir` (1 right, -1 left), on a knocked-out
@@ -27,7 +28,7 @@ export const gateLength = (text: Measured, name: string | undefined, c: SeqCtx):
  */
 function gateName(name: string, x: number, y: number, dir: 1 | -1, c: SeqCtx): SeqShape[] {
   const { gateNameGap: gap, lineH, descent, knockout } = c.s;
-  const w = c.width(name, c.s.messageSize);
+  const w = c.width(name, 'message');
   const at = { x: x + dir * gap, y: y + lineH - descent };
   const left = dir > 0 ? at.x : at.x - w;
   return [
@@ -85,19 +86,15 @@ export function snapToFrame(art: SeqMessageArt, rect: Rect, c: SeqCtx, outward =
   return { ...art, points, label: [...art.label, ...name] };
 }
 
-/** Formal gates of fragments onto their frames; `frames` lists the frames in the order of the fragments. */
+/** Formal gates of fragments onto their frames. */
 export function snapFragmentGates(
-  m: SequenceModel,
   messages: readonly SeqMessageArt[],
-  frames: readonly SeqShape[],
+  frames: readonly FrameArt[],
   c: SeqCtx,
 ): SeqMessageArt[] {
-  const rects = frames.flatMap((s) => (s.kind === 'rect' && s.role === 'frame' ? [s.rect] : []));
   const byId = new Map<string, Rect>();
-  m.fragments.forEach((f, k) => {
-    const rect = rects[k];
-    if (f.event.id && rect && !byId.has(f.event.id)) byId.set(f.event.id, rect);
-  });
+  for (const f of frames)
+    if (f.fragment.event.id && !byId.has(f.fragment.event.id)) byId.set(f.fragment.event.id, f.rect);
   return messages.map((art) => {
     const rect = art.via === undefined ? undefined : byId.get(art.via);
     return rect ? snapToFrame(art, rect, c) : art;

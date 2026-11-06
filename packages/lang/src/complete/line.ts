@@ -90,12 +90,14 @@ export function lineItems(
   ];
 }
 
-/** The values a field allows: its choices with their meaning, or the declared ids it may refer to. */
+/**
+ * The values a field allows: its choices with their meaning, or the declared ids it may refer to; and the declared
+ * ids it suggests besides.
+ */
 export function valueItems(value: Value<unknown>, doc: string, idsOf: IdsOf): CompletionItem[] {
   if (value.refersTo !== undefined) return idsOf(value.refersTo);
-  return (value.choices ?? []).map((choice) => ({
-    label: choice,
-    kind: 'value',
-    doc: value.meanings?.[choice] ?? doc,
-  }));
+  const choices = (value.choices ?? []).map(
+    (choice): CompletionItem => ({ label: choice, kind: 'value', doc: value.meanings?.[choice] ?? doc }),
+  );
+  return value.suggests === undefined ? choices : [...choices, ...idsOf(value.suggests)];
 }

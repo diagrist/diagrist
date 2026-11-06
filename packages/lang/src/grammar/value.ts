@@ -21,6 +21,12 @@ export interface Value<T> {
   readonly meanings?: Readonly<Record<string, string>>;
   /** The kind of id this value refers to, when it is a reference (see `ref`). */
   readonly refersTo?: readonly string[];
+  /**
+   * Keywords of the statements whose ids completion and the grammar propose for this value besides its own forms,
+   * such as the lifelines a message end may name besides an open end. Unlike `refersTo`, `lang` does not check
+   * them: which declaration a value names, or whether it names one at all, is the kind's to check.
+   */
+  readonly suggests?: readonly string[];
   /** Whether the value declares an id that references can point to. */
   readonly declaresId?: boolean;
   /** Whether the value names a file whose text the line needs, read through the host like `use` (see `file`). */

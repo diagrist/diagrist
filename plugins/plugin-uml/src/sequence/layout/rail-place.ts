@@ -1,4 +1,5 @@
 import type { Rect } from '@diagrist/core';
+import type { Span } from '@diagrist/lang';
 import { hits, type Obstacle, type RailPieces } from './rail-spot.js';
 import type { SeqCtx } from './text.js';
 
@@ -33,6 +34,8 @@ export interface Placed {
   readonly anchorR: number | undefined;
   /** The left common lifeline is the first: the rail on the left crosses no other. */
   readonly leftmost: boolean;
+  /** Where the constraint is written. */
+  readonly span: Span;
 }
 
 /** Bracket with its open side at `x`, text outside beside it, guide lines to the lifeline of the constraint. */

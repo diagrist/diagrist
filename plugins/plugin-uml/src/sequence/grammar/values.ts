@@ -1,5 +1,5 @@
 import { ref, type Value } from '@diagrist/lang';
-import { PARTICIPANT_KINDS } from '../diagram.js';
+import { FRAGMENT_OPERATORS, PARTICIPANT_KINDS } from '../diagram.js';
 
 const NAME = '[\\p{L}_][\\p{L}\\p{N}_-]*';
 const END = new RegExp(`^${NAME}(\\.${NAME})?$`, 'u');
@@ -14,19 +14,25 @@ export const message = (): Value<string> => ref('msg', 'create');
 /**
  * One end of a message. Besides a lifeline it may be an open end (`found`, `lost`), the frame of the
  * interaction (`gate`, `gate.name`) or the frame of a `ref` or fragment with `id=` (`r`, `r.name`). Which one
- * it is depends on the other declarations, so the rule `unknownLifeline` checks it after reading, not `lang`.
+ * it is depends on the other declarations, so the rule `unknownLifeline` checks it after reading, not `lang`;
+ * completion proposes the declared lifelines and frames.
  */
 export const messageEnd = (): Value<string> => ({
   type: 'end',
+  suggests: [...PARTICIPANT_KINDS, 'ref', ...FRAGMENT_OPERATORS],
   expected:
     'a lifeline id like `api`, `found`, `lost`, `gate`, `gate.name`, or the `id=` of a `ref` or fragment, optionally with `.name`',
   tokens: ['word'],
   read: (raw) => (END.test(raw) ? { ok: true, value: raw } : { ok: false }),
 });
 
-/** Lifelines a note or reference spans, comma separated without spaces; checked by the rule `unknownLifeline`. */
+/**
+ * Lifelines a note or reference spans, comma separated without spaces; checked by the rule `unknownLifeline`, and
+ * proposed by completion.
+ */
 export const lifelines = (): Value<readonly string[]> => ({
   type: 'lifelines',
+  suggests: PARTICIPANT_KINDS,
   expected: 'lifeline ids separated by commas without spaces, like `auftrag,lager`',
   tokens: ['word'],
   read: (raw) => {

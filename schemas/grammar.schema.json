@@ -87,6 +87,13 @@
             "type": "string"
           },
           "description": "Keywords of the statements whose ids this value refers to."
+        },
+        "suggests": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Keywords of the statements whose ids this value may name besides its own forms; the kind checks them, not the grammar."
         }
       },
       "required": [
