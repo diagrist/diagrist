@@ -10,7 +10,9 @@ export interface Priced {
 
 /**
  * Families of actors without a given or fixed side try the other side while the picture is not clean; when the
- * picture costs less there by the measure of the line check, the change stays. In turn, until nothing improves.
+ * picture costs less there by the measure of the line check, the change stays. In turn, until nothing improves; where
+ * no family alone improves it, two change sides together, since one may only clear the lane the other needs, where
+ * that takes fewer layouts than flips of one: with two families, one pair.
  */
 export function flipFamilies<T extends Priced>(
   p: Parts,
@@ -23,12 +25,18 @@ export function flipFamilies<T extends Priced>(
   const free = families(p).filter((members) =>
     members.every((id) => byId.get(id)?.side === undefined && !fixed.has(id)),
   );
+  const flipped = (moved: readonly (readonly string[])[]) => {
+    const trial = new Map(best.side);
+    for (const id of moved.flat()) trial.set(id, trial.get(id) === 'left' ? 'right' : 'left');
+    return run(trial);
+  };
+  const all = free.flatMap((a, i) => free.slice(i + 1).map((b) => [a, b]));
+  const pairs = all.length < free.length ? all : [];
   for (let improved = true; improved && !best.clean; ) {
     improved = false;
-    for (const members of free) {
-      const trial = new Map(best.side);
-      for (const id of members) trial.set(id, trial.get(id) === 'left' ? 'right' : 'left');
-      const got = run(trial);
+    for (const moved of [...free.map((f) => [f]), ...pairs]) {
+      if (improved && moved.length > 1) break;
+      const got = flipped(moved);
       if (got.cost < best.cost) {
         best = got;
         improved = true;
