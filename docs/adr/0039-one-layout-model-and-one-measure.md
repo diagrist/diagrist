@@ -308,3 +308,14 @@ byte the same, and so is every picture of the other kinds.
 With one way into the channel stage, three pieces beside it had no user and went: `seatMarks`, the older search that
 moved marks off the texts on their line, `placeLabels` with the path of `adaptiveLabels` that kept labels a kind had
 placed, and the branch of `labelEdges` that set the texts of a channel grid through `signEdges` a second time.
+
+## Amendment: weak pictures after the move (06.11.2026)
+
+**The sides of rails are searched.** Where rails stand inside the first order, `arrangeRails` pins their ends to the
+side they stand nearer, one rail after the other, which can leave a picture worse than another choice would: the
+initial state of `gedaechtnis` stood under `Bereit` beside its chain, and the exit point of `auftrag-parallel` sat
+left of its state with its line round the picture. `laidOut` now lays such a picture out once more for every other
+choice of the rails that stood inside, up to four of them, each to the left, to the right or to neither
+(`railChoices`), and keeps the cheapest by `scoreOf`, the first on a tie. `gedaechtnis` runs `abbrechen` on the
+right, its initial state straight over its chain, 4 bends, 311 px of line and 105 px of width less, its crossing
+kept; `auftrag-parallel` leaves `In Bearbeitung` at the bottom through `Storno` beside `Storniert`, 101 px narrower.
