@@ -51,9 +51,13 @@ stress budgets count, such as bends a straight line could spare, reached no sear
 5. **One order per side, and the side a line bends to.** The ends on a side of a box stand in the order of their
    other ends; an end that comes along the trunk of a fan or join holds its place lightly, so it gives way to a
    piece that can run straight. An end on the top of a box keeps a port gap away from the vertical of a line that
-   runs beside the layer above, which crosses the whole gap, so the two never lie on one another. A line beside its
-   layer that is no neighbours' runs below the layer or above it, whichever costs less by `scoreOf`, tried line by
-   line (the plan's R3; its `apart` for tracks stays out, measured at 5 to 13 crossings in `raute`).
+   runs beside the layer above, which crosses the whole gap, so the two never lie on one another; a line above its
+   layer needs no such room, since its verticals reach only the boxes it enters. A line beside its layer that is no
+   neighbours' runs below the layer or above it, chosen in the port stage on the ports of the placement: below, it
+   crosses the pieces whose horizontal passes one of its ends and those entering a box between its ends; above, only
+   the latter; the side that crosses fewer wins, a tie stays below (the plan's R3; its `apart` for tracks stays out,
+   measured at 5 to 13 crossings in `raute`). It is the same for hub pictures, which no longer keep their lines
+   below, and costs one more port pass instead of a layout per line.
 6. **Leaves are packed, and full layers keep families together** (plan R4, owner decision D3). An edge of the
    layering may be `free`: its ends would rather stand side by side, but a leaf, a node whose one edge is `free`,
    stands beside its node only while that has a place at either side; the smallest leaves take those places, the
@@ -68,6 +72,7 @@ stress budgets count, such as bends a straight line could spare, reached no sear
 ## Consequences
 
 The block search (`spread.ts`) still estimates lines in half columns before anything is laid out; it has no lines
-to measure and goes with the blocks (plan P5). Raising the tie-breaking weights belongs to the changes that make
-coordinates and ports leave no jogs and overlaps behind (plan P2, P3), each with the stress budgets to show what it
-buys. A layout stage that wants to compare two of its own variants can now ask the same question the check answers.
+to measure and goes with the blocks (plan P5), which need layers that weigh the height of a frame against the lines
+it lengthens before they can go: without the search, `pakete-quer` lays its five packages out in a row at 3.4 : 1.
+Placeholders that cross a frame they have no end in, at a cost (R5), need an order that knows length, since the way
+around a frame costs an order nothing. Frames as ends of edges and loops as a route profile stay with the kind. A layout stage that wants to compare two of its own variants can now ask the same question the check answers.

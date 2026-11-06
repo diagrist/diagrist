@@ -2,6 +2,7 @@ import type { Rect } from '@diagrist/core';
 import type { Route } from '../layout.js';
 import { scoreOf } from '../score.js';
 import type { Arrangement } from './arrange.js';
+import { type Around, bendSides } from './bend.js';
 import { besideRoutes, sideOf } from './beside.js';
 import { assignTracks, gapHeight, type Piece, piecesOf } from './channels.js';
 import { coords, spinesOf, type Xs } from './coords.js';
@@ -21,11 +22,7 @@ import type { LayeredSpec } from './spec.js';
 export type { LayeredLayout } from './output.js';
 
 /** Positions, ports, tracks, routes and labels of an arranged picture. */
-export function finish(
-  spec: LayeredSpec,
-  arrangement: Arrangement,
-  up: ReadonlySet<string> = new Set(),
-): LayeredLayout {
+export function finish(spec: LayeredSpec, arrangement: Arrangement): LayeredLayout {
   const m = spec.metrics;
   const { ranked, neighbours, layers } = arrangement;
   const core = new Set(spec.hub?.core ?? []);
@@ -69,7 +66,7 @@ export function finish(
     const price = (p: Placement) => scoreOf(layeredLines(spec, draw(p))).cost;
     return unjog({ layers, width, gap, groups, ranked, settle, blockOf: fr.block, price, spines }, settled);
   };
-  const below = besideRoutes(ranked, layers, up, m.lead);
+  let below = besideRoutes(ranked, layers, new Set(), m.lead);
   const links = linksOf(spec, ranked).filter((l) => !runs.hidden(l.edge));
   const groups = groupsOf(spec, ranked, layers, links);
   const seats = seatsOf(spec.edges, groups, ranked);
@@ -162,6 +159,18 @@ export function finish(
     return keptInside(laid, floor);
   };
   let placement = place();
+  const around = below.around.flatMap((id): Around[] => {
+    const at = (end: string) => below.ends.find((l) => l.edge === `${id}:${end}`);
+    const [a, b] = [at('from'), at('to')];
+    return a && b
+      ? [{ id, layer: a.gap, from: placement.ports.bottom.get(a) ?? 0, to: placement.ports.bottom.get(b) ?? 0 }]
+      : [];
+  });
+  const up = bendSides(around, groups, placement.ports);
+  if (up.size > 0) {
+    below = besideRoutes(ranked, layers, up, m.lead);
+    placement = settle(placement.x);
+  }
   const entries = links.map((l) => ({ upper: l.upper, lower: l.lower, x: placement.ports.top.get(l) ?? 0 }));
   if (fr.heads(entries, placement.flat)) placement = place();
   return draw(placement);
