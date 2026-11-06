@@ -1,41 +1,32 @@
-import { DEFAULT_THRESHOLDS, textWidth } from '@diagrist/core';
-import type { EdgeText, GridColumn, GridGroup, GridMetrics, GridNode, GridSpec, Pads } from '@diagrist/layout-grid';
+import { textWidth } from '@diagrist/core';
+import type {
+  GraphCell,
+  GraphCells,
+  GraphEdge,
+  GraphNode,
+  GridColumn,
+  GridNode,
+  LayoutGraph,
+} from '@diagrist/layout-grid';
 import type { Look } from '../looks/look.js';
-import type { ArchEdge, ArchGroup, ArchitectureModel, ArchNode } from '../model/types.js';
+import type { ArchitectureModel, ArchNode } from '../model/types.js';
 import type { Texts } from '../texts/index.js';
-import { signedLabel } from './diff.js';
-import { headRect } from './head-rect.js';
+import { frameOf, type Head } from './frame-cell.js';
+import { type GridStart, metricsOf } from './graph-metrics.js';
 import { fixedWidth, isCircle, isFigure, nodeHeight, nodeWidth, secondLine } from './measure.js';
 import { tabStretch } from './tab.js';
 
 const PERSON_W = 40;
 const PERSON_TEXT_PAD = 16;
-const TAG_MIN_W = 120;
 const HEADING_GROW = 4;
 
-/** Second line of an edge label: protocol, schedule, volume and promise, in this order, where given. */
-export const detailLine = (e: ArchEdge): string => [e.via, e.schedule, e.volume, e.sla].filter(Boolean).join(' · ');
-
-/** Width of a tag such as `CLOSED` at the right of a frame. */
-export const tagWidth = (tag: string, look: Look): number =>
-  Math.max(TAG_MIN_W, textWidth(tag, look.fonts.name) + 2 * look.metrics.nodePad);
+interface Placement {
+  readonly node: GraphNode;
+  readonly cell: GraphCell;
+}
 
 /** Font size of titles on the side and on cards: a bit larger than a group head. */
 export const headingSize = (look: Look): number => look.fonts.group.size + HEADING_GROW;
-
-/** Pads of a frame: room for the head on top, a side title on the left, a tag on the right. */
-function pads(g: ArchGroup, model: ArchitectureModel, look: Look): Pads {
-  const m = look.metrics;
-  const titled = g.title !== '' && g.heading !== 'side';
-  const sides = model.groups.filter((s) => s.heading === 'side' && s.title !== '');
-  const side = Math.max(0, ...sides.map((s) => textWidth(s.title, look.fonts.heading)));
-  return {
-    top: titled ? m.groupPadTop : m.groupPadBottom,
-    bottom: m.groupPadBottom,
-    left: m.groupPadX + (g.heading === 'side' ? side + m.groupPadX : 0),
-    right: m.groupPadX + (g.tag ? tagWidth(g.tag, look) + m.groupPadX : 0),
-  };
-}
 
 /**
  * A column of only people is as wide as their longest text, at least `personW`. In a fixed grid a column holding
@@ -76,7 +67,8 @@ function reserveOf(n: ArchNode, look: Look): GridNode['reserve'] {
   return crest > 0 ? { top: { from: -crest, to: crest, origin: 'middle' } } : undefined;
 }
 
-function gridNode(n: ArchNode, at: NonNullable<ArchNode['at']>, adaptive: boolean, look: Look): GridNode {
+/** A node of the model as a node of the layout graph, ellipse for a circle, and its cell in the author's grid. */
+function cellOf(n: ArchNode, at: NonNullable<ArchNode['at']>, adaptive: boolean, look: Look): Placement {
   const { metrics: m, fonts } = look;
   const reserve = reserveOf(n, look);
   const circle = isCircle(n, look);
@@ -92,108 +84,62 @@ function gridNode(n: ArchNode, at: NonNullable<ArchNode['at']>, adaptive: boolea
         : { width: Math.max(m.nodeW, measured), exact: false };
   const tech = n.tech ? textWidth(n.tech, secondLine(n, fonts)) : 0;
   const caption = { w: Math.max(textWidth(n.label, fonts.name), tech), below: fonts.name.size + 10 };
-  return {
+  const node: GraphNode = {
     id: n.id,
+    width: demand.width,
+    height: nodeHeight(n, look),
+    shape: circle ? 'ellipse' : 'box',
+    ...(n.source ? { source: n.source } : {}),
+  };
+  const cell: GraphCell = {
+    node: n.id,
     col: at.col,
     row: at.row,
     ...(n.span ? { to: { col: n.span.col, ...(n.span.row ? { row: n.span.row } : {}) } } : {}),
     ...(n.slot ? { slot: n.slot } : {}),
     ...(width !== undefined ? { width } : {}),
     ...(own !== undefined && !circle ? { height: own } : {}),
-    rowHeight: nodeHeight(n, look),
-    demand,
-    shape: circle ? 'circle' : 'box',
+    ...(demand.exact ? { exact: true } : {}),
     ...(circle || isFigure(n, look)
       ? { caption: { ...caption, below: caption.below + (n.tech ? m.nodeLineH : 0) } }
       : {}),
     ...(reserve ? { reserve } : {}),
-    source: n.source,
   };
-}
-
-function gridGroup(g: ArchGroup, model: ArchitectureModel, look: Look, texts: Texts): GridGroup {
-  const head = headRect(g, look, g.team ?? (g.role ? texts.roles[g.role] : ''));
-  return {
-    id: g.id,
-    ...(g.parent ? { parent: g.parent } : {}),
-    members: g.members,
-    pads: pads(g, model, look),
-    ...(g.cover ? { cover: g.cover } : {}),
-    ...(head ? { head } : {}),
-    source: g.source,
-  };
-}
-
-/** Where the grid starts: the top of its first row, and the room left of it besides the margin. */
-export interface GridStart {
-  readonly firstRowY: number;
-  readonly indent: number;
-}
-
-/** The measures `layout-grid` takes; the icon circle of a card on the top edge overhangs its row. */
-function gridMetricsOf({ metrics: m, fonts, options }: Look, start: GridStart): GridMetrics {
-  return {
-    grid: m.grid,
-    nodeW: m.nodeW,
-    nodeH: m.nodeH,
-    colGap: m.colGap,
-    subColGap: m.subColGap,
-    rowGap: m.rowGap,
-    marginX: m.marginX,
-    firstRowY: start.firstRowY,
-    ...(start.indent > 0 ? { indent: start.indent } : {}),
-    margin: m.margin,
-    laneGap: m.laneGap,
-    portSpread: m.portSpread,
-    loopReach: m.loopReach,
-    framePad: { top: m.groupPadTop, bottom: m.groupPadBottom, x: m.groupPadX },
-    labelFont: fonts.label,
-    labelLineH: m.labelLineH,
-    labelGap: m.labelGap,
-    rowOverhang: options.nodes === 'card' ? m.cardIconR : 0,
-    lead: DEFAULT_THRESHOLDS.lead,
-  };
+  return { node, cell };
 }
 
 /**
- * The grid of a model as `layout-grid` takes it, starting where `start` says, and the texts of its edges; edge ids
- * are their indices.
+ * The layout graph of a model in the author's grid, starting where `start` says, without its texts and signs, and
+ * the heads of its frames by id; edge ids are their indices.
  */
-export function gridSpecOf(
+export function graphOf(
   model: ArchitectureModel,
   look: Look,
   words: Texts,
   start: GridStart = { firstRowY: look.metrics.firstRowY, indent: 0 },
-): { spec: GridSpec; texts: EdgeText[] } {
-  const nodes = model.nodes.flatMap((n) => (n.at ? [gridNode(n, n.at, model.adaptive, look)] : []));
-  const edges = model.edges.map((e) => ({
-    id: String(e.index),
-    from: e.from,
-    to: e.to,
-    ...(e.bundle ? { bundle: e.bundle } : {}),
-    ...(e.lane ? { lane: e.lane } : {}),
-    source: e.source,
-  }));
-  const texts = model.edges.map((e): EdgeText => {
-    const detail = detailLine(e);
-    const name = signedLabel(e.label, e.origin);
-    return {
-      edge: String(e.index),
-      ...(name ? { name } : {}),
-      ...(detail ? { detail } : {}),
-      accent: e.step?.accent === true,
-    };
-  });
-  const spec: GridSpec = {
+): { graph: Omit<LayoutGraph, 'given'>; cells: Omit<GraphCells, 'texts'>; heads: ReadonlyMap<string, Head> } {
+  const placed = model.nodes.flatMap((n) => (n.at ? [cellOf(n, n.at, model.adaptive, look)] : []));
+  const framed = model.groups.map((g) => frameOf(g, model, look, words));
+  const edges = model.edges.map(
+    (e): GraphEdge => ({
+      id: String(e.index),
+      from: e.from,
+      to: e.to,
+      rank: 'free',
+      ...(e.bundle ? { bundle: e.bundle } : {}),
+      ...(e.source ? { source: e.source } : {}),
+    }),
+  );
+  const { metrics, cells: measures } = metricsOf(look, start);
+  const graph = { nodes: placed.map((p) => p.node), edges, containers: framed.map((f) => f.container), metrics };
+  const cells = {
     cols: model.cols.map((name) => column(name, model, look, words)),
     rows: model.rows.map((name) => ({ name })),
-    nodes,
-    groups: model.groups.map((g) => gridGroup(g, model, look, words)),
-    edges,
-    metrics: gridMetricsOf(look, start),
+    cells: placed.map((p) => p.cell),
+    frames: framed.map((f) => f.frame),
+    lanes: model.edges.flatMap((e) => (e.lane ? [{ edge: String(e.index), col: e.lane }] : [])),
     adaptive: model.adaptive,
-    channels: true,
-    drops: model.adaptive,
+    metrics: measures,
   };
-  return { spec, texts };
+  return { graph, cells, heads: new Map(framed.flatMap((f) => (f.head ? [[f.container.id, f.head] as const] : []))) };
 }

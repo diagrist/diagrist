@@ -1,6 +1,6 @@
 import type { Placed, Point, Rect } from '@diagrist/core';
 import type { Locale } from '@diagrist/lang';
-import { bottom, type EdgeLabel, placedOf, type Route, right } from '@diagrist/layout-grid';
+import { bottom, type EdgeLabel, layoutGraph, type Route, right } from '@diagrist/layout-grid';
 import { decisionStrip, type Legend, legendLayout, type Sheet, type Strip, WORDS } from '@diagrist/parts';
 import { lookOf } from '../looks/index.js';
 import type { Look } from '../looks/look.js';
@@ -10,7 +10,6 @@ import type { Texts } from '../texts/index.js';
 import { type NodeArt, nodeArt } from './art.js';
 import { type BandSheet, bandFrameOf, bandSheetOf } from './bands/index.js';
 import { type Context, contextOf } from './focus.js';
-import { placeSigned } from './grown.js';
 import { type FrameHead, frameHead } from './heads.js';
 import { headTexts, insideTexts } from './inside.js';
 import { type LayerArt, layerArts } from './layers.js';
@@ -19,7 +18,8 @@ import { type Badge, type Mark, markRect } from './marks.js';
 import { nodeMarkTexts } from './node-marks.js';
 import { type NoteArt, noteArts } from './notes.js';
 import { sheetFor } from './sheet.js';
-import { crestOf, gridSpecOf } from './spec.js';
+import { signsFrom, signsOf } from './signs.js';
+import { crestOf, graphOf } from './spec.js';
 
 /** An element in the picture with everything inside it. */
 export interface PlacedElement {
@@ -71,10 +71,11 @@ export function layoutArchitecture(model: ArchitectureModel, texts: Texts, local
   const look = lookOf(model);
   const { metrics: m, options: o } = look;
   const frame = bandFrameOf(model, look);
-  const given = gridSpecOf(frame.model, look, texts, frame);
-  const { spec, routes, signs: signed } = placeSigned(model, given.spec, given.texts, look);
-  const { grid: pl, labels, badges, numbered, marks } = signed;
-  const lines: readonly (readonly Point[])[] = spec.adaptive ? routes.map((r) => r.points) : [];
+  const { graph, cells, heads } = graphOf(frame.model, look, texts, frame);
+  const laid = layoutGraph({ ...graph, given: { cells: { ...cells, ...signsOf(model, look) } } });
+  const { grid: pl, routes, labels } = laid;
+  const { badges, numbered, marks } = signsFrom(model, laid, look);
+  const lines: readonly (readonly Point[])[] = model.adaptive ? routes.map((r) => r.points) : [];
   const byId = new Map(model.nodes.map((n) => [n.id, n]));
   const nodes = pl.nodes.flatMap((p) => {
     const node = byId.get(p.id);
@@ -110,7 +111,7 @@ export function layoutArchitecture(model: ArchitectureModel, texts: Texts, local
   const noteBottom = Math.max(0, ...notes.map((n) => bottom(n.rect) + m.groupPadBottom));
   const body = strip.cards.length > 0 ? strip.bottom : Math.max(pl.bottom, noteBottom);
   const beside = [
-    ...(spec.adaptive ? [routeRight, ...layers.map((l) => right(l.rect))] : []),
+    ...(model.adaptive ? [routeRight, ...layers.map((l) => right(l.rect))] : []),
     ...notes.map((n) => right(n.rect)),
   ];
   const width = Math.max(pl.width, ...beside.map((x) => x + m.marginX));
@@ -135,12 +136,9 @@ export function layoutArchitecture(model: ArchitectureModel, texts: Texts, local
     width: sheet?.width ?? width,
     height: sheet?.height ?? (legend ? Math.max(strip.bottom + m.legendReserve, legend.bottom) : body + m.margin),
     placed: [
-      ...placedOf(spec, pl, routes, labels, [
-        ...numbered,
-        ...marks.flatMap((k) => (k.route === undefined ? [] : [{ route: k.route, rect: markRect(k), name: 'mark' }])),
-      ]),
+      ...laid.placed,
       ...insideTexts(nodes, look, texts),
-      ...headTexts(frames, spec.groups),
+      ...headTexts(frames, heads),
       ...nodeMarkTexts(marks, new Map(model.nodes.flatMap((n) => (n.mark ? [[n.mark, n.id] as const] : []))), pl),
     ],
   };

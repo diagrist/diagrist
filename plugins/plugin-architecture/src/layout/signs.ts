@@ -1,104 +1,81 @@
 import type { Rect } from '@diagrist/core';
-import {
-  type EdgeLabel,
-  type EdgeText,
-  fitFrames,
-  type GridLayout,
-  type GridSpec,
-  labelEdges,
-  type Route,
-  signEdges,
-} from '@diagrist/layout-grid';
+import type { CellLayout, EdgeText, GraphCells } from '@diagrist/layout-grid';
 import type { Look } from '../looks/look.js';
-import type { ArchitectureModel } from '../model/types.js';
-import {
-  type Badge,
-  MARK,
-  type Mark,
-  markRect,
-  markSpots,
-  marksInside,
-  marksOf,
-  NUMBER_SIZE,
-  TEXT_GAP,
-} from './marks.js';
-import { placeNodeMarks } from './node-marks.js';
+import type { ArchEdge, ArchitectureModel } from '../model/types.js';
+import { signedLabel } from './diff.js';
+import { type Badge, MARK, type Mark, NUMBER_SIZE, TEXT_GAP } from './marks.js';
 
-/** The texts of the edges, the flow numbers with the rectangles they cover, and the decision marks of a picture. */
+/** The flow numbers with the rectangles they cover, and the decision marks of a picture. */
 export interface Signs {
-  /** The grid after frames grew around routes and labels, in an adaptive grid; else the grid as placed. */
-  readonly grid: GridLayout;
-  readonly labels: readonly EdgeLabel[];
   readonly badges: readonly Badge[];
   readonly numbered: readonly { readonly route: number; readonly rect: Rect }[];
   readonly marks: readonly Mark[];
-  /** Routes whose texts found no clear spot in a channel grid, for its gutters to grow (`gutterRoom`). */
-  readonly crowded: readonly number[];
 }
 
-/** The room texts keep from a flow number in a channel grid, besides the pad every sign keeps. */
+/** The room texts keep from a flow number, besides the pad every sign keeps. */
 const SIGN_ROOM = 2;
 
+/** Where a decision mark stands inside the top right corner of its node, left of a replica tag. */
+const CORNER = { dx: 20, dy: 13, replicas: 30 } as const;
+
+/** Second line of an edge label: protocol, schedule, volume and promise, in this order, where given. */
+export const detailLine = (e: ArchEdge): string => [e.via, e.schedule, e.volume, e.sla].filter(Boolean).join(' · ');
+
 /**
- * Flow numbers, decision marks and edge texts, through the channels of the grid: numbers first, clear of boxes,
- * frames, foreign lines and marks, and then the texts clear of all of them. A text of an adaptive grid stays where
- * `labelEdges` seats it while that is clear; frames of an adaptive grid then grow around the routes between their own
- * nodes and the texts and numbers on them.
+ * The texts and signs of a picture's lines as the grid sets them: names with their diff sign and details, flow
+ * numbers on their edges, decision marks beside the head of their edge and at the corner of their node, inside the
+ * box with `marks: inside`; texts stand on their line where the look cuts them out of it.
  */
 export function signsOf(
   model: ArchitectureModel,
-  spec: GridSpec,
-  placed: GridLayout,
-  routes: readonly Route[],
-  texts: readonly EdgeText[],
   look: Look,
-): Signs {
+): Omit<GraphCells, 'cols' | 'rows' | 'cells' | 'adaptive' | 'metrics'> {
   const { metrics: m, options: o } = look;
-  const size = NUMBER_SIZE[o.numbers.form];
-  const onLine = o.edgeText.place === 'onLine' ? { onLine: { pad: TEXT_GAP, avoid: [] } } : {};
-  const rectOf = (b: Badge) => ({ x: b.x - size.w / 2, y: b.y - size.h / 2, ...size });
-  const rects = new Map(placed.nodes.map((p) => [p.id, p.rect]));
-  const { badges: free, marks: aside } = marksOf(model, routes, rects, m);
-  const owners = new Map(model.nodes.flatMap((n) => (n.mark ? [[n.mark, n.id] as const] : [])));
-  const heads = spec.groups.flatMap((g) => {
-    const h = g.head;
-    const r = placed.groups.find((p) => p.id === g.id)?.rect;
-    if (!h || !r) return [];
-    return [{ x: (h.origin === 'middle' ? r.x + r.w / 2 : r.x) + h.x, y: r.y + h.y, w: h.w, h: h.h }];
+  const texts = model.edges.map((e): EdgeText => {
+    const detail = detailLine(e);
+    const name = signedLabel(e.label, e.origin);
+    return {
+      edge: String(e.index),
+      ...(name ? { name } : {}),
+      ...(detail ? { detail } : {}),
+      accent: e.step?.accent === true,
+    };
   });
-  const marks =
-    o.marks === 'inside'
-      ? marksInside(aside, model.nodes, rects)
-      : placeNodeMarks(aside, owners, placed, routes, heads);
-  const mark = { ...size, room: SIGN_ROOM };
-  const onEdges = marks.filter((k) => k.route !== undefined);
-  const avoid = marks.filter((k) => k.route === undefined).map(markRect);
-  const at = onEdges.map((k) => ({ route: k.route ?? 0, spots: markSpots(routes[k.route ?? 0]?.points ?? []) }));
-  const pins = { ...MARK, at };
-  const flat = o.edgeText.flat;
-  const seats = spec.adaptive
-    ? { placed: labelEdges(spec, placed, routes, texts, { preferFlat: flat, ...onLine }) }
-    : {};
-  const signed = signEdges(spec, placed, routes, texts, free, {
-    preferFlat: flat,
-    ...onLine,
-    avoid,
-    mark,
-    pins,
-    ...seats,
+  const inside = o.marks === 'inside';
+  const at = model.nodes.flatMap((n) => {
+    if (!n.mark || !n.at) return [];
+    const shift = n.replicas !== undefined || n.shape === 'job' ? CORNER.replicas : 0;
+    return [{ node: n.id, ...(inside ? { inside: { dx: CORNER.dx + shift, dy: CORNER.dy } } : {}) }];
   });
-  const moved = marks.map((k) => {
-    const spot = signed.pins[onEdges.indexOf(k)];
-    return spot ? { ...k, x: spot[0], y: spot[1] } : k;
-  });
-  const numbered = signed.marks.map((b) => ({ route: b.route, rect: rectOf(b) }));
-  const boxes = [...signed.labels, ...numbered.map((n) => ({ route: n.route, box: n.rect }))];
   return {
-    grid: spec.adaptive ? fitFrames(spec, placed, routes, boxes) : placed,
-    labels: signed.labels,
-    badges: signed.marks,
-    numbered,
-    marks: moved,
-    crowded: signed.crowded,
+    texts,
+    preferFlat: o.edgeText.flat,
+    ...(o.edgeText.place === 'onLine' ? { onLine: { pad: TEXT_GAP, avoid: [] } } : {}),
+    signs: {
+      numbers: {
+        ...NUMBER_SIZE[o.numbers.form],
+        room: SIGN_ROOM,
+        offset: m.badgeOffset,
+        edges: model.edges.flatMap((e) => (e.step ? [String(e.index)] : [])),
+      },
+      pins: { ...MARK, edges: model.edges.flatMap((e) => (e.mark ? [String(e.index)] : [])) },
+      corners: { ...MARK, at },
+    },
   };
+}
+
+/** The flow numbers and decision marks of a laid out picture, with what the model says of them. */
+export function signsFrom(model: ArchitectureModel, laid: CellLayout, look: Look): Signs {
+  const size = NUMBER_SIZE[look.options.numbers.form];
+  const edge = (id: string) => model.edges[Number(id)];
+  const badges = laid.numbers.map((b): Badge => {
+    const step = edge(b.edge)?.step;
+    return { n: step?.n ?? 0, route: b.route, x: b.x, y: b.y, accent: step?.accent === true };
+  });
+  const marks: Mark[] = [
+    ...laid.pins.map((p) => ({ id: edge(p.edge)?.mark ?? '', x: p.x, y: p.y, route: p.route })),
+    ...laid.corners.map((c) => ({ id: model.nodes.find((n) => n.id === c.node)?.mark ?? '', x: c.x, y: c.y })),
+  ];
+  const numbered = badges.map((b) => ({ route: b.route, rect: { x: b.x - size.w / 2, y: b.y - size.h / 2, ...size } }));
+  return { badges, numbered, marks };
 }

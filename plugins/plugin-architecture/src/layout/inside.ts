@@ -1,8 +1,8 @@
 import { type Font, type Placed, type Rect, textWidth } from '@diagrist/core';
-import type { GridGroup } from '@diagrist/layout-grid';
 import type { Look } from '../looks/look.js';
 import type { Texts } from '../texts/index.js';
 import type { Spot } from './art.js';
+import type { Head } from './frame-cell.js';
 import type { PlacedElement, PlacedFrame } from './index.js';
 import { isCircle, secondLine } from './measure.js';
 
@@ -45,9 +45,9 @@ export function insideTexts(nodes: readonly PlacedElement[], look: Look, texts: 
  * of: where the kind told the grid it draws them, inside their frame, or the ground cut out of the line for a title
  * on it, on the frame's border.
  */
-export function headTexts(frames: readonly PlacedFrame[], groups: readonly GridGroup[]): Placed[] {
+export function headTexts(frames: readonly PlacedFrame[], heads: ReadonlyMap<string, Head>): Placed[] {
   return frames.flatMap(({ group, rect, head }): Placed[] => {
-    const h = groups.find((g) => g.id === group.id)?.head;
+    const h = heads.get(group.id);
     if (!h) return [];
     const x = (h.origin === 'middle' ? rect.x + rect.w / 2 : rect.x) + h.x;
     const box = head.titleBox ?? { x, y: rect.y + h.y, w: h.w, h: h.h };

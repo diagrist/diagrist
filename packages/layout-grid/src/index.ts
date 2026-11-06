@@ -9,6 +9,16 @@ export {
   right,
   type Side,
 } from './geometry.js';
+export type {
+  CellGraph,
+  CellLayout,
+  CellMetrics,
+  GraphCell,
+  GraphCells,
+  GraphFrameCell,
+  GraphSigns,
+  PlacedSign,
+} from './graph/cells.js';
 export { layoutGraph } from './graph/layout.js';
 export type {
   GraphContainer,

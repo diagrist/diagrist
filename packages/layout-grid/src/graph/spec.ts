@@ -1,6 +1,7 @@
 import type { Placed } from '@diagrist/core';
 import type { Side } from '../geometry.js';
 import type { LayeredMetrics } from '../layered/spec.js';
+import type { GraphCells } from './cells.js';
 
 /** A box of a layout graph, measured by its kind. */
 export interface GraphNode {
@@ -126,6 +127,11 @@ export interface GraphGiven {
   readonly last?: readonly string[];
   /** `right` turns the layers across: they run left to right, the picture laid out down and turned (`graph/turn.ts`). */
   readonly direction?: 'down' | 'right';
+  /**
+   * The author's grid: every node in its cell, frames around their members, lines through the channels of the gaps
+   * (`graph/grid.ts`); the other fields of `given` and the ranks of the edges are not read then.
+   */
+  readonly cells?: GraphCells;
 }
 
 /**

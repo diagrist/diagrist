@@ -2,6 +2,8 @@ import { layoutLayered } from '../layered/index.js';
 import type { LayeredLayout } from '../layered/output.js';
 import type { LayeredEdge, LayeredFrame, LayeredSpec } from '../layered/spec.js';
 import type { LayerEdge, LayerGraph } from '../layers/graph.js';
+import type { CellGraph, CellLayout } from './cells.js';
+import { layoutCells } from './grid.js';
 import type { GraphContainer, GraphEdge, GraphRank, LayoutGraph } from './spec.js';
 import { staged } from './stages.js';
 
@@ -86,8 +88,12 @@ export function specOf(graph: LayoutGraph): LayeredSpec {
 
 /**
  * Lays out a layout graph (ADR 0039): layers, order, positions, ports, tracks, routes and texts, each stage on the
- * data the graph gives and priced by `scoreOf` where it searches. The same graph gives the same picture.
+ * data the graph gives and priced by `scoreOf` where it searches; a graph with the author's cells (`given.cells`) in
+ * its grid, through the channel stage. The same graph gives the same picture.
  */
-export function layoutGraph(graph: LayoutGraph): LayeredLayout {
+export function layoutGraph(graph: CellGraph): CellLayout;
+export function layoutGraph(graph: LayoutGraph): LayeredLayout;
+export function layoutGraph(graph: LayoutGraph): LayeredLayout | CellLayout {
+  if (graph.given?.cells) return layoutCells(graph as CellGraph);
   return staged(graph, (g) => layoutLayered(specOf(g)), specOf);
 }
