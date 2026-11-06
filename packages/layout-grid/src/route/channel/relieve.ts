@@ -3,6 +3,7 @@ import { type Board, type Box, obstaclesFor } from '../boxes.js';
 import type { Plan } from '../grid.js';
 import { freeZigzag, type Lane } from '../shape.js';
 import { freeOf } from './free.js';
+import { leaves } from './inside.js';
 
 const sideKey = (id: string, side: Side): string => `${id}|${side}`;
 
@@ -69,7 +70,8 @@ function otherLane(board: Board, p: Plan): Lane | undefined {
 /**
  * Zs that crowd a side with more ends than its free stretches hold `spread` apart take another gap where both new
  * sides have room and the Z runs through nothing, last declared first, until the crowded side holds its ends: a Z
- * between two boxes of one column or row the gap on the other side of them, any other Z the gap across.
+ * between two boxes of one column or row the gap on the other side of them, any other Z the gap across, unless that
+ * gap lies outside a frame holding both boxes.
  */
 export function relieve(board: Board, plans: readonly Plan[], spread: number, gap: number): Plan[] {
   const out = [...plans];
@@ -82,7 +84,7 @@ export function relieve(board: Board, plans: readonly Plan[], spread: number, ga
     const lane = otherLane(board, p);
     if (!lane || !(over(out, p, 'from') || over(out, p, 'to'))) continue;
     const sides = freeZigzag(p.a, p.b, lane, obstaclesFor(board, p.edge, true));
-    if (!sides) continue;
+    if (!sides || leaves(board, p, lane)) continue;
     const moved: Plan = { ...p, fromSide: sides.fromSide, toSide: sides.toSide, lane };
     const next = out.map((q) => (q === p ? moved : q));
     if (over(next, moved, 'from') || over(next, moved, 'to')) continue;

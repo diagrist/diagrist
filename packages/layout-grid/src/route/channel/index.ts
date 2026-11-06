@@ -6,6 +6,7 @@ import { portPoint } from '../ports.js';
 import type { Routed } from '../routed.js';
 import { detour } from './detour.js';
 import { freeOf, intersect } from './free.js';
+import { keepInside } from './inside.js';
 import { channelPorts } from './ports.js';
 import { relieve } from './relieve.js';
 import { zLanes } from './tracks.js';
@@ -105,7 +106,7 @@ export function channelRoutes(board: Board): Routed[] {
   const planned = relieve(
     board,
     plans(board, (b, e) => obstaclesFor(b, e, true)).map((p) =>
-      bendUnshared(board, straightIfFacing(board, p, m.laneGap), m.laneGap),
+      keepInside(board, bendUnshared(board, straightIfFacing(board, p, m.laneGap), m.laneGap)),
     ),
     m.portSpread,
     m.laneGap,

@@ -4,6 +4,7 @@ import { adaptiveRoutes } from './adaptive.js';
 import { boardOf } from './boxes.js';
 import { adaptiveChannelRoutes } from './channel/adaptive.js';
 import { channelRoutes } from './channel/index.js';
+import { untangle } from './channel/untangle.js';
 import { gridRoutes } from './grid.js';
 import { withLead } from './lead.js';
 import { toRoute } from './routed.js';
@@ -26,7 +27,9 @@ export function routeEdges(spec: GridSpec, layout: GridLayout): Route[] {
     return snapToOutlines(insetLaneEnds(done, spec.metrics.nodeH / 2), board).map(toRoute);
   }
   if (spec.channels === true)
-    return snapToOutlines(insetLaneEnds(channelRoutes(board), spec.metrics.nodeH / 2), board).map(toRoute);
+    return snapToOutlines(insetLaneEnds(untangle(channelRoutes(board), board), spec.metrics.nodeH / 2), board).map(
+      toRoute,
+    );
   const routed = gridRoutes(board);
   const adapted = spec.adaptive ? adaptiveRoutes(routed, board) : routed;
   const lead = spec.metrics.lead;
