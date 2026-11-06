@@ -106,12 +106,13 @@ describe('layered layout', () => {
     for (const y of flats) expect(top - y).toBeGreaterThanOrEqual(METRICS.lead);
   });
 
-  it('seats a label beside the start of its line and gives the same bytes twice', () => {
+  it('seats the label of a straight line beside the middle of the line and gives the same bytes twice', () => {
     const edges = [edge('a', 'b', { label: { text: 'nutzt', width: 30, size: 10 } })];
     const once = lay([box('a'), box('b')], edges);
     const label = once.labels[0];
-    const start = route(once, 'a-b')[0];
+    const [start, end] = route(once, 'a-b');
     expect(label?.box.x).toBe((start?.[0] ?? 0) + METRICS.labelGap);
+    expect((label?.box.y ?? 0) + (label?.box.h ?? 0) / 2).toBe(((start?.[1] ?? 0) + (end?.[1] ?? 0)) / 2);
     expect(JSON.stringify(lay([box('a'), box('b')], edges))).toBe(JSON.stringify(once));
   });
 
