@@ -1,9 +1,8 @@
 import { type Rect, STANDARD_FONTS } from '@diagrist/core';
 import { wrap as greedy } from '@diagrist/parts';
 import { ACT, SIZE, widthOf } from './metrics.js';
-import type { Placement } from './place.js';
+import type { Placement, Routed } from './placement.js';
 import type { ActivityText, RegionArt } from './regions.js';
-import type { Routed } from './route.js';
 
 /** Gap of the name to the frame and to lines crossing the band. */
 const INSET = 8;

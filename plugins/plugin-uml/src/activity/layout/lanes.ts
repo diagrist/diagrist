@@ -33,24 +33,20 @@ export function laneMinWidth(g: Graph, lane: number, content: number): number {
   return Math.ceil(Math.max(ACT.laneMinW, content + 2 * ACT.lanePadX, head) / ACT.laneStep) * ACT.laneStep;
 }
 
-/** Lanes side by side, all as tall, with a head and the name centred in it. */
-export function laneArt(
-  g: Graph,
-  xs: readonly number[],
-  widths: readonly number[],
-  frame: LaneFrame,
-  bottom: number,
-): LaneArt[] {
-  if (!frame.visible) return [];
-  return g.partitions.map((p, i) => {
-    const x = xs[i] ?? 0;
-    const w = widths[i] ?? 0;
-    return {
-      id: p.id,
-      label: p.label,
-      rect: { x, y: frame.top, w, h: bottom - frame.top },
-      head: { x, y: frame.top, w, h: ACT.laneHeadH },
-      text: { x: x + w / 2, y: frame.top + ACT.laneHeadH / 2 + SIZE.node / 3 },
-    };
+/** The lanes as the layout placed their columns, each with a head and the name centred in it. */
+export function laneArt(g: Graph, columns: ReadonlyMap<string, Rect>): LaneArt[] {
+  return g.partitions.flatMap((p) => {
+    const rect = columns.get(p.id);
+    if (!rect) return [];
+    const { x, y, w } = rect;
+    return [
+      {
+        id: p.id,
+        label: p.label,
+        rect,
+        head: { x, y, w, h: ACT.laneHeadH },
+        text: { x: x + w / 2, y: y + ACT.laneHeadH / 2 + SIZE.node / 3 },
+      },
+    ];
   });
 }

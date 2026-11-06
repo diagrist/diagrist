@@ -5,7 +5,7 @@ import type { GuardText } from './guards.js';
 import type { SideText } from './index.js';
 import type { LaneArt } from './lanes.js';
 import { SIZE, widthOf } from './metrics.js';
-import type { PlacedNode } from './place.js';
+import type { PlacedNode } from './placement.js';
 import type { ActivityText, RegionArt } from './regions.js';
 
 /** What the layout of an activity diagram hands to `placedOf`. */

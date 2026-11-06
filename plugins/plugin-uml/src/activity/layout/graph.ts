@@ -53,7 +53,3 @@ export function layoutGraph(m: ActivityModel): Graph {
     expansions: m.diagram.expansions,
   };
 }
-
-/** Handler actions and the action each protects first. */
-export const handlerOf = (g: Graph): Map<string, string> =>
-  new Map(g.flows.filter(isHandlerFlow).map((f) => [f.to, f.from]));

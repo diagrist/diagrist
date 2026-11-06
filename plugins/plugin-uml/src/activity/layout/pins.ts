@@ -1,11 +1,10 @@
 import type { Point, Rect } from '@diagrist/core';
 import { type Side, simplify } from '@diagrist/layout-grid';
 import { type Graph, isHandlerFlow } from './graph.js';
-import { ACT, SIZE } from './metrics.js';
+import { ACT, SIZE, widthOf } from './metrics.js';
 import { docks, far, moveEnd, moveStart, type Pin } from './pin-docks.js';
-import type { PlacedNode, Placement } from './place.js';
+import type { PlacedNode, Placement, Routed } from './placement.js';
 import type { ActivityText } from './regions.js';
-import type { Routed } from './route.js';
 import type { PinArt } from './size.js';
 
 const NORMAL: Readonly<Record<Side, Point>> = { top: [0, -1], bottom: [0, 1], left: [-1, 0], right: [1, 0] };
@@ -109,5 +108,35 @@ export function placePins(
     nodes.set(id, { ...p, art: { ...p.art, pins: arts } });
   }
   const moved = routes.map((r) => ({ ...r, points: simplify(points.get(r) ?? []) }));
+  for (const [id, p] of nodes)
+    if (p.art.pins) nodes.set(id, { ...p, art: { ...p.art, pins: p.art.pins.map((pin) => clearName(pin, moved)) } });
   return { placement: { ...pl, nodes }, routes: moved };
+}
+
+/** Does a piece of a route pass through the rectangle? */
+const crosses = (r: Rect, routes: readonly Routed[]): boolean =>
+  routes.some((route) =>
+    route.points.slice(1).some((b, k) => {
+      const a = route.points[k] as Point;
+      return (
+        Math.min(a[0], b[0]) < r.x + r.w &&
+        Math.max(a[0], b[0]) > r.x &&
+        Math.min(a[1], b[1]) < r.y + r.h &&
+        Math.max(a[1], b[1]) > r.y
+      );
+    }),
+  );
+
+/**
+ * The name of a pin on the top or bottom moves to the left of its square where a line runs through it on the right
+ * and none on the left.
+ */
+function clearName(pin: PinArt, routes: readonly Routed[]): PinArt {
+  const t = pin.text;
+  if (t.anchor !== 'start' || t.x < pin.rect.x + pin.rect.w) return pin;
+  const w = widthOf.label(t.text);
+  const box = (x: number): Rect => ({ x, y: t.y - SIZE.label, w, h: SIZE.label + 3 });
+  const left = pin.rect.x - ACT.pinGap;
+  if (!crosses(box(t.x), routes) || crosses(box(left - w), routes)) return pin;
+  return { ...pin, text: { ...t, x: left, anchor: 'end' } };
 }

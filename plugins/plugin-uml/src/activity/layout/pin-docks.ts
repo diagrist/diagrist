@@ -1,8 +1,10 @@
 import type { Point, Rect } from '@diagrist/core';
 import { cx, type Side } from '@diagrist/layout-grid';
-import { SIDE_PIN_SLOT } from './extents.js';
 import { ACT, SIZE, widthOf } from './metrics.js';
-import type { Routed } from './route.js';
+import type { Routed } from './placement.js';
+
+/** Distance of two pins on one side: name, air, square and air. */
+export const SIDE_PIN_SLOT: number = SIZE.label + 2 * ACT.pinGap + ACT.pin;
 
 /** A pin of an action with the edges that start at it (output) or end at it (input). */
 export interface Pin {

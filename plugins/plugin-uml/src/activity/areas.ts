@@ -1,7 +1,7 @@
 import { lineArea } from '@diagrist/core';
 import type { Flow } from './diagram.js';
 import { layoutGraph } from './layout/graph.js';
-import { nodeLanes } from './layout/rank.js';
+import { nodeLanes } from './layout/hidden.js';
 import type { ActivityModel } from './model/index.js';
 
 /** Where a node and an edge of an activity diagram belong (ADR 0033). */

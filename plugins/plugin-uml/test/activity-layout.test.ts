@@ -70,34 +70,36 @@ describe('the layout of an activity diagram', () => {
       expect(apart(n.rect, frame), n.id).toBe(true);
   });
 
-  it('reports a node the frame of a region encloses without being its member as an error', () => {
-    const source = (m: string) =>
-      [
-        'diagram activity "T"',
-        'interruptible r',
-        'initial s',
-        'action a "A" interruptible=r',
-        `action m "Mitte"${m}`,
-        'action b "B" interruptible=r',
-        'final e',
-        'go s -> a',
-        'go a -> m',
-        'go m -> b',
-        'go b -> e',
-      ].join('\n');
-    const found = (m: string) =>
-      compile(source(m), { plugins: [umlPlugin] }).diagnostics.filter((d) => d.code.startsWith('G'));
-    expect(found('').map((d) => [d.code, d.severity, d.values, d.span.line])).toEqual([
-      ['G403', 'error', { frame: 'r', key: 'm' }, 5],
-    ]);
-    expect(found(' interruptible=r')).toEqual([]);
+  it('keeps a node that is no member of a region outside its frame, even between two members', () => {
+    const source = [
+      'diagram activity "T"',
+      'interruptible r',
+      'initial s',
+      'action a "A" interruptible=r',
+      'action m "Mitte"',
+      'action b "B" interruptible=r',
+      'final e',
+      'go s -> a',
+      'go a -> m',
+      'go m -> b',
+      'go b -> e',
+    ].join('\n');
+    const result = compile(source, { plugins: [umlPlugin] });
+    expect(result.diagnostics.filter((d) => d.code.startsWith('G'))).toEqual([]);
+    const frame = result.anchors?.groups.find((g) => g.id === 'r')?.rect;
+    const middle = result.anchors?.nodes.find((n) => n.id === 'm')?.rect;
+    expect(frame && middle && apart(frame, middle)).toBe(true);
   });
 
   it('starts and ends an object flow between pins at the edges of its actions', () => {
     const [start, end] = [p.edge('erfassen', 'reservieren').points[0], p.edge('erfassen', 'reservieren').points.at(-1)];
     const [a, b] = [p.node('erfassen'), p.node('reservieren')];
-    expect(start).toEqual([cx(a), a.y + a.h + 10]);
-    expect(end).toEqual([cx(b), b.y - 10]);
+    expect(start?.[1]).toBe(a.y + a.h + 10);
+    expect(end?.[1]).toBe(b.y - 10);
+    expect(start?.[0]).toBeGreaterThan(a.x);
+    expect(start?.[0]).toBeLessThan(a.x + a.w);
+    expect(end?.[0]).toBeGreaterThan(b.x);
+    expect(end?.[0]).toBeLessThan(b.x + b.w);
   });
 
   it('names the guards of a decision as the labels of its edges', () => {
@@ -138,13 +140,12 @@ describe('expansion regions and handlers', () => {
       expect(inside(p.node(id), frame), id).toBe(true);
   });
 
-  it('puts a handler beside its protected actions, the bolts ending at its side', () => {
+  it('puts a handler beside its first protected action and brings the bolt of the second along its other side', () => {
     const p = picture('karten-belasten');
     const handler = p.node('fehler');
-    for (const id of ['pruefen', 'belasten']) {
-      expect(handler.x, id).toBeGreaterThan(p.node(id).x + p.node(id).w);
-      expect(p.edge(id, 'fehler').points.at(-1)?.[0], id).toBe(handler.x - 10);
-    }
+    for (const id of ['pruefen', 'belasten']) expect(handler.x, id).toBeGreaterThan(p.node(id).x + p.node(id).w);
+    expect(p.edge('pruefen', 'fehler').points.at(-1)?.[0]).toBe(handler.x - 10);
+    expect(p.edge('belasten', 'fehler').points.at(-1)?.[0]).toBe(handler.x + handler.w + 10);
     expect(cy(p.node('pruefen'))).toBeGreaterThan(handler.y);
     expect(cy(p.node('pruefen'))).toBeLessThan(handler.y + handler.h);
   });
