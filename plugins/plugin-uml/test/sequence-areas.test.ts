@@ -47,6 +47,20 @@ describe('areas in sequence diagrams', () => {
     expect(plain.description).toContain('Bereich Zahlungen (grün): Zahlungsdienst.');
   });
 
+  it('let a coloured area paint its lifelines in the card look, as its legend shows, unless they name a tone', () => {
+    const cards = picture('look=cards', ['participant psp "PSP" area=zahlung tone=blue', 'msg pay ~> psp "buchen"']);
+    const svg = cards.svg ?? '';
+    const head = (id: string) => {
+      const start = svg.indexOf(`<g id="node-${id}"`);
+      return svg.slice(start, svg.indexOf('</g>', start));
+    };
+    expect(head('pay')).toContain('class="card-box"');
+    expect(head('pay')).toContain('class="label-bold"');
+    expect(head('psp')).toContain('class="tone-blue"');
+    expect(head('shop')).toContain('class="tone-slate"');
+    expect(svg).toMatch(/<g class="area-green"><rect [^>]*class="seq-activation"/);
+  });
+
   it('keep a picture without areas as it was, without a legend', () => {
     const none = compile('diagram sequence "Test"\nparticipant a "A"\nparticipant b "B"\nmsg a -> b "x"', {
       plugins: [umlPlugin],

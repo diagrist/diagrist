@@ -80,7 +80,7 @@ and the line check already read the label as `label-<i>` (`layout/placed.ts`).
 
 | Debt | Clean-up |
 |---|---|
-| **Areas show weakly in `look=cards` and between lanes** (ADR 0033). Card heads keep their `tone=`, so sequence heads, lane heads and state cards show their area only in the outline or the stripe; neighbouring activity lanes share a border, which takes the tone of the lane drawn later; interruptible and expansion regions and sequence fragments take no `area=`. | Let a card head take the area's ink when it names no tone; draw shared lane borders once, in ink. |
+| **Areas show weakly in `look=cards` and between lanes** (ADR 0033). Card heads keep their `tone=`, so lane heads and state cards show their area only in the outline or the stripe; sequence heads without `tone=` are light cards their area paints, as its legend shows. Neighbouring activity lanes share a border, which takes the tone of the lane drawn later; interruptible and expansion regions and sequence fragments take no `area=`. | Let lane heads and state cards without `tone=` be painted by their area, as sequence heads are; draw shared lane borders once, in ink. |
 
 ### Activity, class and state machine diagrams
 

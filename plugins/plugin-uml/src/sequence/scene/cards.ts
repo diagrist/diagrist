@@ -6,7 +6,9 @@ import { shape } from './shapes.js';
 
 /**
  * The card look (`look=cards`): heads as cards in the tone of their lifeline, bars tinted in it, fragments with
- * rounded frames. Lines, arrowheads and labels stay those of the notation; only drawing changes, not layout.
+ * rounded frames. Lines, arrowheads and labels stay those of the notation; only drawing changes, not layout. A
+ * lifeline of a coloured area without `tone=` is painted by its area (ADR 0033): its head is a light card and its bars
+ * those of the notation, which the area tints, outlines or stripes as it does every element, and as the legend shows.
  */
 const RADIUS = 8;
 const SHADOW = 3;
@@ -27,6 +29,20 @@ function tabbedFrame(r: Rect, rx: number): string {
   const [x, y, w, h] = [r.x, r.y, r.w, r.h];
   const [rt, b] = [x + w, y + h];
   return `M${x} ${y} L${rt - rx} ${y} Q${rt} ${y} ${rt} ${y + rx} L${rt} ${b - rx} Q${rt} ${b} ${rt - rx} ${b} L${x + rx} ${b} Q${x} ${b} ${x} ${b - rx} Z`;
+}
+
+/** Whether the area of a lifeline paints it: it lies in a coloured area and names no tone of its own. */
+export type Painted = (lifeline: string) => boolean;
+
+/** Head of a lifeline its area paints: a light card, dashed when external, everything on it as in the notation. */
+function areaHeadShape(s: SeqShape): Shape[] {
+  if ((s.kind !== 'rect' && s.kind !== 'path') || (s.role !== 'head' && s.role !== 'headExternal')) return [shape(s)];
+  const face = s.role === 'head' ? 'cardBox' : 'cardRef';
+  if (s.kind === 'rect') return cardBody(s.rect, face);
+  return [
+    { kind: 'path', d: s.d, role: 'cardShadow', offset: [0, SHADOW] },
+    { kind: 'path', d: s.d, role: face },
+  ];
 }
 
 /** Head of a lifeline: box, cylinder and tube filled with white text, figures in the tone. */
@@ -65,10 +81,12 @@ export function cardHeads(
   heads: readonly SeqHeadArt[],
   participants: ReadonlyMap<string, Participant>,
   id: (head: string) => string,
+  painted: Painted,
 ): Shape[] {
   return heads.map((h): Shape => {
     const p = participants.get(h.id);
-    const children = p ? h.shapes.flatMap((s) => headShape(s, p)) : h.shapes.map(shape);
+    const draw = (s: SeqShape) => (p && painted(h.id) ? areaHeadShape(s) : p ? headShape(s, p) : [shape(s)]);
+    const children = h.shapes.flatMap(draw);
     return { kind: 'group', id: id(h.id), children };
   });
 }
@@ -81,21 +99,18 @@ export function nearestHead(x: number, heads: readonly SeqHeadArt[]): SeqHeadArt
   return best;
 }
 
-/** Tone of the lifeline a bar lies on. */
-function toneAt(x: number, heads: readonly SeqHeadArt[], participants: ReadonlyMap<string, Participant>): Tone {
-  const best = nearestHead(x, heads);
-  return toneOf(best === undefined ? undefined : participants.get(best.id));
-}
-
 /** Bars, fragments, references, notes and dividers as cards; everything else as in the notation. */
 export function cardShapes(
   shapes: readonly SeqShape[],
   heads: readonly SeqHeadArt[],
   participants: ReadonlyMap<string, Participant>,
+  painted: Painted,
 ): Shape[] {
   return shapes.flatMap((s): Shape[] => {
     if (s.kind === 'rect' && s.role === 'activation') {
-      const tone = toneAt(s.rect.x + s.rect.w / 2, heads, participants);
+      const head = nearestHead(s.rect.x + s.rect.w / 2, heads);
+      if (head !== undefined && painted(head.id)) return [shape(s)];
+      const tone = toneOf(head === undefined ? undefined : participants.get(head.id));
       return [
         { kind: 'rect', ...s.rect, role: 'knockout' },
         { kind: 'rect', ...s.rect, role: `tint-${tone}` },

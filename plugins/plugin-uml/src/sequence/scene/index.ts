@@ -15,10 +15,11 @@ import { messageShape, shape } from './shapes.js';
 export function sequenceScene(l: SequenceLayout, m: SequenceModel, words: Words & PictureTexts): Scene {
   const d = m.diagram;
   const cards = d.look === 'cards';
+  const painted = (id: string) => m.participants.get(id)?.tone === undefined && lifelineMark(m, id) !== undefined;
   const area = (shapes: readonly SeqShape[]) =>
-    cards ? cardShapes(shapes, l.heads, m.participants) : shapes.map(shape);
+    cards ? cardShapes(shapes, l.heads, m.participants, painted) : shapes.map(shape);
   const heads = cards
-    ? cardHeads(l.heads, m.participants, domId.node)
+    ? cardHeads(l.heads, m.participants, domId.node, painted)
     : l.heads.map((h): Shape => ({ kind: 'group', id: domId.node(h.id), children: h.shapes.map(shape) }));
   const children: Shape[] = [
     ...headerShapes(l.header, words.title, d.subtitle),
