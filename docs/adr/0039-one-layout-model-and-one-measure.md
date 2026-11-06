@@ -319,3 +319,11 @@ choice of the rails that stood inside, up to four of them, each to the left, to 
 (`railChoices`), and keeps the cheapest by `scoreOf`, the first on a tie. `gedaechtnis` runs `abbrechen` on the
 right, its initial state straight over its chain, 4 bends, 311 px of line and 105 px of width less, its crossing
 kept; `auftrag-parallel` leaves `In Bearbeitung` at the bottom through `Storno` beside `Storniert`, 101 px narrower.
+
+**A second bolt comes in beside the first.** The bolt of a further protected action into a handler ran on a rail
+round the handler into its far side (`karten-belasten` 958 px wide). The activity kind now lays such a picture out
+with the bolt as a hidden edge, which holds the layers, and the handler tall enough for a pin per bolt below the
+middle; it then draws the bolt itself from the side of its action facing the handler, across at half way and up into
+that side of the handler, below the first (`sideBolts`), so the exception pins stand below each other as UML draws
+them. Where that bolt would pass a box or meet a line, or the handler stands above or below its action, the rail
+stays. `karten-belasten` is 836 px wide again, 373 px of line less.

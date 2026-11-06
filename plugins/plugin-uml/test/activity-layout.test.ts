@@ -140,12 +140,15 @@ describe('expansion regions and handlers', () => {
       expect(inside(p.node(id), frame), id).toBe(true);
   });
 
-  it('puts a handler beside its first protected action and brings the bolt of the second along its other side', () => {
+  it('puts a handler beside its first protected action and brings the bolt of the second to the same side, below', () => {
     const p = picture('karten-belasten');
     const handler = p.node('fehler');
     for (const id of ['pruefen', 'belasten']) expect(handler.x, id).toBeGreaterThan(p.node(id).x + p.node(id).w);
-    expect(p.edge('pruefen', 'fehler').points.at(-1)?.[0]).toBe(handler.x - 10);
-    expect(p.edge('belasten', 'fehler').points.at(-1)?.[0]).toBe(handler.x + handler.w + 10);
+    const [first, second] = [p.edge('pruefen', 'fehler').points, p.edge('belasten', 'fehler').points];
+    expect(first.at(-1)?.[0]).toBe(handler.x - 10);
+    expect(second.at(-1)?.[0]).toBe(handler.x - 10);
+    expect(second.at(-1)?.[1]).toBeGreaterThan(first.at(-1)?.[1] ?? 0);
+    expect(Math.max(...second.map((q) => q[0]))).toBeLessThan(handler.x);
     expect(cy(p.node('pruefen'))).toBeGreaterThan(handler.y);
     expect(cy(p.node('pruefen'))).toBeLessThan(handler.y + handler.h);
   });

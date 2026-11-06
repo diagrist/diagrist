@@ -8,6 +8,8 @@ export interface GraphFlow extends Flow {
   readonly index: number;
   /** The type of the exception, on the edge the layout makes of a handler. */
   readonly exception?: string;
+  /** A bolt the kind draws itself (`sideBolts`): the engine only holds its ends in their layers, by a hidden edge. */
+  readonly held?: boolean;
 }
 
 /** What the layout lays out: nodes with expansion nodes, edges and handler bolts, lanes and regions. */
