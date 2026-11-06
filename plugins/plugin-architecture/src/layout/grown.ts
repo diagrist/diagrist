@@ -38,7 +38,6 @@ export function placeSigned(model: ArchitectureModel, spec: GridSpec, texts: rea
     return { spec: s, grid, routes, signs: signsOf(model, s, grid, routes, texts, look) };
   };
   let done = run(spec);
-  if (spec.channels !== true) return done;
   for (let round = 0; round < ROUNDS; round++) {
     const room = gutterRoom(done.spec, done.grid, done.routes, texts, done.signs.crowded);
     if (!asks(room)) break;

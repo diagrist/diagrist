@@ -61,7 +61,7 @@ export const BLOCKS: Look = {
     replicas: 'tag',
     groups: { form: 'panel', head: 'centre' },
     edgeText: { place: 'beside', flat: false, ground: 'halo' },
-    numbers: { seat: 'free', form: 'plate' },
+    numbers: { form: 'plate' },
     marks: 'aside',
     focus: 'accent',
     layers: 'boxes',

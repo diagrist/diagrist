@@ -28,9 +28,6 @@ export const NUMBER_SIZE: Readonly<Record<LookOptions['numbers']['form'], { read
 /** How far the gap behind texts on a line reaches beyond them to the sides and up and down (`ground: gap`). */
 export const TEXT_GAP = { x: 4, y: 2 } as const;
 
-/** The room a seated flow number keeps from the texts on its line, beyond its radius. */
-export const NUMBER_ROOM = 6;
-
 /** The size of a decision mark, which `markShapes` of `parts` draws centred on its spot. */
 const MARK_SIZE = { w: 24, h: 14 } as const;
 

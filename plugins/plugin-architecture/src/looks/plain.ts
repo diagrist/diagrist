@@ -21,7 +21,7 @@ export const PLAIN: Look = {
     replicas: 'tag',
     groups: { form: 'frame', head: 'corner' },
     edgeText: { place: 'beside', flat: false, ground: 'halo' },
-    numbers: { seat: 'free', form: 'plate' },
+    numbers: { form: 'plate' },
     marks: 'aside',
     focus: 'accent',
     layers: 'boxes',

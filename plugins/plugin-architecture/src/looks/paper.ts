@@ -53,7 +53,7 @@ export const PAPER: Look = {
     replicas: 'tag',
     groups: { form: 'area', head: 'corner' },
     edgeText: { place: 'onLine', flat: false, ground: 'gap' },
-    numbers: { seat: 'seated', form: 'disc' },
+    numbers: { form: 'disc' },
     marks: 'inside',
     focus: 'accent',
     layers: 'bracket',
