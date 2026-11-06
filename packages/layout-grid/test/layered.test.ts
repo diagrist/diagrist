@@ -28,6 +28,22 @@ const centre = (l: ReturnType<typeof lay>, id: string) => {
 const route = (l: ReturnType<typeof lay>, id: string) => l.routes.find((r) => r.edge === id)?.points ?? [];
 
 describe('layered layout', () => {
+  it('seats a label of several lines as one block beside its line, the gap grown for every line', () => {
+    const word = (text: string) => ({ text, width: 6 * text.length });
+    const one = { text: 'erzeugt am Ende', width: 90, size: 10 };
+    const two = { ...one, width: 60, lines: [word('erzeugt'), word('am Ende')] };
+    const at = (label: LayeredEdge['label']) => lay([box('a'), box('b')], [edge('a', 'b', label ? { label } : {})]);
+    const [single, double] = [at(one), at(two)];
+    const top = (l: ReturnType<typeof lay>) => l.nodes.find((n) => n.id === 'b')?.rect.y ?? 0;
+    expect(double.labels.map((l) => l.text)).toEqual(['erzeugt', 'am Ende']);
+    const [first, second] = double.labels;
+    expect(second?.box.y).toBe((first?.box.y ?? 0) + (first?.box.h ?? 0));
+    expect(second?.x).toBe(first?.x);
+    expect(top(double)).toBeGreaterThan(top(single));
+    expect((second?.box.y ?? 0) + (second?.box.h ?? 0)).toBeLessThan(top(double));
+    expect(double.placed.filter((p) => p.kind === 'text').map((p) => p.key)).toEqual(['a-b.label.1', 'a-b.label.2']);
+  });
+
   it('sets a single child exactly below its parent, so the line runs straight', () => {
     const l = lay([box('a', 200), box('b', 120)], [edge('a', 'b')]);
     expect(centre(l, 'b')).toBe(centre(l, 'a'));

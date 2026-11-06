@@ -17,7 +17,7 @@ export type { OnLine } from './label/on-line.js';
 export { type SeatMark, type SeatOptions, seatMarks } from './label/seat.js';
 export { type Pin, type SignOptions, signEdges } from './label/signs.js';
 export type { EdgeLabel, EdgeText, EndText } from './label/types.js';
-export { wrapTwo } from './label/wrap.js';
+export { WRAP_EM, wrapTwo, wrapWithin } from './label/wrap.js';
 export { assignTracks, type GapMeasure, gapHeight, type TrackPiece } from './layered/channels.js';
 export type { CoreFrame } from './layered/frame.js';
 export { simplify } from './layered/geometry.js';

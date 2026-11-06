@@ -1,6 +1,6 @@
 import { STANDARD_FONTS, textWidth } from '@diagrist/core';
 import type { Locale } from '@diagrist/lang';
-import { type LayeredEdge, type LayeredLayout, layoutLayered } from '@diagrist/layout-grid';
+import { type LayeredEdge, type LayeredLayout, layoutLayered, WRAP_EM, wrapWithin } from '@diagrist/layout-grid';
 import { MARGIN } from '@diagrist/parts';
 import type { Graph } from '../model.js';
 import { arrangementOf, coreArea } from './arrangement.js';
@@ -22,6 +22,15 @@ function wordOf(m: Graph, label: string | undefined, link: string, alike: boolea
   return declared && !declared.bare && alike ? declared.label[locale] : undefined;
 }
 
+/** A word on a line, measured, broken between its words where it runs wider than the wrap of line texts. */
+function labelOf(word: string) {
+  const font = STANDARD_FONTS.label;
+  const measure = (t: string) => textWidth(t, font);
+  const lines = wrapWithin(word, WRAP_EM * font.size, measure).map((text) => ({ text, width: measure(text) }));
+  const width = Math.max(...lines.map((l) => l.width));
+  return { text: word, width, size: font.size, ...(lines.length > 1 ? { lines } : {}) };
+}
+
 /** A layered graph picture laid out, with every item measured. */
 export interface LayeredGraph {
   readonly layout: LayeredLayout;
@@ -40,7 +49,6 @@ export function layeredGraph(m: Graph, locale: Locale): LayeredGraph {
   );
   const relations = edgesOf(m);
   const alike = linesAlike(m);
-  const font = STANDARD_FONTS.label;
   const areaOf = new Map(m.items.map((i) => [i.id, i.area]));
   const edges = relations.map(([r, i]): LayeredEdge => {
     const link = m.links.get(r.link);
@@ -54,7 +62,7 @@ export function layeredGraph(m: Graph, locale: Locale): LayeredGraph {
       ...(link?.beside === true ? { weight: 0.5 } : {}),
       ...(link !== undefined && link.line !== 'solid' ? { strength: 'soft' as const } : {}),
       ...(r.label === undefined ? { bundle: `${r.link}|${area}${link?.line === 'solid' ? '' : `|${r.from}`}` } : {}),
-      ...(word === undefined ? {} : { label: { text: word, width: textWidth(word, font), size: font.size } }),
+      ...(word === undefined ? {} : { label: labelOf(word) }),
       source: r.span,
     };
   });
