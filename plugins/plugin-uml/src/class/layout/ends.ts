@@ -82,7 +82,8 @@ const CLEAR = 12;
  * Multiplicities and roles at both ends of every relation. The multiplicity stands below or right of the line, the
  * role opposite; when the place is taken by a box, a text, a line or the border of a package, both swap sides, and
  * then they move along the line. A role takes the free place nearest the end of the line, opposite the multiplicity
- * or beyond it on its side, as between two lines that join the same classes; opposite wins a tie.
+ * or beyond it on its side, as between two lines that join the same classes; opposite wins a tie. The texts of an end
+ * keep from the texts of other lines the distance they keep from those lines where they find such places, else 2 px.
  */
 export function endLabels(
   relations: readonly (ClassRelation | undefined)[],
@@ -92,10 +93,10 @@ export function endLabels(
 ): EdgeLabel[] {
   const out: EdgeLabel[] = [];
   const boxes = around.boxes;
-  const free = (b: Rect, idx: number) =>
+  const free = (b: Rect, idx: number, apart: number) =>
     !boxes.some((n) => overlaps(b, n, 1)) &&
     !around.frames.some((g) => onFrame(b, g)) &&
-    ![...placed, ...out].some((t) => overlaps(b, t.box, 2)) &&
+    ![...placed, ...out].some((t) => overlaps(b, t.box, t.route === idx ? 2 : apart)) &&
     !routes.some((o, i) => {
       const pad = i === idx || around.mates(idx).has(i) ? 1 : CLEAR - 1;
       return o.points.slice(1).some((q, k) => hits(o.points[k] ?? q, q, b, pad));
@@ -104,27 +105,41 @@ export function endLabels(
     const r = relations[idx];
     if (!r || route.points.length < 2) return;
     for (const end of endsOf(r, route.points)) {
-      const [count, role] = end.texts;
-      const sides: (1 | -1)[] = count ? [1, -1] : [-1, 1];
-      const first = count ?? role;
-      if (first === undefined) continue;
-      const side = sides.find((s) => free(item(first, end, s, idx, 0).box, idx)) ?? 1;
-      const seek = (text: string, s: 1 | -1, shifts: readonly number[]) =>
-        shifts.map((k) => item(text, end, s, idx, k)).find((t) => free(t.box, idx));
-      const place = (text: string, s: 1 | -1) => seek(text, s, SHIFTS) ?? item(text, end, s, idx, 0);
-      if (count) out.push(place(count, side));
-      if (role && count) {
-        const box = item(count, end, side, idx, 0).box;
-        const beyond = end.tip[1] === end.next[1] ? box.w + CLASS.endAside : box.h + 2;
-        const other: 1 | -1 = side === 1 ? -1 : 1;
-        const spots = [
-          ...SHIFTS.map((k) => ({ k, s: other })),
-          ...SHIFTS.map((k) => ({ k: k + beyond, s: side })),
-        ].sort((a, b) => a.k - b.k || (a.s === other ? -1 : 0) - (b.s === other ? -1 : 0));
-        const near = spots.map(({ k, s }) => item(role, end, s, idx, k)).find((t) => free(t.box, idx));
-        out.push(near ?? item(role, end, other, idx, 0));
-      } else if (role) out.push(place(role, side));
+      const far = endTexts(end, idx, (b) => free(b, idx, CLEAR));
+      out.push(...(far ?? endTexts(end, idx, (b) => free(b, idx, 2), true) ?? []));
     }
   });
+  return out;
+}
+
+/**
+ * The multiplicity and role at one end, each at the first spot `free` takes: undefined where one finds none, unless
+ * `must`, which then sets it at the end.
+ */
+function endTexts(end: End, idx: number, free: (b: Rect) => boolean, must = false): EdgeLabel[] | undefined {
+  const [count, role] = end.texts;
+  const sides: (1 | -1)[] = count ? [1, -1] : [-1, 1];
+  const first = count ?? role;
+  if (first === undefined) return [];
+  const side = sides.find((s) => free(item(first, end, s, idx, 0).box)) ?? 1;
+  const seek = (text: string, s: 1 | -1, shifts: readonly number[]) =>
+    shifts.map((k) => item(text, end, s, idx, k)).find((t) => free(t.box));
+  const out: EdgeLabel[] = [];
+  const add = (t: EdgeLabel | undefined) => {
+    if (t) out.push(t);
+    return t !== undefined || must;
+  };
+  if (count && !add(seek(count, side, SHIFTS) ?? (must ? item(count, end, side, idx, 0) : undefined))) return undefined;
+  if (role && count) {
+    const box = item(count, end, side, idx, 0).box;
+    const beyond = end.tip[1] === end.next[1] ? box.w + CLASS.endAside : box.h + 2;
+    const other: 1 | -1 = side === 1 ? -1 : 1;
+    const spots = [...SHIFTS.map((k) => ({ k, s: other })), ...SHIFTS.map((k) => ({ k: k + beyond, s: side }))].sort(
+      (a, b) => a.k - b.k || (a.s === other ? -1 : 0) - (b.s === other ? -1 : 0),
+    );
+    const near = spots.map(({ k, s }) => item(role, end, s, idx, k)).find((t) => free(t.box));
+    if (!add(near ?? (must ? item(role, end, other, idx, 0) : undefined))) return undefined;
+  } else if (role && !add(seek(role, side, SHIFTS) ?? (must ? item(role, end, side, idx, 0) : undefined)))
+    return undefined;
   return out;
 }

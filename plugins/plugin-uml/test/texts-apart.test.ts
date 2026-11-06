@@ -32,6 +32,7 @@ describe('texts of different lines', () => {
   it.each([
     ['../examples/usecase/stadtwerke.dgr', 'a text in the middle of a line beside the end text of another'],
     ['stress/usecase/lange-namen.dgr', 'end texts of two crossing lines, where the one seated first gives way'],
+    ['stress/class/rollen-viele.dgr', 'multiplicities at the corner of a class, where a spot further along is free'],
   ])('keep the gap of a foreign line in %s: %s', (path) => {
     expect(closest(path)).toBeGreaterThanOrEqual(12);
   });
