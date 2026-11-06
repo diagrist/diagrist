@@ -1,17 +1,12 @@
 import { STANDARD_FONTS, textWidth } from '@diagrist/core';
-import {
-  type GraphContainer,
-  type GraphEdge,
-  type GraphNode,
-  type LayoutGraph,
-  WRAP_EM,
-  wrapWithin,
-} from '@diagrist/layout-grid';
-import { frameOf, isBorderPoint, type StateModel } from '../model.js';
+import { type GraphEdge, type GraphNode, type LayoutGraph, WRAP_EM, wrapWithin } from '@diagrist/layout-grid';
+import { isBorderPoint, type StateModel } from '../model.js';
 import { stateHeight, stateWidth } from './box.js';
+import { stateContainers } from './containers.js';
+import { edgeId } from './ids.js';
 import { labelLines } from './labels.js';
-import { STATE_FONTS as F, STATE as S } from './metrics.js';
-import { compositeHead, edgeId } from './spec.js';
+import { STATE as S } from './metrics.js';
+import { borderOf, hostOf } from './points/geometry.js';
 
 /** Vertices drawn as circles. */
 const ROUND: ReadonlySet<string> = new Set(['initial', 'final', 'junction', 'history', 'terminate']);
@@ -33,41 +28,40 @@ function distances(m: StateModel): Map<string, number> {
   return dist;
 }
 
+/** The shape a vertex is laid out as: circles round, fork and join bars, the rest boxes. */
+function shapeOf(kind: string): Pick<GraphNode, 'shape'> {
+  if (ROUND.has(kind) || isBorderPoint(kind as never)) return { shape: 'ellipse' };
+  return kind === 'fork' || kind === 'join' ? { shape: 'bar' } : {};
+}
+
 /**
- * A state machine as a layout graph: simple vertices as nodes, composite states as frames with their name field and
- * compartment as the head, transitions as edges down the flow, sorted by the distance of their target from the start
- * so that breaking cycles follows the main way.
+ * A state machine as a layout graph: simple vertices as nodes, entry and exit points docked on the outline of their
+ * state, fork and join as bars, composite states as frames with their name field and compartment as the head and
+ * their regions as parts (`stateContainers`), transitions as edges down the flow, sorted by the distance of their
+ * target from the start so that breaking cycles follows the main way, the layers turned with `direction=right`, where
+ * a state is as high as the lines on its busiest side need.
  */
 export function stateGraph(m: StateModel): LayoutGraph {
-  const simple = m.diagram.vertices.filter(
-    (v) => !m.composites.has(v.id) && v.kind !== 'region' && !isBorderPoint(v.kind),
-  );
+  const simple = m.diagram.vertices.filter((v) => !m.composites.has(v.id) && v.kind !== 'region');
   const placed = [...simple.filter((v) => v.kind === 'initial'), ...simple.filter((v) => v.kind !== 'initial')];
-  const nodes = placed.map(
-    (v): GraphNode => ({
+  const across = m.diagram.direction === 'right';
+  const room = (id: string) => (Math.max(m.out(id).length, m.into(id).length) + 1) * S.laneGap;
+  const nodes = placed.map((v): GraphNode => {
+    const dock = borderOf(m, v.id) ?? hostOf(m, v.id);
+    return {
       id: v.id,
       width: stateWidth(m, v),
-      height: stateHeight(m, v),
-      ...(ROUND.has(v.kind) ? { shape: 'ellipse' as const } : {}),
+      height: v.kind === 'state' && across ? Math.max(stateHeight(m, v), room(v.id)) : stateHeight(m, v),
+      ...shapeOf(v.kind),
+      ...(dock === undefined ? {} : { dock }),
       source: v.span,
-    }),
-  );
-  const containers = m.diagram.vertices.flatMap((v): GraphContainer[] => {
-    if (!m.composites.has(v.id)) return [];
-    const parent = frameOf(m, v.parent);
-    const head = compositeHead(m, v.id);
-    return [
-      {
-        id: v.id,
-        kind: 'frame',
-        members: placed.filter((n) => frameOf(m, n.parent) === v.id).map((n) => n.id),
-        ...(parent === undefined ? {} : { parent }),
-        pad: S.padSide,
-        top: head + S.padBottom,
-        head: { width: textWidth(v.label ?? '', F.name) + 2 * S.padX, height: head },
-      },
-    ];
+    };
   });
+  const containers = stateContainers(
+    m,
+    placed.map((v) => v.id),
+  );
+  const bar = (id: string) => m.kind(id) === 'fork' || m.kind(id) === 'join';
   const small = (id: string) => SMALL.has(m.kind(id) ?? '');
   const trunk = (from: string, to: string) =>
     small(to) ? { bundle: `into:${to}` } : small(from) ? { bundle: `out:${from}` } : {};
@@ -89,7 +83,7 @@ export function stateGraph(m: StateModel): LayoutGraph {
         from: t.from,
         to: t.to,
         rank: 'down',
-        profile: 'rail',
+        profile: bar(t.from) || bar(t.to) ? 'orthogonal' : 'rail',
         ...trunk(t.from, t.to),
         ...(lines.length
           ? {
@@ -110,17 +104,18 @@ export function stateGraph(m: StateModel): LayoutGraph {
     containers,
     given: {
       perLayer: Number.POSITIVE_INFINITY,
+      direction: m.diagram.direction,
       last: placed.filter((v) => v.kind === 'final' || v.kind === 'terminate').map((v) => v.id),
     },
     metrics: {
       colGap: 64,
       rowGapMin: 72,
       track: S.laneGap,
-      portGap: S.laneGap,
+      portGap: m.diagram.vertices.some((v) => hostOf(m, v.id) !== undefined) ? 2 * S.point : S.laneGap,
       lead: S.lead,
       tail: S.laneGap,
       labelGap: S.labelGap,
-      left: S.marginX,
+      left: S.marginX + (m.diagram.vertices.some((v) => borderOf(m, v.id) !== undefined) ? S.point / 2 : 0),
       top: 128,
     },
   };

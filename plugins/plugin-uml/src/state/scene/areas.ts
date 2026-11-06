@@ -1,6 +1,6 @@
 import { type AreaMark, areaMark, domId, lineArea } from '@diagrist/core';
 import type { StateLayout } from '../layout/index.js';
-import type { TransitionEnds } from '../layout/route/context.js';
+import type { TransitionEnds } from '../layout/transitions.js';
 import { areaOf, type StateModel } from '../model.js';
 
 /** The area of a transition: its own, else the coloured one of its source, else of its target (ADR 0033). */

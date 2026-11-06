@@ -55,7 +55,7 @@ export function frameShape(g: PlacedGroup, m: StateModel, l: StateLayout): Shape
     l.routes.map((x) => x.points),
     textWidth(label, F.name),
   );
-  const regions = regionArt(g, m, l.grid, l.ends, l.labels);
+  const regions = regionArt(g, m, l.regions);
   return {
     kind: 'group',
     id: domId.group(g.id),

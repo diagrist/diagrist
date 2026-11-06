@@ -80,7 +80,7 @@ function place(
           : Math.max(...beside.map(right), ...reach(side)) + m.lead;
       const inner = laid.filter((p) => p.side === side && p.lo < hi && p.hi > lo);
       const outer = inner.map((p) => (side === 'left' ? p.at - p.room : p.at + p.room));
-      const crossed = inner.filter((p) => p.lo > lo || p.hi < hi).length;
+      const crossed = inner.filter((p) => p.lo < lo || p.hi > hi).length;
       const at = side === 'left' ? Math.min(own, ...outer) : Math.max(own, ...outer);
       const edge = (r: Rect) => (side === 'left' ? r.x : right(r));
       return { side, at, cost: CROSSING * crossed + Math.abs(at - edge(upper)) + Math.abs(at - edge(lower)) };
