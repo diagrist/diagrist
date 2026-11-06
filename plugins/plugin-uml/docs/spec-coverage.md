@@ -123,7 +123,7 @@ Nobody declares an element covered. A statement, an argument, a value such as an
 
 ## `class`: chapters 9 to 12, Classification, Simple and Structured Classifiers, Packages
 
-23 of 25 elements are covered (92 %).
+24 of 25 elements are covered (96 %).
 
 | Element | Section | Covered by | Examples |
 |---|---|---|---|
@@ -135,10 +135,10 @@ Nobody declares an element covered. A statement, an argument, a value such as an
 | Dependency as a dashed arrow | 7.7.4 | `rel` with `-->`, U414, U419 | `auftragsabwicklung` and 4 more |
 | Generalization between classifiers | 9.2.3.2 | `rel` with `-\|>`, U411, U414 | `auftragsabwicklung` and 5 more |
 | Abstract classifier, its name in italics | 9.2.4 | `class`, `interface`, `enum` with `abstract` | `auftragsabwicklung` and 5 more |
-| Static feature, underlined | 9.4.4 | not covered |  |
-| Attribute with visibility, type, multiplicity and properties | 9.5.4 | U413, U416, U916 |  |
-| Operation with visibility, parameters, return type and properties | 9.6.4 | U413, U416, U916 |  |
-| Abstract operation, in italics | 9.6.4 | U412 |  |
+| Static feature, underlined | 9.4.4 | `class`, `interface`, `enum` with `<text> static` | `auftragsabwicklung` and 1 more |
+| Attribute with visibility, type, multiplicity and properties | 9.5.4 | `class`, `interface`, `enum` with `<text>`, U413, U416, U916 | `auftragsabwicklung` and 13 more |
+| Operation with visibility, parameters, return type and properties | 9.6.4 | `class`, `interface`, `enum` with `<text>`, U413, U416, U916 | `auftragsabwicklung` and 13 more |
+| Abstract operation, in italics | 9.6.4 | `class`, `interface`, `enum` with `<text> abstract`, U412 | `auftragsabwicklung` and 2 more |
 | Enumeration with its literals | 10.2.4 | `enum`, U413 | `auftragsabwicklung` and 1 more |
 | Interface with the keyword «interface» | 10.4.4 | `interface` | `auftragsabwicklung` and 3 more |
 | Realization of an interface, dashed with a hollow triangle | 10.4.4 | `rel` with `--\|>`, U410, U414 | `auftragsabwicklung` and 3 more |
