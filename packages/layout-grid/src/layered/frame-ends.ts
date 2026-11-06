@@ -55,8 +55,9 @@ export function anchorFrameEnds(spec: LayeredSpec, layers: readonly (readonly st
     };
     const from = boxes.has(e.from) ? e.from : box(e.from, a, b, e.to);
     const to = boxes.has(e.to) ? e.to : box(e.to, b, a, e.from);
-    ends.set(e.id, { ...(from === e.from ? {} : { from: e.from }), ...(to === e.to ? {} : { to: e.to }) });
-    return from === to ? [] : [{ ...e, from, to }];
+    const framed = { ...(from === e.from ? {} : { from: e.from }), ...(to === e.to ? {} : { to: e.to }) };
+    ends.set(e.id, framed);
+    return from === to ? [] : [{ ...e, from, to, framed }];
   });
   return { spec: { ...spec, edges }, ends };
 }

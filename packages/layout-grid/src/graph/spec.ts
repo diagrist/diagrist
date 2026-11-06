@@ -125,6 +125,12 @@ export interface GraphContainer {
   readonly head: { readonly width: number; readonly height: number; readonly text?: string; readonly size?: number };
   /** The head stands on the frame as a tab, so its outline runs `head.height` below its top. */
   readonly tab?: boolean;
+  /**
+   * No line runs through the frame that neither starts nor ends in it: where the frame lies wholly between the ends
+   * of such a line, the line goes round it as round a box, however long the way (owner decision B of 06.11.2026).
+   * Without it such a line runs through where that is shorter than going round (ADR 0039, 8).
+   */
+  readonly opaque?: boolean;
 }
 
 /** What the kind decides instead of the stages, and how the stages arrange the rest. */

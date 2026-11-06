@@ -90,6 +90,30 @@ describe('frames ordered by the pipeline', () => {
     expect(scoreOf(layeredInput(l)).metrics.crossings).toBe(0);
   });
 
+  it('run a line round a frame that lies between its ends where the frame is opaque', () => {
+    const nodes = ['top', 'mid1', 'mid2', 'low', 'side'].map((id) => box(id));
+    const edges = [edge('top', 'low'), edge('mid1', 'mid2'), edge('top', 'mid1'), edge('side', 'mid2')];
+    const frames = [
+      frame('upper', ['top']),
+      { ...frame('middle', ['mid1', 'mid2']), opaque: true },
+      frame('lower', ['low']),
+    ];
+    const l = lay({ nodes, edges, layers: [['top', 'side'], ['mid1'], ['mid2'], ['low']], reorder: true, frames });
+    const middle = rectOf(l, 'middle');
+    const long = l.routes.find((r) => r.edge === 'top-low')?.points ?? [];
+    const inside = long.slice(1).some(([x, y], k) => {
+      const [px, py] = long[k] ?? [x, y];
+      return (
+        px === x &&
+        x > middle.x &&
+        x < middle.x + middle.w &&
+        Math.min(py, y) < middle.y + middle.h &&
+        Math.max(py, y) > middle.y
+      );
+    });
+    expect(inside).toBe(false);
+  });
+
   it('end a line with a frame at an end on the outline of the frame, below a head worn as a tab', () => {
     const nodes = [box('s'), box('t1'), box('t2')];
     const frames = [

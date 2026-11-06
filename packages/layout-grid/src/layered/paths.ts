@@ -25,8 +25,8 @@ export const prefix = (a: readonly string[], b: readonly string[]): number => {
  * leaves as long as that frame lasts, else in those around its lower end that reach it, so a line enters its target's
  * frame where that begins, else in the frames both ends share. Where a frame beside those lies wholly between the
  * layers of the ends, the line runs through it rather than around it (layout plan R5, owner decision D2), and the
- * placeholder stands in that frame too; otherwise a line crosses the border of a frame only where it leaves or enters
- * it.
+ * placeholder stands in that frame too, unless the frame is `opaque`; otherwise a line crosses the border of a frame
+ * only where it leaves or enters it.
  */
 export function framePaths(spec: LayeredSpec, ranked: Ranked): FramePaths {
   const list = spec.frames ?? [];
@@ -66,7 +66,8 @@ export function framePaths(spec: LayeredSpec, ranked: Ranked): FramePaths {
     ];
     return list.find((f) => {
       const [first, last] = span.get(f.id) ?? [-1, -1];
-      return f.parent === shared.at(-1) && first > top && last < bottom && first <= l && l <= last;
+      const wholly = first > top && last < bottom && first <= l && l <= last;
+      return f.parent === shared.at(-1) && f.opaque !== true && wholly;
     })?.id;
   };
   for (const [edge, nodes] of ranked.chains) {
