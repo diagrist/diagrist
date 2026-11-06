@@ -3,6 +3,7 @@ import type { LayeredLayout } from '../layered/output.js';
 import type { LayeredEdge, LayeredFrame, LayeredSpec } from '../layered/spec.js';
 import type { LayerEdge, LayerGraph } from '../layers/graph.js';
 import type { GraphContainer, GraphEdge, GraphRank, LayoutGraph } from './spec.js';
+import { staged } from './stages.js';
 
 /** The rank of the layered stages for a rank of the graph; `free` stands beside where the edges decide the layers. */
 const RANKS: Readonly<Record<GraphRank, LayeredEdge['rank']>> = { down: 1, up: -1, beside: 0, free: 0 };
@@ -62,7 +63,9 @@ export function specOf(graph: LayoutGraph): LayeredSpec {
     }),
   );
   return {
-    nodes: graph.nodes.map(({ sides: _, ...n }) => n),
+    nodes: graph.nodes.map(({ sides: _, dock: __, shape, ...n }) =>
+      shape === undefined ? n : { ...n, shape: shape === 'bar' ? 'box' : shape },
+    ),
     edges,
     metrics: graph.metrics,
     ...(core
@@ -86,5 +89,5 @@ export function specOf(graph: LayoutGraph): LayeredSpec {
  * data the graph gives and priced by `scoreOf` where it searches. The same graph gives the same picture.
  */
 export function layoutGraph(graph: LayoutGraph): LayeredLayout {
-  return layoutLayered(specOf(graph));
+  return staged(graph, (g) => layoutLayered(specOf(g)), specOf);
 }

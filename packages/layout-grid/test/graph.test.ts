@@ -54,7 +54,7 @@ describe('the layout graph', () => {
       }),
     );
     const viaSpec = layoutLayered({
-      nodes,
+      nodes: nodes.map(({ id, width, height }) => ({ id, width, height })),
       edges: edges.map((e) => ({ ...e, rank: e.rank === 'up' ? -1 : 1 })),
       metrics: METRICS,
       hub: { core: ['core', 'db'], head, pad: 16 },
