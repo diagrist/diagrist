@@ -1,0 +1,30 @@
+# Pressure: two use case generalization trees with special cases including shared steps and actors on the special ones.
+diagram usecase "Ticketsystem" subtitle="Spezialfälle von Anwendungsfällen" locale=de
+actor nutzer "Nutzer"
+actor agent "Support-Agent"
+actor spezialist "Spezialist"
+actor monitoring "Monitoring" kind=system
+subject tickets "Ticketsystem"
+usecase melden "Problem melden" in tickets
+usecase stoerung "Störung melden" in tickets
+usecase anfrage "Serviceanfrage stellen" in tickets
+usecase sicherheit "Sicherheitsvorfall melden" in tickets
+usecase loesen "Ticket lösen" in tickets
+usecase eskalieren "Ticket eskalieren" in tickets
+usecase schliessen "Ticket schließen" in tickets
+usecase kategorie "Kategorie zuordnen" in tickets
+usecase benachrichtigen "Nutzer benachrichtigen" in tickets
+rel stoerung -|> melden
+rel anfrage -|> melden
+rel sicherheit -|> stoerung
+rel eskalieren -|> loesen
+rel schliessen -|> loesen
+rel melden --> kategorie include
+rel loesen --> benachrichtigen include
+rel nutzer -- melden
+rel nutzer -- anfrage
+rel agent -- loesen
+rel agent -- schliessen
+rel spezialist -- eskalieren
+rel spezialist -- sicherheit
+rel stoerung -- monitoring

@@ -1,0 +1,33 @@
+# Pressure: two subjects side by side with three actors working in both and one system actor on each side.
+diagram usecase "Hochschule" subtitle="Campus-Management und Lernplattform" locale=de
+actor student "Studierende"
+actor dozent "Lehrende"
+actor pruefamt "Prüfungsamt"
+actor bib "Bibliothekssystem" kind=system
+actor mail "Mailserver" kind=system
+subject cm "Campus-Management"
+usecase einschreiben "Einschreiben" in cm
+usecase anmelden "Prüfung anmelden" in cm
+usecase noten "Noten eintragen" in cm
+usecase zeugnis "Zeugnis erstellen" in cm
+usecase rueckmelden "Zurückmelden" in cm
+subject lms "Lernplattform"
+usecase kurs "Kurs belegen" in lms
+usecase abgabe "Aufgabe abgeben" in lms
+usecase bewerten "Abgabe bewerten" in lms
+usecase material "Material bereitstellen" in lms
+usecase ausleihe "Literatur ausleihen" in lms
+rel student -- einschreiben
+rel student -- anmelden
+rel student -- kurs
+rel student -- abgabe
+rel student -- rueckmelden
+rel dozent -- noten
+rel dozent -- bewerten
+rel dozent -- material
+rel pruefamt -- zeugnis
+rel pruefamt -- anmelden
+rel pruefamt -- noten
+rel bib -- ausleihe
+rel zeugnis -- mail
+rel einschreiben --> rueckmelden include

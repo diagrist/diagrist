@@ -28,6 +28,12 @@ export interface GraphNode {
   readonly reach?: { readonly left: number; readonly right: number };
   /** Nodes of one cluster, such as one area, stand together in their layer where that costs no crossing. */
   readonly cluster?: string;
+  /**
+   * The part of the box at its top middle that straight lines end on, such as a figure above its name or an ellipse
+   * above room kept for a note: a line that would leave a body that is no ellipse downwards through the rest of the
+   * box ends below the box instead (`graph/straight.ts`).
+   */
+  readonly body?: { readonly width: number; readonly height: number };
   readonly source?: Placed['span'];
 }
 
@@ -72,9 +78,18 @@ export interface GraphEdge {
    * How the line runs: `orthogonal` between layers and beside them, `loop` out of a side of its box and back into
    * it, which an edge from a node to itself takes anyway, and `rail` like `orthogonal` but, where it runs up the
    * layers or past a layer, on a rail beside them: out of a side of `from`, beside everything between and into that
-   * side of `to`; `back` takes a rail only where it runs up the layers, as a loop back does.
+   * side of `to`; `back` takes a rail only where it runs up the layers, as a loop back does. `straight` is one
+   * slanted piece from outline to outline on the line between the middles, drawn once the boxes stand, its texts
+   * along it (`graph/straight.ts`); it orders and places the boxes as any edge does, but takes no port and no track.
    */
-  readonly profile?: 'orthogonal' | 'loop' | 'rail' | 'back';
+  readonly profile?: 'orthogonal' | 'loop' | 'rail' | 'back' | 'straight';
+  /**
+   * With rank `beside`, the end that stands first in the layer: left of the other, or above it where the layers run
+   * right, such as a general box above its special one.
+   */
+  readonly first?: 'from' | 'to';
+  /** Texts at the ends of a `straight` line, such as multiplicities, each a little back from its end. */
+  readonly ends?: { readonly from?: GraphLabel; readonly to?: GraphLabel };
   /** Not drawn: the edge only holds its ends near each other in layers and places. */
   readonly hidden?: boolean;
   /** The least straight run out of `from` and into `to`, for symbols and texts at the ends. */

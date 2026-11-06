@@ -1,0 +1,33 @@
+# Pressure: three subjects with actors bridging neighbours and one actor reaching across all three.
+diagram usecase "Logistik" subtitle="Drei Systeme in einer Kette" locale=de
+actor disponent "Disponent"
+actor fahrer "Fahrer"
+actor lager "Lagerist"
+actor kunde "Kunde"
+actor zoll "Zollsystem" kind=system
+subject tms "Transportmanagement"
+usecase tour "Tour planen" in tms
+usecase auftrag "Auftrag annehmen" in tms
+usecase status "Status melden" in tms
+subject wms "Lagerverwaltung"
+usecase einlagern "Ware einlagern" in wms
+usecase kommission "Kommissionieren" in wms
+usecase inventur "Inventur durchführen" in wms
+subject portal "Kundenportal"
+usecase verfolgen "Sendung verfolgen" in portal
+usecase reklamieren "Reklamation erfassen" in portal
+usecase zollpapiere "Zollpapiere hochladen" in portal
+rel disponent -- tour
+rel disponent -- auftrag
+rel disponent -- kommission
+rel fahrer -- status
+rel fahrer -- einlagern
+rel lager -- einlagern
+rel lager -- kommission
+rel lager -- inventur
+rel kunde -- auftrag
+rel kunde -- verfolgen
+rel kunde -- reklamieren
+rel kunde -- zollpapiere
+rel zollpapiere -- zoll
+rel kommission --> inventur include

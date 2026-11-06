@@ -1,0 +1,33 @@
+# Pressure: include chains four deep from two bases that share their last steps, with extends hanging at every depth.
+diagram usecase "Reiseportal" subtitle="Tiefe include-Ketten" locale=de
+actor reisender "Reisender"
+actor agentur "Reisebüro"
+actor gds "Buchungssystem" kind=system
+actor psp "Zahlungsdienst" kind=system
+subject portal "Reiseportal"
+usecase pauschal "Pauschalreise buchen" in portal points="vor Abschluss"
+usecase flug "Flug buchen" in portal points="nach Flugwahl"
+usecase verfuegbar "Verfügbarkeit prüfen" in portal
+usecase reservieren "Platz reservieren" in portal
+usecase bezahlen "Bezahlen" in portal points="vor Zahlung"
+usecase belegen "Beleg erstellen" in portal
+usecase hotel "Hotel buchen" in portal
+usecase versicherung "Reiseversicherung abschließen" in portal
+usecase sitz "Sitzplatz wählen" in portal
+usecase raten "Ratenzahlung vereinbaren" in portal
+rel reisender -- pauschal
+rel reisender -- flug
+rel agentur -- pauschal
+rel pauschal --> hotel include
+rel pauschal --> flug include
+rel flug --> verfuegbar include
+rel verfuegbar --> reservieren include
+rel hotel --> reservieren include
+rel reservieren --> bezahlen include
+rel bezahlen --> belegen include
+rel versicherung --> pauschal extend when="Versicherung gewünscht" at="vor Abschluss"
+rel sitz --> flug extend when="Sitzwahl gewünscht" at="nach Flugwahl"
+rel raten --> bezahlen extend when="Betrag über 1000 Euro" at="vor Zahlung"
+rel verfuegbar -- gds
+rel reservieren -- gds
+rel bezahlen -- psp

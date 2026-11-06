@@ -43,8 +43,8 @@ const within = (p: Point, r: Rect): boolean => p[0] > r.x && p[0] < r.x + r.w &&
  * default to the placed frames; outside `area`, if given, there is no room at all.
  */
 export function occupancy(
-  spec: GridSpec,
-  layout: GridLayout,
+  spec: Pick<GridSpec, 'nodes'>,
+  layout: Pick<GridLayout, 'nodes' | 'groups'>,
   routes: readonly Route[],
   options: { readonly frames?: readonly Rect[]; readonly area?: Rect } = {},
 ): Occupancy {

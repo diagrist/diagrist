@@ -1,0 +1,35 @@
+# Pressure: a realistic library with roles in a hierarchy, include and extend chains, multiplicities and a note together.
+diagram usecase "Stadtbibliothek" subtitle="Ausleihe, Rückgabe und Verwaltung" locale=de
+actor nutzer "Leser"
+actor kind "Kinderausweis"
+actor personal "Thekenpersonal"
+actor leitung "Bibliotheksleitung"
+actor verbund "Fernleihverbund" kind=system
+actor kasse "Kassensystem" kind=system
+subject bib "Bibliothekssystem"
+usecase ausleihen "Medium ausleihen" in bib points="vor Ausgabe"
+usecase verlaengern "Leihfrist verlängern" in bib
+usecase vormerken "Medium vormerken" in bib
+usecase rueckgabe "Medium zurückgeben" in bib points="bei Verspätung"
+usecase ausweis "Ausweis prüfen" in bib
+usecase gebuehr "Säumnisgebühr kassieren" in bib
+usecase fernleihe "Fernleihe bestellen" in bib
+usecase bestand "Bestand pflegen" in bib
+usecase statistik "Statistik auswerten" in bib
+usecase sperre "Konto sperren" in bib
+rel kind -|> nutzer
+rel nutzer -- ausleihen source=1 card=0..*
+rel nutzer -- verlaengern
+rel nutzer -- vormerken
+rel nutzer -- rueckgabe
+rel personal -- ausleihen
+rel personal -- bestand
+rel leitung -- statistik
+rel leitung -- sperre
+rel ausleihen --> ausweis include
+rel verlaengern --> ausweis include
+rel fernleihe --> ausleihen extend when="Medium nicht im Bestand" at="vor Ausgabe"
+rel gebuehr --> rueckgabe extend when="Frist überschritten" at="bei Verspätung"
+rel fernleihe -- verbund
+rel gebuehr -- kasse
+note "Kinder leihen höchstens zehn Medien" on kind

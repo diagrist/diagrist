@@ -6,6 +6,7 @@ import type { CellGraph, CellLayout } from './cells.js';
 import { layoutCells } from './grid.js';
 import type { GraphContainer, GraphEdge, GraphRank, LayoutGraph } from './spec.js';
 import { staged } from './stages.js';
+import { drawStraight, hideStraight } from './straight.js';
 
 /** The rank of the layered stages for a rank of the graph; `free` stands beside where the edges decide the layers. */
 const RANKS: Readonly<Record<GraphRank, LayeredEdge['rank']>> = { down: 1, up: -1, beside: 0, free: 0 };
@@ -88,12 +89,16 @@ export function specOf(graph: LayoutGraph): LayeredSpec {
 
 /**
  * Lays out a layout graph (ADR 0039): layers, order, positions, ports, tracks, routes and texts, each stage on the
- * data the graph gives and priced by `scoreOf` where it searches; a graph with the author's cells (`given.cells`) in
- * its grid, through the channel stage. The same graph gives the same picture.
+ * data the graph gives and priced by `scoreOf` where it searches, straight lines drawn once the boxes stand
+ * (`drawStraight`); a graph with the author's cells (`given.cells`) in its grid, through the channel stage. The same
+ * graph gives the same picture.
  */
 export function layoutGraph(graph: CellGraph): CellLayout;
 export function layoutGraph(graph: LayoutGraph): LayeredLayout;
 export function layoutGraph(graph: LayoutGraph): LayeredLayout | CellLayout {
   if (graph.given?.cells) return layoutCells(graph as CellGraph);
-  return staged(graph, (g) => layoutLayered(specOf(g)), specOf);
+  return drawStraight(
+    graph,
+    staged(hideStraight(graph), (g) => layoutLayered(specOf(g)), specOf),
+  );
 }

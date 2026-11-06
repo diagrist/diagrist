@@ -1,0 +1,30 @@
+# Pressure: an actor generalization three levels deep with six roles, each level with use cases of its own.
+diagram usecase "Wiki" subtitle="Rollen erben Rechte" locale=de
+actor leser "Leser"
+actor autor "Autor"
+actor redakteur "Redakteur"
+actor admin "Administrator"
+actor gast "Gastautor"
+actor bot "Prüfbot" kind=system
+subject wiki "Unternehmenswiki"
+usecase lesen "Seite lesen" in wiki
+usecase suchen "Volltext suchen" in wiki
+usecase schreiben "Seite bearbeiten" in wiki
+usecase anlegen "Seite anlegen" in wiki
+usecase freigeben "Änderung freigeben" in wiki
+usecase rechte "Rechte vergeben" in wiki
+usecase sichern "Sicherung einspielen" in wiki
+usecase links "Links prüfen" in wiki
+rel autor -|> leser
+rel gast -|> leser
+rel redakteur -|> autor
+rel admin -|> redakteur
+rel leser -- lesen
+rel leser -- suchen
+rel autor -- schreiben
+rel autor -- anlegen
+rel gast -- schreiben
+rel redakteur -- freigeben
+rel admin -- rechte
+rel admin -- sichern
+rel links -- bot

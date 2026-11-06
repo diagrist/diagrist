@@ -1,0 +1,32 @@
+# Pressure: four subjects in a grid with actors in the lanes between them and a system actor used by two rows.
+diagram usecase "Bank" subtitle="Vier Systeme mit gemeinsamen Akteuren" locale=de
+actor kunde "Kundin"
+actor berater "Berater"
+actor risiko "Risikomanagement"
+actor schufa "Auskunftei" kind=system
+actor swift "Zahlungsnetz" kind=system
+subject online "Onlinebanking"
+usecase ueberweisen "Überweisen" in online
+usecase dauerauftrag "Dauerauftrag anlegen" in online
+subject kredit "Kreditsystem"
+usecase kreditantrag "Kredit beantragen" in kredit
+usecase bewerten "Bonität bewerten" in kredit
+subject depot "Depotsystem"
+usecase ordern "Wertpapier ordern" in depot
+usecase depotansicht "Depot ansehen" in depot
+subject zahlung "Zahlungsverkehr"
+usecase ausfuehren "Zahlung ausführen" in zahlung
+usecase pruefen "Geldwäsche prüfen" in zahlung
+rel kunde -- ueberweisen
+rel kunde -- dauerauftrag
+rel kunde -- kreditantrag
+rel kunde -- ordern
+rel kunde -- depotansicht
+rel berater -- kreditantrag
+rel berater -- ordern
+rel risiko -- bewerten
+rel risiko -- pruefen
+rel bewerten -- schufa
+rel ausfuehren -- swift
+rel ueberweisen --> ausfuehren include
+rel ausfuehren --> pruefen include
