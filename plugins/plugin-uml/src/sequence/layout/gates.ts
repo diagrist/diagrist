@@ -20,7 +20,7 @@ const openLength = (text: Measured, c: SeqCtx): number =>
 
 /** Length of a message with an open end: label or gate name, at least `lostLen`. */
 export const gateLength = (text: Measured, name: string | undefined, c: SeqCtx): number =>
-  Math.max(openLength(text, c), name ? c.width(name, c.s.messageSize) + 2 * c.s.labelPadX : 0);
+  Math.max(openLength(text, c), name ? c.width(name, 'message') + 2 * c.s.labelPadX : 0);
 
 /**
  * Name of a gate below the line, from the edge `x` in direction `dir` (1 right, -1 left), on a knocked-out
@@ -28,7 +28,7 @@ export const gateLength = (text: Measured, name: string | undefined, c: SeqCtx):
  */
 function gateName(name: string, x: number, y: number, dir: 1 | -1, c: SeqCtx): SeqShape[] {
   const { gateNameGap: gap, lineH, descent, knockout } = c.s;
-  const w = c.width(name, c.s.messageSize);
+  const w = c.width(name, 'message');
   const at = { x: x + dir * gap, y: y + lineH - descent };
   const left = dir > 0 ? at.x : at.x - w;
   return [

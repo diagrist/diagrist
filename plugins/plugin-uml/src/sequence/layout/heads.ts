@@ -1,5 +1,6 @@
 import type { Rect } from '@diagrist/core';
 import type { Participant } from '../diagram.js';
+import { FONTS } from '../styles.js';
 import { isFigure, type SeqCtx } from './text.js';
 import type { SeqHeadArt, SeqRole, SeqShape } from './types.js';
 
@@ -97,7 +98,7 @@ export function headArt(
   const s = c.s;
   const rect: Rect = { x: cx - size.w / 2, y: top, w: size.w, h: size.h };
   const ext = p.external === true;
-  const nameDy = Math.round(c.nameSize / 3);
+  const nameDy = Math.round(FONTS.name.size / 3);
   if (isFigure(p)) {
     const nameY = top + s.figureH + (p.stereotype ? s.stereoH : 0) + s.lineH;
     return { id: p.id, rect, shapes: [...figure(p, cx, top, c, ext), ...texts(p, cx, nameY, c)] };

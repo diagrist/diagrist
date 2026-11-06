@@ -14,8 +14,7 @@ export interface Dividers {
 }
 
 /** Width of the text box of a divider; the picture is at least this wide. */
-export const dividerBoxWidth = (label: string, c: SeqCtx): number =>
-  c.width(label, c.s.messageSize, true) + 2 * c.s.tagPadX;
+export const dividerBoxWidth = (label: string, c: SeqCtx): number => c.width(label, 'tag') + 2 * c.s.tagPadX;
 
 /**
  * Dividers: a double line from `left` to `right` across all lifelines, the text centred in a box, like a new

@@ -44,7 +44,7 @@ export interface FrameArt {
 /** The knocked-out ground of a guard, so lifelines do not cross it. */
 function guardBack(text: string, x: number, y: number, c: SeqCtx): Rect {
   const { lineH: lh, knockout: pad, descent } = c.s;
-  return { x: x - pad, y: y - lh + descent, w: c.width(text, c.s.messageSize) + 2 * pad, h: lh };
+  return { x: x - pad, y: y - lh + descent, w: c.width(text, 'message') + 2 * pad, h: lh };
 }
 
 /** A guard on its ground. */
@@ -94,12 +94,12 @@ function frameOf(f: SeqFragment, rects: ReadonlyMap<SeqFragment, Rect>, input: I
   const first = guardText(f.event);
   const lh = s.lineH;
   const baseline = top + s.tagH / 2 + s.textMid;
-  const firstW = first ? c.width(first, s.messageSize) : 0;
+  const firstW = first ? c.width(first, 'message') : 0;
   const firstX = clearOf(input.bars, left + tagW + s.guardGap, firstW, baseline - lh, baseline, c);
   const guards = f.operands.slice(1).map((o) => {
     const text = operandGuard(o.guard, o.marker);
     const y = (input.rows.y[o.index] ?? top) + s.guardH - s.descent;
-    const w = c.width(text, s.messageSize);
+    const w = c.width(text, 'message');
     return { text, y, x: text ? clearOf(input.bars, left + s.guardGap, w, y - lh, y, c) : left, w };
   });
   const right = Math.max(

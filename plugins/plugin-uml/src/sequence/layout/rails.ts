@@ -62,7 +62,7 @@ function resolve(k: Constraint, input: RailInputs, ids: ReadonlyMap<string, numb
   const anchor = x === undefined ? undefined : Math.min(x, ...near(lifeline).map((b) => b.rect.x));
   const anchorR = xr === undefined ? undefined : Math.max(xr, ...near(right).map((b) => b.rect.x + b.rect.w));
   const leftmost = lifeline !== undefined && lifeline === input.m.order[0];
-  return { text, w: c.width(text, c.s.messageSize), top, bottom, ends, anchor, anchorR, leftmost, span: k.span };
+  return { text, w: c.width(text, 'message'), top, bottom, ends, anchor, anchorR, leftmost, span: k.span };
 }
 
 /**
