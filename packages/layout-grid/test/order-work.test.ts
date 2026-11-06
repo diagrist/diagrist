@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import type { LayeredSpec } from '../src/index.js';
 import { jogPrices, orderStarts } from '../src/layered/budget.js';
 import { neighboursOf } from '../src/layered/order.js';
 import { rankedCost } from '../src/layered/order-cost.js';
 import { rank } from '../src/layered/rank.js';
+import type { LayeredSpec } from '../src/layered/spec.js';
 import { orderLayers } from '../src/layers/order.js';
 import type { OrderCost } from '../src/layers/sift.js';
 

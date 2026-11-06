@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { type LayeredEdge, type LayeredNode, layoutLayered } from '../src/index.js';
+import { type GraphEdge, type GraphNode, layoutGraph } from '../src/index.js';
 
 const METRICS = {
   colGap: 56,
@@ -12,9 +12,9 @@ const METRICS = {
   left: 32,
   top: 32,
 };
-const box = (id: string, width = 160): LayeredNode => ({ id, width, height: 44 });
-const edge = (from: string, to: string): LayeredEdge => ({ id: `${from}-${to}`, from, to, rank: 1 });
-const lay = (nodes: LayeredNode[], edges: LayeredEdge[]) => layoutLayered({ nodes, edges, metrics: METRICS });
+const box = (id: string, width = 160): GraphNode => ({ id, width, height: 44 });
+const edge = (from: string, to: string): GraphEdge => ({ id: `${from}-${to}`, from, to, rank: 'down' });
+const lay = (nodes: GraphNode[], edges: GraphEdge[]) => layoutGraph({ nodes, edges, metrics: METRICS });
 
 describe('straight lines by moving what stands in their way', () => {
   it('moves the placeholders of a long line under its port, though the line would bend by more than a slip', () => {
@@ -48,10 +48,10 @@ describe('lines beside a layer', () => {
   it('keep the ends of the boxes below off their verticals, so no two lines lie on one another', () => {
     const nodes = ['patient', 'fall', 'arzt', 'station', 'befund'].map((id) => box(id));
     const edges = [
-      { ...edge('patient', 'fall'), rank: 0 as const },
-      { ...edge('fall', 'arzt'), rank: 0 as const },
-      { ...edge('arzt', 'station'), rank: 0 as const },
-      { ...edge('fall', 'station'), rank: 0 as const },
+      { ...edge('patient', 'fall'), rank: 'beside' as const },
+      { ...edge('fall', 'arzt'), rank: 'beside' as const },
+      { ...edge('arzt', 'station'), rank: 'beside' as const },
+      { ...edge('fall', 'station'), rank: 'beside' as const },
       { ...edge('fall', 'befund'), weight: 2 },
       edge('arzt', 'befund'),
     ];

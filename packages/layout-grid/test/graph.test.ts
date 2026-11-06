@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { type GraphEdge, type GraphNode, type LayoutGraph, layoutGraph, layoutLayered } from '../src/index.js';
+import { type GraphEdge, type GraphNode, type LayoutGraph, layoutGraph } from '../src/index.js';
 
 const METRICS = {
   colGap: 56,
@@ -37,29 +37,6 @@ describe('the layout graph', () => {
     expect(d?.y).toBe(a?.y);
     const up = l.routes.find((r) => r.edge === 'a-c')?.points ?? [];
     expect(up.at(-1)?.[1]).toBe((c?.y ?? 0) + (c?.h ?? 0));
-  });
-
-  it('lays out the same picture as the spec of the layered stages it stands for, a hub included', () => {
-    const nodes = [box('core'), box('db'), box('ext1'), box('ext2')];
-    const edges = [edge('core', 'db'), edge('ext1', 'core'), edge('ext2', 'core', 'up')];
-    const head = { text: 'Kern', width: 30, size: 11 };
-    const viaGraph = layoutGraph(
-      graph({
-        nodes,
-        edges,
-        containers: [
-          { id: 'k', kind: 'core', members: ['core', 'db'], pad: 16, top: 0, head: { ...head, height: 11 } },
-        ],
-        given: { arrangement: 'hub' },
-      }),
-    );
-    const viaSpec = layoutLayered({
-      nodes: nodes.map(({ id, width, height }) => ({ id, width, height })),
-      edges: edges.map((e) => ({ ...e, rank: e.rank === 'up' ? -1 : 1 })),
-      metrics: METRICS,
-      hub: { core: ['core', 'db'], head, pad: 16 },
-    });
-    expect(JSON.stringify(viaGraph)).toBe(JSON.stringify(viaSpec));
   });
 
   it('with `perLayer` packs leaves of free edges and holds a frame as a block of layers', () => {
