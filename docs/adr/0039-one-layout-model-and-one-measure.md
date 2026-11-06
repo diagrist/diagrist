@@ -247,3 +247,7 @@ one's ends; the count is the right way round now (`fahrgastraum` 488 px of line 
 set keeps nothing in `PENDING`: `parallel-drei` loses its crossing, its line through a text and its text near a
 foreign line, `punkte` its text on a point's name and its lines on one another. `quer-rechts` is the named trade:
 one bend a straight line could spare, for six fewer bends, a fifth less line and a third less height.
+
+The spot search of the pipeline searches a picture moved right where its lines come nearer to the left edge than its
+widest text, not only where they reach past it, so a text may take a spot left of its line and the picture grows
+there instead of a gap growing for a text that found none: `lange-ereignisse` is 56 px lower again, as before #59.
