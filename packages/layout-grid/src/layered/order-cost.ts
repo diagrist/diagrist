@@ -1,5 +1,6 @@
 import type { OrderCost } from '../layers/sift.js';
 import type { Neighbours } from './order.js';
+import { crossed, misplaced, spread } from './order-terms.js';
 import type { Ranked } from './rank.js';
 
 /** What one foreign node between two members of a cluster costs, against 10 for a crossing. */
@@ -11,51 +12,6 @@ const CLUSTER_SPREAD = 3;
 export const PINNED = 10_000;
 
 const key = (a: string, b: string): string => (a < b ? `${a}|${b}` : `${b}|${a}`);
-
-/** The crossings among the pieces between two layers, each piece as its two places and its weight, weighted. */
-function crossed(pairs: readonly (readonly [number, number, number])[]): number {
-  let total = 0;
-  for (let i = 0; i < pairs.length; i++) {
-    const [p0, p1, pw] = pairs[i] as readonly [number, number, number];
-    for (let j = i + 1; j < pairs.length; j++) {
-      const [q0, q1, qw] = pairs[j] as readonly [number, number, number];
-      if ((p0 - q0) * (p1 - q1) < 0) total += pw * qw;
-    }
-  }
-  return total;
-}
-
-/** Nodes of a layer standing beyond one kept to the outside, or before one whose given place is earlier. */
-function misplaced(
-  layer: readonly string[],
-  pins: ReadonlyMap<string, 'left' | 'right'>,
-  given: ReadonlyMap<string, number>,
-): number {
-  let total = 0;
-  layer.forEach((n, i) => {
-    const pin = pins.get(n);
-    const wrong = pin === 'left' ? layer.slice(0, i) : pin === 'right' ? layer.slice(i + 1) : [];
-    total += wrong.filter((m) => pins.get(m) !== pin).length;
-    const place = given.get(n);
-    if (place !== undefined) total += layer.slice(i + 1).filter((m) => (given.get(m) ?? place) < place).length;
-  });
-  return total;
-}
-
-/** Foreign nodes standing between the first and the last member of a cluster in a layer, over all clusters. */
-function spread(layer: readonly string[], cluster: ReadonlyMap<string, string>): number {
-  const ends = new Map<string, [number, number, number]>();
-  for (let i = 0; i < layer.length; i++) {
-    const c = cluster.get(layer[i] as string);
-    if (c === undefined) continue;
-    const e = ends.get(c);
-    if (e === undefined) ends.set(c, [i, i, 1]);
-    else [e[1], e[2]] = [i, e[2] + 1];
-  }
-  let total = 0;
-  for (const [first, last, members] of ends.values()) total += last - first + 1 - members;
-  return total;
-}
 
 /** The neighbours of each node in the next layer with the weight of the piece, and those in its own layer. */
 interface Reach {
@@ -107,7 +63,11 @@ export interface RankedCost {
 export function rankedCost(c: RankedCost): OrderCost {
   const { ranked, cluster, pins, given } = c;
   const kept = pins.size > 0 || given.size > 0;
-  const passing = (between: readonly string[]) => between.filter((n) => ranked.dummies.has(n)).length;
+  const passing = (layer: readonly string[], from: number, to: number) => {
+    let count = 0;
+    for (let k = from; k < to; k++) count += ranked.dummies.has(layer[k] as string) ? 1 : 0;
+    return count;
+  };
   const { down, beside } = reachOf(c.links, ranked.layerOf);
   const up = new Map<string, (readonly [string, number])[]>();
   for (const [a, list] of down) for (const [b, w] of list) up.set(b, [...(up.get(b) ?? []), [a, w] as const]);
@@ -127,7 +87,7 @@ export function rankedCost(c: RankedCost): OrderCost {
     for (const a of layer)
       for (const b of beside.get(a) ?? []) {
         total += Math.abs(at(a) - at(b)) - 1;
-        if (at(a) < at(b)) total += 10 * c.dummyWeight * passing(layer.slice(at(a) + 1, at(b)));
+        if (at(a) < at(b)) total += 10 * c.dummyWeight * passing(layer, at(a) + 1, at(b));
       }
     if (kept) total += PINNED * misplaced(layer, pins, given);
     if (cluster.size > 0) total += CLUSTER_SPREAD * spread(layer, cluster);
@@ -162,6 +122,7 @@ export function rankedCost(c: RankedCost): OrderCost {
     const pos = new Map<string, number>();
     for (const k of [l - 1, l + 1]) placesOf(layers[k], pos);
     const pairs = others.map((v) => pairCost(n, v, pos));
+    const index = new Map(others.map((m, i) => [m, i]));
     const still = !kept && cluster.size === 0 && others.every((m) => (beside.get(m) ?? []).length === 0);
     let leftOf = 0;
     let rightOf = pairs.reduce((s, p) => s + p[1], 0);
@@ -172,8 +133,12 @@ export function rankedCost(c: RankedCost): OrderCost {
       }
       if (still && (beside.get(n) ?? []).length === 0) return leftOf + rightOf;
       const layer = [...others.slice(0, to), n, ...others.slice(to)];
-      const at = new Map(layer.map((m, i) => [m, i]));
-      return leftOf + rightOf + own(layer, (m) => at.get(m) ?? 0);
+      const at = (m: string) => {
+        if (m === n) return to;
+        const i = index.get(m) ?? 0;
+        return i < to ? i : i + 1;
+      };
+      return leftOf + rightOf + own(layer, at);
     });
   };
   const swap = (layers: string[][], l: number, i: number) => {

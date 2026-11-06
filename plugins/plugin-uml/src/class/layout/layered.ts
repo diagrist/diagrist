@@ -14,7 +14,8 @@ const AIR = 16;
 
 /**
  * Solid lines of a hierarchy, superclass over subclass and whole over part: they stand straight and their ends above
- * each other first. Realizations and dependencies give way to them.
+ * each other first. Realizations and dependencies give way to them; dependencies, dashed, are soft lines that boxes
+ * do not leave their parents for.
  */
 const HIERARCHY: ReadonlySet<ClassRelation['kind']> = new Set(['generalization', 'composition', 'aggregation']);
 
@@ -69,6 +70,7 @@ function edgeOf(m: ClassModel, r: ClassRelation, i: number): LayeredEdge {
     to: r.to,
     rank: 1,
     ...(HIERARCHY.has(r.kind) ? { weight: 2 } : {}),
+    ...(r.kind === 'dependency' ? { strength: 'soft' as const } : {}),
     ...(shared ? { bundle: shared } : leg ? { bundle: `leg:${leg.diamond}` } : {}),
     run: { from: endRun(r, 'from') + (name === undefined ? 0 : font.size + 2 + LAYERED.labelGap), to: endRun(r, 'to') },
     room: Math.ceil(room / CLASS.grid) * CLASS.grid,

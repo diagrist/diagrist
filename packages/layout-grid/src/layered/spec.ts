@@ -24,6 +24,11 @@ export interface LayeredEdge {
   /** 1 by default; 2 for a main path, which then stands straight and in the middle first. */
   readonly weight?: number;
   /**
+   * `soft` for a secondary line, such as a dashed one beside a hierarchy: its bends weigh half, and boxes stay centred
+   * on the other lines rather than leave their parent to straighten it. `hard` by default.
+   */
+  readonly strength?: 'hard' | 'soft';
+  /**
    * Edges of the same key may share one trunk: those leaving one node as a fan, those entering one node as a
    * collector, each line keeping its own head. Edges without a key never share.
    */

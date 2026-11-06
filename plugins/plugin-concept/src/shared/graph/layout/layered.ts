@@ -32,7 +32,7 @@ export interface LayeredGraph {
  * The items and relations of a graph as a layered picture (plan L3): `upward` links turn the layers, `beside`
  * links stay in one and pull lightly where they cannot, relations of one link and one area without their own text
  * may share a trunk, those with dashes or dots only out of one item, where the dashes of all start together, and
- * items of one area keep together where that costs no crossing.
+ * give way to solid ones as soft lines; items of one area keep together where that costs no crossing.
  */
 export function layeredGraph(m: Graph, locale: Locale): LayeredGraph {
   const boxes = new Map(
@@ -52,6 +52,7 @@ export function layeredGraph(m: Graph, locale: Locale): LayeredGraph {
       to: r.to,
       rank: link?.beside === true ? 0 : link?.upward === true ? -1 : 1,
       ...(link?.beside === true ? { weight: 0.5 } : {}),
+      ...(link !== undefined && link.line !== 'solid' ? { strength: 'soft' as const } : {}),
       ...(r.label === undefined ? { bundle: `${r.link}|${area}${link?.line === 'solid' ? '' : `|${r.from}`}` } : {}),
       ...(word === undefined ? {} : { label: { text: word, width: textWidth(word, font), size: font.size } }),
       source: r.span,

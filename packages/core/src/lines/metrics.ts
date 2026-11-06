@@ -53,7 +53,7 @@ export function lineMetrics(input: LineInput): LineMetrics {
     (sum, r, i) => sum + (r.weight ?? 1) * (segments[i] ?? []).reduce((l, s) => l + lengthOf(s), 0),
     0,
   );
-  const { parentsOff, parentOffset, childrenOff, childOffset } = centring(input);
+  const { parentsOff, parentOffset, childrenOff, childOffset } = lineCentring(input);
   const width = input.width ?? extent(input, (r) => r.x + r.w, 0);
   const height = input.height ?? extent(input, (r) => r.y + r.h, 1);
   return {
@@ -84,8 +84,19 @@ function extent(input: LineInput, far: (r: Rect) => number, axis: 0 | 1): number
   return Math.max(0, ...rects.map(far), ...input.routes.flatMap((r) => r.points.map((p) => p[axis])));
 }
 
-/** How far boxes stand from the middle of their neighbours below (Q11) and single children from their parent (Q12). */
-function centring(input: LineInput) {
+/** Boxes off the middle of their children and children off their one parent, by `lineCentring`. */
+export interface LineCentring {
+  readonly parentsOff: number;
+  readonly parentOffset: number;
+  readonly childrenOff: number;
+  readonly childOffset: number;
+}
+
+/**
+ * How far boxes stand from the middle of their neighbours below (Q11) and single children from their parent (Q12),
+ * as `lineMetrics` counts them; a layout may hand only the lines it wants centred, such as those of a hierarchy.
+ */
+export function lineCentring(input: LineInput): LineCentring {
   const rects = new Map(input.nodes.filter((n) => n.owner === undefined).map((n) => [n.id, n.rect]));
   const neighbours = new Map<string, Set<string>>();
   for (const r of input.routes) {
