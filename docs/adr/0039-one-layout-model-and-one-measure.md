@@ -87,7 +87,9 @@ stress budgets count, such as bends a straight line could spare, reached no sear
    of the frame most linked to the other end, takes its place, port and track there, and is cut at the frame's
    outline, below a head worn as a tab (`LayeredFrame.tab`); the kind's own router of such lines is gone. A line
    that has to pass a frame lying wholly between its ends runs through it, and the order moves the placeholders of a
-   whole chain to an end of their frame at once, which single moves cannot reach (`speichert` in `hexagonal`). An
+   whole chain to an end of their frame at once, which single moves cannot reach (`speichert` in `hexagonal`); of
+   two such orders that cost the same, the one whose pieces span less across, its boxes side by side, wins, so the
+   inner chain of `gedaechtnis` runs straight with the line to its history state beside it. An
    edge from a box to itself is a loop beside the box, on the side no line beside its layer takes, its gap grown for
    it and its text.
 
@@ -148,7 +150,10 @@ stress budgets count, such as bends a straight line could spare, reached no sear
     or past a layer leaves the order without placeholders and runs on a rail: out of a side of one end, along a
     track beside every box, placeholder, foreign frame and text of a line between its ends, into the same side of
     the other end. It takes a side where both ends stand outermost in their layers and no loop takes that side;
-    where none does, the order runs again with both ends pinned to the side they stand nearer, and a rail whose ends
+    where none does, the order runs again with both ends pinned to the side they stand nearer, or to the other where
+    that side clashes with the pins of a rail before it (an end pinned the other way, or another node of its layer
+    pinned the same way), and to neither where both clash, so `gedaechtnis` keeps `Pausiert -> H*` on a rail, and a
+    rail whose ends
     still stand inside runs through the layers, one per new order. Rails are placed shortest first, each outside
     the ones before it on its side by the room of their texts where their stretches meet (from the middle of one end
     to the middle of the other, as high as the text at least), so rails one above the other share a track, on the side where it crosses fewer of them; the ends

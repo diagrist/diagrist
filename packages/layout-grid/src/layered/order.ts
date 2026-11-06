@@ -3,6 +3,7 @@ import type { OrderCost } from '../layers/sift.js';
 import { chainsAside } from './chains.js';
 import { clustered, framesBroken } from './clusters.js';
 import { PINNED, rankedCost } from './order-cost.js';
+import { lengthOf } from './order-length.js';
 import { framePaths } from './paths.js';
 import type { Ranked } from './rank.js';
 import type { LayeredSpec } from './spec.js';
@@ -60,9 +61,18 @@ export function orderRanked(
   const cluster = new Map(spec.nodes.flatMap((n) => (n.cluster === undefined ? [] : [[n.id, n.cluster] as const])));
   const cost = rankedCost({ ranked, links, cluster, pins, given, dummyWeight: DUMMY_WEIGHT });
   const nodes = [...spec.nodes.map((n) => n.id), ...ranked.dummies];
+  const widths = new Map(spec.nodes.map((n) => [n.id, n.width] as const));
+  const lengths = {
+    links,
+    layerOf: ranked.layerOf,
+    width: (n: string) => widths.get(n) ?? 0,
+    gap: spec.metrics.colGap,
+    counts: () => 1,
+  };
+  const length = (layers: string[][]) => lengthOf(layers, lengths);
   if ((spec.frames ?? []).length === 0) {
     const plain = orderLayers(nodes, ranked.layerOf, links.adj, true, cost);
-    const aside = chainsAside(plain, ranked, undefined, (layers) => cost(layers, links.adj, ranked.layerOf));
+    const aside = chainsAside(plain, ranked, undefined, (layers) => cost(layers, links.adj, ranked.layerOf), length);
     return aside === plain ? plain : refine(aside, links.adj, ranked.layerOf, cost);
   }
   const fp = framePaths(spec, ranked);
@@ -77,6 +87,6 @@ export function orderRanked(
   const first = orderLayers(nodes, ranked.layerOf, links.adj, true, hard);
   const together = clustered(first, fp, (layers) => hard(layers, links.adj, ranked.layerOf));
   const refined = refine(together, links.adj, ranked.layerOf, hard);
-  const aside = chainsAside(refined, ranked, fp, (layers) => hard(layers, links.adj, ranked.layerOf));
+  const aside = chainsAside(refined, ranked, fp, (layers) => hard(layers, links.adj, ranked.layerOf), length);
   return aside === refined ? refined : refine(aside, links.adj, ranked.layerOf, hard);
 }

@@ -6,17 +6,19 @@ type Layers = string[][];
 /**
  * An order with the placeholders of one long edge moved together to the left or right end of what they stand among,
  * in every layer at once: the start or the end of the run of their frame, or of the layer outside frames. A move
- * stays when the order costs less. Moving one placeholder at a time cannot find such an order, since each single
- * step bends the edge across its neighbours.
+ * stays when the order costs less, or as much and its pieces span less by `length`. Moving one placeholder at a time
+ * cannot find such an order, since each single step bends the edge across its neighbours.
  */
 export function chainsAside(
   layers: Layers,
   ranked: Ranked,
   fp: FramePaths | undefined,
   cost: (l: Layers) => number,
+  length: (l: Layers) => number,
 ): Layers {
   let best = layers;
   let lowest = cost(best);
+  let shortest = length(best);
   for (const chain of ranked.chains.values()) {
     const held = chain.filter((n) => ranked.dummies.has(n));
     if (held.length < 2) continue;
@@ -32,7 +34,9 @@ export function chainsAside(
         return rest;
       });
       const c = cost(tried);
-      if (c < lowest) [best, lowest] = [tried, c];
+      if (c > lowest) continue;
+      const l = length(tried);
+      if (c < lowest || l < shortest) [best, lowest, shortest] = [tried, c, l];
     }
   }
   return best;
