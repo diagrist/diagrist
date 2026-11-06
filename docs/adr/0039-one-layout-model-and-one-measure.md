@@ -89,7 +89,10 @@ stress budgets count, such as bends a straight line could spare, reached no sear
    that has to pass a frame lying wholly between its ends runs through it, and the order moves the placeholders of a
    whole chain to an end of their frame at once, which single moves cannot reach (`speichert` in `hexagonal`); of
    two such orders that cost the same, the one whose pieces span less across, its boxes side by side, wins, so the
-   inner chain of `gedaechtnis` runs straight with the line to its history state beside it. An
+   inner chain of `gedaechtnis` runs straight with the line to its history state beside it. A line entering a frame
+   from above near its head moves right past the head with the node it enters, where that costs less than widening
+   the frame and its empty strip, and outermost frames close up to the left where the picture then costs less by
+   `scoreOf` (`pakete-quer` 1,759 to 1,232 px wide). An
    edge from a box to itself is a loop beside the box, on the side no line beside its layer takes, its gap grown for
    it and its text.
 

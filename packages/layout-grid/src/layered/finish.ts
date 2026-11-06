@@ -9,7 +9,7 @@ import { coords, spinesOf, type Xs } from './coords.js';
 import { clearCore } from './fence.js';
 import { framesOf } from './frames.js';
 import { type Frame, linkPoints, simplify } from './geometry.js';
-import { clearHeads } from './heads.js';
+import { clearHeads, clearOfHeads } from './heads.js';
 import { type Placement, unjog } from './jogs.js';
 import { labelRoom, seatsOf } from './labels.js';
 import { lanesOf } from './lanes.js';
@@ -22,6 +22,7 @@ import { railsOn } from './rail-pass.js';
 import { runsOf } from './runs.js';
 import { keptInside } from './shift.js';
 import type { LayeredSpec } from './spec.js';
+import { squeezed } from './squeeze.js';
 
 export type { LayeredLayout } from './output.js';
 
@@ -70,9 +71,10 @@ export function finish(spec: LayeredSpec, arrangement: Arrangement): LayeredLayo
     clearCore(placed, layers, width, core, arrangement.pins ?? new Map(), m.colGap + pad);
     const settled = settle(placed);
     if (spec.hub) return settled;
-    const price = (p: Placement) => scoreOf(layeredLines(spec, draw(p))).cost;
-    return unjog({ layers, width, gap, groups, ranked, settle, blockOf: fr.block, price, spines }, settled);
+    const straight = unjog({ layers, width, gap, groups, ranked, settle, blockOf: fr.block, price, spines }, settled);
+    return squeezed({ layers, width, gap, blocks: fr.outer(), left: m.left, settle, price }, straight);
   };
+  const price = (p: Placement) => scoreOf(layeredLines(spec, draw(p))).cost;
   let below = besideRoutes(ranked, layers, new Set(), m.lead);
   const links = linksOf(spec, ranked).filter((l) => !runs.hidden(l.edge));
   const groups = groupsOf(spec, ranked, layers, links);
@@ -185,8 +187,7 @@ export function finish(spec: LayeredSpec, arrangement: Arrangement): LayeredLayo
     below = besideRoutes(ranked, layers, up, m.lead);
     placement = settle(placement.x);
   }
-  const entries = links.map((l) => ({ upper: l.upper, lower: l.lower, x: placement.ports.top.get(l) ?? 0 }));
-  if (fr.heads(entries, placement.flat)) placement = place();
+  placement = clearOfHeads(placement, { links, frames: fr, settle, place, price });
   let { crowded, ...drawn } = draw(placement);
   if (seats.some((s) => crowded.includes(s.edge.id))) {
     grown = new Set(crowded);

@@ -1,5 +1,8 @@
 import type { Point, Rect } from '@diagrist/core';
 import type { PlacedGroup } from '../layout.js';
+import type { Frames } from './frames.js';
+import type { Placement } from './jogs.js';
+import type { Link } from './links.js';
 import type { LayeredSpec } from './spec.js';
 
 /** Room between the head of a frame and a line passing it. */
@@ -49,4 +52,44 @@ export function clearHeads(
     }
   }
   return out;
+}
+
+/**
+ * What a pixel of the empty strip a frame widened for its head keeps costs, against `scoreOf`: twice a pixel of
+ * width, so a frame around its content wins over a line that much longer.
+ */
+const STRIP = 0.2;
+
+/** What `clearOfHeads` works with: the links, the frames, and the placement's steps and price of the picture. */
+export interface HeadWork {
+  readonly links: readonly Link[];
+  readonly frames: Frames;
+  readonly settle: (x: Map<string, number>) => Placement;
+  readonly place: () => Placement;
+  readonly price: (p: Placement) => number;
+}
+
+/**
+ * A placement in which no line entering a frame from above crosses its head: the nodes such lines enter moved right
+ * past the head, what stands beyond them making room, or else the frames widened at the left (`Frames.widen`), so the
+ * frame keeps an empty strip below its head. The first wins where it leaves no head crossed and the picture drawn
+ * costs no more by its price than the widened one and its strips (`STRIP`).
+ */
+export function clearOfHeads(placement: Placement, w: HeadWork): Placement {
+  const needsOf = (p: Placement) =>
+    w.frames.heads(
+      w.links.map((l) => ({ upper: l.upper, lower: l.lower, x: p.ports.top.get(l) ?? 0 })),
+      p.flat,
+    );
+  const needs = needsOf(placement);
+  if (needs.length === 0) return placement;
+  const x = new Map(placement.x);
+  for (const { need, nodes } of needs) for (const n of new Set(nodes)) x.set(n, (x.get(n) ?? 0) + need);
+  const moved = w.settle(x);
+  const cost = needsOf(moved).length === 0 ? w.price(moved) : Number.POSITIVE_INFINITY;
+  w.frames.widen(needs);
+  const widened = w.place();
+  if (cost > w.price(widened) + STRIP * needs.reduce((sum, n) => sum + n.need, 0)) return widened;
+  w.frames.widen(needs, -1);
+  return moved;
 }
