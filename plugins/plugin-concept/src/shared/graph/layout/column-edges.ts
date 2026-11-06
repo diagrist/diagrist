@@ -1,14 +1,25 @@
+import type { Placed } from '@diagrist/core';
 import type { Locale } from '@diagrist/lang';
-import type { EdgeText, GridEdge, Side } from '@diagrist/layout-grid';
 import type { Graph } from '../model.js';
 import { type ColumnVerb, edgeId, edgesOf } from './edges.js';
 
-/** The lines of a picture in columns, their texts, the verbs of the head row, and whether a labelled line forks. */
+/**
+ * A line of a picture in columns as drawn, left to right where it tells the story: its ends, the trunk it shares with
+ * the lines of `bundle`, and the words it carries.
+ */
+export interface ColumnLine {
+  readonly id: string;
+  readonly from: string;
+  readonly to: string;
+  readonly bundle?: string;
+  readonly text?: string;
+  readonly source?: Placed['span'];
+}
+
+/** The lines of a picture in columns and the verbs of the head row. */
 export interface ColumnEdges {
-  readonly edges: readonly GridEdge[];
-  readonly texts: readonly EdgeText[];
+  readonly edges: readonly ColumnLine[];
   readonly verbs: readonly ColumnVerb[];
-  readonly forks: boolean;
 }
 
 interface Line {
@@ -20,7 +31,7 @@ interface Line {
   /** What its link says in the direction it is drawn; `text` too unless the relation has a text of its own. */
   readonly says?: string;
   readonly own: boolean;
-  readonly source: GridEdge['source'];
+  readonly source?: Placed['span'];
 }
 
 /**
@@ -66,32 +77,20 @@ export function columnEdges(m: Graph, locale: Locale, column: (id: string) => nu
   const spoken = new Set(
     verbs.flatMap((v) => gaps.get(Number(v.left.slice(1)) - 1) ?? []).flatMap((l) => (l.own ? [] : [l.id])),
   );
-  const edges = lines.map((l): GridEdge => {
-    const ahead = column(l.to) >= column(l.from);
-    const pair: readonly [Side, Side] = ahead ? ['right', 'left'] : ['left', 'right'];
+  const trunks = new Set<string>();
+  const edges = lines.map((l): ColumnLine => {
     const bundle = bundleOf(l);
+    const key = `${bundle ?? l.id}:${l.text}`;
+    const said = l.text === undefined || spoken.has(l.id) || trunks.has(key);
+    if (!said) trunks.add(key);
     return {
       id: l.id,
       from: l.from,
       to: l.to,
-      sides: Array.from({ length: 6 }, () => pair),
       ...(bundle === undefined ? {} : { bundle }),
+      ...(said ? {} : { text: l.text }),
       ...(l.source === undefined ? {} : { source: l.source }),
     };
   });
-  const trunks = new Set<string>();
-  const texts = lines.flatMap((l): EdgeText[] => {
-    if (l.text === undefined || spoken.has(l.id)) return [];
-    const bundle = bundleOf(l);
-    const key = `${bundle ?? l.id}:${l.text}`;
-    if (trunks.has(key)) return [];
-    trunks.add(key);
-    return [{ edge: l.id, name: l.text }];
-  });
-  return {
-    edges,
-    texts,
-    verbs,
-    forks: texts.some((t) => lines.some((l) => l.id === t.edge && bundleOf(l) !== undefined)),
-  };
+  return { edges, verbs };
 }

@@ -4,12 +4,12 @@ import type { CoreFrame, EdgeLabel, Route } from '@diagrist/layout-grid';
 import { LEGEND, type Legend, legendLayout, MARGIN } from '@diagrist/parts';
 import type { LinkDecl, TypeDecl } from '../../declarations.js';
 import type { Graph, GraphWords, Item, Relation } from '../model.js';
-import { inGrid, inLayers } from './arranged.js';
-import { inColumns } from './columns.js';
+import { inLayers } from './arranged.js';
+import { inColumnLayers, inColumns } from './columns.js';
+import { edgesOf as drawn, edgeId } from './edges.js';
 import type { PlacedHead, PlacedVerb } from './heads.js';
 import { distinctLines } from './lines.js';
 import { GRAPH_FONTS as F, type ItemBox } from './metrics.js';
-import { drawn, edgeId } from './spec.js';
 
 /** What the legend shows a sample of: a type with its shape, a link with its line and head, or a status. */
 export type Sample =
@@ -82,8 +82,8 @@ function legendText(s: Sample, locale: Locale, w: GraphWords): string {
 }
 
 /**
- * Lays out a graph picture on `layout-grid`: a picture in columns on its grid with the heads of the columns, any
- * other in layers by the layered pipeline; then the legend of what the picture does not say itself, unless
+ * Lays out a graph picture on `layout-grid` by the layered pipeline: a picture in columns turned to run right, with
+ * the heads of the columns, any other in layers; then the legend of what the picture does not say itself, unless
  * `options` leave it out. Links the legend alone tells apart are drawn with lines that differ (`distinctLines`).
  */
 export function layoutGraph(
@@ -95,7 +95,7 @@ export function layoutGraph(
 ): GraphLayout {
   const columns = inColumns(model);
   const m = distinctLines(model, (id) => columns && model.links.get(id)?.bare === false);
-  const at = columns ? inGrid(m, locale, options.heads) : inLayers(m, locale);
+  const at = columns ? inColumnLayers(m, locale, options.heads) : inLayers(m, locale);
   const { boxes, routes, labels, heads } = at;
   const byId = new Map(m.items.map((i) => [i.id, i]));
   const items = at.nodes.flatMap((p): PlacedItem[] => {

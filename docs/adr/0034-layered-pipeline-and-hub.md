@@ -58,3 +58,16 @@ the same line then had a legend that could not tell them apart, and one of three
 Now the words stand on the lines only while two links of a picture in layers still look alike; a link without
 `line=` takes the first of `solid`, `dashed` and `dotted` that no other link of the picture shows with its head, and
 lines of dashes or dots share a trunk only out of one item, where their dashes start together.
+
+## Amendment (06.11.2026)
+
+Pictures in columns leave the grid's router. A column is a layer of the pipeline (`given.ranks`, one per type in
+the order of the declarations), the order within it is the order stage's (`given.order` `free`), and the picture is
+laid out down and turned to run right (`given.direction`). A line that skips a column takes a place of its own in
+it instead of running through the gap of the column beside it: `spalten-zurueck` went from 6 crossings, 3 lines side
+by side and 4,396 px of lines to 1 crossing and 2,747 px. The story stays: the heads name the types above their
+columns, the verbs stand between them, the items of a column are as wide as its widest, a link with `back=` runs
+left to right with its backward text, lines from one item to several of the next column share one trunk, and of an
+order and its mirror the one that keeps the first column in the order written wins. Words on lines stand where the
+pipeline seats them, next to the start of the line, no longer in the middle of the gap.
+

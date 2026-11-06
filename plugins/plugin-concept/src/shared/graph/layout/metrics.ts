@@ -1,7 +1,5 @@
 import { type Font, STANDARD_FONTS, textWidth } from '@diagrist/core';
-import type { EdgeText, GridMetrics } from '@diagrist/layout-grid';
-import { MARGIN, wrap } from '@diagrist/parts';
-import { widestText } from './edges.js';
+import { wrap } from '@diagrist/parts';
 
 /** Font roles of graph pictures besides the standard ones: the entries below an item's name. */
 export const GRAPH_FONTS = {
@@ -22,49 +20,16 @@ export const ITEM = {
   figure: 20,
   fold: 10,
   lid: 8,
-  perLayer: 5,
 } as const;
 
 /** The least gap between columns, and the room a label keeps to the line beside it. */
 export const GAP = { col: 56, label: 12 } as const;
 
-/**
- * Measures of a picture in columns: room for the heads above the first row, the gap between half rows, and the gap
- * between columns, wide enough for the widest text on a line between them and its arrowhead, twice that where a
- * relation forks halfway across.
- */
-export const HEAD = {
-  room: 32,
-  rowGap: 16,
-  colGap: (all: readonly EdgeText[], fans: boolean): number =>
-    Math.max(72, Math.ceil((fans ? 2 : 1) * (widestText(all) + 2 * GAP.label) + 16)),
-} as const;
+/** Room for the heads above the first row of a picture in columns. */
+export const HEAD = { room: 32 } as const;
 
-/** Where the grid starts below the title line, with and without a subtitle. */
+/** Where the first row of items starts below the title line, with and without a subtitle. */
 export const FIRST_ROW = { subtitle: 104, title: 88 } as const;
-
-/**
- * The measures `layout-grid` lays a graph picture out with: an adaptive grid of layers, orthogonal lines, and columns
- * `colGap` apart, which the caller widens so labels beside the lines have room.
- */
-export const graphMetrics = (firstRowY: number, colGap: number = GAP.col): GridMetrics => ({
-  grid: 8,
-  nodeW: ITEM.minW,
-  nodeH: ITEM.minH,
-  colGap,
-  subColGap: colGap,
-  rowGap: 72,
-  marginX: MARGIN,
-  firstRowY,
-  margin: 32,
-  laneGap: 12,
-  portSpread: 12,
-  loopReach: 24,
-  framePad: { top: 32, bottom: 16, x: 16 },
-  labelFont: STANDARD_FONTS.label,
-  labelLineH: 12,
-  labelGap: 6,
-});
 
 /** An item measured: its size and its name and entries wrapped to its width. */
 export interface ItemBox {

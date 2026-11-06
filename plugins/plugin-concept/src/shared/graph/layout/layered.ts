@@ -1,6 +1,13 @@
 import { STANDARD_FONTS, textWidth } from '@diagrist/core';
 import type { Locale } from '@diagrist/lang';
-import { type GraphEdge, type LayeredLayout, layoutGraph, WRAP_EM, wrapWithin } from '@diagrist/layout-grid';
+import {
+  type GraphEdge,
+  type GraphLabel,
+  type LayeredLayout,
+  layoutGraph,
+  WRAP_EM,
+  wrapWithin,
+} from '@diagrist/layout-grid';
 import { MARGIN } from '@diagrist/parts';
 import type { Graph } from '../model.js';
 import { arrangementOf, coreArea } from './arrangement.js';
@@ -9,7 +16,15 @@ import { linesAlike } from './lines.js';
 import { FIRST_ROW, GAP, type ItemBox, measureItem } from './metrics.js';
 
 /** The measures of a layered graph picture: the gaps of the standard look, two arrowheads of run into a head. */
-const METRICS = { colGap: GAP.col, rowGapMin: 56, track: 16, portGap: 16, lead: 24, tail: 16, labelGap: 6 } as const;
+export const METRICS = {
+  colGap: GAP.col,
+  rowGapMin: 56,
+  track: 16,
+  portGap: 16,
+  lead: 24,
+  tail: 16,
+  labelGap: 6,
+} as const;
 
 /**
  * The words on the lines (plan Q10): a relation's own text always; the word of its link only when two links of the
@@ -23,7 +38,7 @@ function wordOf(m: Graph, label: string | undefined, link: string, alike: boolea
 }
 
 /** A word on a line, measured, broken between its words where it runs wider than the wrap of line texts. */
-function labelOf(word: string) {
+export function labelOf(word: string): GraphLabel {
   const font = STANDARD_FONTS.label;
   const measure = (t: string) => textWidth(t, font);
   const lines = wrapWithin(word, WRAP_EM * font.size, measure).map((text) => ({ text, width: measure(text) }));
