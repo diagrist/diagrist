@@ -1,3 +1,4 @@
+import { compile } from '@diagrist/core';
 import { type BudgetEntry, compareBudget } from '@diagrist/testkit';
 import { describe, expect, it } from 'vitest';
 import { umlPlugin } from '../src/index.js';
@@ -31,5 +32,13 @@ describe('the stress set of activity diagrams', () => {
     expect(Object.keys(entries)).toHaveLength(names.length);
     const result = compareBudget(golden, entries);
     expect(result.status === 'written' ? { status: 'match' } : result).toEqual({ status: 'match' });
+  });
+
+  it('warns about the order of the lanes only where another order crosses fewer lines (U958)', () => {
+    const warned = names.flatMap((name) => {
+      const found = compile(source(name), { plugins: [umlPlugin] }).diagnostics.find((d) => d.code === 'U958');
+      return found ? [[name, found.values.order]] : [];
+    });
+    expect(warned).toEqual([['parallel-entscheidung.dgr', '`qa`, `dev`, `ops`']]);
   });
 });

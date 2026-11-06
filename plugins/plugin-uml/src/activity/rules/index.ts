@@ -7,6 +7,7 @@ import {
   regionWithoutInterrupt,
 } from './branches.js';
 import { exceptionHandler, expansionControl, expansionInput, interruptingEdge, objectFlow, pinNames } from './flows.js';
+import { laneOrder } from './lanes.js';
 import { activityEnds, controlArity, decisionInputs, guards, joinAfterDecision } from './nodes.js';
 import type { ActivityRule } from './shared.js';
 import {
@@ -45,4 +46,5 @@ export const ACTIVITY_RULES: readonly ActivityRule[] = [
   regionWithoutInterrupt,
   expansionCrossing,
   expansionEmpty,
+  laneOrder,
 ];

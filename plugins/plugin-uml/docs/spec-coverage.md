@@ -104,7 +104,7 @@ Nobody declares an element covered. A statement, an argument, a value such as an
 | Data store node | 15.4.3.4 | `datastore` | `zahlung-ausnahme` |
 | States of an object node in brackets below its name | 15.4.4.1 | `object` with `state=` | `auftragsabwicklung` and 1 more |
 | Exception handler of an executable node | 15.5.3.1 | `handler`, U456 | `karten-belasten` and 1 more |
-| Activity partition (swimlane) | 15.6.3.1 | `partition`, `initial`, `final`, `flowfinal`, `action`, `decision`, `merge`, `fork`, `join`, `object`, `datastore`, `buffer`, `send`, `accept`, `wait` with `in` | `auftragsabwicklung` and 8 more |
+| Activity partition (swimlane) | 15.6.3.1 | `partition`, `initial`, `final`, `flowfinal`, `action`, `decision`, `merge`, `fork`, `join`, `object`, `datastore`, `buffer`, `send`, `accept`, `wait` with `in`, U958 | `auftragsabwicklung` and 8 more |
 | Interruptible activity region | 15.6.3.2 | `interruptible`, `initial`, `final`, `flowfinal`, `action`, `decision`, `merge`, `fork`, `join`, `object`, `datastore`, `buffer`, `send`, `accept`, `wait` with `interruptible=`, U955 | `auftragsabwicklung` and 1 more |
 | Edge that interrupts its region | 15.6.3.2 | `go` with `~>`, U437 | `auftragsabwicklung` and 1 more |
 | Action | 16.2.3.1 | `action`, U939 | `auftragsabwicklung` and 11 more |

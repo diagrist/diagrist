@@ -34,6 +34,9 @@ const BASE = [
 
 const REGION = 'interruptible r "R"';
 const EXPANSION = 'expansion x "X"\naction inner "Inner" in a expansion=x';
+/** A third lane, and a flow in lane `b` beside a flow from `left` to `x` and back, so `x` in `c` passes over it. */
+const LANES = 'partition c "C"\naction b2 "B2" in b';
+const OVER = 'go right -> b2\ngo b2 -> j\ngo left -> x\ngo x -> j';
 
 /** Per code lines that trigger it and corrected lines that do not. */
 const CASES: readonly (readonly [string, string, string])[] = [
@@ -104,6 +107,7 @@ const CASES: readonly (readonly [string, string, string])[] = [
     `${EXPANSION}\ngo work => x\ngo x => inner\ngo inner => x\ngo x => end`,
   ],
   ['U957', 'expansion x "X"\ngo work => x', `${EXPANSION}\ngo work => x\ngo x => inner`],
+  ['U958', `${LANES}\naction x "X" in c\n${OVER}`, `${LANES}\naction x "X" in a\n${OVER}`],
   ['L102', 'action z', 'action z "Z" in a\ngo yes -> z\ngo z -> end'],
   ['L104', 'initial s2 "Start" in a', 'initial s2 in a'],
   ['L104', 'decision e "Q?" in a call', 'action e "E" in a call\ngo yes -> e\ngo e -> end'],
@@ -143,6 +147,11 @@ describe('activity rules', () => {
         expect(text, `${code} ${locale}`).not.toMatch(/undefined|\$\{|""|„“/);
       }
     }
+  });
+
+  it('name the order of the partitions that crosses fewer flows, at the first partition', () => {
+    const found = activity(...BASE, `${LANES}\naction x "X" in c\n${OVER}`).diagnostics.find((d) => d.code === 'U958');
+    expect(found).toMatchObject({ span: { line: 2 }, values: { count: '1', order: '`a`, `c`, `b`', best: '0' } });
   });
 
   it('name an edge at an expansion region by the region, as the source writes it', () => {
