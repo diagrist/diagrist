@@ -13,6 +13,7 @@ import { clearHeads } from './heads.js';
 import { type Placement, unjog } from './jogs.js';
 import { labelRoom, seatsOf } from './labels.js';
 import { type Group, groupsOf, type Link, linksOf } from './links.js';
+import { loopsOf } from './loops.js';
 import { assemble, type LayeredLayout, layeredLines } from './output.js';
 import { portsOf } from './ports.js';
 import { runsOf } from './runs.js';
@@ -33,9 +34,10 @@ export function finish(spec: LayeredSpec, arrangement: Arrangement): LayeredLayo
   const fenced = (a: string, b: string) => !dummy(a) && !dummy(b) && core.has(a) !== core.has(b);
   const fr = framesOf(spec, ranked);
   const runs = runsOf(spec, ranked);
+  const loops = loopsOf(spec, m, ranked, layers);
   const base = (a: string, b: string) =>
     dummy(a) && dummy(b) ? m.track : dummy(a) || dummy(b) ? m.colGap / 2 : m.colGap + (fenced(a, b) ? pad : 0);
-  const gap = (a: string, b: string) => Math.max(base(a, b), runs.room(a, b)) + fr.walls(a, b);
+  const gap = (a: string, b: string) => Math.max(base(a, b), runs.room(a, b)) + fr.walls(a, b) + loops.room(a, b);
   const inCore = layers.flatMap((layer, l) => (layer.some((n) => core.has(n)) ? [l] : []));
   const headRoom = spec.hub ? pad + spec.hub.head.size + 2 + 2 * m.labelGap : 0;
   const above = (l: number) => (l === (inCore[0] ?? -2) - 1 ? headRoom : 0) + fr.head(l + 1);
@@ -119,6 +121,8 @@ export function finish(spec: LayeredSpec, arrangement: Arrangement): LayeredLayo
     const groupOf = new Map<Link, Group>(groups.flatMap((g) => g.links.map((l) => [l, g] as const)));
     const routes = spec.edges.flatMap((e): Route[] => {
       const chain = links.filter((l) => l.edge === e.id);
+      const box = e.from === e.to ? rects.get(e.from) : undefined;
+      if (e.from === e.to) return box === undefined || runs.hidden(e.id) ? [] : [loops.route(e, box)];
       if (chain.length === 0) {
         if (runs.hidden(e.id)) return [];
         const beside = below.route(e, frame, tracks, ports);
@@ -141,7 +145,11 @@ export function finish(spec: LayeredSpec, arrangement: Arrangement): LayeredLayo
         },
       ];
     });
-    const frames = spec.frames && fr.rects(rects, bandTop, gapTop);
+    const frames = spec.frames && fr.rects(loops.widened(rects), bandTop, gapTop);
+    const loose = routes.flatMap((r, i) => {
+      const e = r.shape === 'loop' ? spec.edges.find((k) => k.id === r.edge) : undefined;
+      return e === undefined ? [] : loops.labels(e, r, i);
+    });
     const real = new Map([...rects].filter(([n]) => !dummy(n)));
     const outer = (spec.frames ?? []).filter((f) => f.parent === undefined).map((f) => f.pad);
     const floor = outer.length > 0 ? m.left - Math.max(...outer) : 0;
@@ -154,6 +162,7 @@ export function finish(spec: LayeredSpec, arrangement: Arrangement): LayeredLayo
       ports,
       groups,
       core,
+      loose,
       ...(frames ? { frames: clearHeads(frames, spec, routes, real) } : {}),
     });
     return keptInside(laid, floor);

@@ -1,4 +1,5 @@
 import type { Placed } from '@diagrist/core';
+import type { LayerGraph } from '../layers/graph.js';
 
 /** A box of a layered picture: its measures, the cluster it keeps near, and its outline. */
 export interface LayeredNode {
@@ -14,7 +15,8 @@ export interface LayeredNode {
 /**
  * A connection of a layered picture. `rank` 1 puts `to` below `from`, -1 above it, as a broader term above a
  * narrower one, and 0 beside it in the same layer. A line is drawn from `from` to `to` with its head at `to`,
- * whichever way the layers run.
+ * whichever way the layers run. Either end may name a frame: the line then ends on the frame's outline, and takes
+ * its place, port and track inside the frame like the line of a box would.
  */
 export interface LayeredEdge {
   readonly id: string;
@@ -111,6 +113,11 @@ export interface LayeredFrame {
   readonly top: number;
   /** The head at the top left corner, inside the room `top`. */
   readonly head: { readonly width: number; readonly height: number };
+  /**
+   * The head stands on the frame as a tab, so its outline runs `head.height` below the top of its rectangle, where a
+   * line ending at the frame from above ends.
+   */
+  readonly tab?: boolean;
 }
 
 /** A layered picture to lay out: boxes, edges and measures, and optionally a hub. */
@@ -128,6 +135,13 @@ export interface LayeredSpec {
    * With `layers`, take from them only the layer of every box and order each layer anew, as without them.
    */
   readonly reorder?: boolean;
+  /**
+   * The graph the boxes are layered by, instead of `layers`, as the kind gives its ranks (`layerGraph`): `free`
+   * ranks, leaves packed by size, frames as blocks of layers; each layer is ordered anew. Where a frame is a leaf of a
+   * `free` edge, the picture is laid out with it beside its partner, above it and below it, and the cheapest by
+   * `scoreOf` stays.
+   */
+  readonly layering?: LayerGraph;
   /**
    * Frames around boxes, drawn parents first. The order keeps the boxes of each frame together in every layer it
    * spans and frames in one order in every layer they share; with `layers` kept as given, the kind does so.

@@ -85,27 +85,48 @@ describe('class layout', () => {
     expect(end[0]).toBeGreaterThan(domain.x + 72);
   });
 
-  it('arranges five packages so that linked ones are neighbours, those of one layer lined up, and no lines cross', () => {
+  it('stacks five packages in layers as compact blocks, leaves beside or below their partner, and no lines cross', () => {
     const p = picture('pakete-quer');
-    const [web, orders, payment, catalogue, shipping] = [
-      p.frame('web'),
-      p.frame('bestellung'),
-      p.frame('zahlung'),
-      p.frame('katalog'),
-      p.frame('versand'),
-    ];
-    expect(shipping.y + shipping.h).toBeLessThan(web.y);
+    const ids = ['web', 'bestellung', 'zahlung', 'katalog', 'versand'];
+    const [web, orders, payment, catalogue, shipping] = ids.map((id) => p.frame(id)) as [Rect, Rect, Rect, Rect, Rect];
+    const apart = (a: Rect, b: Rect) => a.x + a.w < b.x || b.x + b.w < a.x || a.y + a.h < b.y || b.y + b.h < a.y;
+    for (const [i, a] of ids.entries())
+      for (const b of ids.slice(i + 1)) expect(apart(p.frame(a), p.frame(b))).toBe(true);
     expect(web.y + web.h).toBeLessThan(orders.y);
-    expect(catalogue.x + catalogue.w).toBeLessThan(orders.x);
+    expect([catalogue.y, payment.y]).toEqual([web.y, orders.y]);
     expect(orders.x + orders.w).toBeLessThan(payment.x);
-    expect([payment.y, catalogue.y]).toEqual([orders.y, orders.y]);
-    expect(payment.y + payment.h).toBeLessThan(orders.y + orders.h);
-    expect(catalogue.y + catalogue.h).toBe(payment.y + payment.h);
+    expect(orders.y + orders.h).toBeLessThan(shipping.y);
+    const right = Math.max(...ids.map((id) => p.frame(id).x + p.frame(id).w));
+    const bottom = Math.max(...ids.map((id) => p.frame(id).y + p.frame(id).h));
+    expect(right / bottom).toBeLessThan(2.5);
     const pieces = p.edges.map((e) => e.points.slice(1).map((q, k) => [e.points[k] ?? q, q] as const));
     const crossings = pieces.flatMap((a, i) =>
       pieces.slice(i + 1).filter((b) => a.some(([p1, p2]) => b.some(([q1, q2]) => segmentsIntersect(p1, p2, q1, q2)))),
     );
     expect(crossings).toEqual([]);
+  });
+
+  it('draws a relation of a class with itself as a loop on the side away from its neighbour, inside its package', () => {
+    const source = [
+      'diagram class "Baum"',
+      'package modell "modell"',
+      'class knoten "Knoten" in modell',
+      'class blatt "Blatt" in modell',
+      'rel knoten -> knoten "Kind" source=1 card=0..*',
+      'rel knoten -- blatt source=1 card=1',
+    ].join('\n');
+    const result = compile(source, { plugins: [umlPlugin] });
+    expect(result.diagnostics).toEqual([]);
+    const a = result.anchors;
+    const [node, leaf] = ['knoten', 'blatt'].map((id) => a?.nodes.find((n) => n.id === id)?.rect) as [Rect, Rect];
+    const frame = a?.groups.find((g) => g.id === 'modell')?.rect as Rect;
+    const loop = a?.edges.find((e) => e.from === 'knoten' && e.to === 'knoten')?.points ?? [];
+    expect(leaf.x).toBeGreaterThan(node.x + node.w);
+    expect(loop).toHaveLength(4);
+    expect([loop[0]?.[0], loop.at(-1)?.[0]]).toEqual([node.x, node.x]);
+    const reach = Math.min(...loop.map((q) => q[0]));
+    expect(reach).toBeLessThan(node.x);
+    expect(reach).toBeGreaterThan(frame.x);
   });
 
   it('marks a non-navigable end with an x and a navigable one with an open head', () => {

@@ -42,6 +42,8 @@ export interface Laid {
   readonly groups: readonly Group[];
   readonly core: ReadonlySet<string>;
   readonly frames?: readonly PlacedGroup[];
+  /** Texts the pipeline set without a seat, such as those of loops. */
+  readonly loose?: readonly EdgeLabel[];
 }
 
 /**
@@ -86,6 +88,7 @@ export function assemble(spec: LayeredSpec, laid: Laid): LayeredLayout {
     };
     labels.push(...seatLabel(seat, port, index.get(seat.edge.id) ?? 0, m.labelGap, clear, own));
   }
+  labels.push(...(laid.loose ?? []));
   const nodes = spec.nodes.flatMap((n): PlacedNode[] => {
     const r = rects.get(n.id);
     const row = ranked.layerOf.get(n.id) ?? 0;

@@ -17,7 +17,7 @@ function closureOf(
 /**
  * Layers too full made to fit by moving a parent down with all below it (layout plan R4, `wrap` that knows parents):
  * from the top, while a layer holds more than `max` nodes, of the nodes above it whose move takes nodes out of it,
- * the one that leaves it fullest within `max`, and no other layer over `max` that was not, moves down one layer with
+ * the one that leaves it fullest within `max`, counted in the `places` of its nodes,, and no other layer over `max` that was not, moves down one layer with
  * its descendants and the nodes beside them, so a family stays together where `wrap` would cut off its last
  * members. Ties go to the fewest nodes moved, then the first declared. A layer no move relieves stays as it is, for
  * the caller to wrap.
@@ -28,7 +28,7 @@ export function fitLayers(
   side: readonly LayerEdge[],
   layer: ReadonlyMap<string, number>,
   max: number,
-  counted: (n: string) => boolean,
+  places: (n: string) => number,
 ): Map<string, number> {
   const out = new Map(layer);
   const down = new Map<string, string[]>();
@@ -41,7 +41,7 @@ export function fitLayers(
     ] as const)
       beside.set(a, [...(beside.get(a) ?? []), b]);
   const count = (l: number, map: ReadonlyMap<string, number>) =>
-    nodes.filter((n) => counted(n) && map.get(n) === l).length;
+    nodes.reduce((sum, n) => sum + (map.get(n) === l ? places(n) : 0), 0);
   const deepest = () => Math.max(0, ...out.values());
   for (let l = 0, guard = 0; l <= deepest() && guard < nodes.length; ) {
     const full = count(l, out);

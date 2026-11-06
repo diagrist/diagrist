@@ -62,7 +62,7 @@ describe('frames ordered by the pipeline', () => {
     }
   });
 
-  it('keep every line inside the picture, also one that has to pass a frame it has no end in', () => {
+  it('run a line through a frame that lies wholly between its ends, rather than around it', () => {
     const tall = [box('top'), box('mid1'), box('mid2'), box('low'), box('side')];
     const spec = {
       nodes: tall,
@@ -80,10 +80,39 @@ describe('frames ordered by the pipeline', () => {
     expect(Math.min(...xs)).toBeGreaterThanOrEqual(METRICS.left - 20);
     const middle = rectOf(l, 'middle');
     const long = l.routes.find((r) => r.edge === 'top-low')?.points ?? [];
-    const inside = long.filter(
-      ([x, y]) => x > middle.x && x < middle.x + middle.w && y > middle.y && y < middle.y + middle.h,
-    );
-    expect(inside).toEqual([]);
+    const across = long.slice(1).some(([x, y], k) => {
+      const [px, py] = long[k] ?? [x, y];
+      return (
+        px === x && x > middle.x && x < middle.x + middle.w && Math.min(py, y) < middle.y && Math.max(py, y) > middle.y
+      );
+    });
+    expect(across).toBe(true);
+    expect(scoreOf(layeredInput(l)).metrics.crossings).toBe(0);
+  });
+
+  it('end a line with a frame at an end on the outline of the frame, below a head worn as a tab', () => {
+    const nodes = [box('s'), box('t1'), box('t2')];
+    const frames = [
+      { ...frame('up', ['s']), tab: true },
+      { ...frame('down', ['t1', 't2']), tab: true },
+    ];
+    const edges = [edge('t1', 't2', { rank: 0 }), edge('up', 'down', { id: 'imports' })];
+    const l = lay({ nodes, edges, layers: [['s'], ['t1', 't2']], reorder: true, frames });
+    const [up, down] = [rectOf(l, 'up'), rectOf(l, 'down')];
+    const line = l.routes.find((r) => r.edge === 'imports')?.points ?? [];
+    expect(line[0]?.[1]).toBe(up.y + up.h);
+    expect(line.at(-1)?.[1]).toBe(down.y + 20);
+    const x = line.at(-1)?.[0] ?? 0;
+    expect(x).toBeGreaterThan(down.x + 80);
+    expect(x).toBeLessThan(Math.min(up.x + up.w, down.x + down.w));
+  });
+
+  it('draw a loop beside its box, with room for it before the next box', () => {
+    const l = lay({ nodes: [box('a'), box('b')], edges: [edge('a', 'a', { id: 'self' }), edge('a', 'b')] });
+    const loop = l.routes.find((r) => r.edge === 'self');
+    const a = rectOf(l, 'a');
+    expect(loop?.shape).toBe('loop');
+    expect(loop?.points.map((p) => p[0])).toEqual([a.x + a.w, a.x + a.w + 32, a.x + a.w + 32, a.x + a.w]);
   });
 
   it('bend a line beside its layer to the side where it meets no line that goes down from its box', () => {

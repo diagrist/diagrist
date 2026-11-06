@@ -78,10 +78,18 @@ export function framesBroken(layers: readonly (readonly string[])[], fp: FramePa
   return total;
 }
 
+/** The nodes of frame `f` turned around in every layer, each keeping the places the frame's nodes take. */
+function turned(layers: Layers, fp: FramePaths, f: string): Layers {
+  return layers.map((layer) => {
+    const own = layer.filter((n) => fp.paths.get(n)?.includes(f));
+    return own.length < 2 ? layer : layer.map((n) => (fp.paths.get(n)?.includes(f) ? (own.pop() as string) : n));
+  });
+}
+
 /**
  * The order of `layers` made to keep every frame together in every layer and sibling frames in one order through all
  * the layers they share: the frames start in the order of their mean place, then each frame tries every place among
- * its siblings, and a move stays when the order costs less.
+ * its siblings, as it stands and turned around, and a move stays when the order costs less.
  */
 export function clustered(layers: Layers, fp: FramePaths, cost: (layers: Layers) => number): Layers {
   const place = new Map<string, number[]>();
@@ -95,7 +103,7 @@ export function clustered(layers: Layers, fp: FramePaths, cost: (layers: Layers)
   };
   const order = [...fp.byId.keys()].filter((f) => place.has(f)).sort((a, b) => mean(a) - mean(b));
   const rankOf = (o: readonly string[]) => new Map(o.map((f, i) => [f, i]));
-  let best = { order, layers: normalised(layers, fp, rankOf(order)) };
+  let best = { order, base: layers, layers: normalised(layers, fp, rankOf(order)) };
   let lowest = cost(best.layers);
   for (let round = 0, better = true; better && round < ROUNDS; round++) {
     better = false;
@@ -105,10 +113,12 @@ export function clustered(layers: Layers, fp: FramePaths, cost: (layers: Layers)
         if (fp.byId.get(best.order[to] as string)?.parent !== parent) continue;
         const moved = best.order.filter((g) => g !== f);
         moved.splice(to, 0, f);
-        const tried = normalised(layers, fp, rankOf(moved));
-        const c = cost(tried);
-        if (c < lowest) {
-          [best, lowest, better] = [{ order: moved, layers: tried }, c, true];
+        for (const base of [best.base, turned(best.base, fp, f)]) {
+          const tried = normalised(base, fp, rankOf(moved));
+          const c = cost(tried);
+          if (c < lowest) {
+            [best, lowest, better] = [{ order: moved, base, layers: tried }, c, true];
+          }
         }
       }
     }

@@ -31,7 +31,6 @@ export const CLASS = {
   endAside: 5,
   /** Gap between neighbouring classes on one row, at least. */
   colGap: 136,
-  loopReach: 32,
   tabH: 22,
   tabMinW: 72,
   tabPadX: 10,

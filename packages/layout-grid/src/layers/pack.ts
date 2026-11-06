@@ -1,7 +1,7 @@
 import type { LayerGraph } from './graph.js';
 
-/** One more of `key`. */
-const bump = <K>(map: Map<K, number>, key: K) => map.set(key, (map.get(key) ?? 0) + 1);
+/** `by` more of `key`, one by default. */
+const bump = <K>(map: Map<K, number>, key: K, by = 1) => map.set(key, (map.get(key) ?? 0) + by);
 
 /** Places beside a node for its leaves, one at each side, and as many in the row above it and in the row below. */
 const NEAR = 2;
@@ -24,7 +24,7 @@ export function leavesOf(graph: LayerGraph): Map<string, string> {
 /**
  * The leaves of `free` edges packed around their node (layout plan R4): a leaf, a node whose one edge is `free`,
  * stands beside its node while it has a place there, else in the layer above, else in the layer below, each holding
- * at most `NEAR` of the node's leaves and no more than `maxPerLayer` nodes; the smallest leaves are placed first.
+ * at most `NEAR` of the node's leaves and no more than `maxPerLayer` places (`widths`); the smallest leaves are placed first.
  * A node's other neighbours in its layer take places beside it too. Where no place is left, a leaf stays beside.
  * Layers may run below 0; the caller compacts them.
  */
@@ -38,7 +38,8 @@ export function packLeaves(
   if (leafOf.size === 0) return out;
   const count = new Map<number, number>();
   const taken = new Map<string, number>();
-  for (const n of graph.nodes) if (!leafOf.has(n)) bump(count, layer.get(n) ?? 0);
+  const places = (n: string) => graph.widths?.get(n) ?? 1;
+  for (const n of graph.nodes) if (!leafOf.has(n)) bump(count, layer.get(n) ?? 0, places(n));
   for (const e of edges)
     for (const [a, b] of [
       [e.from, e.to],
@@ -52,11 +53,14 @@ export function packLeaves(
     const node = leafOf.get(leaf) as string;
     const at = out.get(node) ?? 0;
     const dl =
-      [0, -1, 1].find((d) => (taken.get(`${node}:${d}`) ?? 0) < NEAR && (count.get(at + d) ?? 0) < graph.maxPerLayer) ??
+      graph.moves?.get(leaf) ??
+      [0, -1, 1].find(
+        (d) => (taken.get(`${node}:${d}`) ?? 0) < NEAR && (count.get(at + d) ?? 0) + places(leaf) <= graph.maxPerLayer,
+      ) ??
       0;
     out.set(leaf, at + dl);
     bump(taken, `${node}:${dl}`);
-    bump(count, at + dl);
+    bump(count, at + dl, places(leaf));
   }
   return out;
 }

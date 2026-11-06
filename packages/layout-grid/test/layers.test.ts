@@ -55,6 +55,32 @@ describe('layering a graph', () => {
     expect(layers).toEqual([['q'], ['p', 'x', 'y', 'z'], ['a', 'b', 'c']]);
   });
 
+  it('lays out every frame as a block of layers of its own, frames linked by their nodes above each other', () => {
+    const graph: LayerGraph = {
+      nodes: ['a1', 'a2', 'b1', 'b2', 'c1'],
+      edges: [...ranked('a1>a2 b1>b2 a2>b1'), { from: 'c1', to: 'a1', rank: 'free' }],
+      maxPerLayer: 5,
+      frames: [
+        { id: 'a', members: ['a1', 'a2'] },
+        { id: 'b', members: ['b1', 'b2'] },
+      ],
+    };
+    const layers = layerGraph(graph).layers.map((l) => [...l].sort());
+    expect(layers).toEqual([['a1', 'c1'], ['a2'], ['b1'], ['b2']]);
+  });
+
+  it('counts a frame by its widest layer, so a layer of frames wraps as a layer of as many nodes would', () => {
+    const pair = (f: string) => [`${f}1`, `${f}2`];
+    const frames = ['a', 'b', 'c'].map((f) => ({ id: f, members: pair(f) }));
+    const graph: LayerGraph = {
+      nodes: frames.flatMap((f) => f.members),
+      edges: frames.map((f) => ({ from: `${f.id}1`, to: `${f.id}2`, rank: 0 as const })),
+      maxPerLayer: 5,
+      frames,
+    };
+    expect(layerGraph(graph).layers.map((l) => l.length)).toEqual([4, 2]);
+  });
+
   it('gives the same layers whatever order equal costs come in', () => {
     const graph: LayerGraph = {
       nodes: ['a', 'b', 'c', 'd', 'e'],
