@@ -1,7 +1,7 @@
 import { compile, type Rect } from '@diagrist/core';
 import { describe, expect, it } from 'vitest';
 import { umlPlugin } from '../src/index.js';
-import { stateDiagram, stateSource } from './compile.js';
+import { stateDiagram, stateNames, stateSource } from './compile.js';
 
 const inside = (a: Rect, b: Rect) => a.x >= b.x && a.y >= b.y && a.x + a.w <= b.x + b.w && a.y + a.h <= b.y + b.h;
 const cx = (r: Rect) => r.x + r.w / 2;
@@ -45,13 +45,23 @@ describe('state machine layout', () => {
     }
   });
 
-  it('draws a self transition as a loop outside a corner of its state', () => {
+  it('draws a self transition as a loop out of a side of its state and back into it', () => {
     const p = picture('fahrgastraum');
     const loop = p.edge('normal', 'normal');
     const r = p.node('normal');
-    expect(loop).toHaveLength(5);
-    const outside = loop.slice(1, 4).every(([x, y]) => x < r.x || x > r.x + r.w || y < r.y || y > r.y + r.h);
+    expect(loop).toHaveLength(4);
+    const outside = loop.slice(1, 3).every(([x, y]) => x < r.x || x > r.x + r.w || y < r.y || y > r.y + r.h);
     expect(outside).toBe(true);
+  });
+
+  it.each(stateNames)('%s draws every transition, from its source to its target', (name) => {
+    const result = compile(stateSource(name), { plugins: [umlPlugin] });
+    const edges = result.anchors?.edges ?? [];
+    const go = stateSource(name)
+      .split('\n')
+      .filter((l) => /^\s*go /.test(l)).length;
+    expect(edges).toHaveLength(go);
+    expect(edges.every((e) => e.points.length >= 2)).toBe(true);
   });
 
   it('keeps substates and the inner start inside their composite state', () => {

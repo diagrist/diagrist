@@ -64,6 +64,17 @@ function overMiddle(e: LayeredEdge, r: Route, i: number, labelGap: number): Edge
   }));
 }
 
+const movedRect = (r: Rect, dx: number): Rect => ({ ...r, x: r.x + dx });
+const movedText = (l: EdgeLabel, dx: number): EdgeLabel => ({ ...l, x: l.x + dx, box: movedRect(l.box, dx) });
+
+/** A drawn picture moved right by `dx`, so the spot search, which keeps texts right of 0, sees rails left of it. */
+const shifted = (d: Drawn, dx: number): Drawn => ({
+  ...d,
+  routes: d.routes.map((r) => ({ ...r, points: r.points.map(([x, y]) => [x + dx, y] as const) })),
+  rects: new Map([...d.rects].map(([n, r]) => [n, movedRect(r, dx)])),
+  frames: d.frames.map((f) => ({ ...f, rect: movedRect(f.rect, dx) })),
+});
+
 /**
  * The texts of a layered picture placed by the one spot search of the library (`signEdges`), as the channel grid
  * places its own: each stays where the pipeline seated it (`first`) while that spot is clear of boxes, heads,
@@ -72,7 +83,7 @@ function overMiddle(e: LayeredEdge, r: Route, i: number, labelGap: number): Edge
  * clear spot beside or on its line, the longest piece first and nearest its middle, wrapped where that helps. An
  * edge with a text that runs through no gap (`chained` names those that do), such as one drawn beside its layer,
  * starts beside the middle of its longest horizontal piece. `crowded` names the routes whose texts found no clear
- * spot.
+ * spot. A picture reaching left of 0, as rails may before it is moved inside, is searched moved right.
  */
 export function spotLabels(
   spec: LayeredSpec,
@@ -80,6 +91,17 @@ export function spotLabels(
   first: readonly EdgeLabel[],
   chained: ReadonlySet<string>,
 ): { labels: EdgeLabel[]; crowded: number[] } {
+  const low = Math.min(0, ...drawn.routes.flatMap((r) => r.points.map((p) => p[0])), ...first.map((l) => l.box.x));
+  if (low < 0) {
+    const dx = Math.ceil(-low) + spec.metrics.left;
+    const found = spotLabels(
+      spec,
+      shifted(drawn, dx),
+      first.map((l) => movedText(l, dx)),
+      chained,
+    );
+    return { ...found, labels: found.labels.map((l) => movedText(l, -dx)) };
+  }
   const labelled = spec.edges.filter((e) => e.label !== undefined);
   if (labelled.length === 0) return { labels: [...first], crowded: [] };
   const m = metricsOf(labelled[0]?.label?.size ?? 0, spec.metrics.labelGap);

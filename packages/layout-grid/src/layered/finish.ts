@@ -17,6 +17,8 @@ import { type Group, groupsOf, type Link, linksOf } from './links.js';
 import { loopsOf } from './loops.js';
 import { type Assembled, assemble, type LayeredLayout, layeredLines } from './output.js';
 import { portsOf } from './ports.js';
+import { holdTexts, looseTexts } from './rail-frames.js';
+import { railsOn } from './rail-pass.js';
 import { runsOf } from './runs.js';
 import { keptInside } from './shift.js';
 import type { LayeredSpec } from './spec.js';
@@ -122,13 +124,14 @@ export function finish(spec: LayeredSpec, arrangement: Arrangement): LayeredLayo
       y += band + (l === layers.length - 1 && extra === 0 ? 0 : gapHeight(needed, measure));
     });
     const frame: Frame = { rects, gapTop, first, track: m.track };
+    const widened = loops.widened(rects);
     const groupOf = new Map<Link, Group>(groups.flatMap((g) => g.links.map((l) => [l, g] as const)));
-    const routes = spec.edges.flatMap((e): Route[] => {
+    const lines = spec.edges.flatMap((e): Route[] => {
       const chain = links.filter((l) => l.edge === e.id);
       const box = e.from === e.to ? rects.get(e.from) : undefined;
       if (e.from === e.to) return box === undefined || runs.hidden(e.id) ? [] : [loops.route(e, box)];
       if (chain.length === 0) {
-        if (runs.hidden(e.id)) return [];
+        if (runs.hidden(e.id) || arrangement.rails?.has(e.id)) return [];
         const beside = below.route(e, frame, tracks, ports);
         return beside === undefined ? [] : [beside];
       }
@@ -149,14 +152,12 @@ export function finish(spec: LayeredSpec, arrangement: Arrangement): LayeredLayo
         },
       ];
     });
-    const frames = spec.frames && fr.rects(loops.widened(rects), bandTop, gapTop);
-    const loose = routes.flatMap((r, i) => {
-      const e = r.shape === 'loop' ? spec.edges.find((k) => k.id === r.edge) : undefined;
-      return e === undefined ? [] : loops.labels(e, r, i);
-    });
+    const around = spec.frames && fr.rects(widened, bandTop, gapTop);
+    const { railed, routes, frames } = railsOn(spec, arrangement, { boxes: rects, rects: widened, around, lines });
+    const loose = looseTexts(spec, routes, railed, loops, m);
     const real = new Map([...rects].filter(([n]) => !dummy(n)));
     const outer = (spec.frames ?? []).filter((f) => f.parent === undefined).map((f) => f.pad);
-    const floor = outer.length > 0 ? m.left - Math.max(...outer) : 0;
+    const floor = outer.length > 0 ? m.left - Math.max(...outer) : railed.routes.size > 0 ? m.left : 0;
     const laid = assemble(spec, {
       ranked,
       layers,
@@ -169,7 +170,7 @@ export function finish(spec: LayeredSpec, arrangement: Arrangement): LayeredLayo
       loose,
       ...(frames ? { frames: clearHeads(frames, spec, routes, real) } : {}),
     });
-    return ln.around({ ...keptInside(laid, floor), crowded: laid.crowded }, x, width, m.top);
+    return ln.around({ ...keptInside(holdTexts(spec, laid), floor), crowded: laid.crowded }, x, width, m.top);
   };
   let placement = place();
   const around = below.around.flatMap((id): Around[] => {

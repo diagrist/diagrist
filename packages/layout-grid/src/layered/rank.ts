@@ -16,6 +16,8 @@ export interface Ranked {
   readonly down: ReadonlyMap<string, boolean>;
   /** Edges between two nodes of one layer, drawn beside each other. */
   readonly beside: readonly LayeredEdge[];
+  /** Edges that run up or past a layer on a rail beside the layers (`LayeredEdge.rail`), without placeholders. */
+  readonly rails?: readonly LayeredEdge[];
 }
 
 /** The edge as the layering sees it: `rank` -1 turned into 1 with its ends swapped. */
@@ -82,9 +84,10 @@ function layersOf(
 
 /**
  * Layers every node, or takes the layers `fixed` gives, and threads placeholders through long edges; an edge
- * between two nodes of one layer is drawn beside.
+ * between two nodes of one layer is drawn beside, and an edge that may take a rail and runs up the layers or past
+ * one takes one, unless `chained` names it.
  */
-export function rank(spec: LayeredSpec, fixed?: ReadonlyMap<string, number>): Ranked {
+export function rank(spec: LayeredSpec, fixed?: ReadonlyMap<string, number>, chained?: ReadonlySet<string>): Ranked {
   const known = new Set(spec.nodes.map((n) => n.id));
   const edges = spec.edges.filter((e) => known.has(e.from) && known.has(e.to) && e.from !== e.to);
   const layerOf = layersOf(spec, edges, fixed);
@@ -93,11 +96,16 @@ export function rank(spec: LayeredSpec, fixed?: ReadonlyMap<string, number>): Ra
   const chains = new Map<string, string[]>();
   const down = new Map<string, boolean>();
   const beside: LayeredEdge[] = [];
+  const rails: LayeredEdge[] = [];
   for (const e of edges) {
     const a = layerOf.get(e.from) ?? 0;
     const b = layerOf.get(e.to) ?? 0;
     if (a === b) {
       beside.push(e);
+      continue;
+    }
+    if (e.rail === true && (a > b || b - a > 1) && chained?.has(e.id) !== true) {
+      rails.push(e);
       continue;
     }
     const [upper, lower] = a < b ? [e.from, e.to] : [e.to, e.from];
@@ -113,5 +121,5 @@ export function rank(spec: LayeredSpec, fixed?: ReadonlyMap<string, number>): Ra
     chains.set(e.id, chain);
     down.set(e.id, a < b);
   }
-  return { layerOf: all, dummies, chains, down, beside };
+  return { layerOf: all, dummies, chains, down, beside, ...(rails.length > 0 ? { rails } : {}) };
 }

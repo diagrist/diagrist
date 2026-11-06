@@ -30,6 +30,7 @@ function layeringOf(graph: LayoutGraph, perLayer: number, frames: readonly Layer
     nodes: graph.nodes.map((n) => n.id),
     edges: graph.edges.map(layerEdge),
     maxPerLayer: perLayer,
+    ...(graph.given?.last === undefined ? {} : { last: graph.given.last }),
     sizes: new Map(graph.nodes.map((n) => [n.id, n.width * n.height])),
     ...(frames.length > 0
       ? {
@@ -53,7 +54,13 @@ export function specOf(graph: LayoutGraph): LayeredSpec {
   const core = given.arrangement === 'hub' ? containers.find((c) => c.kind === 'core') : undefined;
   const frames = containers.filter((c) => c.kind !== 'core' && c.kind !== 'lane').map(frameOf);
   const lanes = containers.filter((c) => c.kind === 'lane').map((c) => ({ id: c.id, members: c.members, pad: c.pad }));
-  const edges = graph.edges.map(({ rank, profile: _, ...e }): LayeredEdge => ({ ...e, rank: RANKS[rank] }));
+  const edges = graph.edges.map(
+    ({ rank, profile, ...e }): LayeredEdge => ({
+      ...e,
+      rank: RANKS[rank],
+      ...(profile === 'rail' ? { rail: true } : {}),
+    }),
+  );
   return {
     nodes: graph.nodes.map(({ sides: _, ...n }) => n),
     edges,
