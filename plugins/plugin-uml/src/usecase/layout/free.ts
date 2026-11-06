@@ -96,8 +96,9 @@ function anchorOf(n: NoteBox, a: Anchors, frames: readonly Rect[]): Anchor | und
 
 /**
  * Notes at free spots near their anchor, in order: every text searches a field around it for a box without nodes,
- * lines, frame lines and other texts, within the sheet, whose link crosses nothing. Returns the comments and the
- * notes that found no such spot.
+ * lines, frame lines and other texts whose link crosses nothing, right of the left margin and below the top of the
+ * picture; the sheet grows to the right and down around a note, so a spot there is free, not on something. Returns
+ * the comments and the notes that found no such spot.
  */
 export function freeNotes(
   m: UseCaseModel,
@@ -112,7 +113,7 @@ export function freeNotes(
   const rects = [...layout.groups.map((g) => g.rect), ...layout.nodes.map((n) => n.rect)];
   const top = Math.min(...rects.map((r) => r.y));
   const margin = UC_GRID.margin;
-  const area = { x: margin, y: top, w: layout.width - 2 * margin, h: layout.bottom - top };
+  const area = { x: margin, y: top, w: Number.POSITIVE_INFINITY, h: Number.POSITIVE_INFINITY };
   const room = occupancy(spec, layout, routes, { area });
   const font = UC_FONTS.name;
   for (const g of layout.groups) {

@@ -16,10 +16,10 @@ const BAND_GAP = 2;
 /** At most this many sets of columns are tried side by side. */
 const COLUMN_SETS = 6;
 /**
- * Of two sets of columns with as many lines through boxes, across others or past foreign subjects, the later wins
- * only where it costs this much less, the price of a jog: not for a few pixels of line.
+ * Of two sets of columns with as many lines through boxes, across others or past foreign subjects, another than the
+ * declared one wins only where it costs this much less, the price of a bend, 200 px of line: not for a few pixels.
  */
-const SWITCH = 150;
+const SWITCH = 20;
 
 /**
  * What a laid out picture costs by the measure of the line check, whether it is clean, and how many crossings and
@@ -51,13 +51,15 @@ function rowsDown(p: Parts, band: (id: string) => number): number {
  * The layout of a use case diagram (layout plan P11): a plan of columns, laid out by the layout graph, which orders
  * every column. Several subjects stand below each other, unless an actor takes part in more than one or the picture
  * would grow too tall; then side by side, more than three in columns whose subjects the order stacks, or as
- * `direction` says otherwise. Side by side, the subjects keep the columns of the order stage; where that leaves a
- * line through a box, a crossing or a line past a foreign subject, the other sets of columns are tried, the most
- * promising first, until one has none, since which subjects share a column only the layout shows. Below each other
- * is tried only where side by side is not clean of these, and wins where it has fewer. While a picture is not clean,
- * families of actors try the other side. Notes take free spots; where one finds none, the picture is laid out once
- * more with room for it beside its anchor, and the cheaper stays, a note on a box or text costing as much as a line
- * through a box.
+ * `direction` says otherwise. Side by side, every set of columns of the order stage is laid out once, since which
+ * subjects share a column only the layout shows; the declared one first, with its families of actors on the other
+ * side while it is not clean. While the best leaves a line through a box, a crossing or a line past a foreign subject,
+ * the others try their families too, the most promising first; once one is clean, another wins only as it is laid out
+ * first and cheaper by `SWITCH`, so shorter lines and a smaller picture choose the order of the subjects. Below
+ * each other is tried only where side by side is not clean of these, and wins where it has fewer. Notes take free
+ * spots; where one finds none, the picture is laid out once more with room for it beside its anchor, and the cheaper
+ * stays, a note on a box or text costing as much as a line through a box, one on a line or frame line as a text on a
+ * line.
  */
 export function arrangeUseCase(m: UseCaseModel, price: Price): Laid {
   const p: Parts = { actors: m.diagram.actors, cases: m.diagram.cases, relations: m.diagram.relations.filter(isKnown) };
@@ -86,12 +88,11 @@ export function arrangeUseCase(m: UseCaseModel, price: Price): Laid {
     const [own, ...others] = bandOrders(p, declared, n, perRow, COLUMN_SETS).map((bandOf) =>
       n <= MAX_ACROSS ? bandOf : (id: string) => bandOf(id) % perRow,
     );
-    let best = flipped(across(own ?? declared));
-    const rest = best.bad === 0 ? [] : others.map(across);
+    const [first, ...rest] = [own ?? declared, ...others].map(across);
+    let best = flipped(first ?? across(declared));
     rest.sort((a, b) => a.first.bad - b.first.bad || a.first.cost - b.first.cost);
     for (const c of rest) {
-      if (best.bad === 0) break;
-      const got = flipped(c);
+      const got = best.clean ? c.first : flipped(c);
       if (got.bad < best.bad || (got.bad === best.bad && got.cost < best.cost - SWITCH)) best = got;
     }
     return best;

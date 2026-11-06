@@ -9,6 +9,8 @@ import { placedAll } from './placed.js';
 
 /** What a note costs that lies on a box or text: as much as a line through a box. */
 const CROWDED = 10_000;
+/** What a note costs that lies on a line or a frame line: as much as a text on a line. */
+const NEAR = 600;
 /**
  * Room a line keeps from the frame of a subject that holds neither of its ends, as the line check keeps it from
  * boxes: a line that cuts the corner of a frame, or passes it closer than this, reads as if it belonged to it.
@@ -29,8 +31,8 @@ function foreignPasses(m: UseCaseModel, laid: Laid): number {
 
 /**
  * The price of a laid out use case diagram by the measure of the line check (`scoreOf` on what the kernel checks),
- * with a note on a box or text and a line through a foreign subject added: its cost, whether it is clean, and how
- * often a line runs through a box or text, crosses another or passes a foreign subject.
+ * with a note on a box or text, a note on a line or frame line and a line through a foreign subject added: its cost,
+ * whether it is clean, and how often a line runs through a box or text, crosses another or passes a foreign subject.
  */
 export function priceOf(m: UseCaseModel): Price {
   return (laid) => {
@@ -42,6 +44,11 @@ export function priceOf(m: UseCaseModel): Price {
     const through = lineFindings(input, { crossingsUpTo: 0 }).filter((f) => f.rule === 'through').length;
     const bad = through + score.metrics.crossings + passes;
     const on = laid.crowded.filter((c) => c.on).length;
-    return { cost: score.cost + CROWDED * on + FOREIGN * passes, clean: score.clean && on + passes === 0, bad };
+    const near = laid.crowded.length - on;
+    return {
+      cost: score.cost + CROWDED * on + NEAR * near + FOREIGN * passes,
+      clean: score.clean && on + passes === 0,
+      bad,
+    };
   };
 }
