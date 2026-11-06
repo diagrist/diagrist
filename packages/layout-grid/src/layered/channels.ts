@@ -1,5 +1,6 @@
 import type { Group, Link } from './links.js';
 import type { Ports } from './ports.js';
+import { greedyOrder, meeting } from './track-order.js';
 
 /**
  * A horizontal piece in a gap between two layers, as the track assigner sees it: the verticals that come down into it
@@ -87,30 +88,27 @@ export function piecesOf(groups: readonly Group[], ports: Ports): Piece[] {
 
 /**
  * Tracks for the pieces of one gap. The order from the top is built greedily: next comes the piece that loses the
- * most crossings by running above the pieces still left rather than below them, ties to the leftmost. A piece then
- * takes the track below the lowest earlier piece it meets, so pieces that do not meet share a track; two trunks of
- * lines that share a symbol share one only twice `APART` apart, and one runs two tracks below the other where they meet, so each reads as its own
- * line through the verticals of the others. With `apart`,
- * a vertical going down from one piece and one coming down into another closer than that count as crossings too,
- * where the order of the two would put them side by side. Returns how many tracks the gap needs.
+ * most crossings by running above the pieces still left rather than below them, ties to the leftmost (`greedyOrder`,
+ * over the pairs that meet, found by a sweep). A piece then takes the track below the lowest earlier piece it meets,
+ * so pieces that do not meet share a track; two trunks of lines that share a symbol share one only twice `APART`
+ * apart, and one runs two tracks below the other where they meet, so each reads as its own line through the
+ * verticals of the others. With `apart`, a vertical going down from one piece and one coming down into another
+ * closer than that count as crossings too, where the order of the two would put them side by side. Returns how many
+ * tracks the gap needs.
  */
 export function assignTracks(pieces: TrackPiece[], apart = 0): number {
-  const left = [...pieces];
-  const order: TrackPiece[] = [];
-  while (left.length > 0) {
-    const cost = (p: TrackPiece) =>
-      left.filter((q) => q !== p && overlap(p, q)).reduce((s, q) => s + over(p, q, apart) - over(q, p, apart), 0);
-    const best = [...left].sort((a, b) => cost(a) - cost(b) || a.x1 - b.x1 || a.x2 - b.x2)[0] as TrackPiece;
-    order.push(best);
-    left.splice(left.indexOf(best), 1);
-  }
-  for (const [i, p] of order.entries()) {
-    const above = order.slice(0, i).filter((q) => overlap(p, q));
+  const meets = meeting(pieces, overlap, 2 * APART);
+  const order = greedyOrder(pieces, meets, (p, q) => over(p, q, apart) - over(q, p, apart));
+  const placed = new Set<number>();
+  for (const i of order) {
+    const p = pieces[i] as TrackPiece;
+    const above = (meets[i] ?? []).filter((j) => placed.has(j)).map((j) => pieces[j] as TrackPiece);
     const lowest = Math.max(-1, ...above.map((q) => q.track));
     const twice = whole(p) && above.some((q) => q.track === lowest && whole(q));
     p.track = lowest + (twice ? 2 : 1);
+    placed.add(i);
   }
-  return order.length === 0 ? 0 : Math.max(...order.map((p) => p.track)) + 1;
+  return pieces.length === 0 ? 0 : Math.max(...pieces.map((p) => p.track)) + 1;
 }
 
 /** How a gap is measured: from its top to the first track, between tracks, from the last track to its bottom. */

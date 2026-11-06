@@ -1,5 +1,6 @@
 import { orderLayers, refine } from '../layers/order.js';
 import type { OrderCost } from '../layers/sift.js';
+import { orderStarts } from './budget.js';
 import { chainsAside } from './chains.js';
 import { clustered, framesBroken } from './clusters.js';
 import { lanesOf } from './lanes.js';
@@ -61,7 +62,8 @@ export function neighboursOf(spec: LayeredSpec, ranked: Ranked): Neighbours {
  * A node in `pins` keeps to the left or right end of its layer, and nodes in `given` keep the order of their places
  * there, so only the placeholders find their places among them. Frames are hard clusters: the nodes of a frame stand
  * together in every layer and sibling frames in one order through the layers they share (`clustered`). A trunk
- * crossed by a piece of its own box counts as the crossings it makes (`trunkSites`).
+ * crossed by a piece of its own box counts as the crossings it makes (`trunkSites`). A big picture tries fewer
+ * starting orders (`orderStarts`).
  */
 export function orderRanked(
   spec: LayeredSpec,
@@ -74,7 +76,7 @@ export function orderRanked(
   const nodes = [...spec.nodes.map((n) => n.id), ...ranked.dummies];
   const fp = (spec.frames ?? []).length === 0 ? undefined : framePaths(spec, ranked);
   const priced = (layers: string[][]) => cost(layers, links.adj, ranked.layerOf);
-  const first = orderLayers(nodes, ranked.layerOf, links.adj, true, cost);
+  const first = orderLayers(nodes, ranked.layerOf, links.adj, true, cost, orderStarts(ranked.layerOf));
   const refined =
     fp === undefined
       ? firstPairs(spec).length === 0

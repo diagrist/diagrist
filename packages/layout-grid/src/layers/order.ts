@@ -62,7 +62,8 @@ function filled(nodes: readonly string[], layerOf: ReadonlyMap<string, number>):
  * down and up. The order with the fewest crossings stays; neighbours in one layer should stand side by side.
  * `thorough` also starts with each layer turned around in turn, sweeping first up and first down, and then moves
  * every node to its best place in its layer. That finds orders the swapping of neighbours cannot reach, where two
- * layers have to change together; the cheapest result wins, the first on a tie.
+ * layers have to change together; the cheapest result wins, the first on a tie. `starts` caps the starting orders
+ * tried, the base first and then the layers turned from the top, so a big picture spends a bounded search.
  */
 export function orderLayers(
   nodes: readonly string[],
@@ -70,6 +71,7 @@ export function orderLayers(
   adj: Adjacency,
   thorough = false,
   cost: OrderCost = layerCost,
+  starts: number = Number.POSITIVE_INFINITY,
 ): Layers {
   const start = dfsOrder(nodes, adj);
   const base = filled(
@@ -80,7 +82,7 @@ export function orderLayers(
   const turned = base.flatMap((layer, l) =>
     layer.length < 2 ? [] : [base.map((other, k) => (k === l ? [...other].reverse() : [...other]))],
   );
-  const runs = [base, ...turned].flatMap((layers) =>
+  const runs = [base, ...turned].slice(0, starts).flatMap((layers) =>
     [true, false].map((down) =>
       sift(
         improve(

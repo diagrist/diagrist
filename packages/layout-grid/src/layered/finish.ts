@@ -4,6 +4,7 @@ import type { Arrangement } from './arrange.js';
 import { type Around, bendSides } from './bend.js';
 import { besideRoutes } from './beside.js';
 import { roomAcross } from './beside-room.js';
+import { jogPrices } from './budget.js';
 import { assignTracks, gapHeight, type Piece, piecesOf } from './channels.js';
 import { spinesOf, type Xs } from './coords.js';
 import { barRects, dockEnds } from './docks.js';
@@ -78,7 +79,9 @@ export function finish(spec: LayeredSpec, arrangement: Arrangement): LayeredLayo
     clearCore(placed, layers, width, core, arrangement.pins ?? new Map(), m.colGap + pad);
     const settled = settle(placed);
     if (spec.hub || arrangement.rough === true) return settled;
-    const straight = unjog({ layers, width, gap, groups, ranked, settle, blockOf: fr.block, price, spines }, settled);
+    const prices = jogPrices(groups.length);
+    const jogging = { layers, width, gap, groups, ranked, settle, blockOf: fr.block, price, spines, prices };
+    const straight = unjog(jogging, settled);
     return squeezed({ layers, width, gap, blocks: fr.outer(), left: m.left, settle, price }, straight);
   };
   const price = (p: Placement) => scoreOf(layeredLines(spec, draw(p))).cost;
