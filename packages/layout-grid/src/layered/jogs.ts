@@ -27,6 +27,8 @@ export interface Unjogging {
   readonly price: (p: Placement) => number;
   /** Links of chains (`spinesOf`), upper end first, which a far move may not bend. */
   readonly spines: readonly (readonly [string, string])[];
+  /** How many drawings the removal may price, the start included (`jogPrices`); none leaves the start as it is. */
+  readonly prices?: number;
 }
 
 /** Rounds over all pieces: a move can make room for the next, such as a box moved under a line that now bends above. */
@@ -42,9 +44,12 @@ const ROUNDS = 3;
  * (`bentReach`), so of two lines only one of which can run straight the longer one does. So a box leaves the axis of
  * its parent only where the line it straightens is worth more than the centring it gives up. A box or chain that has
  * no room for a short move, up to `SHOVE`, also tries it with the boxes beyond it in that direction taken along
- * (`shoved`), in pictures of up to `SHOVE_PIECES` pieces, since every such try draws the whole picture.
+ * (`shoved`), in pictures of up to `SHOVE_PIECES` pieces, since every such try draws the whole picture. Once
+ * `prices` drawings are priced, no further move is tried.
  */
 export function unjog(u: Unjogging, start: Placement): Placement {
+  if (u.prices === 0) return start;
+  let left = (u.prices ?? Number.POSITIVE_INFINITY) - 1;
   let best = start;
   let cost = u.price(start);
   const layerOf = (n: string) => u.layers[u.ranked.layerOf.get(n) ?? -1] ?? [];
@@ -77,7 +82,8 @@ export function unjog(u: Unjogging, start: Placement): Placement {
     const x = new Map(best.x);
     for (const m of moving) x.set(m, (x.get(m) ?? 0) + d);
     const placement = u.settle(x);
-    if (bentSpines(placement) > bentSpines(best)) return undefined;
+    if (bentSpines(placement) > bentSpines(best) || left <= 0) return undefined;
+    left--;
     return { placement, cost: u.price(placement) };
   };
   const links = u.groups.flatMap((g) => (g.kind === 'single' ? g.links : []));

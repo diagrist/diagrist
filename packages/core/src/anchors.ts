@@ -18,6 +18,11 @@ export interface EdgeAnchor {
   readonly points: readonly Point[];
   /** The source line that declares the edge, so the line check points at it; absent where a kind does not know it. */
   readonly span?: Span;
+  /**
+   * The bus the edge runs on: one shared line that every edge of a complete set of pairs joins, each from its first
+   * end and to its second, which the line check reads as one bundle.
+   */
+  readonly bus?: string;
 }
 
 /**

@@ -13,7 +13,8 @@ const OF_LINE = /^\D*?(\d+)\./;
  * outlines and texts of `placed`, a line per edge anchor, its id the anchor's index. Texts are tied to their line by
  * key, as `placedOf` and the kinds name them; boxes that hold other boxes, and areas, are frames, and a text keyed
  * `<frame>.name` is the head of its frame. Lines leaving a box at one point, or entering one at one point, are
- * drawn as a bundle and are read as one, whichever end of them is the start.
+ * drawn as a bundle and are read as one, whichever end of them is the start; so are the lines of one bus
+ * (`EdgeAnchor.bus`).
  */
 export function linesOfDrawing(drawing: Pick<Drawing, 'anchors' | 'placed'>): LineInput {
   const { anchors } = drawing;
@@ -72,7 +73,12 @@ export function linesOfDrawing(drawing: Pick<Drawing, 'anchors' | 'placed'>): Li
     to: e.to,
     points: e.points,
   }));
-  return { nodes, routes: bundleLines(routes), labels, texts, frames, width: anchors.width, height: anchors.height };
+  const bus = new Map(anchors.edges.flatMap((e) => (e.bus === undefined ? [] : [[String(e.index), `bus ${e.bus}`]])));
+  const read = bundleLines(routes).map((r) => {
+    const on = bus.get(r.edge);
+    return on === undefined ? r : { ...r, bundles: [...(r.bundles ?? []), on] };
+  });
+  return { nodes, routes: read, labels, texts, frames, width: anchors.width, height: anchors.height };
 }
 
 /**

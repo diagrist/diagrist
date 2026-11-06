@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { LayeredSpec } from '../src/index.js';
+import { jogPrices, orderStarts } from '../src/layered/budget.js';
 import { neighboursOf } from '../src/layered/order.js';
 import { rankedCost } from '../src/layered/order-cost.js';
 import { rank } from '../src/layered/rank.js';
@@ -35,7 +36,7 @@ function dense(n: number, m: number): LayeredSpec {
 }
 
 /** The order of `spec` by the thorough search, with the cost counted, its narrower parts on or off. */
-function ordered(spec: LayeredSpec, narrow: boolean) {
+function ordered(spec: LayeredSpec, narrow: boolean, starts = Number.POSITIVE_INFINITY) {
   const ranked = rank(spec);
   const links = neighboursOf(spec, ranked);
   const cost = rankedCost({ ranked, links, cluster: new Map(), pins: new Map(), given: new Map(), dummyWeight: 8 });
@@ -59,7 +60,7 @@ function ordered(spec: LayeredSpec, narrow: boolean) {
       : {},
   );
   const nodes = [...spec.nodes.map((n) => n.id), ...ranked.dummies];
-  return { layers: orderLayers(nodes, ranked.layerOf, links.adj, true, counted), counts };
+  return { layers: orderLayers(nodes, ranked.layerOf, links.adj, true, counted, starts), counts };
 }
 
 describe('the order search of a layered picture', () => {
@@ -76,5 +77,20 @@ describe('the order search of a layered picture', () => {
     const starts = 2 * (1 + layers.filter((l) => l.length > 1).length);
     expect(counts.whole).toBeLessThanOrEqual(starts * 10);
     expect(counts.narrow).toBeGreaterThan(counts.whole);
+  });
+
+  it('tries every start of 40 boxes and 80 edges, but a bounded number of a picture three times as big', () => {
+    const small = rank(dense(40, 80));
+    const layers = new Set(small.layerOf.values()).size;
+    expect(orderStarts(small.layerOf)).toBeGreaterThan(layers);
+    const big = rank(dense(120, 288));
+    const starts = orderStarts(big.layerOf);
+    expect(starts).toBeLessThan(new Set(big.layerOf.values()).size);
+    expect(ordered(dense(120, 288), true, starts).counts.whole).toBeLessThanOrEqual(2 * starts * 10);
+  });
+
+  it('lets a picture of 40 boxes price twenty drawings that straighten lines, and a huge one none', () => {
+    expect(jogPrices(140)).toBeGreaterThan(10);
+    expect(jogPrices(600)).toBe(0);
   });
 });

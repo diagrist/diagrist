@@ -102,3 +102,14 @@ No example changed a byte: their texts found clear spots before. In the stress s
    alike as the width allows, a detail first between its parts joined by ` · `. A text kept where the old rule put
    it is kept only within that width too. Gutters grow for the wrapped text, so `lange-texte` shrinks from 1344 to
    1152 pixels wide; no example changed, their texts fit before.
+
+## Amendment (06.11.2026)
+
+`keepInside` keeps a Z between two boxes of a frame inside it, since a frame of a fixed grid does not grow. Now a
+round after the widening of `layoutCells` (`graph/grid-outside.ts`) tries every Z it moved in its own gap outside the
+frame: the frame grows around the line and its text as an adaptive frame does (`fitFrames`), the gap beyond widens
+until the frame keeps `framePad.x` from the next column, at most three times, and the texts are sought again in the
+grown frames. The picture keeps this only when it crosses fewer lines, breaks no hard rule of the line check more
+often, and its frames cover no more boxes and run through no more texts. `zwei-fluesse` went from 4 to 3 crossings
+in four of the five looks and 104 px wider; no other picture changed.
+

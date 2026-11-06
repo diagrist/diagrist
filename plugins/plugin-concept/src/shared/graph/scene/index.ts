@@ -147,6 +147,7 @@ export function graphAnchors(layout: GraphLayout): Anchors {
       domId: domId.edge(l.index),
       points: l.route.points,
       span: l.relation.span,
+      ...(l.bus === undefined ? {} : { bus: l.bus }),
     })),
   };
 }

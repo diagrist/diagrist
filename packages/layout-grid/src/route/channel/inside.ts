@@ -18,12 +18,19 @@ export function leaves(board: Board, p: Plan, lane: Lane): boolean {
 }
 
 /**
+ * An edge a grid lets leave the frame that holds both its ends, since the frame grows around it there
+ * (`graph/grid-outside.ts`); only that round sets it.
+ */
+export type Leaving = Plan['edge'] & { readonly outside?: true };
+
+/**
  * A Z between two boxes of one column or row whose gap lies outside a frame holding both boxes, such as the gap
  * right of the last column of a frame, takes the gap on the other side of the boxes where that lies inside and the Z
- * runs through nothing: its line and its text then stay in the frame.
+ * runs through nothing: its line and its text then stay in the frame. An edge marked `outside` keeps its gap.
  */
 export function keepInside(board: Board, p: Plan): Plan {
   const lane = p.lane;
+  if ((p.edge as Leaving).outside === true) return p;
   if (p.shape !== 'Z' || !lane || p.via || !leaves(board, p, lane)) return p;
   const same = lane.axis === 'col' ? p.a.colIndex === p.b.colIndex : p.a.rowIndex === p.b.rowIndex;
   if (!same) return p;
