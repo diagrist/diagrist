@@ -1,0 +1,26 @@
+# Pressure: five extends with conditions and extension points into two base use cases, each a note beside its line.
+diagram usecase "Carsharing" subtitle="Viele Erweiterungen mit Bedingung" locale=de
+actor fahrer "Fahrer"
+actor flotte "Flottenmanager"
+actor telematik "Telematik" kind=system
+subject app "Carsharing-App"
+usecase mieten "Fahrzeug mieten" in app points="vor Start, nach Fahrtende"
+usecase zurueck "Fahrzeug zurückgeben" in app points="bei Rückgabe"
+usecase oeffnen "Fahrzeug öffnen" in app
+usecase versicherung "Zusatzschutz buchen" in app
+usecase kindersitz "Kindersitz anfordern" in app
+usecase tanken "Tankgutschrift erhalten" in app
+usecase schaden "Schaden dokumentieren" in app
+usecase strafe "Parkgebühr nachbelasten" in app
+usecase sperren "Fahrzeug sperren" in app
+rel fahrer -- mieten
+rel fahrer -- zurueck
+rel flotte -- sperren
+rel mieten --> oeffnen include
+rel versicherung --> mieten extend when="Fahrer unter 25" at="vor Start"
+rel kindersitz --> mieten extend when="Mitfahrer unter 12" at="vor Start"
+rel tanken --> zurueck extend when="Tank unter einem Viertel" at="bei Rückgabe"
+rel schaden --> zurueck extend when="Schaden festgestellt" at="bei Rückgabe"
+rel strafe --> mieten extend when="Parkzone verlassen" at="nach Fahrtende"
+rel oeffnen -- telematik
+rel sperren -- telematik

@@ -1,0 +1,27 @@
+# Pressure: notes on use cases, on actors and on the subject beside extend notes, all near crowded lines.
+diagram usecase "Arztpraxis" subtitle="Kommentare an vielen Stellen" locale=de
+actor patient "Patient"
+actor mfa "Medizinische Fachangestellte"
+actor arzt "Ärztin"
+actor kv "Kassenärztliche Vereinigung" kind=system
+subject praxis "Praxisverwaltung"
+usecase termin "Termin vereinbaren" in praxis points="vor Bestätigung"
+usecase erinnern "Erinnerung senden" in praxis
+usecase aufnehmen "Patient aufnehmen" in praxis
+usecase karte "Versichertenkarte einlesen" in praxis
+usecase behandeln "Behandlung dokumentieren" in praxis
+usecase abrechnen "Quartal abrechnen" in praxis
+usecase video "Videosprechstunde anbieten" in praxis
+rel patient -- termin
+rel mfa -- aufnehmen
+rel arzt -- behandeln
+rel arzt -- abrechnen
+rel aufnehmen --> karte include
+rel erinnern --> termin extend when="Termin in 24 Stunden" at="vor Bestätigung"
+rel video --> termin extend when="Patient wünscht Video" at="vor Bestätigung"
+rel abrechnen -- kv
+note "Nur mit Einwilligung zur Kontaktaufnahme" on erinnern
+note "Karte jedes Quartal neu einlesen" on karte
+note "Auch Vertretungsärzte" on arzt
+note "Mandantenfähig für Gemeinschaftspraxen" on praxis
+note "Abrechnung über die Telematikinfrastruktur" on kv

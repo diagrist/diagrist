@@ -1,0 +1,19 @@
+# Pressure: long use case and actor names that wrap, multiplicities at both ends of every association.
+diagram usecase "Behördenportal" subtitle="Lange Namen und Multiplizitäten" locale=de
+actor buerger "Antragstellende Bürgerin oder Bürger"
+actor behoerde "Zuständige Sachbearbeitung im Bürgeramt"
+actor register "Melderegister des Landes" kind=system
+subject portal "Online-Behördenportal der Stadtverwaltung"
+usecase wohnsitz "Wohnsitzwechsel innerhalb der Gemeinde anmelden" in portal
+usecase ausweis "Neuen Personalausweis mit Expressversand beantragen" in portal
+usecase bescheinigung "Meldebescheinigung für den Arbeitgeber anfordern" in portal
+usecase gebuehr "Verwaltungsgebühr elektronisch entrichten" in portal
+usecase pruefen "Antragsunterlagen auf Vollständigkeit prüfen" in portal
+rel buerger -- wohnsitz source=1 card=0..*
+rel buerger -- ausweis source=1 card=0..1
+rel buerger -- bescheinigung source=1 card=0..*
+rel behoerde -- pruefen source=1..* card=0..*
+rel wohnsitz --> gebuehr include
+rel ausweis --> gebuehr include
+rel wohnsitz -- register source=0..* card=1
+rel bescheinigung -- register source=0..* card=1

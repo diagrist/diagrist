@@ -1,0 +1,39 @@
+# Pressure: nine actors on both sides of one subject, people left and systems right, sharing use cases across the frame.
+diagram usecase "Versicherungsportal" subtitle="Viele Akteure an einem System" locale=de
+actor kunde "Versicherungsnehmer"
+actor makler "Makler"
+actor sb "Sachbearbeiter"
+actor gutachter "Gutachter"
+actor leitung "Schadenleitung"
+actor bank "Bank" kind=system
+actor auskunft "Auskunftei" kind=system
+actor dms "Dokumentenarchiv" kind=system
+actor rueck "Rückversicherer" kind=system
+subject portal "Versicherungsportal"
+usecase antrag "Antrag stellen" in portal
+usecase vertrag "Vertrag ansehen" in portal
+usecase schaden "Schaden melden" in portal
+usecase pruefen "Schaden prüfen" in portal
+usecase begutachten "Schaden begutachten" in portal
+usecase regulieren "Schaden regulieren" in portal
+usecase auszahlen "Leistung auszahlen" in portal
+usecase bonitaet "Bonität prüfen" in portal
+usecase archivieren "Unterlagen archivieren" in portal
+usecase melden "Großschaden melden" in portal
+rel kunde -- antrag
+rel kunde -- vertrag
+rel kunde -- schaden
+rel makler -- antrag
+rel makler -- vertrag
+rel sb -- pruefen
+rel sb -- regulieren
+rel gutachter -- begutachten
+rel leitung -- regulieren
+rel leitung -- melden
+rel auszahlen -- bank
+rel bonitaet -- auskunft
+rel archivieren -- dms
+rel melden -- rueck
+rel antrag -- auskunft
+rel regulieren -- bank
+rel pruefen -- dms
