@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { type LayeredEdge, type LayeredNode, type LayeredSpec, layoutLayered } from '../src/index.js';
+import {
+  type LayeredEdge,
+  type LayeredNode,
+  type LayeredSpec,
+  layoutLayered,
+  linesOfLaid,
+  scoreOf,
+} from '../src/index.js';
 
 const METRICS = {
   colGap: 56,
@@ -25,6 +32,15 @@ const lay = (spec: Omit<LayeredSpec, 'metrics'>) => layoutLayered({ ...spec, met
 type Laid = ReturnType<typeof lay>;
 const rectOf = (l: Laid, id: string) =>
   l.nodes.find((n) => n.id === id)?.rect ?? l.frames?.find((g) => g.id === id)?.rect ?? { x: 0, y: 0, w: 0, h: 0 };
+const layeredInput = (l: Laid) =>
+  linesOfLaid({
+    nodes: l.nodes,
+    routes: l.routes,
+    ends: l.routes.map((r) => r.edge.split('-') as [string, string]),
+    labels: [],
+    width: l.width,
+    height: l.bottom,
+  });
 const apart = (a: { x: number; w: number }, b: { x: number; w: number }) => a.x + a.w <= b.x || b.x + b.w <= a.x;
 
 describe('frames ordered by the pipeline', () => {
@@ -70,13 +86,14 @@ describe('frames ordered by the pipeline', () => {
     expect(inside).toEqual([]);
   });
 
-  it('let a line beside its layer leave its box outside the lines that go down from it', () => {
+  it('bend a line beside its layer to the side where it meets no line that goes down from its box', () => {
     const flat = [box('hub', 240), box('left'), box('far'), box('down')];
     const edges = [edge('hub', 'far', { rank: 0 }), edge('hub', 'down'), edge('left', 'down', { weight: 4 })];
     const l = lay({ nodes: flat, edges, layers: [['far', 'left', 'hub'], ['down']], reorder: false });
-    const out = l.routes.find((r) => r.edge === 'hub-far')?.points[0]?.[0] ?? 0;
-    const down = l.routes.find((r) => r.edge === 'hub-down')?.points[0]?.[0] ?? 0;
-    expect(out).toBeLessThan(down);
+    const beside = l.routes.find((r) => r.edge === 'hub-far')?.points ?? [];
+    const hub = l.nodes.find((n) => n.id === 'hub')?.rect.y ?? 0;
+    expect(beside[1]?.[1]).toBeLessThan(hub);
+    expect(scoreOf(layeredInput(l)).metrics.crossings).toBe(0);
   });
 });
 

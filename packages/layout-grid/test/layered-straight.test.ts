@@ -25,3 +25,46 @@ describe('straight lines by moving what stands in their way', () => {
     expect(points).toHaveLength(2);
   });
 });
+
+describe('the ends on one side of a box', () => {
+  it('give way to a straight line where they come along a trunk, so a member of a join runs straight', () => {
+    const nodes = ['crm', 'erp', 'ds', 'roh', 'ber', 'mod'].map((id) => box(id, id === 'ds' ? 160 : 240));
+    const edges = [
+      { ...edge('crm', 'roh'), bundle: 'liefert' },
+      { ...edge('erp', 'roh'), bundle: 'liefert' },
+      { ...edge('roh', 'ber'), bundle: 'liefert' },
+      { ...edge('ber', 'mod'), bundle: 'liefert' },
+      { ...edge('ds', 'roh'), bundle: 'liest' },
+      { ...edge('ds', 'ber'), bundle: 'liest' },
+      { ...edge('ds', 'mod'), bundle: 'liest' },
+    ];
+    const l = lay(nodes, edges);
+    const erp = l.routes.find((r) => r.edge === 'erp-roh')?.points ?? [];
+    expect(erp).toHaveLength(2);
+  });
+});
+
+describe('lines beside a layer', () => {
+  it('keep the ends of the boxes below off their verticals, so no two lines lie on one another', () => {
+    const nodes = ['patient', 'fall', 'arzt', 'station', 'befund'].map((id) => box(id));
+    const edges = [
+      { ...edge('patient', 'fall'), rank: 0 as const },
+      { ...edge('fall', 'arzt'), rank: 0 as const },
+      { ...edge('arzt', 'station'), rank: 0 as const },
+      { ...edge('fall', 'station'), rank: 0 as const },
+      { ...edge('fall', 'befund'), weight: 2 },
+      edge('arzt', 'befund'),
+    ];
+    const l = lay(nodes, edges);
+    const verticals = l.routes.flatMap((r) =>
+      r.points.slice(1).flatMap((p, i) => {
+        const q = r.points[i] as readonly [number, number];
+        return p[0] === q[0] ? [{ edge: r.edge, x: p[0], lo: Math.min(p[1], q[1]), hi: Math.max(p[1], q[1]) }] : [];
+      }),
+    );
+    const onOneAnother = verticals.filter((a) =>
+      verticals.some((b) => a.edge !== b.edge && a.x === b.x && Math.min(a.hi, b.hi) - Math.max(a.lo, b.lo) > 1),
+    );
+    expect(onOneAnother).toEqual([]);
+  });
+});
