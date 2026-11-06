@@ -13,10 +13,30 @@ export const airOf = (frame: LayeredFrame | undefined): number => frame?.head.ai
 
 const meets = (a: Rect, b: Rect) => a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h;
 const holds = (a: Rect, b: Rect) => a.x <= b.x && a.y <= b.y && a.x + a.w >= b.x + b.w && a.y + a.h >= b.y + b.h;
+const within = (r: Rect, p: Point) => p[0] >= r.x && p[0] <= r.x + r.w && p[1] >= r.y && p[1] <= r.y + r.h;
+
+/** Whether a line that neither starts nor ends in `frame` runs through `strip` or on its outline. */
+const passes = (lines: readonly { readonly points: readonly Point[] }[], frame: Rect, strip: Rect) =>
+  lines.some(
+    ({ points }) =>
+      !within(frame, points[0] ?? [0, 0]) &&
+      !within(frame, points.at(-1) ?? [0, 0]) &&
+      points.slice(1).some((q, k) => {
+        const p = points[k] ?? q;
+        const [x0, x1, y0, y1] = [
+          Math.min(p[0], q[0]),
+          Math.max(p[0], q[0]),
+          Math.min(p[1], q[1]),
+          Math.max(p[1], q[1]),
+        ];
+        return x0 <= strip.x + strip.w && x1 >= strip.x && y0 < strip.y + strip.h && y1 > strip.y;
+      }),
+  );
 
 /**
  * Frames whose head a line crosses grow to the left until the head stands its air beside the leftmost such line, unless
- * they would then reach a box or frame they do not hold; frames around them grow along. Inner frames come last.
+ * they would then reach a box or frame they do not hold, or a line that neither starts nor ends in them, which would
+ * then run through the frame; frames around them grow along. Inner frames come last.
  */
 export function clearHeads(
   frames: readonly PlacedGroup[],
@@ -48,6 +68,7 @@ export function clearHeads(
     const foreignBoxes = [...boxes.values()].filter((b) => !holds(g.rect, b));
     const foreignFrames = out.filter((o) => o !== g && !mine.has(o.id) && !holds(o.rect, g.rect));
     if ([...foreignBoxes, ...foreignFrames.map((o) => o.rect)].some((r) => meets(r, grown))) continue;
+    if (passes(lines, g.rect, { ...g.rect, x: grown.x, w: shift })) continue;
     const around = out.filter((o) => o !== g && holds(o.rect, g.rect));
     g.rect = grown;
     for (const o of around) {
