@@ -1,5 +1,5 @@
 import { checkPlugin, formatMessage } from '@diagrist/core';
-import { grammarOf } from '@diagrist/lang';
+import { complete, grammarOf } from '@diagrist/lang';
 import { describe, expect, it } from 'vitest';
 import { umlPlugin } from '../src/index.js';
 import { codes, sequence } from './compile.js';
@@ -44,6 +44,18 @@ describe('the sequence tables', () => {
     };
     visit(data, '');
     expect(full.length).toBe(new Set(full).size);
+  });
+
+  it('offer the declared lifelines and frames as message ends, and the lifelines a note spans', () => {
+    const spec = umlPlugin.kinds[0]?.spec ?? { name: '', doc: '', header: {}, statements: [] };
+    const lines = ['diagram sequence "S"', 'participant shop "Shop"', 'database db "DB"', 'loop "retry" id=again'];
+    const at = (line: string) => {
+      const source = [...lines, line].join('\n');
+      return complete(source, { line: lines.length + 1, column: line.length + 1 }, spec).items.map((i) => i.label);
+    };
+    expect(at('msg ')).toEqual(['shop', 'db', 'again']);
+    expect(at('msg shop -> d')).toEqual(['db']);
+    expect(at('note "n" over=shop,')).toEqual(['shop', 'db']);
   });
 });
 

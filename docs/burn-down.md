@@ -81,7 +81,6 @@ and the line check already read the label as `label-<i>` (`layout/placed.ts`).
 | Debt | Clean-up |
 |---|---|
 | **Areas show weakly in `look=cards` and between lanes** (ADR 0033). Card heads keep their `tone=`, so sequence heads, lane heads and state cards show their area only in the outline or the stripe; neighbouring activity lanes share a border, which takes the tone of the lane drawn later; interruptible and expansion regions and sequence fragments take no `area=`. | Let a card head take the area's ink when it names no tone; draw shared lane borders once, in ink. |
-| **Completion knows no lifelines in `msg`.** Message ends are no `ref`, since they may also be `found`, `lost`, `gate` or a frame (`messageEnd` in `src/sequence/grammar/values.ts`), and the same holds for `over=`. | Let a value name the declarations it accepts besides its own forms, without `lang` checking them. |
 
 ### Activity, class and state machine diagrams
 

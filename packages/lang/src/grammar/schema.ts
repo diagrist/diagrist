@@ -54,6 +54,12 @@ const field = object<GrammarField>('One value of a line: an argument, a clause, 
     description: 'What each choice stands for, by choice, such as the arrows of a message.',
   }),
   refersTo: optional(listOf({ type: 'string' }, 'Keywords of the statements whose ids this value refers to.')),
+  suggests: optional(
+    listOf(
+      { type: 'string' },
+      'Keywords of the statements whose ids this value may name besides its own forms; the kind checks them, not the grammar.',
+    ),
+  ),
 });
 
 const flag = object<Flag>('A single word after the arguments that switches something on.', {
