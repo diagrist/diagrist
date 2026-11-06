@@ -31,10 +31,9 @@ export type {
 } from './graph/spec.js';
 export { grow } from './grow.js';
 export { type GutterRoom, gutterRoom, widen } from './label/gutters.js';
-export { type LabelOptions, labelEdges, placeLabels } from './label/index.js';
+export { type LabelOptions, labelEdges } from './label/index.js';
 export { cheapest, type Occupancy, occupancy } from './label/occupancy.js';
 export type { OnLine } from './label/on-line.js';
-export { type SeatMark, type SeatOptions, seatMarks } from './label/seat.js';
 export { type Pin, type SignOptions, signEdges } from './label/signs.js';
 export type { EdgeLabel, EdgeText, EndText } from './label/types.js';
 export { WRAP_EM, wrapTwo, wrapWithin } from './label/wrap.js';

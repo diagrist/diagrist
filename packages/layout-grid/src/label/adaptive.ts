@@ -39,8 +39,7 @@ const FRACTIONS = [0.5, 0.25, 0.75, 0.375, 0.625, 0.125, 0.875];
  * Labels of an adaptive grid move as one block per route: over the segments from the longest, the places in
  * `FRACTIONS`, both sides, the first spot clear of nodes, head strips, `fixed` texts, routes and labels placed
  * before; beside a vertical segment the lines of a moved block stand flush towards it. Without a spot they stay
- * where they are. With `keep`, labels already on a free spot stay there and a moved block keeps its lines as the
- * kind set them. With `onLine` a block stands on its own route, centred on the segment, and only other routes count
+ * where they are. With `onLine` a block stands on its own route, centred on the segment, and only other routes count
  * as in its way.
  */
 export function adaptiveLabels(
@@ -48,7 +47,6 @@ export function adaptiveLabels(
   texts: readonly EdgeLabel[],
   routes: readonly Route[],
   fixed: readonly EdgeLabel[],
-  keep = false,
   onLine = false,
 ): EdgeLabel[] {
   const m = board.tree.spec.metrics;
@@ -67,10 +65,6 @@ export function adaptiveLabels(
     const items = texts.filter((t) => t.route === route);
     if (!items.length) return;
     const bounds = union(items.map((i) => i.box));
-    if (keep && clear(bounds, route)) {
-      placed.push(...items);
-      return;
-    }
     const segments = r.points
       .slice(1)
       .map((b, i) => {
@@ -94,7 +88,7 @@ export function adaptiveLabels(
               };
           if (clear(rect, route, onLine ? route : -1)) {
             const block = moved(items, rect.x - bounds.x, rect.y - bounds.y);
-            placed.push(...(horizontal || onLine || keep ? block : towards(block, rect, side)));
+            placed.push(...(horizontal || onLine ? block : towards(block, rect, side)));
             return;
           }
         }

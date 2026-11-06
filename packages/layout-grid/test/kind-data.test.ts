@@ -1,6 +1,6 @@
 import type { Point } from '@diagrist/core';
 import { describe, expect, it } from 'vitest';
-import { type EdgeLabel, layerGraph, placeGrid, placeLabels, routeEdges } from '../src/index.js';
+import { layerGraph, placeGrid, routeEdges } from '../src/index.js';
 import { edge, METRICS, spec } from './fixture.js';
 
 /** Data a kind hands over beyond nodes and frames: sides, obstacles, its own routes, rows, labels, layers. */
@@ -76,24 +76,5 @@ describe('data of a kind', () => {
     expect(loop?.points).toEqual(points);
     const start = other?.points[0] ?? [0, 0];
     if (other?.fromSide === 'right') expect(start[1] < x.y + 10 - 16 || start[1] > x.y + 10 + 16).toBe(true);
-  });
-
-  it('keeps labels a kind placed on a free spot, and moves those on a node', () => {
-    const s = spec('a b', 'r1', ['x@a/r1', 'y@b/r1'], { adaptive: true, edges: [edge('x', 'y')] });
-    const layout = placeGrid(s);
-    const routes = routeEdges(s, layout);
-    const label = (y: number): EdgeLabel => ({
-      text: 'go',
-      x: 300,
-      y,
-      anchor: 'middle',
-      box: { x: 290, y: y - 10, w: 20, h: 12 },
-      route: 0,
-      part: 'name',
-    });
-    expect(placeLabels(s, layout, routes, [label(60)])[0]?.y).toBe(60);
-    const node = layout.nodes[0]?.rect ?? { x: 0, y: 0, w: 0, h: 0 };
-    const onNode = { ...label(node.y + 20), x: node.x + 20, box: { x: node.x + 10, y: node.y + 10, w: 20, h: 12 } };
-    expect(placeLabels(s, layout, routes, [onNode])[0]?.y).not.toBe(onNode.y);
   });
 });

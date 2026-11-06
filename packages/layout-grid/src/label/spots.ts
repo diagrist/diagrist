@@ -1,6 +1,13 @@
 import type { Point, Rect } from '@diagrist/core';
 import type { Route } from '../layout.js';
-import type { SeatMark } from './seat.js';
+
+/** A mark on a route, such as the number of a step, centred on (x, y). */
+export interface SeatMark {
+  /** Index of the route it stands on. */
+  readonly route: number;
+  readonly x: number;
+  readonly y: number;
+}
 
 /** How far apart the spots along a piece are tried. */
 const STEP = 4;
