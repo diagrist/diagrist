@@ -10,7 +10,7 @@ export interface Routed {
   readonly routes: readonly Route[];
   /** The relation of each route, by route index. */
   readonly relations: readonly (ClassRelation | undefined)[];
-  /** Names seated beside the start of their line, by route index. */
+  /** The names of the lines where the spot search of the pipeline put them, by route index. */
   readonly labels: readonly EdgeLabel[];
   /** Edges drawn on a common trunk, by edge id. */
   readonly trunks: ReadonlyMap<string, string>;

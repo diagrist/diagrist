@@ -72,8 +72,7 @@ stress budgets count, such as bends a straight line could spare, reached no sear
    font, the wrap C4 got for its channel grid) breaks between its words (`wrapWithin`), and a class name that starts
    with a keyword in guillemets, such as `«bind» <K → String, V → Kunde>`, keeps the keyword on a line of its own.
    The pipeline seats such a label as one block beside its line, the gap growing for every line, and hands one text
-   per line, keyed `<edge>.label.<n>`; the class kind moves the lines of a name together. Seating stays the
-   pipeline's own (`seatLabel`): the spot search of the channel grid (`signEdges`) does not run on it yet.
+   per line, keyed `<edge>.label.<n>`, the lines of a text moving together; where it moves them is decision 9.
 
 8. **Frames are blocks of layers, ends of edges and no walls** (plan P5, rule R5, owner decisions D2 and D4).
    `layerGraph` lays out every frame first as a block of layers of its own and then layers it in its parent's level
@@ -89,6 +88,16 @@ stress budgets count, such as bends a straight line could spare, reached no sear
    whole chain to an end of their frame at once, which single moves cannot reach (`speichert` in `hexagonal`). An
    edge from a box to itself is a loop beside the box, on the side no line beside its layer takes, its gap grown for
    it and its text.
+
+9. **One spot search for texts on lines** (plan P6). The pipeline seats a text beside the start of its line, a
+   fan's at its trunk, and hands every seat to the spot search of the channel grid (`signEdges`, through
+   `spotLabels`): a text stays at its seat while that is clear of boxes, heads, frames that hold neither end of its
+   line, foreign lines, the outlines of frames and the texts set before it, else takes the first clear spot beside
+   or on its line, the longest piece first and nearest the middle, wrapped where that helps. A text of a line drawn
+   beside its layer or a loop starts over the middle of its longest flat piece; until now the pipeline gave those
+   none and the class kind placed them itself. Where a text finds no clear spot, the gap it is seated in grows by its
+   height and the picture is drawn once more. The pipeline's own sliding along the verticals (`seatLabel`) and the
+   class kind's second search for its names (`names.ts`) are gone.
 
 ## Consequences
 

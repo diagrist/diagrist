@@ -14,7 +14,7 @@ import { type Placement, unjog } from './jogs.js';
 import { labelRoom, seatsOf } from './labels.js';
 import { type Group, groupsOf, type Link, linksOf } from './links.js';
 import { loopsOf } from './loops.js';
-import { assemble, type LayeredLayout, layeredLines } from './output.js';
+import { type Assembled, assemble, type LayeredLayout, layeredLines } from './output.js';
 import { portsOf } from './ports.js';
 import { runsOf } from './runs.js';
 import { keptInside } from './shift.js';
@@ -72,7 +72,8 @@ export function finish(spec: LayeredSpec, arrangement: Arrangement): LayeredLayo
   const links = linksOf(spec, ranked).filter((l) => !runs.hidden(l.edge));
   const groups = groupsOf(spec, ranked, layers, links);
   const seats = seatsOf(spec.edges, groups, ranked);
-  const draw = ({ x, ports }: Placement): LayeredLayout => {
+  let grown: ReadonlySet<string> = new Set();
+  const draw = ({ x, ports }: Placement): Assembled => {
     const pieceOf = new Map<Group, Piece>();
     const tracks = layers.map((_, l) => {
       const pieces = piecesOf(
@@ -89,10 +90,10 @@ export function finish(spec: LayeredSpec, arrangement: Arrangement): LayeredLayo
     );
     const run = (l: number) => (headsUp.has(l) ? m.lead : m.tail);
     const first = layers.map(
-      (_, l) => Math.max(run(l), runs.top(l), labelRoom(seats, l, 'top', m.labelGap)) + under(l),
+      (_, l) => Math.max(run(l), runs.top(l), labelRoom(seats, l, 'top', m.labelGap, grown)) + under(l),
     );
     const last = layers.map(
-      (_, l) => Math.max(m.lead, runs.bottom(l), labelRoom(seats, l, 'bottom', m.labelGap)) + above(l),
+      (_, l) => Math.max(m.lead, runs.bottom(l), labelRoom(seats, l, 'bottom', m.labelGap, grown)) + above(l),
     );
     const rects = new Map<string, Rect>();
     const gapTop: number[] = [];
@@ -165,7 +166,7 @@ export function finish(spec: LayeredSpec, arrangement: Arrangement): LayeredLayo
       loose,
       ...(frames ? { frames: clearHeads(frames, spec, routes, real) } : {}),
     });
-    return keptInside(laid, floor);
+    return { ...keptInside(laid, floor), crowded: laid.crowded };
   };
   let placement = place();
   const around = below.around.flatMap((id): Around[] => {
@@ -182,5 +183,10 @@ export function finish(spec: LayeredSpec, arrangement: Arrangement): LayeredLayo
   }
   const entries = links.map((l) => ({ upper: l.upper, lower: l.lower, x: placement.ports.top.get(l) ?? 0 }));
   if (fr.heads(entries, placement.flat)) placement = place();
-  return draw(placement);
+  let { crowded, ...drawn } = draw(placement);
+  if (seats.some((s) => crowded.includes(s.edge.id))) {
+    grown = new Set(crowded);
+    ({ crowded, ...drawn } = draw(placement));
+  }
+  return drawn;
 }

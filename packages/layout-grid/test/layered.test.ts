@@ -114,6 +114,16 @@ describe('layered layout', () => {
     expect(label?.box.x).toBe((start?.[0] ?? 0) + METRICS.labelGap);
     expect(JSON.stringify(lay([box('a'), box('b')], edges))).toBe(JSON.stringify(once));
   });
+
+  it('gives the text of a line drawn beside its layer a spot over the middle of the line, clear of both boxes', () => {
+    const label = { text: 'kennt', width: 30, size: 10 };
+    const l = lay([box('a'), box('b')], [edge('a', 'b', { rank: 0, label })]);
+    const [p, q] = route(l, 'a-b');
+    const text = l.labels[0]?.box;
+    expect(text).toBeDefined();
+    expect((text?.x ?? 0) + (text?.w ?? 0) / 2).toBe(((p?.[0] ?? 0) + (q?.[0] ?? 0)) / 2);
+    expect((text?.y ?? 0) + (text?.h ?? 0)).toBeLessThanOrEqual((p?.[1] ?? 0) - METRICS.labelGap);
+  });
 });
 
 describe('hub layout', () => {

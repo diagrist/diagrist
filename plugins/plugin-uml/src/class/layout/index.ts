@@ -7,7 +7,6 @@ import type { ClassModel } from '../model.js';
 import { endLabels } from './ends.js';
 import { type Tether, tethers } from './extras.js';
 import { CLASS_FONTS } from './metrics.js';
-import { nameLabels } from './names.js';
 import { classPlaced, tabOf } from './placed.js';
 import { routeClass } from './routed.js';
 
@@ -56,8 +55,8 @@ const EDGE = 48;
 
 /**
  * Layout of a class diagram on the layered pipeline of `layout-grid`: classes in the layers of the automatic
- * grid, ordered, placed and routed by the pipeline, packages as its frames; names beside their lines, end texts at
- * the ends, legs at the vertices of their diamond; then association classes, notes, marks and the decision bar.
+ * grid, ordered, placed and routed by the pipeline, packages as its frames; names where its spot search put them,
+ * end texts at the ends, legs at the vertices of their diamond; then association classes, notes, marks and the decision bar.
  */
 export function layoutClass(m: ClassModel, words: PictureTexts): ClassLayout {
   const routed = routeClass(m);
@@ -67,7 +66,7 @@ export function layoutClass(m: ClassModel, words: PictureTexts): ClassLayout {
     return new Set(t === undefined ? [] : routes.flatMap((x, k) => (k !== i && trunks.get(x.edge) === t ? [k] : [])));
   };
   const boxes = [...grid.nodes.map((n) => n.rect), ...grid.groups.map((g) => tabOf(m, g))];
-  const named = nameLabels(relations, routes, routed.labels, { boxes, routes, mates });
+  const named = routed.labels;
   const ends = endLabels(relations, routes, { boxes, frames: grid.groups.map((g) => g.rect), mates }, named);
   const labels = [...named, ...ends];
   const dashed = tethers(routes, relations, m, grid);

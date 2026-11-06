@@ -1,16 +1,14 @@
-import { DEFAULT_THRESHOLDS, type LineInput, type Placed, type Point, type Rect } from '@diagrist/core';
+import type { LineInput, Placed, Point, Rect } from '@diagrist/core';
 import type { EdgeLabel } from '../label/types.js';
 import type { PlacedGroup, PlacedNode, Route } from '../layout.js';
 import { linesOfLaid } from '../score.js';
 import { type CoreFrame, frameOf } from './frame.js';
-import { type Seat, seatLabel } from './labels.js';
+import { type Seat, seatAt } from './labels.js';
 import type { Group, Link } from './links.js';
 import type { Ports } from './ports.js';
 import type { Ranked } from './rank.js';
 import type { LayeredSpec } from './spec.js';
-
-/** Room a label keeps from foreign lines, one more than the line check's least distance (G418). */
-const LABEL_CLEAR = DEFAULT_THRESHOLDS.labelClear + 1;
+import { spotLabels } from './spots.js';
 
 /** The weight of a soft line in the measure: its bends count half, and it does not count for centring. */
 const SOFT = 0.5;
@@ -46,11 +44,14 @@ export interface Laid {
   readonly loose?: readonly EdgeLabel[];
 }
 
+/** A laid out picture and the edges whose texts found no clear spot. */
+export type Assembled = LayeredLayout & { readonly crowded: readonly string[] };
+
 /**
- * Seats the labels clear of the lines and the borders of the frames, then gathers boxes, labels, the frame of a hub
- * and the frames, and measures the picture.
+ * Seats the labels and lets the spot search keep them there or move them clear (`spotLabels`), then gathers boxes,
+ * labels, the frame of a hub and the frames, and measures the picture.
  */
-export function assemble(spec: LayeredSpec, laid: Laid): LayeredLayout {
+export function assemble(spec: LayeredSpec, laid: Laid): Assembled {
   const m = spec.metrics;
   const { ranked, layers, rects, routes, ports, groups, core } = laid;
   const size = new Map(spec.nodes.map((n) => [n.id, n]));
@@ -58,37 +59,19 @@ export function assemble(spec: LayeredSpec, laid: Laid): LayeredLayout {
   const trunks = new Map(
     groups.flatMap((g, i) => (g.kind === 'single' ? [] : g.links.map((l) => [l.edge, `${g.kind}-${i}`] as const))),
   );
-  const boxes = spec.nodes.flatMap((n) => {
-    const r = rects.get(n.id);
-    return r ? [r] : [];
-  });
-  const labels: EdgeLabel[] = [];
-  const borders = (laid.frames ?? []).map(({ id, rect: r }): Route => {
-    const [x2, y2] = [r.x + r.w, r.y + r.h];
-    const points: Point[] = [
-      [r.x, r.y],
-      [x2, r.y],
-      [x2, y2],
-      [r.x, y2],
-      [r.x, r.y],
-    ];
-    return { edge: `frame:${id}`, points, shape: 'orthogonal', fromSide: 'top', toSide: 'top' };
-  });
-  for (const seat of laid.seats) {
+  const first = laid.seats.flatMap((seat) => {
     const l = seat.group.links[0] as Link;
     const port: Point =
       seat.at === 'top'
         ? [ports.bottom.get(l) ?? 0, (rects.get(l.upper)?.y ?? 0) + (rects.get(l.upper)?.h ?? 0)]
         : [ports.top.get(l) ?? 0, rects.get(l.lower)?.y ?? 0];
-    const own = new Set(seat.group.links.map((k) => k.edge));
-    const clear = {
-      lines: [...routes, ...borders],
-      boxes: [...boxes, ...labels.map((x) => x.box)],
-      margin: LABEL_CLEAR,
-    };
-    labels.push(...seatLabel(seat, port, index.get(seat.edge.id) ?? 0, m.labelGap, clear, own));
-  }
-  labels.push(...(laid.loose ?? []));
+    return seatAt(seat, port, index.get(seat.edge.id) ?? 0, m.labelGap);
+  });
+  const real = new Map([...rects].filter(([n]) => !ranked.dummies.has(n)));
+  const chained = new Set(groups.flatMap((g) => g.links.map((l) => l.edge)));
+  const drawn = { routes, rects: real, frames: laid.frames ?? [], width: Number.MAX_SAFE_INTEGER, bottom: 0 };
+  const spotted = spotLabels(spec, drawn, [...first, ...(laid.loose ?? [])], chained);
+  const labels = spotted.labels;
   const nodes = spec.nodes.flatMap((n): PlacedNode[] => {
     const r = rects.get(n.id);
     const row = ranked.layerOf.get(n.id) ?? 0;
@@ -145,6 +128,7 @@ export function assemble(spec: LayeredSpec, laid: Laid): LayeredLayout {
     placed,
     ...(fence ? { frame: fence } : {}),
     ...(laid.frames ? { frames: laid.frames } : {}),
+    crowded: spotted.crowded.map((i) => routes[i]?.edge ?? ''),
   };
 }
 
