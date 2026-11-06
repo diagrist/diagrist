@@ -1,8 +1,9 @@
 import { type LineInput, lineFindings, lineMetrics } from '@diagrist/core';
-import { DETOUR } from '../score.js';
-import { arrange } from './arrange.js';
+import { DETOUR, scoreOf } from '../score.js';
+import { type Arrangement, arrange } from './arrange.js';
 import { finish, type LayeredLayout } from './finish.js';
 import { layeredLines } from './output.js';
+import { railChoices } from './rail-search.js';
 import type { LayeredSpec } from './spec.js';
 
 /** The findings of the line check that no saving of length may buy. */
@@ -28,19 +29,38 @@ function traded(a: LineInput, b: LineInput): boolean {
  * A picture laid out in the order of fewest crossings and, where the order stage found one, also in the order of
  * shorter lines (`Arrangement.shorter`); the shorter one stays where its drawing trades better (`traded`). The order
  * stage only estimates where boxes will stand, so the drawing decides: both orders are drawn without the passes that
- * move boxes to straighten lines, and only the one that stays is laid out in full. `release` turns a layout into the
- * one drawn, and `outer` is the spec it is read by.
+ * move boxes to straighten lines, and only the one that stays is laid out in full.
  */
-export function laidOut(
+function laidFrom(
   spec: LayeredSpec,
-  release: (layout: LayeredLayout) => LayeredLayout = (l) => l,
-  outer: LayeredSpec = spec,
+  arranged: Arrangement,
+  release: (layout: LayeredLayout) => LayeredLayout,
+  outer: LayeredSpec,
 ): LayeredLayout {
-  const arranged = arrange(spec);
   const { shorter } = arranged;
   if (shorter === undefined) return release(finish(spec, arranged));
   const rough = (layers: string[][]) =>
     layeredLines(outer, release(finish(spec, { ...arranged, layers, rough: true })));
   const better = traded(rough(arranged.layers), rough(shorter));
   return release(finish(spec, better ? { ...arranged, layers: shorter } : arranged));
+}
+
+/**
+ * A picture laid out as `laidFrom` lays out its arrangement. Where rails stood inside its first order, it is laid
+ * out with every other choice of their sides as well (`railChoices`), and the cheapest picture by `scoreOf` stays,
+ * the first on a tie. `release` turns a layout into the one drawn, and `outer` is the spec it is read by.
+ */
+export function laidOut(
+  spec: LayeredSpec,
+  release: (layout: LayeredLayout) => LayeredLayout = (l) => l,
+  outer: LayeredSpec = spec,
+): LayeredLayout {
+  const first = arrange(spec);
+  const choices = railChoices(spec, first);
+  const laid = laidFrom(spec, first, release, outer);
+  if (choices.length === 0) return laid;
+  const price = (layout: LayeredLayout) => ({ layout, cost: scoreOf(layeredLines(outer, layout)).cost });
+  return choices
+    .map((a) => price(laidFrom(spec, a, release, outer)))
+    .reduce((a, b) => (b.cost < a.cost ? b : a), price(laid)).layout;
 }

@@ -92,9 +92,12 @@ describe('state machine layout', () => {
   it('puts an exit point on the border of its state, facing its way out', () => {
     const p = picture('auftrag-parallel');
     const frame = p.frame('bearbeitung');
-    expect([frame.x, frame.x + frame.w]).toContain(cx(p.node('storno')));
-    expect(p.edge('offen', 'storno').at(-1)?.[1]).toBe(cy(p.node('storno')));
-    expect(p.edge('storno', 'storniert')[0]?.[1]).toBe(cy(p.node('storno')));
+    const [x, y] = [cx(p.node('storno')), cy(p.node('storno'))];
+    const aside = [frame.x, frame.x + frame.w].includes(x);
+    expect(aside || y === frame.y + frame.h).toBe(true);
+    const [axis, at] = aside ? [1, y] : [0, x];
+    expect(p.edge('offen', 'storno').at(-1)?.[axis]).toBe(at);
+    expect(p.edge('storno', 'storniert')[0]?.[axis]).toBe(at);
   });
 
   it('joins points of neighbouring submachines by a straight line across the gap, from left to right', () => {

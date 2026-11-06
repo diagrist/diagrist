@@ -5,6 +5,12 @@ import { laneRailSides } from './rail-lanes.js';
 import { type Ranked, rank } from './rank.js';
 import type { LayeredEdge, LayeredSpec } from './spec.js';
 
+/** Pins and chained rails to start the search of `arrangeRails` from, instead of its own first pins. */
+export interface RailStart {
+  readonly pins: ReadonlyMap<string, RailSide>;
+  readonly chained: ReadonlySet<string>;
+}
+
 /** The side of the layers a rail runs beside. */
 export type RailSide = 'left' | 'right';
 
@@ -44,7 +50,7 @@ function sidesOf(spec: LayeredSpec, ranked: Ranked, layers: readonly (readonly s
  * Whether pinning the ends of `e` to `side` clashes with the pins so far: an end pinned to the other side, or another
  * node of an end's layer pinned to the same side, where only one can stand outermost.
  */
-function clashes(e: LayeredEdge, side: RailSide, pins: ReadonlyMap<string, RailSide>, ranked: Ranked): boolean {
+export function clashes(e: LayeredEdge, side: RailSide, pins: ReadonlyMap<string, RailSide>, ranked: Ranked): boolean {
   const layer = (n: string) => ranked.layerOf.get(n);
   return [e.from, e.to].some(
     (n) => (pins.get(n) ?? side) !== side || [...pins].some(([k, s]) => k !== n && s === side && layer(k) === layer(n)),
@@ -56,24 +62,29 @@ function clashes(e: LayeredEdge, side: RailSide, pins: ReadonlyMap<string, RailS
  * order without placeholders, and each keeps its rail where both its ends stand outermost on one side of their
  * layers. Where they do not, the order runs again with both ends pinned to the side they stand nearer together, or to
  * the other where that clashes with the pins of a rail before (`clashes`), neither where both do; while
- * some still stand inside, the last of those runs through the layers like any other edge, one per new order.
+ * some still stand inside, the last of those runs through the layers like any other edge, one per new order. With
+ * `start`, the search begins from its pins instead of the first ones (`railChoices`); the rails that stood inside the
+ * first order go along as `failed`.
  */
-export function arrangeRails(spec: LayeredSpec, fixed?: ReadonlyMap<string, number>): Arrangement {
+export function arrangeRails(spec: LayeredSpec, fixed?: ReadonlyMap<string, number>, start?: RailStart): Arrangement {
   const places = new Map(spec.reorder ? [] : spec.layers?.flatMap((layer) => layer.map((n, i) => [n, i] as const)));
-  const chained = new Set<string>();
-  const pins = new Map<string, RailSide>();
+  const chained = new Set<string>(start?.chained);
+  const pins = new Map<string, RailSide>(start?.pins);
+  let first: readonly LayeredEdge[] = [];
   for (let round = 0; ; round++) {
     const ranked = rank(spec, fixed, chained);
     const neighbours = neighboursOf(spec, ranked);
     const layers = lanesOf(spec, ranked).sort(orderRanked(spec, ranked, neighbours, pins, places));
     const rails = sidesOf(spec, ranked, layers);
     const failed = (ranked.rails ?? []).filter((e) => (rails.get(e.id) ?? []).length === 0);
-    if (failed.length === 0) return { ranked, neighbours, layers, rails };
+    if (round === 0) first = failed;
+    if (failed.length === 0)
+      return { ranked, neighbours, layers, rails, ...(first.length > 0 ? { failed: first } : {}) };
     const place = (n: string) => {
       const layer = (layers[ranked.layerOf.get(n) ?? -1] ?? []).filter((k) => !ranked.dummies.has(k));
       return layer.length < 2 ? 0.5 : layer.indexOf(n) / (layer.length - 1);
     };
-    if (round === 0)
+    if (round === 0 && start === undefined)
       for (const e of failed) {
         const near: RailSide = place(e.from) + place(e.to) <= 1 ? 'left' : 'right';
         const side = [near, near === 'left' ? 'right' : 'left'].find((s) => !clashes(e, s as RailSide, pins, ranked));

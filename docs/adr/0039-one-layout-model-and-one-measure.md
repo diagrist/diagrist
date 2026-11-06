@@ -308,3 +308,43 @@ byte the same, and so is every picture of the other kinds.
 With one way into the channel stage, three pieces beside it had no user and went: `seatMarks`, the older search that
 moved marks off the texts on their line, `placeLabels` with the path of `adaptiveLabels` that kept labels a kind had
 placed, and the branch of `labelEdges` that set the texts of a channel grid through `signEdges` a second time.
+
+## Amendment: weak pictures after the move (06.11.2026)
+
+**The sides of rails are searched.** Where rails stand inside the first order, `arrangeRails` pins their ends to the
+side they stand nearer, one rail after the other, which can leave a picture worse than another choice would: the
+initial state of `gedaechtnis` stood under `Bereit` beside its chain, and the exit point of `auftrag-parallel` sat
+left of its state with its line round the picture. `laidOut` now lays such a picture out once more for every other
+choice of the rails that stood inside, up to four of them, each to the left, to the right or to neither
+(`railChoices`), and keeps the cheapest by `scoreOf`, the first on a tie. `gedaechtnis` runs `abbrechen` on the
+right, its initial state straight over its chain, 4 bends, 311 px of line and 105 px of width less, its crossing
+kept; `auftrag-parallel` leaves `In Bearbeitung` at the bottom through `Storno` beside `Storniert`, 101 px narrower.
+
+**A second bolt comes in beside the first.** The bolt of a further protected action into a handler ran on a rail
+round the handler into its far side (`karten-belasten` 958 px wide). The activity kind now lays such a picture out
+with the bolt as a hidden edge, which holds the layers, and the handler tall enough for a pin per bolt below the
+middle; it then draws the bolt itself from the side of its action facing the handler, across at half way and up into
+that side of the handler, below the first (`sideBolts`), so the exception pins stand below each other as UML draws
+them. Where that bolt would pass a box or meet a line, or the handler stands above or below its action, the rail
+stays. `karten-belasten` is 836 px wide again, 373 px of line less.
+
+**Expansion nodes slide over their pins.** The pins of an action come after the layout, so the line between an
+expansion node and a pin inside its region bent at the pin wherever the pins of a side were spread over the box
+(`preise-berechnen`: all four). The activity kind now slides an expansion node along the outline of its region until
+that line runs straight, where the node with its name stays clear of every box and text, the line outside takes up the
+bend without a slip, and no moved line passes a box or meets another (`slideExpansions`): `Positionen` and `Preise`
+run straight, 12 to 8 bends. Docking expansion nodes in the engine stays open (`docs/burn-down.md`).
+
+**Trunks keep their own tracks.** Two whole trunks of one gap (`GraphEdge.trunk`) shared a track wherever they did
+not meet, and stood one track apart where they did, so in `schnittstellen` the trunks of `Signierbar` and
+`Versioniert` read as one line and four trunks ran 16 px apart through each other's verticals. Two whole trunks now
+share a track only where their ends lie twice `APART` apart, and one runs two tracks below the other where they meet
+(`assignTracks`): each trunk of `schnittstellen` has its own level, 32 px from the next, for 64 px of height and its
+5 crossings kept. `hierarchie-quer`, whose two trunks lie far apart, keeps its one track.
+
+**Pin names take the room they need.** Before the layout, the name of a pin alone on the top or bottom of a box is
+given room as if its square stood at the right end, since the pin goes where its line arrives; a lane holding such a
+box grew by that room where the pin stood in the middle (`objektfluss` 1,009 px wide). The activity kind now lays a
+picture out once more where some name took less room than it was given, with the room each took (`Graph.pinReach`),
+and keeps that layout only where no name then reaches further (`laidWithPins`): `objektfluss` 853 px, `ausdehnung`
+821, `karten-belasten` 813, `preise-berechnen` 751 and `zahlung-ausnahme` 1,195 px wide, nothing else changed.

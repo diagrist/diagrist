@@ -3,7 +3,7 @@ import { lanesOf } from './lanes.js';
 import { type Neighbours, neighboursOf, orderRanked, shortened } from './order.js';
 import { arrangeRails, type RailSide } from './rail-order.js';
 import { type Ranked, rank } from './rank.js';
-import type { LayeredSpec } from './spec.js';
+import type { LayeredEdge, LayeredSpec } from './spec.js';
 
 /** The layers of a picture with their order, and the links the order and the positions weigh. */
 export interface Arrangement {
@@ -14,6 +14,8 @@ export interface Arrangement {
   readonly pins?: ReadonlyMap<string, 'left' | 'right'>;
   /** The sides each rail may run beside, by edge, where both its ends stand outermost. */
   readonly rails?: ReadonlyMap<string, readonly RailSide[]>;
+  /** The rails that stood inside in the first order, before any was pinned to a side. */
+  readonly failed?: readonly LayeredEdge[];
   /** An order of shorter lines that may cost crossings, to be laid out beside `layers` and weighed (`laidOut`). */
   readonly shorter?: string[][];
   /** Laid out without the passes that move boxes to straighten lines, for a quick comparison of two orders. */

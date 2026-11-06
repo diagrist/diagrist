@@ -7,6 +7,7 @@ import type { GuardText } from './guards.js';
 import { type LaneArt, laneArt } from './lanes.js';
 import type { PlacedNode, Routed } from './placement.js';
 import { type RegionArt, regionArt } from './regions.js';
+import { sideBolts } from './side-bolts.js';
 import { activityArt, activitySize } from './size.js';
 
 /** An activity diagram as the layout engine laid it out, in the terms the rest of the kind reads. */
@@ -27,6 +28,11 @@ export interface Laid {
  * its regions, and the guards where the engine's spot search set them.
  */
 export function laidActivity(g: Graph): Laid {
+  return sideBolts(g, laidBy) ?? laidBy(g);
+}
+
+/** An activity diagram as the layout engine lays out its graph. */
+function laidBy(g: Graph): Laid {
   const layout = layoutGraph(activityGraph(g));
   const rects = new Map(layout.nodes.map((n) => [n.id, n.rect]));
   const nodes = new Map(

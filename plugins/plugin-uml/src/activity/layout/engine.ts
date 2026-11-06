@@ -6,6 +6,7 @@ import { handoffCandidates } from './handoff.js';
 import { expansionLinks, nodeLanes, triggerLinks } from './hidden.js';
 import { laneFrame, laneMinWidth } from './lanes.js';
 import { ACT, SIZE, widthOf } from './metrics.js';
+import { heldHeight } from './side-bolts.js';
 import { boltRoom, sideReach } from './side-room.js';
 import { activitySize } from './size.js';
 
@@ -25,7 +26,7 @@ function nodeOf(g: Graph, id: string): GraphNode | undefined {
   return {
     id,
     width: s.w,
-    height: s.h,
+    height: heldHeight(g, id, s.h),
     ...(ROUND.has(n.kind) ? { shape: 'ellipse' as const } : BARS.has(n.kind) ? { shape: 'bar' as const } : {}),
     ...(DIAMONDS.has(n.kind) && !n.port ? { sides: ['top', 'bottom', 'left', 'right'] as const } : {}),
     ...(reach ? { reach } : {}),
@@ -68,7 +69,7 @@ function trunk(g: Graph, f: GraphFlow): { bundle?: string } {
  * An activity diagram as a layout graph (ADR 0039, plan P9): nodes with their symbols, fork and join as bars,
  * decisions and merges with their ends at the corners, the texts beside a node as its reach, lanes as hard columns,
  * regions as frames; flows down, a hand-over between lanes and the first bolt into a handler beside, the loops back
- * and the bolts of further protected actions on rails; hidden edges hold triggers beside their region and the nodes
+ * and the bolts of further protected actions on rails, or hidden where the kind draws them (`sideBolts`); hidden edges hold triggers beside their region and the nodes
  * of an expansion region between its inputs and outputs.
  */
 export function activityGraph(g: Graph): LayoutGraph {
@@ -90,7 +91,7 @@ export function activityGraph(g: Graph): LayoutGraph {
       to: f.to,
       rank: handover.has(f) || first ? 'beside' : isHandlerFlow(f) ? 'up' : 'down',
       ...(isHandlerFlow(f) ? { room: boltRoom(f.exception) } : trunk(g, f)),
-      ...(first ? {} : { profile: 'back' as const }),
+      ...(f.held ? { hidden: true } : first ? {} : { profile: 'back' as const }),
       ...(guard ? { label: { text: guard, width: widthOf.label(guard), size: SIZE.label } } : {}),
       ...(runs ? { run: runs } : {}),
       source: f.span,
