@@ -55,7 +55,7 @@ const MOVED: Readonly<Record<string, Moved>> = {
 };
 
 /** Checks without a predecessor code. */
-const NEW: readonly string[] = ['U428', 'U471', 'U465'];
+const NEW: readonly string[] = ['U428', 'U471', 'U465', 'U958'];
 
 const START = '<!-- Generated from the rules in src/*/rules by `pnpm docs:uml`. Do not edit. -->';
 const END = '<!-- End of the generated codes. -->';

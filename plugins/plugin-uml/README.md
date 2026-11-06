@@ -238,7 +238,8 @@ points of neighbouring submachines.
 
 Errors keep their number with the prefix `U`; warnings, which shared numbers with errors before, keep their
 number plus 500 (ADR 0011). Checks that the language, the tables or the kernel's placement check now do have
-their codes. The use case kind adds U428, the class kind U471 and the state kind U465, a note without the element it belongs to.
+their codes. The use case kind adds U428, the class kind U471 and the state kind U465, a note without the element it belongs to,
+and the activity kind U958, an order of the partitions that forces crossings another order would spare.
 
 <!-- Generated from the rules in src/*/rules by `pnpm docs:uml`. Do not edit. -->
 
@@ -341,6 +342,7 @@ Checks of the predecessor that the language, the tables or the kernel do now:
 | U955 | warning | W455 | An interruptible region without an interrupting edge `~>` interrupts nothing: usually the edge is missing, or the frame only groups. UML 2.5.1: 15.6.3.2 Interruptible activity region. |
 | U956 | warning | W456 | An edge that crosses the frame of an expansion region without an expansion node is valid UML, but leaves open whether it acts once per element or once for the whole region. The way through the input or output is clearer. UML 2.5.1: 16.12.3 Expansion region. |
 | U957 | warning | W457 | An expansion region without nodes, or without an edge from its input inside, processes nothing: usually `expansion=` on the nodes or `go region => first` is missing. UML 2.5.1: 16.12.3 Expansion region. |
+| U958 | warning | – | A flow between two lanes passes over the lanes between them and crosses their own flows. When another order of the partitions crosses fewer, counted on the order of the flows without a layout, the warning names it. The lanes keep the order they are written in. UML 2.5.1: 15.6.3.1 Activity partition (swimlane). |
 
 Checks of the predecessor that the language, the tables or the kernel do now:
 

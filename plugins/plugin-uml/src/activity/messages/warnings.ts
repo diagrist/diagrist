@@ -1,7 +1,7 @@
 import type { Catalogue } from '@diagrist/core';
 import { noun } from './nouns.js';
 
-/** Messages of the activity warnings U930 to U957 (the predecessor's W430 to W457), in English and German. */
+/** Messages of the activity warnings U930 to U958 (U930 to U957 the predecessor's W430 to W457), in English and German. */
 export const ACTIVITY_WARNINGS: Catalogue = {
   U930: {
     en: (v) =>
@@ -94,5 +94,11 @@ export const ACTIVITY_WARNINGS: Catalogue = {
       v.case === 'empty'
         ? `Der ${noun(v, 'de')} hat keine Knoten. Knoten mit \`expansion=${v.region}\` hineinlegen.`
         : `Vom Eingang${v.pin ? ` „${v.pin}“` : ''} des ${noun(v, 'de')} führt keine Kante nach innen. \`go ${v.region} => ${v.first}${v.pin ? ` pin="${v.pin}"` : ''}\` ergänzen.`,
+  },
+  U958: {
+    en: (v) =>
+      `In the order the partitions are written, flows between lanes cross ${v.count} flow${v.count === '1' ? '' : 's'} of the lanes they pass over; in the order ${v.order} ${v.best === '0' ? 'none' : `only ${v.best}`}. Declare the partitions in that order.`,
+    de: (v) =>
+      `In der Reihenfolge, in der die Partitionen stehen, kreuzen Flüsse zwischen Bahnen ${v.count} ${v.count === '1' ? 'Fluss' : 'Flüsse'} der Bahnen, über die sie laufen; in der Reihenfolge ${v.order} ${v.best === '0' ? 'keinen' : `nur ${v.best}`}. Die Partitionen in dieser Reihenfolge deklarieren.`,
   },
 };
