@@ -28,7 +28,10 @@ export interface Job {
 const apart = (a: Rect, b: Rect): number =>
   Math.hypot(Math.max(0, b.x - a.x - a.w, a.x - b.x - b.w), Math.max(0, b.y - a.y - a.h, a.y - b.y - b.h));
 
-/** Texts seated one by one; a box costs, for each text of another line nearer than `labelClear`, the pixels it lacks. */
+/**
+ * Texts seated one by one; a box costs, for each text of another line nearer than `labelClear`, the pixels it
+ * lacks.
+ */
 export function seatedAlong(): Seated {
   const texts: EdgeLabel[] = [];
   return {

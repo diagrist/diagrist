@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { compile, type Drawing, type LineRule, lineFindings, linesOfDrawing, type Plugin } from '@diagrist/core';
 import { describe, expect, it } from 'vitest';
 import { umlPlugin } from '../src/index.js';
@@ -28,5 +29,18 @@ describe('the lines of activity pictures', () => {
       const found = lineFindings(linesOfDrawing(drawing)).filter((f) => !allowed.includes(f.rule));
       expect(found).toEqual([]);
     }
+  });
+
+  it('set a guard beside the part of its line that is only its own, not beside the stub it shares', () => {
+    drawings.length = 0;
+    const stress = new URL('stress/activity/parallel-entscheidung.dgr', import.meta.url);
+    compile(readFileSync(stress, 'utf8'), { plugins: [recorded] });
+    const { routes, labels } = linesOfDrawing(drawings[0] as Drawing);
+    const turning = routes.find((r) => r.from === 'luecken' && r.points.length > 2);
+    const [start, corner] = turning?.points ?? [];
+    const guard = labels.find((l) => l.edge === turning?.edge)?.box;
+    if (!start || !corner || !guard) throw new Error('missing');
+    const besideStub = guard.y < corner[1] && guard.y + guard.h > start[1] && guard.x < start[0] + 13;
+    expect(besideStub && guard.x + guard.w > start[0]).toBe(false);
   });
 });
