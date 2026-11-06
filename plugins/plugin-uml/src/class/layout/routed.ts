@@ -1,8 +1,8 @@
-import { type EdgeLabel, type GridLayout, type LayeredLayout, layoutLayered, type Route } from '@diagrist/layout-grid';
+import { type EdgeLabel, type GridLayout, type LayeredLayout, layoutGraph, type Route } from '@diagrist/layout-grid';
 import type { ClassRelation } from '../diagram.js';
 import type { ClassModel } from '../model.js';
 import { legsAtVertices } from './extras.js';
-import { classLayered, edgeId } from './layered.js';
+import { classGraph, edgeId } from './layered.js';
 
 /** The boxes and frames of a class diagram with its lines drawn and the names the pipeline seated. */
 export interface Routed {
@@ -33,7 +33,7 @@ const gridOf = (layout: LayeredLayout): GridLayout => ({
  * vertices.
  */
 export function routeClass(m: ClassModel): Routed {
-  const layout = layoutLayered(classLayered(m));
+  const layout = layoutGraph(classGraph(m));
   const grid = gridOf(layout);
   const byEdge = new Map(layout.routes.map((r) => [r.edge, r]));
   const routes: Route[] = [];

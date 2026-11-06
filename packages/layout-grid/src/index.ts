@@ -9,6 +9,16 @@ export {
   right,
   type Side,
 } from './geometry.js';
+export { layoutGraph } from './graph/layout.js';
+export type {
+  GraphContainer,
+  GraphEdge,
+  GraphGiven,
+  GraphLabel,
+  GraphNode,
+  GraphRank,
+  LayoutGraph,
+} from './graph/spec.js';
 export { grow } from './grow.js';
 export { type GutterRoom, gutterRoom, widen } from './label/gutters.js';
 export { type LabelOptions, labelEdges, placeLabels } from './label/index.js';
