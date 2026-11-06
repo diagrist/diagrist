@@ -111,6 +111,18 @@ export function blockCost(
   return n;
 }
 
+/** The ways of route `i`'s texts that meet nothing, in the order `searchBlock` tries them. */
+export function* clearWays(
+  route: Route,
+  i: number,
+  text: EdgeText,
+  clear: Clear,
+  m: GridMetrics,
+  o: SearchOptions,
+): Generator<EdgeLabel[]> {
+  for (const block of candidates(route, i, text, m, o)) if (blockCost(block, i, clear, o, 1) === 0) yield block;
+}
+
 /** Whether a line of `block` runs wider than `wrapWidth` though it could wrap. */
 export const tooWide = (block: readonly EdgeLabel[], m: GridMetrics): boolean =>
   block.some((l) => l.box.w > wrapWidth(m) + 0.5 && l.text.includes(' '));

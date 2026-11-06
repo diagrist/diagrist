@@ -7,7 +7,7 @@ import { clearOf } from './clear.js';
 import { giveWay, type Seats } from './give-way.js';
 import { namedOf } from './named.js';
 import type { OnLine } from './on-line.js';
-import { blockCost, type Found, rectsOf, type SearchOptions, searchBlock, tooWide } from './search.js';
+import { blockCost, clearWays, type Found, rectsOf, type SearchOptions, searchBlock, tooWide } from './search.js';
 import { markAt, type SeatMark, spotsOf } from './spots.js';
 import type { EdgeLabel, EdgeText } from './types.js';
 
@@ -151,6 +151,11 @@ export function signEdges<M extends SeatMark>(
     near: (i, block) => rects(block).reduce((n, r) => n + clear.crowding(r, i), 0),
     cost: (i, block) => blockCost(block, i, clear, searchOf(i)),
     seek,
+    ways: (i) => {
+      const r = routes[i] as Route;
+      const text = texts.get(r.edge);
+      return text ? clearWays(r, i, text, clear, spec.metrics, searchOf(i)) : [];
+    },
     take: (i, block) => {
       for (const r of rects(block)) clear.take(r, i);
     },

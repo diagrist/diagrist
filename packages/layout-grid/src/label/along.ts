@@ -88,7 +88,7 @@ function middleText(
     }),
   );
   const extra = nearTo(l, foreign);
-  return { seek: () => pick(candidates, room, extra, seated), extra };
+  return { seek: () => pick(candidates, room, extra, seated), extra, candidates };
 }
 
 /** A text at an end, on the free side of the line, inside `frame` where one is given and it finds room there. */
@@ -123,7 +123,8 @@ function endText(
     const seat = insideFrame(candidates, frame, { room, seated }, put, { back, aside }, l, others, clear);
     return seat && { seat, cost: 0 };
   };
-  return { seek: () => (end.frame && inner(end.frame)) || pick(candidates, room, near, seated), extra: near };
+  const seek = () => (end.frame && inner(end.frame)) || pick(candidates, room, near, seated);
+  return { seek, extra: near, candidates };
 }
 
 /**

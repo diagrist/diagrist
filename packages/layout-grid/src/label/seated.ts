@@ -20,6 +20,8 @@ export interface Spot {
 export interface Job {
   readonly seek: () => Spot | undefined;
   readonly extra: (c: EdgeLabel) => number;
+  /** The spots it may take, in the order they are tried. */
+  readonly candidates: readonly EdgeLabel[];
 }
 
 /** The distance between two rectangles, 0 for two that meet. */
@@ -86,6 +88,10 @@ export function seatTogether(jobs: readonly Job[], room: Occupancy, seated: Seat
       const spot = jobs[k]?.seek();
       const now = chosen.get(k) as EdgeLabel;
       return spot ?? { seat: now, cost: Number.POSITIVE_INFINITY };
+    },
+    ways: (k) => {
+      const job = jobs[k];
+      return job ? job.candidates.filter((c) => room.cost(c.box) + job.extra(c) === 0) : [];
     },
     take,
     drop: (_, c) => {
