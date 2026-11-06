@@ -70,9 +70,11 @@ with a second baseline.
 5. **Arithmetic order of the layout.** `src/sequence/layout` keeps the predecessor's order of floating point steps
    (the right edge of a note is passed on, not recomputed as `x + w`). Refactors there must keep the bytes; the
    module TSDoc of `src/sequence/layout/index.ts` and of `packages/layout-grid/src/layout.ts` says so where the code is.
-6. **Measuring by size, not by font role.** The layout measures with token sizes (`messageSize`) instead of the
-   font roles of its style table. Clean-up: measure with `FONTS`.
-7. **Card look in code.** `look=cards` changes shapes in `scene/cards.ts`, not only the style table.
+   It goes with Nr. 4: while path numbers are written unrounded, a different last bit shows in the bytes.
+6. **Card look in code.** `look=cards` changes shapes in `scene/cards.ts`, not only the style table. That is no
+   question of bytes: rounded frames, shadows and the light cards of area heads are geometry, which a style table
+   cannot give. Clean-up: a look as data that changes shapes, as the C4 looks do (ADR 0023), once a second sequence
+   look needs one.
 
 Waiting for the same clean-up, because it changes the bytes: `label-<i>` is never written, although the SVG
 contract names it and `EdgeAnchor.labelId` exists (message labels need a group with the id). The placement check
