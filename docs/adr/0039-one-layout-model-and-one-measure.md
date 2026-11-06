@@ -251,3 +251,30 @@ one bend a straight line could spare, for six fewer bends, a fifth less line and
 The spot search of the pipeline searches a picture moved right where its lines come nearer to the left edge than its
 widest text, not only where they reach past it, so a text may take a spot left of its line and the picture grows
 there instead of a gap growing for a text that found none: `lange-ereignisse` is 56 px lower again, as before #59.
+
+## Amendment: every activity diagram on the layout graph (plan P9)
+
+Activity diagrams hand a layout graph (`activity/layout/engine.ts`): actions, objects and signals as boxes, start and
+ends as ellipses, fork and join as bars, decisions and merges with `sides`, partitions as `lane` containers,
+interruptible and expansion regions as frames, flows ranked down with a hand-over between lanes `beside`, the loops
+back with the profile `back`, the bolt of an exception handler beside its first protected action and on a rail into
+the other side of the handler from every further one. Hidden edges hold the triggers of a region beside its last
+member and the expansion nodes of a region above and below the members no flow ties to them. The kind's own
+pipeline (`rank`, `columns`, `order`, `place`, `lane-fit`, `bars`, `ports`, `route`, `channels`, `tracks`,
+`extents`) is gone; it keeps its pins, which it docks on the routes the engine laid out, the questions of its
+diamonds, the names of its regions and its art. What the stages learnt for it:
+
+| Field or rule | Where | What it does |
+|---|---|---|
+| `GraphNode.sides` | `layered/docks.ts` | Ends on the top and bottom meet at the middle; of two or more pieces on a side the outermost whose other end lies beyond the box leaves or enters it at the corner, where no box or long line of its layer stands between, and its text stands above that run (`cornerSeat`). Branches at a corner pull lightly where a long line runs out of the tip (`cornerPulls`), and a chain does not slide along a tip. |
+| `GraphNode.shape` `bar` | `layered/bar-docks.ts`, `bar-links.ts`, `graph/bars.ts` | The stages see bars: a branch stands straight above or below its other end, the trunk too where the bar may grow so far without passing a box or line, and the bar grows over its ends. A node whose only partner on one side is a bar stands on one vertical with its one partner across the bar in its own lane. In a picture with lanes a bar that runs through a box of its layer moves a layer below it instead of widening, since every lane places its own boxes. |
+| `GraphNode.reach` | `finish.ts`, `lanes.ts`, `rail-pass.ts` | Texts the kind sets beside a node keep other boxes, lane borders and rails away. |
+| `GraphEdge.profile` `back` | `layered/rank.ts` | A rail only where the edge runs up the layers. |
+| lanes | `lane-coords.ts`, `order.ts`, `lanes.ts`, `rail-lanes.ts`, `hand-overs.ts` | Every lane is placed on its own by the links within it; the order prices a node out of its lane's order like a broken frame; a lane is as wide as its head and holds its rails and the texts beside their pieces at either side; a rail runs beside its own lane and past what stands in its way, on the side where it crosses fewer lines; a hand-over whose line would pass a box or long line of a lane between runs a layer down. |
+
+The activity stress set keeps nothing in `PENDING`, and every count falls: crossings 5 to 2 (`entscheidungen-kette`,
+`objektfluss`, `schleifen-zurueck` none), lines on one another 2 to 0 and parallels 2 to 0 (`objektfluss`), bends a
+straight line could spare 3 to 0. `Genehmigungsfähig?` keeps clear of the lane border in `fuenf-bahnen`, whose loop
+now runs inside the lane of its merge, and no branch leaves a corner for a stub into the gap. Expansion nodes are not
+docked (`GraphNode.dock`): a line through them carries pins and a keyword stands beside them, which the cut lines of
+`placeDocks` do not keep yet (see `docs/burn-down.md`).

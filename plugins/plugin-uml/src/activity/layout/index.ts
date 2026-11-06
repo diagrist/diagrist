@@ -2,17 +2,16 @@ import { type Placed, textWidth } from '@diagrist/core';
 import { right } from '@diagrist/layout-grid';
 import { decisionStrip, HEADER, type Header, MARGIN, type Strip, stripWidth, type Words } from '@diagrist/parts';
 import type { ActivityModel } from '../model/index.js';
-import { type Graph, layoutGraph } from './graph.js';
-import { type GuardText, guardTexts, placeQuestions } from './guards.js';
+import { layoutGraph } from './graph.js';
+import { type GuardText, placeQuestions } from './guards.js';
+import { laidActivity } from './laid.js';
 import type { LaneArt } from './lanes.js';
 import { ACT, ACT_FONTS, widthOf } from './metrics.js';
 import { placePins } from './pins.js';
-import { type ActivityPlacement, type PlacedNode, type Placement, placeActivity } from './place.js';
 import { placedOf } from './placed.js';
+import type { PlacedNode, Routed } from './placement.js';
 import { nameRegions } from './region-names.js';
 import type { ActivityText, RegionArt } from './regions.js';
-import { type Routed, routeActivity } from './route.js';
-import { separateJogs } from './tracks.js';
 
 /** The texts of the picture the layout measures: the title line, and the suffix of open decisions. */
 export type PictureTexts = Pick<Words, 'open'> & {
@@ -69,40 +68,29 @@ const textRight = (t: ActivityText): number => {
 };
 
 /**
- * The routes of a placement with the questions and pins they decide, then on their tracks; and the room the gaps
- * lack for their tracks, by the layer below each.
- */
-function drawRoutes(g: Graph, ap: ActivityPlacement): { placement: Placement; routes: Routed[]; room: number[] } {
-  const routed = routeActivity(g, ap);
-  const pinned = placePins(placeQuestions(ap.placement, routed), routed, g);
-  return { placement: pinned.placement, ...separateJogs(pinned.routes, pinned.placement) };
-}
-
-/**
- * Layout of an activity diagram: layers and order from the layering, lanes as columns, its own routing with bars,
- * diamonds and loops, then questions, pins and the tracks of the layered router, placed once more when a gap lacks
- * room for its tracks; then guards and region names, and the sheet around title, picture and decision bar.
+ * Layout of an activity diagram: laid out by the layout engine (`laidActivity`), then the questions beside their
+ * diamonds, the pins on their actions and the names of the regions, and the sheet around title, picture and decision
+ * bar.
  */
 export function layoutActivity(m: ActivityModel, words: PictureTexts): ActivityLayout {
   const g = layoutGraph(m);
-  const first = placeActivity(g);
-  const once = drawRoutes(g, first);
-  const ap = once.room.some((r) => r > 0) ? placeActivity(g, once.room) : first;
-  const { placement, routes } = ap === first ? once : drawRoutes(g, ap);
-  const guards = guardTexts(routes);
+  const laid = laidActivity(g);
+  const questioned = placeQuestions({ nodes: laid.nodes }, laid.routes);
+  const { placement, routes } = placePins(questioned, laid.routes, g);
+  const guards = laid.guards;
   const nodes = [...placement.nodes.values()];
-  const regions = nameRegions(ap.regions, routes, placement);
+  const regions = nameRegions(laid.regions, routes, placement);
   const side = sideTexts(nodes, regions);
   const width = Math.ceil(
     Math.max(
-      ap.placement.width,
+      laid.right + ACT.marginX,
       ...[...guards, ...side.map((t) => t.text)].map((t) => textRight(t) + ACT.marginX),
-      ...ap.regions.map((r) => right(r.rect) + ACT.marginX),
+      ...regions.map((r) => right(r.rect) + ACT.marginX),
       textWidth(words.title, ACT_FONTS.title) + 2 * MARGIN,
       stripWidth(m.diagram.decisions, words.open),
     ),
   );
-  const body = Math.max(ap.placement.bodyBottom, ...routes.flatMap((r) => r.points.map((p) => p[1])));
+  const body = Math.max(laid.bottom, ...routes.flatMap((r) => r.points.map((p) => p[1])));
   const strip = decisionStrip(m.diagram.decisions, body, width);
   const marks = nodes.flatMap((p) => (p.node.mark ? [{ id: p.node.mark, x: right(p.rect), y: p.rect.y }] : []));
   const height = Math.ceil((strip.cards.length > 0 ? strip.bottom : body) + ACT.margin);
@@ -110,13 +98,13 @@ export function layoutActivity(m: ActivityModel, words: PictureTexts): ActivityL
     header: HEADER,
     width,
     height,
-    lanes: ap.lanes,
+    lanes: laid.lanes,
     regions,
     nodes,
     routes,
     guards,
     marks,
     strip,
-    placed: placedOf({ lanes: ap.lanes, regions, nodes, guards, side }, m.diagram),
+    placed: placedOf({ lanes: laid.lanes, regions, nodes, guards, side }, m.diagram),
   };
 }
