@@ -1,5 +1,4 @@
-import type { Point, Rect } from '@diagrist/core';
-import { segmentHitsRect } from '../geometry.js';
+import type { Point } from '@diagrist/core';
 import type { EdgeLabel } from '../label/types.js';
 import type { Group } from './links.js';
 import type { Ranked } from './rank.js';
@@ -45,92 +44,39 @@ const heightOf = (label: LayeredEdge['label']) => (label ? linesOf(label).length
 
 /**
  * The room a gap needs for its labels at its top and at its bottom: the highest label there and its gaps, so the gap
- * grows for a label of several lines.
+ * grows for a label of several lines. A label in `grown`, which found no clear spot, asks twice its height, so the
+ * first track keeps clear of it.
  */
-export function labelRoom(seats: readonly Seat[], gap: number, at: Seat['at'], labelGap: number): number {
-  const sizes = seats.filter((s) => s.gap === gap && s.at === at).map((s) => heightOf(s.edge.label));
+export function labelRoom(
+  seats: readonly Seat[],
+  gap: number,
+  at: Seat['at'],
+  labelGap: number,
+  grown: ReadonlySet<string> = new Set(),
+): number {
+  const sizes = seats
+    .filter((s) => s.gap === gap && s.at === at)
+    .map((s) => heightOf(s.edge.label) * (grown.has(s.edge.id) ? 2 : 1) + (grown.has(s.edge.id) ? labelGap : 0));
   return sizes.length === 0 ? 0 : Math.max(...sizes) + 2 * labelGap;
 }
 
-/** What a label must keep clear of: the other lines, the boxes, the labels already set. */
-export interface Clear {
-  readonly lines: readonly { readonly edge: string; readonly points: readonly Point[] }[];
-  readonly boxes: readonly Rect[];
-  readonly margin: number;
-}
-
-const grow = (r: Rect, m: number): Rect => ({ x: r.x - m, y: r.y - m, w: r.w + 2 * m, h: r.h + 2 * m });
-const meets = (a: Rect, b: Rect) => a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h;
-
-/** A vertical piece at an end of a line: the point at the box and how far and which way the piece runs from it. */
-interface Piece {
-  readonly end: Point;
-  readonly run: number;
-  readonly dir: 1 | -1;
-}
-
-/** The vertical pieces at both ends of a line, the one at `port` first. */
-function piecesOf(points: readonly Point[], port: Point): Piece[] {
-  const near = (a: number, b: number) => Math.abs(a - b) < 0.5;
-  const piece = (end: Point | undefined, next: Point | undefined): Piece[] =>
-    end && next && near(end[0], next[0]) && !near(end[1], next[1])
-      ? [{ end, run: Math.abs(next[1] - end[1]), dir: next[1] > end[1] ? 1 : -1 }]
-      : [];
-  const ends = [...piece(points[0], points[1]), ...piece(points.at(-1), points.at(-2))];
-  const atPort = (p: Piece) => near(p.end[0], port[0]) && near(p.end[1], port[1]);
-  return [...ends.filter(atPort), ...ends.filter((p) => !atPort(p))];
-}
-
-/** Steps a label slides by along its line when its seat is taken. */
-const SLIDE = 4;
-
 /**
- * A label at its seat: right of its vertical, `labelGap` from the port, else left of it when something else comes
- * within `margin` on the right. When both are taken it slides along the vertical piece of its own line away from
- * the port, then along the vertical piece at the other end of the line away from that box, to the first place where
- * one side is free, and stays at the seat when there is none. `x` and `y` are the port of the line, `route` the
- * index of its route. A label of several lines is placed as one block and comes back as one text per line.
+ * A label at its seat: right of its vertical, `labelGap` from the port `port` of its line, below the port at the top
+ * of its gap and above it at the bottom, one text per line of the label, `route` being the index of its route. The
+ * spot search (`spotLabels`) keeps it there where that is clear and looks along the line otherwise.
  */
-export function seatLabel(
-  seat: Seat,
-  port: Point,
-  route: number,
-  labelGap: number,
-  clear: Clear,
-  own: ReadonlySet<string>,
-): EdgeLabel[] {
+export function seatAt(seat: Seat, port: Point, route: number, labelGap: number): EdgeLabel[] {
   const label = seat.edge.label ?? { text: '', width: 0, size: 0 };
   const line = label.size + 2;
-  const h = heightOf(label);
-  const at = (side: 'right' | 'left', piece: Piece, by: number): EdgeLabel => {
-    const [px, py] = piece.end;
-    const x = side === 'right' ? px + labelGap : px - labelGap;
-    const y = piece.dir > 0 ? py + labelGap + by : py - labelGap - h - by;
-    const box = { x: side === 'right' ? x : x - label.width, y, w: label.width, h };
-    const anchor: EdgeLabel['anchor'] = side === 'right' ? 'start' : 'end';
-    return { text: label.text, x, y: y + label.size, anchor, box, route, part: 'name' };
-  };
-  const split = (block: EdgeLabel): EdgeLabel[] =>
-    linesOf(label).map((l, i) => {
-      const y = block.box.y + i * line;
-      const box = { x: block.anchor === 'start' ? block.x : block.x - l.width, y, w: l.width, h: line };
-      return { ...block, text: l.text, y: y + label.size, box };
-    });
-  const free = (l: EdgeLabel) => {
-    const zone = grow(l.box, clear.margin);
-    const lines = clear.lines.filter((o) => !own.has(o.edge));
-    const hit = lines.some((o) => o.points.some((p, k) => k > 0 && segmentHitsRect(o.points[k - 1] as Point, p, zone)));
-    return !hit && !clear.boxes.some((b) => meets(b, l.box));
-  };
-  const seated: Piece = { end: port, run: 0, dir: seat.at === 'top' ? 1 : -1 };
-  const first = [at('right', seated, 0), at('left', seated, 0)];
-  const found = first.find(free);
-  if (found) return split(found);
-  for (const piece of piecesOf(clear.lines[route]?.points ?? [], port)) {
-    for (let by = 0; by <= piece.run - labelGap - h; by += SLIDE) {
-      const slid = [at('right', piece, by), at('left', piece, by)].find(free);
-      if (slid) return split(slid);
-    }
-  }
-  return split(first[0] as EdgeLabel);
+  const [x, py] = [port[0] + labelGap, port[1]];
+  const top = seat.at === 'top' ? py + labelGap : py - labelGap - heightOf(label);
+  return linesOf(label).map((l, i) => ({
+    text: l.text,
+    x,
+    y: top + i * line + label.size,
+    anchor: 'start' as const,
+    box: { x, y: top + i * line, w: l.width, h: line },
+    route,
+    part: 'name' as const,
+  }));
 }
