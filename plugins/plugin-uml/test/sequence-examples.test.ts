@@ -16,7 +16,7 @@ describe('sequence examples', () => {
     pictures.keep(name, first.svg ?? '');
   });
 
-  it('all render the bytes of the predecessor, checked by a SHA-256 per example', () => {
+  it('all keep their pictures, checked by a SHA-256 per example', () => {
     expect(compareGolden(golden('sequence-examples.sha256'), pictures.hashes())).toEqual({ status: 'match' });
   });
 

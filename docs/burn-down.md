@@ -58,8 +58,9 @@ spec and is compared number for number, as the path finding of state machines wa
 
 ### Sequence diagrams keep the predecessor's bytes (ADR 0008 Nr. 5)
 
-The 15 examples render the predecessor's SVG byte for byte. These crutches keep it so; they go in one clean-up
-with a second baseline.
+The 15 examples render the predecessor's SVG byte for byte, but for the name of a `ref`, which is measured in the
+font it is drawn in and so stands 6 px further right in `bestellung-bestaetigen` and `reservierung-halten`. These
+crutches keep the rest so; they go in one clean-up with a second baseline.
 
 1. **Base stylesheet always written.** 24 rules marked `always` in `packages/core/src/standard/styles.ts`, also
    in pictures that use none of them. Clean-up: drop `always`, the kernel writes only used rules.
