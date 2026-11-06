@@ -20,17 +20,28 @@ export interface Frames {
    */
   clear(x: Xs, layers: readonly (readonly string[])[], width: (id: string) => number, gap: number): void;
   /**
-   * Widens frames at the left whose head a line entering from above would cross, given where the lines meet the boxes
-   * they enter (`x`), so the next `clear` makes room for it; whether any frame grew.
+   * The frames whose head a line entering from above would cross, given where the lines meet the boxes they enter
+   * (`x`): by how much each would have to widen at the left, and the nodes those lines enter.
    */
   heads(
     entries: readonly { readonly upper: string; readonly lower: string; readonly x: number }[],
     boxes: ReadonlyMap<string, Rect>,
-  ): boolean;
+  ): readonly HeadNeed[];
+  /** Widens the frames at the left by what `heads` found they need, or narrows them again with `sign` -1. */
+  widen(needs: readonly HeadNeed[], sign?: 1 | -1): void;
   /** The nodes of the innermost frame around `n`, placeholders included, or `n` alone. */
   block(n: string): readonly string[];
+  /** The nodes of each outermost frame, placeholders included. */
+  outer(): readonly (readonly string[])[];
   /** The rectangle of every frame around its boxes, `tops` and `bottoms` being those of the layers. */
   rects(boxes: ReadonlyMap<string, Rect>, tops: readonly number[], bottoms: readonly number[]): PlacedGroup[];
+}
+
+/** A frame whose head a line entering from above would cross: the room it needs at the left and the nodes entered. */
+export interface HeadNeed {
+  readonly frame: string;
+  readonly need: number;
+  readonly nodes: readonly string[];
 }
 
 /** No frames: nothing to make room for. */
@@ -39,8 +50,10 @@ const NONE: Frames = {
   head: () => 0,
   foot: () => 0,
   clear: () => undefined,
-  heads: () => false,
+  heads: () => [],
+  widen: () => undefined,
   block: (n) => [n],
+  outer: () => [],
   rects: () => [],
 };
 
@@ -101,21 +114,28 @@ export function framesOf(spec: LayeredSpec, ranked: Ranked): Frames {
     },
     heads: (entries, boxes) => {
       const around = new Map(framed(boxes, [], []).map((g) => [g.id, g.rect]));
-      const need = new Map<string, number>();
+      const need = new Map<string, { need: number; nodes: string[] }>();
       for (const { upper, lower, x } of entries)
         for (const f of path(lower)) {
           const r = around.get(f);
           if (r === undefined || first.get(f) !== ranked.layerOf.get(lower) || path(upper).includes(f)) continue;
-          need.set(f, Math.max(need.get(f) ?? 0, r.x + head(f) - x));
+          const was = need.get(f) ?? { need: 0, nodes: [] };
+          const n = r.x + head(f) - x;
+          if (n > 0) need.set(f, { need: Math.max(was.need, n), nodes: [...was.nodes, lower] });
         }
-      const grown = [...need].filter(([, n]) => n > 0);
-      for (const [f, n] of grown) extra.set(f, (extra.get(f) ?? 0) + n);
-      return grown.length > 0;
+      return [...need].map(([frame, n]) => ({ frame, ...n }));
+    },
+    widen: (needs, sign = 1) => {
+      for (const { frame, need } of needs) extra.set(frame, (extra.get(frame) ?? 0) + sign * need);
     },
     block: (n) => {
       const f = path(n).at(-1);
       return f === undefined ? [n] : [...fp.paths].filter(([, p]) => p.includes(f)).map(([m]) => m);
     },
+    outer: () =>
+      placed
+        .filter((f) => f.parent === undefined)
+        .map((f) => [...fp.paths].filter(([, p]) => p[0] === f.id).map(([m]) => m)),
     rects: (boxes, tops, bottoms) => framed(boxes, tops, bottoms),
   };
 }

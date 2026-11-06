@@ -46,7 +46,9 @@ stress budgets count, such as bends a straight line could spare, reached no sear
    (R2 as a separate pull weight added four hard breaches to the class stress set). The guard on chains keeps the
    straight pipeline of `ueberspringen`, which a move of `Data Marts` toward its readers would bend. The measure
    decides every move: of the moves that fit for a bent piece (its lower box or chain, its upper one, the frame of
-   either), the cheapest whole picture stays if it costs less, in rounds until none does; no count of bent pieces
+   either), the cheapest whole picture stays if it costs less, in rounds until none does, or costs as much and leaves
+   the bent lines passing fewer layers, so of two lines only one of which can run straight the longer one does
+   (`speichert` in `hexagonal` straight down to `Konto`, `ändert` bent instead); no count of bent pieces
    gates a move first, and slips and frame moves are priced like the rest.
 5. **One order per side, and the side a line bends to.** The ends on a side of a box stand in the order of their
    other ends; an end that comes along the trunk of a fan or join holds its place lightly, so it gives way to a
@@ -69,7 +71,9 @@ stress budgets count, such as bends a straight line could spare, reached no sear
    parent's move relieves a layer does `wrap` cut it by count. `LayeredEdge` keeps its ranks; class pictures hand
    the pipeline the graph of their layers (decision 8).
 7. **Texts on lines break into lines.** A text wider than the wrap of line texts (`WRAP_EM`, sixteen sizes of its
-   font, the wrap C4 got for its channel grid) breaks between its words (`wrapWithin`), and a class name that starts
+   font, the wrap C4 got for its channel grid) breaks between its words (`wrapWithin`), never before a token that
+   only closes or punctuates (`%`, `]`, `,`), after an operator or between a number and its unit, and inside a
+   `[...]` guard only where it must, before `und` first, then before an operator; and a class name that starts
    with a keyword in guillemets, such as `«bind» <K → String, V → Kunde>`, keeps the keyword on a line of its own.
    The pipeline seats such a label as one block beside its line, the gap growing for every line, and hands one text
    per line, keyed `<edge>.label.<n>`, the lines of a text moving together; where it moves them is decision 9.
@@ -85,7 +89,12 @@ stress budgets count, such as bends a straight line could spare, reached no sear
    of the frame most linked to the other end, takes its place, port and track there, and is cut at the frame's
    outline, below a head worn as a tab (`LayeredFrame.tab`); the kind's own router of such lines is gone. A line
    that has to pass a frame lying wholly between its ends runs through it, and the order moves the placeholders of a
-   whole chain to an end of their frame at once, which single moves cannot reach (`speichert` in `hexagonal`). An
+   whole chain to an end of their frame at once, which single moves cannot reach (`speichert` in `hexagonal`); of
+   two such orders that cost the same, the one whose pieces span less across, its boxes side by side, wins, so the
+   inner chain of `gedaechtnis` runs straight with the line to its history state beside it. A line entering a frame
+   from above near its head moves right past the head with the node it enters, where that costs less than widening
+   the frame and its empty strip, and outermost frames close up to the left where the picture then costs less by
+   `scoreOf` (`pakete-quer` 1,759 to 1,232 px wide). An
    edge from a box to itself is a loop beside the box, on the side no line beside its layer takes, its gap grown for
    it and its text.
 
@@ -146,9 +155,13 @@ stress budgets count, such as bends a straight line could spare, reached no sear
     or past a layer leaves the order without placeholders and runs on a rail: out of a side of one end, along a
     track beside every box, placeholder, foreign frame and text of a line between its ends, into the same side of
     the other end. It takes a side where both ends stand outermost in their layers and no loop takes that side;
-    where none does, the order runs again with both ends pinned to the side they stand nearer, and a rail whose ends
+    where none does, the order runs again with both ends pinned to the side they stand nearer, or to the other where
+    that side clashes with the pins of a rail before it (an end pinned the other way, or another node of its layer
+    pinned the same way), and to neither where both clash, so `gedaechtnis` keeps `Pausiert -> H*` on a rail, and a
+    rail whose ends
     still stand inside runs through the layers, one per new order. Rails are placed shortest first, each outside
-    the ones before it on its side by the room of their texts, on the side where it crosses fewer of them; the ends
+    the ones before it on its side by the room of their texts where their stretches meet (from the middle of one end
+    to the middle of the other, as high as the text at least), so rails one above the other share a track, on the side where it crosses fewer of them; the ends
     on one side of a box stand rising rails first, inner ones higher, then arriving ones, outer ones higher, so no
     end crosses another rail. A rail's text starts beside its track, outside it. A frame holding both ends of a rail
     grows around it and its text, and so does a frame around a text of a line inside it that found no clear spot
@@ -163,7 +176,8 @@ stress budgets count, such as bends a straight line could spare, reached no sear
 ## Consequences
 
 Placeholders cross a frame only where it lies wholly between the ends of their line; a frame beside a line's way is
-still gone around, since the cost of an order knows no length. The leaf search lays a picture out once more for
+still gone around, since the cost of an order knows length only between chain moves that cost the same (see
+`docs/burn-down.md`, the order and length). The leaf search lays a picture out once more for
 every place a leaf frame may take, like the hub search; pictures without such frames pay nothing. A layout stage that
 wants to compare two of its own variants can now ask the same question the check answers.
 

@@ -2,6 +2,7 @@ import type { Point, Rect } from '@diagrist/core';
 import type { PlacedGroup, Route } from '../layout.js';
 import { holders } from './rail-frames.js';
 import type { RailSide } from './rail-order.js';
+import { stretch, texts } from './rail-room.js';
 import type { LayeredEdge, LayeredMetrics, LayeredSpec } from './spec.js';
 
 /** What the rails of a picture are drawn from: their edges and sides, the boxes and frames, the layers. */
@@ -18,16 +19,17 @@ export interface RailInput {
   readonly lines: readonly Route[];
 }
 
-/** One rail as placed: its ends by layer, its side, the stretch it runs along, its track and its text's room. */
+/** One rail as placed: its ends by layer, its side, its track and its text's room. */
 interface Laid {
   readonly edge: LayeredEdge;
   readonly upper: string;
   readonly lower: string;
   readonly side: RailSide;
-  readonly top: number;
-  readonly bottom: number;
   readonly at: number;
   readonly room: number;
+  /** The stretch its track and text take: from the middle of one end to the middle of the other, and its text. */
+  readonly lo: number;
+  readonly hi: number;
 }
 
 const right = (r: Rect) => r.x + r.w;
@@ -37,37 +39,9 @@ const CROSSING = 10_000;
 const label = (e: LayeredEdge) => e.label?.width ?? 0;
 
 /**
- * How far the texts of other lines may reach towards `side` beside the longest upright piece of their line, where
- * that piece runs between `top` and `bottom`.
- */
-function texts(
-  lines: readonly Route[],
-  side: RailSide,
-  top: number,
-  bottom: number,
-  m: LayeredMetrics,
-  spec: LayeredSpec,
-) {
-  return lines.flatMap((r) => {
-    const width = spec.edges.find((e) => e.id === r.edge)?.label?.width;
-    if (width === undefined || r.shape === 'loop') return [];
-    const upright = r.points.slice(1).flatMap((p, i) => {
-      const q = r.points[i] as Point;
-      return p[0] === q[0] ? [{ x: p[0], lo: Math.min(p[1], q[1]), hi: Math.max(p[1], q[1]) }] : [];
-    });
-    const piece = upright.reduce<(typeof upright)[number] | undefined>(
-      (a, b) => (a && a.hi - a.lo >= b.hi - b.lo ? a : b),
-      undefined,
-    );
-    if (piece === undefined || piece.hi <= top || piece.lo >= bottom) return [];
-    return [side === 'left' ? piece.x - m.labelGap - width : piece.x + m.labelGap + width];
-  });
-}
-
-/**
  * Places the rails, shortest first: each runs `lead` beyond every box, placeholder and foreign frame beside the
- * stretch between its ends, outside the rails placed before it on that side by their room, the text of the inner one
- * standing between them. Of the sides it may take, the one where it crosses fewer rails placed before it, those it
+ * stretch between its ends, outside the rails placed before it on that side whose stretch (`stretch`) meets its own
+ * by their room, the text of the inner one standing between them; rails one above the other share a track. Of the sides it may take, the one where it crosses fewer rails placed before it, those it
  * does not hold inside its stretch, and then where its pieces out of the ends are shorter wins, the left one on a tie.
  */
 function place(
@@ -89,6 +63,7 @@ function place(
       return r !== undefined && w !== undefined && (side === 'left' ? w.x < r.x : right(w) > right(r));
     };
     const [top, bottom] = [upper.y, lower.y + lower.h];
+    const { lo, hi } = stretch(e, upper, lower);
     const both = (f: string) => held.get(e.from)?.has(f) === true && held.get(e.to)?.has(f) === true;
     const reach = (side: RailSide) => texts(input.lines, side, top, bottom, m, spec);
     const beside = [
@@ -103,9 +78,9 @@ function place(
         side === 'left'
           ? Math.min(...beside.map((r) => r.x), ...reach(side)) - m.lead
           : Math.max(...beside.map(right), ...reach(side)) + m.lead;
-      const inner = laid.filter((p) => p.side === side && p.top < bottom && p.bottom > top);
+      const inner = laid.filter((p) => p.side === side && p.lo < hi && p.hi > lo);
       const outer = inner.map((p) => (side === 'left' ? p.at - p.room : p.at + p.room));
-      const crossed = inner.filter((p) => p.top > top || p.bottom < bottom).length;
+      const crossed = inner.filter((p) => p.lo > lo || p.hi < hi).length;
       const at = side === 'left' ? Math.min(own, ...outer) : Math.max(own, ...outer);
       const edge = (r: Rect) => (side === 'left' ? r.x : right(r));
       return { side, at, cost: CROSSING * crossed + Math.abs(at - edge(upper)) + Math.abs(at - edge(lower)) };
@@ -113,7 +88,7 @@ function place(
     const best = tried.reduce<(typeof tried)[number] | undefined>((a, b) => (a && a.cost <= b.cost ? a : b), undefined);
     if (best === undefined) continue;
     const room = label(e) > 0 ? label(e) + 2 * m.labelGap + m.track / 2 : m.track;
-    laid.push({ edge: e, upper: up, lower: low, side: best.side, top, bottom, at: best.at, room });
+    laid.push({ edge: e, upper: up, lower: low, side: best.side, at: best.at, room, lo, hi });
   }
   return laid;
 }

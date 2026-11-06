@@ -31,9 +31,21 @@ function sidesOf(spec: LayeredSpec, ranked: Ranked, layers: readonly (readonly s
 }
 
 /**
+ * Whether pinning the ends of `e` to `side` clashes with the pins so far: an end pinned to the other side, or another
+ * node of an end's layer pinned to the same side, where only one can stand outermost.
+ */
+function clashes(e: LayeredEdge, side: RailSide, pins: ReadonlyMap<string, RailSide>, ranked: Ranked): boolean {
+  const layer = (n: string) => ranked.layerOf.get(n);
+  return [e.from, e.to].some(
+    (n) => (pins.get(n) ?? side) !== side || [...pins].some(([k, s]) => k !== n && s === side && layer(k) === layer(n)),
+  );
+}
+
+/**
  * The layers and their order of a picture with rails (`LayeredEdge.rail`): edges that run up the layers leave the
  * order without placeholders, and each keeps its rail where both its ends stand outermost on one side of their
- * layers. Where they do not, the order runs again with both ends pinned to the side they stand nearer together; while
+ * layers. Where they do not, the order runs again with both ends pinned to the side they stand nearer together, or to
+ * the other where that clashes with the pins of a rail before (`clashes`), neither where both do; while
  * some still stand inside, the last of those runs through the layers like any other edge, one per new order.
  */
 export function arrangeRails(spec: LayeredSpec, fixed?: ReadonlyMap<string, number>): Arrangement {
@@ -53,8 +65,9 @@ export function arrangeRails(spec: LayeredSpec, fixed?: ReadonlyMap<string, numb
     };
     if (round === 0)
       for (const e of failed) {
-        const side = place(e.from) + place(e.to) <= 1 ? 'left' : 'right';
-        for (const n of [e.from, e.to]) if (!pins.has(n)) pins.set(n, side);
+        const near: RailSide = place(e.from) + place(e.to) <= 1 ? 'left' : 'right';
+        const side = [near, near === 'left' ? 'right' : 'left'].find((s) => !clashes(e, s as RailSide, pins, ranked));
+        for (const n of side === undefined ? [] : [e.from, e.to]) if (!pins.has(n)) pins.set(n, side as RailSide);
       }
     else {
       const given = failed.at(-1) as LayeredEdge;
