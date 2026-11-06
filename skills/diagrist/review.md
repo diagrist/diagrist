@@ -25,9 +25,10 @@ the source line of the relation it is about:
 | G417 | meets a box beside other lines in an order that makes them cross there |
 | G418 | carries a text that lies on something else, or far from the line |
 
-`dgr check <file> --metrics` adds a line of measures per picture: lines, crossings, bends, the length of all
-lines and the size. Use it to compare two versions of a picture. When you change the model, crossings and bends
-should go down, never up.
+`dgr check <file> --metrics` adds a line of measures per picture: lines, crossings, stretches where two lines lie on
+one another, bends and how many of them a straight line could have spared, the length of all lines, the size and
+the longer side over the shorter. Use it to compare two versions of a picture. When you change the model,
+crossings and bends should go down, never up.
 
 ## 2. The picture is built and you have looked at it
 

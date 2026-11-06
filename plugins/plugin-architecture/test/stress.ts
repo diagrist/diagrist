@@ -36,8 +36,9 @@ export function stressSet(folder: URL): { names: readonly string[]; source: (nam
 /**
  * Compiles a fixture with the layouts of `plugins` recorded and counts, per picture, the findings of the line check
  * under the thresholds of its kind by rule and the way it is breached (`label/near`), the crossings of
- * `lineMetrics` (counted for every picture, while the rule reports them up to 15 lines only) and the diagnostics
- * of the codes `placement` names (`G400/texts`); the other measures of `lineMetrics` go along unbudgeted.
+ * `lineMetrics` (counted for every picture, while the rule reports them up to 15 lines only), its lines on one
+ * another (`overlaps`) and bends a straight line could have spared (`avoidable`), and the diagnostics of the codes
+ * `placement` names (`G400/texts`); the other measures of `lineMetrics` go along unbudgeted.
  */
 export function stressEntries(
   plugins: readonly Plugin[],
@@ -63,8 +64,8 @@ export function stressEntries(
     pictures.map((p, i) => {
       const { drawing, check } = drawn[i] as (typeof drawn)[number];
       const input = linesOfDrawing(drawing);
-      const { crossings, ...measures } = lineMetrics(input);
-      const counts: Record<string, number> = { crossings, jog: 0, parallel: 0, bends: 0 };
+      const { crossings, overlaps, avoidable, ...measures } = lineMetrics(input);
+      const counts: Record<string, number> = { crossings, overlaps, avoidable, jog: 0, parallel: 0, bends: 0 };
       const keys = [
         ...lineFindings(input, check === false ? {} : check)
           .filter((f) => f.rule !== 'crossing')

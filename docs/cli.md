@@ -101,7 +101,7 @@ With `--json`, besides the fields of every document:
 |---|---|
 | `file` | The checked file. |
 | `diagnostics` | All findings, see "Diagnostics". |
-| `pictures` | With `--metrics`: every drawn picture with its `variant`, if any, and `metrics`: `lines`, `crossings`, `bends`, `maxBends`, `length`, `parentsOff`, `parentOffset`, `childrenOff`, `childOffset`, `width`, `height`. |
+| `pictures` | With `--metrics`: every drawn picture with its `variant`, if any, and `metrics`: `lines`, `crossings`, `overlaps` (stretches where two lines lie on one another), `bends`, `maxBends`, `avoidable` (bends a straight line could have spared), `length`, `parentsOff`, `parentOffset`, `childrenOff`, `childOffset`, `width`, `height`, `aspect` (the longer side over the shorter). |
 
 ## dgr build
 

@@ -2,6 +2,7 @@
 
 Date: 2026-11-04. Status: accepted by the owner (04.11.2026, plan "Layout-Plan für Diagrist", steps L1 to L7).
 Builds on ADR 0015, 0027, 0030 and 0033; amends the row "Layered graph" of the layout families in `docs/scope.md`.
+Amended by ADR 0039: the side search of a hub prices an arrangement by `scoreOf`, the measure of the line check.
 
 ## Context
 

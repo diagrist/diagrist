@@ -72,14 +72,15 @@ export function linesOfDrawing(drawing: Pick<Drawing, 'anchors' | 'placed'>): Li
     to: e.to,
     points: e.points,
   }));
-  return { nodes, routes: bundles(routes), labels, texts, frames, width: anchors.width, height: anchors.height };
+  return { nodes, routes: bundleLines(routes), labels, texts, frames, width: anchors.width, height: anchors.height };
 }
 
 /**
  * Lines that meet at one of their ends share a bundle: a fan that leaves one box at one point, or a join that enters
  * one at one point. The point counts, not which end is the start, since a kind may draw a line against its reading.
+ * Bundles already given are replaced, so a layout reads its lines as the line check reads the drawing.
  */
-function bundles(routes: readonly LineRoute[]): LineRoute[] {
+export function bundleLines(routes: readonly LineRoute[]): LineRoute[] {
   const keys = routes.map((r) => {
     const at = (p: readonly number[] | undefined) => (p === undefined ? '' : p.map((v) => v.toFixed(1)).join(','));
     return [...new Set([`at ${at(r.points[0])}`, `at ${at(r.points.at(-1))}`])];

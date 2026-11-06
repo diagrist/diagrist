@@ -1,6 +1,7 @@
 import type { Rect } from '../geometry.js';
+import { avoidableBends } from './avoidable.js';
 import { lengthOf, segmentsOf, TOLERANCE, tenth } from './lines.js';
-import { crossings, foreignPairs } from './pairs.js';
+import { crossings, foreignPairs, parallelFindings } from './pairs.js';
 import { cx } from './rects.js';
 import type { LineInput } from './types.js';
 
@@ -12,9 +13,16 @@ export interface LineMetrics {
   readonly lines: number;
   /** Points where two lines outside a common bundle cross (Q1), however many lines there are. */
   readonly crossings: number;
+  /**
+   * Stretches where two lines outside a common bundle lie on one another, less than a pixel apart, so the picture
+   * hides which line goes where.
+   */
+  readonly overlaps: number;
   /** Bends of all lines together, and of the line with the most (Q3). */
   readonly bends: number;
   readonly maxBends: number;
+  /** Lines that bend although their boxes would let a straight line join them (`avoidableBends`, Q15). */
+  readonly avoidable: number;
   /** Length of all lines, each times its weight (Q13). */
   readonly length: number;
   /**
@@ -29,13 +37,16 @@ export interface LineMetrics {
   /** Size of the picture (Q14). */
   readonly width: number;
   readonly height: number;
+  /** The longer side of the picture over the shorter, 1 for a square (Q14). */
+  readonly aspect: number;
 }
 
 /** Off-centre by more than this many pixels counts for Q11. */
 const CENTRED = 4;
 
-/** The soft measures of the lines of a picture (Q1, Q3, Q11 to Q14 of the layout plan). */
+/** The soft measures of the lines of a picture (Q1, Q3, Q11 to Q15 of the layout plan). */
 export function lineMetrics(input: LineInput): LineMetrics {
+  const pairs = foreignPairs(input.routes);
   const segments = input.routes.map(segmentsOf);
   const bends = segments.map((s) => Math.max(0, s.length - 1));
   const length = input.routes.reduce(
@@ -43,18 +54,23 @@ export function lineMetrics(input: LineInput): LineMetrics {
     0,
   );
   const { parentsOff, parentOffset, childrenOff, childOffset } = centring(input);
+  const width = input.width ?? extent(input, (r) => r.x + r.w, 0);
+  const height = input.height ?? extent(input, (r) => r.y + r.h, 1);
   return {
     lines: input.routes.length,
-    crossings: foreignPairs(input.routes).reduce((n, p) => n + crossings(p).length, 0),
+    crossings: pairs.reduce((n, p) => n + crossings(p).length, 0),
+    overlaps: parallelFindings(pairs, 2 * TOLERANCE).length,
     bends: bends.reduce((a, b) => a + b, 0),
     maxBends: Math.max(0, ...bends),
+    avoidable: avoidableBends(input),
     length: tenth(length),
     parentsOff,
     parentOffset: tenth(parentOffset),
     childrenOff,
     childOffset: tenth(childOffset),
-    width: tenth(input.width ?? extent(input, (r) => r.x + r.w, 0)),
-    height: tenth(input.height ?? extent(input, (r) => r.y + r.h, 1)),
+    width: tenth(width),
+    height: tenth(height),
+    aspect: Math.min(width, height) > 0 ? tenth(Math.max(width, height) / Math.min(width, height)) : 1,
   };
 }
 

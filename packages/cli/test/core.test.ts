@@ -39,8 +39,12 @@ describe('the CLI with the real kernel and the UML plugin', () => {
     const files = { 'o.dgr': example('oauth-pkce') };
     const text = await call(['check', 'o.dgr', '--metrics', '--locale', 'de'], { files, engine });
     const json = await callJson(['check', 'o.dgr', '--metrics'], { files, engine });
-    expect(text.stdout).toMatch(/^o\.dgr: \d+ Linien, \d+ Kreuzungen, \d+ Knicke \(höchstens \d+ an einer Linie\)/m);
-    expect(json.json.pictures).toMatchObject([{ metrics: { lines: expect.any(Number), crossings: 0 } }]);
+    expect(text.stdout).toMatch(
+      /^o\.dgr: \d+ Linien, \d+ Kreuzungen, \d+ Strecken aufeinander, \d+ Knicke \(höchstens \d+ an einer Linie, \d+ vermeidbar\), .* px \([\d.]+ : 1\)$/m,
+    );
+    expect(json.json.pictures).toMatchObject([
+      { metrics: { lines: expect.any(Number), crossings: 0, overlaps: 0, avoidable: 0, aspect: expect.any(Number) } },
+    ]);
     const plain = await callJson(['check', 'o.dgr'], { files, engine });
     expect(plain.json).not.toHaveProperty('pictures');
   });
