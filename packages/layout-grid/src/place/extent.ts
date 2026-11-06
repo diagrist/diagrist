@@ -96,6 +96,9 @@ export function groupExtent(tree: Tree, g: GridGroup): Extent | undefined {
 }
 
 /** The frame a node lies in directly; the first one listing it. */
-export function homeOf(tree: Tree, nodeId: string): GridGroup | undefined {
+export function homeOf<G extends Pick<GridGroup, 'members'>>(
+  tree: { readonly spec: { readonly groups: readonly G[] } },
+  nodeId: string,
+): G | undefined {
   return tree.spec.groups.find((g) => g.members.includes(nodeId));
 }

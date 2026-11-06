@@ -53,7 +53,7 @@ export { positions } from './layers/positions.js';
 export type { Column, GridLayout, PlacedGroup, PlacedNode, Route, RouteShape, Row } from './layout.js';
 export { fitFrames, type RouteLabel } from './place/fit.js';
 export { placeGrid } from './place/index.js';
-export { placedOf, type RouteMark } from './placed.js';
+export { type PlacedSpec, placedOf, type RouteMark } from './placed.js';
 export { routeEdges } from './route/index.js';
 export { type LaidPicture, linesOfLaid, type Score, scoreOf } from './score.js';
 export type {

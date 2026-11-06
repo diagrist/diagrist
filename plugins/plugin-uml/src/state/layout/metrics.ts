@@ -1,5 +1,3 @@
-import { STANDARD_FONTS } from '@diagrist/core';
-import type { GridMetrics } from '@diagrist/layout-grid';
 import { UML_BOX_FONTS } from '../../shared/box-styles.js';
 
 /** Font roles of state machine diagrams: those of every UML box. Layout measures with them, the style table sets them. */
@@ -33,19 +31,13 @@ export const STATE = {
   regionNameH: 18,
   barMin: 96,
   barH: 6,
-  barOverhang: 24,
   pseudoLabelGap: 6,
-  labelAir: 16,
   /** Widest line of a transition label; beyond it the label breaks before guard and effect. */
   labelLineW: 168,
-  /** Up to this offset a step becomes a straight line; also the distance from corners. */
-  step: 16,
   laneGap: 16,
   /** Straight run of a line into its head (plan Q4), so also the distance of a rail, and the least step of a Z (Q6). */
   lead: 24,
-  loopReach: 32,
   labelGap: 8,
-  labelLineH: 12,
   /** Air around frames, and the pads of a composite state below its head. */
   padBottom: 24,
   padSide: 24,
@@ -53,24 +45,3 @@ export const STATE = {
   margin: 32,
   labelDy: 4,
 } as const;
-
-/** The measures `layout-grid` lays a state machine diagram out with: adaptive columns, orthogonal lines. */
-export const stateMetrics = (colGap: number): GridMetrics => ({
-  grid: STATE.grid,
-  nodeW: 192,
-  nodeH: 56,
-  rowMin: 0,
-  colGap,
-  subColGap: 104,
-  rowGap: 120,
-  marginX: STATE.marginX,
-  firstRowY: 128,
-  margin: STATE.margin,
-  laneGap: STATE.laneGap,
-  portSpread: 16,
-  loopReach: STATE.loopReach,
-  framePad: { top: 56, bottom: STATE.padBottom, x: STATE.padSide },
-  labelFont: STANDARD_FONTS.label,
-  labelLineH: STATE.labelLineH,
-  labelGap: STATE.labelGap,
-});
