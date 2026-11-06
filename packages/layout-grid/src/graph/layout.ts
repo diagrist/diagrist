@@ -51,7 +51,8 @@ export function specOf(graph: LayoutGraph): LayeredSpec {
   const given = graph.given ?? {};
   const containers = graph.containers ?? [];
   const core = given.arrangement === 'hub' ? containers.find((c) => c.kind === 'core') : undefined;
-  const frames = containers.filter((c) => c.kind !== 'core').map(frameOf);
+  const frames = containers.filter((c) => c.kind !== 'core' && c.kind !== 'lane').map(frameOf);
+  const lanes = containers.filter((c) => c.kind === 'lane').map((c) => ({ id: c.id, members: c.members, pad: c.pad }));
   const edges = graph.edges.map(({ rank, profile: _, ...e }): LayeredEdge => ({ ...e, rank: RANKS[rank] }));
   return {
     nodes: graph.nodes.map(({ sides: _, ...n }) => n),
@@ -69,6 +70,7 @@ export function specOf(graph: LayoutGraph): LayeredSpec {
     ...(given.ranks === undefined ? {} : { layers: given.ranks, ...(given.order === 'free' ? { reorder: true } : {}) }),
     ...(given.perLayer === undefined ? {} : { layering: layeringOf(graph, given.perLayer, frames) }),
     ...(frames.length > 0 ? { frames } : {}),
+    ...(lanes.length > 0 ? { lanes } : {}),
   };
 }
 

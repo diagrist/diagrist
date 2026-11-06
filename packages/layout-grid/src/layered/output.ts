@@ -27,6 +27,8 @@ export interface LayeredLayout {
   readonly frame?: CoreFrame;
   /** The frames of `LayeredSpec.frames` that hold boxes, parents first. */
   readonly frames?: readonly PlacedGroup[];
+  /** The columns of `LayeredSpec.lanes`, left to right, from the top of the picture to its bottom. */
+  readonly lanes?: readonly PlacedGroup[];
 }
 
 /** What is placed and routed, before the labels are seated and the picture is measured. */

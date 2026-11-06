@@ -126,6 +126,22 @@ stress budgets count, such as bends a straight line could spare, reached no sear
     ranks), its groups as frames, and texts placed by the same spot search. Each such field comes with the stage
     that reads it, so the contract holds nothing that a stage ignores without saying so.
 
+11. **Lanes are hard columns** (plan P9, first step). A container of kind `lane` is no frame any more: the stages
+    read it as `LayeredSpec.lanes`, left to right. The order keeps every layer sorted by lane, the order within a
+    lane as the order stage chose it; the placement moves each lane, only to the right, until its column starts
+    where the one before ends, its boxes `pad` inside; the layout hands the columns as `lanes`, as high as the
+    picture. An edge ranked `beside` between two lanes is a hand-over: the layering joins its ends into one layer
+    (`handOvers`), the first ones winning and none bringing two nodes of one lane into a layer; a placeholder stands
+    in the lane of its line's upper end. Pictures without lanes are layered as before, byte for byte. Activity
+    diagrams do not hand a layout graph yet: their bars over the branches, decisions with ends at their corners
+    (`sides`, which no stage reads yet), loop channels around lanes, pins, regions and handler bolts have no stage in
+    the engine, and moving the kind without them would draw every example worse. Meanwhile the kind's own pipeline
+    keeps the measure's hard rules in its stress set: a loop channel moves past a node of another lane it would cut
+    (`fuenf-bahnen`), a branch leaves or enters a corner at the corner's height only where that row is free and
+    else turns into the gap, where it gets a track (`parallel-entscheidung`: three lines through nodes and two on
+    one another traded for two crossings, which the topology of three lanes needs), and a guard a foreign line
+    comes near moves to the other side of its line or below the foreign one.
+
 ## Consequences
 
 Placeholders cross a frame only where it lies wholly between the ends of their line; a frame beside a line's way is

@@ -12,6 +12,7 @@ import { type Frame, linkPoints, simplify } from './geometry.js';
 import { clearHeads } from './heads.js';
 import { type Placement, unjog } from './jogs.js';
 import { labelRoom, seatsOf } from './labels.js';
+import { lanesOf } from './lanes.js';
 import { type Group, groupsOf, type Link, linksOf } from './links.js';
 import { loopsOf } from './loops.js';
 import { type Assembled, assemble, type LayeredLayout, layeredLines } from './output.js';
@@ -43,7 +44,9 @@ export function finish(spec: LayeredSpec, arrangement: Arrangement): LayeredLayo
   const above = (l: number) => (l === (inCore[0] ?? -2) - 1 ? headRoom : 0) + fr.head(l + 1);
   const under = (l: number) => (l === inCore.at(-1) ? pad + m.labelGap : 0) + fr.foot(l);
   const spines = spec.hub ? [] : spinesOf(spec.edges, ranked);
+  const ln = lanesOf(spec, ranked);
   const settle = (placed: Xs): Placement => {
+    ln.clear(placed, width, m.left);
     fr.clear(placed, layers, width, m.colGap);
     const flat = new Map([...placed].map(([id, cx]) => [id, { x: cx - width(id) / 2, y: 0, w: width(id), h: 0 }]));
     const ports = portsOf(
@@ -166,7 +169,7 @@ export function finish(spec: LayeredSpec, arrangement: Arrangement): LayeredLayo
       loose,
       ...(frames ? { frames: clearHeads(frames, spec, routes, real) } : {}),
     });
-    return { ...keptInside(laid, floor), crowded: laid.crowded };
+    return ln.around({ ...keptInside(laid, floor), crowded: laid.crowded }, x, width, m.top);
   };
   let placement = place();
   const around = below.around.flatMap((id): Around[] => {

@@ -67,8 +67,10 @@ export interface GraphEdge {
 /**
  * A frame of a layout graph around some of its nodes, of one of four kinds. A `frame` holds its members and the
  * frames inside it as one block of layers, and edges may end on it; `core` is the core of a hub, which the other
- * clusters dock at, in a light frame with a head that names it. `lane`, a hard column (layout plan P9), and `part`,
- * a part of a box that holds others (P8), are laid out as frames until their own rules come.
+ * clusters dock at, in a light frame with a head that names it. A `lane` is a hard column (layout plan P9): lanes
+ * stand side by side in the order given, every layer keeps them so, and an edge ranked `beside` between two lanes
+ * puts its ends in one layer. `part`, a part of a box that holds others (P8), is laid out as a frame until its own
+ * rules come.
  */
 export interface GraphContainer {
   readonly id: string;

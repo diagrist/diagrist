@@ -1,5 +1,6 @@
 import { assignLayers } from '../layers/assign.js';
 import { acyclic, type LayerEdge } from '../layers/graph.js';
+import { handOvers } from './hand-overs.js';
 import type { LayeredEdge, LayeredSpec } from './spec.js';
 
 /**
@@ -53,21 +54,30 @@ function shorten(
   }
 }
 
-/** The layer of every node: as `fixed` says, else along the edges, cycles cut and edges from lone sources short. */
+/**
+ * The layer of every node: as `fixed` says, else along the edges, cycles cut and edges from lone sources short, the
+ * ends of a hand-over between lanes in one layer (`handOvers`).
+ */
 function layersOf(
   spec: LayeredSpec,
   edges: readonly LayeredEdge[],
   fixed?: ReadonlyMap<string, number>,
 ): Map<string, number> {
-  const nodes = spec.nodes.map((n) => n.id);
-  if (fixed !== undefined) return compact(new Map(nodes.map((n) => [n, fixed.get(n) ?? 0])));
-  const asLayers = edges.map(layerEdge);
+  if (fixed !== undefined) return compact(new Map(spec.nodes.map((n) => [n.id, fixed.get(n.id) ?? 0])));
+  const find = handOvers(spec);
+  const nodes = [...new Set(spec.nodes.map((n) => find(n.id)))];
+  const asLayers = edges
+    .map(layerEdge)
+    .map((e) => ({ ...e, from: find(e.from), to: find(e.to) }))
+    .filter((e) => e.from !== e.to);
   const ranked = acyclic(nodes, asLayers);
   const side = asLayers.filter((e) => e.rank === 0);
   const held = new Set(side.flatMap((e) => [e.from, e.to]));
   const layer = assignLayers(nodes, ranked, side);
   shorten(nodes, ranked, held, layer);
-  return compact(layer);
+  const grouped = compact(layer);
+  if ((spec.lanes ?? []).length === 0) return grouped;
+  return new Map(spec.nodes.map((n) => [n.id, grouped.get(find(n.id)) ?? 0]));
 }
 
 /**
