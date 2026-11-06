@@ -19,6 +19,22 @@ const gutterAbove = (ap: ActivityPlacement, layer: number) => {
   return gap ? (gap.top + gap.bottom) / 2 : 0;
 };
 
+/** Least clearance of a line from a node it does not join, as the line check asks (G411). */
+const CLEAR = 6;
+
+/**
+ * Is the row at height `y` between `a` and `b` free of every node but `ends`? A branch out of a corner of a diamond
+ * or into one runs at the corner's height only then; else it turns into the gap between the layers, where the
+ * pieces get tracks of their own.
+ */
+function clearRow(ap: ActivityPlacement, y: number, a: number, b: number, ends: readonly string[]): boolean {
+  const [lo, hi] = [Math.min(a, b), Math.max(a, b)];
+  return [...ap.placement.nodes.values()].every(
+    ({ id, rect: r }) =>
+      ends.includes(id) || y <= r.y - CLEAR || y >= r.y + r.h + CLEAR || hi <= r.x - CLEAR || lo >= r.x + r.w + CLEAR,
+  );
+}
+
 /** Run out of a side before a turn, and the least run into a head. */
 const RUN = 16;
 const LEAD = 24;
@@ -45,9 +61,13 @@ function forward(ap: ActivityPlacement, f: RankedFlow, from: Port, to: Port): Po
       ? Math.min(x, to.at[0]) - RUN
       : Math.max(x, to.at[0]) + RUN;
   const sideOut = from.side === 'left' || from.side === 'right';
-  const lastX = sideIn ? (waypoints.at(-1)?.x ?? (sideOut ? outside : x)) : to.at[0];
+  const near = to.at[0] + (to.side === 'left' ? -LEAD : LEAD);
+  const free = (y: number, a: number, b: number) => clearRow(ap, y, a, b, [f.from, f.to]);
+  const intoSide = waypoints.at(-1)?.x ?? (sideOut ? outside : x);
+  const lastX = sideIn ? (free(to.at[1], intoSide, to.at[0]) ? intoSide : near) : to.at[0];
   if (sideOut) {
-    x = waypoints[0]?.x ?? lastX;
+    const wanted = waypoints[0]?.x ?? lastX;
+    x = free(from.at[1], from.at[0], wanted) ? wanted : from.at[0] + (from.side === 'left' ? -RUN : RUN);
     pts.push([x, from.at[1]]);
   }
   const jog = (nx: number, layer: number) => {

@@ -54,7 +54,7 @@ export function laneFit(grid: LaneGrid, extra: readonly number[]): LaneFit {
   const points = new Map([...ranks.dummy].map((id): [string, Point] => [id, [centerX(id), rowCenter(id)]]));
   const bars = g.nodes.filter((n) => BARS.has(n.kind)).map((n) => n.id);
   const pushes = expandBars(bars, rects, points, ranks);
-  const loops = channels(ranks, (id) => outerRight(id, rects, points, grid.reach));
+  const loops = channels(ranks, (id) => outerOf(id, rects, points, grid.reach));
   return { widths, xs, rects, points, pushes, loops };
 }
 
@@ -77,14 +77,18 @@ function centerIn(id: string, grid: LaneGrid, xs: readonly number[], base: reado
   return (xs[lane] ?? 0) + ((base[lane] ?? 0) - col.width) / 2 + (col.center.get(id) ?? 0);
 }
 
-/** Right end of a node with what reaches out of it, or the place of a waypoint; a loop channel passes beyond it. */
-function outerRight(
+/** Left and right end of a node with what reaches out of it, or the place of a waypoint; a loop channel passes beyond. */
+function outerOf(
   id: string,
   rects: ReadonlyMap<string, Rect>,
   points: ReadonlyMap<string, Point>,
   reach: LaneGrid['reach'],
-): number | undefined {
+): { left: number; right: number } | undefined {
   const r = rects.get(id);
-  if (!r) return points.get(id)?.[0];
-  return r.x + r.w / 2 + Math.max(r.w / 2, reach(id).right);
+  if (!r) {
+    const x = points.get(id)?.[0];
+    return x === undefined ? undefined : { left: x, right: x };
+  }
+  const c = r.x + r.w / 2;
+  return { left: c - Math.max(r.w / 2, reach(id).left), right: c + Math.max(r.w / 2, reach(id).right) };
 }

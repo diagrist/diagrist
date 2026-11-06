@@ -1,4 +1,5 @@
 import { dock, type Extension, extensions, firstSides, type Side } from './hub.js';
+import { lanesOf } from './lanes.js';
 import { type Neighbours, neighboursOf, orderRanked } from './order.js';
 import { type Ranked, rank } from './rank.js';
 import type { LayeredSpec } from './spec.js';
@@ -18,7 +19,8 @@ export function arrange(spec: LayeredSpec): Arrangement {
   const ranked = rank(spec, given && new Map(given.flatMap((layer, l) => layer.map((n) => [n, l] as const))));
   const neighbours = neighboursOf(spec, ranked);
   const places = new Map(spec.reorder ? [] : given?.flatMap((layer) => layer.map((n, i) => [n, i] as const)));
-  return { ranked, neighbours, layers: orderRanked(spec, ranked, neighbours, new Map(), places) };
+  const layers = lanesOf(spec, ranked).sort(orderRanked(spec, ranked, neighbours, new Map(), places));
+  return { ranked, neighbours, layers };
 }
 
 /** A hub picture before its extensions dock: the layers of its core alone, its extensions, the first guess of sides. */

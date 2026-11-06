@@ -147,4 +147,9 @@ export interface LayeredSpec {
    * spans and frames in one order in every layer they share; with `layers` kept as given, the kind does so.
    */
   readonly frames?: readonly LayeredFrame[];
+  /**
+   * Lanes, left to right: hard columns, each the nodes it names, `pad` from its edges (ADR 0039). Every layer keeps
+   * the nodes of a lane together and the lanes in this order, and every lane gets a column of its own.
+   */
+  readonly lanes?: readonly { readonly id: string; readonly members: readonly string[]; readonly pad: number }[];
 }
