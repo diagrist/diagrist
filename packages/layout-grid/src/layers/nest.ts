@@ -1,3 +1,4 @@
+import { seatEdgeless } from './edgeless.js';
 import type { LayerEdge, Layered, LayerFrame, LayerGraph } from './graph.js';
 import { leavesOf } from './pack.js';
 
@@ -35,7 +36,8 @@ function chainsOf(frames: readonly LayerFrame[]): (id: string) => readonly strin
  * first as a block of its own, in the order of their first node. Edges are lifted to the children of the level, so
  * frames linked by their nodes stand above each other like nodes; a lifted edge against a ranked edge stated between
  * two children of the level gives way. The blocks of one layer stand at its top, and the layer is as high as its
- * highest block.
+ * highest block. `last` holds in every frame's block, and a node of a block with edges only out of its frame stands
+ * at the side of the block where its partners are (`seatEdgeless`).
  */
 function blockOf(n: Nesting, chain: (id: string) => readonly string[], owner: string | undefined): Block {
   const { graph, frames } = n;
@@ -68,6 +70,7 @@ function blockOf(n: Nesting, chain: (id: string) => readonly string[], owner: st
     nodes: kids,
     edges,
     maxPerLayer: graph.maxPerLayer,
+    ...(graph.last === undefined || owner === undefined ? {} : { last: graph.last.filter((id) => kids.includes(id)) }),
     sizes: new Map(kids.map((k) => [k, size(k)])),
     widths: new Map(kids.map((k) => [k, places(k)])),
     blocks: new Set(inner.keys()),
@@ -76,6 +79,8 @@ function blockOf(n: Nesting, chain: (id: string) => readonly string[], owner: st
   };
   for (const leaf of leavesOf(graphOf).keys()) if (inner.has(leaf)) n.leaves.push(leaf);
   const level = n.flat(graphOf);
+  const rowOf = new Map(level.layers.flatMap((row, r) => row.map((k) => [k, r] as const)));
+  const seating = { edges: graph.edges, chain, lift, rowOf, frames: framed };
   const layers: string[][] = [];
   let width = 0;
   for (const row of level.layers) {
@@ -85,7 +90,8 @@ function blockOf(n: Nesting, chain: (id: string) => readonly string[], owner: st
       row.reduce((sum, k) => sum + places(k), 0),
     );
     for (const k of row) {
-      const own = inner.get(k)?.layers ?? [[k]];
+      const block = inner.get(k);
+      const own = block === undefined ? [[k]] : seatEdgeless(block.layers, k, seating);
       own.forEach((ids, l) => {
         layers[top + l] = [...(layers[top + l] ?? []), ...ids];
       });

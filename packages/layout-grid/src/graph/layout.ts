@@ -27,6 +27,7 @@ const frameOf = (c: GraphContainer): LayeredFrame => ({
   top: c.top,
   head: { width: c.head.width, height: c.head.height },
   ...(c.tab === true ? { tab: true } : {}),
+  ...(c.opaque === true ? { opaque: true } : {}),
 });
 
 /** The graph a picture with `perLayer` is layered by: its nodes, its edges by rank, its frames, sizes by area. */

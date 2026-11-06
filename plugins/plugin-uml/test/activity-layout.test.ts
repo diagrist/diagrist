@@ -140,6 +140,13 @@ describe('expansion regions and handlers', () => {
       expect(inside(p.node(id), frame), id).toBe(true);
   });
 
+  it('sets several pins on top and bottom where their lines arrive, so each line runs straight into its pin', () => {
+    const p = picture('preise-berechnen');
+    const flows = p.edges.filter((e) => e.from === 'rechnen' || e.to === 'rechnen');
+    expect(flows).toHaveLength(4);
+    for (const e of flows) expect(new Set(e.points.map((q) => q[0])).size, `${e.from} -> ${e.to}`).toBe(1);
+  });
+
   it('puts a handler beside its first protected action and brings the bolt of the second to the same side, below', () => {
     const p = picture('karten-belasten');
     const handler = p.node('fehler');

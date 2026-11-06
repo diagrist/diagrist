@@ -4,7 +4,8 @@ import { stateLines } from '../layout/box.js';
 import type { StateLayout } from '../layout/index.js';
 import { STATE_FONTS as F, STATE as S } from '../layout/metrics.js';
 import { regionArt } from '../layout/regions.js';
-import type { StateModel } from '../model.js';
+import { regionsOf, type StateModel } from '../model.js';
+import { tabbedState } from './tab.js';
 
 /**
  * The middle of the name in the name field: centred while no line crosses the field there, as from a fork into the
@@ -31,8 +32,9 @@ function nameCentre(rect: Rect, lines: readonly (readonly Point[])[], width: num
 
 /**
  * A composite state in its group `group-<id>`: a rounded box like a simple state, the name field on top, below it the
- * compartment with behaviour, then the substates; regions separated by dashed lines with their names at the top left.
- * In the card look a toned area.
+ * compartment with behaviour, then the substates; a state with regions wears its name as a tab instead of the field
+ * (`tabbedState`), its regions separated by dashed lines with their names at the top left. In the card look a toned
+ * area.
  */
 export function frameShape(g: PlacedGroup, m: StateModel, l: StateLayout): Shape {
   const v = m.vertices.get(g.id);
@@ -56,13 +58,28 @@ export function frameShape(g: PlacedGroup, m: StateModel, l: StateLayout): Shape
     textWidth(label, F.name),
   );
   const regions = regionArt(g, m, l.regions);
+  const role = v?.emph ? 'boxEmph' : cards ? tint : 'box';
+  const tabbed = regionsOf(m, g.id).length > 0;
+  const head: Shape[] = tabbed
+    ? tabbedState(r, label, role)
+    : [
+        { kind: 'rect', ...r, rx: S.radius, role },
+        {
+          kind: 'text',
+          x,
+          y: r.y + S.headH / 2 + S.labelDy,
+          text: label,
+          role: 'name',
+          font: 'name',
+          anchor: 'middle',
+        },
+        rule(r.y + S.headH),
+      ];
   return {
     kind: 'group',
     id: domId.group(g.id),
     children: [
-      { kind: 'rect', ...r, rx: S.radius, role: v?.emph ? 'boxEmph' : cards ? tint : 'box' },
-      { kind: 'text', x, y: r.y + S.headH / 2 + S.labelDy, text: label, role: 'name', font: 'name', anchor: 'middle' },
-      rule(r.y + S.headH),
+      ...head,
       ...(lines.length ? [rule(r.y + fach)] : []),
       ...lines.map(
         (text, i): Shape => ({

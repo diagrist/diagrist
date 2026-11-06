@@ -89,6 +89,19 @@ describe('state machine layout', () => {
     expect(Number(separator?.[1])).toBeLessThan(right?.x ?? 0);
   });
 
+  it('names a state with regions in a tab at its top left, which the lines from the fork pass beside', () => {
+    const p = picture('auftrag-parallel');
+    const frame = p.frame('bearbeitung');
+    const tab = new RegExp(
+      `<path d="M${frame.x} [\\d.]+ Q[\\d. ]+ L([\\d.]+) ${frame.y} Q[^"]* L${frame.x} ${frame.y + 30} Z"`,
+    );
+    const right = Number(tab.exec(p.svg)?.[1]);
+    expect(right).toBeGreaterThan(frame.x);
+    const name = /<text x="([\d.]+)" y="[\d.]+" text-anchor="start" class="label-bold">In Bearbeitung</.exec(p.svg);
+    expect(Number(name?.[1])).toBe(frame.x + 12);
+    for (const id of ['offen', 'kommissioniert']) expect(p.edge('teilen', id)[0]?.[0] ?? 0, id).toBeGreaterThan(right);
+  });
+
   it('puts an exit point on the border of its state, facing its way out', () => {
     const p = picture('auftrag-parallel');
     const frame = p.frame('bearbeitung');

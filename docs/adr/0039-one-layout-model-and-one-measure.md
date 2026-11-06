@@ -427,3 +427,53 @@ crossings is laid out once. Pricing whole trunks in the order stage as one piece
 pictures, only `schnittstellen` and `beobachter` still cross, the one crossing of the first is the least two rows
 allow for `Schreibbar` and `Versioniert` over the same two classes, and the second is the trade of a detour, so the
 rule would change no picture yet.
+## Amendment: state machines and activity diagrams, the approved proposals (06.11.2026)
+
+**Pins stand where their lines arrive.** Two or more pins on the top or bottom of an action were spread evenly over
+it, wherever their lines arrived, and each line bent into its pin. They now stand at the ends of their lines where
+every pin of the side has one, each end lies on the side clear of its corners, and each stands a square, its name and
+air from the one before (`arrivals` in `activity/layout/pin-docks.ts`); else they are spread as before. Once the pins
+stand under their lines, `slideExpansions` finds room for `Preisliste` and `Fehler` too: `preise-berechnen` 8 to 4
+bends, the 2 a straight line could spare gone, 89 px of line less, no other picture changed. Ends that carry their
+width into the port stage, which would place the pins in the engine, stay open (`docs/burn-down.md`).
+
+**A merge stands in the middle of its branches.** The placement weighs a placeholder eight times a box, so a merge
+whose one branch comes through placeholders stood under that branch, and no move of `unjog` offered the middle
+(`ausdehnung`: `Als fehlerhaft markieren` over the merge, `Sanktionsliste prüfen` hooking 400 px across). A fan or
+join whose lines all run down, with a placeholder among its pieces, two or more real members and all of them in the
+lane of its shared box, now tries one move of its own: the shared box with its column (the links of chains below a
+join or above a fan, within its lane) to the middle of its outermost members (`layered/symmetry.ts`). The price of
+`finish` adds half a unit per pixel such a box stands off that middle, as `scoreOf` prices a box off its children;
+`lineCentring` in the kernel is untouched, since a measure there knows no groups or rails and moved eight pictures
+when tried, `schleifen` for the worse. A parent over children of the next layer is not priced: the placement centres
+it already, and where it does not, it keeps its place for a reason (`beobachter`, `auswahl-vier` drew worse when
+those were priced too). `ausdehnung` 102 px of line less for one bend more, `reklamation` 82 px less, `ohne-bahnen`
+and `parallel-entscheidung` their merges between their branches; no count of a stress budget rose.
+
+**Composite states are opaque, an edgeless node stands by its partners, frame ends port across the frame** (owner
+decision B). A line may pass through a frame that lies wholly between its ends (decision 8); in a state machine that
+reads as a transition of the composite state. A container may now be `opaque` (`GraphContainer.opaque`, read by
+`framePaths`): no placeholder of a line that neither starts nor ends in it stands in it, so the order puts the line
+beside it. State machines set it for every composite state; class packages and other frames keep the way through.
+Two things kept `gedaechtnis` from profiting. Its history state has no edge inside `Programm läuft`, so its block laid
+it out as a part of its own at the top, and both lines into it from below climbed through the whole frame; and
+`given.last` never reached a frame's block. A node of a block whose edges all leave its frame now stands in the first
+layer of the block where most of its partners stand above the frame, in the last where most stand below
+(`layers/edgeless.ts`), and `last` holds in every frame's block (not at the top of a picture with frames, where it
+sank the final state of `punkte` below `Hilfeseite` and bent its line). And a line with a frame at an end took a port
+on the box it was laid to (decision 8), so it bent wherever its other end stood beside that box: a single piece at
+such an end now runs straight on one vertical across the boxes of the frame, as near the other end as that end's box
+allows and clear of every other end in the gap, or else takes the nearest port across the frame for the moves to
+bring the other end under it (`acrossFrames`, the ends marked `LayeredEdge.framed`). `gedaechtnis`: its crossing and
+both bends a straight line could spare gone, 8 to 6 bends, 2,980 to 2,501 px of line, 758 to 919 px wide, since
+`abbrechen` now goes round the composite state; drawn through it the picture would be 1,638 px of line, which the
+decision trades away. `verschachtelt` puts the initial state of `Fahrend` over its first state. No example changes.
+
+**A state with regions wears its name as a tab** (owner decision A). The engine kept the head of a composite state as
+a tab at its top left (`head.width`, `clearOfHeads`), while the kind drew a name field across the whole state, so the
+lines from a fork into the regions of `auftrag-parallel` crossed the field and the name stepped aside between them.
+A state with orthogonal regions is now drawn as UML 2.5.1 shows one (14.2.4, Figure 14.5): its name in a tab resting
+on the outside of its top side at the left, the regions directly below the outline (`state/scene/tab.ts`), and the
+kind hands the frame with `tab: true` and the tab as its head, so frame ends are cut below it and lines from above
+keep `AIR` beside it. Composite states without regions keep their name field. The lines were already clear of the
+tab, so `auftrag-parallel` and `parallel-drei` keep every measure; only their drawing changes.

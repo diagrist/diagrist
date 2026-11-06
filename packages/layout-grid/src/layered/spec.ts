@@ -77,6 +77,11 @@ export interface LayeredEdge {
    */
   readonly rail?: boolean | 'up';
   readonly source?: Placed['span'];
+  /**
+   * The frames `from` and `to` stand for where the edge named a frame at that end and runs to one of its boxes
+   * (`anchorFrameEnds`): the port of such an end may stand anywhere across the frame (`acrossFrames`).
+   */
+  readonly framed?: { readonly from?: string; readonly to?: string };
 }
 
 /** The measures of a layered picture, in pixels. */
@@ -133,6 +138,8 @@ export interface LayeredFrame {
    * line ending at the frame from above ends.
    */
   readonly tab?: boolean;
+  /** No line that neither starts nor ends in the frame runs through it (`GraphContainer.opaque`). */
+  readonly opaque?: boolean;
 }
 
 /** A layered picture to lay out: boxes, edges and measures, and optionally a hub. */
