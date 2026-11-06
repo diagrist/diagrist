@@ -1,10 +1,10 @@
 import { STANDARD_FONTS, textWidth } from '@diagrist/core';
 import {
-  type LayeredEdge,
-  type LayeredFrame,
-  type LayeredNode,
-  type LayeredSpec,
-  type LayerFrame,
+  type GraphContainer,
+  type GraphEdge,
+  type GraphNode,
+  type GraphRank,
+  type LayoutGraph,
   WRAP_EM,
   wrapWithin,
 } from '@diagrist/layout-grid';
@@ -12,7 +12,7 @@ import type { ClassRelation } from '../diagram.js';
 import type { ClassModel } from '../model.js';
 import { packagesAround } from '../model.js';
 import { classHeight, classWidth } from './box.js';
-import { classGraph, legOf } from './graph.js';
+import { legOf, ranksOf } from './graph.js';
 import { crossEnds, HEAD_AT_END, HEAD_AT_START, headLength } from './heads.js';
 import { CLASS, CLASS_FONTS as F, LAYERED, tabWidth } from './metrics.js';
 
@@ -85,7 +85,7 @@ export function nameLines(r: ClassRelation): { text: string; width: number }[] {
  * realizations of one target (a shared triangle) and for the legs below one diamond, straight runs long enough
  * for the symbols and texts at both ends, and room for both when it runs beside.
  */
-function edgeOf(m: ClassModel, r: ClassRelation, i: number): LayeredEdge {
+function edgeOf(m: ClassModel, r: ClassRelation, i: number, rank: GraphRank): GraphEdge {
   const shared = r.kind === 'generalization' || r.kind === 'realization' ? `${r.kind}:${r.to}` : undefined;
   const leg = legOf(m, r);
   const name = nameOf(r);
@@ -97,7 +97,7 @@ function edgeOf(m: ClassModel, r: ClassRelation, i: number): LayeredEdge {
     id: edgeId(i),
     from: r.from,
     to: r.to,
-    rank: 1,
+    rank,
     ...(HIERARCHY.has(r.kind) ? { weight: 2 } : {}),
     ...(r.kind === 'dependency' ? { strength: 'soft' as const } : {}),
     ...(shared ? { bundle: shared } : leg ? { bundle: `leg:${leg.diamond}` } : {}),
@@ -114,29 +114,36 @@ function edgeOf(m: ClassModel, r: ClassRelation, i: number): LayeredEdge {
 }
 
 /** Lines that are never drawn: a class hung below the line of its association, or above its diamond. */
-function tethers(m: ClassModel, placed: ReadonlySet<string>): LayeredEdge[] {
-  const binary = m.diagram.relations.flatMap((r, i): LayeredEdge[] =>
+function tethers(m: ClassModel, placed: ReadonlySet<string>): GraphEdge[] {
+  const binary = m.diagram.relations.flatMap((r, i): GraphEdge[] =>
     r.via !== undefined && placed.has(r.via) && placed.has(r.from) && placed.has(r.to)
-      ? [r.from, r.to].map((end, k) => ({ id: `via-${i}-${k}`, from: end, to: r.via as string, rank: 1, hidden: true }))
+      ? [r.from, r.to].map((end, k) => ({
+          id: `via-${i}-${k}`,
+          from: end,
+          to: r.via as string,
+          rank: 'down' as const,
+          hidden: true,
+        }))
       : [],
   );
-  const nary = m.diagram.associations.flatMap((a): LayeredEdge[] =>
+  const nary = m.diagram.associations.flatMap((a): GraphEdge[] =>
     a.via !== undefined && placed.has(a.via) && placed.has(a.id)
-      ? [{ id: `via-${a.id}`, from: a.via, to: a.id, rank: 1, hidden: true }]
+      ? [{ id: `via-${a.id}`, from: a.via, to: a.id, rank: 'down', hidden: true }]
       : [],
   );
   return [...binary, ...nary];
 }
 
 /** Packages that hold something placed, each as a frame with its tab as the head, nested in its parent. */
-function framesOf(m: ClassModel, placed: ReadonlySet<string>): LayeredFrame[] {
+function framesOf(m: ClassModel, placed: ReadonlySet<string>): GraphContainer[] {
   const filled = new Set([...placed].flatMap((id) => packagesAround(m, id)));
   const home = (id: string) => m.classifiers.get(id)?.package ?? m.associations.get(id)?.package;
-  return m.diagram.packages.flatMap((p): LayeredFrame[] =>
+  return m.diagram.packages.flatMap((p): GraphContainer[] =>
     filled.has(p.id) && m.packages.get(p.id) === p
       ? [
           {
             id: p.id,
+            kind: 'frame',
             members: [...placed].filter((id) => home(id) === p.id),
             ...(p.parent !== undefined && filled.has(p.parent) ? { parent: p.parent } : {}),
             pad: CLASS.packageSide,
@@ -149,50 +156,32 @@ function framesOf(m: ClassModel, placed: ReadonlySet<string>): LayeredFrame[] {
   );
 }
 
-/** Every package as a frame of the layering: the classifiers and diamonds directly in it, and its parent. */
-function layerFrames(m: ClassModel): LayerFrame[] {
-  const home = (id: string) => m.classifiers.get(id)?.package ?? m.associations.get(id)?.package;
-  const boxes = [...m.diagram.classifiers, ...m.diagram.associations].map((c) => c.id);
-  return m.diagram.packages.flatMap((p): LayerFrame[] =>
-    m.packages.get(p.id) === p
-      ? [
-          {
-            id: p.id,
-            members: boxes.filter((id) => home(id) === p.id),
-            ...(p.parent !== undefined && m.packages.has(p.parent) ? { parent: p.parent } : {}),
-          },
-        ]
-      : [],
-  );
-}
-
 /**
- * A class diagram as a layered picture: classifiers and diamonds layered by the class graph (`classGraph`), every
- * package a block of layers of its own, which the pipeline orders with every package as a hard cluster; relations
- * between them, with a package at an end and of a classifier with itself as edges, packages as frames.
+ * A class diagram as a layout graph: classifiers and diamonds as nodes, packages as frames with their tab as the
+ * head, every relation as an edge ranked by its kind (`ranksOf`), lines with a package at an end and of a classifier
+ * with itself among them, and the lines never drawn that hang an association class below its line. Layers take free
+ * ranks and hold every package as a block, no layer over `CLASS.perLayer` classes.
  */
-export function classLayered(m: ClassModel): LayeredSpec {
-  const packaged = m.diagram.packages.length > 0;
-  const layering = { ...classGraph(m, packaged), ...(packaged ? { frames: layerFrames(m) } : {}) };
-  const placed = new Set(layering.nodes);
-  const boxes = [
+export function classGraph(m: ClassModel): LayoutGraph {
+  const nodes = [
     ...m.diagram.classifiers.map((c) => ({ id: c.id, width: classWidth(c), height: classHeight(c), source: c.span })),
     ...m.diagram.associations.map((a) => ({ id: a.id, width: CLASS.naryW, height: CLASS.naryH, source: a.span })),
-  ].filter((b) => placed.has(b.id));
-  const nodes = boxes.map((b): LayeredNode => {
+  ].map((b): GraphNode => {
     const cluster = packagesAround(m, b.id)[0];
     return cluster === undefined ? b : { ...b, cluster };
   });
+  const placed = new Set(nodes.map((n) => n.id));
   const frames = framesOf(m, placed);
   const ends = new Set([...placed, ...frames.map((f) => f.id)]);
+  const rank = ranksOf(m);
   const edges = m.diagram.relations.flatMap((r, i) =>
-    ends.has(r.from) && ends.has(r.to) && (r.from !== r.to || placed.has(r.from)) ? [edgeOf(m, r, i)] : [],
+    ends.has(r.from) && ends.has(r.to) ? [edgeOf(m, r, i, rank(r))] : [],
   );
   return {
     nodes,
     edges: [...edges, ...tethers(m, placed)],
+    containers: frames,
+    given: { perLayer: CLASS.perLayer },
     metrics: { ...LAYERED, top: frames.length > 0 ? LAYERED.top - CLASS.tabH - CLASS.packagePad : LAYERED.top },
-    layering,
-    ...(frames.length > 0 ? { frames } : {}),
   };
 }

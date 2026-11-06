@@ -99,6 +99,33 @@ stress budgets count, such as bends a straight line could spare, reached no sear
    height and the picture is drawn once more. The pipeline's own sliding along the verticals (`seatLabel`) and the
    class kind's second search for its names (`names.ts`) are gone.
 
+10. **One contract: the layout graph** (plan P7, section 2.2). `layoutGraph(graph)` lays out a `LayoutGraph`, the
+    public contract of `layout-grid`: what stands in a picture and what freedom it has, as data. Its parts and how
+    the stages read them:
+
+    | Part | Fields | Read by |
+    |---|---|---|
+    | `nodes` | id, width, height, shape, `sides` ends may take, cluster | every stage; `sides` by none yet |
+    | `edges` | from and to (a node or a frame), `rank` (`down`, `up`, `beside`, `free`), `strength`, `weight`, `bundle`, `label` with its lines, `profile` (`orthogonal`, `loop`), `hidden`, `run`, `room` | layers, order, ports, tracks, routes, texts |
+    | `containers` | `frame` (a block of layers, an end of edges), `core` (the core of a hub, its head naming it), `lane` and `part` (laid out as frames for now) | layers, order, placement |
+    | `given` | `ranks` and their `order` (`kept` or `free`), `arrangement` (`layers` or `hub`), `perLayer` (layering by `layerGraph`: free ranks, leaves packed, frames as blocks) | layers and order |
+
+    The stages still run on `LayeredSpec`, which `layoutGraph` derives from the graph (`specOf`); `layoutLayered`
+    stays public as that adapter for one release. Class and concept pictures hand a layout graph: a class diagram its
+    classifiers and diamonds, its packages as frames with their tab, every relation ranked by its kind (association
+    `free`, generalization `up`, composition and dependency `down`, the legs of a diamond by their place around it)
+    and `perLayer`; a concept picture its items with their area as cluster, links ranked `down`, `up` or `beside`,
+    and with `arrange=hub` its core area as a `core` container. Moving both was a pure refactor: all 149 example
+    and stress pictures of every kind are byte for byte the same.
+
+    What the next kinds need of the contract, and where it grows: state machines (P8) hand composite states as
+    frames and regions as `part`, back transitions as a `rail` profile, entry and exit points through `sides`, and
+    need frames that grow around their routes; activity diagrams (P9) hand lanes as `lane`, which the placement must
+    keep as hard columns, bars as a shape, decisions with ends at their corners through `sides`, and loops back as
+    rails; the adaptive C4 grid (P10) hands its boxes with given cells (a `given` of columns and rows besides
+    ranks), its groups as frames, and texts placed by the same spot search. Each such field comes with the stage
+    that reads it, so the contract holds nothing that a stage ignores without saying so.
+
 ## Consequences
 
 Placeholders cross a frame only where it lies wholly between the ends of their line; a frame beside a line's way is

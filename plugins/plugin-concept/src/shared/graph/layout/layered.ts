@@ -1,6 +1,6 @@
 import { STANDARD_FONTS, textWidth } from '@diagrist/core';
 import type { Locale } from '@diagrist/lang';
-import { type LayeredEdge, type LayeredLayout, layoutLayered, WRAP_EM, wrapWithin } from '@diagrist/layout-grid';
+import { type GraphEdge, type LayeredLayout, layoutGraph, WRAP_EM, wrapWithin } from '@diagrist/layout-grid';
 import { MARGIN } from '@diagrist/parts';
 import type { Graph } from '../model.js';
 import { arrangementOf, coreArea } from './arrangement.js';
@@ -50,7 +50,7 @@ export function layeredGraph(m: Graph, locale: Locale): LayeredGraph {
   const relations = edgesOf(m);
   const alike = linesAlike(m);
   const areaOf = new Map(m.items.map((i) => [i.id, i.area]));
-  const edges = relations.map(([r, i]): LayeredEdge => {
+  const edges = relations.map(([r, i]): GraphEdge => {
     const link = m.links.get(r.link);
     const word = wordOf(m, r.label, r.link, alike, locale);
     const area = r.area ?? areaOf.get(r.from) ?? '';
@@ -58,7 +58,7 @@ export function layeredGraph(m: Graph, locale: Locale): LayeredGraph {
       id: edgeId(i),
       from: r.from,
       to: r.to,
-      rank: link?.beside === true ? 0 : link?.upward === true ? -1 : 1,
+      rank: link?.beside === true ? 'beside' : link?.upward === true ? 'up' : 'down',
       ...(link?.beside === true ? { weight: 0.5 } : {}),
       ...(link !== undefined && link.line !== 'solid' ? { strength: 'soft' as const } : {}),
       ...(r.label === undefined ? { bundle: `${r.link}|${area}${link?.line === 'solid' ? '' : `|${r.from}`}` } : {}),
@@ -70,11 +70,14 @@ export function layeredGraph(m: Graph, locale: Locale): LayeredGraph {
   const core = arrangementOf(m) === 'hub' ? coreArea(m) : undefined;
   const head = STANDARD_FONTS.group;
   const hub = core && {
-    core: m.items.filter((i) => i.area === core.id).map((i) => i.id),
-    head: { text: core.label, width: textWidth(core.label, head), size: head.size },
+    id: core.id,
+    kind: 'core' as const,
+    members: m.items.filter((i) => i.area === core.id).map((i) => i.id),
     pad: 16,
+    top: 0,
+    head: { text: core.label, width: textWidth(core.label, head), height: head.size, size: head.size },
   };
-  const layout = layoutLayered({
+  const layout = layoutGraph({
     nodes: m.items.map((i) => {
       const box = boxes.get(i.id);
       return {
@@ -87,7 +90,7 @@ export function layeredGraph(m: Graph, locale: Locale): LayeredGraph {
     }),
     edges,
     metrics: { ...METRICS, left: MARGIN, top },
-    ...(hub ? { hub } : {}),
+    ...(hub ? { containers: [hub], given: { arrangement: 'hub' as const } } : {}),
   });
   return { layout, boxes };
 }
