@@ -1,5 +1,5 @@
 import { type Locale, print, read } from '@diagrist/lang';
-import type { Finding } from '../engine.js';
+import type { PhrasedDiagnostic } from '../engine.js';
 import { diagnosticJson, diagnosticText, hasError, languageFindings } from '../report/diagnostics.js';
 import { say } from '../say.js';
 import { type Command, command } from './command.js';
@@ -11,7 +11,7 @@ interface Formatting {
   readonly source: Source;
   readonly status: Status;
   readonly printed: string;
-  readonly diagnostics: readonly Finding[];
+  readonly diagnostics: readonly PhrasedDiagnostic[];
 }
 
 export const fmt: Command = command({

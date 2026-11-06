@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { type LayeredEdge, type LayeredNode, layoutLayered } from '../src/index.js';
+import { type GraphEdge, type GraphNode, layoutGraph } from '../src/index.js';
 
 const METRICS = {
   colGap: 56,
@@ -12,15 +12,15 @@ const METRICS = {
   left: 32,
   top: 32,
 };
-const box = (id: string, width = 120): LayeredNode => ({ id, width, height: 44 });
-const edge = (from: string, to: string, extra: Partial<LayeredEdge> = {}): LayeredEdge => ({
+const box = (id: string, width = 120): GraphNode => ({ id, width, height: 44 });
+const edge = (from: string, to: string, extra: Partial<GraphEdge> = {}): GraphEdge => ({
   id: `${from}-${to}`,
   from,
   to,
-  rank: 1,
+  rank: 'down',
   ...extra,
 });
-const lay = (nodes: LayeredNode[], edges: LayeredEdge[]) => layoutLayered({ nodes, edges, metrics: METRICS });
+const lay = (nodes: GraphNode[], edges: GraphEdge[]) => layoutGraph({ nodes, edges, metrics: METRICS });
 const centre = (l: ReturnType<typeof lay>, id: string) => {
   const r = l.nodes.find((n) => n.id === id)?.rect;
   return r ? r.x + r.w / 2 : Number.NaN;
@@ -32,7 +32,7 @@ describe('layered layout', () => {
     const word = (text: string) => ({ text, width: 6 * text.length });
     const one = { text: 'erzeugt am Ende', width: 90, size: 10 };
     const two = { ...one, width: 60, lines: [word('erzeugt'), word('am Ende')] };
-    const at = (label: LayeredEdge['label']) => lay([box('a'), box('b')], [edge('a', 'b', label ? { label } : {})]);
+    const at = (label: GraphEdge['label']) => lay([box('a'), box('b')], [edge('a', 'b', label ? { label } : {})]);
     const [single, double] = [at(one), at(two)];
     const top = (l: ReturnType<typeof lay>) => l.nodes.find((n) => n.id === 'b')?.rect.y ?? 0;
     expect(double.labels.map((l) => l.text)).toEqual(['erzeugt', 'am Ende']);
@@ -82,7 +82,7 @@ describe('layered layout', () => {
   });
 
   it('points the head of an upward edge up, into the bottom of the box above', () => {
-    const l = lay([box('boss'), box('a')], [edge('a', 'boss', { rank: -1 })]);
+    const l = lay([box('boss'), box('a')], [edge('a', 'boss', { rank: 'up' })]);
     const r = l.routes[0];
     const boss = l.nodes.find((n) => n.id === 'boss')?.rect;
     expect(r?.points.at(-1)?.[1]).toBe((boss?.y ?? 0) + (boss?.h ?? 0));
@@ -90,7 +90,7 @@ describe('layered layout', () => {
   });
 
   it('draws an edge beside as a horizontal line between neighbours', () => {
-    const l = lay([box('a'), box('b')], [edge('a', 'b', { rank: 0 })]);
+    const l = lay([box('a'), box('b')], [edge('a', 'b', { rank: 'beside' })]);
     const points = route(l, 'a-b');
     expect(points).toHaveLength(2);
     expect(points[0]?.[1]).toBe(points[1]?.[1]);
@@ -117,7 +117,7 @@ describe('layered layout', () => {
 
   it('gives the text of a line drawn beside its layer a spot over the middle of the line, clear of both boxes', () => {
     const label = { text: 'kennt', width: 30, size: 10 };
-    const l = lay([box('a'), box('b')], [edge('a', 'b', { rank: 0, label })]);
+    const l = lay([box('a'), box('b')], [edge('a', 'b', { rank: 'beside', label })]);
     const [p, q] = route(l, 'a-b');
     const text = l.labels[0]?.box;
     expect(text).toBeDefined();
@@ -127,7 +127,7 @@ describe('layered layout', () => {
 });
 
 describe('hub layout', () => {
-  const head = { text: 'Kern', width: 30, size: 11 };
+  const head = { text: 'Kern', width: 30, height: 11, size: 11 };
   const nodes = [box('core'), box('db'), box('acct'), box('ext1'), box('ext2'), box('ext3'), box('ext4')];
   const edges = [
     edge('core', 'db'),
@@ -137,11 +137,12 @@ describe('hub layout', () => {
     edge('ext3', 'acct'),
     edge('ext4', 'ext2'),
   ].map((e) => (e.from === 'core' ? { ...e, bundle: 'uses' } : e));
-  const hub = layoutLayered({
+  const hub = layoutGraph({
     nodes: nodes.map((n) => (n.id.startsWith('ext') ? { ...n, cluster: n.id === 'ext4' ? 'ext2' : n.id } : n)),
     edges,
     metrics: METRICS,
-    hub: { core: ['core', 'db', 'acct'], head, pad: 16 },
+    containers: [{ id: 'k', kind: 'core', members: ['core', 'db', 'acct'], pad: 16, top: 0, head }],
+    given: { arrangement: 'hub' },
   });
 
   it('docks the extensions around the core without a crossing, each line pointing into the core', () => {

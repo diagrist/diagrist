@@ -1,5 +1,5 @@
 import { type Placed, type Rect, textWidth } from '@diagrist/core';
-import { type EdgeLabel, type GridLayout, type GridSpec, placedOf, type Route } from '@diagrist/layout-grid';
+import { type EdgeLabel, type GridLayout, type PlacedSpec, placedOf, type Route } from '@diagrist/layout-grid';
 import { homed } from '../../shared/homed.js';
 import type { NoteArt } from '../../shared/notes.js';
 import type { StateModel } from '../model.js';
@@ -13,7 +13,7 @@ const ROUND: ReadonlySet<string> = new Set(['initial', 'final', 'junction', 'his
 
 /** What the layout of a state machine hands to `placedState`. */
 export interface StatePlacing {
-  readonly spec: GridSpec;
+  readonly spec: PlacedSpec;
   readonly grid: GridLayout;
   readonly routes: readonly Route[];
   readonly labels: readonly EdgeLabel[];

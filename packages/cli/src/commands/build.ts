@@ -48,8 +48,10 @@ export const build: Command = command({
     output:
       'Path of the first written SVG, the base unless `--variant` picks another; `null` when nothing was written.',
     png: 'Path of the PNG beside `output`, `null` without `--png` or when nothing was written.',
+    description:
+      'The picture of `output` in words, in the language of the `locale=` header, so an agent can read what it drew; `null` when nothing was written.',
     pictures:
-      'Every picture asked for: `{ variant, output, png }`, `variant` `null` for the base, the paths `null` when nothing was written.',
+      'Every picture asked for: `{ variant, output, png, description }`, `variant` `null` for the base, the paths and the description `null` when nothing was written.',
     diagnostics: 'All findings, see "Diagnostics".',
   },
   async run({ arguments: { file }, options, io, engine, raster, locale }) {
@@ -81,6 +83,7 @@ export const build: Command = command({
       variant: picture.variant ?? null,
       output: written.has(output) ? output : null,
       png: written.has(pngBeside(output)) ? pngBeside(output) : null,
+      description: written.has(output) ? (picture.description ?? null) : null,
     }));
     const lines = diagnosticLines(file, source.text, compiled.files, diagnostics, locale);
     lines.push(...contents.map(([path]) => say('wrote', locale, { file: path })));
@@ -91,6 +94,7 @@ export const build: Command = command({
         file,
         output: first?.output ?? null,
         png: first?.png ?? null,
+        description: first?.description ?? null,
         pictures,
         diagnostics: diagnostics.map((d) => diagnosticJson(file, d)),
       },

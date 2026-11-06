@@ -90,8 +90,8 @@ describe('checkKind and reserved names', () => {
       ],
     });
     expect(checkKind(shadowing)).toEqual([
-      'statement cut, argument lines takes a name reserved for the read values: line, span, origin, flags, clauses, attributes, keyword, children, lines',
-      'line form of cut, argument span takes a name reserved for the read values: line, span, origin, flags, clauses, attributes',
+      'statement cut, argument lines takes a name reserved for the read values: line, span, spans, origin, flags, clauses, attributes, keyword, children, lines',
+      'line form of cut, argument span takes a name reserved for the read values: line, span, spans, origin, flags, clauses, attributes',
     ]);
   });
 });

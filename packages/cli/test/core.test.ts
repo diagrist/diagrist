@@ -22,16 +22,31 @@ describe('the CLI with the real kernel and the UML plugin', () => {
     expect(result.files.get('oauth-pkce.svg')).toBe(golden('oauth-pkce'));
   });
 
+  it('says in build --json what it drew, in the language of the locale header', async () => {
+    const source = (locale: string) =>
+      `diagram sequence "x" locale=${locale}\nparticipant a "A"\nparticipant b "B"\nmsg a ~> b "hi"\n`;
+    const english = await callJson(['build', 'x.dgr'], { files: { 'x.dgr': source('en') }, engine });
+    const german = await callJson(['build', 'x.dgr'], { files: { 'x.dgr': source('de') }, engine });
+    expect(english.json.description).toEqual(expect.stringContaining('A'));
+    expect(english.json.pictures).toMatchObject([{ description: english.json.description }]);
+    expect(german.json.description).not.toBe(english.json.description);
+    const broken = await callJson(['build', 'y.dgr'], {
+      files: { 'y.dgr': 'diagram sequence "y"\nmsg a -> b\n' },
+      engine,
+    });
+    expect(broken.json).toMatchObject({ description: null, pictures: [{ description: null }] });
+  });
+
   it('reports findings with their code and position, phrased in the requested locale', async () => {
     const source = 'diagram sequence "x"\nparticipant a "A"\nmsg a -> b "?"\n';
     const english = await callJson(['check', 'x.dgr'], { files: { 'x.dgr': source }, engine });
     const german = await call(['check', 'x.dgr', '--locale', 'de'], { files: { 'x.dgr': source }, engine });
     expect(english.exitCode).toBe(1);
     expect(english.json.diagnostics).toMatchObject([
-      { code: 'U400', severity: 'error', span: { line: 3 }, values: { found: 'b', known: '`a`' } },
       { code: 'U901', severity: 'warning', span: { line: 3 } },
+      { code: 'U400', severity: 'error', span: { line: 3, column: 10 }, values: { found: 'b', known: '`a`' } },
     ]);
-    expect(german.stdout).toContain('x.dgr:3:1  U400  Fehler:');
+    expect(german.stdout).toContain('x.dgr:3:10  U400  Fehler:');
     expect(german.stdout).not.toContain('is no declared lifeline');
   });
 

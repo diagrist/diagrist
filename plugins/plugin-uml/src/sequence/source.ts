@@ -58,6 +58,7 @@ function message(s: Of<'msg'> | Of<'create'>): MessageEvent {
     ...some('emph', s.flags.emph ? true : undefined),
     ...some('area', s.attributes.area),
     span: s.span,
+    ends: { from: s.spans.from ?? s.span, to: s.spans.to ?? s.span },
   };
 }
 
@@ -70,10 +71,14 @@ function events(statements: readonly SequenceStatement[]): SequenceEvent[] {
     if (s.keyword === 'msg' || s.keyword === 'create') return [message(s)];
     if (s.keyword === 'destroy' || s.keyword === 'activate' || s.keyword === 'deactivate')
       return [{ type: s.keyword, target: s.target, span: s.span }];
-    if (s.keyword === 'note') return [{ type: 'note', text: s.text, over: s.attributes.over ?? [], span: s.span }];
+    const overSpan = some('overSpan', s.spans['over=']);
+    if (s.keyword === 'note')
+      return [{ type: 'note', text: s.text, over: s.attributes.over ?? [], span: s.span, ...overSpan }];
     if (s.keyword === 'ref') {
       const { over = [], id, file } = s.attributes;
-      return [{ type: 'ref', label: s.label, over, ...some('id', id), ...some('file', file), span: s.span }];
+      return [
+        { type: 'ref', label: s.label, over, ...some('id', id), ...some('file', file), span: s.span, ...overSpan },
+      ];
     }
     if (s.keyword === 'invariant') {
       const state = s.flags.state ? true : undefined;

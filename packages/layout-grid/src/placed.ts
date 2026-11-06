@@ -2,8 +2,8 @@ import type { Placed, Rect } from '@diagrist/core';
 import { bottom, right } from './geometry.js';
 import type { EdgeLabel } from './label/types.js';
 import type { GridLayout, Route } from './layout.js';
-import { homeOf, type Tree, treeOf } from './place/extent.js';
-import type { GridSpec } from './spec.js';
+import { homeOf } from './place/extent.js';
+import type { GridGroup, GridNode, GridSpec } from './spec.js';
 
 /** Something a kind drew on a route besides its texts, such as the number of a step, and the rectangle it covers. */
 export interface RouteMark {
@@ -12,6 +12,24 @@ export interface RouteMark {
   readonly rect: Rect;
   /** What the mark is, the last part of its key: `number` when left out. */
   readonly name?: string;
+}
+
+type Frame = Pick<GridGroup, 'id' | 'parent' | 'members' | 'source'>;
+
+/** What `placedOf` reads of a spec: nodes and frames with their sources, the edges, and how texts were placed. */
+export interface PlacedSpec {
+  readonly nodes: readonly Pick<GridNode, 'id' | 'shape' | 'source'>[];
+  readonly groups: readonly Frame[];
+  readonly edges: GridSpec['edges'];
+  readonly adaptive?: boolean;
+  readonly channels?: boolean;
+}
+
+/** The lookups `framesAround` walks: a node or a frame by id, and the frames of the spec. */
+interface Frames {
+  readonly spec: { readonly groups: readonly Pick<GridGroup, 'id' | 'parent' | 'members'>[] };
+  readonly node: (id: string) => unknown;
+  readonly group: (id: string) => Pick<GridGroup, 'id' | 'parent'> | undefined;
 }
 
 /**
@@ -25,13 +43,15 @@ export interface RouteMark {
  * Spans come from the spec.
  */
 export function placedOf(
-  spec: GridSpec,
+  spec: PlacedSpec,
   layout: GridLayout,
   routes: readonly Route[] = [],
   labels: readonly EdgeLabel[] = [],
   marks: readonly RouteMark[] = [],
 ): Placed[] {
-  const tree = treeOf(spec);
+  const nodeOf = new Map(spec.nodes.map((n) => [n.id, n]));
+  const frameOf = new Map(spec.groups.map((g) => [g.id, g]));
+  const tree = { spec, node: (id: string) => nodeOf.get(id), group: (id: string) => frameOf.get(id) };
   const span = (source: Placed['span']) => (source ? { span: source } : {});
   const within = (id: string | undefined) =>
     id !== undefined && layout.groups.some((g) => g.id === id) ? { within: id } : {};
@@ -80,7 +100,7 @@ export function placedOf(
 }
 
 /** Frames around an end, innermost first: the node's frame and its parents, or the frame itself and its parents. */
-export function framesAround(tree: Tree, end: string): string[] {
+export function framesAround(tree: Frames, end: string): string[] {
   const out: string[] = [];
   let g = tree.node(end) ? homeOf(tree, end) : tree.group(end);
   while (g && !out.includes(g.id)) {
@@ -90,7 +110,7 @@ export function framesAround(tree: Tree, end: string): string[] {
   return out;
 }
 
-function sharedFrame(tree: Tree, from: string, to: string): string | undefined {
+function sharedFrame(tree: Frames, from: string, to: string): string | undefined {
   const outer = framesAround(tree, to);
   return framesAround(tree, from).find((id) => outer.includes(id));
 }

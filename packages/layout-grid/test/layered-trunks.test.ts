@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { type LayeredEdge, type LayeredNode, layoutLayered } from '../src/index.js';
+import { type GraphEdge, type GraphNode, layoutGraph } from '../src/index.js';
 
 const METRICS = {
   colGap: 56,
@@ -12,21 +12,21 @@ const METRICS = {
   left: 32,
   top: 32,
 };
-const box = (id: string): LayeredNode => ({ id, width: 160, height: 44 });
+const box = (id: string): GraphNode => ({ id, width: 160, height: 44 });
 
 /** Two lines of one bundle into `i` from `a` and `b`, with `x` and its own line standing between them. */
 const lay = (trunk?: 'whole') => {
-  const into = (from: string, bundle?: string): LayeredEdge => ({
+  const into = (from: string, bundle?: string): GraphEdge => ({
     id: `${from}-i`,
     from,
     to: 'i',
-    rank: -1,
+    rank: 'up',
     ...(bundle === undefined ? {} : { bundle, ...(trunk ? { trunk } : {}) }),
   });
-  return layoutLayered({
+  return layoutGraph({
     nodes: ['i', 'a', 'x', 'b'].map(box),
     edges: [into('a', 'g'), into('x'), into('b', 'g')],
-    layers: [['i'], ['a', 'x', 'b']],
+    given: { ranks: [['i'], ['a', 'x', 'b']] },
     metrics: METRICS,
   });
 };

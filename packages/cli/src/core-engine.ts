@@ -19,10 +19,11 @@ export function coreEngine(plugins: readonly Plugin[]): Engine {
         ...found,
         message: formatMessage(found, plugins, locale),
       }));
-      const pictures = compilation.pictures.map(({ variant, svg, metrics }) => ({
+      const pictures = compilation.pictures.map(({ variant, svg, metrics, description }) => ({
         ...(variant === undefined ? {} : { variant }),
         ...(svg === undefined ? {} : { svg }),
         ...(metrics === undefined ? {} : { metrics: { ...metrics } }),
+        ...(description === undefined ? {} : { description }),
       }));
       return { pictures, diagnostics, needs: compilation.needs };
     },

@@ -95,6 +95,8 @@ export interface MessageEvent {
   /** The area the message names itself; the scene falls back to the areas of its lifelines. */
   readonly area?: string;
   readonly span: Span;
+  /** Where the sender and the receiver are written, so a finding about one end points at it. */
+  readonly ends: { readonly from: Span; readonly to: Span };
 }
 
 export type FragmentEvent = {
@@ -118,8 +120,17 @@ export type SequenceEvent =
       readonly id?: string;
       readonly file?: string;
       readonly span: Span;
+      /** Where `over=` is written, when it is. */
+      readonly overSpan?: Span;
     }
-  | { readonly type: 'note'; readonly text: string; readonly over: readonly string[]; readonly span: Span }
+  | {
+      readonly type: 'note';
+      readonly text: string;
+      readonly over: readonly string[];
+      readonly span: Span;
+      /** Where `over=` is written, when it is. */
+      readonly overSpan?: Span;
+    }
   | { readonly type: 'coregion'; readonly on: string; readonly span: Span }
   | { readonly type: 'divider'; readonly label?: string; readonly span: Span }
   | {

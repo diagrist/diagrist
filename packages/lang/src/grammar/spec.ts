@@ -105,7 +105,7 @@ function complete<D extends Definition<object>>(definition: D): Complete<D> {
 }
 
 /** Names `readKind` gives the values of every line besides its arguments (`Infer`), so no argument may take one. */
-export const LINE_KEYS: readonly string[] = ['line', 'span', 'origin', 'flags', 'clauses', 'attributes'];
+export const LINE_KEYS: readonly string[] = ['line', 'span', 'spans', 'origin', 'flags', 'clauses', 'attributes'];
 
 /** Names the values of a statement have besides those of its line, so no argument of a statement may take one. */
 export const STATEMENT_KEYS: readonly string[] = ['keyword', 'children', 'lines'];
@@ -128,6 +128,11 @@ type LineValues<S> = (S extends { arguments: infer A } ? ArgValues<A> : Record<n
   readonly flags: S extends { flags: infer F } ? { readonly [K in keyof F]: boolean } : Record<never, never>;
   readonly line: number;
   readonly span: Span;
+  /**
+   * Where each argument, clause and attribute read from the line was written, by its name, an attribute as `key=`,
+   * so a plugin can point a finding at the token it is about.
+   */
+  readonly spans: Readonly<Record<string, Span>>;
   /** Where the line comes from in a variant's picture (ADR 0021); absent means `base`. */
   readonly origin?: Origin;
 };

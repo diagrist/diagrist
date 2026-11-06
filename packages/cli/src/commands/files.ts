@@ -1,5 +1,5 @@
 import type { Locale } from '@diagrist/lang';
-import type { Compilation, Engine, Finding } from '../engine.js';
+import type { Compilation, Engine, PhrasedDiagnostic } from '../engine.js';
 import type { Io } from '../io.js';
 import { legacyExtension } from '../legacy.js';
 import { type Problem, problem } from '../messages.js';
@@ -9,7 +9,7 @@ export interface Source {
   readonly file: string;
   readonly text: string;
   /** Findings about the file itself rather than its content, reported before those of the content. */
-  readonly notices: readonly Finding[];
+  readonly notices: readonly PhrasedDiagnostic[];
 }
 
 export async function readSource(io: Io, file: string, locale: Locale): Promise<Source | Problem> {

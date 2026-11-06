@@ -1,12 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import {
-  type LayeredEdge,
-  type LayeredNode,
-  type LayeredSpec,
-  layoutLayered,
-  linesOfLaid,
-  scoreOf,
-} from '../src/index.js';
+import { type GraphEdge, type GraphNode, linesOfLaid, scoreOf } from '../src/index.js';
+import { layWith } from './layered-picture.js';
 
 const METRICS = {
   colGap: 56,
@@ -19,16 +13,16 @@ const METRICS = {
   left: 48,
   top: 32,
 };
-const box = (id: string, width = 120): LayeredNode => ({ id, width, height: 44 });
-const edge = (from: string, to: string, extra: Partial<LayeredEdge> = {}): LayeredEdge => ({
+const box = (id: string, width = 120): GraphNode => ({ id, width, height: 44 });
+const edge = (from: string, to: string, extra: Partial<GraphEdge> = {}): GraphEdge => ({
   id: `${from}-${to}`,
   from,
   to,
-  rank: 1,
+  rank: 'down',
   ...extra,
 });
 const frame = (id: string, members: string[]) => ({ id, members, pad: 20, top: 40, head: { width: 80, height: 20 } });
-const lay = (spec: Omit<LayeredSpec, 'metrics'>) => layoutLayered({ ...spec, metrics: METRICS });
+const lay = layWith(METRICS);
 type Laid = ReturnType<typeof lay>;
 const rectOf = (l: Laid, id: string) =>
   l.nodes.find((n) => n.id === id)?.rect ?? l.frames?.find((g) => g.id === id)?.rect ?? { x: 0, y: 0, w: 0, h: 0 };
@@ -120,7 +114,7 @@ describe('frames ordered by the pipeline', () => {
       { ...frame('up', ['s']), tab: true },
       { ...frame('down', ['t1', 't2']), tab: true },
     ];
-    const edges = [edge('t1', 't2', { rank: 0 }), edge('up', 'down', { id: 'imports' })];
+    const edges = [edge('t1', 't2', { rank: 'beside' }), edge('up', 'down', { id: 'imports' })];
     const l = lay({ nodes, edges, layers: [['s'], ['t1', 't2']], reorder: true, frames });
     const [up, down] = [rectOf(l, 'up'), rectOf(l, 'down')];
     const line = l.routes.find((r) => r.edge === 'imports')?.points ?? [];
@@ -154,7 +148,7 @@ describe('frames ordered by the pipeline', () => {
 
   it('bend a line beside its layer to the side where it meets no line that goes down from its box', () => {
     const flat = [box('hub', 240), box('left'), box('far'), box('down')];
-    const edges = [edge('hub', 'far', { rank: 0 }), edge('hub', 'down'), edge('left', 'down', { weight: 4 })];
+    const edges = [edge('hub', 'far', { rank: 'beside' }), edge('hub', 'down'), edge('left', 'down', { weight: 4 })];
     const l = lay({ nodes: flat, edges, layers: [['far', 'left', 'hub'], ['down']], reorder: false });
     const beside = l.routes.find((r) => r.edge === 'hub-far')?.points ?? [];
     const hub = l.nodes.find((n) => n.id === 'hub')?.rect.y ?? 0;

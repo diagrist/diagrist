@@ -1,5 +1,5 @@
 import type { Locale } from '@diagrist/lang';
-import type { Finding } from './engine.js';
+import type { PhrasedDiagnostic } from './engine.js';
 
 type Texts = Readonly<Record<Locale, (values: Readonly<Record<string, string>>) => string>>;
 
@@ -17,7 +17,7 @@ const LEGACY: Texts = {
  * The notice ADR 0002 Nr. 6 promises for a `.dia` file: a warning C100 on the file, so the call still succeeds.
  * The code stands for the file, not for a line, and is stable like the refusal codes.
  */
-export function legacyExtension(file: string, locale: Locale): Finding {
+export function legacyExtension(file: string, locale: Locale): PhrasedDiagnostic {
   const values = { file, renamed: `${file.slice(0, -'.dia'.length)}.dgr`, until: LEGACY_EXTENSION_UNTIL };
   const span = { line: 1, column: 1, length: 0 };
   return { code: 'C100', severity: 'warning', span, values, message: LEGACY[locale](values) };
