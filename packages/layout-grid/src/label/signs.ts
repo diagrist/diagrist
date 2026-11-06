@@ -4,7 +4,7 @@ import type { GridLayout, Route } from '../layout.js';
 import { boardOf } from '../route/boxes.js';
 import type { GridSpec } from '../spec.js';
 import { clearOf } from './clear.js';
-import { giveWay } from './give-way.js';
+import { giveWay, type Seats } from './give-way.js';
 import { namedOf } from './named.js';
 import type { OnLine } from './on-line.js';
 import { blockCost, type Found, rectsOf, type SearchOptions, searchBlock, tooWide } from './search.js';
@@ -142,12 +142,23 @@ export function signEdges<M extends SeatMark>(
   const seek = (i: number) => {
     const r = routes[i] as Route;
     const text = texts.get(r.edge);
-    const block = chosen.get(i) ?? [];
-    return text ? searchBlock(r, i, text, first(i), clear, spec.metrics, searchOf(i)) : { block, cost: 0 };
+    const found = text ? searchBlock(r, i, text, first(i), clear, spec.metrics, searchOf(i)) : undefined;
+    return { seat: found?.block ?? chosen.get(i) ?? [], cost: found?.cost ?? 0 };
   };
   const rects = (block: readonly EdgeLabel[]) => rectsOf(block, search);
-  const cost = (block: readonly EdgeLabel[], i: number) => blockCost(block, i, clear, searchOf(i));
-  const cleared = new Set(giveWay({ chosen, rects, cost, seek }, clear));
+  const seats: Seats<EdgeLabel[]> = {
+    chosen,
+    near: (i, block) => rects(block).reduce((n, r) => n + clear.crowding(r, i), 0),
+    cost: (i, block) => blockCost(block, i, clear, searchOf(i)),
+    seek,
+    take: (i, block) => {
+      for (const r of rects(block)) clear.take(r, i);
+    },
+    drop: (_, block) => {
+      for (const r of rects(block)) clear.drop(r);
+    },
+  };
+  const cleared = new Set(giveWay(seats));
   const moved = pin.at.map((k, i) => {
     const { spot, rect } = pins[i] as (typeof pins)[number];
     clear.drop(rect);

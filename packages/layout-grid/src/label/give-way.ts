@@ -1,51 +1,42 @@
-import type { Rect } from '@diagrist/core';
-import type { Clear } from './clear.js';
-import type { EdgeLabel } from './types.js';
-
 /** How often the seats are gone through again while one of them still moves. */
 const ROUNDS = 3;
 
-/** The seats of a spot search so far and how one is sought again: what `giveWay` works on. */
-export interface Seats {
-  /** The block of texts of each route seated so far, by route, in the order they were seated. */
-  readonly chosen: Map<number, EdgeLabel[]>;
-  /** The rectangles a block takes in `clear`. */
-  readonly rects: (block: readonly EdgeLabel[]) => Rect[];
-  /** What a block on route `i` meets, by `clear`; 0 for a clear spot. */
-  readonly cost: (block: readonly EdgeLabel[], i: number) => number;
-  /** The best block of route `i` with its own texts taken out of `clear`, as the search would seat it now. */
-  readonly seek: (i: number) => { readonly block: EdgeLabel[]; readonly cost: number };
+/** The seats of a spot search so far, by key, and how one is taken out, sought again and put back. */
+export interface Seats<T> {
+  /** The seat of each key, in the order they were seated. */
+  readonly chosen: Map<number, T>;
+  /** How near the seat of key `k` comes to the texts of other lines: 0 where it keeps their distance. */
+  readonly near: (k: number, seat: T) => number;
+  /** What the seat of key `k` meets with it taken out; 0 for a clear spot. */
+  readonly cost: (k: number, seat: T) => number;
+  /** The best seat of key `k` with it taken out, as the search would seat it now, and what it meets. */
+  readonly seek: (k: number) => { readonly seat: T; readonly cost: number };
+  readonly take: (k: number, seat: T) => void;
+  readonly drop: (k: number, seat: T) => void;
 }
 
 /**
  * Seats priced together rather than one after the other: a text seated earlier gives way where a text of another
- * line came near it. Each block that comes nearer than `crowding` allows to the texts of other routes is taken out
- * and sought again with all others in place; the new seat is kept where it meets no more and comes less near, so an
- * earlier text moves aside where that frees both. Rounds repeat, at most `ROUNDS`, while a seat moves. Returns the
- * routes whose blocks found a clear spot only now.
+ * line came near it. Each seat that comes near the texts of other lines is taken out and sought again with all others
+ * in place; the new seat is kept where it meets less, or as much and comes less near, so an earlier text moves aside
+ * where that frees both. Rounds repeat, at most `ROUNDS`, while a seat moves. Returns the keys whose seats found a
+ * clear spot only now.
  */
-export function giveWay(seats: Seats, clear: Clear): number[] {
-  const taken = new Map<number, Rect[]>();
-  for (const [i, block] of seats.chosen) taken.set(i, seats.rects(block));
-  const near = (i: number, rects: readonly Rect[]) => rects.reduce((n, r) => n + clear.crowding(r, i), 0);
+export function giveWay<T>(seats: Seats<T>): number[] {
   const cleared: number[] = [];
   for (let round = 0; round < ROUNDS; round++) {
     let moved = false;
-    for (const [i, block] of seats.chosen) {
-      const rects = taken.get(i) ?? [];
-      const was = near(i, rects);
+    for (const [k, seat] of seats.chosen) {
+      const was = seats.near(k, seat);
       if (was === 0) continue;
-      for (const r of rects) clear.drop(r);
-      const cost = seats.cost(block, i);
-      const found = seats.seek(i);
-      const next = seats.rects(found.block);
-      const better = found.cost < cost || (found.cost === cost && near(i, next) < was);
-      const keep = better ? next : rects;
-      for (const r of keep) clear.take(r, i);
+      seats.drop(k, seat);
+      const cost = seats.cost(k, seat);
+      const found = seats.seek(k);
+      const better = found.cost < cost || (found.cost === cost && seats.near(k, found.seat) < was);
+      seats.take(k, better ? found.seat : seat);
       if (!better) continue;
-      seats.chosen.set(i, found.block);
-      taken.set(i, next);
-      if (cost > 0 && found.cost === 0) cleared.push(i);
+      seats.chosen.set(k, found.seat);
+      if (cost > 0 && found.cost === 0) cleared.push(k);
       moved = true;
     }
     if (!moved) break;
