@@ -7,6 +7,7 @@ import { placedOf } from '../placed.js';
 import { routeEdges } from '../route/index.js';
 import type { GridSpec } from '../spec.js';
 import type { CellGraph, CellLayout } from './cells.js';
+import { outsideRound } from './grid-outside.js';
 import { type CellSigns, signCells } from './grid-signs.js';
 import { gridSpecOf } from './grid-spec.js';
 
@@ -27,7 +28,8 @@ const asks = (room: { readonly cols: readonly number[]; readonly rows: readonly 
  * Lays out a layout graph in the author's grid (ADR 0039, amendment of 06.11.2026): places it, routes it through
  * the channel stage and sets its texts and signs. A grid whose tracks or texts do not fit into its gaps widens them
  * as `gutterRoom` asks and places again (ADR 0038, D2), at most `ROUNDS` times: for tracks alone, or as long as fewer
- * texts end up without a clear spot than before; the author's grid stays, only its gaps grow.
+ * texts end up without a clear spot than before; the author's grid stays, only its gaps grow. A Z kept inside a
+ * frame may then leave it where the frame can grow around it (`outsideRound`).
  */
 export function layoutCells(graph: CellGraph): CellLayout {
   const cells = graph.given.cells;
@@ -45,6 +47,7 @@ export function layoutCells(graph: CellGraph): CellLayout {
     if (before > 0 && next.signs.crowded.length >= before) break;
     done = next;
   }
+  done = outsideRound(done, run, (spec, grid, routes) => signCells(cells, spec, grid, routes));
   const { spec, routes, signs } = done;
   const numbers = cells.signs?.numbers ?? { w: 0, h: 0 };
   const pins = cells.signs?.pins ?? { w: 0, h: 0 };
