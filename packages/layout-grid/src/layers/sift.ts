@@ -25,6 +25,12 @@ const nearOf =
   (layers: Layers, l: number): number =>
     cost.near === undefined ? cost(layers, adj, layerOf) : cost.near(layers, l);
 
+/**
+ * How much less an order must cost to count as cheaper: costs that sum lengths in pixels round differently when
+ * summed in another order, and a search must not move for that.
+ */
+const SLACK = 1e-6;
+
 /** Swaps neighbours as long as that lowers the cost, priced by the part of it their layer decides. */
 export function polish(layers: Layers, adj: Adjacency, layerOf: ReadonlyMap<string, number>, cost: OrderCost): Layers {
   const near = nearOf(cost, adj, layerOf);
@@ -33,7 +39,7 @@ export function polish(layers: Layers, adj: Adjacency, layerOf: ReadonlyMap<stri
     layers.forEach((layer, l) => {
       for (let i = 0; i + 1 < layer.length; i++) {
         if (cost.swap !== undefined) {
-          if (cost.swap(layers, l, i) >= 0) continue;
+          if (cost.swap(layers, l, i) >= -SLACK) continue;
           swap(layer, i);
           improved = true;
           continue;
@@ -87,11 +93,11 @@ export function sift(layers: Layers, adj: Adjacency, layerOf: ReadonlyMap<string
         let best = from;
         let lowest = Number.POSITIVE_INFINITY;
         costs.forEach((c, to) => {
-          if (c < lowest || (c === lowest && to === from)) [lowest, best] = [c, to];
+          if (c < lowest - SLACK || (Math.abs(c - lowest) <= SLACK && to === from)) [lowest, best] = [c, to];
         });
         layer.splice(from, 1);
         layer.splice(best, 0, n);
-        if (lowest < (costs[from] ?? lowest)) improved = true;
+        if (lowest < (costs[from] ?? lowest) - SLACK) improved = true;
       }
     });
   }

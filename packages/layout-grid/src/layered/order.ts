@@ -4,12 +4,20 @@ import { chainsAside } from './chains.js';
 import { clustered, framesBroken } from './clusters.js';
 import { PINNED, rankedCost } from './order-cost.js';
 import { lengthOf } from './order-length.js';
+import { spanPricing } from './order-span.js';
+import { trunkSites } from './order-trunks.js';
 import { framePaths } from './paths.js';
 import type { Ranked } from './rank.js';
 import type { LayeredSpec } from './spec.js';
 
 /** The weight of a piece of an edge through placeholders: crossing a long edge costs that much more. */
 const DUMMY_WEIGHT = 8;
+
+/**
+ * What a pixel of the estimated length across of the pieces costs in the order, against 10 for a crossing of two
+ * pieces of weight 1: a crossing is worth 600 pixels of detour (`DETOUR`, owner decision of 06.11.2026).
+ */
+const PER_PIXEL = 10 / 600;
 
 /** The links between nodes of neighbouring layers and within a layer, with their weights. */
 export interface Neighbours {
@@ -49,7 +57,8 @@ export function neighboursOf(spec: LayeredSpec, ranked: Ranked): Neighbours {
  * every foreign node standing between two members of one cluster, so clusters stay together where that is cheap.
  * A node in `pins` keeps to the left or right end of its layer, and nodes in `given` keep the order of their places
  * there, so only the placeholders find their places among them. Frames are hard clusters: the nodes of a frame stand
- * together in every layer and sibling frames in one order through the layers they share (`clustered`).
+ * together in every layer and sibling frames in one order through the layers they share (`clustered`). A trunk
+ * crossed by a piece of its own box counts as the crossings it makes (`trunkSites`).
  */
 export function orderRanked(
   spec: LayeredSpec,
@@ -58,35 +67,68 @@ export function orderRanked(
   pins: ReadonlyMap<string, 'left' | 'right'> = new Map(),
   given: ReadonlyMap<string, number> = new Map(),
 ): string[][] {
-  const cluster = new Map(spec.nodes.flatMap((n) => (n.cluster === undefined ? [] : [[n.id, n.cluster] as const])));
-  const cost = rankedCost({ ranked, links, cluster, pins, given, dummyWeight: DUMMY_WEIGHT });
+  const { cost, length } = costsOf(spec, ranked, links, pins, given);
   const nodes = [...spec.nodes.map((n) => n.id), ...ranked.dummies];
-  const widths = new Map(spec.nodes.map((n) => [n.id, n.width] as const));
-  const lengths = {
-    links,
-    layerOf: ranked.layerOf,
-    width: (n: string) => widths.get(n) ?? 0,
-    gap: spec.metrics.colGap,
-    counts: () => 1,
-  };
-  const length = (layers: string[][]) => lengthOf(layers, lengths);
-  if ((spec.frames ?? []).length === 0) {
-    const plain = orderLayers(nodes, ranked.layerOf, links.adj, true, cost);
-    const aside = chainsAside(plain, ranked, undefined, (layers) => cost(layers, links.adj, ranked.layerOf), length);
-    return aside === plain ? plain : refine(aside, links.adj, ranked.layerOf, cost);
-  }
-  const fp = framePaths(spec, ranked);
-  const broken = (layers: string[][]) => PINNED * framesBroken(layers, fp);
-  const near = cost.near as NonNullable<OrderCost['near']>;
-  const hard: OrderCost = Object.assign(
-    (layers: string[][]) => cost(layers, links.adj, ranked.layerOf) + broken(layers),
-    {
-      near: (layers: string[][], l: number) => near(layers, l) + broken(layers),
-    },
+  const fp = (spec.frames ?? []).length === 0 ? undefined : framePaths(spec, ranked);
+  const priced = (layers: string[][]) => cost(layers, links.adj, ranked.layerOf);
+  const first = orderLayers(nodes, ranked.layerOf, links.adj, true, cost);
+  const refined = fp === undefined ? first : refine(clustered(first, fp, priced), links.adj, ranked.layerOf, cost);
+  const aside = chainsAside(refined, ranked, fp, priced, length);
+  return aside === refined ? refined : refine(aside, links.adj, ranked.layerOf, cost);
+}
+
+/**
+ * The order `layers` made shorter: moved node by node while the estimated length across of the pieces saves more
+ * than the crossings it adds, a crossing worth `600` pixels (`PER_PIXEL`). Undefined where nothing moves; the caller
+ * lays out both and keeps the one whose drawing trades as the rule says (`laidOut`).
+ */
+export function shortened(
+  spec: LayeredSpec,
+  ranked: Ranked,
+  links: Neighbours,
+  layers: readonly (readonly string[])[],
+  pins: ReadonlyMap<string, 'left' | 'right'> = new Map(),
+  given: ReadonlyMap<string, number> = new Map(),
+): string[][] | undefined {
+  const { long } = costsOf(spec, ranked, links, pins, given);
+  const moved = refine(
+    layers.map((l) => [...l]),
+    links.adj,
+    ranked.layerOf,
+    long,
   );
-  const first = orderLayers(nodes, ranked.layerOf, links.adj, true, hard);
-  const together = clustered(first, fp, (layers) => hard(layers, links.adj, ranked.layerOf));
-  const refined = refine(together, links.adj, ranked.layerOf, hard);
-  const aside = chainsAside(refined, ranked, fp, (layers) => hard(layers, links.adj, ranked.layerOf), length);
-  return aside === refined ? refined : refine(aside, links.adj, ranked.layerOf, hard);
+  return moved.every((l, i) => l.every((n, k) => layers[i]?.[k] === n)) ? undefined : moved;
+}
+
+/** The cost of an order by crossings and the rest, the same with its length (`long`), and the estimated length. */
+function costsOf(
+  spec: LayeredSpec,
+  ranked: Ranked,
+  links: Neighbours,
+  pins: ReadonlyMap<string, 'left' | 'right'>,
+  given: ReadonlyMap<string, number>,
+) {
+  const cluster = new Map(spec.nodes.flatMap((n) => (n.cluster === undefined ? [] : [[n.id, n.cluster] as const])));
+  const widths = new Map(spec.nodes.map((n) => [n.id, n.width] as const));
+  const width = (n: string) => widths.get(n) ?? 0;
+  const weight = (a: string, b: string) => links.weight.get(key(a, b)) ?? 1;
+  const gap = spec.metrics.colGap;
+  const pricing = spanPricing({ adj: links.adj, layerOf: ranked.layerOf, width, gap, weight });
+  const trunks = trunkSites(spec, ranked, weight);
+  const base = { ranked, links, cluster, pins, given, dummyWeight: DUMMY_WEIGHT, trunks };
+  const fp = (spec.frames ?? []).length === 0 ? undefined : framePaths(spec, ranked);
+  const framed = (c: OrderCost): OrderCost => {
+    if (fp === undefined) return c;
+    const near = c.near as NonNullable<OrderCost['near']>;
+    const broken = (layers: string[][]) => PINNED * framesBroken(layers, fp);
+    return Object.assign((layers: string[][]) => c(layers, links.adj, ranked.layerOf) + broken(layers), {
+      near: (layers: string[][], l: number) => near(layers, l) + broken(layers),
+    });
+  };
+  const lengths = { links, layerOf: ranked.layerOf, width, gap, counts: () => 1 };
+  return {
+    cost: framed(rankedCost(base)),
+    long: framed(rankedCost({ ...base, span: { pricing, perPixel: PER_PIXEL } })),
+    length: (layers: string[][]) => lengthOf(layers, lengths),
+  };
 }

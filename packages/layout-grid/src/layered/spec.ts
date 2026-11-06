@@ -35,6 +35,8 @@ export interface LayeredEdge {
    * collector, each line keeping its own head. Edges without a key never share.
    */
   readonly bundle?: string;
+  /** `whole`: the bundle shares one trunk at its node even where foreign boxes stand between its other ends. */
+  readonly trunk?: 'whole';
   /**
    * The label of the edge, measured by the kind: its text, its width and the size of its font. It stands beside the
    * start of the line, or beside the trunk the edge shares, once per trunk.

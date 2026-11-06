@@ -82,6 +82,12 @@ export function scoreOf(input: LineInput, thresholds: Partial<LineThresholds> = 
   return { cost, clean: through + metrics.crossings === 0, metrics };
 }
 
+/**
+ * How many pixels of line one crossing is worth where a picture may trade the two (owner decision of 06.11.2026): a
+ * line takes a detour round others only while it is shorter than this, else it crosses.
+ */
+export const DETOUR = 600;
+
 /** The bends of every line times its weight: where its direction turns between two points. */
 function weightedBends(routes: readonly LineRoute[]): number {
   let total = 0;

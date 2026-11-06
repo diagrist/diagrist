@@ -100,7 +100,7 @@ function edgeOf(m: ClassModel, r: ClassRelation, i: number, rank: GraphRank): Gr
     rank,
     ...(HIERARCHY.has(r.kind) ? { weight: 2 } : {}),
     ...(r.kind === 'dependency' ? { strength: 'soft' as const } : {}),
-    ...(shared ? { bundle: shared } : leg ? { bundle: `leg:${leg.diamond}` } : {}),
+    ...(shared ? { bundle: shared, trunk: 'whole' as const } : leg ? { bundle: `leg:${leg.diamond}` } : {}),
     run: {
       from: endRun(r, 'from') + (name === undefined ? 0 : lines.length * (font.size + 2) + LAYERED.labelGap),
       to: endRun(r, 'to'),
