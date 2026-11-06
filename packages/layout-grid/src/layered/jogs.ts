@@ -62,7 +62,13 @@ export function unjog(u: Unjogging, start: Placement): Placement {
   );
   const bentSpines = (p: Placement) =>
     spineLinks.filter((l) => Math.abs((p.ports.top.get(l) ?? 0) - (p.ports.bottom.get(l) ?? 0)) > 0.5).length;
+  let seen = new Map<string, { placement: Placement; cost: number } | undefined>();
   const tried = (moving: readonly string[], d: number): { placement: Placement; cost: number } | undefined => {
+    const key = `${d}|${moving.join(' ')}`;
+    if (!seen.has(key)) seen.set(key, attempt(moving, d));
+    return seen.get(key);
+  };
+  const attempt = (moving: readonly string[], d: number): { placement: Placement; cost: number } | undefined => {
     if (moving.length === 0 || !fits(best.x, moving, d)) return undefined;
     const x = new Map(best.x);
     for (const m of moving) x.set(m, (x.get(m) ?? 0) + d);
@@ -98,7 +104,7 @@ export function unjog(u: Unjogging, start: Placement): Placement {
       undefined,
     );
     if (cheapest === undefined || cheapest.cost >= cost) return false;
-    [best, cost] = [cheapest.placement, cheapest.cost];
+    [best, cost, seen] = [cheapest.placement, cheapest.cost, new Map()];
     return true;
   }
 }

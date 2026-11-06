@@ -174,7 +174,8 @@ stress budgets count, such as bends a straight line could spare, reached no sear
 ## Consequences
 
 Placeholders cross a frame only where it lies wholly between the ends of their line; a frame beside a line's way is
-still gone around, since the cost of an order knows no length. The leaf search lays a picture out once more for
+still gone around, since the cost of an order knows length only between chain moves that cost the same (see
+`docs/burn-down.md`, the order and length). The leaf search lays a picture out once more for
 every place a leaf frame may take, like the hub search; pictures without such frames pay nothing. A layout stage that
 wants to compare two of its own variants can now ask the same question the check answers.
 

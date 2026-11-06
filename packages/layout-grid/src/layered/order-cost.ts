@@ -70,7 +70,12 @@ export function rankedCost(c: RankedCost): OrderCost {
   };
   const { down, beside } = reachOf(c.links, ranked.layerOf);
   const up = new Map<string, (readonly [string, number])[]>();
-  for (const [a, list] of down) for (const [b, w] of list) up.set(b, [...(up.get(b) ?? []), [a, w] as const]);
+  for (const [a, list] of down)
+    for (const [b, w] of list) {
+      const into = up.get(b);
+      if (into === undefined) up.set(b, [[a, w] as const]);
+      else into.push([a, w] as const);
+    }
   const placesOf = (layer: readonly string[] | undefined, pos: Map<string, number>) =>
     layer?.forEach((n, i) => {
       pos.set(n, i);
@@ -107,14 +112,20 @@ export function rankedCost(c: RankedCost): OrderCost {
   };
   /** Weighted crossings of the pieces of `n` with those of `v`, `v` standing left of `n`, and right of it. */
   const pairCost = (n: string, v: string, pos: ReadonlyMap<string, number>): [number, number] => {
-    let [left, right] = [0, 0];
-    for (const side of [down, up])
-      for (const [b, wb] of side.get(n) ?? [])
-        for (const [d, wd] of side.get(v) ?? []) {
-          const [pb, pd] = [pos.get(b) ?? 0, pos.get(d) ?? 0];
+    let left = 0;
+    let right = 0;
+    for (const side of [down, up]) {
+      const [ns, vs] = [side.get(n), side.get(v)];
+      if (ns === undefined || vs === undefined || ns.length === 0 || vs.length === 0) continue;
+      for (const [b, wb] of ns) {
+        const pb = pos.get(b) ?? 0;
+        for (const [d, wd] of vs) {
+          const pd = pos.get(d) ?? 0;
           if (pd > pb) left += wb * wd;
           else if (pd < pb) right += wb * wd;
         }
+      }
+    }
     return [10 * left, 10 * right];
   };
   const places = (layers: string[][], l: number, n: string) => {

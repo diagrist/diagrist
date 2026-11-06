@@ -18,7 +18,7 @@ export function chainsAside(
 ): Layers {
   let best = layers;
   let lowest = cost(best);
-  let shortest = length(best);
+  let shortest: number | undefined;
   for (const chain of ranked.chains.values()) {
     const held = chain.filter((n) => ranked.dummies.has(n));
     if (held.length < 2) continue;
@@ -35,8 +35,12 @@ export function chainsAside(
       });
       const c = cost(tried);
       if (c > lowest) continue;
-      const l = length(tried);
-      if (c < lowest || l < shortest) [best, lowest, shortest] = [tried, c, l];
+      if (c < lowest) [best, lowest, shortest] = [tried, c, undefined];
+      else {
+        shortest ??= length(best);
+        const l = length(tried);
+        if (l < shortest) [best, shortest] = [tried, l];
+      }
     }
   }
   return best;
