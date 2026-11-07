@@ -109,12 +109,14 @@ function takenRound(r: LineInput['routes'][number], rects: ReadonlyMap<string, R
 
 /**
  * How far boxes stand from the middle of their neighbours below (Q11) and single children from their parent (Q12),
- * as `lineMetrics` counts them, by the lines that are not taken round the boxes between their ends (`takenRound`); a
- * layout may hand only the lines it wants centred, such as those of a hierarchy.
+ * as `lineMetrics` counts them, by the lines that are not taken round the boxes between their ends (`takenRound`) and
+ * do not end on a bar, which lines meet anywhere along it and which has no middle to stand off; a layout may hand only
+ * the lines it wants centred, such as those of a hierarchy.
  */
 export function lineCentring(input: LineInput): LineCentring {
   const all = new Map(input.nodes.map((n) => [n.id, n.rect]));
-  const rects = new Map(input.nodes.filter((n) => n.owner === undefined).map((n) => [n.id, n.rect]));
+  const bars = new Set(input.nodes.flatMap((n) => (n.outline === 'bar' ? [n.id] : [])));
+  const rects = new Map(input.nodes.filter((n) => n.owner === undefined && !bars.has(n.id)).map((n) => [n.id, n.rect]));
   const neighbours = new Map<string, Set<string>>();
   for (const r of input.routes) {
     if (r.from === r.to || !rects.has(r.from) || !rects.has(r.to) || takenRound(r, all)) continue;
