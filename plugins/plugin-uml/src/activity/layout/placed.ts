@@ -80,7 +80,11 @@ export function placedOf(p: Placing, diagram: ActivityDiagram): Placed[] {
       return [{ key, kind: 'box', rect: n.rect, on: port.region, span: n.node.span }];
     }
     const home = within(homeOf(n));
-    const outline = CIRCLES.has(n.node.kind) ? { outline: 'ellipse' as const } : {};
+    const outline = CIRCLES.has(n.node.kind)
+      ? { outline: 'ellipse' as const }
+      : BARS.has(n.node.kind)
+        ? { outline: 'bar' as const }
+        : {};
     const pins = (n.art.pins ?? []).map(
       (pin, i): Placed => ({ key: `${n.id}.pin.${i + 1}`, kind: 'box', rect: pin.rect, ...home, span: n.node.span }),
     );

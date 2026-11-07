@@ -38,7 +38,10 @@ export function linesOfDrawing(drawing: Pick<Drawing, 'anchors' | 'placed'>): Li
     return n !== undefined && edges.has(n) ? n : undefined;
   };
   const byKey = new Map(placed.map((p) => [p.key, p]));
-  const outline = (id: string) => (byKey.get(id)?.outline === 'ellipse' ? { outline: 'ellipse' as const } : {});
+  const outline = (id: string) => {
+    const shape = byKey.get(id)?.outline;
+    return shape === 'ellipse' || shape === 'bar' ? { outline: shape } : {};
+  };
   const owned = (key: string) => {
     const owner = ownerOf(key);
     return owner === undefined || owner === key ? {} : { owner };

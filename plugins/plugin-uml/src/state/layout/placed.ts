@@ -85,7 +85,11 @@ export function placedState(m: StateModel, p: StatePlacing): Placed[] {
     const home = q.within === undefined ? undefined : homeOf(m, q.key);
     const inRegion = home !== undefined && m.kind(home) === 'region' ? { within: home } : {};
     if (!v) return { ...q, ...inRegion };
-    const outline = ROUND.has(v.kind) ? { outline: 'ellipse' as const } : {};
+    const outline = ROUND.has(v.kind)
+      ? { outline: 'ellipse' as const }
+      : v.kind === 'fork' || v.kind === 'join'
+        ? { outline: 'bar' as const }
+        : {};
     const host = borderOf(m, v.id) ?? hostOf(m, v.id);
     if (host === undefined) return { ...q, ...outline, ...inRegion };
     const { within: _, ...free } = q;

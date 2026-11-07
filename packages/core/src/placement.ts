@@ -21,9 +21,10 @@ export interface Placed {
   readonly rect: Rect;
   /**
    * The shape drawn in `rect`: the rectangle itself, which is the default, or the ellipse inscribed in it, such as a
-   * use case. A text in the empty corner of an ellipse's rectangle does not touch the ellipse.
+   * use case. A text in the empty corner of an ellipse's rectangle does not touch the ellipse. A `bar` is a rectangle
+   * too, one that lines enter and leave anywhere along it, so the line check centres no box on it.
    */
-  readonly outline?: 'rectangle' | 'ellipse';
+  readonly outline?: 'rectangle' | 'ellipse' | 'bar';
   /**
    * Key of the box this one belongs into, such as a label in its node or a node in its frame. It must lie inside
    * that box and may overlap it and everything around it.

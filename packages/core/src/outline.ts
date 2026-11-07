@@ -3,7 +3,7 @@ import type { Point, Rect } from './geometry.js';
 /** A rectangle and the outline drawn in it, as far as the placement check is concerned. */
 interface Shaped {
   readonly rect: Rect;
-  readonly outline?: 'rectangle' | 'ellipse';
+  readonly outline?: 'rectangle' | 'ellipse' | 'bar';
 }
 
 interface Ellipse {
