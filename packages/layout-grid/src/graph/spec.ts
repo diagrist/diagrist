@@ -164,6 +164,8 @@ export interface GraphGiven {
   readonly last?: readonly string[];
   /** `right` turns the layers across: they run left to right, the picture laid out down and turned (`graph/turn.ts`). */
   readonly direction?: 'down' | 'right';
+  /** With `direction: 'right'`: the members of every frame packed in their columns (`graph/straight-pack.ts`). */
+  readonly pack?: boolean;
   /**
    * The author's grid: every node in its cell, frames around their members, lines through the channels of the gaps
    * (`graph/grid.ts`); the other fields of `given` and the ranks of the edges are not read then.

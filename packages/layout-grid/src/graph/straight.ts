@@ -6,6 +6,7 @@ import type { PlacedGroup, Route } from '../layout.js';
 import type { GraphEdge, GraphLabel, LayoutGraph } from './spec.js';
 import { clearStraight } from './straight-clear.js';
 import { tightFrames } from './straight-frames.js';
+import { packFrames } from './straight-pack.js';
 import { straightRoute } from './straight-route.js';
 
 /** Room around the picture a text along a straight line may take, besides the boxes and frames. */
@@ -44,7 +45,8 @@ function leftFrame(graph: LayoutGraph, frames: readonly PlacedGroup[], end: stri
 const text = (l: GraphLabel | undefined) => (l === undefined ? undefined : { text: l.text, width: l.width });
 
 /**
- * A laid out picture with its `straight` edges drawn: frames of turned layers back at their pad (`tightFrames`), boxes
+ * A laid out picture with its `straight` edges drawn: the members of frames packed where the graph asks for it
+ * (`packFrames`), frames of turned layers back at their pad (`tightFrames`), boxes
  * the lines would run through moved (`clearStraight`), then one piece each from outline to outline (`straightRoute`), after
  * the routes of the others, and their texts along them by the spot search for straight lines (`textsAlong`), clear of
  * boxes, lines, frame lines and heads and of the texts set before. A graph without such edges keeps its picture.
@@ -52,7 +54,9 @@ const text = (l: GraphLabel | undefined) => (l === undefined ? undefined : { tex
 export function drawStraight(graph: LayoutGraph, laid: LayeredLayout): LayeredLayout {
   const straight = graph.edges.filter((e) => isStraight(e) && e.from !== e.to);
   if (straight.length === 0) return laid;
-  const boxes = new Map(laid.nodes.map((n) => [n.id, n.rect]));
+  const laidOut = new Map(laid.nodes.map((n) => [n.id, n.rect]));
+  const frameAt = (rects: ReadonlyMap<string, Rect>) => tightFrames(graph, laid.frames ?? [], rects);
+  const boxes = packFrames(graph, straight, laidOut, frameAt, graph.metrics.colGap);
   const tight = tightFrames(graph, laid.frames ?? [], boxes);
   const rects = clearStraight(graph, straight, boxes, tight);
   const moved = new Map([...rects, ...tight.map((f) => [f.id, f.rect] as const)]);
@@ -62,7 +66,7 @@ export function drawStraight(graph: LayoutGraph, laid: LayeredLayout): LayeredLa
     placed: laid.placed.map((p) => (p.kind === 'text' ? p : { ...p, rect: moved.get(p.key) ?? p.rect })),
     ...(laid.frames ? { frames: tight } : {}),
   };
-  const before = extentOf([...boxes.values(), ...(laid.frames ?? []).map((f) => f.rect)]);
+  const before = extentOf([...laidOut.values(), ...(laid.frames ?? []).map((f) => f.rect)]);
   const after = extentOf([...rects.values(), ...tight.map((f) => f.rect)]);
   const nodes = new Map(graph.nodes.map((n) => [n.id, n]));
   const drawn = straight.flatMap((e) => {

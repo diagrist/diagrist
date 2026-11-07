@@ -683,3 +683,17 @@ stays, and the flips run over it as before (`stackedPlan`, `auto/plan.ts`). A fa
 keeps its lane. `include-kette` 4,909 to 3,297 px of line, 2,174 × 613 to 1,902 × 665 px, 3.5 to 2.9 : 1; the other
 use case pictures keep their bytes, their families stand next to their lanes or the lane is cheaper.
 `Buchungssystem → Platz reservieren` still runs 400 px slanted at a sharp angle to an include line, without crossing it.
+
+**Subjects closed up in their columns, at the price.** A box of a layer stands at the weighted middle of its partners,
+and nothing pulled the use cases of one subject together: in `drei-subjekte`, `Status melden` stood with `Fahrer` at
+the top of `Transportmanagement`, the two others with `Disponent` and `Kunde` at the bottom, 150 px of empty frame
+between. A graph may now ask for its frames packed (`given.pack`): before the straight lines are cleared, where two
+members of a frame stand further apart in their column than `colGap` and no member of another column reaches into the
+band, the boxes above move down or those below move up, whichever leaves their lines shorter, and only where no line
+then runs through a box, head or foreign frame more often (`graph/straight-pack.ts`, by the count of
+`clearStraight`); turned frames now also close at their top (`tightFrames`). Packed always, `notizen` grew to
+1,179 × 957 px, since the packed subject took the room its notes wanted; so the kind lays out only the chosen plan
+packed once more and keeps it where the price finds it cheaper, and not where no subject has a gap or the picture keeps
+room for a note. `drei-subjekte` 2,339 to 2,206 px of line, `Transportmanagement` 85 px lower; `serviceportal` and
+`onlineshop` 9 and 3 px lower; `akteur-hierarchie` 40 px lower for 17 px more line, its `Prüfbot` line slanted; the
+other use case pictures keep their bytes.

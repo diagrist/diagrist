@@ -23,7 +23,10 @@ export const actor = statement(
           { values: { system: [USE_CASES.actorRectangle] } },
           attr(oneOf(['person', 'system']), '`person` (default) draws a stick figure, `system` a box with `«actor»`.'),
         ),
-        side: attr(oneOf(['left', 'right']), 'Side of the subject the actor stands on, always beside it; without it Diagrist chooses.'),
+        side: attr(
+          oneOf(['left', 'right']),
+          'Side of the subject the actor stands on, always beside it; without it Diagrist chooses.',
+        ),
         tone: tone('the figure or box'),
         mark,
         area: areaAttribute,

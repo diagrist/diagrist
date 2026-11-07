@@ -56,6 +56,17 @@ describe('the columns of actors side by side, chosen by the price', () => {
     expect(across(p.node('gds'), p.frame('portal'))).toBe(true);
   });
 
+  it('close up the use cases of a subject in their column where that is cheaper', () => {
+    const p = picture(stress.source('drei-subjekte.dgr'));
+    const [status, tour, auftrag] = ['status', 'tour', 'auftrag'].map(p.node).sort((a, b) => a.y - b.y) as [
+      Rect,
+      Rect,
+      Rect,
+    ];
+    expect(tour.y - (status.y + status.h)).toBeLessThanOrEqual(60);
+    expect(auftrag.y - (tour.y + tour.h)).toBeLessThanOrEqual(60);
+  });
+
   it('keep the actor beside its subject where the choices lead the search to a dearer picture', () => {
     const p = picture(stress.source('zwei-subjekte.dgr'));
     expect(p.node('bib').x).toBeGreaterThan(right(p.frame('lms')));

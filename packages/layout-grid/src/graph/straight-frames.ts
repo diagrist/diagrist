@@ -4,9 +4,10 @@ import type { LayoutGraph } from './spec.js';
 
 /**
  * The frames of a graph whose layers run right, drawn with straight lines, back at their own pad at the right and the
- * bottom: the stages keep the room of a head on every side of a turned frame (`turnGraph`), which a frame without
- * lines along its sides does not need. Innermost frames first, so a parent closes round its children as they end up.
- * Any other graph keeps its frames.
+ * bottom and at their top room above: the stages keep the room of a head on every side of a turned frame
+ * (`turnGraph`), which a frame without lines along its sides does not need, and members packed toward the bottom
+ * (`packFrames`) leave room above. Innermost frames first, so a parent closes round its children as they end up. Any
+ * other graph keeps its frames.
  */
 export function tightFrames(
   graph: LayoutGraph,
@@ -29,8 +30,9 @@ export function tightFrames(
     ];
     if (inner.length === 0) continue;
     const right = Math.max(...inner.map((r) => r.x + r.w)) + c.pad;
-    const bottom = Math.max(...inner.map((r) => r.y + r.h)) + c.pad;
-    out.set(c.id, { ...f, w: Math.min(f.w, right - f.x), h: Math.min(f.h, bottom - f.y) });
+    const bottom = Math.min(f.y + f.h, Math.max(...inner.map((r) => r.y + r.h)) + c.pad);
+    const top = Math.max(f.y, Math.min(...inner.map((r) => r.y)) - c.top);
+    out.set(c.id, { ...f, y: top, w: Math.min(f.w, right - f.x), h: bottom - top });
   }
   return frames.map((f) => ({ ...f, rect: out.get(f.id) ?? f.rect }));
 }

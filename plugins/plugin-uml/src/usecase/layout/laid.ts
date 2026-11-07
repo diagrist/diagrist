@@ -54,14 +54,15 @@ function gridNode(m: UseCaseModel, id: string, width: number, height: number, el
  * Lays a use case diagram out by `layoutGraph` with the columns of `plan` and hands it on as the scene reads it, an
  * actor as its figure. Notes take free spots near their anchor once the picture stands (`freeNotes`); for those named
  * in `held` the graph keeps room as large as the note beside the anchor, as rows kept free did on the old grid. The
- * lines of an extend note are texts of its line.
+ * lines of an extend note are texts of its line. With `pack` the use cases of a subject close up in their columns.
  */
-export function laidUseCase(m: UseCaseModel, plan: Plan, held: ReadonlySet<string> = new Set()): Laid {
+export function laidUseCase(m: UseCaseModel, plan: Plan, held: ReadonlySet<string> = new Set(), pack = false): Laid {
   const notes = noteBoxes(m);
   const graph = useCaseGraph(
     m,
     plan,
     notes.filter((n) => held.has(n.id)),
+    pack,
   );
   const out = layoutGraph(graph);
   const ids = new Set(notes.map((n) => n.id));
