@@ -1,8 +1,17 @@
-import { type Compilation, compile } from '@diagrist/core';
+import { compile } from '@diagrist/core';
 import { compareGolden } from '@diagrist/testkit';
 import { describe, expect, it } from 'vitest';
 import { umlPlugin } from '../src/index.js';
-import { examplePictures, framesPassed, golden, subjects, usecaseNames, usecaseSource } from './compile.js';
+import {
+  closestTexts,
+  compiledOnce,
+  examplePictures,
+  framesPassed,
+  golden,
+  subjects,
+  usecaseNames,
+  usecaseSource,
+} from './compile.js';
 
 const plugins = [umlPlugin];
 const pictures = examplePictures('usecase');
@@ -14,12 +23,7 @@ const pictures = examplePictures('usecase');
 const HEAVY = new Set(['stadtwerke.dgr', 'zwei-systeme.dgr']);
 
 describe('use case examples', () => {
-  const drawn = new Map<string, Compilation>();
-  const compiled = (name: string) => {
-    const got = drawn.get(name) ?? compile(usecaseSource(name), { plugins });
-    drawn.set(name, got);
-    return got;
-  };
+  const compiled = compiledOnce(usecaseSource);
 
   it.each(usecaseNames)('%s compiles without findings', (name) => {
     const first = compiled(name);
@@ -42,6 +46,10 @@ describe('use case examples', () => {
       expect(framesPassed(compiled(name))).toEqual([]);
     },
   );
+
+  it('stadtwerke: a text in the middle of a line keeps the gap of a foreign line from the end text of another', () => {
+    expect(closestTexts(compiled('stadtwerke.dgr'))).toBeGreaterThanOrEqual(12);
+  });
 
   it.each(['onlineshop', 'zwei-systeme', 'auftragsabwicklung-cards'])('%s renders the reviewed picture', (name) => {
     expect(compareGolden(golden(`usecase-${name}.svg`), compiled(`${name}.dgr`).svg ?? '')).toEqual({
