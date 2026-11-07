@@ -50,7 +50,8 @@ const ROUNDS = 3;
  * (`shoved`), a placeholder among them with its whole chain, so a chain a shove meets stays straight; that is tried
  * in pictures of up to `SHOVE_PIECES` pieces, since every such try draws the whole picture. Once `prices` drawings
  * are priced, no further move is tried. A fan or join tries the one move `centred` offers instead, its shared box
- * with its column to the middle of its members.
+ * with its column to the middle of its members. A move that the clearing of lanes and frames undoes, so the boxes it
+ * moves do not stand where it put them, is no move and is not priced: what it would cost is that of another picture.
  */
 export function unjog(u: Unjogging, start: Placement): Placement {
   if (u.prices === 0) return start;
@@ -86,8 +87,9 @@ export function unjog(u: Unjogging, start: Placement): Placement {
     if (moving.length === 0 || !fits(best.x, moving, d)) return undefined;
     const x = new Map(best.x);
     for (const m of moving) x.set(m, (x.get(m) ?? 0) + d);
-    const placement = u.settle(x);
-    if (bentSpines(placement) > bentSpines(best) || left <= 0) return undefined;
+    const placement = u.settle(new Map(x));
+    const undone = moving.some((m) => Math.abs((placement.x.get(m) ?? 0) - (x.get(m) ?? 0)) > 0.5);
+    if (undone || bentSpines(placement) > bentSpines(best) || left <= 0) return undefined;
     left--;
     return { placement, cost: u.price(placement) };
   };
