@@ -61,8 +61,6 @@ The 15 examples render the predecessor's SVG byte for byte, but for the name of 
 font it is drawn in and so stands 6 px further right in `bestellung-bestaetigen` and `reservierung-halten`. These
 crutches keep the rest so; they go in one clean-up with a second baseline.
 
-4. **Unrounded path numbers and circle radii** (`r="5.151515151515151"`), while rectangles, lines and texts are
-   rounded to one decimal in `packages/core/src/svg.ts`. Clean-up: one rounding for all numbers.
 5. **Arithmetic order of the layout.** `src/sequence/layout` keeps the predecessor's order of floating point steps
    (the right edge of a note is passed on, not recomputed as `x + w`). Refactors there must keep the bytes; the
    module TSDoc of `src/sequence/layout/index.ts` and of `packages/layout-grid/src/layout.ts` says so where the code is.

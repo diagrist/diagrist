@@ -1,8 +1,20 @@
 import type { Shape } from './scene.js';
 import type { Marker, Styles } from './styles.js';
 
-/** Coordinates of rectangles, lines and texts: integers as they are, others with one decimal. */
-export const num = (n: number): string => (Number.isInteger(n) ? String(n) : n.toFixed(1).replace(/\.0$/, ''));
+/**
+ * Every number of the SVG: integers as they are, others with one decimal, which is finer than any renderer draws
+ * and keeps the last bits of floating point arithmetic out of the bytes. A value that rounds to zero is `0`.
+ */
+export const num = (n: number): string => {
+  const text = Number.isInteger(n) ? String(n) : n.toFixed(1).replace(/\.0$/, '');
+  return text === '-0' ? '0' : text;
+};
+
+/** A number in path data: an optional sign, digits with an optional fraction, an optional exponent. */
+const PATH_NUMBER = /-?(?:\d+\.?\d*|\.\d+)(?:e[-+]?\d+)?/gi;
+
+/** Path data with every number written as `num` writes it; commands, flags and separators stay. */
+export const pathData = (d: string): string => d.replace(PATH_NUMBER, (n) => num(Number(n)));
 
 /**
  * A marker drawn in a grid of 12 units, scaled to `size`, as `<marker id="m-<id>">`. `suffix` and `cls` write a copy

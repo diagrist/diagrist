@@ -2,7 +2,7 @@ import { xmlSafe } from '@diagrist/lang';
 import { areaClass, areaDefs, areaRules } from './areas/paint.js';
 import type { AreaTone } from './areas/tones.js';
 import { areaUses } from './areas/uses.js';
-import { markerElement, markersInUse, num } from './markers.js';
+import { markerElement, markersInUse, num, pathData } from './markers.js';
 import type { Scene, Shape, TextRun } from './scene.js';
 import { classesOf, type Icon, type Styles } from './styles.js';
 
@@ -48,17 +48,17 @@ function element(shape: Shape, styles: Styles, tone?: AreaTone): string {
   const cls = (role: string) => `class="${classesOf(role, styles).join(' ')}"`;
   switch (shape.kind) {
     case 'rect':
-      return `<rect x="${num(shape.x)}" y="${num(shape.y)}" width="${num(shape.w)}" height="${num(shape.h)}"${shape.rx ? ` rx="${shape.rx}"` : ''} ${cls(shape.role)}/>`;
+      return `<rect x="${num(shape.x)}" y="${num(shape.y)}" width="${num(shape.w)}" height="${num(shape.h)}"${shape.rx ? ` rx="${num(shape.rx)}"` : ''} ${cls(shape.role)}/>`;
     case 'path': {
       const { marker, markerStart } = styles.roles[shape.role] ?? {};
       const ends = markerRef('marker-end', marker, tone) + markerRef('marker-start', markerStart, tone);
-      const move = shape.offset ? ` transform="translate(${shape.offset[0]} ${shape.offset[1]})"` : '';
-      return `<path d="${shape.d}" ${cls(shape.role)}${ends}${move}/>`;
+      const move = shape.offset ? ` transform="translate(${num(shape.offset[0])} ${num(shape.offset[1])})"` : '';
+      return `<path d="${pathData(shape.d)}" ${cls(shape.role)}${ends}${move}/>`;
     }
     case 'line':
       return `<line x1="${num(shape.x1)}" y1="${num(shape.y1)}" x2="${num(shape.x2)}" y2="${num(shape.y2)}" ${cls(shape.role)}/>`;
     case 'circle':
-      return `<circle cx="${num(shape.cx)}" cy="${num(shape.cy)}" r="${shape.r}" ${cls(shape.role)}/>`;
+      return `<circle cx="${num(shape.cx)}" cy="${num(shape.cy)}" r="${num(shape.r)}" ${cls(shape.role)}/>`;
     case 'text': {
       const anchor = shape.anchor ? ` text-anchor="${shape.anchor}"` : '';
       const { runs } = shape;
