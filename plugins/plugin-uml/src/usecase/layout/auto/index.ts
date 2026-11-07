@@ -1,7 +1,7 @@
 import { isKnown } from '../../diagram.js';
 import type { UseCaseModel } from '../../model.js';
 import { type Laid, laidUseCase } from '../laid.js';
-import { acrossPlan } from './across.js';
+import { acrossPlans } from './across.js';
 import { flipFamilies, type Priced } from './flip.js';
 import { bandOrders } from './order.js';
 import { depths, type Parts, type Side } from './parts.js';
@@ -60,7 +60,10 @@ function rowsDown(p: Parts, band: (id: string) => number): number {
  * subjects share a column only the layout shows, and while one is not clean its families of actors try the other
  * side; the declared set first, another wins by fewer lines through boxes, crossings and lines past a foreign subject,
  * or on as many where it is cheaper by `SWITCH`, so shorter lines and a smaller picture choose the order of the
- * subjects. Below each other is tried only where side by side is not clean of these, and wins where it has fewer. Notes
+ * subjects. Each set of sides lays out the plans of `acrossPlans`, the columns of actors and of free use cases as
+ * choices, and keeps the one with the fewest of these, then the cheapest. Since the families flip one after another,
+ * more choices can lead the search to another and dearer end; so the search runs once without the choices and once
+ * with them, and the cheaper picture stays. Below each other is tried only where side by side is not clean of these, and wins where it has fewer. Notes
  * take free spots; where one finds none near its anchor, the picture is laid out once more with room for it beside its
  * anchor, and the cheaper stays, a note on a box or text costing as much as a line through a box, one on a line or
  * frame line as a text on a line.
@@ -81,19 +84,23 @@ export function arrangeUseCase(m: UseCaseModel, price: Price): Laid {
     const run = (s: Map<string, Side>) => tried(stackedPlan(p, s));
     return flipFamilies(p, run(sides(p, depths(p))), run);
   };
-  const across = (column: (id: string) => number) => {
+  const cheaper = (a: Tried, b: Tried) => b.bad < a.bad || (b.bad === a.bad && b.cost < a.cost);
+  const across = (column: (id: string) => number, choose: boolean) => {
     const { side, home, fixed } = acrossSides(p, column);
-    const run = (s: Map<string, Side>) => tried(acrossPlan(p, column, s, home));
+    const run = (s: Map<string, Side>) =>
+      acrossPlans(p, column, s, home, choose)
+        .map(tried)
+        .reduce((best, got) => (cheaper(best, got) ? got : best));
     return { first: run(side), run, fixed };
   };
   const flipped = (c: ReturnType<typeof across>) => flipFamilies(p, c.first, c.run, c.fixed);
-  const side = (): Tried => {
+  const sideBy = (choose: boolean): Tried => {
     const perRow = n <= MAX_ACROSS ? n : Math.ceil(n / Math.ceil(n / MAX_ACROSS));
     const [own, ...others] = bandOrders(p, declared, n, perRow, COLUMN_SETS).map((bandOf) =>
       n <= MAX_ACROSS ? bandOf : (id: string) => bandOf(id) % perRow,
     );
-    const [first, ...rest] = [own ?? declared, ...others].map(across);
-    let best = flipped(first ?? across(declared));
+    const [first, ...rest] = [own ?? declared, ...others].map((column) => across(column, choose));
+    let best = flipped(first ?? across(declared, choose));
     rest.sort((a, b) => a.first.bad - b.first.bad || a.first.cost - b.first.cost);
     for (const c of rest) {
       if (best.clean && c.first.base >= best.cost - SWITCH) continue;
@@ -101,6 +108,11 @@ export function arrangeUseCase(m: UseCaseModel, price: Price): Laid {
       if (got.bad < best.bad || (got.bad === best.bad && got.cost < best.cost - SWITCH)) best = got;
     }
     return best;
+  };
+  const side = (): Tried => {
+    const fixed = sideBy(false);
+    const chosen = sideBy(true);
+    return cheaper(fixed, chosen) ? chosen : fixed;
   };
   if (n < 2 || m.diagram.direction === 'down') return stacked().laid;
   if (m.diagram.direction === 'right') return side().laid;
