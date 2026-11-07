@@ -706,3 +706,39 @@ are all the layout reads. Tried per flip, the plan above the subject cost `exten
 case pictures 259 layouts become 239, the packed ones included: `stadtwerke` 79, `vier-subjekte` 49, `zwei-subjekte`
 31 instead of 37, `extend-viele` 12 as before; a picture of one layout takes a second where a subject has a gap to
 close.
+
+## Amendment: ports and the measure (07.11.2026, round 4)
+
+**A trunk on a diamond leaves at its tip.** A fan or join aims its trunk at the member nearest the middle of its box
+that stands within the box's reach, else at the mean of its members, held at the inset. On a choice 48 px wide that
+put the trunk of `auswahl-vier` 7 px beside the vertex. A node of shape `diamond` (`GraphNode.shape`, which the state
+kind sets for a choice) takes the middle when no member stands within reach; with one in reach the trunk still aims
+at it. The middle for every box without a member in reach was tried and dropped: in turned concept pictures every box
+is narrow, and lines grew (`spalten-zurueck` +204 px and a jog).
+
+**Ends stay off a rounded corner after the row is shifted back.** The ends of a side are laid apart and the whole
+row then shifted between the insets; where the first end stood short of one inset and the last already on the other,
+the shift pushed the last onto the rounded corner (`hub-dicht`, `ausgaenge-sechs`). Every end is now held to its own
+range after the shift, `first + i · step` to `last − (n − 1 − i) · step` (`layered/port-row.ts`), where `first` and
+`last` stand as far from the corners as the box's corners are round: `GraphNode.corner`, at least 4 px and at most
+the inset; a box whose kind gives no radius keeps the inset of 16 px. A fixed 16 px for every box was tried first and
+dropped: `kurs-netz` lost its straight `bewertet`, whose end stands 8 px from the corner of a class, which reads well
+on a square or slightly rounded card. Class diagrams give a card's 8 px in both looks, so both share one layout, and
+state machines the 12 px of a state. The ends keep 16 px apart (owner decision E2 of round 4: no wider spacing).
+
+**The measure reads a text as one block.** A text in a turned picture stands in the stages as a column of empty lines
+(`graph/turn.ts`), and the measure read every line on its own, so a line through it cost ten times a line through a
+box. `layeredLines` hands the measure the rectangle around the lines of each text (`textBlocks`), as the check reads a
+turned text once turned back; no picture changes. The check itself still counts every line of a text that a line
+runs through, which the budgets count as they are.
+
+**The side of each rail by the price of the whole picture.** The open point of the amendment of 07.11.2026 is closed:
+in pictures with frames or lanes, where a rail's side decides what it passes, every rail that may take either side
+(`sidesOf`) is pinned to the other side as well, every combination for up to two such rails and each alone beyond,
+each drawn and priced by `scoreOf` (`layered/rail-sides.ts`); the choice of the rail stage stays on a tie. One picture
+changes: the state example `auftragsabwicklung` runs `[else] / Kunde informieren` right of `offen` instead of inside
+the rail of `stornieren`, 2,381.5 to 2,241.5 px of line and 32 px narrower. The search draws a picture once more per
+choice: `verschachtelt` compiles in about twice the time.
+
+**A trade is measured once.** `tradeOf` hands its measures and findings to `scoreOf` instead of measuring the picture
+twice; same bytes.

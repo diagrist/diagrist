@@ -4,7 +4,14 @@ import { type Arrangement, arrange } from './arrange.js';
 import { finish, type LayeredLayout } from './finish.js';
 import { layeredLines } from './output.js';
 import { railChoices } from './rail-search.js';
+import { sideChoices } from './rail-sides.js';
 import type { LayeredSpec } from './spec.js';
+
+/** The side of the layers a rail runs beside, read from the side its route leaves by. */
+const SIDE_OF: ReadonlyMap<string, 'left' | 'right'> = new Map([
+  ['left', 'left'],
+  ['right', 'right'],
+]);
 
 /** The findings of the line check that no saving of length may buy. */
 const KEPT = ['through', 'ports', 'label', 'parallel', 'jog', 'lead', 'tail'] as const;
@@ -85,8 +92,8 @@ function laidFrom(
 
 /**
  * A picture laid out as `laidFrom` lays out its arrangement. Where rails stood inside its first order, it is laid
- * out with every other choice of their sides as well (`railChoices`), and the cheapest picture by `scoreOf` stays,
- * the first on a tie. `release` turns a layout into the one drawn, and `outer` is the spec it is read by.
+ * out with every other choice of their sides as well (`railChoices`), and where rails may take either side, with
+ * each of them fixed to one (`sideChoices`); the cheapest picture by `scoreOf` stays, the first on a tie. `release` turns a layout into the one drawn, and `outer` is the spec it is read by.
  */
 export function laidOut(
   spec: LayeredSpec,
@@ -94,8 +101,9 @@ export function laidOut(
   outer: LayeredSpec = spec,
 ): LayeredLayout {
   const first = arrange(spec);
-  const choices = railChoices(spec, first);
   const laid = laidFrom(spec, first, release, outer);
+  const taken = (id: string) => SIDE_OF.get(laid.routes.find((r) => r.edge === id)?.fromSide ?? 'top');
+  const choices = [...railChoices(spec, first), ...sideChoices(spec, first, taken)];
   if (choices.length === 0) return laid;
   const price = (layout: LayeredLayout) => ({ layout, cost: scoreOf(layeredLines(outer, layout)).cost });
   return choices
