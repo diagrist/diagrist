@@ -1,11 +1,19 @@
 import { type Anchors, domId, markAreas, type Scene, type Shape } from '@diagrist/core';
 import { headerShapes, markShapes, stripShapes, type Words, withAreaLegend } from '@diagrist/parts';
 import { noteShapes } from '../../shared/note-shapes.js';
+import type { Tether } from '../layout/extras.js';
 import type { ClassLayout, PictureTexts } from '../layout/index.js';
 import type { ClassModel } from '../model.js';
 import { classAreaMarks, usedAreas } from './areas.js';
 import { edgeShape, labelShape } from './edges.js';
 import { classShape, diamondShape, packageShape } from './nodes.js';
+
+/** The dashed line of an association class: one line where it runs straight, else a path. */
+function tetherShape(t: Tether): Shape {
+  const [a, b] = t.points;
+  if (t.points.length === 2 && a && b) return { kind: 'line', x1: a[0], y1: a[1], x2: b[0], y2: b[1], role: 'tether' };
+  return { kind: 'path', d: `M${t.points.map((p) => p.join(' ')).join(' L')}`, role: 'tether' };
+}
 
 /** Routes with a relation, in drawing order: the index `k` of `edge-<k>` and `label-<k>`. */
 const drawn = (l: ClassLayout) =>
@@ -40,7 +48,7 @@ export function classScene(l: ClassLayout, m: ClassModel, words: Words & Picture
     ...nodeShapes(l, m, cards),
     ...noteShapes(l.notes, cards),
     ...edges.map((e, k) => edgeShape(e.relation, e.route, bundled.has(e.route.edge), domId.edge(k))),
-    ...l.tethers.map((t): Shape => ({ kind: 'line', x1: t.a[0], y1: t.a[1], x2: t.b[0], y2: t.b[1], role: 'tether' })),
+    ...l.tethers.map(tetherShape),
     ...edges.flatMap((e, k) => {
       const own = l.labels.filter((x) => x.route === e.i);
       return own.length ? [labelShape(own, e.relation.emph === true, domId.label(k))] : [];
