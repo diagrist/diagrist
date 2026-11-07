@@ -28,10 +28,11 @@ function distances(m: StateModel): Map<string, number> {
   return dist;
 }
 
-/** The shape a vertex is laid out as: circles round, fork and join bars, the rest boxes. */
-function shapeOf(kind: string): Pick<GraphNode, 'shape'> {
+/** The shape a vertex is laid out as: circles round, choices diamonds, fork and join bars, the rest rounded boxes. */
+function shapeOf(kind: string): Pick<GraphNode, 'shape' | 'corner'> {
   if (ROUND.has(kind) || isBorderPoint(kind as never)) return { shape: 'ellipse' };
-  return kind === 'fork' || kind === 'join' ? { shape: 'bar' } : {};
+  if (kind === 'choice') return { shape: 'diamond' };
+  return kind === 'fork' || kind === 'join' ? { shape: 'bar' } : { corner: S.radius };
 }
 
 /**

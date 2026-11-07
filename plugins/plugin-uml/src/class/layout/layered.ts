@@ -8,6 +8,7 @@ import {
   WRAP_EM,
   wrapWithin,
 } from '@diagrist/layout-grid';
+import { CARD } from '../../shared/cards.js';
 import type { ClassRelation } from '../diagram.js';
 import type { ClassModel } from '../model.js';
 import { packagesAround } from '../model.js';
@@ -165,11 +166,17 @@ function framesOf(m: ClassModel, placed: ReadonlySet<string>): GraphContainer[] 
  * A class diagram as a layout graph: classifiers and diamonds as nodes, packages as frames with their tab as the
  * head, every relation as an edge ranked by its kind (`ranksOf`), lines with a package at an end and of a classifier
  * with itself among them, and the lines never drawn that hang an association class below its line. Layers take free
- * ranks and hold every package as a block, no layer over `CLASS.perLayer` classes.
+ * ranks and hold every package as a block, no layer over `CLASS.perLayer` classes. Classifiers keep a card's corners.
  */
 export function classGraph(m: ClassModel): LayoutGraph {
   const nodes = [
-    ...m.diagram.classifiers.map((c) => ({ id: c.id, width: classWidth(c), height: classHeight(c), source: c.span })),
+    ...m.diagram.classifiers.map((c) => ({
+      id: c.id,
+      width: classWidth(c),
+      height: classHeight(c),
+      corner: CARD.radius,
+      source: c.span,
+    })),
     ...m.diagram.associations.map((a) => ({ id: a.id, width: CLASS.naryW, height: CLASS.naryH, source: a.span })),
   ].map((b): GraphNode => {
     const cluster = packagesAround(m, b.id)[0];

@@ -2,9 +2,10 @@ import type { Rect } from '@diagrist/core';
 import { clearOfAside } from './aside.js';
 import { centreEnds } from './centre.js';
 import type { Corners } from './docks.js';
-import { isotoneApart } from './isotone.js';
 import type { Group, Link } from './links.js';
+import { CORNER, type End, rowOf } from './port-row.js';
 import type { Ranked } from './rank.js';
+import type { LayeredNode } from './spec.js';
 import { straightTrunks } from './trunks.js';
 
 /** Where every piece leaves its upper end and reaches its lower end, by `Link`. */
@@ -16,19 +17,6 @@ export interface Ports {
 }
 
 /**
- * One end on a side of a box: the pieces that leave or reach it there together, where the end would stand
- * (`toward`), and where the far ends of its pieces are (`beyond`), which orders the ends of a side. The two differ for
- * the members of a fan or join, which aim straight at their own box but come from the trunk.
- */
-interface End {
-  readonly links: readonly Link[];
-  readonly toward: number;
-  readonly beyond: number;
-  /** How hard the end holds to `toward`: little for a member of a fan or join, which comes from its trunk. */
-  readonly hold: number;
-}
-
-/**
  * The hold of an end whose piece comes along a trunk, so it yields to the ends of pieces that run straight: little
  * enough that it pulls no such end off its line by a pixel.
  */
@@ -36,8 +24,6 @@ const YIELD = 0.0001;
 
 /** Keeps ends this far from the corners of a box. */
 const corners = (r: Rect) => Math.min(16, r.w / 4);
-/** How near a corner an end may come when that spares its line a jog of less than `jog`. */
-const CORNER = 4;
 
 /**
  * The ends on every side of every box: a fan leaves through one end, a join arrives through one end, every other
@@ -52,7 +38,7 @@ const CORNER = 4;
  * off the corners. `aside` are ends on the bottom of `upper` of lines that run below their layer to `lower` beside it;
  * they take their place in the order like the others, so the outermost goes to the line whose other end lies furthest
  * out; `atop` are the like ends on the top of `lower` of lines that run above their layer. An end `loose` names stands
- * in an order of its own, near its other end.
+ * in an order of its own, near its other end. A trunk on a diamond (`node`) takes the middle if no member is in reach.
  */
 export function portsOf(
   groups: readonly Group[],
@@ -66,6 +52,7 @@ export function portsOf(
   aside: readonly Link[] = [],
   atop: readonly Link[] = [],
   loose: (l: Link, box: string) => boolean = () => false,
+  node: (box: string) => Pick<LayeredNode, 'shape' | 'corner'> | undefined = () => undefined,
 ): Ports {
   const top = new Map<Link, number>();
   const bottom = new Map<Link, number>();
@@ -81,7 +68,10 @@ export function portsOf(
     const r = rects.get(box);
     const c = r ? r.x + r.w / 2 : 0;
     const xs = ids.map((n) => x.get(n) ?? 0).filter((v) => !r || (v >= r.x + inset(r) && v <= r.x + r.w - inset(r)));
-    if (xs.length === 0) return ids.reduce((s, n) => s + (x.get(n) ?? 0), 0) / Math.max(1, ids.length);
+    if (xs.length === 0)
+      return node(box)?.shape === 'diamond'
+        ? c
+        : ids.reduce((s, n) => s + (x.get(n) ?? 0), 0) / Math.max(1, ids.length);
     return [...xs].sort((a, b) => Math.abs(a - c) - Math.abs(b - c) || a - b)[0] as number;
   };
   for (const g of groups) {
@@ -108,20 +98,10 @@ export function portsOf(
     const r = rects.get(box);
     if (!r) continue;
     const sorted = [...list].sort((a, b) => a.beyond - b.beyond || a.toward - b.toward);
-    const lo = r.x + inset(r);
-    const hi = r.x + r.w - inset(r);
-    const step = sorted.length < 2 ? 0 : Math.min(gap, (hi - lo) / (sorted.length - 1));
-    const wanted = sorted.map((e) => Math.min(hi, Math.max(lo, e.toward)));
-    const placed = isotoneApart(
-      wanted,
-      sorted.map((e) => e.hold),
-      sorted.slice(1).map(() => step),
-    );
+    const { at, step } = rowOf(sorted, r, inset(r), gap, node(box)?.corner);
     order.set(k, { ends: sorted, step });
-    const shift = Math.min(0, hi - (placed.at(-1) ?? hi)) + Math.max(0, lo - (placed[0] ?? lo));
     sorted.forEach((e, i) => {
-      const at = Math.round((placed[i] ?? 0) + shift);
-      for (const l of e.links) (side === 'bottom' ? bottom : top).set(l, at);
+      for (const l of e.links) (side === 'bottom' ? bottom : top).set(l, at[i] ?? 0);
     });
   }
   const alone = (box: string, side: 'top' | 'bottom') => (ends.get(`${box}|${side}`) ?? []).length <= 1;
