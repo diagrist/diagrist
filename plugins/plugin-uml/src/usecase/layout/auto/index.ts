@@ -4,7 +4,7 @@ import { type Laid, laidUseCase } from '../laid.js';
 import { acrossPlans } from './across.js';
 import { flipFamilies, type Priced } from './flip.js';
 import { bandOrders } from './order.js';
-import { depths, type Parts, type Side } from './parts.js';
+import { depths, type Parts, type Side, specialCases } from './parts.js';
 import { acrossSides, bandIndex, bridged, type Plan, stackedPlan } from './plan.js';
 import { sides } from './sides.js';
 import { slack } from './slack.js';
@@ -73,6 +73,9 @@ function rowsDown(p: Parts, band: (id: string) => number): number {
  * stays. Below each other is tried only where side by side is not clean of these, and wins where it has fewer; there
  * the families flip between the lanes, and the sides they end with lay out once more, where it differs, the plan with
  * the families whose use cases all lie in inner columns above or below the subjects (`stackedPlan`); the cheaper stays.
+ * While the picture is not clean, per general use case with two special ones or more, each special one in turn stands
+ * a column deeper, so another stays below the general in its column, until one is cheaper; so the price, not the size,
+ * chooses which one leaves the column.
  * Notes take free spots; where one finds none near its anchor, the picture is laid out once more with room for it
  * beside its anchor, and the cheaper stays, a note on a box or text costing as much as a line through a box, one on a
  * line or frame line as a text on a line. The chosen plan is laid out once more with the use cases of every subject
@@ -112,9 +115,22 @@ export function arrangeUseCase(m: UseCaseModel, price: Price): Laid {
     const run = (s: Map<string, Side>) => tried(stackedPlan(p, s));
     const lane = flipFamilies(p, run(sides(p, depths(p))), run);
     const over = stackedPlan(p, new Map(lane.side), true);
-    if ([...over.actorX].every(([id, x]) => lane.plan.actorX.get(id) === x)) return lane;
-    const got = tried(over);
-    return cheaper(lane, got) ? got : lane;
+    const same = [...over.actorX].every(([id, x]) => lane.plan.actorX.get(id) === x);
+    const got = same ? lane : tried(over);
+    const wide = cheaper(lane, got);
+    let best = wide ? got : lane;
+    let deeper = new Set<string>();
+    for (const specials of specialCases(p)) {
+      if (best.clean) break;
+      for (const special of specials) {
+        const more = new Set([...deeper, special]);
+        const moved = tried(stackedPlan(p, new Map(best.side), wide, more));
+        if (!cheaper(best, moved)) continue;
+        [best, deeper] = [moved, more];
+        break;
+      }
+    }
+    return best;
   };
   const across = (column: (id: string) => number, choose: boolean) => {
     const { side, home, fixed } = acrossSides(p, column);

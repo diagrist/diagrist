@@ -48,12 +48,40 @@ function shifted(rects: Rects, ids: readonly string[], by: number): Rects {
 }
 
 /**
+ * The boxes outside every frame (`framed` holds those inside one) whose straight lines all end in a box of `moved`:
+ * such a box hangs on the moved ones only and moves with them by `by`, so its lines keep their slope. Not where it
+ * would then meet a box that stays.
+ */
+function hangers(
+  graph: LayoutGraph,
+  straight: readonly GraphEdge[],
+  rects: Rects,
+  framed: ReadonlySet<string>,
+  moved: readonly string[],
+  by: number,
+): string[] {
+  const set = new Set(moved);
+  const meets = (r: Rect, q: Rect) => r.x < q.x + q.w && q.x < r.x + r.w && r.y < q.y + q.h && q.y < r.y + r.h;
+  return graph.nodes
+    .filter((n) => !framed.has(n.id) && !set.has(n.id) && rects.has(n.id))
+    .filter((n) => {
+      const mine = straight.filter((e) => e.from === n.id || e.to === n.id);
+      if (mine.length === 0 || !mine.every((e) => set.has(e.from === n.id ? e.to : e.from))) return false;
+      const r = rects.get(n.id) as Rect;
+      const to = { ...r, y: r.y + by };
+      return ![...rects].some(([id, q]) => id !== n.id && !set.has(id) && meets(to, q));
+    })
+    .map((n) => n.id);
+}
+
+/**
  * The members of every frame packed in their columns, for a graph whose layers run right and that asks for it
  * (`given.pack`): where two members of one frame stand further apart in their column than `gap` and no member of
  * another column fills the band between them, the boxes above the gap move down or those below move up until they
  * stand `gap` apart, whichever leaves the lines out of the moved boxes shorter, and only where no line then runs
- * through a box, a head or a foreign frame more often than before (`costOf`, as `clearStraight` counts it). So a frame
- * is as tall as what it holds and no empty band reads as missing content. The kind lays a picture out packed and
+ * through a box, a head or a foreign frame more often than before (`costOf`, as `clearStraight` counts it). The boxes
+ * outside every frame that hang on the moved ones only move with them (`hangers`). So a frame is as tall as what it
+ * holds, no empty band reads as missing content and a line from outside stays as level as it was. The kind lays a picture out packed and
  * keeps it where its price finds it cheaper, since a packed frame may take the room a note wanted.
  */
 export function packFrames(
@@ -67,6 +95,7 @@ export function packFrames(
   if (graph.given?.direction !== 'right' || graph.given.pack !== true) return out;
   const nodes = new Map(graph.nodes.map((n) => [n.id, n]));
   const containers = graph.containers ?? [];
+  const framed = new Set(containers.filter((k) => k.kind === 'frame').flatMap((k) => k.members));
   const hard = (tried: Rects) => {
     const framed = frames(tried);
     const frameOf = framing(graph, framed);
@@ -89,7 +118,9 @@ export function packFrames(
         const band = (r: Rect) => r.y < b.y - gap && r.y + r.h > a.y + a.h + gap;
         if (slack <= 0.5 || c.members.some((m) => !col.includes(m) && band(out.get(m) as Rect))) continue;
         const was = hard(out);
-        const [upper, lower] = [col.slice(0, i), col.slice(i)];
+        const [up, down] = [col.slice(0, i), col.slice(i)];
+        const upper = [...up, ...hangers(graph, straight, out, framed, up, slack)];
+        const lower = [...down, ...hangers(graph, straight, out, framed, down, -slack)];
         const chosen = [
           { tried: shifted(out, upper, slack), moved: upper },
           { tried: shifted(out, lower, -slack), moved: lower },

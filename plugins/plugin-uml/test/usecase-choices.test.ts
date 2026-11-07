@@ -67,6 +67,15 @@ describe('the columns of actors side by side, chosen by the price', () => {
     expect(auftrag.y - (tour.y + tour.h)).toBeLessThanOrEqual(60);
   });
 
+  it('stand the special use case below its general that the price chooses, the other one a column deeper', () => {
+    const p = picture(stress.source('faelle-generalisierung.dgr'));
+    expect(p.codes).toEqual([]);
+    const [loesen, schliessen, eskalieren] = [p.node('loesen'), p.node('schliessen'), p.node('eskalieren')];
+    expect(Math.abs(cx(schliessen) - cx(loesen))).toBeLessThan(1);
+    expect(schliessen.y).toBeGreaterThan(loesen.y + loesen.h);
+    expect(eskalieren.x).toBeGreaterThan(right(loesen));
+  });
+
   it('keep the actor beside its subject where the choices lead the search to a dearer picture', () => {
     const p = picture(stress.source('zwei-subjekte.dgr'));
     expect(p.node('bib').x).toBeGreaterThan(right(p.frame('lms')));

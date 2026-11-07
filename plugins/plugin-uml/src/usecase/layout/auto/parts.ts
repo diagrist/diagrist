@@ -12,18 +12,37 @@ export interface Parts {
 
 /**
  * Column per use case: the base left, included and extending cases right of it. A special case stays in the
- * column of its general one and stands below it, as in the textbook.
+ * column of its general one and stands below it, as in the textbook; those in `deeper` stand a column further right,
+ * with what hangs on them.
  */
-export function depths(p: Parts): Map<string, number> {
+export function depths(p: Parts, deeper: ReadonlySet<string> = new Set()): Map<string, number> {
   const ids = p.cases.map((c) => c.id);
   const isCase = new Set(ids);
   const edges = p.relations.flatMap((r): LayerEdge[] => {
     if (!isCase.has(r.from) || !isCase.has(r.to) || r.kind === 'association') return [];
-    if (r.kind === 'generalization') return [{ from: r.from, to: r.to, rank: 0 }];
+    if (r.kind === 'generalization')
+      return [deeper.has(r.from) ? { from: r.to, to: r.from, rank: 1 } : { from: r.from, to: r.to, rank: 0 }];
     return r.kind === 'include' ? [{ from: r.from, to: r.to, rank: 1 }] : [{ from: r.to, to: r.from, rank: 1 }];
   });
   const { layers } = layerGraph({ nodes: ids, edges, maxPerLayer: Number.POSITIVE_INFINITY });
   return new Map(layers.flatMap((layer, l) => layer.map((id) => [id, l] as const)));
+}
+
+/**
+ * The special use cases of every general one with two or more, those with fewer relations first, else as declared.
+ * The layout stands one of them below its general in its column and moves the others aside; which one stays is the
+ * price's choice, since one of them may as well stand a column deeper (`depths`), the one that takes least along
+ * first.
+ */
+export function specialCases(p: Parts): string[][] {
+  const isCase = new Set(p.cases.map((c) => c.id));
+  const specials = new Map<string, string[]>();
+  for (const c of p.cases)
+    for (const r of p.relations)
+      if (r.kind === 'generalization' && r.from === c.id && isCase.has(r.to))
+        specials.set(r.to, [...(specials.get(r.to) ?? []), c.id]);
+  const ties = (id: string) => p.relations.filter((r) => r.from === id || r.to === id).length;
+  return [...specials.values()].filter((list) => list.length > 1).map((list) => list.sort((a, b) => ties(a) - ties(b)));
 }
 
 /** Use cases an actor takes part in through associations, or the actors of a use case. */
