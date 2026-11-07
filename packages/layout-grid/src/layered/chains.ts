@@ -1,5 +1,6 @@
 import type { FramePaths } from './paths.js';
 import type { Ranked } from './rank.js';
+import { movingWith } from './trunks-through.js';
 
 type Layers = string[][];
 
@@ -7,7 +8,8 @@ type Layers = string[][];
  * An order with the placeholders of one long edge moved together to the left or right end of what they stand among,
  * in every layer at once: the start or the end of the run of their frame, or of the layer outside frames. A move
  * stays when the order costs less, or as much and its pieces span less by `length`. Moving one placeholder at a time
- * cannot find such an order, since each single step bends the edge across its neighbours.
+ * cannot find such an order, since each single step bends the edge across its neighbours. A trunk through the layers
+ * moves with all its branches (`movingWith`), keeping their order in each layer.
  */
 export function chainsAside(
   layers: Layers,
@@ -19,18 +21,22 @@ export function chainsAside(
   let best = layers;
   let lowest = cost(best);
   let shortest: number | undefined;
+  const moving = movingWith(ranked);
+  const seen = new Set<string>();
   for (const chain of ranked.chains.values()) {
-    const held = chain.filter((n) => ranked.dummies.has(n));
-    if (held.length < 2) continue;
+    const held = new Set(ranked.dummies.has(chain[1] ?? '') ? moving(chain[1] as string) : []);
+    const key = [...held].join(' ');
+    if (held.size < 2 || seen.has(key)) continue;
+    seen.add(key);
     for (const end of ['left', 'right'] as const) {
       const tried = best.map((layer) => {
-        const d = held.find((n) => layer.includes(n));
-        if (d === undefined) return layer;
-        const frame = fp?.paths.get(d)?.at(-1);
-        const rest = layer.filter((n) => n !== d);
+        const ds = layer.filter((n) => held.has(n));
+        if (ds.length === 0) return layer;
+        const frame = fp?.paths.get(ds[0] as string)?.at(-1);
+        const rest = layer.filter((n) => !held.has(n));
         const run = rest.flatMap((n, i) => (frame === undefined || fp?.paths.get(n)?.includes(frame) ? [i] : []));
         const at = run.length === 0 ? 0 : end === 'left' ? (run[0] as number) : (run.at(-1) as number) + 1;
-        rest.splice(at, 0, d);
+        rest.splice(at, 0, ...ds);
         return rest;
       });
       const c = cost(tried);

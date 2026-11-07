@@ -2,6 +2,7 @@ import { assignLayers } from '../layers/assign.js';
 import { acyclic, type LayerEdge } from '../layers/graph.js';
 import { blockedHandOver, handOvers, nodeLanes } from './hand-overs.js';
 import type { LayeredEdge, LayeredSpec } from './spec.js';
+import { shareTrunks } from './trunks-through.js';
 
 /**
  * The layering of a picture: the layer of every node, placeholders where an edge crosses a layer, and per edge the
@@ -10,9 +11,11 @@ import type { LayeredEdge, LayeredSpec } from './spec.js';
  */
 export interface Ranked {
   readonly layerOf: ReadonlyMap<string, number>;
-  /** Placeholders, `d:<edge>:<i>`, each standing for one edge in one layer it crosses. */
+  /** Placeholders, `d:<edge>:<i>`, each standing for one edge in one layer it crosses, or for a trunk (`shared`). */
   readonly dummies: ReadonlySet<string>;
   readonly chains: ReadonlyMap<string, readonly string[]>;
+  /** The placeholders the members of a fan share through the layers (`shareTrunks`), with the edges through each. */
+  readonly shared?: ReadonlyMap<string, readonly string[]>;
   readonly down: ReadonlyMap<string, boolean>;
   /** Edges between two nodes of one layer, drawn beside each other. */
   readonly beside: readonly LayeredEdge[];
@@ -102,7 +105,7 @@ function joinedLayers(
 /**
  * Layers every node, or takes the layers `fixed` gives, and threads placeholders through long edges; an edge
  * between two nodes of one layer is drawn beside, and an edge that may take a rail and runs up the layers or past
- * one takes one, unless `chained` names it.
+ * one takes one, unless `chained` names it. The members of a fan share their placeholders (`shareTrunks`).
  */
 export function rank(spec: LayeredSpec, fixed?: ReadonlyMap<string, number>, chained?: ReadonlySet<string>): Ranked {
   const known = new Set(spec.nodes.map((n) => n.id));
@@ -139,5 +142,14 @@ export function rank(spec: LayeredSpec, fixed?: ReadonlyMap<string, number>, cha
     chains.set(e.id, chain);
     down.set(e.id, a < b);
   }
-  return { layerOf: all, dummies, chains, down, beside, ...(rails.length > 0 ? { rails } : {}) };
+  const shared = shareTrunks(spec, edges, all, dummies, chains);
+  return {
+    layerOf: all,
+    dummies,
+    chains,
+    down,
+    beside,
+    ...(shared.size > 0 ? { shared } : {}),
+    ...(rails.length > 0 ? { rails } : {}),
+  };
 }

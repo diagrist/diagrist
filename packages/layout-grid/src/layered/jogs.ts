@@ -4,6 +4,7 @@ import type { Group, Link } from './links.js';
 import type { Ports } from './ports.js';
 import type { Ranked } from './rank.js';
 import { SHOVE, SHOVE_PIECES, shoved } from './shove.js';
+import { movingWith } from './trunks-through.js';
 
 /** A placement with the ports it gives. */
 export interface Placement {
@@ -40,7 +41,7 @@ const ROUNDS = 3;
  * Bends taken out by moving boxes sideways (layout plan R1, and R2 as a pass after the placement): for every piece
  * that bends, its lower box or placeholder chain moves by the offset, or its upper one, or the frame of its lower
  * end, else of its upper end, as a whole, such as a package under the line that enters it. A placeholder moves with
- * all of its chain, which keeps the chain straight. A move needs room in every layer it touches and must not bend a
+ * what keeps its lines straight (`movingWith`): its chain, or a trunk through the layers with all its branches. A move needs room in every layer it touches and must not bend a
  * link of a chain (`spines`); of the moves that fit, the one whose whole picture, drawn, costs least by `scoreOf`
  * stays, if it costs less than the picture before, or as much and leaves bent lines that pass fewer layers
  * (`bentReach`), so of two lines only one of which can run straight the longer one does. So a box leaves the axis of
@@ -102,13 +103,10 @@ export function unjog(u: Unjogging, start: Placement): Placement {
           .map((l) => l.edge),
       ),
     ].reduce((sum, e) => sum + (reach.get(e) ?? 0), 0);
-  const chainThrough = new Map<string, readonly string[]>();
-  for (const chain of u.ranked.chains.values())
-    for (const d of chain.slice(1, -1)) chainThrough.set(d, chain.slice(1, -1));
+  const withDummy = movingWith(u.ranked);
   const alongWith = (moving: readonly string[], d: number) =>
-    shoved(moving, d, layerOf, (n) => (u.ranked.dummies.has(n) ? (chainThrough.get(n) ?? []) : u.blockOf(n)));
-  const chainOf = (l: Link, n: string) =>
-    u.ranked.dummies.has(n) ? (u.ranked.chains.get(l.edge) ?? []).slice(1, -1) : [n];
+    shoved(moving, d, layerOf, (n) => (u.ranked.dummies.has(n) ? withDummy(n) : u.blockOf(n)));
+  const chainOf = (n: string) => (u.ranked.dummies.has(n) ? withDummy(n) : [n]);
   for (let round = 0, moved = true; moved && round < ROUNDS; round++) {
     moved = false;
     for (const g of u.groups) moved = step(g) || moved;
@@ -140,8 +138,8 @@ export function unjog(u: Unjogging, start: Placement): Placement {
       return block.length > 1 && !block.includes(n === l.lower ? l.upper : l.lower) ? block : [];
     };
     const tries: [readonly string[], number][] = [
-      [chainOf(l, l.lower), -off],
-      [chainOf(l, l.upper), off],
+      [chainOf(l.lower), -off],
+      [chainOf(l.upper), off],
       [frame(l.lower), -off],
       [frame(l.upper), off],
     ];

@@ -73,11 +73,12 @@ function tryMove(input: CoordsInput, x: Xs, n: string, to: number): boolean {
 /**
  * Every chain of placeholders on one vertical: under the middle of its upper end, else over that of its lower end,
  * else as near where it stands most as the side of either end reaches, so its port can slide there, else there.
+ * `trunks` takes only the chains through a trunk of a fan (`Ranked.shared`).
  */
-function straighten(input: CoordsInput, x: Xs): void {
+function straighten(input: CoordsInput, x: Xs, trunks = false): void {
   for (const chain of input.ranked.chains.values()) {
     const inner = chain.slice(1, -1);
-    if (inner.length === 0) continue;
+    if (inner.length === 0 || (trunks && !inner.some((d) => input.ranked.shared?.has(d)))) continue;
     const ends = [chain[0] as string, chain.at(-1) as string];
     const middle = [...inner.map((d) => x.get(d) ?? 0)].sort((a, b) => a - b)[Math.floor(inner.length / 2)] ?? 0;
     const within = (n: string) => {
@@ -134,10 +135,10 @@ function centre(input: CoordsInput, x: Xs): void {
 }
 
 /**
- * The centre of every node: layers packed from the left, then passes that pull each layer towards its partners
- * in the layer before as far as real widths and gaps allow, placeholder chains straightened, parents centred over
- * their children and single children set exactly below their parent, then the links of chains straight, top down.
- * Shifted so the leftmost box starts at `left` and rounded to whole pixels.
+ * The centre of every node: layers packed from the left, then passes that pull each layer towards its partners in the
+ * layer before as far as real widths and gaps allow, placeholder chains straightened, parents centred over their
+ * children and single children set exactly below their parent, then the links of chains straight, top down, and the
+ * chains through a trunk straight again under the moved boxes. Shifted to start at `left`, rounded to whole pixels.
  */
 export function coords(input: CoordsInput, left: number): Xs {
   const x: Xs = new Map();
@@ -160,6 +161,7 @@ export function coords(input: CoordsInput, left: number): Xs {
   straighten(input, x);
   for (const [upper, lower] of input.spines ?? [])
     if (!tryMove(input, x, lower, x.get(upper) ?? 0)) tryMove(input, x, upper, x.get(lower) ?? 0);
+  straighten(input, x, true);
   const min = Math.min(...[...x].map(([n, v]) => v - input.width(n) / 2));
   return new Map([...x].map(([n, v]) => [n, Math.round(v - min + left)]));
 }

@@ -26,7 +26,8 @@ export const prefix = (a: readonly string[], b: readonly string[]): number => {
  * frame where that begins, else in the frames both ends share. Where a frame beside those lies wholly between the
  * layers of the ends, the line runs through it rather than around it (layout plan R5, owner decision D2), and the
  * placeholder stands in that frame too, unless the frame is `opaque`; otherwise a line crosses the border of a frame
- * only where it leaves or enters it.
+ * only where it leaves or enters it. A trunk several edges share (`Ranked.shared`) stands in the frames all of them
+ * would put it in.
  */
 export function framePaths(spec: LayeredSpec, ranked: Ranked): FramePaths {
   const list = spec.frames ?? [];
@@ -74,14 +75,14 @@ export function framePaths(spec: LayeredSpec, ranked: Ranked): FramePaths {
     const [a, b] = [paths.get(nodes[0] as string) ?? [], paths.get(nodes.at(-1) as string) ?? []];
     const shared = a.slice(0, prefix(a, b));
     for (const d of nodes.slice(1, -1)) {
-      if (!d.startsWith(`d:${edge}:`)) continue;
       const l = ranked.layerOf.get(d) ?? 0;
       const [up, low] = [reaching(a, l), reaching(b, l)];
       const across = between(nodes, shared, l);
-      paths.set(
-        d,
-        up.length > shared.length ? up : low.length > shared.length ? low : across ? [...shared, across] : shared,
-      );
+      const own =
+        up.length > shared.length ? up : low.length > shared.length ? low : across ? [...shared, across] : shared;
+      const first = ranked.shared?.get(d)?.[0] ?? edge;
+      const trunk = paths.get(d) ?? [];
+      paths.set(d, first === edge ? own : own.slice(0, prefix(own, trunk)));
     }
   }
   return { byId, paths, span, chain };
