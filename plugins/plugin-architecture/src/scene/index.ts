@@ -68,6 +68,7 @@ export function architectureAnchors(model: ArchitectureModel, layout: Architectu
         domId: domId.edge(index),
         ...(labelled.has(index) ? { labelId: domId.label(index) } : {}),
         points: r.points,
+        ...(e ? { span: e.source } : {}),
       };
     }),
   };
