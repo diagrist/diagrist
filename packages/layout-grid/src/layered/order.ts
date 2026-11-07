@@ -1,15 +1,14 @@
 import { orderLayers, refine } from '../layers/order.js';
-import type { OrderCost } from '../layers/sift.js';
 import { orderStarts } from './budget.js';
 import { chainsAside } from './chains.js';
-import { clustered, framesBroken } from './clusters.js';
+import { clustered } from './clusters.js';
 import { lanesOf } from './lanes.js';
-import { PINNED, rankedCost } from './order-cost.js';
-import { firstBroken, firstPairs } from './order-first.js';
+import { breaksOf, framedCost } from './order-broken.js';
+import { rankedCost } from './order-cost.js';
+import { firstPairs } from './order-first.js';
 import { hangingOrder } from './order-hanging.js';
 import { lengthOf } from './order-length.js';
 import { spanPricing } from './order-span.js';
-import { inversions } from './order-terms.js';
 import { trunkSites } from './order-trunks.js';
 import { framePaths } from './paths.js';
 import type { Ranked } from './rank.js';
@@ -131,10 +130,6 @@ export function hung(
   return broken(order) > broken(layers.map((l) => [...l])) ? undefined : order;
 }
 
-/** Pairs of nodes, in any layer, whose lanes stand in the wrong order. */
-const lanesBroken = (layers: readonly string[][], lane: ReadonlyMap<string, number>): number =>
-  layers.reduce((n, layer) => n + inversions(layer, lane), 0);
-
 /**
  * The cost of an order by crossings and the rest, the same with its length (`long`), the estimated length, and how
  * often an order breaks a frame, puts a lane out of its order or a pair of an edge beside out of the order it asks
@@ -158,23 +153,17 @@ function costsOf(
   const fp = (spec.frames ?? []).length === 0 ? undefined : framePaths(spec, ranked);
   const lanes = lanesOf(spec, ranked);
   const lane = new Map([...ranked.layerOf.keys()].map((n) => [n, lanes.of(n) ?? -1] as const));
-  const laned = (spec.lanes ?? []).length > 0;
-  const firsts = firstPairs(spec);
-  const out = (layers: string[][]) =>
-    (fp ? framesBroken(layers, fp) : 0) + (laned ? lanesBroken(layers, lane) : 0) + firstBroken(layers, firsts);
-  const framed = (c: OrderCost): OrderCost => {
-    if (fp === undefined && !laned && firsts.length === 0) return c;
-    const near = c.near as NonNullable<OrderCost['near']>;
-    const broken = (layers: string[][]) => PINNED * out(layers);
-    return Object.assign((layers: string[][]) => c(layers, links.adj, ranked.layerOf) + broken(layers), {
-      near: (layers: string[][], l: number) => near(layers, l) + broken(layers),
-    });
-  };
+  const breaks = breaksOf(fp, (spec.lanes ?? []).length > 0 ? lane : undefined, firstPairs(spec));
   const lengths = { links, layerOf: ranked.layerOf, width, gap, counts: () => 1 };
   return {
-    broken: out,
-    cost: framed(rankedCost(base)),
-    long: framed(rankedCost({ ...base, span: { pricing, perPixel: PER_PIXEL } })),
+    broken: breaks.out,
+    cost: framedCost(rankedCost(base), breaks, links.adj, ranked.layerOf),
+    long: framedCost(
+      rankedCost({ ...base, span: { pricing, perPixel: PER_PIXEL } }),
+      breaks,
+      links.adj,
+      ranked.layerOf,
+    ),
     length: (layers: string[][]) => lengthOf(layers, lengths),
   };
 }

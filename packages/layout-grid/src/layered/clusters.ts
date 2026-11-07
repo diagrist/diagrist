@@ -42,40 +42,70 @@ function grouped(layer: readonly string[], fp: FramePaths, depth: number, rank: 
 const normalised = (layers: Layers, fp: FramePaths, rank: ReadonlyMap<string, number>): Layers =>
   layers.map((layer) => grouped(layer, fp, 0, rank));
 
+/** What breaks the frames in an order, in parts a search reckons layer by layer and the part across the layers. */
+export interface FrameBreaks {
+  /** Every foreign node standing between two nodes of one frame in `layer`. */
+  readonly local: (layer: readonly string[]) => number;
+  /** The first place of each frame in `layer`. */
+  readonly firsts: (layer: readonly string[]) => ReadonlyMap<string, number>;
+  /**
+   * For every pair of sibling frames, the layers in which they stand the other way round than in most: counted over
+   * the first places of `others`, then for each layer `at` added to them, so a search that tries many orders of one
+   * layer counts the others once. An empty `at` adds nothing.
+   */
+  readonly siblings: (others: readonly ReadonlyMap<string, number>[]) => (at: ReadonlyMap<string, number>) => number;
+}
+
 /**
  * What breaks the frames in an order: every foreign node standing between two nodes of one frame, and for every pair
- * of sibling frames the layers in which they stand the other way round than in most.
+ * of sibling frames the layers in which they stand the other way round than in most: `local` summed over the layers
+ * plus `siblings` of the `firsts` of every layer. Kept in parts so a search that changes one layer reckons only it.
  */
-export function framesBroken(layers: readonly (readonly string[])[], fp: FramePaths): number {
-  let total = 0;
-  const firsts: Map<string, number>[] = [];
-  for (const layer of layers) {
-    const ends = new Map<string, [number, number, number]>();
+export function frameBreaks(fp: FramePaths): FrameBreaks {
+  const frames = [...fp.byId.values()];
+  const pairs = frames.flatMap((f, i) =>
+    frames.slice(i + 1).flatMap((g) => (f.parent === g.parent ? [[f, g] as const] : [])),
+  );
+  const ends = (layer: readonly string[]) => {
+    const out = new Map<string, [number, number, number]>();
     layer.forEach((n, i) => {
       for (const f of fp.paths.get(n) ?? []) {
-        const e = ends.get(f);
-        if (e === undefined) ends.set(f, [i, i, 1]);
+        const e = out.get(f);
+        if (e === undefined) out.set(f, [i, i, 1]);
         else [e[1], e[2]] = [i, e[2] + 1];
       }
     });
-    for (const [first, last, members] of ends.values()) total += last - first + 1 - members;
-    firsts.push(new Map([...ends].map(([f, e]) => [f, e[0]])));
-  }
-  const frames = [...fp.byId.values()];
-  frames.forEach((f, i) => {
-    for (const g of frames.slice(i + 1)) {
-      if (f.parent !== g.parent) continue;
-      let [before, after] = [0, 0];
-      for (const at of firsts) {
-        const [a, b] = [at.get(f.id), at.get(g.id)];
-        if (a === undefined || b === undefined) continue;
-        if (a < b) before++;
-        else after++;
-      }
-      total += Math.min(before, after);
-    }
-  });
-  return total;
+    return out;
+  };
+  return {
+    local: (layer) => {
+      let total = 0;
+      for (const [first, last, members] of ends(layer).values()) total += last - first + 1 - members;
+      return total;
+    },
+    firsts: (layer) => new Map([...ends(layer)].map(([f, e]) => [f, e[0]])),
+    siblings: (others) => {
+      const counts = pairs.map(([f, g]) => {
+        let [before, after] = [0, 0];
+        for (const at of others) {
+          const [a, b] = [at.get(f.id), at.get(g.id)];
+          if (a === undefined || b === undefined) continue;
+          if (a < b) before++;
+          else after++;
+        }
+        return { f: f.id, g: g.id, before, after };
+      });
+      return (at) => {
+        let total = 0;
+        for (const { f, g, before, after } of counts) {
+          const [a, b] = [at.get(f), at.get(g)];
+          const one = a === undefined || b === undefined ? undefined : a < b;
+          total += Math.min(before + (one === true ? 1 : 0), after + (one === false ? 1 : 0));
+        }
+        return total;
+      };
+    },
+  };
 }
 
 /** The nodes of frame `f` turned around in every layer, each keeping the places the frame's nodes take. */
