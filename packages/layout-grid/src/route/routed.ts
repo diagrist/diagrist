@@ -2,6 +2,7 @@ import type { Point } from '@diagrist/core';
 import type { Side } from '../geometry.js';
 import type { Route, RouteShape } from '../layout.js';
 import type { GridEdge } from '../spec.js';
+import type { GridWay } from '../way.js';
 import type { Box } from './boxes.js';
 
 /** A route while the router still works on it: with its edge and the boxes of both ends. */
@@ -14,6 +15,7 @@ export interface Routed {
   readonly fromSide: Side;
   readonly toSide: Side;
   readonly unroutable?: boolean;
+  readonly way?: GridWay;
 }
 
 export function toRoute(r: Routed): Route {
@@ -24,5 +26,6 @@ export function toRoute(r: Routed): Route {
     fromSide: r.fromSide,
     toSide: r.toSide,
     ...(r.unroutable ? { unroutable: true } : {}),
+    ...(r.way ? { way: r.way } : {}),
   };
 }

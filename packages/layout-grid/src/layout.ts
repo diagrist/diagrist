@@ -1,6 +1,7 @@
 /** The placed grid: columns, rows, nodes, frames and routes as the layout hands them to a kind. */
 import type { Point, Rect } from '@diagrist/core';
 import type { Side } from './geometry.js';
+import type { GridWay } from './way.js';
 
 /** A placed column: left edge and width. */
 export interface Column {
@@ -62,4 +63,6 @@ export interface Route {
   readonly toSide: Side;
   /** No way around the obstacles was found; the points are those of the fixed grid. */
   readonly unroutable?: boolean;
+  /** The way a channel grid chose, for a later run of the grid to keep (`GridEdge.way`). */
+  readonly way?: GridWay;
 }

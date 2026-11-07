@@ -15,7 +15,7 @@ import { straightRoutes } from './straight.js';
  * Routes every edge whose ends were placed, in the order of the edges. A fixed grid picks straight, L or Z shapes
  * and spreads the ports per side; an adaptive one then searches orthogonal ways around nodes and head strips, laying
  * bundles as trunks. A fixed grid with `channels` routes through its channels instead, its plans priced by the
- * measure unless `priced` is false. Ends at circles and ellipses lie on the outline. With straight lines each edge
+ * measure where `priced` asks it. Ends at circles and ellipses lie on the outline. With straight lines each edge
  * runs from outline to outline.
  */
 export function routeEdges(spec: GridSpec, layout: GridLayout, priced = true): Route[] {

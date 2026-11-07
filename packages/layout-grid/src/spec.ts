@@ -164,6 +164,8 @@ export interface GridEdge {
   readonly source?: Placed['span'];
   /** In a channel grid, the least distance of its ends from a neighbour's on a side that asks it too (`apartOf`). */
   readonly apart?: number;
+  /** In a channel grid, the way the edge keeps instead of the one the channel stage would choose. */
+  readonly way?: import('./way.js').GridWay;
 }
 
 /**

@@ -12,6 +12,7 @@ import { pricedPlans } from './priced.js';
 import { relieve } from './relieve.js';
 import { zLanes } from './tracks.js';
 import { untangle } from './untangle.js';
+import { kept, wayOf } from './ways.js';
 
 const flat = (side: Side): boolean => side === 'top' || side === 'bottom';
 
@@ -101,7 +102,8 @@ function routesOf(board: Board, planned: readonly Plan[]): Routed[] {
  * edges between the same boxes on ports of their own; and the middle pieces of the Zs of one gap on tracks of their
  * own. A Z that crowds a side moves to another gap (`relieve`), and one that runs through a box on every gap bends
  * three times (`detour`), the way that crosses the fewest of the other routes. From there every edge tries its other
- * ways, priced by the measure (`pricedPlans`), unless `priced` is false. An end below a node starts below its
+ * ways, priced by the measure (`pricedPlans`), where `priced` asks it; an edge that keeps a way (`GridEdge.way`)
+ * takes it, and a route whose way the pricing chose tells it, for later runs to keep. An end below a node starts below its
  * caption. A route the kind laid itself is kept, as a loop.
  */
 export function channelRoutes(board: Board, priced = true): Routed[] {
@@ -117,9 +119,11 @@ export function channelRoutes(board: Board, priced = true): Routed[] {
   const first = routesOf(board, planned);
   const others = (i: number) => first.filter((_, k) => k !== i).map((r) => r.points);
   const detoured = planned.map((p, i) => detour(board, p, others(i)));
-  if (!priced) return routesOf(board, detoured);
-  return routesOf(
-    board,
-    pricedPlans(board, detoured, (ps) => untangle(routesOf(board, ps), board)),
-  );
+  const start = detoured.map((p) => kept(board, p));
+  if (!priced) return routesOf(board, start);
+  const best = pricedPlans(board, start, (ps) => untangle(routesOf(board, ps), board));
+  return routesOf(board, best).map((r, i) => {
+    const way = best[i] === start[i] ? undefined : wayOf(best[i] as Plan);
+    return way ? { ...r, way } : r;
+  });
 }
