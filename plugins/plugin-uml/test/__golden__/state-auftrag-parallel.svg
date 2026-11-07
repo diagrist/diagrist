@@ -15,8 +15,8 @@
 <text x="32" y="36" class="label-title">Zustandsdiagramm (UML) · Auftrag</text>
 <text x="32" y="52" class="label-note">Zahlung und Versand parallel</text>
 <g id="group-bearbeitung"><path d="M56 416 L601 416 Q613 416 613 428 L613 758 Q613 770 601 770 L68 770 Q56 770 56 758 Z" class="shape"/><path d="M56 392 Q56 386 62 386 L175 386 Q181 386 181 392 L181 416 L56 416 Z" class="shape"/><text x="68" y="405" text-anchor="start" class="label-bold">In Bearbeitung</text><line x1="325" y1="416" x2="325" y2="770" class="line dashed"/><text x="68" y="430" text-anchor="start" class="label">Versand</text><text x="337" y="430" text-anchor="start" class="label">Zahlung</text></g>
-<g id="node-start"><circle cx="401" cy="138" r="10" class="uml-filled"/></g>
-<g id="node-angelegt"><rect x="341" y="220" width="120" height="48" rx="12" class="shape"/><text x="401" y="248" text-anchor="middle" class="label-bold">Angelegt</text></g>
+<g id="node-start"><circle cx="367" cy="138" r="10" class="uml-filled"/></g>
+<g id="node-angelegt"><rect x="307" y="220" width="120" height="48" rx="12" class="shape"/><text x="367" y="248" text-anchor="middle" class="label-bold">Angelegt</text></g>
 <g id="node-teilen"><rect x="181" y="340" width="372" height="6" class="uml-filled"/></g>
 <g id="node-offen"><rect x="469" y="458" width="120" height="48" rx="12" class="shape"/><text x="529" y="486" text-anchor="middle" class="label-bold">offen</text></g>
 <g id="node-autorisiert"><rect x="381" y="578" width="120" height="48" rx="12" class="shape"/><text x="441" y="606" text-anchor="middle" class="label-bold">autorisiert</text></g>
@@ -25,12 +25,12 @@
 <g id="node-versandt"><rect x="145" y="578" width="120" height="48" rx="12" class="shape"/><text x="205" y="606" text-anchor="middle" class="label-bold">versandt</text></g>
 <g id="node-zugestellt"><rect x="145" y="698" width="120" height="48" rx="12" class="shape"/><text x="205" y="726" text-anchor="middle" class="label-bold">zugestellt</text></g>
 <g id="node-fertig"><rect x="181" y="842.5" width="284" height="6" class="uml-filled"/></g>
-<g id="node-abgeschlossen"><rect x="297" y="945" width="120" height="48" rx="12" class="shape"/><text x="357" y="973" text-anchor="middle" class="label-bold">Abgeschlossen</text></g>
+<g id="node-abgeschlossen"><rect x="263" y="945" width="120" height="48" rx="12" class="shape"/><text x="323" y="973" text-anchor="middle" class="label-bold">Abgeschlossen</text></g>
 <g id="node-storniert"><rect x="489" y="818" width="184" height="55" rx="12" class="shape"/><text x="581" y="837" text-anchor="middle" class="label-bold">Storniert</text><line x1="489" y1="848" x2="673" y2="848" class="line"/><text x="501" y="865" text-anchor="start" class="uml-member">entry / Ware zurückholen</text></g>
-<g id="node-ende"><circle cx="357" cy="1078" r="13" class="shape"/><circle cx="357" cy="1078" r="7" class="uml-filled"/></g>
+<g id="node-ende"><circle cx="323" cy="1078" r="13" class="shape"/><circle cx="323" cy="1078" r="7" class="uml-filled"/></g>
 <g id="node-storno"><circle cx="551" cy="770" r="8" class="shape"/><line x1="545.3" y1="764.3" x2="556.7" y2="775.7" class="line"/><line x1="545.3" y1="775.7" x2="556.7" y2="764.3" class="line"/><text x="565" y="788" text-anchor="start" class="label-note">Storno</text></g>
-<g id="edge-0"><path d="M401 148 L401 220" class="line halo"/><path d="M401 148 L401 220" class="line" marker-end="url(#m-uml-open)"/></g>
-<g id="edge-1"><path d="M401 268 L401 340" class="line halo"/><path d="M401 268 L401 340" class="line" marker-end="url(#m-uml-open)"/></g>
+<g id="edge-0"><path d="M367 148 L367 220" class="line halo"/><path d="M367 148 L367 220" class="line" marker-end="url(#m-uml-open)"/></g>
+<g id="edge-1"><path d="M367 268 L367 340" class="line halo"/><path d="M367 268 L367 340" class="line" marker-end="url(#m-uml-open)"/></g>
 <g id="edge-2"><path d="M529 346 L529 458" class="line halo"/><path d="M529 346 L529 458" class="line" marker-end="url(#m-uml-open)"/></g>
 <g id="edge-3"><path d="M205 346 L205 458" class="line halo"/><path d="M205 346 L205 458" class="line" marker-end="url(#m-uml-open)"/></g>
 <g id="edge-4"><path d="M485 506 L485 578" class="line halo"/><path d="M485 506 L485 578" class="line" marker-end="url(#m-uml-open)"/></g>
@@ -39,12 +39,12 @@
 <g id="edge-7"><path d="M205 626 L205 698" class="line halo"/><path d="M205 626 L205 698" class="line" marker-end="url(#m-uml-open)"/></g>
 <g id="edge-8"><path d="M441 746 L441 842.5" class="line halo"/><path d="M441 746 L441 842.5" class="line" marker-end="url(#m-uml-open)"/></g>
 <g id="edge-9"><path d="M205 746 L205 842.5" class="line halo"/><path d="M205 746 L205 842.5" class="line" marker-end="url(#m-uml-open)"/></g>
-<g id="edge-10"><path d="M357 848.5 L357 945" class="line halo"/><path d="M357 848.5 L357 945" class="line" marker-end="url(#m-uml-open)"/></g>
-<g id="edge-11"><path d="M357 993 L357 1065" class="line halo"/><path d="M357 993 L357 1065" class="line" marker-end="url(#m-uml-open)"/></g>
+<g id="edge-10"><path d="M323 848.5 L323 945" class="line halo"/><path d="M323 848.5 L323 945" class="line" marker-end="url(#m-uml-open)"/></g>
+<g id="edge-11"><path d="M323 993 L323 1065" class="line halo"/><path d="M323 993 L323 1065" class="line" marker-end="url(#m-uml-open)"/></g>
 <g id="edge-12"><path d="M551 506 L551 762" class="line halo"/><path d="M551 506 L551 762" class="line" marker-end="url(#m-uml-open)"/></g>
 <g id="edge-13"><path d="M551 778 L551 818" class="line halo"/><path d="M551 778 L551 818" class="line" marker-end="url(#m-uml-open)"/></g>
-<g id="edge-14"><path d="M673 845.5 L697 845.5 L697 1078 L370 1078" class="line halo"/><path d="M673 845.5 L697 845.5 L697 1078 L370 1078" class="line" marker-end="url(#m-uml-open)"/></g>
-<g id="label-1"><text x="409" y="308" text-anchor="start" class="label halo">bestätigen</text></g>
+<g id="edge-14"><path d="M673 845.5 L697 845.5 L697 1078 L336 1078" class="line halo"/><path d="M673 845.5 L697 845.5 L697 1078 L336 1078" class="line" marker-end="url(#m-uml-open)"/></g>
+<g id="label-1"><text x="375" y="308" text-anchor="start" class="label halo">bestätigen</text></g>
 <g id="label-4"><text x="477" y="520" text-anchor="end" class="label halo">Zahlung</text><text x="477" y="532" text-anchor="end" class="label halo">autorisiert</text></g>
 <g id="label-5"><text x="433" y="642" text-anchor="end" class="label halo">Ware versandt</text></g>
 <g id="label-6"><text x="213" y="546" text-anchor="start" class="label halo">übergeben</text></g>

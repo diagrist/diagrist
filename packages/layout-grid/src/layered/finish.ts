@@ -78,7 +78,8 @@ export function finish(spec: LayeredSpec, arrangement: Arrangement): LayeredLayo
     const centred = symmetry.move;
     const jogging = { layers, width, gap, groups, ranked, settle, blockOf: fr.block, price, spines, prices, centred };
     const straight = unjog(jogging, settled);
-    return squeezed({ layers, width, gap, blocks: fr.outer(), left: m.left, settle, price }, straight);
+    const narrow = squeezed({ layers, width, gap, blocks: fr.outer(), left: m.left, settle, price }, straight);
+    return narrow === straight ? narrow : unjog(jogging, narrow);
   };
   const price = (p: Placement) => scoreOf(layeredLines(spec, draw(p))).cost + symmetry.cost(p.x);
   let below = besideRoutes(ranked, layers, new Set(), m.lead);
