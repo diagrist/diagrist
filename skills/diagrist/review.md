@@ -25,6 +25,10 @@ the source line of the relation it is about:
 | G417 | meets a box beside other lines in an order that makes them cross there |
 | G418 | carries a text that lies on something else, or far from the line |
 
+G410 is reported only for pictures of at most 15 lines. In a denser picture some crossings are hard to avoid, so
+there they are a measure, not a warning: a clean check does not mean that no lines cross. Read their number in
+`--metrics`.
+
 `dgr check <file> --metrics` adds a line of measures per picture: lines, crossings, stretches where two lines lie on
 one another, bends and how many of them a straight line could have spared, the length of all lines, the size and
 the longer side over the shorter. Use it to compare two versions of a picture. When you change the model,
