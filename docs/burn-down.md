@@ -55,23 +55,11 @@ spec and is compared number for number, as the path finding of state machines wa
 
 ## UML (`plugin-uml`)
 
-### Sequence diagrams keep the predecessor's bytes (ADR 0008 Nr. 5)
-
-The 15 examples render the predecessor's SVG byte for byte, but for the name of a `ref`, which is measured in the
-font it is drawn in and so stands 6 px further right in `bestellung-bestaetigen` and `reservierung-halten`. These
-crutches keep the rest so; they go in one clean-up with a second baseline.
-
-6. **Card look in code.** `look=cards` changes shapes in `scene/cards.ts`, not only the style table. That is no
-   question of bytes: rounded frames, shadows and the light cards of area heads are geometry, which a style table
-   cannot give. Clean-up: a look as data that changes shapes, as the C4 looks do (ADR 0023), once a second sequence
-   look needs one.
-
-Waiting for the same clean-up, because it changes the bytes: `label-<i>` is never written, although the SVG
-contract names it and `EdgeAnchor.labelId` exists (message labels need a group with the id). The placement check
-and the line check already read the label as `label-<i>` (`layout/placed.ts`).
+### Sequence diagrams
 
 | Debt | Clean-up |
 |---|---|
+| **Card look in code.** `look=cards` changes shapes in `scene/cards.ts`, not only the style table: rounded frames, shadows and the light cards of area heads are geometry, which a style table cannot give. | A look as data that changes shapes, as the C4 looks do (ADR 0023), once a second sequence look needs one. |
 | **Areas show weakly in `look=cards` and between lanes** (ADR 0033). Card heads keep their `tone=`, so lane heads and state cards show their area only in the outline or the stripe; sequence heads without `tone=` are light cards their area paints, as its legend shows. Neighbouring activity lanes share a border, which takes the tone of the lane drawn later; interruptible and expansion regions and sequence fragments take no `area=`. | Let lane heads and state cards without `tone=` be painted by their area, as sequence heads are; draw shared lane borders once, in ink. |
 
 ### Activity, class and state machine diagrams

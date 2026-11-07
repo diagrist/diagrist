@@ -25,6 +25,13 @@ describe('sequence SVG contract', () => {
     const [x1, y1] = anchors?.edges[0]?.points[0] ?? [];
     expect(svg).toContain(`<g id="edge-0"><path d="M${x1} ${y1} `);
   });
+
+  it('puts the texts of a message into label-<k>, last in its edge group, and names it in the anchor', () => {
+    const sync = sequence('participant a "A"', 'participant b "B"', 'msg a -> b "GET"', 'msg b -> a');
+    expect(sync.anchors?.edges.map((e) => e.labelId)).toEqual(['label-0', undefined]);
+    expect(sync.svg).toMatch(/<g id="edge-0">.*<g id="label-0">.*>GET<\/text><\/g><\/g>/);
+    expect(sync.svg).not.toContain('id="label-1"');
+  });
 });
 
 /** The same contract for use case diagrams, where labels of a line have a group of their own. */
