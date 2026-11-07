@@ -62,7 +62,8 @@ export function portsOf(
     const k = links.every((l) => loose(l, box)) ? `${box}|${side}|${links[0]?.edge}` : `${box}|${side}`;
     const far = links.map((l) => x.get(side === 'bottom' ? l.lower : l.upper) ?? 0);
     const beyond = far.reduce((a, b) => a + b, 0) / Math.max(1, far.length);
-    ends.set(k, [...(ends.get(k) ?? []), { links, toward, beyond, hold }]);
+    const slot = Math.max(0, ...links.map((l) => (side === 'bottom' ? l.slot?.upper : l.slot?.lower) ?? 0));
+    ends.set(k, [...(ends.get(k) ?? []), { links, toward, beyond, hold, ...(slot > 0 ? { slot } : {}) }]);
   };
   const nearest = (box: string, ids: readonly string[]) => {
     const r = rects.get(box);
@@ -92,14 +93,14 @@ export function portsOf(
     if (ranked.dummies.has(l.upper)) bottom.set(l, x.get(l.upper) ?? 0);
     if (ranked.dummies.has(l.lower)) top.set(l, x.get(l.lower) ?? 0);
   }
-  const order = new Map<string, { ends: readonly End[]; step: number }>();
+  const order = new Map<string, { ends: readonly End[]; apart: readonly number[] }>();
   for (const [k, list] of ends) {
     const [box = '', side] = k.split('|');
     const r = rects.get(box);
     if (!r) continue;
     const sorted = [...list].sort((a, b) => a.beyond - b.beyond || a.toward - b.toward);
-    const { at, step } = rowOf(sorted, r, inset(r), gap, node(box)?.corner);
-    order.set(k, { ends: sorted, step });
+    const { at, apart } = rowOf(sorted, r, inset(r), gap, node(box)?.corner);
+    order.set(k, { ends: sorted, apart });
     sorted.forEach((e, i) => {
       for (const l of e.links) (side === 'bottom' ? bottom : top).set(l, at[i] ?? 0);
     });
@@ -148,13 +149,13 @@ export function portsOf(
   const room = (box: string, side: 'top' | 'bottom', l: Link): [number, number] => {
     if (ranked.dummies.has(box)) return [x.get(box) ?? 0, x.get(box) ?? 0];
     const at = side === 'bottom' ? bottom : top;
-    const { ends: list = [], step = gap } = order.get(`${box}|${side}`) ?? {};
+    const { ends: list = [], apart = [] } = order.get(`${box}|${side}`) ?? {};
     const i = list.findIndex((e) => e.links.includes(l));
     const [prev, next] = [list[i - 1]?.links[0], list[i + 1]?.links[0]];
     const [lo, hi] = range(box);
     return [
-      Math.max(lo, prev === undefined ? lo : (at.get(prev) ?? lo) + step),
-      Math.min(hi, next === undefined ? hi : (at.get(next) ?? hi) - step),
+      Math.max(lo, prev === undefined ? lo : (at.get(prev) ?? lo) + (apart[i - 1] ?? gap)),
+      Math.min(hi, next === undefined ? hi : (at.get(next) ?? hi) - (apart[i] ?? gap)),
     ];
   };
   for (const g of groups) {

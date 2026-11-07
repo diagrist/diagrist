@@ -72,6 +72,8 @@ export interface LayeredEdge {
    * line; never less than `tail` and `lead` of the metrics.
    */
   readonly run?: { readonly from?: number; readonly to?: number };
+  /** The room an end takes along its side to its right (`GraphEdge.slot`). */
+  readonly slot?: { readonly from?: number; readonly to?: number };
   /** The least distance between `from` and `to` when the edge is drawn beside, between neighbours of one layer. */
   readonly room?: number;
   /** With rank 0, the end that stands first in the layer, left of the other. */
