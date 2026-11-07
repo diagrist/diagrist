@@ -14,10 +14,11 @@ import { straightRoutes } from './straight.js';
 /**
  * Routes every edge whose ends were placed, in the order of the edges. A fixed grid picks straight, L or Z shapes
  * and spreads the ports per side; an adaptive one then searches orthogonal ways around nodes and head strips, laying
- * bundles as trunks. A fixed grid with `channels` routes through its channels instead. Ends at circles and ellipses lie on the outline. With straight lines each edge runs from
- * outline to outline.
+ * bundles as trunks. A fixed grid with `channels` routes through its channels instead, its plans priced by the
+ * measure unless `priced` is false. Ends at circles and ellipses lie on the outline. With straight lines each edge
+ * runs from outline to outline.
  */
-export function routeEdges(spec: GridSpec, layout: GridLayout): Route[] {
+export function routeEdges(spec: GridSpec, layout: GridLayout, priced = true): Route[] {
   const board = boardOf(spec, layout);
   if (spec.lines === 'straight') return straightRoutes(board).map(toRoute);
   if (spec.channels === true && spec.adaptive) {
@@ -27,9 +28,10 @@ export function routeEdges(spec: GridSpec, layout: GridLayout): Route[] {
     return snapToOutlines(insetLaneEnds(done, spec.metrics.nodeH / 2), board).map(toRoute);
   }
   if (spec.channels === true)
-    return snapToOutlines(insetLaneEnds(untangle(channelRoutes(board), board), spec.metrics.nodeH / 2), board).map(
-      toRoute,
-    );
+    return snapToOutlines(
+      insetLaneEnds(untangle(channelRoutes(board, priced), board), spec.metrics.nodeH / 2),
+      board,
+    ).map(toRoute);
   const routed = gridRoutes(board);
   const adapted = spec.adaptive ? adaptiveRoutes(routed, board) : routed;
   const lead = spec.metrics.lead;

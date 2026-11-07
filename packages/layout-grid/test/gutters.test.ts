@@ -116,14 +116,14 @@ describe('gaps of a channel grid that grow for their texts (ADR 0038, D2)', () =
     expect(ys.slice(1).every((y, i) => y - (ys[i] ?? 0) >= s.metrics.portSpread)).toBe(true);
   });
 
-  it('keeps a bent end out of the gap between two straight twins', () => {
+  it('keeps a bent end out of the gap between two straight twins, as the port stage places it unpriced', () => {
     const s: GridSpec = {
       ...spec('a b', 'r1 r2', ['l@a/r1', 's@a/r2', 'v@b/r1', 'w@b/r2'], {
         edges: [edge('w', 'v'), edge('v', 'w'), edge('s', 'w'), edge('w', 's'), edge('l', 'w')],
       }),
       channels: true,
     };
-    const routes = routeEdges(s, placeGrid(s));
+    const routes = routeEdges(s, placeGrid(s), false);
     const xs = routes.slice(0, 2).map((r) => r.points[0]?.[0] ?? 0);
     const bent = routes[4]?.points.at(-1)?.[0] ?? 0;
     expect(routes[4]?.toSide).toBe('top');
