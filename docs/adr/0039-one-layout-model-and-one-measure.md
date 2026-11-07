@@ -619,3 +619,16 @@ narrower, `parallel-drei` 6 px narrower, `quer-rechts` 32 px of line less, `stor
 (`avoidable` 1 to 0, 120 px of line more), `auftragsabwicklung` the exit of `bestätigt` 22 px further right. Side exits
 of composite states (owner decision D4), measured after this step, are never chosen and were left out
 (`docs/burn-down.md`).
+
+## Amendment: the spot search of texts (07.11.2026)
+
+**A text on its line keeps the lead of its piece first, and two lines move apart for their texts** (owner decision
+D1). A block standing on its line could come to 12 px of an end of its piece, though the line check asks a straight
+run of `lead` into a head; in `kontext-paper` the arrowhead of `öffnet das Schloss` was left 8 px of line. The spot
+search now tries the spots of such a block in tiers (`label/ways.ts`): those that keep `lead` past the pad from both
+ends, then, only where none of those is clear, the nearer ones, then the spots beside the line. Where two blocks on
+parallel pieces of two lines still stand nearer an end than `lead`, the channel grid places once more with the two
+lines as far apart as the blocks need to stand one beside the other across them (`apartOf`, `GridEdge.apart`), as
+a gap grows for a text without a clear spot (decision 9): a train of ends on a side keeps that distance where the
+side holds it, else stands as before. `kontext-paper`: the two lines into `Stationen` 32 to 40 px apart, the arrowhead
+clear, `öffnet das Schloss` wrapped beside the number of its line; every measure of every picture is kept.
