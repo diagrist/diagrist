@@ -16,6 +16,8 @@ export interface BeforeRails {
   readonly rects: ReadonlyMap<string, Rect>;
   readonly around: readonly PlacedGroup[] | undefined;
   readonly lines: readonly Route[];
+  /** The texts of the other lines at their seats, before the spot search. */
+  readonly seats: readonly Rect[];
   /** The lane of every node and placeholder, in a picture with lanes. */
   readonly lane?: (id: string) => number;
   /** The sides of boxes other lines take at a corner, as `box|side`. */

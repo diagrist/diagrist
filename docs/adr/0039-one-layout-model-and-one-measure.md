@@ -579,3 +579,15 @@ text fell to the other end of the line (`schleifen-zurueck`: `[else]` at the mer
 zufrieden?`). The rails now get the boxes with their loops but without their reach as well (`RailInput.drawn`), and
 the text checks against those; the question stands on the side no line leaves (`placeQuestions`), so a text on the
 piece out of it cannot meet it. `[else]` stands beside its diamond; no count of the activity set changes.
+
+**A rail passes the texts of other lines where they stand.** A rail kept the full width of every other line's text
+on both sides of that line's longest upright piece (`texts` in `layered/rail-room.ts`), though a text stands on one
+side, so every rail on the left of a chain stood a text's width further out than it had to. The texts are now placed
+before the rails, by the same seats and spot search that place them after (`spot` in `layered/output.ts`, over the
+other lines alone), and a rail runs `lead` beyond those boxes. Seats alone were not enough: the spot search moves the
+text of a fan branch to the left of its line (`auftrag-protokoll`, `lange-ereignisse`), and a rail that knew only the
+seat ran through it. `fahrgastraum` 3,712 to 2,928 px of line and 824 to 598 px wide, every text beside the box its
+line starts from; `ticket-lebenszyklus` 768 to 628 px, its rail at `lead` from the boxes and `wieder öffnen` beside
+the track, 16 px wider; `verschachtelt` 30 px of line less; `bestellung-unterautomaten` takes `Abbruch` below the
+states instead of above, 6 px lower. No finding and no count of a stress budget rises. Choosing the side of each rail
+by the price of the whole picture (`scoreOf`), as `railChoices` does for rails that stand inside, stays open.
