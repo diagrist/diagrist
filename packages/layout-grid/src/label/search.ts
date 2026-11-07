@@ -14,7 +14,7 @@ const LINE_GAP = DEFAULT_THRESHOLDS.labelClear + 1;
 export interface SearchOptions {
   readonly preferFlat: boolean;
   readonly onLine?: OnLine;
-  /** Texts on their line may also stand beside its vertical pieces, as beside a twin too close for a text across. */
+  /** Texts on their line may also stand beside it, as beside a twin too close for a text across (`signEdges`). */
   readonly beside?: boolean;
   /** The left edge of the picture: a spot reaching beyond it, which widens the picture, comes after those within. */
   readonly floor?: number;

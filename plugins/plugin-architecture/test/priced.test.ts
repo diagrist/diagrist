@@ -10,6 +10,6 @@ const crossings = (source: string) =>
 describe('routes of a fixed grid priced by the measure', () => {
   it('keep the ways the pricing chose where the picture with its texts is better, one by one (look=paper)', () => {
     const paper = raster.replace(/^(diagram .*)$/m, '$1 look=paper');
-    expect(crossings(paper)).toBe(4);
+    expect(crossings(paper)).toBe(3);
   });
 });

@@ -9,6 +9,7 @@ import { namedOf } from './named.js';
 import type { OnLine } from './on-line.js';
 import { blockCost, clearWays, type Found, type SearchOptions, searchBlock, tooWide } from './search.js';
 import { markAt, type SeatMark, spotsOf } from './spots.js';
+import { hasStretch } from './stretch.js';
 import type { EdgeLabel, EdgeText } from './types.js';
 import { rectsOf } from './ways.js';
 
@@ -54,10 +55,10 @@ const grown = (r: Rect, by: number): Rect => ({ x: r.x - by, y: r.y - by, w: r.w
  * spot is clear, else the clear spot beside or on their line that comes least near the texts of other routes
  * (`searchBlock`); a route whose texts find none moves its mark along the line until they do. Then a text that came
  * near a text of another line is sought again with all others seated, so an earlier one gives way to a later one
- * (`giveWay`). Last, a sign that a text could not avoid moves on to its next clear spot. Texts on one of two upright
- * straight lines between the same boxes may stand beside it where no spot on it is clear, since a text across the
- * one meets the other. Other fields of a mark are kept. `crowded` names the routes whose texts found no clear spot,
- * for `gutterRoom`.
+ * (`giveWay`). Last, a sign that a text could not avoid moves on to its next clear spot. Texts on their line may
+ * stand beside it where no spot on it is clear and either a text across one of two upright straight lines between
+ * the same boxes meets the other, or no stretch of the line is clear of parallel foreign lines (`hasStretch`). Other
+ * fields of a mark are kept. `crowded` names the routes whose texts found no clear spot, for `gutterRoom`.
  */
 export function signEdges<M extends SeatMark>(
   spec: GridSpec,
@@ -116,7 +117,8 @@ export function signEdges<M extends SeatMark>(
   const upright = (r: Route | undefined) => r?.points.length === 2 && r.points[0]?.[0] === r.points[1]?.[0];
   const twin = (i: number) =>
     upright(routes[i]) && pairs.some((p, k) => k !== i && p !== undefined && p === pairs[i] && upright(routes[k]));
-  const searchOf = (i: number): SearchOptions => (twin(i) ? { ...search, beside: true } : search);
+  const cramped = routes.map((_, i) => o.onLine !== undefined && !hasStretch(i, routes, first(i), o.onLine));
+  const searchOf = (i: number): SearchOptions => (twin(i) || cramped[i] ? { ...search, beside: true } : search);
   routes.forEach((_, i) => {
     const block = first(i);
     if (block.length > 0 && !tooWide(block, spec.metrics) && blockCost(block, i, clear, search) === 0) take(i, block);
