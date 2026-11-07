@@ -1,28 +1,21 @@
-import type { Point } from '@diagrist/core';
 import { apartOf } from '../label/apart.js';
 import { gutterRoom, widen } from '../label/gutters.js';
-import { markAt } from '../label/spots.js';
 import type { GridLayout, Route } from '../layout.js';
 import { placeGrid } from '../place/index.js';
-import { placedOf } from '../placed.js';
 import { routeEdges } from '../route/index.js';
 import type { GridSpec } from '../spec.js';
 import type { CellGraph, CellLayout } from './cells.js';
-import { pricedStays } from './grid-judge.js';
+import { better } from './grid-judge.js';
 import { marginRound } from './grid-margins.js';
 import { outsideRound } from './grid-outside.js';
-import { type CellSigns, signCells } from './grid-signs.js';
+import { cellLayout, chosenWays, oneByOne, type Round, withWays } from './grid-round.js';
+import { signCells } from './grid-signs.js';
 import { gridSpecOf } from './grid-spec.js';
 
 /** How often a grid widens its gaps and places again. */
 const ROUNDS = 3;
 
-interface Round {
-  readonly spec: GridSpec;
-  readonly grid: GridLayout;
-  readonly routes: readonly Route[];
-  readonly signs: CellSigns;
-}
+type Cells = CellGraph['given']['cells'];
 
 const asks = (room: { readonly cols: readonly number[]; readonly rows: readonly number[] }): boolean =>
   [...room.cols, ...room.rows].some((n) => n > 0);
@@ -33,24 +26,25 @@ const fewer = (a: readonly number[], b: readonly number[]): boolean => {
   return i >= 0 && (a[i] ?? 0) < (b[i] ?? 0);
 };
 
-/** The spec with every edge whose route tells its way keeping it (`GridEdge.way`), so later runs need not price again. */
-function kept(spec: GridSpec, routes: readonly Route[]): GridSpec {
-  const ways = new Map(routes.flatMap((r) => (r.way ? [[r.edge, r.way] as const] : [])));
-  return {
-    ...spec,
-    edges: spec.edges.map((e) => {
-      const way = ways.get(e.id);
-      return way ? { ...e, way } : e;
-    }),
-  };
-}
-
 /** The spec with each edge of `asked` keeping its distance (`GridEdge.apart`) where it asks more; the same spec else. */
 function spaced(spec: GridSpec, asked: ReadonlyMap<string, number>): GridSpec {
   const more = (e: GridSpec['edges'][number]) => (asked.get(e.id) ?? 0) > (e.apart ?? 0);
   if (!spec.edges.some(more)) return spec;
   return { ...spec, edges: spec.edges.map((e) => (more(e) ? { ...e, apart: asked.get(e.id) ?? 0 } : e)) };
 }
+
+/** One run of a grid: placed, routed, with its routes priced where `price` asks it, and signed. */
+const runner =
+  (cells: Cells) =>
+  (spec: GridSpec, price = false): Round => {
+    const grid = placeGrid(spec);
+    const routes = routeEdges(spec, grid, price);
+    return { spec, grid, routes, signs: signCells(cells, spec, grid, routes) };
+  };
+
+/** The texts and signs of a grid, sought again. */
+const signer = (cells: Cells) => (spec: GridSpec, grid: GridLayout, routes: readonly Route[]) =>
+  signCells(cells, spec, grid, routes);
 
 /**
  * Lays out a layout graph in the author's grid (ADR 0039, amendment of 06.11.2026): places it, routes it through
@@ -59,29 +53,35 @@ function spaced(spec: GridSpec, asked: ReadonlyMap<string, number>): GridSpec {
  * places again (ADR 0038, D2), at most `ROUNDS` times: for tracks alone, or as long as fewer texts end up without a
  * clear spot than before, or as many and fewer squeezed; the author's grid stays, only its gaps grow. A Z kept inside a
  * frame may then leave it where the frame can grow around it (`outsideRound`), and frames grow around routes on the
- * lanes beyond the grid (`marginRound`). A fixed grid through channels is laid
- * out twice, with its routes priced by the measure and without, and the priced one stays where its picture with its
- * texts is better (`pricedStays`); the priced one prices its routes in its first run and keeps the ways it chose after.
+ * lanes beyond the grid (`marginRound`). A fixed grid through channels prices its routes in its first run, before
+ * their texts, so the picture with the ways it chose is laid out to the end and stays where it is better than the
+ * one without (`better`); else the ways are judged one at a time in the first round (`oneByOne`), and the picture
+ * with those that stay is laid out and kept where it is better.
  */
 export function layoutCells(graph: CellGraph): CellLayout {
   const spec = gridSpecOf(graph);
-  const priced = laidCells(graph, spec, true);
-  if (spec.channels !== true || spec.adaptive || spec.lines === 'straight') return priced;
-  const plain = laidCells(graph, spec, false);
-  return pricedStays(spec, plain, priced) ? priced : plain;
+  const cells = graph.given.cells;
+  const run = runner(cells);
+  const first = run(spec);
+  const plain = () => laid(cells, run, first);
+  if (spec.channels !== true || spec.adaptive || spec.lines === 'straight') return plain();
+  const priced = run(spec, true);
+  const ways = chosenWays(priced);
+  if (ways.size === 0) return plain();
+  const without = plain();
+  const all = laid(cells, run, { ...priced, spec: withWays(spec, ways) });
+  if (better(spec, without, all)) return all;
+  const sign = signer(cells);
+  const chosen = oneByOne(cells, first, ways, run, (r) => marginRound(r, run, sign));
+  if (chosen === first) return without;
+  const some = laid(cells, run, chosen);
+  return better(spec, without, some) ? some : without;
 }
 
-/** A layout graph laid out in the author's grid as `layoutCells` lays it out, its routes priced or not (`priced`). */
-function laidCells(graph: CellGraph, given: GridSpec, priced: boolean): CellLayout {
-  const cells = graph.given.cells;
-  const run = (spec: GridSpec, price = false): Round => {
-    const grid = placeGrid(spec);
-    const routes = routeEdges(spec, grid, price);
-    return { spec, grid, routes, signs: signCells(cells, spec, grid, routes) };
-  };
+/** A first round of a grid laid out to the end: its gaps widened, its frames left or grown, its texts set. */
+function laid(cells: Cells, run: (spec: GridSpec) => Round, first: Round): CellLayout {
   const apart = (r: Round) => apartOf(r.routes, r.signs.labels, r.spec.metrics, cells.onLine);
-  let done = run(given, priced);
-  if (priced) done = { ...done, spec: kept(done.spec, done.routes) };
+  let done = first;
   for (let round = 0; round < ROUNDS; round++) {
     const room = gutterRoom(done.spec, done.grid, done.routes, cells.texts, done.signs.crowded);
     const asked = apart(done);
@@ -93,25 +93,6 @@ function laidCells(graph: CellGraph, given: GridSpec, priced: boolean): CellLayo
     if (before.some((n) => n > 0) && !fewer(after, before)) break;
     done = next;
   }
-  const sign = (spec: GridSpec, grid: GridLayout, routes: readonly Route[]) => signCells(cells, spec, grid, routes);
-  done = marginRound(outsideRound(done, run, sign), run, sign);
-  const { spec, routes, signs } = done;
-  const numbers = cells.signs?.numbers ?? { w: 0, h: 0 };
-  const pins = cells.signs?.pins ?? { w: 0, h: 0 };
-  const rect = (at: Point, size: { readonly w: number; readonly h: number }) => markAt(at, size.w, size.h);
-  return {
-    grid: signs.grid,
-    routes,
-    labels: signs.labels,
-    numbers: signs.numbers,
-    pins: signs.pins,
-    corners: (cells.signs?.corners?.at ?? []).flatMap(({ node }, i) => {
-      const at = signs.corners[i];
-      return at ? [{ node, x: at[0], y: at[1] }] : [];
-    }),
-    placed: placedOf(spec, signs.grid, routes, signs.labels, [
-      ...signs.numbers.map((n) => ({ route: n.route, rect: rect([n.x, n.y], numbers) })),
-      ...signs.pins.map((p) => ({ route: p.route, rect: rect([p.x, p.y], pins), name: 'mark' })),
-    ]),
-  };
+  const sign = signer(cells);
+  return cellLayout(cells, marginRound(outsideRound(done, run, sign), run, sign));
 }

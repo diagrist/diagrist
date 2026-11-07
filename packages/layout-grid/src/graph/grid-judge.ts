@@ -32,11 +32,10 @@ function judged(spec: GridSpec, laid: CellLayout): Judged {
 }
 
 /**
- * Whether the grid laid out with its routes priced (`priced`) stays over the one laid out without (`plain`): the
- * routes are priced before their texts are placed, so the picture with its texts decides (ADR 0039). It stays where
- * its placement breaks no rule more often and its lines with their texts trade better by the rule of the detour.
+ * Whether the laid out grid `b` is better than `a` as the check reads them with their texts (ADR 0039): its placement
+ * breaks no rule more often and its lines with their texts trade better by the rule of the detour.
  */
-export function pricedStays(spec: GridSpec, plain: CellLayout, priced: CellLayout): boolean {
-  const [a, b] = [judged(spec, plain), judged(spec, priced)];
-  return b.placement <= a.placement && trades(a.trade, b.trade, 'score');
+export function better(spec: GridSpec, a: CellLayout, b: CellLayout): boolean {
+  const [x, y] = [judged(spec, a), judged(spec, b)];
+  return y.placement <= x.placement && trades(x.trade, y.trade, 'score');
 }
