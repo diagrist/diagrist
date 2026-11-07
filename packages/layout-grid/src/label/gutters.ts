@@ -38,6 +38,43 @@ const gapsOf = (axis: Gap['axis'], spans: readonly (readonly [number, number])[]
     return { axis, index, lo: x + size, hi: at };
   });
 
+/**
+ * Where the tracks of a gap's row lie, as the channel stage laid them (`Route.tracks`), wherever they stand: a row of
+ * many tracks spreads beyond a narrow gap, into the boxes beside it. A track counts while its route still runs along
+ * it, across the gap.
+ */
+function rowOf(g: Gap, routes: readonly Route[], pieces: readonly Piece[][]): number[] {
+  const along = (p: Piece, x: number) =>
+    p.upright === (g.axis === 'col') && Math.abs(p.a[g.axis === 'col' ? 0 : 1] - x) < 0.5;
+  const row = routes.flatMap((r, i) =>
+    (r.tracks ?? [])
+      .filter((t) => t.axis === g.axis && t.gap === g.index && (pieces[i] ?? []).some((p) => along(p, t.at)))
+      .map((t) => t.at),
+  );
+  return [...new Set(row)];
+}
+
+/** The gaps between the columns of a grid and between its rows. */
+const gapsIn = (layout: GridLayout): Gap[] => [
+  ...gapsOf(
+    'col',
+    layout.cols.map((c) => [c.x, c.w]),
+  ),
+  ...gapsOf(
+    'row',
+    layout.rows.map((r) => [r.y, r.h]),
+  ),
+];
+
+/**
+ * Whether the row of tracks of a gap stands beyond the gap, into the boxes beside it (ADR 0038, D2): then the gap
+ * grows as `gutterRoom` asks, whatever that does to the texts.
+ */
+export function leavesGap(layout: GridLayout, routes: readonly Route[]): boolean {
+  const pieces = routes.map((r) => piecesOf(r.points));
+  return gapsIn(layout).some((g) => rowOf(g, routes, pieces).some((x) => x < g.lo || x > g.hi));
+}
+
 /** The narrowest width of a text's blocks, and the least height. */
 const leastOf = (blocks: ReturnType<typeof blocksOf>) => ({
   narrow: Math.min(...blocks.map((s) => s.w)),
@@ -57,11 +94,11 @@ function besideGrowth(at: number, gap: Gap, lanes: readonly number[], need: numb
 
 /**
  * The room each gap of a channel grid needs (ADR 0038, D2): for the lanes of its Zs, `laneGap` from either border,
- * and for the texts of the `crowded` routes, whose search found no clear spot. A text asks of the gap of the piece
- * where it needs the least growth: beside a piece that crosses the gap, or along a piece that runs into or over it,
- * on a stretch between its ends, the gap's lanes and the frame sides it crosses (`alongGrowth`), as long as its
- * shortest block that stands clear of the pieces beside it (`alongNeed`); texts on their line (`onLine`) keep their
- * flattest block. A kind sets the room as `GridColumn.gap` and `GridRow.gap` and places a second time; whether that
+ * the whole row of tracks as the channel stage laid it (`rowOf`), and for the texts of the `crowded` routes, whose
+ * search found no clear spot. A text asks of the gap of the piece where it needs the least growth: beside a piece
+ * that crosses the gap, or along a piece that runs into or over it, on a stretch between its ends, the gap's lanes
+ * and the frame sides it crosses (`alongGrowth`), as long as its shortest block that stands clear of the pieces
+ * beside it (`alongNeed`); texts on their line (`onLine`) keep their flattest block. A kind sets the room as `GridColumn.gap` and `GridRow.gap` and places a second time; whether that
  * helped, only the second search tells.
  */
 export function gutterRoom(
@@ -73,16 +110,7 @@ export function gutterRoom(
   onLine?: OnLine,
 ): GutterRoom {
   const m = spec.metrics;
-  const gaps = [
-    ...gapsOf(
-      'col',
-      layout.cols.map((c) => [c.x, c.w]),
-    ),
-    ...gapsOf(
-      'row',
-      layout.rows.map((r) => [r.y, r.h]),
-    ),
-  ];
+  const gaps = gapsIn(layout);
   const width = (g: Gap) => g.hi - g.lo;
   const need = new Map<Gap, number>();
   const ask = (g: Gap, gap: number) => need.set(g, Math.max(need.get(g) ?? 0, gap));
@@ -96,11 +124,14 @@ export function gutterRoom(
     pieces.flatMap((list) =>
       list.filter((q) => inside(g, q) && (!besides || meet(span(q, q.upright), span(besides, q.upright)))),
     );
-  for (const g of gaps)
+  for (const g of gaps) {
     for (const p of lanesOf(g, undefined)) {
       const lanes = [...new Set(lanesOf(g, p).map((q) => at(g, q)))];
       if (lanes.length > 1) ask(g, Math.max(...lanes) - Math.min(...lanes) + 2 * m.laneGap);
     }
+    const row = rowOf(g, routes, pieces);
+    if (row.length > 1) ask(g, Math.max(...row) - Math.min(...row) + 2 * m.laneGap);
+  }
   const texts = new Map(edgeTexts.map((t) => [t.edge, t]));
   for (const i of crowded) {
     const route = routes[i];

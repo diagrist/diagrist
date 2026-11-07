@@ -10,7 +10,16 @@ const SIZES: FontSizes = { title: 16, node: 19, group: 16, label: 14, note: 14, 
  */
 export const BLOCKS: Look = {
   doc: 'filled blocks as in pattern books',
-  metrics: { ...STANDARD, subColGap: 24, nodeH: 64, nodeLineH: 20, labelDy: 7, laneGap: 36, markerSize: 18 },
+  metrics: {
+    ...STANDARD,
+    subColGap: 24,
+    nodeH: 64,
+    nodeLineH: 20,
+    labelDy: 7,
+    labelLineH: 16,
+    laneGap: 36,
+    markerSize: 18,
+  },
   fonts: standardFonts(SIZES),
   paint: {
     strokes: { ...STANDARD_STROKES, line: 3, accent: 3, emph: 3 },

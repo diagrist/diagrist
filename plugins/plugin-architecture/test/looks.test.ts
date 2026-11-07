@@ -85,6 +85,14 @@ describe('the registry of looks', () => {
     }
   });
 
+  it.each(LOOK_NAMES)(
+    '%s sets the lines of a line text at least two pixels further apart than they are high',
+    (name) => {
+      const { metrics, fonts } = LOOKS[name];
+      expect(metrics.labelLineH).toBeGreaterThanOrEqual(fonts.label.size + 2);
+    },
+  );
+
   /** Roles of a diff picture (ADR 0021): boxes, edges and tags that are added, removed or changed. */
   const CHANGE_ROLES = Object.keys(ARCHITECTURE_ROLES).filter((role) =>
     /(Added|Removed|Changed)(Text)?$|-(added|removed)$/.test(role),
