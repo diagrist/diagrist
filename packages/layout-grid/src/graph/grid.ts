@@ -83,7 +83,7 @@ function laid(cells: Cells, run: (spec: GridSpec) => Round, first: Round): CellL
   const apart = (r: Round) => apartOf(r.routes, r.signs.labels, r.spec.metrics, cells.onLine);
   let done = first;
   for (let round = 0; round < ROUNDS; round++) {
-    const room = gutterRoom(done.spec, done.grid, done.routes, cells.texts, done.signs.crowded);
+    const room = gutterRoom(done.spec, done.grid, done.routes, cells.texts, done.signs.crowded, cells.onLine);
     const asked = apart(done);
     const wider = spaced(done.spec, asked);
     if (!asks(room) && wider === done.spec) break;
