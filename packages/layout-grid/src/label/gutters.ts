@@ -22,7 +22,12 @@ import type { EdgeText } from './types.js';
 export interface GutterRoom {
   readonly cols: readonly number[];
   readonly rows: readonly number[];
+  /** Per gap, the room its row of tracks leaves at its near and far border for texts along it (`GridRow.keep`). */
+  readonly keep?: { readonly cols: readonly Keep[]; readonly rows: readonly Keep[] };
 }
+
+/** Room at the near and the far border of a gap. */
+type Keep = readonly [number, number];
 
 /** A gap between two columns or rows: where it starts and ends across, its number and axis. */
 interface Gap {
@@ -180,13 +185,17 @@ export function gutterRoom(
   return { cols: of('col'), rows: of('row') };
 }
 
-/** The spec with the gaps of `room` as least gaps of its columns and rows, for a second run of `placeGrid`. */
+/**
+ * The spec with the gaps of `room` as least gaps of its columns and rows and the room they keep at their borders, for
+ * a second run of `placeGrid`.
+ */
 export function widen(spec: GridSpec, room: GutterRoom): GridSpec {
   const more = (own: number | undefined, asked: number | undefined) =>
     asked ? { gap: Math.max(own ?? 0, asked) } : {};
+  const held = (keep: Keep | undefined) => (keep && (keep[0] > 0 || keep[1] > 0) ? { keep } : {});
   return {
     ...spec,
-    cols: spec.cols.map((c, i) => ({ ...c, ...more(c.gap, room.cols[i]) })),
-    rows: spec.rows.map((r, i) => ({ ...r, ...more(r.gap, room.rows[i]) })),
+    cols: spec.cols.map((c, i) => ({ ...c, ...more(c.gap, room.cols[i]), ...held(room.keep?.cols[i]) })),
+    rows: spec.rows.map((r, i) => ({ ...r, ...more(r.gap, room.rows[i]), ...held(room.keep?.rows[i]) })),
   };
 }

@@ -107,6 +107,13 @@ describe('gaps of a channel grid that grow for their texts (ADR 0038, D2)', () =
     expect(placeGrid(widen(s, room))).toEqual(layout);
   });
 
+  it('hands on the room a gap keeps at its borders, and only where it keeps any', () => {
+    const s = spec('a b', 'r s', ['x@a/r', 'y@b/s']);
+    const wider = widen(s, { cols: [0], rows: [0], keep: { cols: [[24, 0]], rows: [[0, 0]] } });
+    expect(wider.cols).toEqual([{ name: 'a', keep: [24, 0] }, { name: 'b' }]);
+    expect(wider.rows).toEqual(s.rows);
+  });
+
   it('asks room between the frame lines a text along its line would stand on, which the search keeps clear of', () => {
     const text: EdgeText = { edge: 'x-y', name: 'Sammelüberweisung', detail: 'EBICS' };
     const of = (groups: GridSpec['groups']): GridSpec => ({

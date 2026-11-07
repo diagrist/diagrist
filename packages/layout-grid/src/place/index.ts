@@ -1,5 +1,5 @@
 import type { Column, GridLayout, Row } from '../layout.js';
-import type { GridSpec } from '../spec.js';
+import type { GridRow, GridSpec } from '../spec.js';
 import { columns } from './columns.js';
 import { treeOf } from './extent.js';
 import { placeGroups } from './frames.js';
@@ -25,8 +25,8 @@ export function placeGrid(spec: GridSpec): GridLayout {
     cols,
     rows: placedRows,
     gutters: {
-      cols: middles(cols, (c) => [c.x, c.w]),
-      rows: middles(placedRows, (r) => [r.y, r.h]),
+      cols: middles(cols, (c) => [c.x, c.w], spec.cols),
+      rows: middles(placedRows, (r) => [r.y, r.h], spec.rows),
       margins: {
         cols: beyond(
           spec.metrics.laneGap,
@@ -47,11 +47,21 @@ export function placeGrid(spec: GridSpec): GridLayout {
   };
 }
 
-/** Middles of the gaps between neighbouring tracks. */
-function middles<T extends Column | Row>(tracks: readonly T[], span: (t: T) => readonly [number, number]): number[] {
+/**
+ * Where the row of tracks of each gap between neighbouring tracks stands: in the middle of what the gap leaves
+ * between the room it keeps at its borders (`GridRow.keep`), so a gap that grew for a text along one border keeps
+ * that room free, and in the middle of the whole gap where the room kept is more than the gap.
+ */
+function middles<T extends Column | Row>(
+  tracks: readonly T[],
+  span: (t: T) => readonly [number, number],
+  given: readonly GridRow[],
+): number[] {
   return tracks.slice(1).map((b, i) => {
     const [at, size] = span(tracks[i] as T);
-    return (at + size + span(b)[0]) / 2;
+    const [near, far] = given[i]?.keep ?? [0, 0];
+    const [lo, hi] = [at + size, span(b)[0]];
+    return lo + near < hi - far ? (lo + near + hi - far) / 2 : (lo + hi) / 2;
   });
 }
 
