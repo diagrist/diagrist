@@ -30,8 +30,7 @@ export function toSvg(scene: Scene, styles: Styles, options: SvgOptions = {}): s
   const head = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" width="${width}" height="${height}" class="${styles.root}" role="img" aria-label="${title}">`;
   const markers = markersInUse(scene.children, styles);
   const used = usedClasses(scene.children, styles, new Set(markers.classes));
-  const written = new Set(styles.rules.filter((r) => r.always === true || used.has(r.name)).map((r) => r.name));
-  const sheet = () => styleSheet(styles, used) + areaRules(styles, areas, paint, written).join('');
+  const sheet = () => styleSheet(styles, used) + areaRules(styles, areas, paint, used).join('');
   const style =
     options.inline === true
       ? ''
@@ -106,7 +105,7 @@ function usedClasses(shapes: readonly Shape[], styles: Styles, into: Set<string>
 function styleSheet(styles: Styles, used: ReadonlySet<string>): string {
   const root = `.${styles.root}`;
   const rules = styles.rules
-    .filter((rule) => rule.always === true || used.has(rule.name))
+    .filter((rule) => used.has(rule.name))
     .map((rule) => `  ${root} .${rule.name} { ${rule.declarations} }\n`);
   const kerning = styles.fontKerning === undefined ? '' : ` font-kerning: ${styles.fontKerning};`;
   return `\n  ${root} { font-family: ${styles.fontFamily}; font-size: ${styles.fontSize}px;${kerning} }\n${rules.join('')}`;

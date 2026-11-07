@@ -99,7 +99,7 @@ describe('toSvg', () => {
       '<path d="M0 0 L1 1" class="stroke thin" marker-end="url(#m-open)" transform="translate(0 3)"/>',
     );
     expect(svg).toContain('<g id="edge-0"><rect x="1.3" y="2" width="3" height="4" class="text"/></g>');
-    expect(svg).toContain('.dia .base {');
+    expect(svg).not.toContain('.dia .base {');
     expect(svg).toContain('.dia .stroke {');
     expect(svg).toContain('<marker id="m-open"');
   });

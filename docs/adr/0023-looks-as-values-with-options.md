@@ -34,7 +34,8 @@ to the C4 model and to the name of a look.
 3. **Paint is laid over the standard look one way.** `stylesOf(look)` builds every look's table alike: the
    standard look with the C4 roles and rules, the look's roles over them, its rules replacing standard ones by name
    in place and appending the rest, the root in the family and size of one font role, and canvas and arrowheads
-   where the look sets them. `usedOnly` lets a look write only the rules a picture uses. The rules of a diff picture
+   where the look sets them. Every picture writes only the rules it uses (since the second baseline, which retired
+   `usedOnly`, the flag that let a look do so while the standard look wrote all). The rules of a diff picture
    (ADR 0021) are a required part of paint (`changes`), so every look paints added, removed and changed elements in
    its own inks; a test holds each look's set against the standard one.
 4. **The registry is the source.** `LOOKS` in `src/looks/index.ts` lists the values in the order of the docs;

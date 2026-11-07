@@ -10,12 +10,13 @@ export interface RoleStyle {
   readonly markerStart?: string;
 }
 
-/** One CSS rule for a class, as declarations like `fill: none; stroke: #18181b;`. */
+/**
+ * One CSS rule for a class, as declarations like `fill: none; stroke: #18181b;`. A picture's stylesheet holds only
+ * the rules of the classes its shapes, texts and markers use.
+ */
 export interface StyleRule {
   readonly name: string;
   readonly declarations: string;
-  /** Written even when no shape uses the class; otherwise only used classes reach the stylesheet. */
-  readonly always?: boolean;
 }
 
 /**

@@ -98,12 +98,12 @@ describe('a theme', () => {
     const svg = compile(source, {
       plugins: [ruled],
       theme: {
-        rules: [{ name: 'base', declarations: 'fill: red;' }],
+        rules: [{ name: 'stroke', declarations: 'stroke: red;' }],
         markers: [{ id: 'whole', shape: MARKER_SHAPES.diamond, name: 'diamond' }],
         roles: { rule: { classes: ['stroke'], marker: 'open', markerStart: 'whole' } },
       },
     }).svg;
-    expect(svg).toContain('.dia .base { fill: red; }');
+    expect(svg).toContain('.dia .stroke { stroke: red; }');
     expect(svg).toMatch(/<marker id="m-open".*<marker id="m-whole"/);
   });
 

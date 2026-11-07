@@ -7,12 +7,12 @@ import { architectureRules } from './rules.js';
 
 /**
  * The look's rules over the standard ones: a rule of the same name replaces it in place, the others follow in their
- * order. With `usedOnly` every standard rule loses `always`, so only what the picture uses is written.
+ * order.
  */
-function overlay(base: readonly StyleRule[], own: readonly StyleRule[], usedOnly: boolean): StyleRule[] {
+function overlay(base: readonly StyleRule[], own: readonly StyleRule[]): StyleRule[] {
   const replaced = new Map(own.map((r) => [r.name, r]));
   const known = new Set(base.map((r) => r.name));
-  const kept = base.map((r) => replaced.get(r.name) ?? (usedOnly ? { name: r.name, declarations: r.declarations } : r));
+  const kept = base.map((r) => replaced.get(r.name) ?? r);
   return [...kept, ...own.filter((r) => !known.has(r.name))];
 }
 
@@ -36,7 +36,7 @@ export function stylesOf(look: Look): Styles {
     fontSize: root.size,
     ...compact({ fontKerning, canvas, markers, areaColors }),
     markerSize: look.metrics.markerSize,
-    rules: overlay(base.rules, paint.rules(fonts, paint.strokes), paint.usedOnly === true),
+    rules: overlay(base.rules, paint.rules(fonts, paint.strokes)),
     icons: ICONS,
   };
 }

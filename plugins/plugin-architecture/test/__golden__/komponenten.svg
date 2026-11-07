@@ -16,7 +16,6 @@
   .dia .label-note { fill: #52525b; font-size: 10px; }
   .dia .arrow-open { fill: none; stroke: #18181b; stroke-width: 1.5; }
   .dia .arrow-filled { fill: #18181b; stroke: none; }
-  .dia .arrow-open-accent { fill: none; stroke: #1d4ed8; stroke-width: 1.8; }
   .dia .arrow-filled-accent { fill: #1d4ed8; stroke: none; }
   .dia .halo { paint-order: stroke; stroke: #fafafa; stroke-width: 4px; stroke-linejoin: round; }
   .dia .badge { fill: #18181b; }

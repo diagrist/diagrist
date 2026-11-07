@@ -17,9 +17,8 @@ export const STANDARD_FONTS: Readonly<Record<StandardFont, Font>> = {
   mark: { size: f.badge - 1, weight: 700 },
 };
 
-/** A rule for a class; `always` rules are written even when no shape uses them. */
-export const rule = (name: string, declarations: string, always = false): StyleRule =>
-  always ? { name, declarations, always } : { name, declarations };
+/** A rule for a class, written into a picture when one of its shapes, texts or markers uses the class. */
+export const rule = (name: string, declarations: string): StyleRule => ({ name, declarations });
 
 /**
  * Declarations of a text class: its paint, then family, weight, size and letter spacing of its font. A font
@@ -30,42 +29,35 @@ export const textRule = (paint: string, font: Font): string =>
 
 const F = STANDARD_FONTS;
 
-/**
- * The block every picture of the predecessor carried, used or not. Kept for byte-identical output until the
- * clean-up with a second baseline (ADR 0008 Nr. 5), which writes only used rules.
- */
+/** The rules every kind of the standard look shares; a picture carries those it uses. */
 const BASE_RULES: readonly StyleRule[] = [
-  rule('shape', `fill: ${c.fill}; stroke: ${c.stroke}; stroke-width: ${w.shape};`, true),
-  rule('shape-muted', `fill: ${c.fillMuted}; stroke: ${c.stroke}; stroke-width: ${w.shape};`, true),
-  rule('shape-emph', `fill: ${c.fill}; stroke: ${c.stroke}; stroke-width: ${w.emph};`, true),
-  rule('frame', `fill: none; stroke: ${c.border}; stroke-width: ${w.frame}; stroke-dasharray: ${DASH.frame};`, true),
-  rule(
-    'frame-own',
-    `fill: ${c.fillMuted}; fill-opacity: 0.55; stroke: ${c.stroke}; stroke-width: ${w.frameOwn};`,
-    true,
-  ),
-  rule('line', `fill: none; stroke: ${c.stroke}; stroke-width: ${w.line};`, true),
-  rule('line-accent', `fill: none; stroke: ${c.accent}; stroke-width: ${w.accent};`, true),
-  rule('dashed', `stroke-dasharray: ${DASH.line};`, true),
-  rule('label', textRule(`fill: ${c.stroke};`, F.label), true),
-  rule('label-accent', textRule(`fill: ${c.accent};`, F.label), true),
-  rule('label-bold', textRule(`fill: ${c.stroke};`, F.name), true),
-  rule('label-title', textRule(`fill: ${c.stroke};`, F.title), true),
-  rule('label-group', textRule(`fill: ${c.stroke};`, F.group), true),
-  rule('label-note', textRule(`fill: ${c.note};`, F.note), true),
-  rule('arrow-open', `fill: none; stroke: ${c.stroke}; stroke-width: ${w.line};`, true),
-  rule('arrow-filled', `fill: ${c.stroke}; stroke: none;`, true),
-  rule('arrow-open-accent', `fill: none; stroke: ${c.accent}; stroke-width: ${w.accent};`, true),
-  rule('arrow-filled-accent', `fill: ${c.accent}; stroke: none;`, true),
-  rule('halo', `paint-order: stroke; stroke: ${c.canvas}; stroke-width: ${w.halo}px; stroke-linejoin: round;`, true),
-  rule('badge', `fill: ${c.stroke};`, true),
-  rule('badge-accent', `fill: ${c.accent};`, true),
-  rule('badge-text', textRule('fill: #ffffff;', F.badge), true),
-  rule('mark', `fill: ${c.accentSoft}; stroke: ${c.accent}; stroke-width: ${w.frame};`, true),
-  rule('mark-text', textRule(`fill: ${c.accent};`, F.mark), true),
+  rule('shape', `fill: ${c.fill}; stroke: ${c.stroke}; stroke-width: ${w.shape};`),
+  rule('shape-muted', `fill: ${c.fillMuted}; stroke: ${c.stroke}; stroke-width: ${w.shape};`),
+  rule('shape-emph', `fill: ${c.fill}; stroke: ${c.stroke}; stroke-width: ${w.emph};`),
+  rule('frame', `fill: none; stroke: ${c.border}; stroke-width: ${w.frame}; stroke-dasharray: ${DASH.frame};`),
+  rule('frame-own', `fill: ${c.fillMuted}; fill-opacity: 0.55; stroke: ${c.stroke}; stroke-width: ${w.frameOwn};`),
+  rule('line', `fill: none; stroke: ${c.stroke}; stroke-width: ${w.line};`),
+  rule('line-accent', `fill: none; stroke: ${c.accent}; stroke-width: ${w.accent};`),
+  rule('dashed', `stroke-dasharray: ${DASH.line};`),
+  rule('label', textRule(`fill: ${c.stroke};`, F.label)),
+  rule('label-accent', textRule(`fill: ${c.accent};`, F.label)),
+  rule('label-bold', textRule(`fill: ${c.stroke};`, F.name)),
+  rule('label-title', textRule(`fill: ${c.stroke};`, F.title)),
+  rule('label-group', textRule(`fill: ${c.stroke};`, F.group)),
+  rule('label-note', textRule(`fill: ${c.note};`, F.note)),
+  rule('arrow-open', `fill: none; stroke: ${c.stroke}; stroke-width: ${w.line};`),
+  rule('arrow-filled', `fill: ${c.stroke}; stroke: none;`),
+  rule('arrow-open-accent', `fill: none; stroke: ${c.accent}; stroke-width: ${w.accent};`),
+  rule('arrow-filled-accent', `fill: ${c.accent}; stroke: none;`),
+  rule('halo', `paint-order: stroke; stroke: ${c.canvas}; stroke-width: ${w.halo}px; stroke-linejoin: round;`),
+  rule('badge', `fill: ${c.stroke};`),
+  rule('badge-accent', `fill: ${c.accent};`),
+  rule('badge-text', textRule('fill: #ffffff;', F.badge)),
+  rule('mark', `fill: ${c.accentSoft}; stroke: ${c.accent}; stroke-width: ${w.frame};`),
+  rule('mark-text', textRule(`fill: ${c.accent};`, F.mark)),
 ];
 
-/** Arrowheads; every picture carries all four (clean-up: only used ones, ADR 0008 Nr. 5). */
+/** Arrowheads, open and filled, in ink and in the accent; a picture carries those its lines end in. */
 const MARKERS: readonly Marker[] = [
   { id: 'open', shape: MARKER_SHAPES.hook, name: 'arrow-open' },
   { id: 'filled', shape: MARKER_SHAPES.triangle, name: 'arrow-filled' },
@@ -83,7 +75,7 @@ export interface KindStyles {
 
 /**
  * The style table of a kind in the standard look: root class, font, canvas, the four arrowheads and the base
- * rules every picture carries, then the kind's own (ADR 0010). `compile({ theme })` lays a theme over the result,
+ * rules every kind shares, then the kind's own (ADR 0010). `compile({ theme })` lays a theme over the result,
  * so a corporate design repaints the base rules and the kind's alike.
  */
 export function standardStyles(kind: KindStyles): Styles {

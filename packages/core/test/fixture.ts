@@ -18,7 +18,7 @@ const styles: Styles = {
   markers: [{ id: 'open', shape: MARKER_SHAPES.hook, name: 'arrow' }],
   roles: { line: { classes: ['text'] }, rule: { classes: ['stroke', 'thin'], marker: 'open' } },
   rules: [
-    { name: 'base', declarations: 'fill: none;', always: true },
+    { name: 'base', declarations: 'fill: none;' },
     { name: 'text', declarations: 'fill: #000;' },
     { name: 'stroke', declarations: 'stroke: #000;' },
   ],

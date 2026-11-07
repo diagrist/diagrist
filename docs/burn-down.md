@@ -61,8 +61,6 @@ The 15 examples render the predecessor's SVG byte for byte, but for the name of 
 font it is drawn in and so stands 6 px further right in `bestellung-bestaetigen` and `reservierung-halten`. These
 crutches keep the rest so; they go in one clean-up with a second baseline.
 
-1. **Base stylesheet always written.** 24 rules marked `always` in `packages/core/src/standard/styles.ts`, also
-   in pictures that use none of them. Clean-up: drop `always`, the kernel writes only used rules.
 3. **Root class `dia`** (`standardStyles`). The target is `diagrist`, and `--dgr-` for CSS variables.
 4. **Unrounded path numbers and circle radii** (`r="5.151515151515151"`), while rectangles, lines and texts are
    rounded to one decimal in `packages/core/src/svg.ts`. Clean-up: one rounding for all numbers.

@@ -21,19 +21,19 @@ function blockBase(fonts: LookFonts, w: Strokes): StyleRule[] {
   const ink = 'fill: #18181b;';
   const accent = 'fill: #1d4ed8;';
   return [
-    rule('shape-emph', `fill: #ffffff; stroke: #18181b; stroke-width: ${w.emph};`, true),
-    rule('line', `fill: none; stroke: #18181b; stroke-width: ${w.line};`, true),
-    rule('line-accent', `fill: none; stroke: #1d4ed8; stroke-width: ${w.accent};`, true),
-    rule('label', textRule(ink, { size: f.label }), true),
-    rule('label-accent', textRule(accent, { size: f.label }), true),
-    rule('label-bold', textRule(ink, { size: f.node, weight: 600 }), true),
-    rule('label-title', textRule(ink, { size: f.title, weight: 600 }), true),
-    rule('label-group', textRule(ink, { size: f.group, weight: 600 }), true),
-    rule('label-note', textRule('fill: #52525b;', { size: f.note }), true),
-    rule('arrow-open', `fill: none; stroke: #18181b; stroke-width: ${w.line};`, true),
-    rule('arrow-open-accent', `fill: none; stroke: #1d4ed8; stroke-width: ${w.accent};`, true),
-    rule('badge-text', textRule('fill: #ffffff;', { size: f.badge, weight: 700 }), true),
-    rule('mark-text', textRule(accent, { size: f.badge - 1, weight: 700 }), true),
+    rule('shape-emph', `fill: #ffffff; stroke: #18181b; stroke-width: ${w.emph};`),
+    rule('line', `fill: none; stroke: #18181b; stroke-width: ${w.line};`),
+    rule('line-accent', `fill: none; stroke: #1d4ed8; stroke-width: ${w.accent};`),
+    rule('label', textRule(ink, { size: f.label })),
+    rule('label-accent', textRule(accent, { size: f.label })),
+    rule('label-bold', textRule(ink, { size: f.node, weight: 600 })),
+    rule('label-title', textRule(ink, { size: f.title, weight: 600 })),
+    rule('label-group', textRule(ink, { size: f.group, weight: 600 })),
+    rule('label-note', textRule('fill: #52525b;', { size: f.note })),
+    rule('arrow-open', `fill: none; stroke: #18181b; stroke-width: ${w.line};`),
+    rule('arrow-open-accent', `fill: none; stroke: #1d4ed8; stroke-width: ${w.accent};`),
+    rule('badge-text', textRule('fill: #ffffff;', { size: f.badge, weight: 700 })),
+    rule('mark-text', textRule(accent, { size: f.badge - 1, weight: 700 })),
   ];
 }
 

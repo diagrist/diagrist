@@ -1,10 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 816" width="960" height="816" class="dia" role="img" aria-label="Radverleih im Systemkontext"><title>Radverleih im Systemkontext</title><style>
   .dia { font-family: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 11px; }
   .dia .shape { fill: #ffffff; stroke: #18181b; stroke-width: 1.5; }
-  .dia .shape-muted { fill: #f4f4f5; stroke: #18181b; stroke-width: 1.5; }
   .dia .shape-emph { fill: #ffffff; stroke: #18181b; stroke-width: 2.5; }
-  .dia .frame { fill: none; stroke: #a1a1aa; stroke-width: 1; stroke-dasharray: 4 3; }
-  .dia .frame-own { fill: #f4f4f5; fill-opacity: 0.55; stroke: #18181b; stroke-width: 2; }
   .dia .line { fill: none; stroke: #18181b; stroke-width: 1.5; }
   .dia .line-accent { fill: none; stroke: #1d4ed8; stroke-width: 1.8; }
   .dia .dashed { stroke-dasharray: 6 4; }
@@ -16,7 +13,6 @@
   .dia .label-note { fill: #52525b; font-size: 10px; }
   .dia .arrow-open { fill: none; stroke: #18181b; stroke-width: 1.5; }
   .dia .arrow-filled { fill: #18181b; stroke: none; }
-  .dia .arrow-open-accent { fill: none; stroke: #1d4ed8; stroke-width: 1.8; }
   .dia .arrow-filled-accent { fill: #1d4ed8; stroke: none; }
   .dia .halo { paint-order: stroke; stroke: #fafafa; stroke-width: 4px; stroke-linejoin: round; }
   .dia .badge { fill: #18181b; }

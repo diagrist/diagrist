@@ -1,29 +1,12 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 813 914" width="813" height="914" class="dia" role="img" aria-label="Karten belasten"><title>Karten belasten</title><style>
   .dia { font-family: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 11px; }
   .dia .shape { fill: #ffffff; stroke: #18181b; stroke-width: 1.5; }
-  .dia .shape-muted { fill: #f4f4f5; stroke: #18181b; stroke-width: 1.5; }
-  .dia .shape-emph { fill: #ffffff; stroke: #18181b; stroke-width: 2.5; }
-  .dia .frame { fill: none; stroke: #a1a1aa; stroke-width: 1; stroke-dasharray: 4 3; }
-  .dia .frame-own { fill: #f4f4f5; fill-opacity: 0.55; stroke: #18181b; stroke-width: 2; }
   .dia .line { fill: none; stroke: #18181b; stroke-width: 1.5; }
-  .dia .line-accent { fill: none; stroke: #1d4ed8; stroke-width: 1.8; }
-  .dia .dashed { stroke-dasharray: 6 4; }
   .dia .label { fill: #18181b; font-size: 10px; }
-  .dia .label-accent { fill: #1d4ed8; font-size: 10px; }
   .dia .label-bold { fill: #18181b; font-weight: 600; font-size: 12px; }
   .dia .label-title { fill: #18181b; font-weight: 600; font-size: 14px; }
-  .dia .label-group { fill: #18181b; font-weight: 600; font-size: 11px; }
   .dia .label-note { fill: #52525b; font-size: 10px; }
   .dia .arrow-open { fill: none; stroke: #18181b; stroke-width: 1.5; }
-  .dia .arrow-filled { fill: #18181b; stroke: none; }
-  .dia .arrow-open-accent { fill: none; stroke: #1d4ed8; stroke-width: 1.8; }
-  .dia .arrow-filled-accent { fill: #1d4ed8; stroke: none; }
-  .dia .halo { paint-order: stroke; stroke: #fafafa; stroke-width: 4px; stroke-linejoin: round; }
-  .dia .badge { fill: #18181b; }
-  .dia .badge-accent { fill: #1d4ed8; }
-  .dia .badge-text { fill: #ffffff; font-weight: 700; font-size: 10px; }
-  .dia .mark { fill: #dbeafe; stroke: #1d4ed8; stroke-width: 1; }
-  .dia .mark-text { fill: #1d4ed8; font-weight: 700; font-size: 9px; }
   .dia .uml-filled { fill: #18181b; stroke: #18181b; stroke-width: 1.5; stroke-linejoin: miter; }
   .dia .act-text { fill: #18181b; font-size: 12px; }
   .dia .act-lane { fill: none; stroke: #18181b; stroke-width: 1; }
