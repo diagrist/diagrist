@@ -55,15 +55,17 @@ function rowsDown(p: Parts, band: (id: string) => number): number {
 /**
  * The layout of a use case diagram (layout plan P11): a plan of columns, laid out by the layout graph, which orders
  * every column. Several subjects stand below each other, unless an actor takes part in more than one or the picture
- * would grow too tall; then side by side, more than three in columns whose subjects the order stacks, or as
- * `direction` says otherwise. Side by side, every set of columns of the order stage is laid out, since which
- * subjects share a column only the layout shows, and while one is not clean its families of actors try the other
- * side; the declared set first, another wins by fewer lines through boxes, crossings and lines past a foreign subject,
- * or on as many where it is cheaper by `SWITCH`, so shorter lines and a smaller picture choose the order of the
- * subjects. Each set of sides lays out the plans of `acrossPlans`, the columns of actors and of free use cases as
- * choices, and keeps the one with the fewest of these, then the cheapest. Since the families flip one after another,
- * more choices can lead the search to another and dearer end; so the search runs once without the choices and once
- * with them, and the cheaper picture stays. Below each other is tried only where side by side is not clean of these, and wins where it has fewer. Notes
+ * would grow too tall; then side by side, more than three in columns whose subjects the order stacks, or as `direction`
+ * says otherwise. Side by side, every set of columns of the order stage is laid out, since which subjects share a
+ * column only the layout shows, and while one is not clean its families of actors try the other side; the declared set
+ * first, another wins by fewer lines through boxes, crossings and lines past a foreign subject, or on as many where it
+ * is cheaper by `SWITCH`, so shorter lines and a smaller picture choose the order of the subjects. Each set of sides
+ * lays out the plans of `acrossPlans`, the columns of actors and of free use cases as choices, and keeps the one with
+ * the fewest of these, then the cheapest. Since the families flip one after another, more choices can lead the search
+ * to another and dearer end; so the search runs once without the choices and once with them, and the cheaper picture
+ * stays. Below each other is tried only where side by side is not clean of these, and wins where it has fewer; there
+ * each set of sides lays out the plan with every family in its lane and, where one differs, the plan with the families
+ * whose use cases all lie in inner columns above or below the subjects (`stackedPlan`), and keeps the cheaper. Notes
  * take free spots; where one finds none near its anchor, the picture is laid out once more with room for it beside its
  * anchor, and the cheaper stays, a note on a box or text costing as much as a line through a box, one on a line or
  * frame line as a text on a line.
@@ -81,7 +83,14 @@ export function arrangeUseCase(m: UseCaseModel, price: Price): Laid {
   const declared = bandIndex(m);
   const n = m.diagram.subjects.length;
   const stacked = (): Tried => {
-    const run = (s: Map<string, Side>) => tried(stackedPlan(p, s));
+    const run = (s: Map<string, Side>) => {
+      const plain = stackedPlan(p, s);
+      const lane = tried(plain);
+      const over = stackedPlan(p, s, true);
+      if ([...over.actorX].every(([id, x]) => plain.actorX.get(id) === x)) return lane;
+      const got = tried(over);
+      return cheaper(lane, got) ? got : lane;
+    };
     return flipFamilies(p, run(sides(p, depths(p))), run);
   };
   const cheaper = (a: Tried, b: Tried) => b.bad < a.bad || (b.bad === a.bad && b.cost < a.cost);

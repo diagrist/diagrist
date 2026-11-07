@@ -1,6 +1,6 @@
 import type { UseCaseModel } from '../../model.js';
 import { casesOf, depths, families, type Parts, type Side, slide, towardActors } from './parts.js';
-import { sides } from './sides.js';
+import { sideGiven, sides } from './sides.js';
 
 /**
  * Column plan of a use case diagram: the side of every actor, a column per use case and the column of every actor's
@@ -23,17 +23,28 @@ export function bandIndex(model: UseCaseModel): (id: string) => number {
   };
 }
 
-/** Below each other: the base left, actors left or right of the one column of subjects. */
-export function stackedPlan(p: Parts, side: Map<string, Side>): Plan {
+/**
+ * Below each other: the base left, actors left or right of the one column of subjects. With `over`, a family whose
+ * use cases all lie in inner columns, none in the column next to its lane, stands in the median column of its use
+ * cases instead, above or below the subjects, so its lines do not cross the columns between (decision E3, round 4);
+ * a family with a side given by `side=` keeps its lane.
+ */
+export function stackedPlan(p: Parts, side: Map<string, Side>, over = false): Plan {
   const depth = depths(p);
   const columns = Math.max(0, ...depth.values()) + 1;
   slide(p, depth, side, columns);
   towardActors(p, depth, side);
-  return {
-    side,
-    depth,
-    actorX: new Map(p.actors.map((a) => [a.id, side.get(a.id) === 'right' ? columns : -1])),
-  };
+  const actorX = new Map(p.actors.map((a) => [a.id, side.get(a.id) === 'right' ? columns : -1]));
+  if (over)
+    for (const members of families(p)) {
+      const cols = members.flatMap((id) => casesOf(id, p).flatMap((c) => depth.get(c) ?? []));
+      const right = side.get(members[0] ?? '') === 'right';
+      const near = right ? columns - 1 : 0;
+      if (cols.length === 0 || cols.includes(near) || sideGiven(members, p)) continue;
+      const at = cols.sort((a, b) => a - b)[Math.floor((cols.length - 1) / 2)] ?? near;
+      for (const id of members) actorX.set(id, at);
+    }
+  return { side, depth, actorX };
 }
 
 /** The part of the diagram in one subject: its use cases, the actors taking part, the relations among them. */

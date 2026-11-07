@@ -12,7 +12,7 @@ export const actor = statement(
   implementing(
     { uml: [USE_CASES.actor] },
     {
-      doc: 'An actor: a role outside every subject, drawn as a stick figure with the role below it or, with `kind=system`, as a box with `«actor»` for another system. It has no `in`: actors stand outside the subject. Diagrist puts it left or right of its use cases.',
+      doc: 'An actor: a role outside every subject, drawn as a stick figure with the role below it or, with `kind=system`, as a box with `«actor»` for another system. It has no `in`: actors stand outside the subject. Diagrist puts it left or right of its use cases, or above or below a subject in the column of its use cases where that keeps its lines shorter.',
       examples: ['actor customer "Customer"', 'actor psp "Payment provider" kind=system side=right'],
       arguments: [
         arg('id', id(), 'Id that `rel` and `note` use for this actor.'),
@@ -23,7 +23,7 @@ export const actor = statement(
           { values: { system: [USE_CASES.actorRectangle] } },
           attr(oneOf(['person', 'system']), '`person` (default) draws a stick figure, `system` a box with `«actor»`.'),
         ),
-        side: attr(oneOf(['left', 'right']), 'Side of the subject the actor stands on; without it Diagrist chooses.'),
+        side: attr(oneOf(['left', 'right']), 'Side of the subject the actor stands on, always beside it; without it Diagrist chooses.'),
         tone: tone('the figure or box'),
         mark,
         area: areaAttribute,

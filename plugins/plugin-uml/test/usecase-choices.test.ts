@@ -40,6 +40,22 @@ describe('the columns of actors side by side, chosen by the price', () => {
     expect(kasse.y + kasse.h).toBeLessThan(abrechnung.y);
   });
 
+  it('set an actor above its one subject in the column of its use cases, where all lie in inner columns', () => {
+    const p = picture(stress.source('include-kette.dgr'));
+    expect(p.codes).toEqual([]);
+    const [psp, portal] = [p.node('psp'), p.frame('portal')];
+    expect(across(psp, portal)).toBe(true);
+    expect(psp.y + psp.h).toBeLessThan(portal.y);
+    expect(Math.abs(cx(psp) - cx(p.node('bezahlen')))).toBeLessThan(1);
+  });
+
+  it('keep an actor whose side is given in its lane beside the subject', () => {
+    const given = stress.source('include-kette.dgr').replace('kind=system\nsubject', 'kind=system side=right\nsubject');
+    const p = picture(given);
+    expect(p.node('psp').x).toBeGreaterThan(right(p.frame('portal')));
+    expect(across(p.node('gds'), p.frame('portal'))).toBe(true);
+  });
+
   it('keep the actor beside its subject where the choices lead the search to a dearer picture', () => {
     const p = picture(stress.source('zwei-subjekte.dgr'));
     expect(p.node('bib').x).toBeGreaterThan(right(p.frame('lms')));

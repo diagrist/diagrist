@@ -1,5 +1,9 @@
 import { casesOf, families, isLinked, type Parts, type Side } from './parts.js';
 
+/** Does a member of the family have its side given with `side=`? Such a family keeps its lane. */
+export const sideGiven = (members: readonly string[], p: Parts): boolean =>
+  members.some((id) => p.actors.find((a) => a.id === id)?.side !== undefined);
+
 interface Scored {
   readonly members: readonly string[];
   readonly score: number;
@@ -24,7 +28,7 @@ export function sides(p: Parts, depth: ReadonlyMap<string, number>, shared = fal
     const systems = members.filter((id) => byId.get(id)?.system).length / members.length;
     const mean = cols.length ? cols.reduce((s, c) => s + c, 0) / cols.length : 0;
     const score = (last ? mean / last : 0) + systems * 0.5;
-    const fixed = members.some((id) => byId.get(id)?.side !== undefined);
+    const fixed = sideGiven(members, p);
     const linked = members.flatMap((id) => casesOf(id, p).filter((c) => isLinked(c, p)));
     const far = (to: Side) =>
       last > 0 && linked.some((c) => (to === 'right' ? (depth.get(c) ?? 0) < last : (depth.get(c) ?? 0) > 0));

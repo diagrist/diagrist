@@ -8,7 +8,7 @@ const statements = [actor, subject, usecase, rel, note, adr, AREA_STATEMENT] as 
 
 /** The statement tables of UML use case diagrams. */
 export const usecaseSpec = kind('usecase', {
-  doc: 'A UML use case diagram (UML 2.5.1, chapter 18): actors outside, use cases inside their subject, relations as straight lines. Diagrist lays it out by itself: use cases in columns by include and extend, actors left or right at the height of their use cases, an order with as few crossings as it finds.',
+  doc: 'A UML use case diagram (UML 2.5.1, chapter 18): actors outside, use cases inside their subject, relations as straight lines. Diagrist lays it out by itself: use cases in columns by include and extend, actors left or right at the height of their use cases or above and below in their column, an order with as few crossings as it finds.',
   header: {
     subtitle: attr(text(), 'Second line below the title.'),
     look: attr(
