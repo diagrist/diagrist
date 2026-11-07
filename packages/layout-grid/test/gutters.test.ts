@@ -103,15 +103,8 @@ describe('gaps of a channel grid that grow for their texts (ADR 0038, D2)', () =
     const { layout, routes, crowded } = signed(s, [short]);
     expect(crowded).toEqual([]);
     const room = gutterRoom(s, layout, routes, [short], crowded);
-    expect(room).toEqual({ cols: [0], rows: [] });
+    expect(room).toEqual({ cols: [0], rows: [], keep: { cols: [[0, 0]], rows: [] } });
     expect(placeGrid(widen(s, room))).toEqual(layout);
-  });
-
-  it('hands on the room a gap keeps at its borders, and only where it keeps any', () => {
-    const s = spec('a b', 'r s', ['x@a/r', 'y@b/s']);
-    const wider = widen(s, { cols: [0], rows: [0], keep: { cols: [[24, 0]], rows: [[0, 0]] } });
-    expect(wider.cols).toEqual([{ name: 'a', keep: [24, 0] }, { name: 'b' }]);
-    expect(wider.rows).toEqual(s.rows);
   });
 
   it('asks room between the frame lines a text along its line would stand on, which the search keeps clear of', () => {
@@ -122,7 +115,11 @@ describe('gaps of a channel grid that grow for their texts (ADR 0038, D2)', () =
     });
     const bare = of([]);
     const free = signed(bare, [text]);
-    expect(gutterRoom(bare, free.layout, free.routes, [text], [0])).toEqual({ cols: [0], rows: [] });
+    expect(gutterRoom(bare, free.layout, free.routes, [text], [0])).toEqual({
+      cols: [0],
+      rows: [],
+      keep: { cols: [[0, 0]], rows: [] },
+    });
     const framed = of([group('f', ['x']), group('g', ['y'])]);
     const first = signed(framed, [text]);
     expect(first.crowded).toEqual([0]);

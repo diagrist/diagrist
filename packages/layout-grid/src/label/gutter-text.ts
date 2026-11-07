@@ -94,12 +94,20 @@ interface Mark {
   readonly line: boolean;
 }
 
+/** How much a gap must grow for a text along it, and the border the text's stretch touches, where it keeps room. */
+export interface AlongGrowth {
+  readonly growth: number;
+  readonly side?: 0 | 1 | undefined;
+}
+
 /**
  * How much the gap from `lo` to `hi` must grow for a text `long` along a piece over it, from `from` to `to` within the
  * gap (`whole` the piece's length), on the stretch between two marks where it needs the least. The marks are the
  * piece's ends, the lanes of the gap and the frame sides it crosses; a stretch keeps `LINE_GAP` from a lane or side.
  * As the gap grows, the far border moves with it, the centred lanes and an end on a lane by half, and a frame side
- * with the border it is nearer, so a stretch grows by how far its marks part. Between two lanes a text is not asked.
+ * with the border it is nearer, so a stretch grows by how far its marks part. A stretch between a border and the
+ * nearest lane grows by the whole growth instead, since the gap keeps that room at that border and the lanes stand
+ * off its middle (`GridRow.keep`); such a stretch names its border. Between two lanes a text is not asked.
  */
 export function alongGrowth(
   [lo, hi]: readonly [number, number],
@@ -108,8 +116,8 @@ export function alongGrowth(
   lanes: readonly number[],
   sides: readonly number[],
   long: number,
-): number {
-  if (lanes.length + sides.length === 0) return long - whole;
+): AlongGrowth {
+  if (lanes.length + sides.length === 0) return { growth: long - whole };
   const within = (at: number) => at > from && at < to;
   const marks: Mark[] = [
     { at: from, moves: from === lo ? 0 : 0.5, line: false },
@@ -117,13 +125,16 @@ export function alongGrowth(
     ...sides.filter(within).map((at) => ({ at, moves: at - lo < hi - at ? 0 : 1, line: true })),
     { at: to, moves: to === hi ? 1 : 0.5, line: false },
   ].sort((a, b) => a.at - b.at);
-  let least = Infinity;
+  const centred = (k: Mark) => k.moves === 0.5;
+  let least: AlongGrowth = { growth: Infinity };
   marks.slice(1).forEach((b, i) => {
     const a = marks[i] as Mark;
-    if (a.line && b.line && a.moves === 0.5 && b.moves === 0.5) return;
+    if (a.line && b.line && centred(a) && centred(b)) return;
     const free = b.at - a.at - LINE_GAP * (Number(a.line) + Number(b.line));
-    const rate = b.moves - a.moves;
-    least = Math.min(least, free >= long ? 0 : rate > 0 ? (long - free) / rate : Infinity);
+    const side = a.at === lo && centred(b) ? 0 : b.at === hi && centred(a) ? 1 : undefined;
+    const rate = side === undefined ? b.moves - a.moves : 1;
+    const growth = free >= long ? 0 : rate > 0 ? (long - free) / rate : Infinity;
+    if (growth < least.growth) least = { growth, side };
   });
   return least;
 }

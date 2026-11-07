@@ -116,3 +116,14 @@ grown frames. The picture keeps this only when it crosses fewer lines, breaks no
 often, and its frames cover no more boxes and run through no more texts. `zwei-fluesse` went from 4 to 3 crossings
 in four of the five looks and 104 px wider; no other picture changed.
 
+
+## Amendment (07.11.2026): a gap keeps room at its border (D2)
+
+D2 let a text along a piece ask for the stretch between the gap's border and the outermost track, "which stays
+centred". Centred, the track moves by half of what the gap grows, so a text 190 px long asked for 380 px more gap,
+and the other half stood empty beyond the tracks (`kontext-stern` in `look=blocks`, 432 px between two boxes for one
+track and one text). Now the gap keeps room at its near and its far border (`GridColumn.keep`, `GridRow.keep`), and
+its row of tracks stands in the middle of the rest: a stretch between a border and the nearest track or end on a
+track grows by all the gap grows, and `gutterRoom` asks only that and keeps it at that border. The row of tracks asks
+its span besides the room kept. A crowded text that has no stretch to grow along and stands within the clearance of
+a track asks that gap for the room it misses on its side, kept at that border, so the track moves off it.
