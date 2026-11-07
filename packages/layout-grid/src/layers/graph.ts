@@ -8,6 +8,12 @@ export interface LayerEdge {
   readonly from: string;
   readonly to: string;
   readonly rank: 0 | 1 | 'free';
+  /**
+   * On the two edges between a box hanging from a line and the ends of the line, keyed by the hanging: from the ends
+   * down to a box hanging below, it stands one layer below the upper end and never above the lower one; from a box
+   * hanging above down to the ends, one layer above the lower end and never below the upper one (`longestPath`).
+   */
+  readonly hang?: { readonly key: string; readonly box: string };
 }
 
 /**

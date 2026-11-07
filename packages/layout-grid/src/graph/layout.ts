@@ -5,6 +5,7 @@ import type { LayerEdge, LayerGraph } from '../layers/graph.js';
 import type { CellGraph, CellLayout } from './cells.js';
 import { eitherWay } from './either.js';
 import { layoutCells } from './grid.js';
+import { heldEdges, heldLayerEdges } from './hang.js';
 import type { GraphContainer, GraphEdge, GraphRank, LayoutGraph } from './spec.js';
 import { staged } from './stages.js';
 import { drawStraight, hideStraight } from './straight.js';
@@ -34,7 +35,7 @@ const frameOf = (c: GraphContainer): LayeredFrame => ({
 function layeringOf(graph: LayoutGraph, perLayer: number, frames: readonly LayeredFrame[]): LayerGraph {
   return {
     nodes: graph.nodes.map((n) => n.id),
-    edges: graph.edges.map(layerEdge),
+    edges: graph.edges.flatMap((e) => (e.hang === true ? heldLayerEdges(e, graph.edges) : [layerEdge(e)])),
     maxPerLayer: perLayer,
     ...(graph.given?.last === undefined ? {} : { last: graph.given.last }),
     sizes: new Map(graph.nodes.map((n) => [n.id, n.width * n.height])),
@@ -62,12 +63,16 @@ export function specOf(graph: LayoutGraph): LayeredSpec {
   const lanes = containers
     .filter((c) => c.kind === 'lane')
     .map((c) => ({ id: c.id, members: c.members, pad: c.pad, width: c.head.width, top: c.top }));
-  const edges = graph.edges.map(
-    ({ rank, profile, either: _, ...e }): LayeredEdge => ({
-      ...e,
-      rank: RANKS[rank],
-      ...(profile === 'rail' ? { rail: true } : profile === 'back' ? { rail: 'up' as const } : {}),
-    }),
+  const edges = graph.edges.flatMap(({ rank, profile, either: _, hang, ...e }): LayeredEdge[] =>
+    hang === true
+      ? heldEdges({ ...e, rank }, graph.edges)
+      : [
+          {
+            ...e,
+            rank: RANKS[rank],
+            ...(profile === 'rail' ? { rail: true } : profile === 'back' ? { rail: 'up' as const } : {}),
+          },
+        ],
   );
   return {
     nodes: graph.nodes.map(({ dock: _, ...n }) => n),

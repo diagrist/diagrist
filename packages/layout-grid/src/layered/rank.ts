@@ -25,7 +25,14 @@ export interface Ranked {
 
 /** The edge as the layering sees it: `rank` -1 turned into 1 with its ends swapped. */
 const layerEdge = (e: LayeredEdge): LayerEdge =>
-  e.rank === -1 ? { from: e.to, to: e.from, rank: 1 } : { from: e.from, to: e.to, rank: e.rank === 0 ? 0 : 1 };
+  e.rank === -1
+    ? { from: e.to, to: e.from, rank: 1 }
+    : {
+        from: e.from,
+        to: e.to,
+        rank: e.rank === 0 ? 0 : 1,
+        ...(e.hang ? { hang: { key: e.hang.id, box: e.hang.box } } : {}),
+      };
 
 /** Layers without gaps, counted from 0. */
 function compact(layer: Map<string, number>): Map<string, number> {

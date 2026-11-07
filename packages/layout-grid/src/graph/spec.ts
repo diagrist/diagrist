@@ -101,6 +101,13 @@ export interface GraphEdge {
   /** Not drawn: the edge only holds its ends near each other in layers and places. */
   readonly hidden?: boolean;
   /**
+   * `to` names an edge, not a node: `from` hangs from that line, such as a box that describes the line itself. It
+   * stands in the layer of the line's lower end, one below where both ends share a layer (above with rank `up`, which
+   * `either` may turn to), near where the line passes, and a line without head runs from a straight piece of that
+   * line to the middle of a side of `from`, as clear and short as it can (`layered/tethers.ts`), measured as any line.
+   */
+  readonly hang?: true;
+  /**
    * With rank `up` or `down`, `to` may stand on the other side of `from` where that clearly saves crossings, such as a
    * contract drawn below the boxes that fulfil it (`graph/either.ts`); all such edges into one node turn together.
    */

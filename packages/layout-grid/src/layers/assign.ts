@@ -18,23 +18,47 @@ function topological(nodes: readonly string[], edges: readonly LayerEdge[]): str
   return order;
 }
 
+/** The layers of the ends of each line `box` hangs from by `edges`, grouped by the key of the hanging. */
+function hungFrom(box: string, edges: readonly LayerEdge[], layer: ReadonlyMap<string, number>): number[][] {
+  const ends = new Map<string, number[]>();
+  for (const e of edges) {
+    if (e.hang?.box !== box) continue;
+    const end = layer.get(e.from === box ? e.to : e.from) ?? 0;
+    ends.set(e.hang.key, [...(ends.get(e.hang.key) ?? []), end]);
+  }
+  return [...ends.values()];
+}
+
 /**
- * Longest path: every source on top, every other node one layer below its deepest predecessor. Then sources move
- * down to just above their highest child, so edges stay short.
+ * The least layer of `n` its edges from above allow: one below each predecessor, but for a box hanging below a line
+ * (`LayerEdge.hang`) one below the upper end of the line and level with the lower one, so it hangs beside the line.
+ * The edges of a box hanging above a line hold nothing here.
+ */
+function leastLayer(n: string, ranked: readonly LayerEdge[], layer: ReadonlyMap<string, number>): number {
+  const into = ranked.filter((e) => e.to === n && e.hang?.box !== e.from);
+  const hung = hungFrom(n, into, layer).map((at) => Math.max(Math.min(...at) + 1, ...at));
+  const plain = into.filter((e) => e.hang === undefined).map((e) => (layer.get(e.from) ?? 0) + 1);
+  return Math.max(0, ...plain, ...hung);
+}
+
+/**
+ * Longest path: every source on top, every other node one layer below its deepest predecessor (`leastLayer`). Then
+ * sources move down to just above their highest child, so edges stay short, and a box hanging above a line to one
+ * above its lower end and level with its upper one. Layers count from 0 again after.
  */
 function longestPath(nodes: readonly string[], ranked: readonly LayerEdge[]): Map<string, number> {
   const order = topological(nodes, ranked);
   const layer = new Map<string, number>();
-  for (const n of order) {
-    const preds = ranked.filter((e) => e.to === n).map((e) => (layer.get(e.from) ?? 0) + 1);
-    layer.set(n, Math.max(0, ...preds));
-  }
+  for (const n of order) layer.set(n, leastLayer(n, ranked, layer));
   for (const n of [...order].reverse()) {
-    if (ranked.some((e) => e.to === n)) continue;
-    const kids = ranked.filter((e) => e.from === n).map((e) => layer.get(e.to) ?? 0);
-    if (kids.length) layer.set(n, Math.min(...kids) - 1);
+    if (ranked.some((e) => e.to === n && e.hang?.box !== e.from)) continue;
+    const out = ranked.filter((e) => e.from === n);
+    const kids = out.filter((e) => e.hang === undefined).map((e) => (layer.get(e.to) ?? 0) - 1);
+    const hung = hungFrom(n, out, layer).map((at) => Math.min(Math.max(...at) - 1, ...at));
+    if (kids.length + hung.length > 0) layer.set(n, Math.min(...kids, ...hung));
   }
-  return layer;
+  const top = Math.min(0, ...layer.values());
+  return new Map([...layer].map(([n, l]) => [n, l - top]));
 }
 
 /**
