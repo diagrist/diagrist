@@ -38,17 +38,28 @@ export const isLinked = (id: string, p: Parts): boolean =>
  * A use case without include, extend and generalization hangs on actors only. When most of them stand right, it
  * moves to the last column of its own subject, so their lines do not run through the inner columns; never past it,
  * since a subject that shares its columns with a deeper one would grow as wide as that one and leave its middle empty.
+ * The subjects in `still` keep their columns, since only the layout shows whether the move pays; returns the subjects
+ * whose use cases moved.
  */
-export function towardActors(p: Parts, depth: Map<string, number>, side: ReadonlyMap<string, Side>): void {
+export function towardActors(
+  p: Parts,
+  depth: Map<string, number>,
+  side: ReadonlyMap<string, Side>,
+  still: ReadonlySet<string | undefined> = new Set(),
+): Set<string | undefined> {
   const last = new Map<string | undefined, number>();
   for (const c of p.cases) last.set(c.subject, Math.max(last.get(c.subject) ?? 0, depth.get(c.id) ?? 0));
+  const moved = new Set<string | undefined>();
   for (const c of p.cases) {
     const own = last.get(c.subject) ?? 0;
-    if (!own || isLinked(c.id, p)) continue;
+    if (!own || still.has(c.subject) || isLinked(c.id, p)) continue;
     const actors = casesOf(c.id, p);
     const right = actors.filter((a) => side.get(a) === 'right').length;
-    if (right > actors.length - right) depth.set(c.id, own);
+    if (right <= actors.length - right || depth.get(c.id) === own) continue;
+    depth.set(c.id, own);
+    moved.add(c.subject);
   }
+  return moved;
 }
 
 /**
