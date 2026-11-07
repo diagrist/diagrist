@@ -1,6 +1,7 @@
 import type { Rect } from '@diagrist/core';
 import { describe, expect, it } from 'vitest';
 import type { Group, Link } from '../src/layered/links.js';
+import { type End, rowOf } from '../src/layered/port-row.js';
 import { portsOf } from '../src/layered/ports.js';
 
 const NONE = { dummies: new Set<string>() };
@@ -58,5 +59,23 @@ describe('the ends of a side', () => {
 
   it('may come nearer a square corner, where no rounding is in the way', () => {
     expect(Math.max(...shifted(0))).toBe(192);
+  });
+
+  /** Ends on the top of a box 200 wide (insets at 16 and 184), wanting the places `toward`, in this order. */
+  const row = (...toward: number[]) =>
+    rowOf(
+      toward.map((t): End => ({ links: [], toward: t, beyond: t, hold: 1 })),
+      rect(100, 200),
+      16,
+      16,
+    ).at;
+
+  it('shift back only the ends that wanted a place beyond the box, so an end on its line stays there', () => {
+    expect(row(100, 443, 567)).toEqual([100, 168, 184]);
+  });
+
+  it('take an end on the box along with the shift only as far as the gap to its neighbour asks', () => {
+    expect(row(170, 443, 567)).toEqual([152, 168, 184]);
+    expect(row(-200, -100, 30)).toEqual([16, 32, 48]);
   });
 });

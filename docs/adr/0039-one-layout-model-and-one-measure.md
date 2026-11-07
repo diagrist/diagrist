@@ -767,3 +767,21 @@ Budgets do not rise, as D1 asked: `kurs-netz` keeps 0 crossings with both dashed
 `Prüfung` and `Belegung` above `Studierende` and `Modul`, 557 to 517 px high and 29 px narrower. The examples with
 association classes keep their pixels.
 
+
+## Amendment: the row shift moves only the ends from beyond the box (07.11.2026, round 5, owner decision E1)
+
+The ends of a side are laid apart around their wishes, then shifted back between the insets where spreading pushed
+the row past one of them. The shift moved the whole row, so an end whose line wanted a place on the box went along
+with neighbours that came from beyond it: in `ueberspringen` the two dashed ends on `Modelliert` want past its right
+inset, and the chain end, which wanted the middle, moved 8 px with them; the chain stood 8 to 16 px beside its axis.
+Now the shift moves the ends whose wish lies beyond the insets, and an end on the box only as far as the gap to a
+moved neighbour asks (`shifted`, `layered/port-row.ts`). The per-end range of the corner rule above stays as it was.
+`ueberspringen` keeps its chain on one vertical through the middle, `auswahl-vier` draws 120 px less line with its
+children centred (3 off by 42 px to 2 off by 2 px), `beobachter` 8 px less. A layout without any shift was measured
+and dropped: `beobachter` 12 to 14 bends with an avoidable one, `schichten` 2 to 6, `pakete-drei` text on a line.
+
+The decision came with a condition: no example may pay for it. In `zahlung-ausnahme` the line from `Kundenkonten`,
+now centred, ran 5 px beside the line into the pin `Betrag`, because pins on top and bottom are spread after routing
+and a straight line whose pin moved got a jog in its middle. The activity kind now lets the other end of such a line
+follow its pin where that end stands alone on a side of a plain object node, at least 4 px from its corners
+(`activity/layout/pin-straight.ts`): the line runs straight, 8 to 6 bends, and the 5 px are gone.
