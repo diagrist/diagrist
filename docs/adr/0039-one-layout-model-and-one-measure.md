@@ -561,3 +561,13 @@ whose stretch does not hold its own (`ahead` in `layered/rail-room.ts`), since e
 `punkte` without its finding, budget `lead` 1 to 0, 5 px wider; `fahrgastraum` 4,400 to 4,176 px of line and 16 px
 narrower from the look-ahead alone, its rails nested instead of interlaced. No other picture changed.
 
+
+**A text on an end piece does not stretch its rail.** A rail whose text stood over its upper end or under its lower
+still counted the text's height into the stretch it takes on its track (`stretch` in `layered/rail-room.ts`), so two
+rails that only meet in a box overlapped there and the later one stepped outside the other, or took the other side.
+The text stands on its end piece and is a box for the rails placed after it (`pieceText`) already, so it now adds
+nothing to the stretch. `fahrgastraum` 4,176 to 3,712 px of line and 16 px narrower, `wiederholen` 2,561 to 2,281 px
+(its one crossing now between two rails on the left instead of a rail and the line to the final state),
+`verschachtelt` 60 px narrower. Where two rails then share a track and dock on one side of a box, a text that has no
+room between their pieces stands at the other end of its line (`fahrgastraum`: `Abfahrt [Auslastung ≥ 70 %]` under
+`Hoch`).

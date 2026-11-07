@@ -1,25 +1,17 @@
 import type { Point, Rect } from '@diagrist/core';
 import type { Route } from '../layout.js';
 import type { RailSide } from './rail-order.js';
-import { type RailTextAt, textHeight } from './rail-texts.js';
+import type { RailTextAt } from './rail-texts.js';
 import type { LayeredEdge, LayeredMetrics, LayeredSpec } from './spec.js';
 
 /**
  * The stretch a rail between `upper` and `lower` takes on its track: from the middle of one box to the middle of the
- * other, where its ends dock, and its text: beside the middle of the track, over the upper end or under the lower.
+ * other, where its ends dock, and a text beside the middle of the track. A text over the upper end or under the lower
+ * adds nothing: it stands on its end piece, and the rails placed after it keep clear of it as a box (`pieceText`).
  */
-export function stretch(
-  e: LayeredEdge,
-  upper: Rect,
-  lower: Rect,
-  text: RailTextAt,
-  gap: number,
-): { lo: number; hi: number } {
+export function stretch(e: LayeredEdge, upper: Rect, lower: Rect, text: RailTextAt): { lo: number; hi: number } {
   const [lo, hi] = [upper.y + upper.h / 2, lower.y + lower.h / 2];
-  if (e.label === undefined) return { lo, hi };
-  const tall = textHeight(e) + gap;
-  if (text === 'upper') return { lo: Math.min(upper.y, lo - tall), hi };
-  if (text === 'lower') return { lo, hi: Math.max(lower.y + lower.h, hi + tall) };
+  if (e.label === undefined || text !== 'beside') return { lo, hi };
   const half = ((e.label.lines?.length ?? 1) * e.label.size * 1.5) / 2;
   const mid = (lo + hi) / 2;
   return { lo: Math.min(lo, mid - half), hi: Math.max(hi, mid + half) };
@@ -34,7 +26,6 @@ export function ahead(
   at: { readonly boxes: ReadonlyMap<string, Rect>; readonly sides: ReadonlyMap<string, readonly RailSide[]> },
   layer: (node: string) => number,
   text: (e: LayeredEdge) => RailTextAt,
-  gap: number,
 ): { readonly side: RailSide; readonly lo: number; readonly hi: number }[] {
   return rest.flatMap((o) => {
     const [a, b] = [at.boxes.get(o.from), at.boxes.get(o.to)];
@@ -42,7 +33,7 @@ export function ahead(
     const side = sides.length === 1 ? sides[0] : undefined;
     if (a === undefined || b === undefined || side === undefined) return [];
     const [upper, lower] = layer(o.from) < layer(o.to) ? [a, b] : [b, a];
-    return [{ side, ...stretch(o, upper, lower, text(o), gap) }];
+    return [{ side, ...stretch(o, upper, lower, text(o)) }];
   });
 }
 

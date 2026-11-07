@@ -74,19 +74,13 @@ function place(
       return r !== undefined && w !== undefined && (side === 'left' ? w.x < r.x : right(w) > right(r));
     };
     const [top, bottom] = [upper.y, lower.y + lower.h];
-    const { lo, hi } = stretch(e, upper, lower, where.get(e.id) ?? 'beside', m.labelGap);
+    const { lo, hi } = stretch(e, upper, lower, where.get(e.id) ?? 'beside');
     const both = (f: string) => held.get(e.from)?.has(f) === true && held.get(e.to)?.has(f) === true;
     const reach = (side: RailSide) => texts(input.lines, side, top, bottom, m, spec);
     const passed = [...input.rects].filter(([n]) => layer(n) >= layer(up) && layer(n) <= layer(low));
     const frames = input.frames.filter((f) => !both(f.id) && f.rect.y < bottom && f.rect.y + f.rect.h > top);
     const beside = besideRects(e, [...passed, ...frames.map((f) => [f.id, f.rect] as const)], m);
-    const coming = ahead(
-      order.slice(order.indexOf(e) + 1),
-      input,
-      layer,
-      (o) => where.get(o.id) ?? 'beside',
-      m.labelGap,
-    );
+    const coming = ahead(order.slice(order.indexOf(e) + 1), input, layer, (o) => where.get(o.id) ?? 'beside');
     const allowed = input.sides.get(e.id) ?? ['left'];
     const unlooped = allowed.filter((side) => !looped(up, side) && !looped(low, side));
     const untaken = unlooped.filter((s) => !input.taken?.has(`${up}|${s}`) && !input.taken?.has(`${low}|${s}`));

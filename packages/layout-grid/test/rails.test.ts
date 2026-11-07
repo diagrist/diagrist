@@ -145,4 +145,24 @@ describe('rails', () => {
     expect(routeOf(l, 'e-b')?.fromSide).toBe('left');
     expect(routeOf(l, 'c-a')?.fromSide).toBe('right');
   });
+
+  it('share a track where their stretches meet only in a box, though the text of one stands on an end piece', () => {
+    const l = layoutGraph(
+      flow({
+        nodes: [box('t'), box('u', 360), box('a'), box('b', 360), box('c')],
+        edges: [
+          rail('t', 'u'),
+          rail('u', 'a'),
+          rail('a', 'b'),
+          rail('b', 'c'),
+          rail('a', 't'),
+          rail('a', 'c', 'weiter'),
+        ],
+        given: { perLayer: Number.POSITIVE_INFINITY },
+      }),
+    );
+    const [back, on] = [routeOf(l, 'a-t'), routeOf(l, 'a-c')];
+    expect(back?.fromSide).toBe(on?.fromSide);
+    expect(back?.points[1]?.[0]).toBe(on?.points[1]?.[0]);
+  });
 });
