@@ -33,13 +33,12 @@ function once<T>(reckon: () => T): () => T {
  * score leaves the centring of boxes out.
  */
 export function tradeOf(input: LineInput, centring = true, thresholds: Partial<LineThresholds> = {}): Trade {
+  const metrics = lineMetrics(input);
+  const found = once(() => lineFindings(input, { ...thresholds, crossingsUpTo: 0 }));
   return {
-    metrics: lineMetrics(input),
-    kept: once(() => {
-      const found = lineFindings(input, { ...thresholds, crossingsUpTo: 0 });
-      return KEPT.map((r) => found.filter((f) => f.rule === r).length);
-    }),
-    cost: once(() => scoreOf(input, thresholds, centring).cost),
+    metrics,
+    kept: once(() => KEPT.map((r) => found().filter((f) => f.rule === r).length)),
+    cost: once(() => scoreOf(input, thresholds, centring, { metrics, found: found() }).cost),
   };
 }
 
