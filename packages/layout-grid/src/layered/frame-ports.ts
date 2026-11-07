@@ -18,8 +18,9 @@ function boxesOf(spec: LayeredSpec, frame: string): string[] {
  * The ports of the ends that stand for a frame (`LayeredEdge.framed`) moved across the frame: such an end runs to a
  * box of the frame only to take a place in the order, and `released` cuts its line at the frame's outline, so its
  * port may stand anywhere across the frame. Where the piece at such an end stands alone (no fan or join), it runs
- * straight: both its ends move to one vertical across the boxes of the frame, as near the other end's port as its
- * box allows where that end is the only one on its side, else at that port, and `gap` clear of the ends of every
+ * straight: both its ends move to one vertical across the boxes of the frame, as near the middle of the other end's
+ * box as the frame allows where that end is the only one on its side, since its port there only followed the box of
+ * the frame the line was drawn to, else at that port, and `gap` clear of the ends of every
  * other piece between the two layers, the nearest such vertical first; where there is none, the port alone moves
  * as near the other end as the frame allows, so the passes that move boxes can bring the other end under it. So a
  * line leaving a frame at its bottom runs straight down to a box below it, wherever in the frame's last layer that
@@ -59,8 +60,9 @@ export function acrossFrames(
       if (frame === undefined || (l.upper !== e[end] && l.lower !== e[end])) continue;
       const up = l.upper === e[end];
       const [mine, theirs] = up ? [bottom, top] : [top, bottom];
-      const x = theirs.get(l) ?? 0;
-      const [a, b] = reach(up ? l.lower : l.upper, x, up ? 'lower' : 'upper');
+      const other = up ? l.lower : l.upper;
+      const [a, b] = reach(other, theirs.get(l) ?? 0, up ? 'lower' : 'upper');
+      const x = (a + b) / 2;
       const [f0, f1] = span(frame);
       const [lo, hi] = [Math.max(a, f0), Math.min(b, f1)];
       const others = all.filter((o) => o !== l && o.gap === l.gap).flatMap((o) => [top.get(o), bottom.get(o)]);

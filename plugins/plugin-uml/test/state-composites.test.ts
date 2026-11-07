@@ -44,4 +44,14 @@ describe('composite states and the lines around them', () => {
       through || line.some(([x, y]) => within(x, frame.x, frame.x + frame.w) && within(y, frame.y, frame.y + frame.h)),
     ).toBe(false);
   });
+
+  it('lets a line out of a composite state reach a state beside it as near the middle of that state as the frame allows', () => {
+    const order = compile(source('../examples/state/auftragsabwicklung.dgr'), { plugins: [umlPlugin] }).anchors;
+    const box = order?.nodes.find((n) => n.id === 'storniert')?.rect ?? none;
+    const out = order?.groups.find((g) => g.id === 'bestaetigt')?.rect ?? none;
+    const line = order?.edges.find((e) => e.from === 'bestaetigt' && e.to === 'storniert')?.points ?? [];
+    expect(new Set(line.map((q) => q[0])).size).toBe(1);
+    expect(box.x + box.w / 2).toBeLessThan(out.x);
+    expect(line[0]?.[0]).toBeLessThanOrEqual(out.x + 16);
+  });
 });
