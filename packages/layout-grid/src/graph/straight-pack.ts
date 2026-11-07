@@ -1,7 +1,8 @@
 import type { Rect } from '@diagrist/core';
 import type { PlacedGroup } from '../layout.js';
 import type { GraphEdge, LayoutGraph } from './spec.js';
-import { costOf, framing } from './straight-clear.js';
+import { framing } from './straight-clear.js';
+import { costOf } from './straight-cost.js';
 
 /** Boxes by id, as laid out or moved. */
 type Rects = Map<string, Rect>;

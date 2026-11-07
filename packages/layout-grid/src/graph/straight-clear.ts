@@ -1,10 +1,8 @@
-import { type Point, type Rect, segmentMeetsRect, segmentsIntersect } from '@diagrist/core';
+import { type Point, type Rect, segmentMeetsRect } from '@diagrist/core';
 import type { PlacedGroup } from '../layout.js';
-import type { GraphEdge, GraphNode, LayoutGraph } from './spec.js';
-import { straightRoute } from './straight-route.js';
+import type { GraphEdge, LayoutGraph } from './spec.js';
+import { CLEAR, costOf, endsOf, type Moved, movedCost } from './straight-cost.js';
 
-/** A line keeps this far from a box it does not join, as the line check asks. */
-const CLEAR = 6;
 /** The least room between two boxes of one layer once one moved. */
 const ROOM = 16;
 /** Steps a box tries along its layer, in pixels. */
@@ -13,10 +11,6 @@ const STEPS = [8, 16, 24, 32, 48, 64, 80, 96, 128].flatMap((s) => [s, -s]);
 const ASIDE = [16, 32, 48, 64, 96].flatMap((s) => [s, -s]);
 /** Rounds of moves; each moves one box. */
 const ROUNDS = 8;
-/** A line through a box weighs as ten crossings, as in `scoreOf`. */
-const THROUGH = 10;
-
-type Moved = Map<string, Rect>;
 
 /** The frames holding a node and those that do not hold it. Shared with `packFrames`. */
 export function framing(
@@ -32,45 +26,6 @@ export function framing(
     own: frames.filter((f) => holds(f.id, n)),
     foreign: frames.filter((f) => !holds(f.id, n)),
   });
-}
-
-/** The ends of the straight line of `e` between the boxes `rects` holds. */
-function endsOf(e: GraphEdge, nodes: ReadonlyMap<string, GraphNode>, rects: Moved): [Point, Point] | undefined {
-  const [a, b] = [rects.get(e.from), rects.get(e.to)];
-  if (a === undefined || b === undefined) return undefined;
-  const r = straightRoute(e.id, { rect: a, node: nodes.get(e.from) }, { rect: b, node: nodes.get(e.to) });
-  return [r.points[0] ?? [0, 0], r.points[1] ?? [0, 0]];
-}
-
-/**
- * Lines through boxes they do not join or through the heads of frames, ten each, crossings of lines that share no
- * end, and lines through frames that hold neither of their ends or closer past them than `CLEAR`, as the line check
- * keeps lines from boxes. Shared with `packFrames`, which moves boxes before the lines are cleared.
- */
-export function costOf(
-  edges: readonly GraphEdge[],
-  nodes: ReadonlyMap<string, GraphNode>,
-  rects: Moved,
-  heads: readonly Rect[],
-  foreign: (e: GraphEdge) => readonly Rect[],
-): number {
-  const lines = edges.flatMap((e) => {
-    const ends = endsOf(e, nodes, rects);
-    return ends === undefined ? [] : [{ e, p: ends[0], q: ends[1] }];
-  });
-  let cost = 0;
-  for (const l of lines)
-    for (const [id, r] of rects)
-      if (id !== l.e.from && id !== l.e.to && segmentMeetsRect(l.p, l.q, r, CLEAR)) cost += THROUGH;
-  for (const l of lines) cost += THROUGH * heads.filter((h) => segmentMeetsRect(l.p, l.q, h, CLEAR)).length;
-  for (const l of lines) cost += foreign(l.e).filter((f) => segmentMeetsRect(l.p, l.q, f, CLEAR)).length;
-  lines.forEach((l, i) => {
-    for (const k of lines.slice(i + 1)) {
-      const shared = [l.e.from, l.e.to].some((n) => n === k.e.from || n === k.e.to);
-      if (!shared && segmentsIntersect(l.p, l.q, k.p, k.q)) cost++;
-    }
-  });
-  return cost;
 }
 
 /**
@@ -128,15 +83,23 @@ export function clearStraight(
     const head = pads.get(f.id)?.head;
     return head ? [{ x: f.rect.x, y: f.rect.y, w: head.width, h: head.height }] : [];
   });
+  const foreignOf = new Map<GraphEdge, Rect[]>();
+  /** The frames a line passes that hold neither of its ends, the same for every move and kept per edge. */
   const passed = (e: GraphEdge) => {
+    const known = foreignOf.get(e);
+    if (known !== undefined) return known;
     const held = new Set([...frameOf(e.from).own, ...frameOf(e.to).own].map((f) => f.id));
-    return frames.filter((f) => !held.has(f.id)).map((f) => f.rect);
+    const out = frames.filter((f) => !held.has(f.id)).map((f) => f.rect);
+    foreignOf.set(e, out);
+    return out;
   };
   let cost = costOf(straight, nodes, best, heads, passed);
   for (let round = 0; round < ROUNDS && cost > 0; round++) {
+    const priced = movedCost(straight, nodes, best, heads, passed);
+    const now = new Map(straight.map((e) => [e, endsOf(e, nodes, best)] as const));
     const movers = new Set<string>();
     for (const e of straight) {
-      const ends = endsOf(e, nodes, best);
+      const ends = now.get(e);
       if (ends === undefined) continue;
       const [p, q] = ends;
       for (const [id, r] of best)
@@ -154,7 +117,7 @@ export function clearStraight(
         ...STEPS.map((d) => (across === 'y' ? [0, d] : [d, 0])),
         ...ASIDE.map((d) => (across === 'y' ? [d, 0] : [0, d])),
         ...straight.flatMap((e) => {
-          const ends = id === e.from || id === e.to ? undefined : endsOf(e, nodes, best);
+          const ends = id === e.from || id === e.to ? undefined : now.get(e);
           return ends ? clearing(ends, r, across).map((d) => (across === 'y' ? [0, d] : [d, 0])) : [];
         }),
       ];
@@ -166,9 +129,8 @@ export function clearStraight(
           own.every((f) => inside(moved, f.rect, pads.get(f.id)?.pad ?? 0, pads.get(f.id)?.top ?? 0)) &&
           foreign.every((f) => apart(moved, f.rect, 0));
         if (!fits) continue;
-        const trial = new Map(best).set(id, moved);
-        const c = costOf(straight, nodes, trial, heads, passed);
-        if (c < (next?.cost ?? cost)) next = { rects: trial, cost: c };
+        const c = priced(cost, id, moved);
+        if (c < (next?.cost ?? cost)) next = { rects: new Map(best).set(id, moved), cost: c };
       }
     }
     if (next === undefined) break;

@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
 import { readdirSync, readFileSync } from 'node:fs';
-import { type Compilation, compile } from '@diagrist/core';
+import { type Compilation, compile, type Rect, segmentMeetsRect } from '@diagrist/core';
 import { umlPlugin } from '../src/index.js';
 
 export const golden = (name: string): string => new URL(`__golden__/${name}`, import.meta.url).pathname;
@@ -37,6 +37,30 @@ export function examplePictures(kind: string): { keep: (name: string, svg: strin
         .join(''),
   };
 }
+
+/** Room a line keeps from the frame of a subject it does not end in, as the price of the layout asks. */
+const CLEAR = 6;
+
+const within = (a: Rect, b: Rect) => a.x >= b.x && a.y >= b.y && a.x + a.w <= b.x + b.w && a.y + a.h <= b.y + b.h;
+
+/** The lines of a compiled picture that run through or past a frame holding neither of their ends, as text. */
+export function framesPassed(result: Compilation): string[] {
+  const anchors = result.anchors;
+  const rects = new Map((anchors?.nodes ?? []).map((n) => [n.id, n.rect]));
+  const holds = (g: Rect, id: string) => {
+    const r = rects.get(id);
+    return r !== undefined && within(r, g);
+  };
+  return (anchors?.edges ?? []).flatMap((e) =>
+    (anchors?.groups ?? [])
+      .filter((g) => !holds(g.rect, e.from) && !holds(g.rect, e.to))
+      .filter((g) => e.points.slice(1).some((q, i) => segmentMeetsRect(e.points[i] ?? q, q, g.rect, CLEAR)))
+      .map((g) => `${e.from} -- ${e.to} past ${g.id}`),
+  );
+}
+
+/** How many subjects a use case source declares; with more than one, a line may pass a subject it does not join. */
+export const subjects = (source: string): number => (source.match(/^subject /gm) ?? []).length;
 
 /** Compiles lines of a diagram of `kind` with the UML plugin, adding the header. */
 const diagramOf =
