@@ -111,22 +111,34 @@ function takenRound(r: LineInput['routes'][number], rects: ReadonlyMap<string, R
  * How far boxes stand from the middle of their neighbours below (Q11) and single children from their parent (Q12),
  * as `lineMetrics` counts them, by the lines that are not taken round the boxes between their ends (`takenRound`) and
  * do not end on a bar, which lines meet anywhere along it and which has no middle to stand off; a layout may hand only
- * the lines it wants centred, such as those of a hierarchy.
+ * the lines it wants centred, such as those of a hierarchy. A line to a bar still counts as a branch: a box with a bar
+ * below it is neither the parent of one child nor measured as the parent of many, since the bar is one of its
+ * children, and a box with a bar above it is no single child, since the bar is one of its parents.
  */
 export function lineCentring(input: LineInput): LineCentring {
   const all = new Map(input.nodes.map((n) => [n.id, n.rect]));
   const bars = new Set(input.nodes.flatMap((n) => (n.outline === 'bar' ? [n.id] : [])));
   const rects = new Map(input.nodes.filter((n) => n.owner === undefined && !bars.has(n.id)).map((n) => [n.id, n.rect]));
   const neighbours = new Map<string, Set<string>>();
-  for (const r of input.routes) {
-    if (r.from === r.to || !rects.has(r.from) || !rects.has(r.to) || takenRound(r, all)) continue;
-    neighbours.set(r.from, (neighbours.get(r.from) ?? new Set()).add(r.to));
-    neighbours.set(r.to, (neighbours.get(r.to) ?? new Set()).add(r.from));
-  }
   const below = (a: Rect, b: Rect) => {
     const down = b.y - (a.y + a.h);
     return down >= -TOLERANCE && down >= Math.max(b.x - (a.x + a.w), a.x - (b.x + b.w));
   };
+  const barBelow = new Set<string>();
+  const barAbove = new Set<string>();
+  for (const r of input.routes) {
+    if (r.from === r.to) continue;
+    const [bar, box] = bars.has(r.from) ? [r.from, r.to] : bars.has(r.to) ? [r.to, r.from] : [];
+    if (bar !== undefined && box !== undefined && rects.has(box)) {
+      const [b, n] = [all.get(bar) as Rect, all.get(box) as Rect];
+      if (below(n, b)) barBelow.add(box);
+      else if (below(b, n)) barAbove.add(box);
+      continue;
+    }
+    if (!rects.has(r.from) || !rects.has(r.to) || takenRound(r, all)) continue;
+    neighbours.set(r.from, (neighbours.get(r.from) ?? new Set()).add(r.to));
+    neighbours.set(r.to, (neighbours.get(r.to) ?? new Set()).add(r.from));
+  }
   const around = (id: string) => {
     const rect = rects.get(id) as Rect;
     const all = [...(neighbours.get(id) ?? [])].sort().map((n) => rects.get(n) as Rect);
@@ -140,7 +152,7 @@ export function lineCentring(input: LineInput): LineCentring {
   let [parentsOff, parentOffset, childrenOff, childOffset] = [0, 0, 0, 0];
   for (const id of [...neighbours.keys()].sort()) {
     const { rect, under, beside } = around(id);
-    if (under.length >= 2 && beside.length === 0) {
+    if (under.length >= 2 && beside.length === 0 && !barBelow.has(id)) {
       const mid = (Math.min(...under.map((r) => r.x)) + Math.max(...under.map((r) => r.x + r.w))) / 2;
       const off = Math.abs(cx(rect) - mid);
       if (off > CENTRED) [parentsOff, parentOffset] = [parentsOff + 1, parentOffset + off];
@@ -149,6 +161,7 @@ export function lineCentring(input: LineInput): LineCentring {
     const childId = [...(neighbours.get(id) ?? [])].find((n) => rects.get(n) === child);
     if (under.length !== 1 || child === undefined || childId === undefined || around(childId).over.length !== 1)
       continue;
+    if (barBelow.has(id) || barAbove.has(childId)) continue;
     const off = Math.abs(cx(rect) - cx(child));
     if (off > TOLERANCE / 2) [childrenOff, childOffset] = [childrenOff + 1, childOffset + off];
   }

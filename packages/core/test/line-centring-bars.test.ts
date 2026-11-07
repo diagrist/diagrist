@@ -24,6 +24,41 @@ describe('the centring of lines at a bar', () => {
     expect(box.childrenOff).toBe(1);
   });
 
+  it('still counts a line to a bar as a branch: a decision that also goes to a fork is no parent of one child', () => {
+    const decision = [
+      { id: 'd', rect: rect(200, 0) },
+      { id: 'x', rect: rect(100, 100) },
+      { id: 'f', rect: rect(260, 100, 200, 6), outline: 'bar' as const },
+    ];
+    const fork = line('2', 'd', 'f', [280, 20], [300, 20], [300, 100]);
+    const branches = [line('1', 'd', 'x', [200, 20], [140, 20], [140, 100]), fork];
+    expect(lineMetrics({ nodes: decision, routes: branches }).childOffset).toBe(0);
+    expect(lineMetrics({ nodes: decision, routes: branches.slice(0, 1) }).childOffset).toBe(100);
+  });
+
+  it('takes a box with a bar above it for no single child, and a box with a bar below it for no parent of many', () => {
+    const merged = [
+      { id: 'p', rect: rect(0, 0) },
+      { id: 'j', rect: rect(200, 0, 200, 6), outline: 'bar' as const },
+      { id: 'm', rect: rect(100, 100) },
+    ];
+    const joined = [
+      line('1', 'p', 'm', [40, 40], [40, 60], [140, 60], [140, 100]),
+      line('2', 'j', 'm', [300, 6], [300, 120], [180, 120]),
+    ];
+    expect(lineMetrics({ nodes: merged, routes: joined }).childOffset).toBe(0);
+    const parent = [
+      { id: 'p', rect: rect(100, 0) },
+      { id: 'a', rect: rect(0, 300) },
+      { id: 'b', rect: rect(300, 300) },
+      { id: 'f', rect: rect(120, 300, 120, 6), outline: 'bar' as const },
+    ];
+    const fan = (to: string, x: number) => line(to, 'p', to, [140, 40], [140, 200], [x, 200], [x, 300]);
+    const routes = [fan('a', 40), fan('b', 340), fan('f', 180)];
+    expect(lineMetrics({ nodes: parent, routes }).parentsOff).toBe(0);
+    expect(lineMetrics({ nodes: parent, routes: routes.slice(0, 2) }).parentsOff).toBe(1);
+  });
+
   it('reads the outline of a bar from what the layout placed', () => {
     const anchors: Anchors = {
       width: 500,
