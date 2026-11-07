@@ -147,6 +147,15 @@ describe('expansion regions and handlers', () => {
     for (const e of flows) expect(new Set(e.points.map((q) => q[0])).size, `${e.from} -> ${e.to}`).toBe(1);
   });
 
+  it('keeps the line from a data store straight when its pin stands off the arrival, the store end following', () => {
+    const p = picture('zahlung-ausnahme');
+    const line = p.edge('konten', 'einziehen').points;
+    const store = p.node('konten');
+    expect(new Set(line.map((q) => q[0])).size).toBe(1);
+    expect(line[0]?.[1]).toBe(store.y + store.h);
+    expect(line[0]?.[0]).toBeLessThanOrEqual(store.x + store.w - 4);
+  });
+
   it('puts a handler beside its first protected action and brings the bolt of the second to the same side, below', () => {
     const p = picture('karten-belasten');
     const handler = p.node('fehler');
