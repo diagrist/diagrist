@@ -22,13 +22,18 @@ const COLUMN_SETS = 6;
 const SWITCH = 20;
 
 /**
- * What a laid out picture costs by the measure of the line check, whether it is clean, and how many crossings and
- * findings of the check it has.
+ * What a laid out picture costs by the measure of the line check, whether it is clean, how many crossings and
+ * findings of the check it has, and what it would cost without them (`base`).
  */
-export type Price = (laid: Laid) => { readonly cost: number; readonly clean: boolean; readonly bad: number };
+export type Price = (laid: Laid) => {
+  readonly cost: number;
+  readonly clean: boolean;
+  readonly bad: number;
+  readonly base: number;
+};
 
 /** A plan laid out and priced. */
-type Tried = Priced & { readonly laid: Laid; readonly bad: number };
+type Tried = Priced & { readonly laid: Laid; readonly bad: number; readonly base: number };
 
 /**
  * Rows below each other: per subject the use cases of its fullest column, a gap of two rows between subjects. An
@@ -91,7 +96,7 @@ export function arrangeUseCase(m: UseCaseModel, price: Price): Laid {
     let best = flipped(first ?? across(declared));
     rest.sort((a, b) => a.first.bad - b.first.bad || a.first.cost - b.first.cost);
     for (const c of rest) {
-      if (best.clean && c.first.bad > 1) continue;
+      if (best.clean && c.first.base >= best.cost - SWITCH) continue;
       const got = flipped(c);
       if (got.bad < best.bad || (got.bad === best.bad && got.cost < best.cost - SWITCH)) best = got;
     }

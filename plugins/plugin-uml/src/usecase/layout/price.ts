@@ -38,7 +38,8 @@ function foreignPasses(m: UseCaseModel, laid: Laid): number {
  * The price of a laid out use case diagram by the measure of the line check (`scoreOf` on what the kernel checks),
  * with the height of the picture, a note on a box or text, a note on a line or frame line, the links of notes beyond
  * their gap and a line through a foreign subject added: its cost, whether it is clean, and how often a line runs
- * through a box or text, crosses another or passes a foreign subject.
+ * through a box or text, crosses another or passes a foreign subject, and what it would cost without these and
+ * notes on boxes.
  */
 export function priceOf(m: UseCaseModel): Price {
   return (laid) => {
@@ -55,10 +56,12 @@ export function priceOf(m: UseCaseModel): Price {
       const [p, q] = c.link;
       return c.route === undefined ? sum + Math.max(0, Math.hypot(q[0] - p[0], q[1] - p[1]) - UC.noteGap) : sum;
     }, 0);
+    const cost = score.cost + HEIGHT * score.metrics.height + NEAR * near + LINK * links;
     return {
-      cost: score.cost + HEIGHT * score.metrics.height + CROWDED * on + NEAR * near + LINK * links + FOREIGN * passes,
+      cost: cost + CROWDED * on + FOREIGN * passes,
       clean: score.clean && on + passes === 0,
       bad,
+      base: cost - CROWDED * through - FOREIGN * score.metrics.crossings,
     };
   };
 }
