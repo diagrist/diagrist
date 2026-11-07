@@ -662,3 +662,47 @@ to `start` the four guards of the first fan in `auswahl-vier` stood side by side
 beyond the left edge of the picture comes after the spots within it (`SearchOptions.floor`), so `freigeben` in
 `verschachtelt` stands beside its rail above `Wartung` instead of left of it, which made the picture 62 px wider. 17
 state pictures change their texts, no measure of any picture changes.
+
+## Amendment: use case, round 4 (07.11.2026)
+
+**A slanted line sets off no box.** The centring of the measure (`lineCentring`, `core/src/lines/metrics.ts`) took
+every line between a box and one below it as a parent and its child, also the one slanted piece of a straight line,
+which runs from outline to outline on the line between the middles and has no axis a box could stand beside. It cost
+the compact plan of `vier-subjekte` 24 for `Zahlungsnetz` 48 px off the middle of `Zahlung ausführen`, more than the
+line and width it saves. One slanted piece is now left out like a line taken round the boxes between: `vier-subjekte`
+2,485 to 2,265 px of line, 1,128 × 670 to 1,072 × 656 px, `Risikomanagement` below `Auskunftei`; orthogonal pictures
+keep their bytes, and `auftragsabwicklung`, `extend-viele` and `include-kette` lose a centring count that was a
+slanted line.
+
+**Actors above or below a single subject** (owner decision E3). Below each other, an actor had only the two outer
+lanes, so a family whose use cases lie deep in an include chain reached them across every column before them:
+`include-kette` drew `Buchungssystem → Verfügbarkeit prüfen` 950 px long. Once the flips have chosen the sides, a
+plan is laid out too in which a family whose use cases all lie in inner columns, none in the column next to its lane,
+stands in the median column of its use cases, which the order stage puts above or below the subject's frame; the
+cheaper plan by the price stays (`stackedPlan`, `auto/plan.ts`). A family with a side given by `side=` keeps its
+lane. `include-kette` 4,909 to 3,297 px of line, 2,174 × 613 to 1,902 × 665 px, 3.5 to 2.9 : 1; the other
+use case pictures keep their bytes, their families stand next to their lanes or the lane is cheaper.
+`Buchungssystem → Platz reservieren` still runs 400 px slanted at a sharp angle to an include line, without crossing it.
+
+**Subjects closed up in their columns, at the price.** A box of a layer stands at the weighted middle of its partners,
+and nothing pulled the use cases of one subject together: in `drei-subjekte`, `Status melden` stood with `Fahrer` at
+the top of `Transportmanagement`, the two others with `Disponent` and `Kunde` at the bottom, 150 px of empty frame
+between. A graph may now ask for its frames packed (`given.pack`): before the straight lines are cleared, where two
+members of a frame stand further apart in their column than `colGap` and no member of another column reaches into the
+band, the boxes above move down or those below move up, whichever leaves their lines shorter, and only where no line
+then runs through a box, head or foreign frame more often (`graph/straight-pack.ts`, by the count of
+`clearStraight`); turned frames now also close at their top (`tightFrames`). Packed always, `notizen` grew to
+1,179 × 957 px, since the packed subject took the room its notes wanted; so the kind lays out only the chosen plan
+packed once more and keeps it where the price finds it cheaper, and not where no subject has a gap or the picture keeps
+room for a note. `drei-subjekte` 2,339 to 2,206 px of line, `Transportmanagement` 85 px lower; `serviceportal` and
+`onlineshop` 9 and 3 px lower; `akteur-hierarchie` 40 px lower for 17 px more line, its `Prüfbot` line slanted; the
+other use case pictures keep their bytes.
+
+**Each plan laid out once.** The searches of a use case diagram laid the same plan out more than once: side by side
+with and without the choices of `acrossPlans`, across sets of columns and in the flips, `stadtwerke` 86 layouts for 75
+plans, `vier-subjekte` 61 for 52. `arrangeUseCase` now keeps every plan it laid out by its columns and lanes, which
+are all the layout reads. Tried per flip, the plan above the subject cost `extend-viele` seven layouts and
+`faelle-generalisierung` six; tried once after the flips it costs one, with the same pictures. Over the twenty use
+case pictures 259 layouts become 239, the packed ones included: `stadtwerke` 79, `vier-subjekte` 49, `zwei-subjekte`
+31 instead of 37, `extend-viele` 12 as before; a picture of one layout takes a second where a subject has a gap to
+close.

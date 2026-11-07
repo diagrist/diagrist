@@ -2,7 +2,7 @@
 
 # `usecase`
 
-A UML use case diagram (UML 2.5.1, chapter 18): actors outside, use cases inside their subject, relations as straight lines. Diagrist lays it out by itself: use cases in columns by include and extend, actors left or right at the height of their use cases, an order with as few crossings as it finds.
+A UML use case diagram (UML 2.5.1, chapter 18): actors outside, use cases inside their subject, relations as straight lines. Diagrist lays it out by itself: use cases in columns by include and extend, actors left or right at the height of their use cases or above and below in their column, an order with as few crossings as it finds.
 
 This page lists everything a `usecase` diagram may contain. The same grammar is available as data with `dgr grammar usecase --json`, and [the overview](README.md) explains how lines, texts and attributes are written and lists the codes every kind shares.
 
@@ -48,7 +48,7 @@ Each statement is one line that starts with its keyword. Statements inside block
 actor <id> <label> [kind=<person|system>] [side=<left|right>] [tone=<choice>] [mark=<ref>] [area=<ref>] [emph]
 ```
 
-An actor: a role outside every subject, drawn as a stick figure with the role below it or, with `kind=system`, as a box with `«actor»` for another system. It has no `in`: actors stand outside the subject. Diagrist puts it left or right of its use cases. UML 2.5.1: 18.1.3.1 Actor.
+An actor: a role outside every subject, drawn as a stick figure with the role below it or, with `kind=system`, as a box with `«actor»` for another system. It has no `in`: actors stand outside the subject. Diagrist puts it left or right of its use cases, or above or below a subject in the column of its use cases where that keeps its lines shorter. UML 2.5.1: 18.1.3.1 Actor.
 
 Written at the top level.
 
@@ -57,7 +57,7 @@ Written at the top level.
 | `<id>` | argument | an identifier like `api` (letters, digits, `_` and `-`, starting with a letter) | Id that `rel` and `note` use for this actor. |
 | `<label>` | argument | a text in double quotes like `"Order service"` | Name of the role. |
 | `kind=` | attribute | one of `person`, `system` | `person` (default) draws a stick figure, `system` a box with `«actor»`. UML 2.5.1: `system` 18.1.4 Actor as a rectangle with the keyword «actor». |
-| `side=` | attribute | one of `left`, `right` | Side of the subject the actor stands on; without it Diagrist chooses. |
+| `side=` | attribute | one of `left`, `right` | Side of the subject the actor stands on, always beside it; without it Diagrist chooses. |
 | `tone=` | attribute | one of `blue`, `indigo`, `purple`, `maroon`, `green`, `teal`, `slate`, `red`, `orange`, `peach`, `sky` | Colour of the figure or box in `look=cards`; without it slate. |
 | `mark=` | attribute | the id of an `adr` declared in this diagram | Id of a decision of the decision bar, such as `E1`; the mark is drawn beside it. |
 | `area=` | attribute | the id of an `area` declared in this diagram | The area it belongs to, declared with `area`, whose tone paints it. Members of a frame take the area of the frame unless they name their own. |

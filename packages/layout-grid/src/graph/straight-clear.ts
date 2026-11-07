@@ -18,8 +18,11 @@ const THROUGH = 10;
 
 type Moved = Map<string, Rect>;
 
-/** The frames holding a node, innermost first, and every frame by id. */
-function framing(graph: LayoutGraph, frames: readonly PlacedGroup[]) {
+/** The frames holding a node and those that do not hold it. Shared with `packFrames`. */
+export function framing(
+  graph: LayoutGraph,
+  frames: readonly PlacedGroup[],
+): (n: string) => { own: PlacedGroup[]; foreign: PlacedGroup[] } {
   const containers = graph.containers ?? [];
   const holds = (id: string, n: string): boolean => {
     const c = containers.find((k) => k.id === id);
@@ -42,9 +45,9 @@ function endsOf(e: GraphEdge, nodes: ReadonlyMap<string, GraphNode>, rects: Move
 /**
  * Lines through boxes they do not join or through the heads of frames, ten each, crossings of lines that share no
  * end, and lines through frames that hold neither of their ends or closer past them than `CLEAR`, as the line check
- * keeps lines from boxes.
+ * keeps lines from boxes. Shared with `packFrames`, which moves boxes before the lines are cleared.
  */
-function costOf(
+export function costOf(
   edges: readonly GraphEdge[],
   nodes: ReadonlyMap<string, GraphNode>,
   rects: Moved,

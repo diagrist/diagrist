@@ -2,7 +2,7 @@
 
 # Kind `usecase`
 
-A UML use case diagram (UML 2.5.1, chapter 18): actors outside, use cases inside their subject, relations as straight lines. Diagrist lays it out by itself: use cases in columns by include and extend, actors left or right at the height of their use cases, an order with as few crossings as it finds. Full reference with every argument: `dgr grammar usecase --json`.
+A UML use case diagram (UML 2.5.1, chapter 18): actors outside, use cases inside their subject, relations as straight lines. Diagrist lays it out by itself: use cases in columns by include and extend, actors left or right at the height of their use cases or above and below in their column, an order with as few crossings as it finds. Full reference with every argument: `dgr grammar usecase --json`.
 
 ```text
 diagram usecase "Title" [subtitle=<text>] [look=<plain|cards>] [direction=<down|right>] [areas=<tint|outline|stripe>] [locale=<en|de>]

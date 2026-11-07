@@ -9,6 +9,8 @@ import { UC, UC_FONTS } from './metrics.js';
 import { type NoteBox, noteHome } from './note.js';
 import { edgeId, SUBJECT_TITLE } from './spec.js';
 
+/** Room between two use cases one above the other in a column of their subject. */
+export const CASE_GAP = 40;
 /** Room between a subject's frame and its use cases, at the top for its name. */
 const PAD = 40;
 const TOP = 44;
@@ -71,9 +73,10 @@ function actorNode(m: UseCaseModel, id: string): GraphNode | undefined {
  * Subjects are frames around their use cases, relations straight lines with their keyword and name beside the middle
  * and multiplicities at the ends, a general actor or use case above its special one in their column. For a note it is handed it keeps room the note may take: below the use case it
  * hangs on, or for an extend below the extending one, its box grown and its ellipse the body lines end on; else an
- * empty box as large as the note in the layer of its anchor, held beside it by a hidden edge (`noteHome`).
+ * empty box as large as the note in the layer of its anchor, held beside it by a hidden edge (`noteHome`). With `pack`
+ * the use cases of a subject close up in their columns (`given.pack`).
  */
-export function useCaseGraph(m: UseCaseModel, plan: Plan, notes: readonly NoteBox[]): LayoutGraph {
+export function useCaseGraph(m: UseCaseModel, plan: Plan, notes: readonly NoteBox[], pack = false): LayoutGraph {
   const layer = layersOf(m, plan);
   const relations = m.diagram.relations.flatMap((r, i) => (isKnown(r) ? [{ r, i }] : []));
   const below = new Map<string, NoteBox[]>();
@@ -144,9 +147,9 @@ export function useCaseGraph(m: UseCaseModel, plan: Plan, notes: readonly NoteBo
     nodes,
     edges,
     containers,
-    given: { ranks: ranks.filter((r) => r.length > 0), order: 'free', direction: 'right' },
+    given: { ranks: ranks.filter((r) => r.length > 0), order: 'free', direction: 'right', ...(pack ? { pack } : {}) },
     metrics: {
-      colGap: 40,
+      colGap: CASE_GAP,
       rowGapMin: UC.colGap,
       track: 16,
       portGap: 16,

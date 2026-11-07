@@ -1,4 +1,4 @@
-import { segmentMeetsRect } from '@diagrist/core';
+import { type Rect, segmentMeetsRect } from '@diagrist/core';
 import { describe, expect, it } from 'vitest';
 import { type GraphEdge, type GraphNode, type LayoutGraph, layoutGraph } from '../src/index.js';
 
@@ -82,5 +82,37 @@ describe('straight lines in the layout graph', () => {
       }),
     );
     expect(rectOf(l, 'general').y).toBeLessThan(rectOf(l, 'special').y);
+  });
+
+  it('packs the members of a frame in their column where the graph asks for it, and closes the frame above them', () => {
+    const tall: GraphNode = { id: 'wall', width: 8, height: 400 };
+    const g = (pack: boolean) =>
+      graph({
+        nodes: [oval('top'), tall, oval('low'), oval('a'), oval('b'), oval('c')],
+        edges: [line('top', 'a'), line('low', 'b'), line('low', 'c'), line('wall', 'b', { hidden: true })],
+        containers: [
+          { id: 'f', kind: 'frame', members: ['a', 'b', 'c'], pad: 40, top: 44, head: { width: 80, height: 24 } },
+        ],
+        given: {
+          ranks: [
+            ['top', 'wall', 'low'],
+            ['a', 'b', 'c'],
+          ],
+          order: 'kept',
+          direction: 'right',
+          pack,
+        },
+      });
+    const [loose, packed] = [layoutGraph(g(false)), layoutGraph(g(true))];
+    const gaps = (l: ReturnType<typeof layoutGraph>) => {
+      const [c, b, a] = ['c', 'b', 'a'].map((id) => rectOf(l, id)) as [Rect, Rect, Rect];
+      return [b.y - (c.y + c.h), a.y - (b.y + b.h)];
+    };
+    expect(Math.max(...gaps(loose))).toBeGreaterThan(300);
+    expect(gaps(packed)).toEqual([METRICS.colGap, METRICS.colGap]);
+    const frame = packed.frames?.[0]?.rect as Rect;
+    expect(frame.y).toBe(rectOf(packed, 'c').y - 44);
+    expect(frame.y + frame.h).toBe(rectOf(packed, 'a').y + rectOf(packed, 'a').h + 40);
+    expect(rectOf(packed, 'top')).toEqual(rectOf(loose, 'top'));
   });
 });

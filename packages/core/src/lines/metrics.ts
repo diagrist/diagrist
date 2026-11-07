@@ -94,15 +94,17 @@ export interface LineCentring {
 
 /**
  * Whether a line is taken round the boxes between its ends: it leaves one box by a side and enters the other by a
- * side, while one box stands above the other. Such a line makes neither box the parent of the other, so it sets off
- * no box from the middle of the other, nor does it stand beside it.
+ * side, while one box stands above the other, or it is one slanted piece, which has no axis a box could stand off.
+ * Such a line makes neither box the parent of the other, so it sets off no box from the middle of the other, nor does
+ * it stand beside it.
  */
 function takenRound(r: LineInput['routes'][number], rects: ReadonlyMap<string, Rect>): boolean {
   const [a, b, c, d] = [r.points[0], r.points[1], r.points.at(-2), r.points.at(-1)];
   const [p, q] = [rects.get(r.from), rects.get(r.to)];
   if (a === undefined || b === undefined || c === undefined || d === undefined || p === undefined || q === undefined)
     return false;
-  return a[1] === b[1] && c[1] === d[1] && (p.y + p.h <= q.y || q.y + q.h <= p.y);
+  const slanted = r.points.length === 2 && a[0] !== d[0] && a[1] !== d[1];
+  return slanted || (a[1] === b[1] && c[1] === d[1] && (p.y + p.h <= q.y || q.y + q.h <= p.y));
 }
 
 /**
