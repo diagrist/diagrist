@@ -7,9 +7,10 @@ import { clearOf } from './clear.js';
 import { giveWay, type Seats } from './give-way.js';
 import { namedOf } from './named.js';
 import type { OnLine } from './on-line.js';
-import { blockCost, clearWays, type Found, rectsOf, type SearchOptions, searchBlock, tooWide } from './search.js';
+import { blockCost, clearWays, type Found, type SearchOptions, searchBlock, tooWide } from './search.js';
 import { markAt, type SeatMark, spotsOf } from './spots.js';
 import type { EdgeLabel, EdgeText } from './types.js';
+import { rectsOf } from './ways.js';
 
 /** Every how many clear spots of a mark a text that found no room tries again. */
 const RETRY = 3;

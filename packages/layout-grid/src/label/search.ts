@@ -1,15 +1,12 @@
-import { DEFAULT_THRESHOLDS, type Point, type Rect } from '@diagrist/core';
+import { DEFAULT_THRESHOLDS } from '@diagrist/core';
 import type { Route } from '../layout.js';
 import type { GridMetrics } from '../spec.js';
-import { type Line, type Place, placeStack, stacks, widthOf, wrapWidth } from './blocks.js';
+import { wrapWidth } from './blocks.js';
 import type { Clear } from './clear.js';
 import type { OnLine } from './on-line.js';
 import type { EdgeLabel, EdgeText } from './types.js';
+import { rectsOf, tiers } from './ways.js';
 
-/** How far apart the spots along a piece are tried. */
-const STEP = 4;
-/** Room a block standing on its line keeps from either end of its piece, for the arrowhead and the box. */
-const END = 12;
 /** A text keeps one pixel more from foreign lines than the line check asks, against rounding. */
 const LINE_GAP = DEFAULT_THRESHOLDS.labelClear + 1;
 
@@ -19,92 +16,6 @@ export interface SearchOptions {
   readonly onLine?: OnLine;
   /** Texts on their line may also stand beside its vertical pieces, as beside a twin too close for a text across. */
   readonly beside?: boolean;
-}
-
-interface Piece {
-  readonly a: Point;
-  readonly b: Point;
-  readonly horizontal: boolean;
-  readonly len: number;
-}
-
-const piecesOf = (points: readonly Point[], flatFirst: boolean): Piece[] =>
-  points
-    .slice(1)
-    .map((b, i) => {
-      const a = points[i] as Point;
-      return { a, b, horizontal: a[1] === b[1], len: Math.abs(b[0] - a[0]) + Math.abs(b[1] - a[1]) };
-    })
-    .sort((p, q) => (flatFirst ? Number(q.horizontal) - Number(p.horizontal) : 0) || q.len - p.len);
-
-/** How many times its height a piece runs where a long name beside it wraps first, so it stands among air. */
-const AIR = 3;
-
-/** Whether an upright piece is long enough for the wrapped stack of `text` to stand beside it among air. */
-function roomy(piece: Piece, text: EdgeText, m: GridMetrics): boolean {
-  const [wrapped] = stacks(text, true, m);
-  return piece.len >= AIR * (wrapped?.length ?? 0) * m.labelLineH;
-}
-
-/** The rectangles a block of texts takes: their boxes, grown by the pad of texts on a line. */
-export const rectsOf = (block: readonly EdgeLabel[], o: SearchOptions): Rect[] =>
-  block.map((l) => {
-    const pad = o.onLine?.pad;
-    const r = l.box;
-    return pad ? { x: r.x - pad.x, y: r.y - pad.y, w: r.w + 2 * pad.x, h: r.h + 2 * pad.y } : r;
-  });
-
-/** Offsets from the middle of a piece, nearest first, that keep a block `room` long over the piece. */
-function offsets(len: number, room: number): number[] {
-  const reach = Math.max(0, (len - room) / 2);
-  const out = [0];
-  for (let d = STEP; d <= reach; d += STEP) out.push(d, -d);
-  return out;
-}
-
-/**
- * Every way the texts of a route may stand, in the order they are tried; texts that stand on their line try every
- * spot on it first and then, with `beside`, the spots beside its vertical pieces.
- */
-function* candidates(
-  route: Route,
-  i: number,
-  text: EdgeText,
-  m: GridMetrics,
-  o: SearchOptions,
-): Generator<EdgeLabel[]> {
-  yield* waysOf(route, i, text, m, o, o.onLine !== undefined);
-  if (o.onLine && o.beside) yield* waysOf(route, i, text, m, o, false);
-}
-
-/** The ways of `candidates`, on the line with `on`, else beside it. */
-function* waysOf(
-  route: Route,
-  i: number,
-  text: EdgeText,
-  m: GridMetrics,
-  o: SearchOptions,
-  on: boolean,
-): Generator<EdgeLabel[]> {
-  const straight = route.points.length === 2;
-  for (const piece of piecesOf(route.points, o.preferFlat)) {
-    if (o.onLine && !on && piece.horizontal) continue;
-    const places: Place[] = on
-      ? ['on']
-      : piece.horizontal
-        ? [...(straight && text.name && text.detail ? (['split'] as const) : []), 'above', 'below']
-        : text.accent
-          ? ['right', 'left']
-          : ['left', 'right'];
-    for (const lines of stacks(text, !piece.horizontal && roomy(piece, text, m), m)) {
-      const along = piece.horizontal ? widthOf(lines, m) : lines.length * m.labelLineH;
-      for (const d of offsets(piece.len, on ? along + 2 * END : 0)) {
-        const t = 0.5 + d / Math.max(1, piece.len);
-        const at: Point = [piece.a[0] + (piece.b[0] - piece.a[0]) * t, piece.a[1] + (piece.b[1] - piece.a[1]) * t];
-        for (const place of places) yield placeStack(lines as Line[], at, place, i, m);
-      }
-    }
-  }
 }
 
 /** What a block of texts on route `i` meets, by `clearOf`: 0 for a clear spot; counting stops at `limit`. */
@@ -120,7 +31,7 @@ export function blockCost(
   return n;
 }
 
-/** The ways of route `i`'s texts that meet nothing, in the order `searchBlock` tries them. */
+/** The ways of route `i`'s texts that meet nothing, in the order `searchBlock` tries them: those of the first tier, else the first of a later one. */
 export function* clearWays(
   route: Route,
   i: number,
@@ -129,7 +40,20 @@ export function* clearWays(
   m: GridMetrics,
   o: SearchOptions,
 ): Generator<EdgeLabel[]> {
-  for (const block of candidates(route, i, text, m, o)) if (blockCost(block, i, clear, o, 1) === 0) yield block;
+  const [tight, ...later] = tiers(route, i, text, m, o);
+  let found = false;
+  for (const block of tight ?? [])
+    if (blockCost(block, i, clear, o, 1) === 0) {
+      found = true;
+      yield block;
+    }
+  if (found) return;
+  for (const tier of later)
+    for (const block of tier)
+      if (blockCost(block, i, clear, o, 1) === 0) {
+        yield block;
+        return;
+      }
 }
 
 /** Whether a line of `block` runs wider than `wrapWidth` though it could wrap. */
@@ -146,7 +70,8 @@ export interface Found {
  * The texts of route `i` as one block: kept at `first` when that spot is clear, no line of it runs wider than
  * `wrapWidth` and it keeps `crowding`'s distance from the texts of other routes; else at the clear spot beside or on
  * one of its pieces, longest first and nearest the middle, wrapped where that helps, that comes least near those
- * texts, the first such one on a tie; without a clear spot, where it meets the least.
+ * texts, the first such one on a tie; of a later tier, the first clear spot; without a clear spot, where it meets the
+ * least.
  */
 export function searchBlock(
   route: Route,
@@ -161,14 +86,22 @@ export function searchBlock(
   let best: Found = { block: first, cost: tooWide(first, m) ? Infinity : blockCost(first, i, clear, o) };
   let near = best.cost === 0 ? crowding(first) : Infinity;
   if (near === 0) return best;
-  for (const block of candidates(route, i, text, m, o)) {
+  const [tight, ...later] = tiers(route, i, text, m, o);
+  for (const block of tight ?? []) {
     const c = blockCost(block, i, clear, o, Math.max(1, best.cost));
     const k = c === 0 ? crowding(block) : Infinity;
     if (c < best.cost || (c === 0 && k < near)) {
       best = { block, cost: c };
       near = k;
     }
-    if (near === 0) break;
+    if (near === 0) return best;
   }
+  if (best.cost === 0) return best;
+  for (const tier of later)
+    for (const block of tier) {
+      const c = blockCost(block, i, clear, o, Math.max(1, best.cost));
+      if (c < best.cost) best = { block, cost: c };
+      if (c === 0) return best;
+    }
   return best;
 }
