@@ -545,3 +545,49 @@ on the outside of its top side at the left, the regions directly below the outli
 kind hands the frame with `tab: true` and the tab as its head, so frame ends are cut below it and lines from above
 keep `AIR` beside it. Composite states without regions keep their name field. The lines were already clear of the
 tab, so `auftrag-parallel` and `parallel-drei` keep every measure; only their drawing changes.
+
+## Amendment: rails and docks (07.11.2026)
+
+**A rail keeps its lead from the point it runs into.** A line through an entry or exit point is laid out as one edge
+and cut at the outline around the point (`graph/docks.ts`); its rail kept `lead` from the outline, so after the cut its
+last piece was a radius short, and `clearHeads` moved the frame after the rails had been placed (`punkte`: 19 px
+instead of 24, G413). The layout graph now tells the layered stages where such a line is cut
+(`LayeredEdge.docked`, `DockCut`: the host and the radius of the point), a rail counts that host as wider by the
+radius where its head meets the point and by what its tail needs beyond the lead where it leaves one
+(`besideRects` in `layered/rail-frames.ts`), and the heads of frames are cleared of the other lines before the rails
+are placed. Kept that way, the rail of `punkte` would have tipped to the right and through a text: the side of a rail
+was priced by the rails placed before it only. It now also counts the rails still to come whose side is settled and
+whose stretch does not hold its own (`ahead` in `layered/rail-room.ts`), since each of them will run outside it.
+`punkte` without its finding, budget `lead` 1 to 0, 5 px wider; `fahrgastraum` 4,400 to 4,176 px of line and 16 px
+narrower from the look-ahead alone, its rails nested instead of interlaced. No other picture changed.
+
+
+**A text on an end piece does not stretch its rail.** A rail whose text stood over its upper end or under its lower
+still counted the text's height into the stretch it takes on its track (`stretch` in `layered/rail-room.ts`), so two
+rails that only meet in a box overlapped there and the later one stepped outside the other, or took the other side.
+The text stands on its end piece and is a box for the rails placed after it (`pieceText`) already, so it now adds
+nothing to the stretch. `fahrgastraum` 4,176 to 3,712 px of line and 16 px narrower, `wiederholen` 2,561 to 2,281 px
+(its one crossing now between two rails on the left instead of a rail and the line to the final state),
+`verschachtelt` 60 px narrower. Where two rails then share a track and dock on one side of a box, a text that has no
+room between their pieces stands at the other end of its line (`fahrgastraum`: `Abfahrt [Auslastung ≥ 70 %]` under
+`Hoch`).
+
+**The text of a rail keeps clear of boxes, not of their reach.** A box whose kind sets texts beside it (`reach`, the
+question of a decision on both sides) counts that far wide for the tracks of the rails, and the text of a rail was
+checked against the same rectangles (`clutter` in `drawRails`), so the piece out of a decision had no free spot and its
+text fell to the other end of the line (`schleifen-zurueck`: `[else]` at the merge instead of at `Chefredaktion
+zufrieden?`). The rails now get the boxes with their loops but without their reach as well (`RailInput.drawn`), and
+the text checks against those; the question stands on the side no line leaves (`placeQuestions`), so a text on the
+piece out of it cannot meet it. `[else]` stands beside its diamond; no count of the activity set changes.
+
+**A rail passes the texts of other lines where they stand.** A rail kept the full width of every other line's text
+on both sides of that line's longest upright piece (`texts` in `layered/rail-room.ts`), though a text stands on one
+side, so every rail on the left of a chain stood a text's width further out than it had to. The texts are now placed
+before the rails, by the same seats and spot search that place them after (`spot` in `layered/output.ts`, over the
+other lines alone), and a rail runs `lead` beyond those boxes. Seats alone were not enough: the spot search moves the
+text of a fan branch to the left of its line (`auftrag-protokoll`, `lange-ereignisse`), and a rail that knew only the
+seat ran through it. `fahrgastraum` 3,712 to 2,928 px of line and 824 to 598 px wide, every text beside the box its
+line starts from; `ticket-lebenszyklus` 768 to 628 px, its rail at `lead` from the boxes and `wieder öffnen` beside
+the track, 16 px wider; `verschachtelt` 30 px of line less; `bestellung-unterautomaten` takes `Abbruch` below the
+states instead of above, 6 px lower. No finding and no count of a stress budget rises. Choosing the side of each rail
+by the price of the whole picture (`scoreOf`), as `railChoices` does for rails that stand inside, stays open.

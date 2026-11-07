@@ -1,10 +1,10 @@
 import type { Point, Rect } from '@diagrist/core';
 import type { PlacedGroup, Route } from '../layout.js';
 import { railDocks } from './rail-docks.js';
-import { holders, railReach } from './rail-frames.js';
+import { besideRects, holders, railReach } from './rail-frames.js';
 import { type LaneOf, laneTrack, railCrossings, railLane } from './rail-lanes.js';
 import type { RailSide } from './rail-order.js';
-import { stretch, texts } from './rail-room.js';
+import { ahead, stretch, texts } from './rail-room.js';
 import { besideText, nextTextAt, pieceText, type RailPieces, type RailTextAt } from './rail-texts.js';
 import type { LayeredEdge, LayeredMetrics, LayeredSpec } from './spec.js';
 
@@ -14,12 +14,16 @@ export interface RailInput {
   readonly sides: ReadonlyMap<string, readonly RailSide[]>;
   /** Every box and placeholder as it stands. */
   readonly boxes: ReadonlyMap<string, Rect>;
-  /** Every box and placeholder, those with loops as wide as their loops. */
+  /** Every box and placeholder, those with loops as wide as their loops and those with `reach` as far as it goes. */
   readonly rects: ReadonlyMap<string, Rect>;
+  /** Every box and placeholder, those with loops as wide as their loops: what the text of a rail stands clear of. */
+  readonly drawn: ReadonlyMap<string, Rect>;
   readonly layerOf: ReadonlyMap<string, number>;
   readonly frames: readonly PlacedGroup[];
-  /** The other lines: a rail passes beyond the text each may carry beside its longest upright piece. */
+  /** The other lines. */
   readonly lines: readonly Route[];
+  /** The texts of the other lines at their seats: a rail passes beyond those beside its stretch. */
+  readonly seats: readonly Rect[];
   /** The lane of every node and placeholder, in a picture with lanes: a rail runs beside its own lane. */
   readonly lane?: LaneOf;
   /** The sides of boxes a line other than a rail takes already, as `box|side`: a rail takes another where it may. */
@@ -46,16 +50,18 @@ const CROSSING = 10_000;
 const label = (e: LayeredEdge) => e.label?.width ?? 0;
 
 /**
- * Places the rails, shortest first: each runs `lead` beyond every box, placeholder and foreign frame beside the
- * stretch between its ends, outside the rails placed before it on that side whose stretch (`stretch`) meets its own
- * by their room, the text of the inner one standing between them; rails one above the other share a track. Of the sides it may take, the one where it crosses fewer rails placed before it, those it
- * does not hold inside its stretch, and then where its pieces out of the ends are shorter wins, the left one on a tie.
+ * Places the rails, shortest first: each runs `lead` beyond every box, placeholder, foreign frame and text of another
+ * line where the spot search puts it (`RailInput.seats`) beside the stretch between its ends, a box or frame its line is cut at counting as much wider (`besideRects`), outside the
+ * rails placed before it on that side whose stretch (`stretch`) meets its own by their room, the text of the inner one
+ * standing between them; rails one above the other share a track. Of the sides it may take, the one where it crosses
+ * fewer rails, those placed before it that it does not hold inside its stretch and those still to come whose side is
+ * settled and that do not hold it (`ahead`), and then where its pieces out of the ends are shorter wins, the left one
+ * on a tie.
  */
 function place(
   input: RailInput,
   m: LayeredMetrics,
   held: ReadonlyMap<string, ReadonlySet<string>>,
-  spec: LayeredSpec,
   where: ReadonlyMap<string, RailTextAt>,
 ): Laid[] {
   const layer = (n: string) => input.layerOf.get(n) ?? 0;
@@ -71,14 +77,13 @@ function place(
       return r !== undefined && w !== undefined && (side === 'left' ? w.x < r.x : right(w) > right(r));
     };
     const [top, bottom] = [upper.y, lower.y + lower.h];
-    const { lo, hi } = stretch(e, upper, lower, where.get(e.id) ?? 'beside', m.labelGap);
+    const { lo, hi } = stretch(e, upper, lower, where.get(e.id) ?? 'beside');
     const both = (f: string) => held.get(e.from)?.has(f) === true && held.get(e.to)?.has(f) === true;
-    const reach = (side: RailSide) => texts(input.lines, side, top, bottom, m, spec);
+    const reach = (side: RailSide) => texts(input.seats, side, top, bottom);
     const passed = [...input.rects].filter(([n]) => layer(n) >= layer(up) && layer(n) <= layer(low));
-    const beside = [
-      ...passed.map(([, r]) => r),
-      ...input.frames.filter((f) => !both(f.id) && f.rect.y < bottom && f.rect.y + f.rect.h > top).map((f) => f.rect),
-    ];
+    const frames = input.frames.filter((f) => !both(f.id) && f.rect.y < bottom && f.rect.y + f.rect.h > top);
+    const beside = besideRects(e, [...passed, ...frames.map((f) => [f.id, f.rect] as const)], m);
+    const coming = ahead(order.slice(order.indexOf(e) + 1), input, layer, (o) => where.get(o.id) ?? 'beside');
     const allowed = input.sides.get(e.id) ?? ['left'];
     const unlooped = allowed.filter((side) => !looped(up, side) && !looped(low, side));
     const untaken = unlooped.filter((s) => !input.taken?.has(`${up}|${s}`) && !input.taken?.has(`${low}|${s}`));
@@ -92,7 +97,8 @@ function place(
             : Math.max(...beside.map(right), ...reach(side)) + m.lead;
       const inner = laid.filter((p) => p.side === side && p.lo < hi && p.hi > lo);
       const outer = inner.map((p) => (side === 'left' ? p.at - p.room : p.at + p.room));
-      const crossed = inner.filter((p) => p.lo < lo || p.hi > hi).length;
+      const later = coming.filter((c) => c.side === side && c.lo < hi && c.hi > lo && (lo < c.lo || hi > c.hi));
+      const crossed = inner.filter((p) => p.lo < lo || p.hi > hi).length + later.length;
       const at = side === 'left' ? Math.min(own, ...outer) : Math.max(own, ...outer);
       const edge = (r: Rect) => (side === 'left' ? r.x : right(r));
       const across = input.lane === undefined ? 0 : railCrossings(side, at, upper, lower, input.lines);
@@ -156,13 +162,13 @@ export function drawRails(input: RailInput, m: LayeredMetrics, spec: LayeredSpec
     input.edges.flatMap((e) => (label(e) > 0 ? [[e.id, onPiece(e) ? first(e) : ('beside' as const)]] : [])),
   );
   for (;;) {
-    const laid = place(input, m, held, spec, where);
+    const laid = place(input, m, held, where);
     const y = railDocks(laid, input.boxes, m, fixed);
     const routes = new Map(laid.map((l) => [l.edge.id, routeOf(l, input.boxes, y)]));
     const texts = new Map<string, Rect>();
     const pieces = new Map(laid.map((l) => [l.edge.id, piecesOf(l, routes.get(l.edge.id) as Route)]));
     const aside = laid.filter((l) => where.get(l.edge.id) === 'beside');
-    const clutter = { boxes: [...input.rects.values()], frames: input.frames.map((f) => f.rect), texts: [] as Rect[] };
+    const clutter = { boxes: [...input.drawn.values()], frames: input.frames.map((f) => f.rect), texts: [] as Rect[] };
     clutter.texts.push(...aside.map((l) => besideText(l.edge, pieces.get(l.edge.id) as RailPieces, m.labelGap)));
     let moved = false;
     for (const l of laid) {

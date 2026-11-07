@@ -82,6 +82,18 @@ export interface LayeredEdge {
    * (`anchorFrameEnds`): the port of such an end may stand anywhere across the frame (`acrossFrames`).
    */
   readonly framed?: { readonly from?: string; readonly to?: string };
+  /**
+   * A node docked on an outline the line is laid out through and cut at (`graph/docks.ts`): at `to` where the line
+   * crosses into the frame of `to` through the node, at `from` where it crosses out of the frame of `from`, or where
+   * the end itself is the host the node stands on. A rail keeps its lead from the node, not from the outline.
+   */
+  readonly docked?: { readonly from?: DockCut; readonly to?: DockCut };
+}
+
+/** The host a line is cut at, box or frame, and the radius of the node docked on it the cut keeps. */
+export interface DockCut {
+  readonly host: string;
+  readonly radius: number;
 }
 
 /** The measures of a layered picture, in pixels. */

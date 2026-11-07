@@ -16,6 +16,8 @@ export interface BeforeRails {
   readonly rects: ReadonlyMap<string, Rect>;
   readonly around: readonly PlacedGroup[] | undefined;
   readonly lines: readonly Route[];
+  /** The texts of the other lines at their seats, before the spot search. */
+  readonly seats: readonly Rect[];
   /** The lane of every node and placeholder, in a picture with lanes. */
   readonly lane?: (id: string) => number;
   /** The sides of boxes other lines take at a corner, as `box|side`. */
@@ -47,7 +49,7 @@ export function railsOn(spec: LayeredSpec, arrangement: Arrangement, before: Bef
       return [id, out ? { ...r, x: r.x - out.left, w: r.w + out.left + out.right } : r] as const;
     }),
   );
-  const input = { ...before, rects, frames, edges, sides, layerOf: arrangement.ranked.layerOf };
+  const input = { ...before, rects, drawn: before.rects, frames, edges, sides, layerOf: arrangement.ranked.layerOf };
   const first = drawRails(input, spec.metrics, spec);
   const railed =
     frames.length === 0 || first.reach.size === 0

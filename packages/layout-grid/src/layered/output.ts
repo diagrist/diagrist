@@ -52,36 +52,59 @@ export interface Laid {
 export type Assembled = LayeredLayout & { readonly crowded: readonly string[] };
 
 /**
- * Seats the labels and lets the spot search keep them there or move them clear (`spotLabels`), then gathers boxes,
- * labels, the frame of a hub and the frames, and measures the picture.
+ * The labels of `laid` at their seats, before the spot search keeps or moves them (`spotLabels`): at the corner a line
+ * leaves from, at the middle of a straight single line, else beside its port (`seatAt`).
  */
-export function assemble(spec: LayeredSpec, laid: Laid): Assembled {
-  const m = spec.metrics;
-  const { ranked, layers, rects, routes, ports, groups, core } = laid;
-  const size = new Map(spec.nodes.map((n) => [n.id, n]));
+function seated(spec: LayeredSpec, laid: Pick<Laid, 'rects' | 'routes' | 'seats' | 'ports' | 'frames'>): EdgeLabel[] {
+  const { rects, routes, ports } = laid;
+  const gap = spec.metrics.labelGap;
   const index = new Map(routes.map((r, i) => [r.edge, i]));
-  const trunks = new Map(
-    groups.flatMap((g, i) => (g.kind === 'single' ? [] : g.links.map((l) => [l.edge, `${g.kind}-${i}`] as const))),
-  );
-  const first = laid.seats.flatMap((seat) => {
-    const corner = cornerSeat(seat, ports, rects, index.get(seat.edge.id) ?? 0, m.labelGap);
-    if (corner) return corner;
+  return laid.seats.flatMap((seat) => {
     const route = index.get(seat.edge.id) ?? 0;
+    const corner = cornerSeat(seat, ports, rects, route, gap);
+    if (corner) return corner;
     const line = routes[route];
     const shown = line && seat.group.kind === 'single' && outsideFrames(line, seat.edge, laid.frames ?? []);
-    const middle = shown && middleSeat(seat, shown.points, route, m.labelGap);
+    const middle = shown && middleSeat(seat, shown.points, route, gap);
     if (middle) return middle;
     const l = seat.group.links[0] as Link;
     const port: Point =
       seat.at === 'top'
         ? [ports.bottom.get(l) ?? 0, (rects.get(l.upper)?.y ?? 0) + (rects.get(l.upper)?.h ?? 0)]
         : [ports.top.get(l) ?? 0, rects.get(l.lower)?.y ?? 0];
-    return seatAt(seat, port, index.get(seat.edge.id) ?? 0, m.labelGap);
+    return seatAt(seat, port, route, gap);
   });
-  const real = new Map([...rects].filter(([n]) => !ranked.dummies.has(n)));
-  const chained = new Set(groups.flatMap((g) => g.links.map((l) => l.edge)));
-  const drawn = { routes, rects: real, frames: laid.frames ?? [], width: Number.MAX_SAFE_INTEGER, bottom: 0 };
-  const spotted = spotLabels(spec, drawn, [...first, ...(laid.loose ?? [])], chained);
+}
+
+/** The labels of `laid` at their seats (`seated`), kept there or moved clear by the spot search (`spotLabels`). */
+export function spot(
+  spec: LayeredSpec,
+  laid: Pick<Laid, 'ranked' | 'rects' | 'routes' | 'seats' | 'ports' | 'groups' | 'frames' | 'loose'>,
+): { labels: EdgeLabel[]; crowded: number[] } {
+  const real = new Map([...laid.rects].filter(([n]) => !laid.ranked.dummies.has(n)));
+  const chained = new Set(laid.groups.flatMap((g) => g.links.map((l) => l.edge)));
+  const drawn = {
+    routes: laid.routes,
+    rects: real,
+    frames: laid.frames ?? [],
+    width: Number.MAX_SAFE_INTEGER,
+    bottom: 0,
+  };
+  return spotLabels(spec, drawn, [...seated(spec, laid), ...(laid.loose ?? [])], chained);
+}
+
+/**
+ * Seats the labels and lets the spot search keep them there or move them clear (`spotLabels`), then gathers boxes,
+ * labels, the frame of a hub and the frames, and measures the picture.
+ */
+export function assemble(spec: LayeredSpec, laid: Laid): Assembled {
+  const m = spec.metrics;
+  const { ranked, layers, rects, routes, groups, core } = laid;
+  const size = new Map(spec.nodes.map((n) => [n.id, n]));
+  const trunks = new Map(
+    groups.flatMap((g, i) => (g.kind === 'single' ? [] : g.links.map((l) => [l.edge, `${g.kind}-${i}`] as const))),
+  );
+  const spotted = spot(spec, laid);
   const labels = spotted.labels;
   const nodes = spec.nodes.flatMap((n): PlacedNode[] => {
     const r = rects.get(n.id);

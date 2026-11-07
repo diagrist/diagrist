@@ -99,6 +99,6 @@ export function layoutGraph(graph: CellGraph): CellLayout;
 export function layoutGraph(graph: LayoutGraph): LayeredLayout;
 export function layoutGraph(graph: LayoutGraph): LayeredLayout | CellLayout {
   if (graph.given?.cells) return layoutCells(graph as CellGraph);
-  const chosen = eitherWay(graph, (g) => staged(hideStraight(g), (h) => layoutLayered(specOf(h)), specOf), specOf);
+  const chosen = eitherWay(graph, (g) => staged(hideStraight(g), layoutLayered, specOf), specOf);
   return drawStraight(chosen.graph, chosen.layout);
 }

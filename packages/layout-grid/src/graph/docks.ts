@@ -1,3 +1,4 @@
+import type { DockCut, LayeredEdge } from '../layered/spec.js';
 import type { GraphEdge, GraphNode, LayoutGraph } from './spec.js';
 
 /** A docked node and the frame or node it sits on. */
@@ -11,8 +12,11 @@ export interface Dock {
 /** How the edges of docked nodes were laid out, for `placeDocks` to cut them back apart. */
 export interface DockPlan {
   readonly docks: ReadonlyMap<string, Dock>;
-  /** One edge through a docked node: the line into it and the line out of it, laid out as one. */
-  readonly merged: ReadonlyMap<string, { readonly into: GraphEdge; readonly out: GraphEdge; readonly dock: string }>;
+  /** One edge through a docked node: the line into it and the line out of it, laid out as one, and where it is cut. */
+  readonly merged: ReadonlyMap<
+    string,
+    { readonly into: GraphEdge; readonly out: GraphEdge; readonly dock: string; readonly docked: LayeredEdge['docked'] }
+  >;
   /** An edge laid out to the host instead of the docked node at one end or both: the docked node at each. */
   readonly hosted: ReadonlyMap<string, { readonly from?: string; readonly to?: string }>;
   /** The one edge of a docked node inside its frame, laid out beside the node it joins, the node in the frame. */
@@ -53,7 +57,7 @@ export function dockGraph(graph: LayoutGraph): { readonly graph: LayoutGraph; re
       { node: n, host: n.dock as string, framed: frames.has(n.dock as string) },
     ]),
   );
-  const merged = new Map<string, { into: GraphEdge; out: GraphEdge; dock: string }>();
+  const merged = new Map<string, { into: GraphEdge; out: GraphEdge; dock: string; docked: LayeredEdge['docked'] }>();
   const hosted = new Map<string, { from?: string; to?: string }>();
   const beside = new Map<string, string>();
   const kept = new Set<string>();
@@ -73,9 +77,10 @@ export function dockGraph(graph: LayoutGraph): { readonly graph: LayoutGraph; re
         ...into.map((i) => [i, out[0] as GraphEdge] as const),
         ...out.slice(1).map((o) => [into[0] as GraphEdge, o] as const),
       ];
+      const cut: DockCut = { host: d.host, radius: d.node.width / 2 };
       const through = pairs.map(([i, o]): GraphEdge => {
         const key = `${i.id}>${o.id}`;
-        merged.set(key, { into: i, out: o, dock: id });
+        merged.set(key, { into: i, out: o, dock: id, docked: inner(o.to) ? { to: cut } : { from: cut } });
         const label = i.label ?? o.label;
         const { label: _, ...rest } = i;
         return { ...rest, id: key, to: o.to, ...(label ? { label } : {}) };
@@ -120,4 +125,18 @@ export function dockGraph(graph: LayoutGraph): { readonly graph: LayoutGraph; re
     graph: { ...graph, nodes, edges, ...(graph.containers ? { containers } : {}) },
     plan: { docks, merged, hosted, beside },
   };
+}
+
+/** Where the line of edge `id` is cut at docked nodes, for the stages to keep their leads from the nodes. */
+export function dockedOf(plan: DockPlan, id: string): LayeredEdge['docked'] {
+  const through = plan.merged.get(id);
+  if (through !== undefined) return through.docked;
+  const hosted = plan.hosted.get(id);
+  if (hosted === undefined) return undefined;
+  const cut = (dock: string | undefined): DockCut | undefined => {
+    const d = dock === undefined ? undefined : plan.docks.get(dock);
+    return d && { host: d.host, radius: d.node.width / 2 };
+  };
+  const [from, to] = [cut(hosted.from), cut(hosted.to)];
+  return { ...(from ? { from } : {}), ...(to ? { to } : {}) };
 }
