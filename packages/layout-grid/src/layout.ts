@@ -65,4 +65,9 @@ export interface Route {
   readonly unroutable?: boolean;
   /** The way a channel grid chose, for a later run of the grid to keep (`GridEdge.way`). */
   readonly way?: GridWay;
+  /**
+   * Where the pricing took a shorter way after its rounds: the way the rounds had chosen, none for the channel stage's
+   * own, so a kind can judge the picture without the shorter ways.
+   */
+  readonly earlier?: { readonly way?: GridWay };
 }

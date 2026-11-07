@@ -16,6 +16,7 @@ export interface Routed {
   readonly toSide: Side;
   readonly unroutable?: boolean;
   readonly way?: GridWay;
+  readonly earlier?: { readonly way?: GridWay };
 }
 
 export function toRoute(r: Routed): Route {
@@ -27,5 +28,6 @@ export function toRoute(r: Routed): Route {
     toSide: r.toSide,
     ...(r.unroutable ? { unroutable: true } : {}),
     ...(r.way ? { way: r.way } : {}),
+    ...(r.earlier ? { earlier: r.earlier } : {}),
   };
 }

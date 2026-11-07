@@ -31,6 +31,12 @@ function judged(spec: GridSpec, laid: CellLayout): Judged {
   return { placement, trade: tradeOf(input, false, { labelNear }) };
 }
 
+/** Whether the lines of a laid out grid with their texts break none of the rules the detour keeps (`trades`). */
+export const clean = (spec: GridSpec, laid: CellLayout): boolean =>
+  judged(spec, laid)
+    .trade.kept()
+    .every((n) => n === 0);
+
 /**
  * Whether the laid out grid `b` is better than `a` as the check reads them with their texts (ADR 0039): its placement
  * breaks no rule more often and its lines with their texts trade better by the rule of the detour.

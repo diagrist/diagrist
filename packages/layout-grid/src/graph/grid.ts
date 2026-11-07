@@ -5,10 +5,10 @@ import { placeGrid } from '../place/index.js';
 import { routeEdges } from '../route/index.js';
 import type { GridSpec } from '../spec.js';
 import type { CellGraph, CellLayout } from './cells.js';
-import { better } from './grid-judge.js';
+import { better, clean } from './grid-judge.js';
 import { marginRound } from './grid-margins.js';
 import { outsideRound } from './grid-outside.js';
-import { cellLayout, chosenWays, oneByOne, type Round, withWays } from './grid-round.js';
+import { cellLayout, chosenWays, oneByOne, type Round, roundWays, withWays } from './grid-round.js';
 import { signCells } from './grid-signs.js';
 import { gridSpecOf } from './grid-spec.js';
 
@@ -55,8 +55,10 @@ const signer = (cells: Cells) => (spec: GridSpec, grid: GridLayout, routes: read
  * frame may then leave it where the frame can grow around it (`outsideRound`), and frames grow around routes on the
  * lanes beyond the grid (`marginRound`). A grid through channels, fixed or adaptive, prices its routes in its first
  * run, before their texts, so the picture with the ways it chose is laid out to the end and stays where it is better
- * than the one without (`better`); else the ways are judged one at a time in the first round (`oneByOne`), and the
- * picture with those that stay is laid out and kept where it is better.
+ * than the one without (`better`), and where its lines with their texts break a rule the detour keeps (`clean`), than
+ * the one with the ways of the pricing's rounds alone, where it then took shorter ways (`roundWays`) and that one is
+ * better than the one without; else the ways are judged one at a time in
+ * the first round (`oneByOne`), and the picture with those that stay is laid out and kept where it is better.
  */
 export function layoutCells(graph: CellGraph): CellLayout {
   const spec = gridSpecOf(graph);
@@ -70,7 +72,11 @@ export function layoutCells(graph: CellGraph): CellLayout {
   if (ways.size === 0) return plain();
   const without = plain();
   const all = laid(cells, run, { ...priced, spec: withWays(spec, ways) });
-  if (better(spec, without, all)) return all;
+  const earlier = roundWays(priced);
+  const rounds = earlier && earlier.size > 0 && !clean(spec, all) && laid(cells, run, run(withWays(spec, earlier)));
+  const base = rounds && better(spec, without, rounds) ? rounds : without;
+  if (better(spec, base, all)) return all;
+  if (base !== without) return base;
   const sign = signer(cells);
   const chosen = oneByOne(cells, first, ways, run, (r) => marginRound(r, run, sign));
   if (chosen === first) return without;
@@ -83,7 +89,7 @@ function laid(cells: Cells, run: (spec: GridSpec) => Round, first: Round): CellL
   const apart = (r: Round) => apartOf(r.routes, r.signs.labels, r.spec.metrics, cells.onLine);
   let done = first;
   for (let round = 0; round < ROUNDS; round++) {
-    const room = gutterRoom(done.spec, done.grid, done.routes, cells.texts, done.signs.crowded);
+    const room = gutterRoom(done.spec, done.grid, done.routes, cells.texts, done.signs.crowded, cells.onLine);
     const asked = apart(done);
     const wider = spaced(done.spec, asked);
     if (!asks(room) && wider === done.spec) break;

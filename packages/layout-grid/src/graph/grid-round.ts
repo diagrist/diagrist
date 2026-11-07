@@ -45,6 +45,20 @@ export function cellLayout(cells: Cells, done: Round): CellLayout {
 export const chosenWays = (round: Round): Map<string, GridWay> =>
   new Map(round.routes.flatMap((r) => (r.way ? [[r.edge, r.way] as const] : [])));
 
+/**
+ * The ways the rounds of the pricing chose, by edge, where it then took shorter ones (`Route.earlier`); none where
+ * it took none.
+ */
+export function roundWays(round: Round): Map<string, GridWay> | undefined {
+  if (!round.routes.some((r) => r.earlier)) return undefined;
+  return new Map(
+    round.routes.flatMap((r) => {
+      const way = r.earlier ? r.earlier.way : r.way;
+      return way ? [[r.edge, way] as const] : [];
+    }),
+  );
+}
+
 /** The spec with each edge of `ways` keeping its way (`GridEdge.way`), so the runs after need not price again. */
 export function withWays(spec: GridSpec, ways: ReadonlyMap<string, GridWay>): GridSpec {
   return {

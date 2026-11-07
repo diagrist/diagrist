@@ -10,7 +10,7 @@ import {
   signEdges,
   widen,
 } from '../src/index.js';
-import { edge, spec } from './fixture.js';
+import { edge, group, spec } from './fixture.js';
 
 const signed = (s: GridSpec, texts: readonly EdgeText[]) => {
   const layout = placeGrid(s);
@@ -81,6 +81,23 @@ describe('gaps of a channel grid that grow for their texts (ADR 0038, D2)', () =
     const room = gutterRoom(s, layout, routes, [short], crowded);
     expect(room).toEqual({ cols: [0], rows: [] });
     expect(placeGrid(widen(s, room))).toEqual(layout);
+  });
+
+  it('asks room between the frame lines a text along its line would stand on, which the search keeps clear of', () => {
+    const text: EdgeText = { edge: 'x-y', name: 'Sammelüberweisung', detail: 'EBICS' };
+    const of = (groups: GridSpec['groups']): GridSpec => ({
+      ...spec('a b', 'r', ['x@a/r', 'y@b/r'], { edges: [edge('x', 'y', { id: 'x-y' })], groups }),
+      channels: true,
+    });
+    const bare = of([]);
+    const free = signed(bare, [text]);
+    expect(gutterRoom(bare, free.layout, free.routes, [text], [0])).toEqual({ cols: [0], rows: [] });
+    const framed = of([group('f', ['x']), group('g', ['y'])]);
+    const first = signed(framed, [text]);
+    expect(first.crowded).toEqual([0]);
+    const room = gutterRoom(framed, first.layout, first.routes, [text], first.crowded);
+    expect(room.cols[0]).toBeGreaterThan((first.layout.cols[1]?.x ?? 0) - (first.layout.cols[0]?.x ?? 0) - 192);
+    expect(signed(widen(framed, room), [text]).crowded).toEqual([]);
   });
 
   it('bends a Z three times where every gap it may take runs through a box', () => {
