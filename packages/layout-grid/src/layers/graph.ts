@@ -49,6 +49,11 @@ export interface LayerGraph {
    * leaf of its strongest partner however many partners it has (`freeBlocks`).
    */
   readonly blocks?: ReadonlySet<string>;
+  /**
+   * Nodes that stand beside the last layer of a frame they round-trip, with an edge from the frame and one back into
+   * it, as a search tries it (`roundTrips`); the others stand below the frame, as their edges rank them.
+   */
+  readonly trips?: ReadonlySet<string>;
 }
 
 /** A frame around nodes for the layering: the nodes directly in it and the frame it stands in. */

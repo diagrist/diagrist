@@ -19,8 +19,16 @@ describe('composite states and the lines around them', () => {
     expect(cy(node('zurueck'))).toBe(cy(node('schleudern')));
   });
 
-  it('lets lines out of the bottom of a composite state run straight down to the states below', () => {
-    for (const to of ['pause', 'stoerung']) expect(new Set(edge('programm', to).map((q) => q[0])).size, to).toBe(1);
+  it('lets a line out of the bottom of a composite state run straight down to the state below', () => {
+    expect(new Set(edge('programm', 'pause').map((q) => q[0])).size).toBe(1);
+  });
+
+  it('puts a state entered from a composite state and leaving back into it beside the composite state', () => {
+    const [into, back] = [edge('programm', 'stoerung'), edge('stoerung', 'zurueck')];
+    expect(node('stoerung').x).toBeGreaterThanOrEqual(frame.x + frame.w);
+    expect(new Set(into.map((q) => q[1])).size).toBe(1);
+    expect(new Set(back.map((q) => q[1])).size).toBe(1);
+    expect(Math.abs((into[0]?.[1] ?? 0) - (back[0]?.[1] ?? 0))).toBeGreaterThanOrEqual(16);
   });
 
   it('runs no transition through a composite state it neither leaves nor enters', () => {

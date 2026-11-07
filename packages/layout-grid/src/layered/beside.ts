@@ -82,9 +82,11 @@ export function besideRoutes(
       let points: Point[];
       if (neighbours(e)) {
         const twins = ranked.beside.filter((u) => u.hidden !== true && pair(u) === pair(e) && neighbours(u));
-        const [top, bottom] = [Math.max(a.y, b.y), Math.min(a.y + a.h, b.y + b.h)];
-        const apart = twins.length < 2 ? 0 : Math.min(2 * frame.track, (bottom - top) / (twins.length + 1));
-        const y = Math.round((top + bottom) / 2 + (twins.indexOf(e) - (twins.length - 1) / 2) * apart);
+        const boxes = new Map([
+          [e.from, a],
+          [e.to, b],
+        ]);
+        const y = twinHeights(twins, boxes, 2 * frame.track)[twins.indexOf(e)] ?? 0;
         points =
           a.x < b.x
             ? [
@@ -130,4 +132,34 @@ export function besideRoutes(
       };
     },
   };
+}
+
+/**
+ * The heights of lines between the facing sides of neighbours `a` and `b`, by box id, in the order of `twins`:
+ * around the middle of the band both boxes share, `most` apart or closer where the band is short. An end that stands
+ * for a frame (`LayeredEdge.framed`) is cut at the frame's outline and holds its line to no band of its box: where
+ * one box holds every line, the lines spread over its band instead, as long as each stays within the band of the
+ * ends it is held by, so a line out of a frame and a line into a small box in it stand apart.
+ */
+function twinHeights(twins: readonly LayeredEdge[], boxes: ReadonlyMap<string, Rect>, most: number): number[] {
+  const band = (rects: readonly Rect[]): [number, number] => [
+    Math.max(...rects.map((r) => r.y)),
+    Math.min(...rects.map((r) => r.y + r.h)),
+  ];
+  const spread = ([top, bottom]: [number, number]) => {
+    const apart = twins.length < 2 ? 0 : Math.min(most, (bottom - top) / (twins.length + 1));
+    return twins.map((_, i) => Math.round((top + bottom) / 2 + (i - (twins.length - 1) / 2) * apart));
+  };
+  const held = (e: LayeredEdge) =>
+    (['from', 'to'] as const).flatMap((end) => (e.framed?.[end] === undefined ? [e[end]] : []));
+  const plain = spread(band([...boxes.values()]));
+  const all = [...boxes.keys()].filter((id) => twins.every((e) => held(e).includes(id)));
+  if (all.length !== 1 || twins.every((e) => held(e).length === 2)) return plain;
+  const wide = spread(band(all.flatMap((id) => boxes.get(id) ?? [])));
+  const fits = twins.every((e, i) => {
+    const [top, bottom] = band(held(e).flatMap((id) => boxes.get(id) ?? []));
+    const y = wide[i] ?? 0;
+    return y >= top && y <= bottom;
+  });
+  return fits ? wide : plain;
 }

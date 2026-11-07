@@ -10,7 +10,7 @@ import { spinesOf, type Xs } from './coords.js';
 import { barRects, dockEnds } from './docks.js';
 import { edgeRoutes, uncornered } from './edge-routes.js';
 import { clearCore } from './fence.js';
-import { acrossFrames } from './frame-ports.js';
+import { acrossFrames, framedEnd } from './frame-ports.js';
 import { framesOf } from './frames.js';
 import type { Frame } from './geometry.js';
 import { clearHeads, clearOfHeads } from './heads.js';
@@ -57,12 +57,13 @@ export function finish(spec: LayeredSpec, arrangement: Arrangement): LayeredLayo
   const under = (l: number) => (l === inCore.at(-1) ? pad + m.labelGap : 0) + fr.foot(l);
   const spines = spec.hub ? [] : spinesOf(spec.edges, ranked);
   const ln = lanesOf(spec, ranked);
+  const framed = framedEnd(spec);
   const settle = (placed: Xs): Placement => {
     ln.clear(placed, width, m.left);
     fr.clear(placed, layers, width, m.colGap);
     const flat = new Map([...placed].map(([id, cx]) => [id, { x: cx - width(id) / 2, y: 0, w: width(id), h: 0 }]));
     const kept = [below.ends, below.tops] as const;
-    const at = portsOf(groups, ranked, flat, placed, m.portGap, undefined, undefined, undefined, ...kept);
+    const at = portsOf(groups, ranked, flat, placed, m.portGap, undefined, undefined, undefined, ...kept, framed);
     const ports = acrossFrames(spec, groups, flat, at, m.portGap, ranked);
     const docking = { spec, ranked, layers, groups, rects: flat, x: placed, run: m.portGap };
     return { x: placed, flat, ports: { ...ports, corners: dockEnds(docking, ports) } };
