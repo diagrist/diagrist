@@ -103,7 +103,8 @@ function routesOf(board: Board, planned: readonly Plan[]): Routed[] {
  * own. A Z that crowds a side moves to another gap (`relieve`), and one that runs through a box on every gap bends
  * three times (`detour`), the way that crosses the fewest of the other routes. From there every edge tries its other
  * ways, priced by the measure (`pricedPlans`) on the routes as `finish` hands them on, where `priced` asks it; an edge that keeps a way (`GridEdge.way`)
- * takes it, and a route whose way the pricing chose tells it, for later runs to keep. An end below a node starts below its
+ * takes it, and a route whose way the pricing chose tells it, for later runs to keep, with the way of its rounds where
+ * it then took a shorter one (`Route.earlier`). An end below a node starts below its
  * caption. A route the kind laid itself is kept, as a loop.
  */
 export function channelRoutes(
@@ -125,9 +126,15 @@ export function channelRoutes(
   const detoured = planned.map((p, i) => detour(board, p, others(i)));
   const start = detoured.map((p) => kept(board, p));
   if (!priced) return routesOf(board, start);
-  const best = pricedPlans(board, start, (ps) => finish(routesOf(board, ps)));
+  const { rounds, plans: best } = pricedPlans(board, start, (ps) => finish(routesOf(board, ps)));
+  const chosen = (ps: readonly Plan[], i: number) => (ps[i] === start[i] ? undefined : wayOf(ps[i] as Plan));
   return routesOf(board, best).map((r, i) => {
-    const way = best[i] === start[i] ? undefined : wayOf(best[i] as Plan);
-    return way ? { ...r, way } : r;
+    const way = chosen(best, i);
+    const before = chosen(rounds, i);
+    return {
+      ...r,
+      ...(way ? { way } : {}),
+      ...(rounds[i] === best[i] ? {} : { earlier: before ? { way: before } : {} }),
+    };
   });
 }

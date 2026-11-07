@@ -1,4 +1,5 @@
-import type { Point } from '@diagrist/core';
+import type { Point, Rect } from '@diagrist/core';
+import type { Side } from '../../geometry.js';
 import { segmentsCross } from '../../geometry.js';
 import { type Trade, tradeOf, trades } from '../../layered/detour.js';
 import { linesOfLaid } from '../../score.js';
@@ -73,6 +74,37 @@ function waysOf(board: Board, p: Plan): Plan[] {
   });
 }
 
+/** The length of a way drawn from the middles of the sides of its boxes over the middles of its lanes, before ports and tracks. */
+function roughLength(p: Plan): number {
+  const edge = (r: Rect, side: Side): Point =>
+    side === 'left'
+      ? [r.x, r.y + r.h / 2]
+      : side === 'right'
+        ? [r.x + r.w, r.y + r.h / 2]
+        : side === 'top'
+          ? [r.x + r.w / 2, r.y]
+          : [r.x + r.w / 2, r.y + r.h];
+  const man = (u: Point, v: Point) => Math.abs(u[0] - v[0]) + Math.abs(u[1] - v[1]);
+  const [s, e] = [edge(p.a.rect, p.fromSide), edge(p.b.rect, p.toSide)];
+  const l = p.lane;
+  if (p.shape !== 'Z' || !l) return man(s, e);
+  const c1: Point = l.axis === 'col' ? [l.at, s[1]] : [s[0], l.at];
+  const via = p.via;
+  if (!via) {
+    const c2: Point = l.axis === 'col' ? [l.at, e[1]] : [e[0], l.at];
+    return man(s, c1) + man(c1, c2) + man(c2, e);
+  }
+  const corner: Point = l.axis === 'col' ? [l.at, via.at] : [via.at, l.at];
+  const c3: Point = l.axis === 'col' ? [e[0], via.at] : [via.at, e[1]];
+  return man(s, c1) + man(c1, corner) + man(corner, c3) + man(c3, e);
+}
+
+const drawnLength = (points: readonly Point[]): number =>
+  points.slice(1).reduce((n, q, i) => {
+    const p = points[i] as Point;
+    return n + Math.abs(q[0] - p[0]) + Math.abs(q[1] - p[1]);
+  }, 0);
+
 /** What routes cost, read as the line check reads a drawing without its texts; the boxes stay where they stand. */
 function priceOf(board: Board, routes: readonly Routed[]): Trade {
   const grid = board.layout;
@@ -105,14 +137,17 @@ const involved = (routes: readonly Routed[]): Set<number> =>
  * stage chose, every edge whose route crosses another or bends more than twice tries each other way it may take
  * (`waysOf`), the whole picture is routed again by `route`, and the way stays where the picture trades better by the
  * rule of the detour (`trades`): no hard finding more, a crossing worth 600 px of line, and of as many crossings the
- * cheaper by `scoreOf`. In rounds, until none trades better. An edge that keeps its way (`GridEdge.way`) keeps its
- * plan.
+ * cheaper by `scoreOf`. In rounds, until none trades better. Then every edge tries, once, each of its ways that
+ * draws shorter from the middles of its sides over the middles of its lanes (`roughLength`) than its route is, so a
+ * route that crosses nothing may still take a shorter way, and the search prices only ways that can pay; the plans
+ * of the rounds go along (`rounds`), as the texts may refuse a shorter way. An edge that keeps its way
+ * (`GridEdge.way`) keeps its plan.
  */
 export function pricedPlans(
   board: Board,
   planned: readonly Plan[],
   route: (plans: readonly Plan[]) => readonly Routed[],
-): Plan[] {
+): { rounds: Plan[]; plans: Plan[] } {
   let best = [...planned];
   let laid = route(best);
   let price = priceOf(board, laid);
@@ -130,5 +165,17 @@ export function pricedPlans(
     }
     if (!moved) break;
   }
-  return best;
+  const rounds = best;
+  for (let i = 0; i < best.length; i++) {
+    if (keeps(best[i] as Plan)) continue;
+    for (const way of waysOf(board, best[i] as Plan)) {
+      if (roughLength(way) >= drawnLength((laid[i] as Routed).points)) continue;
+      const next = best.map((q, k) => (k === i ? way : q));
+      const routes = route(next);
+      const tried = priceOf(board, routes);
+      if (!trades(price, tried, 'score')) continue;
+      [best, laid, price] = [next, routes, tried];
+    }
+  }
+  return { rounds, plans: best };
 }
