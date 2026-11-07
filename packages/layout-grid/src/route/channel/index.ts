@@ -8,8 +8,10 @@ import { detour } from './detour.js';
 import { freeOf, intersect } from './free.js';
 import { keepInside } from './inside.js';
 import { channelPorts } from './ports.js';
+import { pricedPlans } from './priced.js';
 import { relieve } from './relieve.js';
 import { zLanes } from './tracks.js';
+import { untangle } from './untangle.js';
 
 const flat = (side: Side): boolean => side === 'top' || side === 'bottom';
 
@@ -98,10 +100,11 @@ function routesOf(board: Board, planned: readonly Plan[]): Routed[] {
  * heads of frames where their kind draws them as obstacles; ends spread over the free stretches of their sides, two
  * edges between the same boxes on ports of their own; and the middle pieces of the Zs of one gap on tracks of their
  * own. A Z that crowds a side moves to another gap (`relieve`), and one that runs through a box on every gap bends
- * three times (`detour`), the way that crosses the fewest of the other routes. An end below a node starts below its
+ * three times (`detour`), the way that crosses the fewest of the other routes. From there every edge tries its other
+ * ways, priced by the measure (`pricedPlans`), unless `priced` is false. An end below a node starts below its
  * caption. A route the kind laid itself is kept, as a loop.
  */
-export function channelRoutes(board: Board): Routed[] {
+export function channelRoutes(board: Board, priced = true): Routed[] {
   const m = board.tree.spec.metrics;
   const planned = relieve(
     board,
@@ -114,5 +117,9 @@ export function channelRoutes(board: Board): Routed[] {
   const first = routesOf(board, planned);
   const others = (i: number) => first.filter((_, k) => k !== i).map((r) => r.points);
   const detoured = planned.map((p, i) => detour(board, p, others(i)));
-  return detoured.some((p, i) => p !== planned[i]) ? routesOf(board, detoured) : first;
+  if (!priced) return routesOf(board, detoured);
+  return routesOf(
+    board,
+    pricedPlans(board, detoured, (ps) => untangle(routesOf(board, ps), board)),
+  );
 }

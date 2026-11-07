@@ -8,6 +8,7 @@ import { placedOf } from '../placed.js';
 import { routeEdges } from '../route/index.js';
 import type { GridSpec } from '../spec.js';
 import type { CellGraph, CellLayout } from './cells.js';
+import { pricedStays } from './grid-judge.js';
 import { outsideRound } from './grid-outside.js';
 import { type CellSigns, signCells } from './grid-signs.js';
 import { gridSpecOf } from './grid-spec.js';
@@ -44,17 +45,28 @@ function spaced(spec: GridSpec, asked: ReadonlyMap<string, number>): GridSpec {
  * as `gutterRoom` asks, sets two lines whose texts stand squeezed between them as far apart as `apartOf` asks, and
  * places again (ADR 0038, D2), at most `ROUNDS` times: for tracks alone, or as long as fewer texts end up without a
  * clear spot than before, or as many and fewer squeezed; the author's grid stays, only its gaps grow. A Z kept inside a
- * frame may then leave it where the frame can grow around it (`outsideRound`).
+ * frame may then leave it where the frame can grow around it (`outsideRound`). A fixed grid through channels is laid
+ * out twice, with its routes priced by the measure and without, and the priced one stays where its picture with its
+ * texts is better (`pricedStays`).
  */
 export function layoutCells(graph: CellGraph): CellLayout {
+  const spec = gridSpecOf(graph);
+  const priced = laidCells(graph, spec, true);
+  if (spec.channels !== true || spec.adaptive || spec.lines === 'straight') return priced;
+  const plain = laidCells(graph, spec, false);
+  return pricedStays(spec, plain, priced) ? priced : plain;
+}
+
+/** A layout graph laid out in the author's grid as `layoutCells` lays it out, its routes priced or not (`priced`). */
+function laidCells(graph: CellGraph, given: GridSpec, priced: boolean): CellLayout {
   const cells = graph.given.cells;
   const run = (spec: GridSpec): Round => {
     const grid = placeGrid(spec);
-    const routes = routeEdges(spec, grid);
+    const routes = routeEdges(spec, grid, priced);
     return { spec, grid, routes, signs: signCells(cells, spec, grid, routes) };
   };
   const apart = (r: Round) => apartOf(r.routes, r.signs.labels, r.spec.metrics, cells.onLine);
-  let done = run(gridSpecOf(graph));
+  let done = run(given);
   for (let round = 0; round < ROUNDS; round++) {
     const room = gutterRoom(done.spec, done.grid, done.routes, cells.texts, done.signs.crowded);
     const asked = apart(done);
