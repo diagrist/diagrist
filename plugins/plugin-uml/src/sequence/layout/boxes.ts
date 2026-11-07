@@ -52,10 +52,9 @@ function invariant(rect: Rect, text: string, state: boolean, c: SeqCtx): SeqShap
   ];
 }
 
-/** `right` is passed as computed, not as `x + w`, so its floating point value stays the same. */
-function refShapes(label: string, rect: Rect, right: number, text: Measured, c: SeqCtx): SeqShape[] {
+function refShapes(label: string, rect: Rect, text: Measured, c: SeqCtx): SeqShape[] {
   const s = c.s;
-  const [l, t, r] = [rect.x, rect.y, right];
+  const [l, t, r] = [rect.x, rect.y, rect.x + rect.w];
   const x = Math.max((l + r) / 2, l + tagWidth('ref', c) + s.guardGap + text.w / 2);
   return [
     { kind: 'rect', rect, role: 'ref' },
@@ -70,9 +69,9 @@ function refShapes(label: string, rect: Rect, right: number, text: Measured, c: 
   ];
 }
 
-function noteShapes(rect: Rect, right: number, text: Measured, c: SeqCtx): SeqShape[] {
+function noteShapes(rect: Rect, text: Measured, c: SeqCtx): SeqShape[] {
   const s = c.s;
-  const [l, t, r, b, f] = [rect.x, rect.y, right, rect.y + rect.h, s.noteFold];
+  const [l, t, r, b, f] = [rect.x, rect.y, rect.x + rect.w, rect.y + rect.h, s.noteFold];
   return [
     { kind: 'path', d: `M${l} ${t} H${r - f} L${r} ${t + f} V${b} H${l} Z`, role: 'note' },
     { kind: 'path', d: `M${r - f} ${t} V${t + f} H${r}`, role: 'note' },
@@ -106,8 +105,8 @@ export function boxArts(
       e.type === 'invariant'
         ? invariant(rect, text.lines[0] ?? '', e.state === true, c)
         : e.type === 'ref'
-          ? refShapes(e.label, rect, r, text, c)
-          : noteShapes(rect, r, text, c);
+          ? refShapes(e.label, rect, text, c)
+          : noteShapes(rect, text, c);
     out.push({ index: i, rect, shapes });
   });
   return out;
