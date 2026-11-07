@@ -61,6 +61,14 @@ describe('line metrics', () => {
     const m = lineMetrics({ nodes, routes });
     expect([m.childrenOff, m.childOffset, m.parentsOff]).toEqual([0, 0, 0]);
   });
+
+  it('leave out one slanted piece, which has no axis a box could stand off, but not a straight one', () => {
+    const nodes = [box('p', 0, 0), box('k', 60, 200)];
+    const slanted = lineMetrics({ nodes, routes: [line('1', 'p', 'k', [40, 40], [100, 200])] });
+    expect([slanted.childrenOff, slanted.childOffset]).toEqual([0, 0]);
+    const bent = lineMetrics({ nodes, routes: [line('1', 'p', 'k', [40, 40], [40, 120], [100, 120], [100, 200])] });
+    expect([bent.childrenOff, bent.childOffset]).toEqual([1, 60]);
+  });
 });
 
 describe('lines on one another and the shape of the picture', () => {
