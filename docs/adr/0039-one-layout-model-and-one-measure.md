@@ -640,6 +640,10 @@ stub it shares with `[nein]`, stood 350 px from its diamond. A kind now says whe
 start, and a branch of a fan seats it at the top, where the line leaves the trunk, not where it arrives. Activity
 diagrams set it for guards: `[ja]` stands at its diamond in `parallel-entscheidung` and `objektfluss` (246 to about
 24 px, the gap 8 px taller), the guards of `auftragsabwicklung`, `entscheidungen-kette` and `lange-aktionen` move up
-to their diamonds; no count of a stress budget changes. State machines keep their triggers in the middle for now: set
+to their diamonds; no count of a stress budget changes. A rail whose line changes lanes set its text beside the track, since the lane
+borders are not drawn when the rails are; a text at the start now tries the piece out of its diamond first
+(`layered/rails.ts`), which takes the two upper `[else]` of `schleifen-zurueck` to their diamonds (84 px of line and
+84 px of width less) and `[else]` of `fuenf-bahnen` likewise (84 px of line, 42 px of width). State machines keep
+their triggers in the middle for now: set
 for them, a text of `verschachtelt` landed where `holdTexts` later grows a frame (G400), and the branches of the
 fans in `auswahl-vier` read less clearly.
