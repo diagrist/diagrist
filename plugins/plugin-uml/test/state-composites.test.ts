@@ -54,4 +54,13 @@ describe('composite states and the lines around them', () => {
     expect(box.x + box.w / 2).toBeLessThan(out.x);
     expect(line[0]?.[0]).toBeLessThanOrEqual(out.x + 16);
   });
+
+  it('seats a trigger near the start of its line, clear of the frames that grow for the texts inside them', () => {
+    const lift = compile(source('stress/state/verschachtelt.dgr'), { plugins: [umlPlugin] });
+    const line = lift.anchors?.edges.find((e) => e.from === 'wartung' && e.to === 'betrieb')?.points ?? [];
+    const y = Number(/<text[^>]* y="([\d.]+)"[^>]*>freigeben</.exec(lift.svg ?? '')?.[1]);
+    const [start, end] = [line[0]?.[1] ?? 0, line.at(-1)?.[1] ?? 0];
+    expect(lift.diagnostics).toEqual([]);
+    expect(Math.abs(y - start)).toBeLessThan(Math.abs(y - end));
+  });
 });

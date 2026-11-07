@@ -31,6 +31,8 @@ export interface SignOptions {
   readonly placed?: readonly EdgeLabel[];
   /** Signs beside a route, such as decision marks, `w` by `h`, each with the spots the kind offers it. */
   readonly pins?: { readonly w: number; readonly h: number; readonly at: readonly Pin[] };
+  /** The left edge of the picture, beyond which a text widens it (`SearchOptions.floor`). */
+  readonly floor?: number;
 }
 
 /**
@@ -70,7 +72,11 @@ export function signEdges<M extends SeatMark>(
   const named = o.placed ?? namedOf(spec, routes, texts, o);
   const clear = clearOf(board, routes, o.avoid ?? []);
   const size = o.mark ?? { w: 0, h: 0, room: 0 };
-  const search: SearchOptions = { preferFlat: o.preferFlat === true, ...(o.onLine ? { onLine: o.onLine } : {}) };
+  const search: SearchOptions = {
+    preferFlat: o.preferFlat === true,
+    ...(o.onLine ? { onLine: o.onLine } : {}),
+    ...(o.floor === undefined ? {} : { floor: o.floor }),
+  };
   const pin = o.pins ?? { w: 0, h: 0, at: [] };
   const between = (spot: Pin['spots'][number], route: number) =>
     routes.some(

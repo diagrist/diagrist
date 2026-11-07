@@ -16,6 +16,8 @@ export interface SearchOptions {
   readonly onLine?: OnLine;
   /** Texts on their line may also stand beside its vertical pieces, as beside a twin too close for a text across. */
   readonly beside?: boolean;
+  /** The left edge of the picture: a spot reaching beyond it, which widens the picture, comes after those within. */
+  readonly floor?: number;
 }
 
 /** What a block of texts on route `i` meets, by `clearOf`: 0 for a clear spot; counting stops at `limit`. */
@@ -70,8 +72,8 @@ export interface Found {
  * The texts of route `i` as one block: kept at `first` when that spot is clear, no line of it runs wider than
  * `wrapWidth` and it keeps `crowding`'s distance from the texts of other routes; else at the clear spot beside or on
  * one of its pieces, longest first and nearest the middle, wrapped where that helps, that comes least near those
- * texts, the first such one on a tie; of a later tier, the first clear spot; without a clear spot, where it meets the
- * least.
+ * texts, the first such one on a tie, a spot beyond the `floor` of the picture only where none within is clear; of
+ * a later tier, the first clear spot; without a clear spot, where it meets the least.
  */
 export function searchBlock(
   route: Route,
@@ -87,15 +89,24 @@ export function searchBlock(
   let near = best.cost === 0 ? crowding(first) : Infinity;
   if (near === 0) return best;
   const [tight, ...later] = tiers(route, i, text, m, o);
-  for (const block of tight ?? []) {
+  const floor = o.floor ?? Number.NEGATIVE_INFINITY;
+  const beyond = (block: readonly EdgeLabel[]) => block.some((l) => l.box.x < floor - 0.5);
+  const outside: EdgeLabel[][] = [];
+  const settles = (block: EdgeLabel[]) => {
     const c = blockCost(block, i, clear, o, Math.max(1, best.cost));
     const k = c === 0 ? crowding(block) : Infinity;
     if (c < best.cost || (c === 0 && k < near)) {
       best = { block, cost: c };
       near = k;
     }
-    if (near === 0) return best;
+    return near === 0;
+  };
+  for (const block of tight ?? []) {
+    if (beyond(block)) outside.push(block);
+    else if (settles(block)) return best;
   }
+  if (best.cost === 0) return best;
+  for (const block of outside) if (settles(block)) return best;
   if (best.cost === 0) return best;
   for (const tier of later)
     for (const block of tier) {

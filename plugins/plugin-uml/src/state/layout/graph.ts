@@ -39,7 +39,8 @@ function shapeOf(kind: string): Pick<GraphNode, 'shape'> {
  * state, fork and join as bars, composite states as frames with their name field and compartment as the head and
  * their regions as parts (`stateContainers`), transitions as edges down the flow, sorted by the distance of their
  * target from the start so that breaking cycles follows the main way, the layers turned with `direction=right`, where
- * a state is as high as the lines on its busiest side need.
+ * a state is as high as the lines on its busiest side need. A trigger belongs at the start of its line, where it
+ * leaves its state; a guard out of a choice or another small vertex, whose lines share a trunk, at its own branch.
  */
 export function stateGraph(m: StateModel): LayoutGraph {
   const simple = m.diagram.vertices.filter((v) => !m.composites.has(v.id) && v.kind !== 'region');
@@ -91,6 +92,7 @@ export function stateGraph(m: StateModel): LayoutGraph {
                 text: lines.map((l) => l.text).join(' '),
                 width,
                 size: font.size,
+                at: small(t.from) ? ('middle' as const) : ('start' as const),
                 ...(lines.length > 1 ? { lines } : {}),
               },
             }
