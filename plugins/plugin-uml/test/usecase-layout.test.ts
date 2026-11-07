@@ -1,26 +1,14 @@
-import {
-  type Compilation,
-  compile,
-  type Point,
-  type Rect,
-  segmentMeetsEllipse,
-  segmentsIntersect,
-  textWidth,
-} from '@diagrist/core';
+import { type Point, type Rect, segmentMeetsEllipse, segmentsIntersect, textWidth } from '@diagrist/core';
 import { describe, expect, it } from 'vitest';
-import { umlPlugin } from '../src/index.js';
-import { compiledOnce, usecaseSource } from './compile.js';
+import { compiledOnce, type Drawn, drawn, usecaseSource } from './compile.js';
 
 const inside = (a: Rect, b: Rect) => a.x >= b.x && a.y >= b.y && a.x + a.w <= b.x + b.w && a.y + a.h <= b.y + b.h;
 const apart = (a: Rect, b: Rect) => a.x + a.w <= b.x || b.x + b.w <= a.x || a.y + a.h <= b.y || b.y + b.h <= a.y;
 const cx = (r: Rect) => r.x + r.w / 2;
 const cy = (r: Rect) => r.y + r.h / 2;
 
-/** The examples by name without `.dgr`, each compiled once in this file however many tests look at it. */
-const compiled = compiledOnce((name) => usecaseSource(`${name}.dgr`));
-
 /** Looks up nodes, frames, edges, notes and labels of a compiled picture, which has no findings but the allowed. */
-function look(result: Compilation, allowed: readonly string[] = []) {
+function look(result: Drawn, allowed: readonly string[] = []) {
   expect(result.diagnostics.filter((d) => !allowed.includes(d.code))).toEqual([]);
   const anchors = result.anchors;
   const svg = result.svg ?? '';
@@ -59,8 +47,9 @@ function look(result: Compilation, allowed: readonly string[] = []) {
   };
 }
 
-/** An example as compiled once in this file, looked up. */
+/** An example by name without `.dgr`, looked up; each is compiled once in this file however many tests read it. */
 const picture = (name: string) => look(compiled(name));
+const compiled = compiledOnce((name) => usecaseSource(`${name}.dgr`));
 
 describe('the automatic grid of a use case diagram', () => {
   const p = picture('onlineshop');
@@ -182,7 +171,7 @@ describe('several subjects', () => {
 
   it('stand below each other with direction=down, the shared actor between them', () => {
     const down = usecaseSource('zwei-systeme.dgr').replace(' locale=de', ' direction=down locale=de');
-    const p = look(compile(down, { plugins: [umlPlugin] }), ['G410']);
+    const p = look(drawn(down), ['G410']);
     const [shop, erp] = [p.frame('shop'), p.frame('erp')];
     expect(apart(shop, erp)).toBe(true);
     expect(shop.x).toBe(erp.x);
