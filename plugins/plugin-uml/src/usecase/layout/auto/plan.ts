@@ -27,10 +27,16 @@ export function bandIndex(model: UseCaseModel): (id: string) => number {
  * Below each other: the base left, actors left or right of the one column of subjects. With `over`, a family whose
  * use cases all lie in inner columns, none in the column next to its lane, stands in the median column of its use
  * cases instead, above or below the subjects, so its lines do not cross the columns between (decision E3, round 4);
- * a family with a side given by `side=` keeps its lane.
+ * a family with a side given by `side=` keeps its lane. The special use cases in `deeper` stand a column right of
+ * their general one (`depths`).
  */
-export function stackedPlan(p: Parts, side: Map<string, Side>, over = false): Plan {
-  const depth = depths(p);
+export function stackedPlan(
+  p: Parts,
+  side: Map<string, Side>,
+  over = false,
+  deeper: ReadonlySet<string> = new Set(),
+): Plan {
+  const depth = depths(p, deeper);
   const columns = Math.max(0, ...depth.values()) + 1;
   slide(p, depth, side, columns);
   towardActors(p, depth, side);
