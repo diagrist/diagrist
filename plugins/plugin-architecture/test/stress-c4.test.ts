@@ -30,6 +30,15 @@ describe('the stress set of C4 pictures', () => {
     }
   });
 
+  it.each(names)('%s breaks no hard rule in blocks either, whose texts and tracks are larger', (name) => {
+    const text = source(name)
+      .replace(/ look=\w+/, '')
+      .replace(/^(diagram .*)$/m, '$1 look=blocks');
+    const { errors, entries: pictures } = stressEntries([architecturePlugin], name, text, PLACEMENT);
+    expect(errors).toEqual([]);
+    for (const entry of Object.values(pictures)) expect(hardCounts(entry, PLACEMENT)).toEqual({});
+  });
+
   it('keeps every count within its budget: crossings, jogs, parallels, bends and the rest may only fall', () => {
     expect(new Set(Object.keys(entries).map((k) => k.split('#')[0])).size).toBe(names.length);
     const result = compareBudget(golden, entries);

@@ -10,7 +10,7 @@ import { keepInside } from './inside.js';
 import { channelPorts } from './ports.js';
 import { pricedPlans } from './priced.js';
 import { relieve } from './relieve.js';
-import { zLanes } from './tracks.js';
+import { type ZLane, zLanes } from './tracks.js';
 import { untangle } from './untangle.js';
 import { kept, wayOf } from './ways.js';
 
@@ -77,6 +77,17 @@ function belowCaption(board: Board, r: Routed): Routed {
   return { ...r, points };
 }
 
+/** The tracks of a Z in the gaps between columns or rows, its second one for a detour; none on a lane beyond the grid. */
+function tracksOf(p: Plan, at: ZLane): NonNullable<Routed['tracks']> {
+  const gaps = [
+    [p.lane, at.at],
+    [p.via, at.via],
+  ] as const;
+  return gaps.flatMap(([lane, x]) =>
+    lane && !lane.outer && lane.index >= 0 && x !== undefined ? [{ axis: lane.axis, gap: lane.index, at: x }] : [],
+  );
+}
+
 /** The routes of planned edges: ports per side, tracks per gap, the points between and the ends below captions. */
 function routesOf(board: Board, planned: readonly Plan[]): Routed[] {
   const m = board.tree.spec.metrics;
@@ -91,8 +102,9 @@ function routesOf(board: Board, planned: readonly Plan[]): Routed[] {
     const at = lanes.get(p);
     const lane = p.lane && at !== undefined ? { axis: p.lane.axis, ...at } : undefined;
     const points = edgePoints(p.shape, p.fromSide, start, end, lane, p.edge.loopReach ?? m.loopReach);
+    const tracks = at ? tracksOf(p, at) : [];
     const routed = { edge: p.edge, from: p.a, to: p.b, shape: p.shape, points, fromSide: p.fromSide, toSide: p.toSide };
-    return belowCaption(board, routed);
+    return belowCaption(board, tracks.length > 0 ? { ...routed, tracks } : routed);
   });
 }
 

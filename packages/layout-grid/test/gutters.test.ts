@@ -2,6 +2,7 @@ import type { Point, Rect } from '@diagrist/core';
 import { describe, expect, it } from 'vitest';
 import {
   type EdgeText,
+  type GridLayout,
   type GridSpec,
   gutterRoom,
   placeGrid,
@@ -10,7 +11,7 @@ import {
   signEdges,
   widen,
 } from '../src/index.js';
-import { edge, group, spec } from './fixture.js';
+import { edge, group, METRICS, spec } from './fixture.js';
 
 const signed = (s: GridSpec, texts: readonly EdgeText[]) => {
   const layout = placeGrid(s);
@@ -53,6 +54,29 @@ describe('gaps of a channel grid that grow for their texts (ADR 0038, D2)', () =
     expect(second.crowded).toEqual([]);
     const k = second.layout.cols[1];
     expect(k?.x).toBe((first.layout.cols[1]?.x ?? 0) + gap);
+  });
+
+  it('asks a gap too narrow for its row of tracks to hold the whole row, which then stands inside it', () => {
+    const s: GridSpec = {
+      ...spec('a b', 'r1 r2 r3', ['x@a/r1', 'w@b/r1', 'p@a/r2', 'y@b/r2', 'q@a/r3', 'z@b/r3'], {
+        edges: [edge('x', 'y'), edge('w', 'p'), edge('p', 'z')],
+        metrics: { ...METRICS, colGap: 24, laneGap: 36 },
+      }),
+      channels: true,
+    };
+    const tracks = (layout: GridLayout) =>
+      routeEdges(s, layout)
+        .flatMap((r) => (r.tracks ?? []).filter((t) => t.axis === 'col' && t.gap === 0))
+        .map((t) => t.at);
+    const narrow = placeGrid(s);
+    expect(new Set(tracks(narrow)).size).toBe(2);
+    const room = gutterRoom(s, narrow, routeEdges(s, narrow), [], []);
+    expect(room.cols[0]).toBeGreaterThanOrEqual(3 * s.metrics.laneGap);
+    const wide = placeGrid(widen(s, room));
+    const [a, b] = wide.cols;
+    const lo = (a?.x ?? 0) + (a?.w ?? 0);
+    for (const x of tracks(wide))
+      expect(x - lo >= s.metrics.laneGap && (b?.x ?? 0) - x >= s.metrics.laneGap).toBe(true);
   });
 
   it('wraps a long text into lines of two or three words beside the tracks instead of widening the gap', () => {

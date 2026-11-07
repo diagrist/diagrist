@@ -70,4 +70,16 @@ export interface Route {
    * own, so a kind can judge the picture without the shorter ways.
    */
   readonly earlier?: { readonly way?: GridWay };
+  /**
+   * The tracks the route runs on in the gaps of a channel grid: the gap by axis and number, as `GutterRoom` counts
+   * them, and where across it the track lies, so the gap can ask the room its whole row of tracks takes.
+   */
+  readonly tracks?: readonly Track[];
+}
+
+/** A track of a route in the gap `gap` between two columns (`col`) or rows (`row`), `at` across it. */
+interface Track {
+  readonly axis: 'col' | 'row';
+  readonly gap: number;
+  readonly at: number;
 }

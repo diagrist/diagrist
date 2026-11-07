@@ -1,5 +1,5 @@
 import { apartOf } from '../label/apart.js';
-import { gutterRoom, widen } from '../label/gutters.js';
+import { gutterRoom, leavesGap, widen } from '../label/gutters.js';
 import type { GridLayout, Route } from '../layout.js';
 import { placeGrid } from '../place/index.js';
 import { routeEdges } from '../route/index.js';
@@ -50,8 +50,9 @@ const signer = (cells: Cells) => (spec: GridSpec, grid: GridLayout, routes: read
  * Lays out a layout graph in the author's grid (ADR 0039, amendment of 06.11.2026): places it, routes it through
  * the channel stage and sets its texts and signs. A grid whose tracks or texts do not fit into its gaps widens them
  * as `gutterRoom` asks, sets two lines whose texts stand squeezed between them as far apart as `apartOf` asks, and
- * places again (ADR 0038, D2), at most `ROUNDS` times: for tracks alone, or as long as fewer texts end up without a
- * clear spot than before, or as many and fewer squeezed; the author's grid stays, only its gaps grow. A Z kept inside a
+ * places again (ADR 0038, D2), at most `ROUNDS` times: for tracks alone, for a row of tracks that stood beyond its
+ * gap (`leavesGap`) whatever that does to the texts, or as long as fewer texts end up without a clear spot than
+ * before, or as many and fewer squeezed; the author's grid stays, only its gaps grow. A Z kept inside a
  * frame may then leave it where the frame can grow around it (`outsideRound`), and frames grow around routes on the
  * lanes beyond the grid (`marginRound`). A grid through channels, fixed or adaptive, prices its routes in its first
  * run, before their texts, so the picture with the ways it chose is laid out to the end and stays where it is better
@@ -96,7 +97,7 @@ function laid(cells: Cells, run: (spec: GridSpec) => Round, first: Round): CellL
     const next = run(widen(wider, room));
     const before = [done.signs.crowded.length, asked.size];
     const after = [next.signs.crowded.length, apart(next).size];
-    if (before.some((n) => n > 0) && !fewer(after, before)) break;
+    if (before.some((n) => n > 0) && !fewer(after, before) && !leavesGap(done.grid, done.routes)) break;
     done = next;
   }
   const sign = signer(cells);

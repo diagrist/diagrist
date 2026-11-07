@@ -61,11 +61,14 @@ The C4 stress set showed what the examples did not: a long text between the trac
 one side than it holds, a Z that runs through a box on every gap it may take, and texts on two upright twins. So:
 
 1. **Gutters grow.** `signEdges` names the routes whose texts found no clear spot (`crowded`). `gutterRoom` asks, per
-   gap between columns and rows, for the room its tracks need, `laneGap` from either border, and for each crowded
+   gap between columns and rows, for the room its tracks need, `laneGap` from either border: the whole row as the
+   channel stage laid it (`Route.tracks`), even where a row of many tracks, centred in a narrow gap, stands beyond it
+   in the boxes beside; and for each crowded
    text the growth of the one gap where it needs the least: beside a piece across the gap, or along a piece that runs
    into it, between the piece's end or the gap's border and the outermost track, which stays centred. The kind sets
    the room with `widen` as `GridColumn.gap` (new) and `GridRow.gap` and places again, at most three times, and keeps
-   a round only when fewer texts stay crowded. The author's grid stays; only its gaps widen.
+   a round only when fewer texts stay crowded, or when a row of tracks stood beyond its gap, which no text may keep
+   there. The author's grid stays; only its gaps widen.
 2. **A Z that crowds a side moves.** Where the ends of a side ask more than its free stretches hold, straight ends
    centred twice the port spread apart and bent ones beside them, a Z between two boxes of one column or row takes
    the gap on the other side of them, any other Z the gap across, if that runs through nothing and its new sides hold
