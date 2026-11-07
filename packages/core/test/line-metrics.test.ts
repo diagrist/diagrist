@@ -51,6 +51,16 @@ describe('line metrics', () => {
     const m = lineMetrics({ nodes, routes, width: 600, height: 300 });
     expect([m.parentsOff, m.childrenOff, m.width, m.height]).toEqual([0, 0, 600, 300]);
   });
+
+  it('leave out a line taken round the boxes between, from the side of one box into the side of one below', () => {
+    const nodes = [box('p', 0, 0), box('m', 0, 100), box('k', 100, 300)];
+    const routes = [
+      line('1', 'p', 'm', [40, 40], [40, 100]),
+      line('2', 'k', 'p', [180, 320], [420, 320], [420, 20], [80, 20]),
+    ];
+    const m = lineMetrics({ nodes, routes });
+    expect([m.childrenOff, m.childOffset, m.parentsOff]).toEqual([0, 0, 0]);
+  });
 });
 
 describe('lines on one another and the shape of the picture', () => {

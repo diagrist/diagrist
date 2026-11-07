@@ -10,7 +10,6 @@ import {
   lineFindings,
   lineMetrics,
   type Point,
-  type Rect,
 } from '@diagrist/core';
 import type { EdgeLabel } from './label/types.js';
 import type { PlacedNode, Route } from './layout.js';
@@ -21,7 +20,7 @@ import type { PlacedNode, Route } from './layout.js';
  * then foreign lines too near and a text near a foreign line, then a jog or a short piece, then a picture too long
  * for its height. A bend counts by the weight of its line, so a line of a hierarchy runs straight before a secondary
  * one; a bend a straight line could spare counts twice. A box off the middle of its children, or a child off its one
- * parent, by the lines that are no soft ones and are not taken round the boxes between (`around`), costs half a unit
+ * parent, by the lines that are no soft ones and are not taken round the boxes between (`lineCentring`), costs half a unit
  * per pixel (Q11, Q12): a slip of a few pixels weighs little, a box beside its parent's axis as much as two bends.
  * Length and width break ties. Summed rather than compared in turn, so a search sees every step.
  */
@@ -65,9 +64,7 @@ export function scoreOf(input: LineInput, thresholds: Partial<LineThresholds> = 
   const found = lineFindings(input, { ...thresholds, crossingsUpTo: 0 });
   const through = ruled(found, 'through');
   const shape = ruled(found, 'jog') + ruled(found, 'lead') + ruled(found, 'tail');
-  const rects = new Map(input.nodes.map((n) => [n.id, n.rect]));
-  const centred = input.routes.filter((r) => (r.weight ?? 1) >= 1 && !around(r, rects));
-  const strong = lineCentring({ ...input, routes: centred });
+  const strong = lineCentring({ ...input, routes: input.routes.filter((r) => (r.weight ?? 1) >= 1) });
   const cost =
     WEIGHT.through * through +
     WEIGHT.ports * ruled(found, 'ports') +
@@ -90,19 +87,6 @@ export function scoreOf(input: LineInput, thresholds: Partial<LineThresholds> = 
  * line takes a detour round others only while it is shorter than this, else it crosses.
  */
 export const DETOUR = 600;
-
-/**
- * Whether a line is taken round the boxes between its ends: it leaves one box by a side and enters the other by a
- * side, while one box stands above the other. Such a line makes neither box the parent of the other, so it sets off
- * no box from the middle of the other, nor does it stand beside it.
- */
-function around(r: LineRoute, rects: ReadonlyMap<string, Rect>): boolean {
-  const [a, b, c, d] = [r.points[0], r.points[1], r.points.at(-2), r.points.at(-1)];
-  const [p, q] = [rects.get(r.from), rects.get(r.to)];
-  if (a === undefined || b === undefined || c === undefined || d === undefined || p === undefined || q === undefined)
-    return false;
-  return a[1] === b[1] && c[1] === d[1] && (p.y + p.h <= q.y || q.y + q.h <= p.y);
-}
 
 /** The bends of every line times its weight: where its direction turns between two points. */
 function weightedBends(routes: readonly LineRoute[]): number {

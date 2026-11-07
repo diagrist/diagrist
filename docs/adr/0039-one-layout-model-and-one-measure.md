@@ -611,7 +611,8 @@ it is laid out to took a place in the order of that box's side, so the line out 
 and slanted by a pixel; such an end now stands in an order of its own (`portsOf`, `loose`; `framedEnd`), as
 `acrossFrames` moves it across the frame anyway. And `scoreOf` counted `abbrechen`, a rail from the side of `Störung`
 round the frame into the side of `Bereit`, as `Störung` 389 px off its one parent; a line that leaves one box by a side
-and enters another, above or below it, by a side no longer counts for centring (`around` in `score.ts`).
+and enters another, above or below it, by a side no longer counts for centring (`around` in `score.ts`; since moved
+into `lineCentring` in `core` as `takenRound`, so the budgets count centring as `scoreOf` does).
 
 `gedaechtnis`: 2,317 to 1,772 px of line, 6 to 2 bends, 765 to 726 px wide, `Programm läuft` 477 to 358 px wide,
 `Störung` beside H* with both lines across, `Pausiert` below with both lines straight. Side effects: `pakete` 14 px
