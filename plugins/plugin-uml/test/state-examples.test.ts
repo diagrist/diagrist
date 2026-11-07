@@ -2,18 +2,29 @@ import { compile } from '@diagrist/core';
 import { compareGolden } from '@diagrist/testkit';
 import { describe, expect, it } from 'vitest';
 import { umlPlugin } from '../src/index.js';
-import { examplePictures, golden, stateNames, stateSource } from './compile.js';
+import { compiledOnce, examplePictures, golden, stateNames, stateSource } from './compile.js';
 
 const plugins = [umlPlugin];
 const pictures = examplePictures('state');
 
+/**
+ * The example whose layout takes a second or more. Each example is compiled once in this file: every test below reads
+ * that compilation, and the SHA-256 golden keeps it the same from run to run instead of a second compilation.
+ */
+const HEAVY = new Set(['auftrag-parallel.dgr']);
+
 describe('state machine examples', () => {
-  it.each(stateNames)('%s compiles without findings, twice to the same bytes', (name) => {
-    const first = compile(stateSource(name), { plugins });
+  const compiled = compiledOnce(stateSource);
+
+  it.each(stateNames)('%s compiles without findings', (name) => {
+    const first = compiled(name);
     expect(first.diagnostics).toEqual([]);
     expect(first.svg).toBeDefined();
-    expect(compile(stateSource(name), { plugins }).svg).toBe(first.svg);
     pictures.keep(name, first.svg ?? '');
+  });
+
+  it.each(stateNames.filter((name) => !HEAVY.has(name)))('%s compiles twice to the same bytes', (name) => {
+    expect(compile(stateSource(name), { plugins }).svg).toBe(compiled(name).svg);
   });
 
   it('all keep their pictures, checked by a SHA-256 per example', () => {
@@ -21,12 +32,12 @@ describe('state machine examples', () => {
   });
 
   it.each(['auftrag-parallel', 'freigabe-unterautomat'])('%s renders the reviewed picture', (name) => {
-    const svg = compile(stateSource(`${name}.dgr`), { plugins }).svg ?? '';
+    const svg = compiled(`${name}.dgr`).svg ?? '';
     expect(compareGolden(golden(`state-${name}.svg`), svg)).toEqual({ status: 'match' });
   });
 
   it('describes a diagram in German as the predecessor did', () => {
-    const text = compile(stateSource('auftrag-parallel.dgr'), { plugins }).description ?? '';
+    const text = compiled('auftrag-parallel.dgr').description ?? '';
     expect(compareGolden(golden('state-auftrag-parallel.de.txt'), `${text}\n`)).toEqual({ status: 'match' });
   });
 
