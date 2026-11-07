@@ -20,8 +20,8 @@ export const CORNER = 4;
 
 /**
  * Where the ends of one side of `r` stand, in their order: each as near its `toward` as the side between `inset`
- * from its corners and a gap of `gap` between ends allow (`isotoneApart`), the whole row then shifted back between
- * the insets. An end the shift pushes past an inset stays off its corner by the radius of the box's corners
+ * from its corners and a gap of `gap` between ends allow (`isotoneApart`), the row then shifted back between the
+ * insets (`shifted`). An end the shift pushes past an inset stays off its corner by the radius of the box's corners
  * (`corner`), at least `CORNER` and at most `inset`: on a rounded corner it would stand on the rounding, while on a
  * square one an end 8 px from the corner reads as clearly as one 16 px away. A box of unknown corners keeps `inset`.
  */
@@ -40,12 +40,30 @@ export function rowOf(
     sorted.map((e) => e.hold),
     sorted.slice(1).map(() => step),
   );
-  const shift = Math.min(0, hi - (placed.at(-1) ?? hi)) + Math.max(0, lo - (placed[0] ?? lo));
+  const moved = shifted(sorted, placed, lo, hi, step);
   const edge = Math.min(inset, Math.max(CORNER, corner));
   const [first, last] = [r.x + edge, r.x + r.w - edge];
   const n = sorted.length;
-  const at = placed.map((p, i) =>
-    Math.round(Math.min(last - (n - 1 - i) * step, Math.max(first + i * step, p + shift))),
-  );
+  const at = moved.map((p, i) => Math.round(Math.min(last - (n - 1 - i) * step, Math.max(first + i * step, p))));
   return { at, step };
+}
+
+/**
+ * The row of `placed` shifted back between `lo` and `hi` where spreading pushed it past one of them: the shift moves
+ * the ends that wanted a place beyond the box, and an end that wanted a place on it only as far as the gap `step` to
+ * a moved neighbour asks. So an end that stands where its line wants stays there when its neighbours, which come from
+ * beyond the box, are spread around the inset.
+ */
+function shifted(sorted: readonly End[], placed: readonly number[], lo: number, hi: number, step: number): number[] {
+  const shift = Math.min(0, hi - (placed.at(-1) ?? hi)) + Math.max(0, lo - (placed[0] ?? lo));
+  const moved = placed.map((p, i) => {
+    const e = sorted[i] as End;
+    return e.toward < lo || e.toward > hi ? p + shift : p;
+  });
+  if (shift < 0)
+    for (let i = moved.length - 2; i >= 0; i--)
+      moved[i] = Math.min(moved[i] as number, (moved[i + 1] as number) - step);
+  if (shift > 0)
+    for (let i = 1; i < moved.length; i++) moved[i] = Math.max(moved[i] as number, (moved[i - 1] as number) + step);
+  return moved;
 }

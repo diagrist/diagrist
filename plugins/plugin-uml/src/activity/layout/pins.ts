@@ -3,6 +3,7 @@ import { type Side, simplify } from '@diagrist/layout-grid';
 import { type Graph, isHandlerFlow } from './graph.js';
 import { ACT, SIZE, widthOf } from './metrics.js';
 import { docks, far, moveEnd, moveStart, type Pin } from './pin-docks.js';
+import { followPin } from './pin-straight.js';
 import type { PlacedNode, Placement, Routed } from './placement.js';
 import type { ActivityText } from './regions.js';
 import type { PinArt } from './size.js';
@@ -65,8 +66,8 @@ function pinsOf(id: string, p: PlacedNode, routes: readonly Routed[], g: Graph):
 /**
  * Pins after routing (UML 2.5.1, 16.2.4): an output pin sits where its object flow leaves the action, an input pin
  * where it arrives; without an object flow at the bottom and the top. Several pins of one side stand side by side,
- * their edges attach to them. Object flows then start and end at the pin instead of the box (pin to pin); the bolt of
- * a handler ends at its exception pin.
+ * their edges attach to them. Object flows then start and end at the pin instead of the box (pin to pin), a straight
+ * one staying straight where its other end can follow (`followPin`); the bolt of a handler ends at its exception pin.
  */
 export function placePins(
   pl: Placement,
@@ -94,6 +95,7 @@ export function placePins(
         for (const r of pin.routes) {
           const pts = points.get(r);
           if (!pts) continue;
+          followPin(pin, at, r, pts, pl, routes);
           if (pin.out) {
             moveStart(pts, side, at);
             pts[0] = shift(pts[0] ?? at, side, ACT.pin);
