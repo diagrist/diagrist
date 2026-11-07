@@ -418,32 +418,45 @@ the pass, 706 to 620 px high; no other picture changes. `zwei-systeme` compiles 
 
 ## Amendment: compact use case subjects and actors beside them (06.11.2026)
 
-Three causes kept the pictures with several subjects from reading well. A use case that hangs on actors at the
-right moved to the last of the columns its subject shared with others, so a subject beside a deeper one grew as wide
-as that one and stood empty in a corner (`Kreditsystem` in `vier-subjekte`). It now moves to the last column of its
-own subject, and a subject narrower than its columns stands as a whole in those next to the lane most of its lines
-lead to (`slide`, `towardActors` in `auto/parts.ts`).
+A use case that hangs on actors at the right moved to the last of the columns its subject shared with others, so a
+subject beside a deeper one grew as wide as that one and stood empty in a corner (`Kreditsystem` in `vier-subjekte`).
+It now moves to the last column of its own subject, and a subject narrower than its columns stands as a whole in those
+next to the lane most of its lines lead to (`slide`, `towardActors` in `auto/parts.ts`). A family of actors whose use
+cases all lie in subjects narrower than their columns stands in the column next to them, not in the lane beyond the
+empty ones (`auto/across.ts`): `Auskunftei` beside `Kreditsystem`.
 
 The step that moves boxes off straight lines (`graph/straight-clear.ts`) let a line graze a foreign frame by 8 px,
-while the price counts a line within 6 px of one as passing it (amendment above). A pass no move cleared made
-`stadtwerke` choose `Servicemitarbeiter` at the outer right, its lines across `CRM` and into the top of
-`Abrechnung`. The step now uses the distance of the price, and a box with no room along its layer takes along what
-stands in its way, as `shove` does in the layered stages; `Servicemitarbeiter` stands in the lane between the
-subjects it uses.
+while the price counts a line within 6 px as passing it; it now uses the price's distance. A first version also let a
+moved box take along what stood in its way; that made `stadtwerke` clean in an arrangement with half empty frames,
+the search stopped there, and it was dropped.
 
 A note on a subject at the edge of the picture found its spot beside the picture, which the spot search counted as
-lying on a box, although the sheet grows around every note (`free.ts`). `zwei-systeme` was never clean for it, in
-every arrangement. The search now keeps only the left margin and the top of the picture, and a note on a line or a
-frame line costs as much as a text on a line instead of nothing, which kept `notizen` from taking a note across the
-frame of its subject once the first layout counted as clean. Side by side, every set of columns is laid out once, and
-once one is clean another wins where it is cheaper by 20, the price of a bend, not of a jog: `zwei-systeme` takes
-`ERP` left of `Webshop`, with the clerk, the customer and the shipping provider together between both.
+lying on a box, although the sheet grows around every note (`free.ts`); `zwei-systeme` was never clean for it. The
+search now keeps only the left margin and the top of the picture. A note whose free spot lies further off than 64 px
+counts as crowded too, so the layout that keeps room beside its anchor is tried, and each pixel of a note's link
+beyond its gap costs ten pixels of line; a note on a line or frame line costs as a text on a line. `notizen` keeps
+main's picture.
 
-`zwei-systeme` 2,535 to 2,079 px of line, 1,630 × 661 to 1,736 × 608 px; `stadtwerke` 2,218 to 2,206 px, 620 to
-706 px high; `vier-subjekte` 2,560 to 3,114 px, the two lines to `Auskunftei` and `Risikomanagement` now cross the
-empty column beside the narrower `Kreditsystem`; `notizen` 1,288 to 1,233 px; `zwei-subjekte` 2,619 to 2,658 px.
-No count of the stress budgets rises. Medians of nine runs of `dgr check`, interleaved with the build before:
-`zwei-systeme` 0.36 instead of 0.81 s, `stadtwerke` 0.45 instead of 0.69 s, `vier-subjekte` 0.70 as before.
+The price adds the height of the picture as `scoreOf` adds its width (`price.ts`). Side by side, every set of columns
+is laid out once and tries its families on the other side while it is not clean; once one is clean, a set is flipped
+only where its first layout would cost less than the best even without its crossings and lines through boxes
+(`base`), and another set wins where it is cheaper by 20, a bend, not 150, a jog.
+
+Measured against main (empty area inside frames in thousands of px², line, longest actor line, size):
+
+| Picture | Main | Now |
+|---|---|---|
+| `stadtwerke` | 249, 2,218, 485, 1,312 × 620 | 213, 2,056, 471, 1,312 × 620 |
+| `zwei-systeme` | 371, 2,535, 397, 1,630 × 661 | 363, 2,079, 222, 1,736 × 608 |
+| `vier-subjekte` | 244, 2,560, 254, 1,320 × 667 | 176, 2,875, 434, 1,320 × 667 |
+| `lange-namen` | 250, 1,690, 272, 1,088 × 596 | 213, 1,510, 244, 1,304 × 544 |
+
+No count of the stress budgets rises; the other sixteen pictures keep their bytes. `vier-subjekte` keeps one long
+line, `Risikomanagement → Bonität bewerten` across the empty column above `Zahlungsverkehr`, since the actor also
+reaches `Geldwäsche prüfen` in the last column. `zwei-systeme` puts `ERP` left with the three shared actors between
+both subjects; its upper left stays empty, as main left its middle right empty. Medians of eleven runs of
+`dgr check`, interleaved with main: `zwei-systeme` 0.36 instead of 0.83 s, `stadtwerke` 0.58 instead of 0.66 s,
+`vier-subjekte` 0.60 as before.
 
 ## Amendment: proposals for class diagrams (06.11.2026)
 
