@@ -9,6 +9,7 @@ import { routeEdges } from '../route/index.js';
 import type { GridSpec } from '../spec.js';
 import type { CellGraph, CellLayout } from './cells.js';
 import { pricedStays } from './grid-judge.js';
+import { marginRound } from './grid-margins.js';
 import { outsideRound } from './grid-outside.js';
 import { type CellSigns, signCells } from './grid-signs.js';
 import { gridSpecOf } from './grid-spec.js';
@@ -45,7 +46,8 @@ function spaced(spec: GridSpec, asked: ReadonlyMap<string, number>): GridSpec {
  * as `gutterRoom` asks, sets two lines whose texts stand squeezed between them as far apart as `apartOf` asks, and
  * places again (ADR 0038, D2), at most `ROUNDS` times: for tracks alone, or as long as fewer texts end up without a
  * clear spot than before, or as many and fewer squeezed; the author's grid stays, only its gaps grow. A Z kept inside a
- * frame may then leave it where the frame can grow around it (`outsideRound`). A fixed grid through channels is laid
+ * frame may then leave it where the frame can grow around it (`outsideRound`), and frames grow around routes on the
+ * lanes beyond the grid (`marginRound`). A fixed grid through channels is laid
  * out twice, with its routes priced by the measure and without, and the priced one stays where its picture with its
  * texts is better (`pricedStays`).
  */
@@ -78,7 +80,8 @@ function laidCells(graph: CellGraph, given: GridSpec, priced: boolean): CellLayo
     if (before.some((n) => n > 0) && !fewer(after, before)) break;
     done = next;
   }
-  done = outsideRound(done, run, (spec, grid, routes) => signCells(cells, spec, grid, routes));
+  const sign = (spec: GridSpec, grid: GridLayout, routes: readonly Route[]) => signCells(cells, spec, grid, routes);
+  done = marginRound(outsideRound(done, run, sign), run, sign);
   const { spec, routes, signs } = done;
   const numbers = cells.signs?.numbers ?? { w: 0, h: 0 };
   const pins = cells.signs?.pins ?? { w: 0, h: 0 };

@@ -17,6 +17,32 @@ export function leaves(board: Board, p: Plan, lane: Lane): boolean {
   );
 }
 
+const meets = (a: Rect, b: Rect): boolean => a.x < right(b) && b.x < right(a) && a.y < bottom(b) && b.y < bottom(a);
+const within = (a: Rect, b: Rect): boolean =>
+  a.x >= b.x && right(a) <= right(b) && a.y >= b.y && bottom(a) <= bottom(b);
+
+/**
+ * Whether every frame holding both boxes of a Z can grow around its lane beyond the grid (owner decision D1 of
+ * 07.11.2026): the frame stretched to the lane and its pad meets no box and no frame that is neither inside it nor
+ * around it. A frame holding one end only stays as it is, and the line runs outside it.
+ */
+export function grows(board: Board, p: Plan, lane: Lane): boolean {
+  const [a, b] = [p.a.rect, p.b.rect];
+  const pad = board.tree.spec.metrics.framePad;
+  const groups = board.layout.groups.map((g) => g.rect);
+  return groups.every((r) => {
+    if (!holds(r, cx(a), cy(a)) || !holds(r, cx(b), cy(b))) return true;
+    const x = Math.min(r.x, lane.at - pad.x);
+    const y = Math.min(r.y, lane.at - pad.top);
+    const grown: Rect =
+      lane.axis === 'col'
+        ? { ...r, x, w: Math.max(right(r), lane.at + pad.x) - x }
+        : { ...r, y, h: Math.max(bottom(r), lane.at + pad.bottom) - y };
+    const foreign = (o: Rect) => !within(o, r) && !within(r, o) && meets(o, grown);
+    return !board.nodes.some((n) => foreign(n.rect)) && !groups.some((o) => o !== r && foreign(o));
+  });
+}
+
 /**
  * An edge a grid lets leave the frame that holds both its ends, since the frame grows around it there
  * (`graph/grid-outside.ts`); only that round sets it.

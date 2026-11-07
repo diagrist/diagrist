@@ -32,12 +32,17 @@ export interface PlacedGroup {
 
 /**
  * Where everything stands. Frames come parents first, the order to draw them in. `gutters` are the middles of the
- * gaps between neighbouring columns and rows; `width` and `bottom` bound the grid with its margins.
+ * gaps between neighbouring columns and rows, and its `margins` the lanes beyond the first and the last column and
+ * row, outside every frame; `width` and `bottom` bound the grid with its margins.
  */
 export interface GridLayout {
   readonly cols: readonly Column[];
   readonly rows: readonly Row[];
-  readonly gutters: { readonly cols: readonly number[]; readonly rows: readonly number[] };
+  readonly gutters: {
+    readonly cols: readonly number[];
+    readonly rows: readonly number[];
+    readonly margins?: { readonly cols: readonly [number, number]; readonly rows: readonly [number, number] };
+  };
   readonly nodes: readonly PlacedNode[];
   readonly groups: readonly PlacedGroup[];
   readonly width: number;

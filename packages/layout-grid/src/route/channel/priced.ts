@@ -6,15 +6,24 @@ import { type Routed, toRoute } from '../routed.js';
 import { freeWays, type Lane } from '../shape.js';
 import { threeBends } from './detour.js';
 import { freeOf, intersect } from './free.js';
-import { leaves } from './inside.js';
+import { grows, leaves } from './inside.js';
 
 /** How often every edge tries its other ways; a way one edge leaves can open a way for another. */
 const ROUNDS = 2;
 
-/** The gaps of an axis, as lanes a Z may take. */
+/** The gaps of an axis, as lanes a Z may take, and the lanes beyond its first and last track. */
 function lanesOf(board: Board, axis: Lane['axis']): Lane[] {
   const g = board.layout.gutters;
-  return (axis === 'col' ? g.cols : g.rows).map((at, index) => ({ axis, index, at, dir: 1 }));
+  const mids = axis === 'col' ? g.cols : g.rows;
+  const gaps = mids.map((at, index): Lane => ({ axis, index, at, dir: 1 }));
+  const margins = g.margins?.[axis === 'col' ? 'cols' : 'rows'];
+  if (!margins) return gaps;
+  const [lo, hi] = margins;
+  return [
+    { axis, index: -1, at: lo, dir: -1, outer: true },
+    ...gaps,
+    { axis, index: mids.length, at: hi, dir: 1, outer: true },
+  ];
 }
 
 const keyOf = (q: Plan): string =>
@@ -23,12 +32,14 @@ const keyOf = (q: Plan): string =>
 /**
  * Every way `p` may take besides its own that runs through nothing: straight where both sides share a free stretch,
  * both Ls, a Z over every gap of either axis, and each way that bends three times, all of them inside the frames
- * holding both its boxes.
+ * holding both its boxes, and a Z over a lane beyond the grid where those frames can grow around it (`grows`).
  */
 function waysOf(board: Board, p: Plan): Plan[] {
   if (p.shape === 'loop' || p.edge.route) return [];
   const obstacles = obstaclesFor(board, p.edge, true);
-  const lanes = [...lanesOf(board, 'col'), ...lanesOf(board, 'row')].filter((lane) => !leaves(board, p, lane));
+  const lanes = [...lanesOf(board, 'col'), ...lanesOf(board, 'row')].filter((lane) =>
+    lane.outer ? grows(board, p, lane) : !leaves(board, p, lane),
+  );
   const { via: _, ...rest } = p;
   const plain = freeWays(p.a, p.b, obstacles, lanes).map(
     (s): Plan => ({

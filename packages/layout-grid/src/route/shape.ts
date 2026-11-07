@@ -8,12 +8,16 @@ export interface Gutters {
   readonly rows: readonly number[];
 }
 
-/** The gap a Z edge crosses: axis, number, middle and the direction further lanes move to. */
+/**
+ * The gap a Z edge crosses: axis, number, middle and the direction further lanes move to. A lane beyond the first or
+ * the last track (`outer`) is no gap: its tracks start at `at` and stack outwards, in `dir`.
+ */
 export interface Lane {
   readonly axis: 'col' | 'row';
   readonly index: number;
   readonly at: number;
   readonly dir: 1 | -1;
+  readonly outer?: true;
 }
 
 export type Sides =

@@ -1,4 +1,4 @@
-import { type LineInput, type LineMetrics, lineFindings } from '@diagrist/core';
+import { type LineInput, type LineMetrics, type LineThresholds, lineFindings, lineMetrics } from '@diagrist/core';
 import { DETOUR, scoreOf } from '../score.js';
 import { type Arrangement, arrange } from './arrange.js';
 import { finish, type LayeredLayout } from './finish.js';
@@ -9,18 +9,31 @@ import type { LayeredSpec } from './spec.js';
 /** The findings of the line check that no saving of length may buy. */
 const KEPT = ['through', 'ports', 'label', 'parallel', 'jog', 'lead', 'tail'] as const;
 
-/** A picture measured once for the rule of the detour: its line measures, its kept findings by rule and its score. */
+/**
+ * A picture measured once for the rule of the detour: its line measures, its kept findings by rule and its score,
+ * reckoned when first asked.
+ */
 export interface Trade {
   readonly metrics: LineMetrics;
   readonly kept: readonly number[];
-  readonly cost: number;
+  readonly cost: () => number;
 }
 
-/** The measures of a picture that `trades` compares; without `centring` its score leaves the centring of boxes out. */
-export function tradeOf(input: LineInput, centring = true): Trade {
-  const { cost, metrics } = scoreOf(input, {}, centring);
-  const found = lineFindings(input, { crossingsUpTo: 0 });
-  return { metrics, kept: KEPT.map((r) => found.filter((f) => f.rule === r).length), cost };
+/**
+ * The measures of a picture that `trades` compares, under `thresholds` of the line check; without `centring` its
+ * score leaves the centring of boxes out.
+ */
+export function tradeOf(input: LineInput, centring = true, thresholds: Partial<LineThresholds> = {}): Trade {
+  const found = lineFindings(input, { ...thresholds, crossingsUpTo: 0 });
+  let cost: number | undefined;
+  return {
+    metrics: lineMetrics(input),
+    kept: KEPT.map((r) => found.filter((f) => f.rule === r).length),
+    cost: () => {
+      cost ??= scoreOf(input, thresholds, centring).cost;
+      return cost;
+    },
+  };
 }
 
 /**
@@ -32,7 +45,7 @@ export function tradeOf(input: LineInput, centring = true): Trade {
 export function trades(a: Trade, b: Trade, even: 'length' | 'score' = 'length'): boolean {
   const [x, y] = [a.metrics, b.metrics];
   if (y.overlaps > x.overlaps || b.kept.some((n, i) => n > (a.kept[i] ?? 0))) return false;
-  if (even === 'score' && y.crossings === x.crossings) return b.cost < a.cost - 1e-6;
+  if (even === 'score' && y.crossings === x.crossings) return b.cost() < a.cost() - 1e-6;
   return DETOUR * (y.crossings - x.crossings) + (y.length - x.length) < 0;
 }
 

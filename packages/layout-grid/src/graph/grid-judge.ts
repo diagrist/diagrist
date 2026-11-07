@@ -1,4 +1,4 @@
-import { checkPlacement } from '@diagrist/core';
+import { checkPlacement, DEFAULT_THRESHOLDS } from '@diagrist/core';
 import { type Trade, tradeOf, trades } from '../layered/detour.js';
 import { linesOfLaid } from '../score.js';
 import type { GridSpec } from '../spec.js';
@@ -10,7 +10,10 @@ interface Judged {
   readonly trade: Trade;
 }
 
-/** The findings of the placement check and the measures of the lines of a laid out grid; its boxes stay. */
+/**
+ * The findings of the placement check and the measures of the lines of a laid out grid; its boxes stay, and a text
+ * may stand as far from its line as the grid sets it (`labelGap`).
+ */
 function judged(spec: GridSpec, laid: CellLayout): Judged {
   const grid = laid.grid;
   const ends = new Map(spec.edges.map((e) => [e.id, [e.from, e.to] as const]));
@@ -24,7 +27,8 @@ function judged(spec: GridSpec, laid: CellLayout): Judged {
     height: grid.bottom,
   });
   const placement = checkPlacement(laid.placed, { width: grid.width, height: grid.bottom }).length;
-  return { placement, trade: tradeOf(input, false) };
+  const labelNear = Math.max(DEFAULT_THRESHOLDS.labelNear, spec.metrics.labelGap);
+  return { placement, trade: tradeOf(input, false, { labelNear }) };
 }
 
 /**

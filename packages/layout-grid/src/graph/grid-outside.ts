@@ -9,7 +9,7 @@ import type { GridSpec } from '../spec.js';
 import type { CellSigns } from './grid-signs.js';
 
 /** A fixed grid placed, routed and signed, as `layoutCells` runs it. */
-interface Laid {
+export interface Laid {
   readonly spec: GridSpec;
   readonly grid: GridLayout;
   readonly routes: readonly Route[];
@@ -28,7 +28,7 @@ const marked = (spec: GridSpec, edges: ReadonlySet<string>): GridSpec => ({
 });
 
 /** The frames of `r` grown around the routes of `edges` between their own nodes and the texts on them. */
-function grown(r: Laid, edges: ReadonlySet<string>): GridLayout {
+export function grown(r: Laid, edges: ReadonlySet<string>): GridLayout {
   const keep = r.routes.flatMap((route, i) => (edges.has(route.edge) ? [i] : []));
   const labels = r.signs.labels.flatMap((l) => {
     const k = keep.indexOf(l.route);
