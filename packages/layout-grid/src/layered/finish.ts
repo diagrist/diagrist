@@ -58,12 +58,14 @@ export function finish(spec: LayeredSpec, arrangement: Arrangement): LayeredLayo
   const spines = spec.hub ? [] : spinesOf(spec.edges, ranked);
   const ln = lanesOf(spec, ranked);
   const framed = framedEnd(spec);
+  const tips = new Set(spec.nodes.flatMap((n) => (n.shape === 'diamond' ? [n.id] : [])));
+  const tip = (box: string) => tips.has(box);
   const settle = (placed: Xs): Placement => {
     ln.clear(placed, width, m.left);
     fr.clear(placed, layers, width, m.colGap);
     const flat = new Map([...placed].map(([id, cx]) => [id, { x: cx - width(id) / 2, y: 0, w: width(id), h: 0 }]));
     const kept = [below.ends, below.tops] as const;
-    const at = portsOf(groups, ranked, flat, placed, m.portGap, undefined, undefined, undefined, ...kept, framed);
+    const at = portsOf(groups, ranked, flat, placed, m.portGap, undefined, undefined, undefined, ...kept, framed, tip);
     const ports = acrossFrames(spec, groups, flat, at, m.portGap, ranked);
     const docking = { spec, ranked, layers, groups, rects: flat, x: placed, run: m.portGap };
     return { x: placed, flat, ports: { ...ports, corners: dockEnds(docking, ports) } };

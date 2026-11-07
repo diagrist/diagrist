@@ -52,7 +52,7 @@ const CORNER = 4;
  * off the corners. `aside` are ends on the bottom of `upper` of lines that run below their layer to `lower` beside it;
  * they take their place in the order like the others, so the outermost goes to the line whose other end lies furthest
  * out; `atop` are the like ends on the top of `lower` of lines that run above their layer. An end `loose` names stands
- * in an order of its own, near its other end.
+ * in an order of its own, near its other end. A trunk on a diamond (`tip`) takes the middle if no member is in reach.
  */
 export function portsOf(
   groups: readonly Group[],
@@ -66,6 +66,7 @@ export function portsOf(
   aside: readonly Link[] = [],
   atop: readonly Link[] = [],
   loose: (l: Link, box: string) => boolean = () => false,
+  tip: (box: string) => boolean = () => false,
 ): Ports {
   const top = new Map<Link, number>();
   const bottom = new Map<Link, number>();
@@ -81,7 +82,7 @@ export function portsOf(
     const r = rects.get(box);
     const c = r ? r.x + r.w / 2 : 0;
     const xs = ids.map((n) => x.get(n) ?? 0).filter((v) => !r || (v >= r.x + inset(r) && v <= r.x + r.w - inset(r)));
-    if (xs.length === 0) return ids.reduce((s, n) => s + (x.get(n) ?? 0), 0) / Math.max(1, ids.length);
+    if (xs.length === 0) return tip(box) ? c : ids.reduce((s, n) => s + (x.get(n) ?? 0), 0) / Math.max(1, ids.length);
     return [...xs].sort((a, b) => Math.abs(a - c) - Math.abs(b - c) || a - b)[0] as number;
   };
   for (const g of groups) {

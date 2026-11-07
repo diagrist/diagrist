@@ -10,9 +10,10 @@ export interface GraphNode {
   readonly height: number;
   /**
    * `bar` is a node drawn across its branches, splitting or merging them: it stretches over their ends, which leave
-   * it straight above or below their other end (`graph/bars.ts`, `layered/bar-docks.ts`).
+   * it straight above or below their other end (`graph/bars.ts`, `layered/bar-docks.ts`). `diamond` leaves the trunk
+   * of a fan or join at its vertex when no member stands within its reach (`layered/ports.ts`).
    */
-  readonly shape?: 'box' | 'ellipse' | 'bar';
+  readonly shape?: 'box' | 'ellipse' | 'bar' | 'diamond';
   /**
    * The frame or node whose outline the node sits on, such as a point of a box that holds others: a line through it
    * runs straight across the outline, the node centred where it crosses (`graph/docks.ts`).

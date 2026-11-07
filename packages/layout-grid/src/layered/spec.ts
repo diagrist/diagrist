@@ -8,8 +8,8 @@ export interface LayeredNode {
   readonly height: number;
   /** Nodes of one cluster, such as one area, stand together in their layer where that costs no crossing. */
   readonly cluster?: string;
-  /** `bar`: a bar that grows over the ends of its lines, each straight above or below its other end. */
-  readonly shape?: 'box' | 'ellipse' | 'bar';
+  /** `bar`: grows over the ends of its lines, each straight below its other end; `diamond`: trunks leave its tip. */
+  readonly shape?: 'box' | 'ellipse' | 'bar' | 'diamond';
   /** The sides ends may take, each at the middle of its side, as at the corners of a diamond. */
   readonly sides?: readonly ('top' | 'bottom' | 'left' | 'right')[];
   /** How far texts the kind sets beside the node reach out of it; no other box comes nearer. */
