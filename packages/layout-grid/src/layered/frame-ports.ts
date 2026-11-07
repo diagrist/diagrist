@@ -78,3 +78,19 @@ export function acrossFrames(
   }
   return { ...ports, top, bottom };
 }
+
+/**
+ * Whether the end of `l` at `box` stands for a frame (`LayeredEdge.framed`): its line runs to `box` only to take a
+ * place in the order, and `acrossFrames` moves its port across the frame, so it takes no place among the ends of the
+ * side of `box` (`portsOf`, `loose`), where it would push the box's own lines off their middle.
+ */
+export function framedEnd(spec: LayeredSpec): (l: Link, box: string) => boolean {
+  const edges = new Map(spec.edges.flatMap((e) => (e.framed === undefined ? [] : [[e.id, e] as const])));
+  return (l, box) => {
+    const e = edges.get(l.edge);
+    return (
+      e !== undefined &&
+      ((e.from === box && e.framed?.from !== undefined) || (e.to === box && e.framed?.to !== undefined))
+    );
+  };
+}

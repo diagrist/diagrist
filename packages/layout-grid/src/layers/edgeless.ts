@@ -10,14 +10,17 @@ export interface Seating {
   /** The layer of every child of the level, as the level was laid out. */
   readonly rowOf: ReadonlyMap<string, number>;
   readonly frames: ReadonlySet<string>;
+  /** The nodes of the level that stand beside the last layer of a frame (`roundTrips`), by node: they count as below it. */
+  readonly beside?: ReadonlyMap<string, string>;
 }
 
 /**
  * The block of `frame` with every node that has edges but none inside the frame moved to the first layer of the
  * block where most of its partners stand above the frame, to the last where most stand below, else left where it
  * is. Inside its block such a node is a part of its own, which the layering puts at the top beside the first nodes,
- * so lines to it from below climbed through the whole frame (a node entered only from boxes below its frame). Only
- * nodes directly in the frame move; a layer left empty goes.
+ * so lines to it from below climbed through the whole frame (a node entered only from boxes below its frame). A
+ * partner beside the frame's last layer (`Seating.beside`) counts as below. Only nodes directly in the frame move; a
+ * layer left empty goes.
  */
 export function seatEdgeless(layers: readonly (readonly string[])[], frame: string, s: Seating): string[][] {
   const out = layers.map((layer) => [...layer]);
@@ -27,7 +30,10 @@ export function seatEdgeless(layers: readonly (readonly string[])[], frame: stri
     if (s.frames.has(v) || s.chain(v)[1] !== frame) continue;
     const others = s.edges.flatMap((e) => (e.from === v ? [e.to] : e.to === v ? [e.from] : []));
     if (others.length === 0 || others.some((o) => s.chain(o).includes(frame))) continue;
-    const rows = others.flatMap((o) => s.rowOf.get(s.lift(o) ?? '') ?? []);
+    const rows = others.flatMap((o) => {
+      const k = s.lift(o) ?? '';
+      return s.beside?.get(k) === frame ? [at + 1] : (s.rowOf.get(k) ?? []);
+    });
     const above = rows.filter((r) => r < at).length;
     const below = rows.filter((r) => r > at).length;
     if (above === below) continue;

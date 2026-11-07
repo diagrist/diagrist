@@ -49,10 +49,10 @@ const CORNER = 4;
  * is shorter than `jog`: no small jogs. Last, a piece still bent runs straight wherever both its ends can slide to one
  * vertical between their neighbours on their sides: a port need not stand in the middle, unless it follows a
  * placeholder further than its slip, where it takes the middle and its line jogs (`centreEnds`). `inset` keeps ends
- * off the corners. `aside` are ends on the bottom of `upper`
- * of lines that run below their layer to `lower` beside it; they take their place in the order like the others, so
- * the outermost goes to the line whose other end lies furthest out; `atop` are the like ends on the top of `lower`
- * of lines that run above their layer.
+ * off the corners. `aside` are ends on the bottom of `upper` of lines that run below their layer to `lower` beside it;
+ * they take their place in the order like the others, so the outermost goes to the line whose other end lies furthest
+ * out; `atop` are the like ends on the top of `lower` of lines that run above their layer. An end `loose` names stands
+ * in an order of its own, near its other end.
  */
 export function portsOf(
   groups: readonly Group[],
@@ -65,13 +65,14 @@ export function portsOf(
   jog = 24,
   aside: readonly Link[] = [],
   atop: readonly Link[] = [],
+  loose: (l: Link, box: string) => boolean = () => false,
 ): Ports {
   const top = new Map<Link, number>();
   const bottom = new Map<Link, number>();
   const ends = new Map<string, End[]>();
   const add = (box: string, side: 'top' | 'bottom', links: readonly Link[], toward: number, hold = 1) => {
     if (ranked.dummies.has(box)) return;
-    const k = `${box}|${side}`;
+    const k = links.every((l) => loose(l, box)) ? `${box}|${side}|${links[0]?.edge}` : `${box}|${side}`;
     const far = links.map((l) => x.get(side === 'bottom' ? l.lower : l.upper) ?? 0);
     const beyond = far.reduce((a, b) => a + b, 0) / Math.max(1, far.length);
     ends.set(k, [...(ends.get(k) ?? []), { links, toward, beyond, hold }]);

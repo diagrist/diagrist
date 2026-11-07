@@ -591,3 +591,31 @@ line starts from; `ticket-lebenszyklus` 768 to 628 px, its rail at `lead` from t
 the track, 16 px wider; `verschachtelt` 30 px of line less; `bestellung-unterautomaten` takes `Abbruch` below the
 states instead of above, 6 px lower. No finding and no count of a stress budget rises. Choosing the side of each rail
 by the price of the whole picture (`scoreOf`), as `railChoices` does for rails that stand inside, stays open.
+
+## Amendment: round trips beside their frame (07.11.2026)
+
+A state entered from a composite state that returns into it stood below the frame, because both lines lift to the
+frame and rank down, so in `gedaechtnis` `Wasser fehlt` dropped out of the frame's bottom and `Fehler behoben` climbed
+back to H*, and the frame grew to the verticals of both. The layering now knows round trips: a node of a level with a
+ranked edge from a frame of the level and one back into it (`hostOf` in `layers/round-trips.ts`, read before a lifted
+edge against a stated one gives way) may join the frame's layer and stand beside its last layer, where H* is seated
+too (`seatEdgeless` counts it as below). It moves only from the layer right below the frame and where none of its
+other edges ends in the frame's layer. Whether it moves is a choice of the search in `layoutLeaves`, beside the moves
+of leaf frames (`LayerGraph.trips`), priced by `scoreOf`, so a picture keeps its layers unless the move is cheaper.
+
+Three things kept the move from paying, each a general fault the move exposed. Two lines between neighbours of one
+layer stood around the middle of the band both boxes share, 9 px apart beside a history state of 26 px; an end that
+stands for a frame is cut at its outline and holds its line to no band, so such lines now spread over the band of the
+box that holds them all (`twinHeights` in `layered/beside.ts`), 16 px apart. The end of a line for a frame at the box
+it is laid out to took a place in the order of that box's side, so the line out of H* into `Pausiert` lost its middle
+and slanted by a pixel; such an end now stands in an order of its own (`portsOf`, `loose`; `framedEnd`), as
+`acrossFrames` moves it across the frame anyway. And `scoreOf` counted `abbrechen`, a rail from the side of `Störung`
+round the frame into the side of `Bereit`, as `Störung` 389 px off its one parent; a line that leaves one box by a side
+and enters another, above or below it, by a side no longer counts for centring (`around` in `score.ts`).
+
+`gedaechtnis`: 2,317 to 1,772 px of line, 6 to 2 bends, 765 to 726 px wide, `Programm läuft` 477 to 358 px wide,
+`Störung` beside H* with both lines across, `Pausiert` below with both lines straight. Side effects: `pakete` 14 px
+narrower, `parallel-drei` 6 px narrower, `quer-rechts` 32 px of line less, `storno-ueberall` `Restzahlung` straight
+(`avoidable` 1 to 0, 120 px of line more), `auftragsabwicklung` the exit of `bestätigt` 22 px further right. Side exits
+of composite states (owner decision D4), measured after this step, are never chosen and were left out
+(`docs/burn-down.md`).

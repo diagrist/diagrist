@@ -1,6 +1,7 @@
 import { seatEdgeless } from './edgeless.js';
 import type { LayerEdge, Layered, LayerFrame, LayerGraph } from './graph.js';
 import { leavesOf } from './pack.js';
+import { hostOf, roundTrips } from './round-trips.js';
 
 /** A frame or the whole graph laid out: its nodes by layer, counted from its top, and its widest layer in places. */
 interface Block {
@@ -15,6 +16,8 @@ interface Nesting {
   readonly flat: (graph: LayerGraph) => Layered;
   /** Collects the frames that are leaves of `free` edges in their level. */
   readonly leaves: string[];
+  /** Collects the nodes that round-trip a frame of their level (`hostOf`). */
+  readonly trips: string[];
 }
 
 /** The frames around a node or frame, innermost first, starting with itself; unknown frames and cycles end it. */
@@ -37,7 +40,8 @@ function chainsOf(frames: readonly LayerFrame[]): (id: string) => readonly strin
  * frames linked by their nodes stand above each other like nodes; a lifted edge against a ranked edge stated between
  * two children of the level gives way. The blocks of one layer stand at its top, and the layer is as high as its
  * highest block. `last` holds in every frame's block, and a node of a block with edges only out of its frame stands
- * at the side of the block where its partners are (`seatEdgeless`).
+ * at the side of the block where its partners are (`seatEdgeless`). A node that round-trips a frame of the level
+ * stands beside the frame's last layer (`roundTrips`).
  */
 function blockOf(n: Nesting, chain: (id: string) => readonly string[], owner: string | undefined): Block {
   const { graph, frames } = n;
@@ -57,13 +61,16 @@ function blockOf(n: Nesting, chain: (id: string) => readonly string[], owner: st
   const framed = new Set(frames.map((f) => f.id));
   const inner = new Map(kids.flatMap((k) => (framed.has(k) ? [[k, blockOf(n, chain, k)] as const] : [])));
   const stated = graph.edges.filter((e) => e.rank === 1 && kids.includes(e.from) && kids.includes(e.to));
-  const edges = graph.edges.flatMap((e): LayerEdge[] => {
+  const lifted = graph.edges.flatMap((e): (LayerEdge & { readonly own: LayerEdge })[] => {
     const [from, to] = [lift(e.from), lift(e.to)];
     if (from === undefined || to === undefined || from === to || !kids.includes(from) || !kids.includes(to)) return [];
-    if (e.rank === 1 && (from !== e.from || to !== e.to) && stated.some((s) => s.from === to && s.to === from))
-      return [];
-    return [{ ...e, from, to }];
+    return [{ ...e, from, to, own: e }];
   });
+  const edges = lifted.flatMap(({ own: e, ...l }): LayerEdge[] =>
+    e.rank === 1 && (l.from !== e.from || l.to !== e.to) && stated.some((s) => s.from === l.to && s.to === l.from)
+      ? []
+      : [l],
+  );
   const size = (k: string) => (inner.has(k) ? Number.MAX_SAFE_INTEGER : (graph.sizes?.get(k) ?? 0));
   const places = (k: string) => inner.get(k)?.width ?? 1;
   const graphOf: LayerGraph = {
@@ -78,9 +85,11 @@ function blockOf(n: Nesting, chain: (id: string) => readonly string[], owner: st
     ...(graph.moves === undefined ? {} : { moves: graph.moves }),
   };
   for (const leaf of leavesOf(graphOf).keys()) if (inner.has(leaf)) n.leaves.push(leaf);
-  const level = n.flat(graphOf);
+  const blocks = new Set(inner.keys());
+  for (const k of kids) if (hostOf(k, lifted, blocks) !== undefined) n.trips.push(k);
+  const level = roundTrips(n.flat(graphOf).layers, lifted, blocks, graph.trips ?? new Set());
   const rowOf = new Map(level.layers.flatMap((row, r) => row.map((k) => [k, r] as const)));
-  const seating = { edges: graph.edges, chain, lift, rowOf, frames: framed };
+  const seating = { edges: graph.edges, chain, lift, rowOf, frames: framed, beside: level.beside };
   const layers: string[][] = [];
   let width = 0;
   for (const row of level.layers) {
@@ -89,9 +98,15 @@ function blockOf(n: Nesting, chain: (id: string) => readonly string[], owner: st
       width,
       row.reduce((sum, k) => sum + places(k), 0),
     );
+    const seated = new Map(
+      row.flatMap((k) => {
+        const block = inner.get(k);
+        return block === undefined ? [] : [[k, seatEdgeless(block.layers, k, seating)] as const];
+      }),
+    );
     for (const k of row) {
-      const block = inner.get(k);
-      const own = block === undefined ? [[k]] : seatEdgeless(block.layers, k, seating);
+      const depth = seated.get(level.beside.get(k) ?? '')?.length ?? 1;
+      const own = seated.get(k) ?? [...Array.from({ length: depth - 1 }, () => []), [k]];
       own.forEach((ids, l) => {
         layers[top + l] = [...(layers[top + l] ?? []), ...ids];
       });
@@ -108,22 +123,24 @@ function blockOf(n: Nesting, chain: (id: string) => readonly string[], owner: st
  * of the levels, for the caller to order anew.
  */
 export function layerNested(graph: LayerGraph, frames: readonly LayerFrame[], flat: Nesting['flat']): Layered {
-  const { layers } = blockOf({ graph, frames, flat, leaves: [] }, chainsOf(frames), undefined);
+  const { layers } = blockOf({ graph, frames, flat, leaves: [], trips: [] }, chainsOf(frames), undefined);
   const kept = layers.filter((layer) => layer.length > 0);
   const position = new Map(kept.flatMap((layer) => layer.map((id, i) => [id, i] as const)));
   return { layers: kept, position };
 }
 
 /**
- * The frames of a graph that are leaves of `free` edges in the level they stand in: frames whose one edge, lifted, is
- * `free`, so they may stand beside their partner, above it or below it (`LayerGraph.moves`).
+ * The choices of where frames and their partners stand: the frames that are leaves of `free` edges in the level they
+ * stand in, whose one edge, lifted, is `free`, so they may stand beside their partner, above it or below it
+ * (`LayerGraph.moves`), and the nodes that round-trip a frame of their level, which may stand beside its last layer
+ * (`LayerGraph.trips`).
  */
-export function framedLeaves(graph: LayerGraph): string[] {
-  const leaves: string[] = [];
+export function framedChoices(graph: LayerGraph): { leaves: string[]; trips: string[] } {
+  const choices = { leaves: [] as string[], trips: [] as string[] };
   blockOf(
-    { graph, frames: graph.frames ?? [], flat: () => ({ layers: [], position: new Map() }), leaves },
+    { graph, frames: graph.frames ?? [], flat: () => ({ layers: [], position: new Map() }), ...choices },
     chainsOf(graph.frames ?? []),
     undefined,
   );
-  return leaves;
+  return choices;
 }
