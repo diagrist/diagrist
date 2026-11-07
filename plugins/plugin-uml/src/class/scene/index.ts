@@ -1,6 +1,7 @@
 import { type Anchors, domId, markAreas, type Scene, type Shape } from '@diagrist/core';
 import { headerShapes, markShapes, stripShapes, type Words, withAreaLegend } from '@diagrist/parts';
 import { noteShapes } from '../../shared/note-shapes.js';
+import { haloOf } from '../../shared/trunk-halos.js';
 import type { Tether } from '../layout/extras.js';
 import type { ClassLayout, PictureTexts } from '../layout/index.js';
 import type { ClassModel } from '../model.js';
@@ -38,6 +39,7 @@ function nodeShapes(l: ClassLayout, m: ClassModel, cards: boolean): Shape[] {
 export function classScene(l: ClassLayout, m: ClassModel, words: Words & PictureTexts): Scene {
   const cards = m.diagram.look === 'cards';
   const edges = drawn(l);
+  const paths = edges.map((e) => e.route.points);
   const bundled = new Set(edges.filter((e) => l.bundles.has(e.route.edge)).map((e) => e.route.edge));
   const children: Shape[] = [
     ...headerShapes(l.header, words.title, m.diagram.subtitle),
@@ -47,7 +49,7 @@ export function classScene(l: ClassLayout, m: ClassModel, words: Words & Picture
     }),
     ...nodeShapes(l, m, cards),
     ...noteShapes(l.notes, cards),
-    ...edges.map((e, k) => edgeShape(e.relation, e.route, bundled.has(e.route.edge), domId.edge(k))),
+    ...edges.map((e, k) => edgeShape(e.relation, e.route, bundled.has(e.route.edge), domId.edge(k), haloOf(paths, k))),
     ...l.tethers.map(tetherShape),
     ...edges.flatMap((e, k) => {
       const own = l.labels.filter((x) => x.route === e.i);

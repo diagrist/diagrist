@@ -34,12 +34,12 @@ const stub = (from: Point | undefined, tip: Point | undefined, marker: string | 
     : [];
 
 /**
- * A relation in its group `edge-<k>`: a halo in the colour of the canvas that cuts lines crossing below it, the line
+ * A relation in its group `edge-<k>`: its halo (`haloOf`) that cuts lines crossing below it, the line
  * with the symbol at `to` as its marker, a stub with the symbol at `from`, and the x of non-navigable ends. Members of
  * a shared triangle draw their line from the hub, so the dashes on the common trunk lie on top of each other; their
  * triangle then sits on a stub.
  */
-export function edgeShape(r: ClassRelation, route: Route, bundled: boolean, id: string): Shape {
+export function edgeShape(r: ClassRelation, route: Route, bundled: boolean, id: string, halo: readonly Shape[]): Shape {
   const p = route.points;
   const line = bundled ? [...p].reverse() : p;
   const emph = r.emph === true;
@@ -56,7 +56,7 @@ export function edgeShape(r: ClassRelation, route: Route, bundled: boolean, id: 
     kind: 'group',
     id,
     children: [
-      { kind: 'path', d: pathOf(p), role: 'halo' },
+      ...halo,
       { kind: 'path', d: pathOf(line), role },
       ...(bundled ? stub(p.at(-2), p.at(-1), symbols.end, emph) : []),
       ...stub(p[1], p[0], symbols.start, emph),
