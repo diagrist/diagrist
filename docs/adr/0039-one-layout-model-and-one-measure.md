@@ -795,4 +795,5 @@ frame are in none of its layers and stayed, 34 px right of their bars. Where the
 search now runs once more on the narrowed placement, priced as always, so it takes only moves that make the whole
 picture cheaper, and pictures whose frames do not move pay nothing. `auftrag-parallel` has both boxes on the middle of
 their bars, for 34 px more line (the line from `Storniert` to the final state runs that much further), the same size
-and bends; no other picture changes.
+and bends. The stress picture `parallel-drei` gains the same: `Beauftragt` and the initial state move 28 px left onto
+the middle of the fork, with the same length, size and bends. No other picture changes.
