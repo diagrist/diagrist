@@ -17,14 +17,15 @@ interface Piece {
   readonly len: number;
 }
 
-const piecesOf = (points: readonly Point[], flatFirst: boolean): Piece[] =>
-  points
-    .slice(1)
-    .map((b, i) => {
-      const a = points[i] as Point;
-      return { a, b, horizontal: a[1] === b[1], len: Math.abs(b[0] - a[0]) + Math.abs(b[1] - a[1]) };
-    })
-    .sort((p, q) => (flatFirst ? Number(q.horizontal) - Number(p.horizontal) : 0) || q.len - p.len);
+/** The pieces of a line, longest first (horizontal ones first with `flatFirst`), or in its order `fromStart`. */
+function piecesOf(points: readonly Point[], flatFirst: boolean, fromStart: boolean): Piece[] {
+  const pieces = points.slice(1).map((b, i) => {
+    const a = points[i] as Point;
+    return { a, b, horizontal: a[1] === b[1], len: Math.abs(b[0] - a[0]) + Math.abs(b[1] - a[1]) };
+  });
+  if (fromStart) return pieces;
+  return pieces.sort((p, q) => (flatFirst ? Number(q.horizontal) - Number(p.horizontal) : 0) || q.len - p.len);
+}
 
 /** How many times its height a piece runs where a long name beside it wraps first, so it stands among air. */
 const AIR = 3;
@@ -49,9 +50,17 @@ export const rectsOf = (block: readonly EdgeLabel[], o: SearchOptions): Rect[] =
  */
 const endRoom = (m: GridMetrics, o: SearchOptions): number => (m.lead ?? END) + (o.onLine?.pad.x ?? 0);
 
-/** Offsets from the middle of a piece, nearest first, that keep a block `room` long over the piece, past `beyond`. */
-function offsets(len: number, room: number, beyond = -1): number[] {
+/**
+ * Offsets from the middle of a piece that keep a block `room` long over the piece, further out than `beyond`: nearest
+ * the middle first, or from the start of the piece on `fromStart`.
+ */
+function offsets(len: number, room: number, beyond: number, fromStart: boolean): number[] {
   const reach = Math.max(0, (len - room) / 2);
+  if (fromStart) {
+    const out: number[] = [];
+    for (let d = -reach; d <= reach; d += STEP) if (Math.abs(d) > beyond) out.push(d);
+    return out;
+  }
   const out = beyond < 0 ? [0] : [];
   for (let d = STEP; d <= reach; d += STEP) if (d > beyond) out.push(d, -d);
   return out;
@@ -93,7 +102,8 @@ function* waysOf(
   loose: boolean,
 ): Generator<EdgeLabel[]> {
   const straight = route.points.length === 2;
-  for (const piece of piecesOf(route.points, o.preferFlat)) {
+  const fromStart = text.at === 'start';
+  for (const piece of piecesOf(route.points, o.preferFlat, fromStart)) {
     if (o.onLine && !on && piece.horizontal) continue;
     const places: Place[] = on
       ? ['on']
@@ -106,8 +116,8 @@ function* waysOf(
       const along = piece.horizontal ? widthOf(lines, m) : lines.length * m.labelLineH;
       const tight = on ? along + 2 * endRoom(m, o) : 0;
       const ds = loose
-        ? offsets(piece.len, along + 2 * END, Math.max(0, (piece.len - tight) / 2))
-        : offsets(piece.len, tight);
+        ? offsets(piece.len, along + 2 * END, Math.max(0, (piece.len - tight) / 2), fromStart)
+        : offsets(piece.len, tight, -1, fromStart);
       for (const d of ds) {
         const t = 0.5 + d / Math.max(1, piece.len);
         const at: Point = [piece.a[0] + (piece.b[0] - piece.a[0]) * t, piece.a[1] + (piece.b[1] - piece.a[1]) * t];

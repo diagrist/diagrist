@@ -34,6 +34,7 @@ function turnedLabel(l: GraphLabel): GraphLabel {
     width: high,
     size: l.size,
     lines: Array.from({ length: count }, () => ({ text: '', width: high })),
+    ...(l.at === undefined ? {} : { at: l.at }),
   };
 }
 

@@ -632,3 +632,14 @@ lines as far apart as the blocks need to stand one beside the other across them 
 a gap grows for a text without a clear spot (decision 9): a train of ends on a side keeps that distance where the
 side holds it, else stands as before. `kontext-paper`: the two lines into `Stationen` 32 to 40 px apart, the arrowhead
 clear, `öffnet das Schloss` wrapped beside the number of its line; every measure of every picture is kept.
+
+**A guard is sought from the start of its line.** Where the seat of a text was not clear, the spot search tried the
+longest piece of its line from the middle, so `[ja]` of `Lücken gefunden?` in `parallel-entscheidung`, kept off the
+stub it shares with `[nein]`, stood 350 px from its diamond. A kind now says where along its line a text belongs
+(`GraphLabel.at`, `EdgeText.at`); with `start` the search tries the pieces in the order of the line, each from its
+start, and a branch of a fan seats it at the top, where the line leaves the trunk, not where it arrives. Activity
+diagrams set it for guards: `[ja]` stands at its diamond in `parallel-entscheidung` and `objektfluss` (246 to about
+24 px, the gap 8 px taller), the guards of `auftragsabwicklung`, `entscheidungen-kette` and `lange-aktionen` move up
+to their diamonds; no count of a stress budget changes. State machines keep their triggers in the middle for now: set
+for them, a text of `verschachtelt` landed where `holdTexts` later grows a frame (G400), and the branches of the
+fans in `auswahl-vier` read less clearly.
