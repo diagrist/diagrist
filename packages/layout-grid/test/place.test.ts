@@ -49,6 +49,17 @@ describe('placing a fixed grid', () => {
     expect(inside(inner.rect, outer.rect)).toBe(true);
     expect(outer.rect.w).toBe(900);
   });
+
+  it('lays the lanes beyond the grid one lane gap outside its frames and two outside its boxes', () => {
+    const bare = placeGrid(spec('a b', 'r', ['x@a/r', 'y@b/r']));
+    const row = bare.rows[0];
+    if (!row) throw new Error('missing');
+    expect(bare.gutters.margins?.rows).toEqual([row.y - 2 * METRICS.laneGap, row.y + row.h + 2 * METRICS.laneGap]);
+    const framed = placeGrid(spec('a b', 'r', ['x@a/r', 'y@b/r'], { groups: [group('f', ['x'])] }));
+    const frame = framed.groups[0]?.rect;
+    if (!frame) throw new Error('missing');
+    expect(framed.gutters.margins?.rows).toEqual([frame.y - METRICS.laneGap, frame.y + frame.h + METRICS.laneGap]);
+  });
 });
 
 describe('placing an adaptive grid', () => {

@@ -56,17 +56,20 @@ function middles<T extends Column | Row>(tracks: readonly T[], span: (t: T) => r
 }
 
 /**
- * The lanes beyond the first and the last track of an axis, two lane gaps outside the outermost track or frame, so a
- * line there runs outside every frame (owner decision D1 of 07.11.2026).
+ * The lanes beyond the first and the last track of an axis, so a line there runs outside every frame (owner decision
+ * D1 of 07.11.2026): one lane gap outside the outermost frame, as far from it as a track from a box, and two outside
+ * the outermost track, so a line turning from the lane into a box runs straight long enough for its head.
  */
 function beyond(
   gap: number,
   tracks: readonly (readonly [number, number])[],
   frames: readonly (readonly [number, number])[],
 ): [number, number] {
-  const spans = [...tracks, ...frames];
-  if (spans.length === 0) return [0, 0];
-  const lo = Math.min(...spans.map(([at]) => at));
-  const hi = Math.max(...spans.map(([at, size]) => at + size));
-  return [lo - 2 * gap, hi + 2 * gap];
+  if (tracks.length + frames.length === 0) return [0, 0];
+  const out = (spans: readonly (readonly [number, number])[], by: number): [number, number] => [
+    Math.min(...spans.map(([at]) => at - by)),
+    Math.max(...spans.map(([at, size]) => at + size + by)),
+  ];
+  const [a, b] = [out(tracks, 2 * gap), out(frames, gap)];
+  return [Math.min(a[0], b[0]), Math.max(a[1], b[1])];
 }
