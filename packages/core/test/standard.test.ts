@@ -30,7 +30,7 @@ describe('the standard look', () => {
   it('writes the base rules and arrowheads of every kind, then the rules of the kind', () => {
     const svg = compile(source, { plugins: [standard] }).svg ?? '';
     expect(svg).toContain(`.dia .line { fill: none; stroke: ${COLORS.stroke}; stroke-width: 1.5; }`);
-    expect(svg).toContain('<marker id="m-filled-accent"');
+    expect(svg).not.toContain('<marker');
     expect(svg).toContain(`fill="${COLORS.canvas}"`);
     expect(svg.indexOf('.dia .mark-text {')).toBeLessThan(svg.indexOf('.dia .text { fill: #000; font-size: 9px; }'));
   });

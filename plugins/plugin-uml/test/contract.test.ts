@@ -11,7 +11,8 @@ describe('sequence SVG contract', () => {
     expect(svg).toContain('<g id="node-api">');
     expect(svg).toMatch(/<g id="edge-0"><path d="M[^"]+" class="line" marker-end="url\(#m-filled\)"\/>/);
     expect(svg).toMatch(/<g id="edge-1"><path d="M[^"]+" class="line dashed" marker-end="url\(#m-open\)"\/>/);
-    expect(svg).toMatch(/<defs><marker id="m-open".*<marker id="m-filled-accent"/);
+    expect(svg).toMatch(/<defs><marker id="m-open"[^>]*>.*<marker id="m-filled"/);
+    expect(svg).not.toContain('<marker id="m-open-accent"');
   });
 
   it('anchors heads and messages where the SVG draws them', () => {

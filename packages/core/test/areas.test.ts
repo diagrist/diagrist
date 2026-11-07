@@ -63,12 +63,14 @@ describe('areas in the SVG', () => {
     }
   });
 
-  it('repaint the arrowheads of a look that writes only used rules, which SVG draws in its black fill', () => {
+  it('write the rule of an arrowhead whose line ends only in the copy of an area, and only that copy', () => {
     const usedOnly = { ...styles, rules: styles.rules.map(({ name, declarations }) => ({ name, declarations })) };
     const scene: Scene = { width: 100, height: 50, title: 'T', children: [line] };
     const svg = toSvg(scene, usedOnly);
-    expect(svg).not.toContain('.dia .arrow-filled {');
-    expect(svg).toContain('.dia .area-orange-line .arrow-filled { fill: #c2410c; }');
+    expect(svg).toContain('.dia .arrow-filled { fill: #18181b; stroke: none; }');
+    expect(svg).toContain('.dia .area-orange-line .arrow-filled { fill: #c2410c; stroke: none; }');
+    expect(svg).toContain('<marker id="m-filled-orange"');
+    expect(svg).not.toContain('<marker id="m-filled"');
   });
 
   it('keep the cascade of a shape with two classes: a halo under a line keeps the canvas, not the tone', () => {

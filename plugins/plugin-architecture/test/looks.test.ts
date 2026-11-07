@@ -31,8 +31,8 @@ describe('looks', () => {
     expect(svg).toContain(
       '.dia { font-family: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 16px; }',
     );
-    expect(svg).toContain('markerWidth="18"');
     expect(svg).toContain('class="block-title">Presentation Layer</text>');
+    expect(compile(source('patterns/mediator.dgr'), { plugins }).svg).toContain('markerWidth="18"');
   });
 
   it('select their fonts: paper sets Inter unkerned, technologies of containers in JetBrains Mono', () => {

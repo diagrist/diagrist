@@ -16,7 +16,6 @@ the crutches that keep the predecessor's bytes are numbered, since they go toget
 | **Value descriptions are English in every locale.** The `expected` text of a value type (`a text in double quotes like ...`) is not translated in German messages. | Phrase value descriptions through the catalogue (ADR 0004). |
 | **No JSON schema of a kind's statements as data.** No command reads or writes statements as JSON, so a schema of the typed values (`Infer`) would have no user. | Derive it from the tables when such a command arrives (ADR 0004). |
 | **Spec references are plugin-internal** (ADR 0017). `implementing` in `plugins/plugin-uml/src/spec` keeps its marks as extra properties of the tables, which `lang` passes along without knowing them; the grammar JSON has no field for them. | When a second plugin cites a standard (BPMN, ArchiMate): a typed field in `lang`, emitted by `grammarOf`, with the walker of `src/spec/coverage.ts`. |
-| **Classes of markers count as unused.** The kernel writes a rule only when a shape uses its class, and a marker in `<defs>` is no shape, so marker rules (`uml-hollow`, the symbols of class diagrams) are marked `always` and written into every picture of their kind, and C4 marks the rules of its looks' markers `always` so that `look=paper`, which writes only used rules, draws open heads. | The kernel counts the classes of referenced markers. |
 | **One marker size per style table.** The kernel's markers share `markerSize`; class diagrams and state machines set 18 (`MARKER_SIZE` in `plugins/plugin-uml/src/shared/box-styles.ts`) for the diamond of 16 pixels and draw each symbol in pixels of that size, while use case diagrams draw the triangle 10 long where the predecessor drew 14. | A size per marker. |
 | **Pictures of one file do not share their sizes** (ADR 0021). Cells are inherited, but the fixed grid measures column widths and row heights per picture, so a variant with a wider label widens its column and the pictures of one file do not overlay pixel for pixel. | An optional `Kind.measure?(models)` the kernel calls once with every model of a source, its result handed to each `layout`; C4 returns the largest widths and heights. |
 | **`set` and `drop` reach the top level only** (ADR 0021). A class inside a package or a nested fragment is changed by restating its block. | Address nested lines when a kind needs it, by a path such as `set pkg.order ...`. |
@@ -64,7 +63,6 @@ crutches keep the rest so; they go in one clean-up with a second baseline.
 
 1. **Base stylesheet always written.** 24 rules marked `always` in `packages/core/src/standard/styles.ts`, also
    in pictures that use none of them. Clean-up: drop `always`, the kernel writes only used rules.
-2. **All four arrowheads in every `<defs>`** (`MARKERS`). Clean-up: write only referenced markers.
 3. **Root class `dia`** (`standardStyles`). The target is `diagrist`, and `--dgr-` for CSS variables.
 4. **Unrounded path numbers and circle radii** (`r="5.151515151515151"`), while rectangles, lines and texts are
    rounded to one decimal in `packages/core/src/svg.ts`. Clean-up: one rounding for all numbers.

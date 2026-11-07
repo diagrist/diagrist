@@ -76,9 +76,8 @@ const UNSTYLED = 'fill: #000000;';
 /**
  * CSS rules of the areas: each rule of the style table used inside an area, repainted in the area's tone. The rules
  * repeat, in their order, what the other classes used there paint of the same property, so that a shape of two
- * classes, such as a line with a halo, is painted inside the area as outside: the halo keeps the canvas. A rule the
- * stylesheet leaves out, as looks do that write only what the picture uses, paints nothing, so its class is drawn in
- * SVG's black fill, which the area repaints like ink; that keeps arrowheads in the tone of their line.
+ * classes, such as a line with a halo, is painted inside the area as outside: the halo keeps the canvas. A class
+ * without a rule paints nothing, so it is drawn in SVG's black fill, which the area repaints like ink.
  */
 export function areaRules(
   styles: Styles,

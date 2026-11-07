@@ -32,8 +32,6 @@
   .dia .tone-slate { fill: #37474f; }
   .dia .uml-stereo { fill: #18181b; font-size: 10px; }
   .dia .uml-member { fill: #18181b; font-size: 11px; }
-  .dia .uml-hollow { fill: #fafafa; stroke: #18181b; stroke-width: 1.5; stroke-linejoin: miter; }
-  .dia .uml-hollow-accent { fill: #fafafa; stroke: #1d4ed8; stroke-width: 1.8; }
   .dia .uc-name { fill: #18181b; font-size: 12px; }
   .dia .card-head-text { fill: #ffffff; font-weight: 600; font-size: 12px; }
   .dia .card-head-sub { fill: #ffffff; fill-opacity: 0.85; font-size: 10px; }
@@ -42,7 +40,7 @@
   .dia .outline-blue { fill: #ffffff; stroke: #2b7de9; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
   .dia .outline-teal { fill: #ffffff; stroke: #0b5d4b; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
   .dia .outline-slate { fill: #ffffff; stroke: #37474f; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
-</style><rect width="1048" height="786" fill="#fafafa"/><defs><marker id="m-open" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto"><path d="M1 1 L11 6 L1 11" class="arrow-open" stroke-linecap="round"/></marker><marker id="m-filled" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto"><path d="M1 1 L11 6 L1 11 Z" class="arrow-filled" stroke-linecap="round"/></marker><marker id="m-open-accent" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto"><path d="M1 1 L11 6 L1 11" class="arrow-open-accent" stroke-linecap="round"/></marker><marker id="m-filled-accent" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto"><path d="M1 1 L11 6 L1 11 Z" class="arrow-filled-accent" stroke-linecap="round"/></marker><marker id="m-hollow" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto"><path d="M1 1 L11 6 L1 11 Z" class="uml-hollow" stroke-linecap="round"/></marker><marker id="m-hollow-accent" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto"><path d="M1 1 L11 6 L1 11 Z" class="uml-hollow-accent" stroke-linecap="round"/></marker></defs>
+</style><rect width="1048" height="786" fill="#fafafa"/><defs><marker id="m-open" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto"><path d="M1 1 L11 6 L1 11" class="arrow-open" stroke-linecap="round"/></marker></defs>
 <text x="32" y="36" class="label-title">Use-Case-Diagramm (UML) · Auftragsabwicklung</text>
 <text x="32" y="52" class="label-note">Anwendungsfälle mit Fremdsystemen</text>
 <g id="group-system"><rect x="224" y="72" width="560" height="650" rx="12" class="tint-blue"/><text x="236" y="92" class="label-bold">Auftragsabwicklung</text></g>

@@ -84,14 +84,36 @@ describe('a theme', () => {
   });
 
   it('replaces a rule of the same name in place and adds new markers after the old ones', () => {
+    const [kind] = linesPlugin.kinds;
+    if (kind === undefined) return;
+    const ruled = definePlugin({
+      ...linesPlugin,
+      kinds: [
+        {
+          ...kind,
+          layout: (m, c) => ({ ...kind.layout(m, c), scene: scene({ kind: 'path', d: 'M0 0 L9 9', role: 'rule' }) }),
+        },
+      ],
+    });
     const svg = compile(source, {
-      plugins: [linesPlugin],
+      plugins: [ruled],
       theme: {
         rules: [{ name: 'base', declarations: 'fill: red;' }],
         markers: [{ id: 'whole', shape: MARKER_SHAPES.diamond, name: 'diamond' }],
+        roles: { rule: { classes: ['stroke'], marker: 'open', markerStart: 'whole' } },
       },
     }).svg;
     expect(svg).toContain('.dia .base { fill: red; }');
     expect(svg).toMatch(/<marker id="m-open".*<marker id="m-whole"/);
+  });
+
+  it('writes only the markers a path references, and the rules of their outlines', () => {
+    const svg = toSvg(scene({ kind: 'path', d: 'M0 0 L9 9', role: 'rule' }), {
+      ...styles,
+      rules: [...styles.rules, { name: 'arrow', declarations: 'fill: none;' }],
+    });
+    expect(svg).toContain('<marker id="m-open"');
+    expect(svg).toContain('.dia .arrow { fill: none; }');
+    expect(compile(source, { plugins: [linesPlugin] }).svg).not.toContain('<marker');
   });
 });

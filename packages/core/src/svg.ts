@@ -2,7 +2,7 @@ import { xmlSafe } from '@diagrist/lang';
 import { areaClass, areaDefs, areaRules } from './areas/paint.js';
 import type { AreaTone } from './areas/tones.js';
 import { areaUses } from './areas/uses.js';
-import { markerElement, num } from './markers.js';
+import { markerElement, markersInUse, num } from './markers.js';
 import type { Scene, Shape, TextRun } from './scene.js';
 import { classesOf, type Icon, type Styles } from './styles.js';
 
@@ -18,8 +18,9 @@ const escapeText = (text: string): string =>
 
 /**
  * Writes a scene as a standalone SVG document. The output is part of the public contract: ids from `domId`
- * on groups, `marker-end="url(#m-<id>)"` on paths, every marker in `<defs>`, one shape per line. A group of an area
- * carries its class, and its paths end in the area's copy of their marker, `m-<id>-<tone>` (ADR 0033).
+ * on groups, `marker-end="url(#m-<id>)"` on paths, the markers they reference in `<defs>`, one shape per line. A
+ * group of an area carries its class, and its paths end in the area's copy of their marker, `m-<id>-<tone>`
+ * (ADR 0033).
  */
 export function toSvg(scene: Scene, styles: Styles, options: SvgOptions = {}): string {
   const { width, height } = scene;
@@ -27,7 +28,8 @@ export function toSvg(scene: Scene, styles: Styles, options: SvgOptions = {}): s
   const paint = scene.areas ?? 'tint';
   const areas = areaUses(scene.children, styles);
   const head = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" width="${width}" height="${height}" class="${styles.root}" role="img" aria-label="${title}">`;
-  const used = usedClasses(scene.children, styles);
+  const markers = markersInUse(scene.children, styles);
+  const used = usedClasses(scene.children, styles, new Set(markers.classes));
   const written = new Set(styles.rules.filter((r) => r.always === true || used.has(r.name)).map((r) => r.name));
   const sheet = () => styleSheet(styles, used) + areaRules(styles, areas, paint, written).join('');
   const style =
@@ -35,7 +37,7 @@ export function toSvg(scene: Scene, styles: Styles, options: SvgOptions = {}): s
       ? ''
       : `<style>${sheet()}</style><rect width="${width}" height="${height}" fill="${styles.canvas}"/>`;
   const body = scene.children.map((shape) => element(shape, styles)).join('\n');
-  const defs = `<defs>${styles.markers.map((m) => markerElement(m, styles.markerSize)).join('')}${areaDefs(styles, areas, paint)}</defs>`;
+  const defs = `<defs>${markers.plain.map((m) => markerElement(m, styles.markerSize)).join('')}${areaDefs(styles, areas, paint)}</defs>`;
   return `${head}<title>${title}</title>${style}${defs}\n${body}\n</svg>\n`;
 }
 

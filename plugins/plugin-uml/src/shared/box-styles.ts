@@ -29,7 +29,7 @@ const one = (...classes: string[]): RoleStyle => ({ classes });
 
 /**
  * Rules the UML kinds with boxes share: notes, the card look, member texts, end symbols. The end symbols paint
- * markers, which the kernel does not count as used, so they are always written (docs/burn-down.md).
+ * markers, written when a line ends in one.
  */
 export const UML_BOX_RULES: readonly StyleRule[] = [
   CARD_RULES.card,
@@ -43,10 +43,10 @@ export const UML_BOX_RULES: readonly StyleRule[] = [
   rule('uml-italic', 'font-style: italic;'),
   rule('uml-rule', `stroke: ${c.stroke}; stroke-width: ${w.frame};`),
   rule('uml-emph', `fill: ${c.fill}; stroke: ${c.accent}; stroke-width: ${w.emph};`),
-  rule('uml-hollow', `fill: ${c.canvas}; stroke: ${c.stroke}; stroke-width: ${w.line}; stroke-linejoin: miter;`, true),
-  rule('uml-filled', `fill: ${c.stroke}; stroke: ${c.stroke}; stroke-width: ${w.line}; stroke-linejoin: miter;`, true),
-  rule('uml-hollow-accent', `fill: ${c.canvas}; stroke: ${c.accent}; stroke-width: ${w.accent};`, true),
-  rule('uml-filled-accent', `fill: ${c.accent}; stroke: ${c.accent}; stroke-width: ${w.accent};`, true),
+  rule('uml-hollow', `fill: ${c.canvas}; stroke: ${c.stroke}; stroke-width: ${w.line}; stroke-linejoin: miter;`),
+  rule('uml-filled', `fill: ${c.stroke}; stroke: ${c.stroke}; stroke-width: ${w.line}; stroke-linejoin: miter;`),
+  rule('uml-hollow-accent', `fill: ${c.canvas}; stroke: ${c.accent}; stroke-width: ${w.accent};`),
+  rule('uml-filled-accent', `fill: ${c.accent}; stroke: ${c.accent}; stroke-width: ${w.accent};`),
   rule('uml-stub', `fill: none; stroke: ${c.stroke}; stroke-opacity: 0;`),
   rule('uml-package', `fill: none; stroke: ${c.stroke}; stroke-width: ${w.shape};`),
   rule('uml-tether', `fill: none; stroke: ${c.stroke}; stroke-width: ${w.line}; stroke-dasharray: ${DASH.line};`),
