@@ -15,6 +15,7 @@ import { classHeight, classWidth } from './box.js';
 import { legOf, ranksOf } from './graph.js';
 import { crossEnds, HEAD_AT_END, HEAD_AT_START, headLength } from './heads.js';
 import { CLASS, CLASS_FONTS as F, LAYERED, tabWidth } from './metrics.js';
+import { tethered, tetherPieces } from './tethered.js';
 
 /** Air between a name and the end texts beside it, and between an end text and the next thing along the line. */
 const AIR = 16;
@@ -118,25 +119,13 @@ function edgeOf(m: ClassModel, r: ClassRelation, i: number, rank: GraphRank): Gr
   };
 }
 
-/** Lines that are never drawn: a class hung below the line of its association, or above its diamond. */
+/** Lines that are never drawn: a class hung above the diamond of its n-ary association. */
 function tethers(m: ClassModel, placed: ReadonlySet<string>): GraphEdge[] {
-  const binary = m.diagram.relations.flatMap((r, i): GraphEdge[] =>
-    r.via !== undefined && placed.has(r.via) && placed.has(r.from) && placed.has(r.to)
-      ? [r.from, r.to].map((end, k) => ({
-          id: `via-${i}-${k}`,
-          from: end,
-          to: r.via as string,
-          rank: 'down' as const,
-          hidden: true,
-        }))
-      : [],
-  );
-  const nary = m.diagram.associations.flatMap((a): GraphEdge[] =>
+  return m.diagram.associations.flatMap((a): GraphEdge[] =>
     a.via !== undefined && placed.has(a.via) && placed.has(a.id)
       ? [{ id: `via-${a.id}`, from: a.via, to: a.id, rank: 'down', hidden: true }]
       : [],
   );
-  return [...binary, ...nary];
 }
 
 /** Packages that hold something placed, each as a frame with its tab as the head, nested in its parent. */
@@ -179,11 +168,17 @@ export function classGraph(m: ClassModel): LayoutGraph {
   const frames = framesOf(m, placed);
   const ends = new Set([...placed, ...frames.map((f) => f.id)]);
   const rank = ranksOf(m);
-  const edges = m.diagram.relations.flatMap((r, i) =>
-    ends.has(r.from) && ends.has(r.to) ? [edgeOf(m, r, i, rank(r))] : [],
-  );
+  const points = new Map<string, GraphNode[]>();
+  const edges = m.diagram.relations.flatMap((r, i) => {
+    if (!ends.has(r.from) || !ends.has(r.to)) return [];
+    const edge = edgeOf(m, r, i, rank(r));
+    if (!tethered(r, placed)) return [edge];
+    const pieces = tetherPieces(edge, i, r.via);
+    points.set(r.from, [...(points.get(r.from) ?? []), pieces.node]);
+    return pieces.edges;
+  });
   return {
-    nodes,
+    nodes: nodes.flatMap((n) => [n, ...(points.get(n.id) ?? [])]),
     edges: [...edges, ...tethers(m, placed)],
     containers: frames,
     given: { perLayer: CLASS.perLayer },

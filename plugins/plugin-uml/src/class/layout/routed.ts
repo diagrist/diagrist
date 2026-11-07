@@ -1,8 +1,10 @@
+import type { Point } from '@diagrist/core';
 import { type EdgeLabel, type GridLayout, type LayeredLayout, layoutGraph, type Route } from '@diagrist/layout-grid';
 import type { ClassRelation } from '../diagram.js';
 import type { ClassModel } from '../model.js';
 import { legsAtVertices } from './extras.js';
 import { classGraph, edgeId } from './layered.js';
+import { joinTethered } from './tethered.js';
 
 /** The boxes and frames of a class diagram with its lines drawn and the names the pipeline seated. */
 export interface Routed {
@@ -12,6 +14,8 @@ export interface Routed {
   readonly relations: readonly (ClassRelation | undefined)[];
   /** The names of the lines where the spot search of the pipeline put them, by route index. */
   readonly labels: readonly EdgeLabel[];
+  /** The dashed line from the line of each association with a class to the class, by route index. */
+  readonly tethers: ReadonlyMap<number, readonly Point[]>;
   /** Edges drawn on a common trunk, by edge id. */
   readonly trunks: ReadonlyMap<string, string>;
 }
@@ -33,7 +37,7 @@ const gridOf = (layout: LayeredLayout): GridLayout => ({
  * vertices.
  */
 export function routeClass(m: ClassModel): Routed {
-  const layout = layoutGraph(classGraph(m));
+  const { layout, tethers } = joinTethered(layoutGraph(classGraph(m)));
   const grid = gridOf(layout);
   const byEdge = new Map(layout.routes.map((r) => [r.edge, r]));
   const routes: Route[] = [];
@@ -47,9 +51,22 @@ export function routeClass(m: ClassModel): Routed {
     routes.push(route);
     relations.push(r);
   });
+  const dashed = new Map(
+    routes.flatMap((r, i) => {
+      const t = tethers.get(r.edge);
+      return t ? [[i, t] as const] : [];
+    }),
+  );
   const labels = layout.labels.flatMap((l) => {
     const at = moved.get(l.route);
     return at === undefined ? [] : [{ ...l, route: at }];
   });
-  return { grid, routes: legsAtVertices(routes, relations, m, grid), relations, labels, trunks: layout.trunks };
+  return {
+    grid,
+    routes: legsAtVertices(routes, relations, m, grid),
+    relations,
+    labels,
+    tethers: dashed,
+    trunks: layout.trunks,
+  };
 }

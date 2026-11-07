@@ -40,7 +40,9 @@ export function classScene(l: ClassLayout, m: ClassModel, words: Words & Picture
     ...nodeShapes(l, m, cards),
     ...noteShapes(l.notes, cards),
     ...edges.map((e, k) => edgeShape(e.relation, e.route, bundled.has(e.route.edge), domId.edge(k))),
-    ...l.tethers.map((t): Shape => ({ kind: 'line', x1: t.a[0], y1: t.a[1], x2: t.b[0], y2: t.b[1], role: 'tether' })),
+    ...l.tethers.map(
+      (t): Shape => ({ kind: 'path', d: `M${t.points.map((p) => p.join(' ')).join(' L')}`, role: 'tether' }),
+    ),
     ...edges.flatMap((e, k) => {
       const own = l.labels.filter((x) => x.route === e.i);
       return own.length ? [labelShape(own, e.relation.emph === true, domId.label(k))] : [];
