@@ -127,3 +127,8 @@ its row of tracks stands in the middle of the rest: a stretch between a border a
 track grows by all the gap grows, and `gutterRoom` asks only that and keeps it at that border. The row of tracks asks
 its span besides the room kept. A crowded text that has no stretch to grow along and stands within the clearance of
 a track asks that gap for the room it misses on its side, kept at that border, so the track moves off it.
+
+The order of the tracks in a gap (`assignTracks`) counted a pair of verticals side by side alike whether they stood
+16 px apart or on one another. Two lines on one another hide where each goes, which two lines merely close do not,
+so such a pair (closer than 8 px) now weighs twice. In `kontext-stern` in `look=blocks` the X of `crm → sap` and
+`msb → portal` drew as one stretch both shared (G416); it now draws as the crossing it is, as in the other looks.

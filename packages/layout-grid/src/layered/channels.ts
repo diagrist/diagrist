@@ -44,12 +44,16 @@ const near = (a: TrackPiece, b: TrackPiece) =>
 const overlap = (a: TrackPiece, b: TrackPiece) => a.x1 < b.x2 + near(a, b) && b.x1 < a.x2 + near(a, b);
 const inside = (v: number, p: TrackPiece) => v > p.x1 + 0.5 && v < p.x2 - 0.5;
 
+/** What a pair of verticals `d` apart weighs: twice on one another (closer than `NEAR`), once closer than `apart`. */
+const weight = (d: number, apart: number) => (d >= apart ? 0 : d < NEAR ? 2 : 1);
+
 /**
  * Verticals that run side by side when `a` runs above `b`: one going down from `a` and one coming down into `b`,
- * closer than `apart`. Both pass the stretch between the two tracks.
+ * closer than `apart`. Both pass the stretch between the two tracks. Two lines on one another hide where each goes,
+ * which two lines merely close do not, so such a pair counts twice (`weight`).
  */
 const beside = (a: TrackPiece, b: TrackPiece, apart: number) =>
-  apart <= 0 ? 0 : a.bottoms.reduce((n, u) => n + b.tops.filter((t) => Math.abs(t - u) < apart).length, 0);
+  a.bottoms.reduce((n, u) => n + b.tops.reduce((k, t) => k + weight(Math.abs(t - u), apart), 0), 0);
 
 /** The lines of `p` whose horizontal passes `v`, or 1 where `v` is inside a piece that names no lines. */
 const passing = (p: TrackPiece, v: number) =>
@@ -64,7 +68,8 @@ const verticals = (p: TrackPiece, end: 0 | 1) => p.lines?.map((l) => l[end]) ?? 
 
 /**
  * Crossings when `a` runs above `b`: verticals of `b` coming down through `a`, of `a` going down through `b`, each
- * line pair once. A pair of verticals side by side counts twice, as two lines that close read as one.
+ * line pair once. A pair of verticals side by side counts twice, as two lines that close read as one, and a pair on
+ * one another four times, more than a crossing and a pair side by side.
  */
 const over = (a: TrackPiece, b: TrackPiece, apart: number) =>
   verticals(b, 0).reduce((n, t) => n + passing(a, t), 0) +
