@@ -76,30 +76,33 @@ function searched(board: Board, r: Routed, used: readonly (readonly Point[])[], 
  * into a wide box above or below its other end, which the channels would bend around what stands between, drops as
  * an L down the gap beside its narrow end where that is free (`drops`, `dropRoutes`). And an edge the channels hold
  * no free way for, whose route still runs through a node, takes the path search as a fallback, the only use of the
- * search left here.
+ * search left here. Where `priced` asks it, the channel stage prices its plans on the routes as these steps finish
+ * them.
  */
-export function adaptiveChannelRoutes(board: Board): Routed[] {
+export function adaptiveChannelRoutes(board: Board, priced = false): Routed[] {
   const spec = board.tree.spec;
   const gap = spec.metrics.laneGap;
   const bundled = spec.edges.some((e) => e.bundle !== undefined);
   const trunks = bundled ? adaptiveRoutes(gridRoutes(board), board).filter((r) => r.edge.bundle !== undefined) : [];
   const rest = boardOf({ ...spec, edges: spec.edges.filter((e) => e.bundle === undefined) }, board.layout);
-  const channelled = channelRoutes(rest).map((r) => inLane(board, r));
   const heads = foreignHeads(board);
-  const open = channelled.map((r) => (r.shape === 'straight' || r.shape === 'loop' ? undefined : r));
-  const laid = (skip: (i: number) => boolean) => [
-    ...trunks.map((r) => r.points),
-    ...channelled.flatMap((r, i) => (skip(i) ? [] : [r.points])),
-  ];
-  const used: Point[][] = laid((i) => open[i] !== undefined).map((p) => [...p]);
-  const drops = spec.drops === true ? dropRoutes(open, board, heads, used, gap) : new Map<number, Routed>();
-  const done = channelled.map((r, i) => drops.get(i) ?? r);
-  const routed = done.map((r, i) => {
-    if (r.shape === 'loop' || !blocked(board, r, gap)) return r;
-    const others = [...trunks.map((t) => t.points), ...done.filter((_, k) => k !== i).map((o) => o.points)];
-    return searched(board, r, others, heads(r));
-  });
-  const byId = new Map([...trunks, ...untangle(routed, board)].map((r) => [r.edge.id, r]));
+  const finish = (routes: readonly Routed[]): Routed[] => {
+    const channelled = routes.map((r) => inLane(board, r));
+    const open = channelled.map((r) => (r.shape === 'straight' || r.shape === 'loop' ? undefined : r));
+    const used: Point[][] = [
+      ...trunks.map((r) => r.points),
+      ...channelled.flatMap((r, i) => (open[i] !== undefined ? [] : [r.points])),
+    ].map((p) => [...p]);
+    const drops = spec.drops === true ? dropRoutes(open, board, heads, used, gap) : new Map<number, Routed>();
+    const done = channelled.map((r, i) => drops.get(i) ?? r);
+    const routed = done.map((r, i) => {
+      if (r.shape === 'loop' || !blocked(board, r, gap)) return r;
+      const others = [...trunks.map((t) => t.points), ...done.filter((_, k) => k !== i).map((o) => o.points)];
+      return searched(board, r, others, heads(r));
+    });
+    return untangle(routed, board);
+  };
+  const byId = new Map([...trunks, ...finish(channelRoutes(rest, priced, finish))].map((r) => [r.edge.id, r]));
   return spec.edges.flatMap((e) => {
     const r = byId.get(e.id);
     return r ? [r] : [];

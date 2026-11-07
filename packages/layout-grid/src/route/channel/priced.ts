@@ -105,15 +105,14 @@ const involved = (routes: readonly Routed[]): Set<number> =>
  * stage chose, every edge whose route crosses another or bends more than twice tries each other way it may take
  * (`waysOf`), the whole picture is routed again by `route`, and the way stays where the picture trades better by the
  * rule of the detour (`trades`): no hard finding more, a crossing worth 600 px of line, and of as many crossings the
- * cheaper by `scoreOf`. In rounds, until none trades better. An edge that keeps its way (`GridEdge.way`) and an
- * adaptive grid keep their plans.
+ * cheaper by `scoreOf`. In rounds, until none trades better. An edge that keeps its way (`GridEdge.way`) keeps its
+ * plan.
  */
 export function pricedPlans(
   board: Board,
   planned: readonly Plan[],
-  route: (plans: readonly Plan[]) => Routed[],
+  route: (plans: readonly Plan[]) => readonly Routed[],
 ): Plan[] {
-  if (board.tree.spec.adaptive) return [...planned];
   let best = [...planned];
   let laid = route(best);
   let price = priceOf(board, laid);

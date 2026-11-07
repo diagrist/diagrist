@@ -22,7 +22,7 @@ export function routeEdges(spec: GridSpec, layout: GridLayout, priced = true): R
   const board = boardOf(spec, layout);
   if (spec.lines === 'straight') return straightRoutes(board).map(toRoute);
   if (spec.channels === true && spec.adaptive) {
-    const routed = adaptiveChannelRoutes(board);
+    const routed = adaptiveChannelRoutes(board, priced);
     const lead = spec.metrics.lead;
     const done = lead !== undefined ? withLead(routed, board, lead, spec.metrics.laneGap) : routed;
     return snapToOutlines(insetLaneEnds(done, spec.metrics.nodeH / 2), board).map(toRoute);
