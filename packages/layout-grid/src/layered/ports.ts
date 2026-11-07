@@ -1,5 +1,6 @@
 import type { Rect } from '@diagrist/core';
 import { clearOfAside } from './aside.js';
+import { centreEnds } from './centre.js';
 import type { Corners } from './docks.js';
 import { isotoneApart } from './isotone.js';
 import type { Group, Link } from './links.js';
@@ -46,8 +47,9 @@ const CORNER = 4;
  * on their sides runs straight where the two boxes share a stretch, and an end that is the only one on its side
  * follows the other end of its piece wherever its box reaches, up to `CORNER` from a corner when the jog it spares
  * is shorter than `jog`: no small jogs. Last, a piece still bent runs straight wherever both its ends can slide to one
- * vertical between their neighbours on their sides: a port need not stand in the middle. `inset` keeps ends off the
- * corners. `aside` are ends on the bottom of `upper`
+ * vertical between their neighbours on their sides: a port need not stand in the middle, unless it follows a
+ * placeholder further than its slip, where it takes the middle and its line jogs (`centreEnds`). `inset` keeps ends
+ * off the corners. `aside` are ends on the bottom of `upper`
  * of lines that run below their layer to `lower` beside it; they take their place in the order like the others, so
  * the outermost goes to the line whose other end lies furthest out; `atop` are the like ends on the top of `lower`
  * of lines that run above their layer.
@@ -186,6 +188,7 @@ export function portsOf(
     bottom.set(l, at);
     top.set(l, at);
   }
+  centreEnds(groups, top, bottom, rects, alone, (n) => ranked.dummies.has(n));
   clearOfAside(groups, aside, top, bottom, room, gap, (n) => ranked.dummies.has(n));
   straightTrunks(groups, top, bottom, room, jog, (n) => ranked.dummies.has(n));
   return { top, bottom };
