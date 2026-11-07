@@ -69,9 +69,15 @@ export function layoutClass(m: ClassModel, words: PictureTexts): ClassLayout {
   const named = routed.labels;
   const ends = endLabels(relations, routes, { boxes, frames: grid.groups.map((g) => g.rect), mates }, named);
   const labels = [...named, ...ends];
-  const dashed = tethers(routes, relations, m, grid);
+  const dashed = tethers(
+    routes,
+    relations,
+    m,
+    grid,
+    labels.map((l) => l.box),
+  );
   const lines = dashed.map(
-    (t): Route => ({ edge: '', points: [t.a, t.b], shape: 'straight', fromSide: 'top', toSide: 'top' }),
+    (t): Route => ({ edge: '', points: [...t.points], shape: 'straight', fromSide: 'top', toSide: 'top' }),
   );
   const notes = noteArts(m.diagram.notes, grid, [...routes, ...lines], labels, true);
   const xs = [...labels.map((l) => right(l.box)), ...routes.flatMap((r) => r.points.map((p) => p[0]))];

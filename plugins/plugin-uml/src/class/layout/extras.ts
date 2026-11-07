@@ -2,11 +2,11 @@ import type { Point, Rect } from '@diagrist/core';
 import { type GridLayout, pointAlong, polylineLength, type Route } from '@diagrist/layout-grid';
 import type { ClassRelation } from '../diagram.js';
 import type { ClassModel } from '../model.js';
+import { tetherPath } from './tether-path.js';
 
-/** A straight dashed piece, such as the line of an association class. */
+/** The dashed line of an association class, from its association to the class. */
 export interface Tether {
-  readonly a: Point;
-  readonly b: Point;
+  readonly points: readonly Point[];
 }
 
 /** Distance of the docking point from the ends of the line piece. */
@@ -86,26 +86,35 @@ function vertexToward(d: Rect, box: Rect): Point {
 }
 
 /**
- * Association classes: a dashed line from the association line, or from the vertex of the
- * diamond, to the nearest point on the border of the class.
+ * Association classes: a dashed line from the association line to the middle of a side of the class, clear of the
+ * boxes, the texts and the other lines (`tetherPath`), else straight from the middle of the line to the nearest point
+ * on the border of the class; from the vertex of the diamond of an n-ary association, straight to the nearest point.
  */
 export function tethers(
   routes: readonly Route[],
   relations: readonly (ClassRelation | undefined)[],
   m: ClassModel,
   grid: GridLayout,
+  texts: readonly Rect[],
 ): Tether[] {
+  const drawn: Point[][] = [];
   const binary = routes.flatMap((r, i): Tether[] => {
     const box = rectOf(grid, relations[i]?.via);
     if (!box || r.points.length < 2) return [];
+    const clear = {
+      boxes: [...grid.nodes.map((n) => n.rect).filter((b) => b !== box), ...texts],
+      lines: [...routes.filter((x) => x !== r).map((x) => x.points), ...drawn],
+    };
     const a = dock(r.points, box);
-    return [{ a, b: clamp(a, box) }];
+    const points = tetherPath(r.points, box, clear) ?? [a, clamp(a, box)];
+    drawn.push(points);
+    return [{ points }];
   });
   const nary = m.diagram.associations.flatMap((x): Tether[] => {
     const [d, box] = [rectOf(grid, x.id), rectOf(grid, x.via)];
     if (!d || !box) return [];
     const a = vertexToward(d, box);
-    return [{ a, b: clamp(a, box) }];
+    return [{ points: [a, clamp(a, box)] }];
   });
   return [...binary, ...nary];
 }
