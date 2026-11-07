@@ -165,4 +165,20 @@ describe('rails', () => {
     expect(back?.fromSide).toBe(on?.fromSide);
     expect(back?.points[1]?.[0]).toBe(on?.points[1]?.[0]);
   });
+
+  it('set a text on the piece out of a box whose own texts reach beside it, clear of the box, not of its reach', () => {
+    const wide = { ...box('b'), reach: { left: 160, right: 160 } };
+    const l = layoutGraph(
+      flow({
+        nodes: [box('top', 360), box('a'), wide],
+        edges: [rail('top', 'a'), rail('a', 'b'), rail('b', 'top', 'zurück')],
+        given: { perLayer: Number.POSITIVE_INFINITY },
+      }),
+    );
+    const [x0, y0] = routeOf(l, 'b-top')?.points[0] ?? [0, 0];
+    const at = l.labels.find((t) => t.text === 'zurück')?.box ?? { x: 0, y: 0, w: 0, h: 0 };
+    expect(at.y).toBeGreaterThan(y0);
+    expect(at.y - y0).toBeLessThanOrEqual(METRICS.labelGap);
+    expect(Math.abs(at.x - x0) <= METRICS.labelGap || Math.abs(at.x + at.w - x0) <= METRICS.labelGap).toBe(true);
+  });
 });

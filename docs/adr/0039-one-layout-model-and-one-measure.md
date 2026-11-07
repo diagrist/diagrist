@@ -571,3 +571,11 @@ nothing to the stretch. `fahrgastraum` 4,176 to 3,712 px of line and 16 px narro
 `verschachtelt` 60 px narrower. Where two rails then share a track and dock on one side of a box, a text that has no
 room between their pieces stands at the other end of its line (`fahrgastraum`: `Abfahrt [Auslastung ≥ 70 %]` under
 `Hoch`).
+
+**The text of a rail keeps clear of boxes, not of their reach.** A box whose kind sets texts beside it (`reach`, the
+question of a decision on both sides) counts that far wide for the tracks of the rails, and the text of a rail was
+checked against the same rectangles (`clutter` in `drawRails`), so the piece out of a decision had no free spot and its
+text fell to the other end of the line (`schleifen-zurueck`: `[else]` at the merge instead of at `Chefredaktion
+zufrieden?`). The rails now get the boxes with their loops but without their reach as well (`RailInput.drawn`), and
+the text checks against those; the question stands on the side no line leaves (`placeQuestions`), so a text on the
+piece out of it cannot meet it. `[else]` stands beside its diamond; no count of the activity set changes.

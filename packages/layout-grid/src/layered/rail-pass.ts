@@ -47,7 +47,7 @@ export function railsOn(spec: LayeredSpec, arrangement: Arrangement, before: Bef
       return [id, out ? { ...r, x: r.x - out.left, w: r.w + out.left + out.right } : r] as const;
     }),
   );
-  const input = { ...before, rects, frames, edges, sides, layerOf: arrangement.ranked.layerOf };
+  const input = { ...before, rects, drawn: before.rects, frames, edges, sides, layerOf: arrangement.ranked.layerOf };
   const first = drawRails(input, spec.metrics, spec);
   const railed =
     frames.length === 0 || first.reach.size === 0

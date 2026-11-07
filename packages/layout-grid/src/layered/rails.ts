@@ -14,8 +14,10 @@ export interface RailInput {
   readonly sides: ReadonlyMap<string, readonly RailSide[]>;
   /** Every box and placeholder as it stands. */
   readonly boxes: ReadonlyMap<string, Rect>;
-  /** Every box and placeholder, those with loops as wide as their loops. */
+  /** Every box and placeholder, those with loops as wide as their loops and those with `reach` as far as it goes. */
   readonly rects: ReadonlyMap<string, Rect>;
+  /** Every box and placeholder, those with loops as wide as their loops: what the text of a rail stands clear of. */
+  readonly drawn: ReadonlyMap<string, Rect>;
   readonly layerOf: ReadonlyMap<string, number>;
   readonly frames: readonly PlacedGroup[];
   /** The other lines: a rail passes beyond the text each may carry beside its longest upright piece. */
@@ -165,7 +167,7 @@ export function drawRails(input: RailInput, m: LayeredMetrics, spec: LayeredSpec
     const texts = new Map<string, Rect>();
     const pieces = new Map(laid.map((l) => [l.edge.id, piecesOf(l, routes.get(l.edge.id) as Route)]));
     const aside = laid.filter((l) => where.get(l.edge.id) === 'beside');
-    const clutter = { boxes: [...input.rects.values()], frames: input.frames.map((f) => f.rect), texts: [] as Rect[] };
+    const clutter = { boxes: [...input.drawn.values()], frames: input.frames.map((f) => f.rect), texts: [] as Rect[] };
     clutter.texts.push(...aside.map((l) => besideText(l.edge, pieces.get(l.edge.id) as RailPieces, m.labelGap)));
     let moved = false;
     for (const l of laid) {
