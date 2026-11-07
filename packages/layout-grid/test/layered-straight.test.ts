@@ -92,3 +92,22 @@ describe('fans and joins pulled off their middle', () => {
     for (const id of ['r', 't']) expect(cx(id), id).toBeCloseTo(cx('m'), 0);
   });
 });
+
+describe('a shove that meets a long line', () => {
+  it('takes the whole chain of its placeholder along, so the line it passes keeps no jog', () => {
+    const steps = { m: 128, s: 136, g: 160, r: 160, a: 144, sb: 160, gb: 144 };
+    const nodes = Object.entries(steps).map(([id, w]) => box(id, w));
+    const label = (text: string, width: number) => ({ text, width, size: 10 });
+    const soft = (from: string, to: string, extra = {}) => ({ ...edge(from, to), strength: 'soft' as const, ...extra });
+    const edges = [
+      ...['m-s', 's-g', 'g-r', 'r-a'].map((id) => ({ ...edge(...(id.split('-') as [string, string])), bundle: 'f' })),
+      soft('sb', 's', { bundle: 'b|sb' }),
+      soft('gb', 'g', { bundle: 'b|gb' }),
+      soft('a', 'm', { label: label('bestätigt', 54) }),
+      soft('r', 'sb', { label: label('Freigabe', 48) }),
+      soft('g', 's', { label: label('Rückfrage', 54) }),
+    ];
+    const l = lay(nodes, edges);
+    expect(l.routes.find((r) => r.edge === 'a-m')?.points).toHaveLength(4);
+  });
+});

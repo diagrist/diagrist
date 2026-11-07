@@ -46,9 +46,10 @@ const ROUNDS = 3;
  * (`bentReach`), so of two lines only one of which can run straight the longer one does. So a box leaves the axis of
  * its parent only where the line it straightens is worth more than the centring it gives up. A box or chain that has
  * no room for a short move, up to `SHOVE`, also tries it with the boxes beyond it in that direction taken along
- * (`shoved`), in pictures of up to `SHOVE_PIECES` pieces, since every such try draws the whole picture. Once
- * `prices` drawings are priced, no further move is tried. A fan or join tries the one move `centred` offers
- * instead, its shared box with its column to the middle of its members.
+ * (`shoved`), a placeholder among them with its whole chain, so a chain a shove meets stays straight; that is tried
+ * in pictures of up to `SHOVE_PIECES` pieces, since every such try draws the whole picture. Once `prices` drawings
+ * are priced, no further move is tried. A fan or join tries the one move `centred` offers instead, its shared box
+ * with its column to the middle of its members.
  */
 export function unjog(u: Unjogging, start: Placement): Placement {
   if (u.prices === 0) return start;
@@ -101,8 +102,11 @@ export function unjog(u: Unjogging, start: Placement): Placement {
           .map((l) => l.edge),
       ),
     ].reduce((sum, e) => sum + (reach.get(e) ?? 0), 0);
+  const chainThrough = new Map<string, readonly string[]>();
+  for (const chain of u.ranked.chains.values())
+    for (const d of chain.slice(1, -1)) chainThrough.set(d, chain.slice(1, -1));
   const alongWith = (moving: readonly string[], d: number) =>
-    shoved(moving, d, layerOf, (n) => (u.ranked.dummies.has(n) ? [] : u.blockOf(n)));
+    shoved(moving, d, layerOf, (n) => (u.ranked.dummies.has(n) ? (chainThrough.get(n) ?? []) : u.blockOf(n)));
   const chainOf = (l: Link, n: string) =>
     u.ranked.dummies.has(n) ? (u.ranked.chains.get(l.edge) ?? []).slice(1, -1) : [n];
   for (let round = 0, moved = true; moved && round < ROUNDS; round++) {
