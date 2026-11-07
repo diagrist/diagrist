@@ -1,0 +1,31 @@
+# Pressure: a reader inside the core frame whose lines skip layers there, so their trunk runs through the frame.
+diagram concept "Lager: Wer prüft welche Zone" arrange=hub locale=de
+type quelle "Quelle" shape=box
+type zone "Zone" shape=store
+type pruefer "Prüfer" shape=round
+link liefert "liefert an" from=quelle,zone to=zone
+link prueft "prüft" from=pruefer to=zone
+
+area lager "Lager"
+area anlieferung "Anlieferung" tone=orange
+area behoerden "Behörden" tone=purple
+
+item lieferant "Lieferant" is quelle area=anlieferung
+item spedition "Spedition" is quelle area=anlieferung
+item leitung "Lagerleitung" is pruefer area=lager
+item rampe "Rampe" is zone area=lager
+item kontrolle "Sichtkontrolle" is zone area=lager
+item regal "Regallager" is zone area=lager
+item versand "Versand" is zone area=lager
+item zoll "Zollamt" is pruefer area=behoerden
+
+rel lieferant liefert rampe
+rel spedition liefert rampe
+rel rampe liefert kontrolle
+rel kontrolle liefert regal
+rel regal liefert versand
+rel leitung prueft rampe
+rel leitung prueft kontrolle
+rel leitung prueft regal
+rel leitung prueft versand
+rel zoll prueft regal

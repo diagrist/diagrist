@@ -7,8 +7,7 @@ export const SHOVE_PIECES = 40;
 /**
  * What moves when `moving` moves by `d` and takes along what stands beyond it in that direction: in each layer it
  * touches, every node from the outermost of `moving` to the end of the layer, with what moves with each (`with`, such
- * as the boxes of its frame), so the move needs room only at the end of each layer. A placeholder taken along
- * moves alone, so its chain bends where the caller's price allows it.
+ * as the boxes of its frame, or the chain of a placeholder), so the move needs room only at the end of each layer.
  */
 export function shoved(
   moving: readonly string[],
