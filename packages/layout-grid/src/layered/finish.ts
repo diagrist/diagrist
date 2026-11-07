@@ -138,13 +138,13 @@ export function finish(spec: LayeredSpec, arrangement: Arrangement): LayeredLayo
     const rails = arrangement.rails;
     const route = { spec, ranked, links, groupOf, pieceOf, ports, frame, rects, tracks, runs, loops, below };
     const lines = edgeRoutes({ ...route, ...(rails ? { rails } : {}) });
-    const around = spec.frames && fr.rects(widened, bandTop, gapTop);
+    const real = new Map([...rects].filter(([n]) => !dummy(n)));
+    const around = spec.frames && clearHeads(fr.rects(widened, bandTop, gapTop), spec, lines, real);
     const lane = (spec.lanes ?? []).length > 0 ? { lane: (id: string) => ln.of(id) ?? 0 } : {};
     const taken = ports.corners?.taken;
     const before = { boxes: rects, rects: widened, around, lines, ...lane, ...(taken ? { taken } : {}) };
     const { railed, routes, frames } = railsOn(spec, arrangement, before);
     const loose = looseTexts(spec, routes, railed, loops, m);
-    const real = new Map([...rects].filter(([n]) => !dummy(n)));
     const outer = (spec.frames ?? []).filter((f) => f.parent === undefined).map((f) => f.pad);
     const edge = railed.routes.size > 0 ? m.left + (spec.lanes?.[0]?.pad ?? 0) : 0;
     const floor = outer.length > 0 ? m.left - Math.max(...outer) : edge;

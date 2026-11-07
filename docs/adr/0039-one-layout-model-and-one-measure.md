@@ -545,3 +545,19 @@ on the outside of its top side at the left, the regions directly below the outli
 kind hands the frame with `tab: true` and the tab as its head, so frame ends are cut below it and lines from above
 keep `AIR` beside it. Composite states without regions keep their name field. The lines were already clear of the
 tab, so `auftrag-parallel` and `parallel-drei` keep every measure; only their drawing changes.
+
+## Amendment: rails and docks (07.11.2026)
+
+**A rail keeps its lead from the point it runs into.** A line through an entry or exit point is laid out as one edge
+and cut at the outline around the point (`graph/docks.ts`); its rail kept `lead` from the outline, so after the cut its
+last piece was a radius short, and `clearHeads` moved the frame after the rails had been placed (`punkte`: 19 px
+instead of 24, G413). The layout graph now tells the layered stages where such a line is cut
+(`LayeredEdge.docked`, `DockCut`: the host and the radius of the point), a rail counts that host as wider by the
+radius where its head meets the point and by what its tail needs beyond the lead where it leaves one
+(`besideRects` in `layered/rail-frames.ts`), and the heads of frames are cleared of the other lines before the rails
+are placed. Kept that way, the rail of `punkte` would have tipped to the right and through a text: the side of a rail
+was priced by the rails placed before it only. It now also counts the rails still to come whose side is settled and
+whose stretch does not hold its own (`ahead` in `layered/rail-room.ts`), since each of them will run outside it.
+`punkte` without its finding, budget `lead` 1 to 0, 5 px wider; `fahrgastraum` 4,400 to 4,176 px of line and 16 px
+narrower from the look-ahead alone, its rails nested instead of interlaced. No other picture changed.
+

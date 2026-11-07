@@ -10,6 +10,26 @@ import type { LayeredEdge, LayeredMetrics, LayeredSpec } from './spec.js';
 
 const right = (r: Rect) => r.x + r.w;
 
+/**
+ * How much further out than its outline the box or frame `host` counts for a rail of `e` whose line is cut there at a
+ * docked node (`LayeredEdge.docked`): the node's radius where the line runs into the node, so its head keeps the lead
+ * from the node; where it runs out of the node, what the tail needs beyond the lead.
+ */
+function dockRoom(e: LayeredEdge, host: string, m: LayeredMetrics): number {
+  const { from, to } = e.docked ?? {};
+  if (to?.host === host) return to.radius;
+  if (from?.host === host) return Math.max(0, from.radius + m.tail - m.lead);
+  return 0;
+}
+
+/** The boxes and frames a rail of `e` keeps its lead from, each as wide as its dock room (`dockRoom`) makes it. */
+export function besideRects(e: LayeredEdge, rects: readonly (readonly [string, Rect])[], m: LayeredMetrics): Rect[] {
+  return rects.map(([id, r]) => {
+    const by = dockRoom(e, id, m);
+    return by === 0 ? r : { ...r, x: r.x - by, w: r.w + 2 * by };
+  });
+}
+
 /** The frames holding each node, directly or through frames inside them. */
 export function holders(spec: LayeredSpec): Map<string, Set<string>> {
   const frames = spec.frames ?? [];

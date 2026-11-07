@@ -26,6 +26,27 @@ export function stretch(
 }
 
 /**
+ * The rails of `rest`, still to come, whose side is settled, each with that side and its stretch: placed later, each
+ * runs outside a rail placed now and crosses its pieces unless its stretch holds the stretch of the one placed now.
+ */
+export function ahead(
+  rest: readonly LayeredEdge[],
+  at: { readonly boxes: ReadonlyMap<string, Rect>; readonly sides: ReadonlyMap<string, readonly RailSide[]> },
+  layer: (node: string) => number,
+  text: (e: LayeredEdge) => RailTextAt,
+  gap: number,
+): { readonly side: RailSide; readonly lo: number; readonly hi: number }[] {
+  return rest.flatMap((o) => {
+    const [a, b] = [at.boxes.get(o.from), at.boxes.get(o.to)];
+    const sides = at.sides.get(o.id) ?? ['left'];
+    const side = sides.length === 1 ? sides[0] : undefined;
+    if (a === undefined || b === undefined || side === undefined) return [];
+    const [upper, lower] = layer(o.from) < layer(o.to) ? [a, b] : [b, a];
+    return [{ side, ...stretch(o, upper, lower, text(o), gap) }];
+  });
+}
+
+/**
  * How far the texts of other lines may reach towards `side` beside the longest upright piece of their line, where
  * that piece runs between `top` and `bottom`.
  */

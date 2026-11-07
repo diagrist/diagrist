@@ -132,4 +132,17 @@ describe('rails', () => {
     const right = Math.max(...l.nodes.map((n) => n.rect.x + n.rect.w), track);
     expect(Math.max(...l.labels.map((t) => t.box.x + t.box.w))).toBeLessThanOrEqual(right);
   });
+
+  it('take the side free of a rail still to come whose side is settled, where both would cross', () => {
+    const loop: GraphEdge = { id: 'b-b', from: 'b', to: 'b', rank: 'down', profile: 'loop' };
+    const l = layoutGraph(
+      flow({
+        nodes: ['a', 'b', 'c', 'd', 'e'].map((id) => box(id)),
+        edges: [rail('a', 'b'), rail('b', 'c'), rail('c', 'd'), rail('d', 'e'), loop, rail('c', 'a'), rail('e', 'b')],
+        given: { perLayer: Number.POSITIVE_INFINITY },
+      }),
+    );
+    expect(routeOf(l, 'e-b')?.fromSide).toBe('left');
+    expect(routeOf(l, 'c-a')?.fromSide).toBe('right');
+  });
 });
