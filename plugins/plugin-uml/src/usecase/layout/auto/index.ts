@@ -71,18 +71,27 @@ function rowsDown(p: Parts, band: (id: string) => number): number {
  * the fewest of these, then the cheapest. Since the families flip one after another, more choices can lead the search
  * to another and dearer end; so the search runs once without the choices and once with them, and the cheaper picture
  * stays. Below each other is tried only where side by side is not clean of these, and wins where it has fewer; there
- * each set of sides lays out the plan with every family in its lane and, where one differs, the plan with the families
- * whose use cases all lie in inner columns above or below the subjects (`stackedPlan`), and keeps the cheaper. Notes
- * take free spots; where one finds none near its anchor, the picture is laid out once more with room for it beside its
- * anchor, and the cheaper stays, a note on a box or text costing as much as a line through a box, one on a line or
- * frame line as a text on a line. The chosen plan is laid out once more with the use cases of every subject closed up
- * in their columns (`given.pack`), which stays where it is cheaper; packed for every plan, a subject took the room its
- * notes wanted. It is not tried where no subject has a gap to close (`slack`), nor where the picture keeps room for a
- * note, which packing would take.
+ * the families flip between the lanes, and the sides they end with lay out once more, where it differs, the plan with
+ * the families whose use cases all lie in inner columns above or below the subjects (`stackedPlan`); the cheaper stays.
+ * Notes take free spots; where one finds none near its anchor, the picture is laid out once more with room for it
+ * beside its anchor, and the cheaper stays, a note on a box or text costing as much as a line through a box, one on a
+ * line or frame line as a text on a line. The chosen plan is laid out once more with the use cases of every subject
+ * closed up in their columns (`given.pack`), which stays where it is cheaper; packed for every plan, a subject took the
+ * room its notes wanted. It is not tried where no subject has a gap to close (`slack`), nor where the picture keeps
+ * room for a note, which packing would take. A plan laid out once is not laid out again.
  */
 export function arrangeUseCase(m: UseCaseModel, price: Price): Laid {
   const p: Parts = { actors: m.diagram.actors, cases: m.diagram.cases, relations: m.diagram.relations.filter(isKnown) };
+  const seen = new Map<string, Tried>();
   const tried = (plan: Plan): Tried => {
+    const key = JSON.stringify([[...plan.depth], [...plan.actorX]]);
+    const hit = seen.get(key);
+    if (hit) return { ...hit, side: plan.side, plan };
+    const got = layOut(plan);
+    seen.set(key, got);
+    return got;
+  };
+  const layOut = (plan: Plan): Tried => {
     const free = laidUseCase(m, plan);
     const first: Tried = { laid: free, side: plan.side, plan, held: new Set(), ...price(free) };
     if (free.crowded.length === 0) return first;
@@ -100,15 +109,12 @@ export function arrangeUseCase(m: UseCaseModel, price: Price): Laid {
   const declared = bandIndex(m);
   const n = m.diagram.subjects.length;
   const stacked = (): Tried => {
-    const run = (s: Map<string, Side>) => {
-      const plain = stackedPlan(p, s);
-      const lane = tried(plain);
-      const over = stackedPlan(p, s, true);
-      if ([...over.actorX].every(([id, x]) => plain.actorX.get(id) === x)) return lane;
-      const got = tried(over);
-      return cheaper(lane, got) ? got : lane;
-    };
-    return flipFamilies(p, run(sides(p, depths(p))), run);
+    const run = (s: Map<string, Side>) => tried(stackedPlan(p, s));
+    const lane = flipFamilies(p, run(sides(p, depths(p))), run);
+    const over = stackedPlan(p, new Map(lane.side), true);
+    if ([...over.actorX].every(([id, x]) => lane.plan.actorX.get(id) === x)) return lane;
+    const got = tried(over);
+    return cheaper(lane, got) ? got : lane;
   };
   const across = (column: (id: string) => number, choose: boolean) => {
     const { side, home, fixed } = acrossSides(p, column);
