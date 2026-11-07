@@ -785,3 +785,15 @@ now centred, ran 5 px beside the line into the pin `Betrag`, because pins on top
 and a straight line whose pin moved got a jog in its middle. The activity kind now lets the other end of such a line
 follow its pin where that end stands alone on a side of a plain object node, at least 4 px from its corners
 (`activity/layout/pin-straight.ts`): the line runs straight, 8 to 6 bends, and the 5 px are gone.
+
+## Amendment: a hanging box follows a squeezed frame (07.11.2026, round 6)
+
+`place` in `layered/finish.ts` ran the move search (`unjog`) and then the squeeze of frames (`squeezed`), and nothing
+after it. In `auftrag-parallel` the moves set `Angelegt` and `Abgeschlossen` on the middle of their bars, and the
+squeeze then moved the frame `In Bearbeitung` 34 px left, the fork and the join with it; the boxes above and below the
+frame are in none of its layers and stayed, 34 px right of their bars. Where the squeeze moved anything, the move
+search now runs once more on the narrowed placement, priced as always, so it takes only moves that make the whole
+picture cheaper, and pictures whose frames do not move pay nothing. `auftrag-parallel` has both boxes on the middle of
+their bars, for 34 px more line (the line from `Storniert` to the final state runs that much further), the same size
+and bends. The stress picture `parallel-drei` gains the same: `Beauftragt` and the initial state move 28 px left onto
+the middle of the fork, with the same length, size and bends. No other picture changes.
