@@ -119,17 +119,17 @@ function edgeOf(m: ClassModel, r: ClassRelation, i: number, rank: GraphRank): Gr
   };
 }
 
-/** Lines that are never drawn: a class hung below the line of its association, or above its diamond. */
+/** Id of the dashed line from the line of the relation at `index` to its association class. */
+export const tetherId = (index: number): string => `via-${index}`;
+
+/**
+ * The class of an association hanging from its line, its dashed line laid out by the pipeline (`GraphEdge.hang`), and
+ * the lines never drawn that hang the class of an n-ary association above its diamond.
+ */
 function tethers(m: ClassModel, placed: ReadonlySet<string>): GraphEdge[] {
   const binary = m.diagram.relations.flatMap((r, i): GraphEdge[] =>
-    r.via !== undefined && placed.has(r.via) && placed.has(r.from) && placed.has(r.to)
-      ? [r.from, r.to].map((end, k) => ({
-          id: `via-${i}-${k}`,
-          from: end,
-          to: r.via as string,
-          rank: 'down' as const,
-          hidden: true,
-        }))
+    r.via !== undefined && placed.has(r.via) && placed.has(r.from) && placed.has(r.to) && r.from !== r.to
+      ? [{ id: tetherId(i), from: r.via, to: edgeId(i), rank: 'down', hang: true, either: true }]
       : [],
   );
   const nary = m.diagram.associations.flatMap((a): GraphEdge[] =>
@@ -165,7 +165,7 @@ function framesOf(m: ClassModel, placed: ReadonlySet<string>): GraphContainer[] 
 /**
  * A class diagram as a layout graph: classifiers and diamonds as nodes, packages as frames with their tab as the
  * head, every relation as an edge ranked by its kind (`ranksOf`), lines with a package at an end and of a classifier
- * with itself among them, and the lines never drawn that hang an association class below its line. Layers take free
+ * with itself among them, and association classes hanging from their lines. Layers take free
  * ranks and hold every package as a block, no layer over `CLASS.perLayer` classes. Classifiers keep a card's corners.
  */
 export function classGraph(m: ClassModel): LayoutGraph {

@@ -742,3 +742,28 @@ choice: `verschachtelt` compiles in about twice the time.
 
 **A trade is measured once.** `tradeOf` hands its measures and findings to `scoreOf` instead of measuring the picture
 twice; same bytes.
+
+## Amendment: boxes hanging from lines (07.11.2026, round 4, owner decision D1)
+
+An association class belongs to a line, not to the two classes at its ends. The class kind hung it below its line by
+two hidden edges `down` from both ends and drew the dashed line after the layout with a measure of its own, so a
+class of a line between two layers stood a layer too deep, and order, placement and the check never saw the dashed
+line (`kurs-netz`: `Note` 370 px below its line, the dashed line of `Belegung` across `legt ab`, uncounted).
+
+**`GraphEdge.hang`.** An edge whose `to` names another edge: `from` hangs from that line. The layering puts the box in
+the layer of the line's lower end, one below where both ends share a layer, never higher (`LayerEdge.hang`,
+`layers/assign.ts`); order and placement hold it by two hidden edges to the ends of the line (`graph/hang.ts`). Once
+the routes stand, `layered/tethers.ts` draws the dashed line from a straight piece of the line to the middle of a side
+of the box, straight, with one bend or with a step, the cheapest by length, bends, and crossings and lines it lies on
+at `DETOUR` each; it is a route of the layout, so every search that prices a picture by `scoreOf` sees it, and
+`hungLines` reads it with its line as one bundle. With rank `up` the box hangs above the line, one above its lower
+end and never below its upper one; with `either`, the search of `eitherWay` turns it there where that saves crossings, for a fifth of a crossing
+rather than the whole crossing a turned target pays, since both sides read.
+
+**The check counts the dashed lines.** The class kind hands them to the anchors as edges from the class to the
+DOM id of the line they hang from (to the diamond for an n-ary association), and `linesOfDrawing` reads a line whose
+end names another line's DOM id in one bundle with it, so the joint and the texts of that line near it are no finding.
+Budgets do not rise, as D1 asked: `kurs-netz` keeps 0 crossings with both dashed lines counted, `Note` beside
+`Prüfung` and `Belegung` above `Studierende` and `Modul`, 557 to 517 px high and 29 px narrower. The examples with
+association classes keep their pixels.
+

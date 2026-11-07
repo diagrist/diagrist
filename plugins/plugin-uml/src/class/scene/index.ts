@@ -9,11 +9,18 @@ import { classAreaMarks, usedAreas } from './areas.js';
 import { edgeShape, labelShape } from './edges.js';
 import { classShape, diamondShape, packageShape } from './nodes.js';
 
-/** The dashed line of an association class: one line where it runs straight, else a path. */
-function tetherShape(t: Tether): Shape {
-  const [a, b] = t.points;
-  if (t.points.length === 2 && a && b) return { kind: 'line', x1: a[0], y1: a[1], x2: b[0], y2: b[1], role: 'tether' };
-  return { kind: 'path', d: `M${t.points.map((p) => p.join(' ')).join(' L')}`, role: 'tether' };
+/**
+ * The dashed line of an association class in its group `edge-<k>`, drawn from the association so its dashes start
+ * there: one line where it runs straight, else a path.
+ */
+function tetherShape(t: Tether, k: number): Shape {
+  const points = [...t.points].reverse();
+  const [a, b] = points;
+  const shape: Shape =
+    points.length === 2 && a && b
+      ? { kind: 'line', x1: a[0], y1: a[1], x2: b[0], y2: b[1], role: 'tether' }
+      : { kind: 'path', d: `M${points.map((p) => p.join(' ')).join(' L')}`, role: 'tether' };
+  return { kind: 'group', id: domId.edge(k), children: [shape] };
 }
 
 /** Routes with a relation, in drawing order: the index `k` of `edge-<k>` and `label-<k>`. */
@@ -50,7 +57,7 @@ export function classScene(l: ClassLayout, m: ClassModel, words: Words & Picture
     ...nodeShapes(l, m, cards),
     ...noteShapes(l.notes, cards),
     ...edges.map((e, k) => edgeShape(e.relation, e.route, bundled.has(e.route.edge), domId.edge(k), haloOf(paths, k))),
-    ...l.tethers.map(tetherShape),
+    ...l.tethers.map((t, j) => tetherShape(t, edges.length + j)),
     ...edges.flatMap((e, k) => {
       const own = l.labels.filter((x) => x.route === e.i);
       return own.length ? [labelShape(own, e.relation.emph === true, domId.label(k))] : [];
@@ -72,21 +79,39 @@ export function classScene(l: ClassLayout, m: ClassModel, words: Words & Picture
   return withAreaLegend(scene, m.diagram.areas, usedAreas(m), cards ? 'cardBox' : 'box');
 }
 
-/** Classifiers and diamonds as nodes, packages as groups, relations as edges in drawing order. */
+/**
+ * Classifiers and diamonds as nodes, packages as groups, relations as edges in drawing order, then the dashed lines of
+ * association classes, each from its class to the diamond of its association or to `edge-<k>`, the line it hangs from.
+ */
 export function classAnchors(l: ClassLayout): Anchors {
+  const lines = drawn(l);
+  const on = (t: Tether) => {
+    const k = lines.findIndex((e) => e.i === t.on);
+    return typeof t.on === 'string' ? t.on : domId.edge(k);
+  };
   return {
     width: l.width,
     height: l.height,
     nodes: l.grid.nodes.map((n) => ({ id: n.id, domId: domId.node(n.id), rect: n.rect })),
     groups: l.grid.groups.map((g) => ({ id: g.id, domId: domId.group(g.id), rect: g.rect })),
-    edges: drawn(l).map((e, k) => ({
-      index: k,
-      from: e.relation.from,
-      to: e.relation.to,
-      domId: domId.edge(k),
-      ...(l.labels.some((x) => x.route === e.i) ? { labelId: domId.label(k) } : {}),
-      points: e.route.points,
-      span: e.relation.span,
-    })),
+    edges: [
+      ...lines.map((e, k) => ({
+        index: k,
+        from: e.relation.from,
+        to: e.relation.to,
+        domId: domId.edge(k),
+        ...(l.labels.some((x) => x.route === e.i) ? { labelId: domId.label(k) } : {}),
+        points: e.route.points,
+        span: e.relation.span,
+      })),
+      ...l.tethers.map((t, j) => ({
+        index: lines.length + j,
+        from: t.from,
+        to: on(t),
+        domId: domId.edge(lines.length + j),
+        points: t.points,
+        ...(t.span ? { span: t.span } : {}),
+      })),
+    ],
   };
 }

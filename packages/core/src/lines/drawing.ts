@@ -14,7 +14,8 @@ const OF_LINE = /^\D*?(\d+)\./;
  * key, as `placedOf` and the kinds name them; boxes that hold other boxes, and areas, are frames, and a text keyed
  * `<frame>.name` is the head of its frame. Lines leaving a box at one point, or entering one at one point, are
  * drawn as a bundle and are read as one, whichever end of them is the start; so are the lines of one bus
- * (`EdgeAnchor.bus`).
+ * (`EdgeAnchor.bus`), and a line with an end that names the DOM id of another line, which hangs from it, such as
+ * the dashed line of a box that belongs to a line, together with that line.
  */
 export function linesOfDrawing(drawing: Pick<Drawing, 'anchors' | 'placed'>): LineInput {
   const { anchors } = drawing;
@@ -73,10 +74,17 @@ export function linesOfDrawing(drawing: Pick<Drawing, 'anchors' | 'placed'>): Li
     to: e.to,
     points: e.points,
   }));
-  const bus = new Map(anchors.edges.flatMap((e) => (e.bus === undefined ? [] : [[String(e.index), `bus ${e.bus}`]])));
+  const byDom = new Map(anchors.edges.map((e) => [e.domId, String(e.index)]));
+  const joined = new Map<string, string[]>();
+  const join = (edge: string, key: string) => joined.set(edge, [...(joined.get(edge) ?? []), key]);
+  for (const e of anchors.edges) {
+    if (e.bus !== undefined) join(String(e.index), `bus ${e.bus}`);
+    const line = byDom.get(e.to) ?? byDom.get(e.from);
+    if (line !== undefined) for (const k of [String(e.index), line]) join(k, `on ${e.domId}`);
+  }
   const read = bundleLines(routes).map((r) => {
-    const on = bus.get(r.edge);
-    return on === undefined ? r : { ...r, bundles: [...(r.bundles ?? []), on] };
+    const on = joined.get(r.edge);
+    return on === undefined ? r : { ...r, bundles: [...(r.bundles ?? []), ...on] };
   });
   return { nodes, routes: read, labels, texts, frames, width: anchors.width, height: anchors.height };
 }
