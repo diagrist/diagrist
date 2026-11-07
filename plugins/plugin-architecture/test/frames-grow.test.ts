@@ -34,4 +34,12 @@ describe('a frame of a fixed grid', () => {
     expect(lowest).toBeLessThan(frame.y + frame.h);
     expect(result.diagnostics.filter((d) => d.code.startsWith('G40'))).toEqual([]);
   });
+
+  it('moves its centred head aside for a straight line into its top row (look=blocks)', () => {
+    const blocks = readFileSync(new URL('stress/c4/bloecke.dgr', import.meta.url), 'utf8');
+    const result = compile(blocks, { plugins });
+    const line = result.anchors?.edges.find((e) => e.from === 'zuschauer' && e.to === 'gateway');
+    expect(line?.points).toHaveLength(2);
+    expect(result.diagnostics.filter((d) => ['G400', 'G411'].includes(d.code))).toEqual([]);
+  });
 });

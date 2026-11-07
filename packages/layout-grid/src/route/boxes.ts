@@ -1,6 +1,6 @@
 import type { Rect } from '@diagrist/core';
 import type { GridLayout, PlacedGroup, PlacedNode } from '../layout.js';
-import { type Tree, treeOf } from '../place/extent.js';
+import { innerGroups, type Tree, treeOf } from '../place/extent.js';
 import type { GridEdge, GridNode, GridSpec } from '../spec.js';
 
 /** What the router knows of an edge end: a node, or a frame under the id `group:<id>`. */
@@ -77,17 +77,25 @@ export function headOf(board: Board, g: PlacedGroup): Rect {
 
 /**
  * Obstacles of an edge in a fixed grid: all nodes and head strips except its own ends and their members. With
- * `heads` a frame's head is where its kind draws it, as channel grids read it.
+ * `heads` a frame's head is where its kind draws it, as channel grids read it; a head in the middle of the top edge
+ * of a frame holding an end of the edge (owner decision D3 of 07.11.2026) stands only as its two ends, so a line
+ * crosses the top edge through it, and the kind moves the head aside after routing, while a line along the head
+ * still runs into it.
  */
 export function obstaclesFor(board: Board, edge: GridEdge, heads = false): Box[] {
   const own = new Set<string>([...endNodes(board, edge.from), ...endNodes(board, edge.to)]);
   for (const end of [edge.from, edge.to]) if (!board.node(end) && board.tree.group(end)) own.add(groupKey(end));
   const height = board.tree.spec.metrics.framePad.top;
-  const headers: Box[] = board.layout.groups.map((g) => ({
-    id: groupKey(g.id),
-    rect: heads ? headOf(board, g) : { x: g.rect.x, y: g.rect.y, w: g.rect.w, h: height },
-    colIndex: -1,
-    rowIndex: -1,
-  }));
+  const holds = (g: PlacedGroup) => {
+    const model = board.tree.group(g.id);
+    return model !== undefined && innerGroups(board.tree, model).some((c) => c.members.some((m) => own.has(m)));
+  };
+  const headers: Box[] = board.layout.groups.flatMap((g) => {
+    const box = (rect: Rect): Box => ({ id: groupKey(g.id), rect, colIndex: -1, rowIndex: -1 });
+    if (!heads) return [box({ x: g.rect.x, y: g.rect.y, w: g.rect.w, h: height })];
+    const rect = headOf(board, g);
+    if (board.tree.group(g.id)?.head?.origin !== 'middle' || !holds(g)) return [box(rect)];
+    return [box({ ...rect, w: 0 }), box({ ...rect, x: rect.x + rect.w, w: 0 })];
+  });
   return [...board.nodes, ...headers].filter((o) => !own.has(o.id));
 }

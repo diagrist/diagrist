@@ -10,13 +10,22 @@ import type { LayeredSpec } from './spec.js';
 const KEPT = ['through', 'ports', 'label', 'parallel', 'jog', 'lead', 'tail'] as const;
 
 /**
- * A picture measured once for the rule of the detour: its line measures, its kept findings by rule and its score,
- * reckoned when first asked.
+ * A picture measured for the rule of the detour: its line measures, and its kept findings by rule and its score,
+ * each reckoned when first asked.
  */
 export interface Trade {
   readonly metrics: LineMetrics;
-  readonly kept: readonly number[];
+  readonly kept: () => readonly number[];
   readonly cost: () => number;
+}
+
+/** A value reckoned once, when first asked. */
+function once<T>(reckon: () => T): () => T {
+  let value: { readonly v: T } | undefined;
+  return () => {
+    value ??= { v: reckon() };
+    return value.v;
+  };
 }
 
 /**
@@ -24,15 +33,13 @@ export interface Trade {
  * score leaves the centring of boxes out.
  */
 export function tradeOf(input: LineInput, centring = true, thresholds: Partial<LineThresholds> = {}): Trade {
-  const found = lineFindings(input, { ...thresholds, crossingsUpTo: 0 });
-  let cost: number | undefined;
   return {
     metrics: lineMetrics(input),
-    kept: KEPT.map((r) => found.filter((f) => f.rule === r).length),
-    cost: () => {
-      cost ??= scoreOf(input, thresholds, centring).cost;
-      return cost;
-    },
+    kept: once(() => {
+      const found = lineFindings(input, { ...thresholds, crossingsUpTo: 0 });
+      return KEPT.map((r) => found.filter((f) => f.rule === r).length);
+    }),
+    cost: once(() => scoreOf(input, thresholds, centring).cost),
   };
 }
 
@@ -44,9 +51,12 @@ export function tradeOf(input: LineInput, centring = true, thresholds: Partial<L
  */
 export function trades(a: Trade, b: Trade, even: 'length' | 'score' = 'length'): boolean {
   const [x, y] = [a.metrics, b.metrics];
-  if (y.overlaps > x.overlaps || b.kept.some((n, i) => n > (a.kept[i] ?? 0))) return false;
-  if (even === 'score' && y.crossings === x.crossings) return b.cost() < a.cost() - 1e-6;
-  return DETOUR * (y.crossings - x.crossings) + (y.length - x.length) < 0;
+  if (y.overlaps > x.overlaps) return false;
+  const level = even === 'score' && y.crossings === x.crossings;
+  if (level ? b.cost() >= a.cost() - 1e-6 : DETOUR * (y.crossings - x.crossings) + (y.length - x.length) >= 0)
+    return false;
+  const [before, after] = [a.kept(), b.kept()];
+  return after.every((n, i) => n <= (before[i] ?? 0));
 }
 
 /**

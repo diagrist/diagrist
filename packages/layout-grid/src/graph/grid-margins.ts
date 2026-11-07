@@ -2,8 +2,8 @@ import type { Point } from '@diagrist/core';
 import type { GridLayout, Route } from '../layout.js';
 import type { Leaving } from '../route/channel/inside.js';
 import type { GridSpec } from '../spec.js';
-import type { CellSigns } from './grid-signs.js';
 import { grown, type Laid } from './grid-outside.js';
+import type { CellSigns } from './grid-signs.js';
 
 /** Whether a point lies on or beyond a lane outside the grid. */
 function beyond(grid: GridLayout, [x, y]: Point): boolean {

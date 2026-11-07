@@ -42,14 +42,14 @@ export function insideTexts(nodes: readonly PlacedElement[], look: Look, texts: 
 
 /**
  * The heads of frames as texts keyed `<frame>.name`, which the kernel's line check reads as the head lines keep clear
- * of: where the kind told the grid it draws them, inside their frame, or the ground cut out of the line for a title
- * on it, on the frame's border.
+ * of: where the kind told the grid it draws them, inside their frame, a centred head where it moved to, or the ground
+ * cut out of the line for a title on it, on the frame's border.
  */
 export function headTexts(frames: readonly PlacedFrame[], heads: ReadonlyMap<string, Head>): Placed[] {
   return frames.flatMap(({ group, rect, head }): Placed[] => {
     const h = heads.get(group.id);
     if (!h) return [];
-    const x = (h.origin === 'middle' ? rect.x + rect.w / 2 : rect.x) + h.x;
+    const x = (h.origin === 'middle' ? head.title.x : rect.x) + h.x;
     const box = head.titleBox ?? { x, y: rect.y + h.y, w: h.w, h: h.h };
     const home = head.titleBox ? { on: group.id } : { within: group.id };
     return [{ key: `${group.id}.name`, kind: 'text', rect: box, ...home }];

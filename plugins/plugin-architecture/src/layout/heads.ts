@@ -4,7 +4,7 @@ import type { ArchGroup } from '../model/types.js';
 import type { Spot } from './art.js';
 import { tagWidth } from './frame-cell.js';
 import { linesHit } from './geometry.js';
-import { BLOCK_DY, TITLE_INSET, TITLE_PAD } from './head-rect.js';
+import { BLOCK_DY, headRect, TITLE_INSET, TITLE_PAD } from './head-rect.js';
 import { headingSize } from './spec.js';
 
 /** Head and tag of a frame, from its finished rectangle. */
@@ -23,10 +23,16 @@ const SIDE_DY = 1;
 
 /**
  * Where the head of a frame stands: on the side for `heading=side`, else as `groups.head` of the look says: top left,
- * in the middle at the top, or on the frame line, moving to the right end of the line when one of `lines` ends at
- * the title.
+ * in the middle at the top, moving aside along the top edge when one of `routes` crosses it there (owner decision D3
+ * of 07.11.2026), or on the frame line, moving to the right end of the line when one of `lines` ends at the title.
  */
-export function frameHead(rect: Rect, g: ArchGroup, look: Look, lines: readonly (readonly Point[])[]): FrameHead {
+export function frameHead(
+  rect: Rect,
+  g: ArchGroup,
+  look: Look,
+  lines: readonly (readonly Point[])[],
+  routes: readonly (readonly Point[])[] = lines,
+): FrameHead {
   const m = look.metrics;
   const head = look.options.groups.head;
   const right = rect.x + rect.w;
@@ -45,7 +51,10 @@ export function frameHead(rect: Rect, g: ArchGroup, look: Look, lines: readonly 
     return { title: spot, subtitle: spot, ...tag };
   }
   if (head === 'centre') {
-    const spot = { x: rect.x + rect.w / 2, y: rect.y + m.groupTitleY + BLOCK_DY };
+    const spot = {
+      x: clearAlong(rect, headRect(g, look, ''), routes, m.groupPadX, m.grid),
+      y: rect.y + m.groupTitleY + BLOCK_DY,
+    };
     return { title: spot, subtitle: spot, titleAnchor: 'middle', ...tag };
   }
   if (head === 'corner')
@@ -60,4 +69,25 @@ export function frameHead(rect: Rect, g: ArchGroup, look: Look, lines: readonly 
   const box = linesHit(lines, left, 4) ? { ...left, x: right - TITLE_INSET - w } : left;
   const title = { x: box.x + TITLE_PAD, y: rect.y + size / 2 - 2 };
   return { title, subtitle: title, titleBox: box, ...tag };
+}
+
+/**
+ * The middle of a head centred on the top edge of `rect` (`head`, relative to the middle of the edge), moved by whole
+ * steps of `step` to the nearest place where none of `lines` comes within `step` of it, the left one first, `pad` inside the
+ * frame's sides; the middle of the edge where it is clear or no place is.
+ */
+function clearAlong(
+  rect: Rect,
+  head: ReturnType<typeof headRect>,
+  lines: readonly (readonly Point[])[],
+  pad: number,
+  step: number,
+): number {
+  const middle = rect.x + rect.w / 2;
+  if (!head) return middle;
+  const at = (x: number): Rect => ({ x: x - head.w / 2, y: rect.y + head.y, w: head.w, h: head.h });
+  const [lo, hi] = [rect.x + pad + head.w / 2, rect.x + rect.w - pad - head.w / 2];
+  for (let d = 0; middle - d >= lo || middle + d <= hi; d += step)
+    for (const x of [middle - d, middle + d]) if (x >= lo && x <= hi && !linesHit(lines, at(x), step)) return x;
+  return middle;
 }
