@@ -83,7 +83,21 @@ export function layoutArchitecture(model: ArchitectureModel, texts: Texts, local
   });
   const frames = pl.groups.flatMap((p) => {
     const group = model.groups.find((g) => g.id === p.id);
-    return group ? [{ group, rect: p.rect, head: frameHead(p.rect, group, look, lines) }] : [];
+    return group
+      ? [
+          {
+            group,
+            rect: p.rect,
+            head: frameHead(
+              p.rect,
+              group,
+              look,
+              lines,
+              routes.map((r) => r.points),
+            ),
+          },
+        ]
+      : [];
   });
   const rects = new Map(pl.nodes.map((p) => [p.id, p.rect]));
   const signs = [...numbered.map((b) => b.rect), ...marks.map(markRect)];

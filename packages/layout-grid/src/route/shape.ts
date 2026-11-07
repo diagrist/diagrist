@@ -8,12 +8,16 @@ export interface Gutters {
   readonly rows: readonly number[];
 }
 
-/** The gap a Z edge crosses: axis, number, middle and the direction further lanes move to. */
+/**
+ * The gap a Z edge crosses: axis, number, middle and the direction further lanes move to. A lane beyond the first or
+ * the last track (`outer`) is no gap: its tracks start at `at` and stack outwards, in `dir`.
+ */
 export interface Lane {
   readonly axis: 'col' | 'row';
   readonly index: number;
   readonly at: number;
   readonly dir: 1 | -1;
+  readonly outer?: true;
 }
 
 export type Sides =
@@ -53,9 +57,7 @@ type Blocked = (p1: Point, p2: Point) => boolean;
 
 /** A Z between `a` and `b` over `lane`, with its sides, when none of its three pieces runs through `obstacles`. */
 export function freeZigzag(a: Box, b: Box, lane: Lane, obstacles: readonly Box[]): Sides | undefined {
-  const blocked = (p1: Point, p2: Point) =>
-    obstacles.some((o) => o.id !== a.id && o.id !== b.id && segmentHitsRect(p1, p2, o.rect, 4));
-  return zigzagBlocked(a, b, lane, blocked) ? undefined : zigzag(a, b, lane);
+  return zigzagBlocked(a, b, lane, blockedBy(a, b, obstacles)) ? undefined : zigzag(a, b, lane);
 }
 
 function zigzagBlocked(a: Box, b: Box, lane: Lane, blocked: Blocked): boolean {
@@ -72,15 +74,65 @@ function zigzagBlocked(a: Box, b: Box, lane: Lane, blocked: Blocked): boolean {
 /** In one row or column: straight, or with something in between as Z over the neighbouring gap. */
 function alongAxis(a: Box, b: Box, g: Gutters, horizontal: boolean, blocked: Blocked): Sides {
   const fromSide = sideOf(a.rect, b.rect, horizontal);
-  const toSide = OPPOSITE[fromSide];
-  const p1: Point = horizontal ? [exitX(a.rect, fromSide), cy(a.rect)] : [cx(a.rect), exitY(a.rect, fromSide)];
-  const p2: Point = horizontal ? [exitX(b.rect, toSide), cy(b.rect)] : [cx(b.rect), exitY(b.rect, toSide)];
-  const straight = { shape: 'straight', fromSide, toSide } as const;
-  if (!blocked(p1, p2)) return straight;
+  const straight = { shape: 'straight', fromSide, toSide: OPPOSITE[fromSide] } as const;
+  if (!blocked(...ends(a, b, fromSide, horizontal))) return straight;
   const lane = horizontal
     ? laneBetween('row', g.rows, a.rowIndex, b.rowIndex)
     : laneBetween('col', g.cols, a.colIndex, b.colIndex);
   return lane ? zigzag(a, b, lane) : straight;
+}
+
+/** The L out of `a` across first (`vertical`) or along first, when its corner and both pieces run through nothing. */
+function freeL(a: Box, b: Box, vertical: boolean, blocked: Blocked): Sides | undefined {
+  const free = (p: Point) => !strictlyInside(a.rect, p) && !strictlyInside(b.rect, p);
+  const fromSide = sideOf(a.rect, b.rect, !vertical);
+  const toSide = sideOf(b.rect, a.rect, vertical);
+  const corner: Point = vertical ? [cx(a.rect), cy(b.rect)] : [cx(b.rect), cy(a.rect)];
+  const start: Point = vertical ? [cx(a.rect), exitY(a.rect, fromSide)] : [exitX(a.rect, fromSide), cy(a.rect)];
+  const end: Point = vertical ? [exitX(b.rect, toSide), cy(b.rect)] : [cx(b.rect), exitY(b.rect, toSide)];
+  const ok = free(corner) && !blocked(start, corner) && !blocked(corner, end);
+  return ok ? { shape: 'L', fromSide, toSide } : undefined;
+}
+
+const blockedBy =
+  (a: Box, b: Box, obstacles: readonly Box[]): Blocked =>
+  (p1, p2) =>
+    obstacles.some((o) => o.id !== a.id && o.id !== b.id && segmentHitsRect(p1, p2, o.rect, 4));
+
+/**
+ * Every way between two boxes of a fixed grid that runs through none of `obstacles`: straight where they share a row
+ * or column, else both Ls, and a Z over each of `lanes`.
+ */
+export function freeWays(a: Box, b: Box, obstacles: readonly Box[], lanes: readonly Lane[]): Sides[] {
+  const blocked = blockedBy(a, b, obstacles);
+  const out: Sides[] = [];
+  const sameRow = a.rowIndex === b.rowIndex;
+  if (sameRow || a.colIndex === b.colIndex) {
+    const fromSide = sideOf(a.rect, b.rect, sameRow);
+    if (!blocked(...ends(a, b, fromSide, sameRow)))
+      out.push({ shape: 'straight', fromSide, toSide: OPPOSITE[fromSide] });
+  } else {
+    for (const vertical of [true, false]) {
+      const l = freeL(a, b, vertical, blocked);
+      if (l) out.push(l);
+    }
+  }
+  for (const lane of lanes) if (!zigzagBlocked(a, b, lane, blocked)) out.push(zigzag(a, b, lane));
+  return out;
+}
+
+/** Where a straight line between two boxes of one row (`horizontal`) or column leaves the first and meets the second. */
+function ends(a: Box, b: Box, fromSide: Side, horizontal: boolean): [Point, Point] {
+  const toSide = OPPOSITE[fromSide];
+  return horizontal
+    ? [
+        [exitX(a.rect, fromSide), cy(a.rect)],
+        [exitX(b.rect, toSide), cy(b.rect)],
+      ]
+    : [
+        [cx(a.rect), exitY(a.rect, fromSide)],
+        [cx(b.rect), exitY(b.rect, toSide)],
+      ];
 }
 
 /**
@@ -89,34 +141,15 @@ function alongAxis(a: Box, b: Box, g: Gutters, horizontal: boolean, blocked: Blo
  */
 export function chooseShape(a: Box, b: Box, obstacles: readonly Box[], g: Gutters): Sides {
   if (a.id === b.id) return { shape: 'loop', fromSide: 'right', toSide: 'bottom' };
-  const blocked = (p1: Point, p2: Point) =>
-    obstacles.some((o) => o.id !== a.id && o.id !== b.id && segmentHitsRect(p1, p2, o.rect, 4));
+  const blocked = blockedBy(a, b, obstacles);
   if (a.rowIndex === b.rowIndex) return alongAxis(a, b, g, true, blocked);
   if (a.colIndex === b.colIndex) return alongAxis(a, b, g, false, blocked);
-  const free = (p: Point) => !strictlyInside(a.rect, p) && !strictlyInside(b.rect, p);
-
-  const vSide = sideOf(a.rect, b.rect, false);
-  const hSide = sideOf(b.rect, a.rect, true);
-  const corner1: Point = [cx(a.rect), cy(b.rect)];
-  const l1ok =
-    free(corner1) &&
-    !blocked([cx(a.rect), exitY(a.rect, vSide)], corner1) &&
-    !blocked(corner1, [exitX(b.rect, hSide), cy(b.rect)]);
-  if (l1ok) return { shape: 'L', fromSide: vSide, toSide: hSide };
-
-  const hSide2 = sideOf(a.rect, b.rect, true);
-  const vSide2 = sideOf(b.rect, a.rect, false);
-  const corner2: Point = [cx(b.rect), cy(a.rect)];
-  const l2ok =
-    free(corner2) &&
-    !blocked([exitX(a.rect, hSide2), cy(a.rect)], corner2) &&
-    !blocked(corner2, [cx(b.rect), exitY(b.rect, vSide2)]);
-  if (l2ok) return { shape: 'L', fromSide: hSide2, toSide: vSide2 };
-
+  const l = freeL(a, b, true, blocked) ?? freeL(a, b, false, blocked);
+  if (l) return l;
   const colLane = laneBetween('col', g.cols, a.colIndex, b.colIndex);
   if (colLane && !zigzagBlocked(a, b, colLane, blocked)) return zigzag(a, b, colLane);
   const rowLane = laneBetween('row', g.rows, a.rowIndex, b.rowIndex);
   if (rowLane) return zigzag(a, b, rowLane);
   if (colLane) return zigzag(a, b, colLane);
-  return { shape: 'L', fromSide: hSide2, toSide: vSide2 };
+  return { shape: 'L', fromSide: sideOf(a.rect, b.rect, true), toSide: sideOf(b.rect, a.rect, false) };
 }

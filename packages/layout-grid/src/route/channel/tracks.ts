@@ -20,7 +20,7 @@ export interface ZLane {
 /**
  * The lane of every Z, by plan: the middle pieces of one gap get tracks `gap` apart, centred on the middle of the
  * gap, in the order that loses the most crossings with the stubs coming in from either side (`assignTracks`), and
- * pieces that do not meet share a track. A detour (`Plan.via`) has a middle piece in each of its two gaps, each with
+ * pieces that do not meet share a track; on a lane beyond the grid they stack outwards from it. A detour (`Plan.via`) has a middle piece in each of its two gaps, each with
  * the stub of one end.
  */
 export function zLanes(plans: readonly Plan[], ports: ReadonlyMap<Plan, Port>, gap: number): Map<Plan, ZLane> {
@@ -57,8 +57,9 @@ export function zLanes(plans: readonly Plan[], ports: ReadonlyMap<Plan, Port>, g
   for (const pieces of gutters.values()) {
     const count = assignTracks(pieces, gap);
     for (const p of pieces) {
-      const base = (p.via ? p.plan.via?.at : p.plan.lane?.at) ?? 0;
-      const at = base + (p.track - (count - 1) / 2) * gap;
+      const lane = p.via ? p.plan.via : p.plan.lane;
+      const outwards = lane?.outer ? (lane.dir * (count - 1) * gap) / 2 : 0;
+      const at = (lane?.at ?? 0) + outwards + (p.track - (count - 1) / 2) * gap;
       const was = out.get(p.plan) ?? { at: 0 };
       out.set(p.plan, p.via ? { ...was, via: at } : { ...was, at });
     }

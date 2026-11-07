@@ -1,6 +1,7 @@
 /** The placed grid: columns, rows, nodes, frames and routes as the layout hands them to a kind. */
 import type { Point, Rect } from '@diagrist/core';
 import type { Side } from './geometry.js';
+import type { GridWay } from './way.js';
 
 /** A placed column: left edge and width. */
 export interface Column {
@@ -32,12 +33,17 @@ export interface PlacedGroup {
 
 /**
  * Where everything stands. Frames come parents first, the order to draw them in. `gutters` are the middles of the
- * gaps between neighbouring columns and rows; `width` and `bottom` bound the grid with its margins.
+ * gaps between neighbouring columns and rows, and its `margins` the lanes beyond the first and the last column and
+ * row, outside every frame; `width` and `bottom` bound the grid with its margins.
  */
 export interface GridLayout {
   readonly cols: readonly Column[];
   readonly rows: readonly Row[];
-  readonly gutters: { readonly cols: readonly number[]; readonly rows: readonly number[] };
+  readonly gutters: {
+    readonly cols: readonly number[];
+    readonly rows: readonly number[];
+    readonly margins?: { readonly cols: readonly [number, number]; readonly rows: readonly [number, number] };
+  };
   readonly nodes: readonly PlacedNode[];
   readonly groups: readonly PlacedGroup[];
   readonly width: number;
@@ -57,4 +63,6 @@ export interface Route {
   readonly toSide: Side;
   /** No way around the obstacles was found; the points are those of the fixed grid. */
   readonly unroutable?: boolean;
+  /** The way a channel grid chose, for a later run of the grid to keep (`GridEdge.way`). */
+  readonly way?: GridWay;
 }

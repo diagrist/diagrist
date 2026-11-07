@@ -133,4 +133,13 @@ describe('the channel stage of a fixed grid', () => {
       expect(y).toBeGreaterThanOrEqual(frame.y);
     }
   });
+
+  it('runs straight through the centred head of the frame holding its end, which then gives way', () => {
+    const head = { x: -60, y: 8, w: 120, h: 20, origin: 'middle' } as const;
+    const s = spec('a b', 'r1 r2', ['x@a/r1', 'y@a/r2', 'w@b/r1'], {
+      groups: [group('f', ['y'], { head })],
+      edges: [edge('x', 'y')],
+    });
+    expect(routed(channels(s)).routes[0]?.shape).toBe('straight');
+  });
 });

@@ -57,14 +57,16 @@ const ruled = (found: readonly LineFinding[], rule: LineFinding['rule']) => foun
 /**
  * The one measure of a laid out picture, for every search that compares layouts: the hard rules of the line check
  * (ADR 0035) and the soft measures of `lineMetrics`, weighted so a breach of a hard rule outweighs any soft measure.
- * What a search minimises is what the check reports and the stress budgets count.
+ * What a search minimises is what the check reports and the stress budgets count. A search that moves no box, such as
+ * the routes through the author's grid, leaves the centring out (`centring` false): a line taken round the boxes
+ * would buy there what only a box could.
  */
-export function scoreOf(input: LineInput, thresholds: Partial<LineThresholds> = {}): Score {
+export function scoreOf(input: LineInput, thresholds: Partial<LineThresholds> = {}, centring = true): Score {
   const metrics = lineMetrics(input);
   const found = lineFindings(input, { ...thresholds, crossingsUpTo: 0 });
   const through = ruled(found, 'through');
   const shape = ruled(found, 'jog') + ruled(found, 'lead') + ruled(found, 'tail');
-  const strong = lineCentring({ ...input, routes: input.routes.filter((r) => (r.weight ?? 1) >= 1) });
+  const strong = lineCentring({ ...input, routes: centring ? input.routes.filter((r) => (r.weight ?? 1) >= 1) : [] });
   const cost =
     WEIGHT.through * through +
     WEIGHT.ports * ruled(found, 'ports') +
