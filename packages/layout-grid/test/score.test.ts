@@ -104,4 +104,20 @@ describe('the score of a laid out picture', () => {
     expect(under(100, 1) - under(60, 1)).toBeGreaterThan(15);
     expect(under(100, 0.5) - under(60, 0.5)).toBeLessThan(10);
   });
+
+  it('prices a bar that reaches onto a box beside it as a line through it, and one that keeps clear not at all', () => {
+    const beside = (x: number) =>
+      scoreOf(
+        linesOfLaid({
+          nodes: [{ ...node('j', 0, 100), rect: { x: 0, y: 100, w: x, h: 6 }, outline: 'bar' }, node('b', 200, 83)],
+          routes: [],
+          ends: [],
+          labels: [],
+          width: 280,
+          height: 140,
+        }),
+      ).cost;
+    expect(beside(203) - beside(190)).toBe(10_000);
+    expect(beside(190)).toBe(beside(180));
+  });
 });

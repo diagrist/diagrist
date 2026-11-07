@@ -1,9 +1,11 @@
 import {
   bundleLines,
+  DEFAULT_THRESHOLDS,
   type LineFinding,
   type LineFrame,
   type LineInput,
   type LineMetrics,
+  type LineNode,
   type LineRoute,
   type LineThresholds,
   lineCentring,
@@ -15,9 +17,9 @@ import type { EdgeLabel } from './label/types.js';
 import type { PlacedNode, Route } from './layout.js';
 
 /**
- * What one of each costs, as the layout plan starts (3.1). A line through a box or text outweighs ports out of
- * order, which outweigh a crossing and lines on one another, which hide where each line goes as a crossing does;
- * then foreign lines too near and a text near a foreign line, then a jog or a short piece, then a picture too long
+ * What one of each costs, as the layout plan starts (3.1). A line through a box or text, or a bar on a box
+ * (`barsOnBoxes`), outweighs ports out of order, which outweigh a crossing and lines on one another, which hide where
+ * each line goes as a crossing does; then foreign lines too near and a text near a foreign line, then a jog or a short piece, then a picture too long
  * for its height. A bend counts by the weight of its line, so a line of a hierarchy runs straight before a secondary
  * one; a bend a straight line could spare counts twice. A box off the middle of its children, or a child off its one
  * parent, by the lines that are no soft ones and are not taken round the boxes between (`lineCentring`), costs half a unit
@@ -74,7 +76,7 @@ export function scoreOf(
   const shape = ruled(found, 'jog') + ruled(found, 'lead') + ruled(found, 'tail');
   const strong = lineCentring({ ...input, routes: centring ? input.routes.filter((r) => (r.weight ?? 1) >= 1) : [] });
   const cost =
-    WEIGHT.through * through +
+    WEIGHT.through * (through + barsOnBoxes(input.nodes, { ...DEFAULT_THRESHOLDS, ...thresholds }.clearance)) +
     WEIGHT.ports * ruled(found, 'ports') +
     WEIGHT.crossing * metrics.crossings +
     WEIGHT.overlap * metrics.overlaps +
@@ -96,6 +98,25 @@ export function scoreOf(
  */
 export const DETOUR = 600;
 
+/**
+ * Boxes a bar lies on or comes nearer than `clearance`, the room a line keeps from boxes. A bar grows over the ends
+ * of its lines beyond the width its layer made room for, so it may reach a box beside it; that hides the box as a
+ * line through it would, and costs as much.
+ */
+function barsOnBoxes(nodes: LineInput['nodes'], clearance: number): number {
+  const bars = nodes.filter((n) => n.outline === 'bar');
+  if (bars.length === 0) return 0;
+  const meet = (a: LineInput['nodes'][number]['rect'], b: typeof a) =>
+    a.x < b.x + b.w + clearance &&
+    b.x < a.x + a.w + clearance &&
+    a.y < b.y + b.h + clearance &&
+    b.y < a.y + a.h + clearance;
+  return bars.reduce(
+    (n, bar) => n + nodes.filter((o) => o !== bar && o.owner === undefined && meet(bar.rect, o.rect)).length,
+    0,
+  );
+}
+
 /** The bends of every line times its weight: where its direction turns between two points. */
 function weightedBends(routes: readonly LineRoute[]): number {
   let total = 0;
@@ -112,7 +133,8 @@ function weightedBends(routes: readonly LineRoute[]): number {
 
 /** A laid out picture as the parts the line check reads. */
 export interface LaidPicture {
-  readonly nodes: readonly PlacedNode[];
+  /** The boxes, each with the outline in its rectangle where it is not the rectangle itself. */
+  readonly nodes: readonly (PlacedNode & Pick<LineNode, 'outline'>)[];
   readonly routes: readonly Route[];
   /** The two ends of each route, by route index. */
   readonly ends: readonly (readonly [string, string])[];
@@ -128,7 +150,11 @@ export interface LaidPicture {
 /** The lines, boxes, frames and texts of a laid out picture, for `scoreOf`. */
 export function linesOfLaid(laid: LaidPicture): LineInput {
   return {
-    nodes: laid.nodes.map((n) => ({ id: n.id, rect: n.rect })),
+    nodes: laid.nodes.map((n) => ({
+      id: n.id,
+      rect: n.rect,
+      ...(n.outline === undefined ? {} : { outline: n.outline }),
+    })),
     routes: bundleLines(
       laid.routes.map((r, i) => {
         const [from, to] = laid.ends[i] ?? ['', ''];

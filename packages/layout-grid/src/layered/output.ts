@@ -137,7 +137,7 @@ export function assemble(spec: LayeredSpec, unhung: Laid): Assembled {
         key: n.id,
         kind: 'box',
         rect: n.rect,
-        ...(s?.shape === 'ellipse' ? { outline: 'ellipse' as const } : {}),
+        ...(s?.shape === 'ellipse' || s?.shape === 'bar' ? { outline: s.shape } : {}),
         ...(s?.source ? { span: s.source } : {}),
       };
     }),
@@ -181,11 +181,12 @@ export function layeredLines(spec: LayeredSpec, layout: LayeredLayout): LineInpu
   const ends = new Map(spec.edges.map((e) => [e.id, [e.from, e.to] as const]));
   const weight = new Map(spec.edges.map((e) => [e.id, e.strength === 'soft' ? SOFT : Math.max(1, e.weight ?? 1)]));
   const core = layout.frame === undefined ? [] : [{ id: 'core', rect: layout.frame.rect, head: layout.frame.head.box }];
+  const bars = new Set(spec.nodes.flatMap((n) => (n.shape === 'bar' ? [n.id] : [])));
   return hungLines(
     spec,
     SOFT,
     linesOfLaid({
-      nodes: layout.nodes,
+      nodes: layout.nodes.map((n) => (bars.has(n.id) ? { ...n, outline: 'bar' as const } : n)),
       routes: layout.routes,
       ends: layout.routes.map((r) => ends.get(r.edge) ?? ['', '']),
       weights: layout.routes.map((r) => weight.get(r.edge) ?? 1),

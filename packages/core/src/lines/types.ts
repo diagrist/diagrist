@@ -4,8 +4,11 @@ import type { Point, Rect } from '../geometry.js';
 export interface LineNode {
   readonly id: string;
   readonly rect: Rect;
-  /** The shape in `rect`: the rectangle itself (default) or the ellipse inscribed in it. */
-  readonly outline?: 'rectangle' | 'ellipse';
+  /**
+   * The shape in `rect`: the rectangle itself (default), the ellipse inscribed in it, or a bar, a rectangle that lines
+   * enter and leave anywhere along it, so it has no middle a box could stand off.
+   */
+  readonly outline?: 'rectangle' | 'ellipse' | 'bar';
   /** Id of the box or line this one is part of, such as a marker on the border of a box; its lines may touch it. */
   readonly owner?: string;
 }

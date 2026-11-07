@@ -85,7 +85,8 @@ export function finish(spec: LayeredSpec, arrangement: Arrangement): LayeredLayo
   const links = linksOf(spec, ranked).filter((l) => !runs.hidden(l.edge));
   const groups = groupsOf(spec, ranked, layers, links);
   const seats = seatsOf(spec.edges, groups, ranked);
-  const symmetry = symmetryOf({ groups, ranked, spines, lane: ln.of });
+  const bars = spec.nodes.flatMap((n) => (n.shape === 'bar' ? [n.id] : []));
+  const symmetry = symmetryOf({ groups, ranked, spines, lane: ln.of, bars });
   let grown: ReadonlySet<string> = new Set();
   const draw = ({ x, ports }: Placement): Assembled => {
     const pieceOf = new Map<Group, Piece>();
