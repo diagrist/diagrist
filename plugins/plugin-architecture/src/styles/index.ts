@@ -27,6 +27,7 @@ export function stylesOf(look: Look): Styles {
     roles: { ...ARCHITECTURE_ROLES, ...paint.roles },
     rules: architectureRules(fonts, paint.strokes, paint.changes(fonts, paint.strokes)),
     fonts,
+    measures: { fonts, strokes: paint.strokes },
   });
   const { fontKerning, canvas, markers, areaColors } = paint;
   const root = fonts[paint.root];

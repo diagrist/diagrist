@@ -1,8 +1,7 @@
 # Burn-down
 
 Debt we accept on purpose. Each entry gives the reason and what removes it. An entry is deleted in the change that
-settles it, and that change says so in its description. The entries are sorted by the package that holds the debt;
-the crutches that keep the predecessor's bytes are numbered, since they go together in one clean-up.
+settles it, and that change says so in its description. The entries are sorted by the package that holds the debt.
 
 ## Language and kernel (`lang`, `core`)
 
@@ -75,17 +74,6 @@ spec and is compared number for number, as the path finding of state machines wa
 | state | **Lines leave a composite state only through its top or bottom.** In `gedaechtnis` H* stands at the right edge of `Programm läuft`, which is empty beside it, so `Wasser fehlt` can drop straight onto `Störung`. Since the text of a rail stands on an end piece where that piece holds it (`layered/rail-texts.ts`), the picture is 765 px wide instead of 919, set by the last layer (`Fertig`, `Pausiert`, `Störung`) and the two rails, no longer by their texts. Exits through the side, with the ends of a side in one order with the rails and one move that narrows the frame and moves the other end out, gave a clean picture only with H* 60 px off its neighbour, and that picture cost more when it was measured (493.9 against 465.7): 107 px more line and the frame off the middle of its children. The experiment is kept in the report `feat/frame-side-exits`. | A layering that puts `Störung` beside the frame's last layer; then side exits as in the experiment. |
 
 ## C4 (`plugin-architecture`)
-
-### C4 crutches left from the predecessor's bytes (ADR 0016)
-
-Every C4 picture took a second baseline when fixed grids moved onto the channel stage (ADR 0038); the inline paint of
-the legend separator, `abgeloest`, the predecessor's arithmetic and paper's old test of a seated number went with it.
-Icons went the same way: they are path data drawn by the kernel as a nested `<svg>` and painted by class in every
-look, so `Icon.markup` and `RoleStyle.paint` are gone, and they are drawn at the size the look measures instead of
-the predecessor's scale rounded to a tenth. One crutch remains.
-
-**Blocks restate base rules** (`blockBase` in `src/looks/blocks.ts`): 13 base rules again with larger fonts and
-strokes. Clean-up: the kernel builds the standard look from measures.
 
 | Debt | Clean-up |
 |---|---|

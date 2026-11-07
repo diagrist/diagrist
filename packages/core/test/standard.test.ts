@@ -48,4 +48,18 @@ describe('the standard look', () => {
     expect(svg.indexOf('.diagrist .label {')).toBeLessThan(svg.indexOf('.diagrist .text {'));
     expect(svg).toContain('fill="#000"');
   });
+
+  it('draws its base rules in the measures of a variant, larger fonts and thicker lines, keeping their order', () => {
+    const rules = standardStyles({
+      roles: {},
+      rules: [],
+      measures: { fonts: { label: { size: 14 } }, strokes: { line: 3 } },
+    }).rules;
+    const of = (name: string) => rules.find((r) => r.name === name)?.declarations;
+    expect(of('label')).toBe(`fill: ${COLORS.stroke}; font-size: 14px;`);
+    expect(of('line')).toBe(`fill: none; stroke: ${COLORS.stroke}; stroke-width: 3;`);
+    expect(of('arrow-open')).toBe(`fill: none; stroke: ${COLORS.stroke}; stroke-width: 3;`);
+    expect(of('shape')).toBe(`fill: #ffffff; stroke: ${COLORS.stroke}; stroke-width: 1.5;`);
+    expect(rules.map((r) => r.name)).toEqual(standardStyles({ roles: {}, rules: [] }).rules.map((r) => r.name));
+  });
 });
