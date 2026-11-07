@@ -11,6 +11,7 @@ import type { Ports } from './ports.js';
 import type { Ranked } from './rank.js';
 import type { LayeredSpec } from './spec.js';
 import { spotLabels } from './spots.js';
+import { textBlocks } from './text-blocks.js';
 
 /** The weight of a soft line in the measure: its bends count half, and it does not count for centring. */
 const SOFT = 0.5;
@@ -168,7 +169,7 @@ export function assemble(spec: LayeredSpec, laid: Laid): Assembled {
 
 /**
  * The lines of a laid out picture as the line check reads them, with the frames and the head of its core, each
- * weighted as the measure weighs it: a main path more, a soft line less.
+ * weighted as the measure weighs it: a main path more, a soft line less, and every text as one block (`textBlocks`).
  */
 export function layeredLines(spec: LayeredSpec, layout: LayeredLayout): LineInput {
   const ends = new Map(spec.edges.map((e) => [e.id, [e.from, e.to] as const]));
@@ -179,7 +180,7 @@ export function layeredLines(spec: LayeredSpec, layout: LayeredLayout): LineInpu
     routes: layout.routes,
     ends: layout.routes.map((r) => ends.get(r.edge) ?? ['', '']),
     weights: layout.routes.map((r) => weight.get(r.edge) ?? 1),
-    labels: layout.labels,
+    labels: textBlocks(layout.labels),
     frames: [...core, ...(layout.frames ?? [])],
     width: layout.width,
     height: layout.bottom,
