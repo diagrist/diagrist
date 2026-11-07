@@ -92,7 +92,7 @@ export function activityGraph(g: Graph): LayoutGraph {
       rank: handover.has(f) || first ? 'beside' : isHandlerFlow(f) ? 'up' : 'down',
       ...(isHandlerFlow(f) ? { room: boltRoom(f.exception) } : trunk(g, f)),
       ...(f.held ? { hidden: true } : first ? {} : { profile: 'back' as const }),
-      ...(guard ? { label: { text: guard, width: widthOf.label(guard), size: SIZE.label } } : {}),
+      ...(guard ? { label: { text: guard, width: widthOf.label(guard), size: SIZE.label, at: 'start' as const } } : {}),
       ...(runs ? { run: runs } : {}),
       source: f.span,
     };

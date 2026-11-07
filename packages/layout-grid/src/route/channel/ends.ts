@@ -18,10 +18,21 @@ export interface End extends Car {
 const pairOf = (p: Plan): string => [p.a.id, p.b.id].sort().join('|');
 
 /** Both ends of a plan. */
-export const endsOf = (p: Plan): End[] => [
-  { plan: p, at: 'from', box: p.a, side: p.fromSide, other: middle(sideOf(p.b, p.fromSide)), pair: pairOf(p) },
-  { plan: p, at: 'to', box: p.b, side: p.toSide, other: middle(sideOf(p.a, p.toSide)), pair: pairOf(p) },
-];
+export const endsOf = (p: Plan): End[] => {
+  const apart = p.edge.apart === undefined ? {} : { apart: p.edge.apart };
+  return [
+    {
+      plan: p,
+      at: 'from',
+      box: p.a,
+      side: p.fromSide,
+      other: middle(sideOf(p.b, p.fromSide)),
+      pair: pairOf(p),
+      ...apart,
+    },
+    { plan: p, at: 'to', box: p.b, side: p.toSide, other: middle(sideOf(p.a, p.toSide)), pair: pairOf(p), ...apart },
+  ];
+};
 
 /** How far the other box of an end lies out from its side, across the side. */
 function beyond(e: End): number {

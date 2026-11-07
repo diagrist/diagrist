@@ -35,7 +35,7 @@ function namesPast(board: Board, box: Box, centre: number, gap: number): boolean
 }
 
 /**
- * Straight edges between the same two boxes run `spread` apart around the middle of what their sides share, each
+ * Straight edges between the same two boxes run `spread` apart, or what all of them ask (`GridEdge.apart`), around the middle of what their sides share, each
  * in the free stretches of both sides; a column of reserved sides keeps its spine, the column of the narrower box,
  * where its middle is reserved or a name of the column reaches past it (`namesPast`), so its lines stand on one x. An edge whose boxes share no free
  * stretch gets no place and bends instead.
@@ -59,8 +59,9 @@ function straightPorts(board: Board, plans: readonly Plan[], spread: number, gap
     const named = spine !== undefined && namesPast(board, narrow, centre, gap);
     const kept = spine === undefined || !within(spine, ranges) || (within(centre, ranges) && !named);
     const c = kept ? centre : spine;
+    const step = Math.max(spread, Math.min(...members.map((p) => p.edge.apart ?? 0)));
     members.forEach((p, i) => {
-      const at = nearest(c + (i - (members.length - 1) / 2) * spread, ranges);
+      const at = nearest(c + (i - (members.length - 1) / 2) * step, ranges);
       if (at !== undefined) out.set(p, at);
     });
   }

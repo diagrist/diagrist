@@ -15,6 +15,11 @@ export interface EdgeText {
   readonly name?: string;
   readonly detail?: string;
   readonly accent?: boolean;
+  /**
+   * Where along its line the text belongs: by default the spot search looks from the middle of the longest piece;
+   * `start` looks along the pieces in the line's order, each from its start, as for a guard or a trigger.
+   */
+  readonly at?: 'start' | 'middle';
   readonly from?: EndText;
   readonly to?: EndText;
 }

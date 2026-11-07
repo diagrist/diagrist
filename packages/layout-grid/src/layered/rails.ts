@@ -149,7 +149,8 @@ function piecesOf(l: Laid, route: Route): RailPieces {
  * between, into the same side of the other end. A text stands beside the box the line starts from, over the piece
  * out of it where that is the upper end and under it where the lower, else at the other end, where it stands clear
  * there (`pieceText`) and, in a picture with lanes, the line stays in one lane, whose borders are not drawn yet, so its rail needs no room for it beside the track; else beside the track, and the rails are
- * placed anew. A frame holding both ends holds the rail and its text.
+ * placed anew. A text that belongs at the start of its line (`at: 'start'`) tries the piece it starts from even where
+ * the line changes lanes, and beside the track where that piece is not clear. A frame holding both ends holds the rail and its text.
  */
 export function drawRails(input: RailInput, m: LayeredMetrics, spec: LayeredSpec): Railed {
   const held = holders(spec);
@@ -157,7 +158,8 @@ export function drawRails(input: RailInput, m: LayeredMetrics, spec: LayeredSpec
   const layer = (n: string) => input.layerOf.get(n) ?? 0;
   const first = (e: LayeredEdge): RailTextAt => (layer(e.from) < layer(e.to) ? 'upper' : 'lower');
   const lane = input.lane;
-  const onPiece = (e: LayeredEdge) => lane === undefined || lane(e.from) === lane(e.to);
+  const inLane = (e: LayeredEdge) => lane === undefined || lane(e.from) === lane(e.to);
+  const onPiece = (e: LayeredEdge) => inLane(e) || e.label?.at === 'start';
   const where = new Map(
     input.edges.flatMap((e) => (label(e) > 0 ? [[e.id, onPiece(e) ? first(e) : ('beside' as const)]] : [])),
   );
@@ -177,7 +179,7 @@ export function drawRails(input: RailInput, m: LayeredMetrics, spec: LayeredSpec
       const lines = [...input.lines, ...[...routes.values()].filter((r) => r.edge !== l.edge.id)];
       const box = pieceText(l.edge, pieces.get(l.edge.id) as RailPieces, at, m.labelGap, { ...clutter, lines });
       if (box === undefined) {
-        where.set(l.edge.id, nextTextAt(at, first(l.edge)));
+        where.set(l.edge.id, inLane(l.edge) ? nextTextAt(at, first(l.edge)) : 'beside');
         moved = true;
         break;
       }

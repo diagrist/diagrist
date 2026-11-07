@@ -55,6 +55,8 @@ export interface LayeredEdge {
      * stands as one block as wide as `width`, its widest line.
      */
     readonly lines?: readonly { readonly text: string; readonly width: number }[];
+    /** Where along its line the label belongs, as `GraphLabel.at`. */
+    readonly at?: 'start' | 'middle';
   };
   /**
    * The edge is not drawn: it only holds its ends near each other in layers and places, such as a box hung below

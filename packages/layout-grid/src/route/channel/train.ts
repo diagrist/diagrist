@@ -3,15 +3,26 @@ import { type Range, within } from './free.js';
 /** How finely a train of ends slides along its side. */
 const STEP = 2;
 
-/** A bent end in a train: where its other box lies along the side, and the two boxes its edge joins. */
+/**
+ * A bent end in a train: where its other box lies along the side, the two boxes its edge joins, and how far it keeps
+ * at least from a neighbour that asks the same (`GridEdge.apart`).
+ */
 export interface Car {
   readonly other: number;
   readonly pair: string;
+  readonly apart?: number;
 }
 
-/** The steps between neighbours of a train: `spread`, twice that between two ends of edges between the same boxes. */
+/**
+ * The steps between neighbours of a train: `spread`, twice that between two ends of edges between the same boxes,
+ * and at least what both neighbours ask apart.
+ */
 const stepsOf = (ends: readonly Car[], spread: number): number[] =>
-  ends.slice(1).map((e, i) => (e.pair === (ends[i] as Car).pair ? 2 * spread : spread));
+  ends.slice(1).map((e, i) => {
+    const before = ends[i] as Car;
+    const step = e.pair === before.pair ? 2 * spread : spread;
+    return Math.max(step, Math.min(e.apart ?? 0, before.apart ?? 0));
+  });
 
 /**
  * Places of the ends of a train, by its order, and how they were found: as one train, beside its one straight end
@@ -81,7 +92,8 @@ function around(
 
 /**
  * Bent ends of one side, in the order of their other ends, as a train: `spread` apart, twice that between two ends
- * of edges between the same boxes, so their texts find room between them. The train stands inside the free stretches
+ * of edges between the same boxes, so their texts find room between them, and at least what two neighbours ask apart
+ * where such a train fits, else as if they asked nothing. The train stands inside the free stretches
  * of the side, `spread` clear of its straight ends and never between two straight `twins`, its middle as near the
  * middle of the side as that allows, on a tie towards where the other ends lie. Where no train fits beside a single
  * straight end, it moves that end within `room` where one is given (`shiftedTrain`), else parts around it (`around`); where that
@@ -116,6 +128,15 @@ export function bentPorts(
     (a, b) => cost(a) - cost(b),
   )[0];
   if (best !== undefined) return { spots: offsets.map((d) => best + d), how: 'train' };
+  if (ends.some((e) => e.apart !== undefined))
+    return bentPorts(
+      ends.map(({ apart: _, ...e }) => e),
+      fixed,
+      twins,
+      free,
+      spread,
+      room,
+    );
   const shifted = room && fixed.length === 1 ? shiftedTrain(ends, fixed[0] as number, free, room, spread) : undefined;
   if (shifted !== undefined) return shifted;
   const split = around(ends, steps, fixed, free, spread);

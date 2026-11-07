@@ -15,7 +15,9 @@ export interface Seat {
 /**
  * The seats of a fan or join of several lines that carry texts: each text beside its own branch, where the line
  * leaves its box into a join and where it reaches its box out of a fan, or at the top of the next piece of a line
- * that runs on, so no text stands at a trunk it shares with others. Undefined for any other group.
+ * that runs on, so no text stands at a trunk it shares with others; a text that belongs at the start of its line
+ * (`at: 'start'`) out of a fan at the top, where the spot search looks along the line from its start for the first
+ * clear spot past the trunk. Undefined for any other group.
  */
 function branchSeats(
   g: Group,
@@ -35,7 +37,7 @@ function branchSeats(
     const ends = l.lower === chain.at(-1);
     const next = ends ? l : groups.flatMap((k) => k.links).find((k) => k.edge === l.edge && k.upper === l.lower);
     if (next === undefined) return [];
-    const at = g.kind === 'join' || !ends ? 'top' : 'bottom';
+    const at = g.kind === 'join' || !ends || e.label.at === 'start' ? 'top' : 'bottom';
     return [{ edge: e, gap: next.gap, at, group: { kind: 'single', links: [next] } }];
   });
 }

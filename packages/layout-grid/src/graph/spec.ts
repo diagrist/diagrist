@@ -43,6 +43,8 @@ export interface GraphLabel {
   readonly width: number;
   readonly size: number;
   readonly lines?: readonly { readonly text: string; readonly width: number }[];
+  /** `start` for a text that belongs at the start of its line, such as a guard: sought from there (`EdgeText.at`). */
+  readonly at?: 'start' | 'middle';
 }
 
 /**

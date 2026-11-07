@@ -80,7 +80,8 @@ const shifted = (d: Drawn, dx: number): Drawn => ({
  * places its own: each stays where the pipeline seated it (`first`) while that spot is clear of boxes, heads,
  * frames that hold neither end of its line, foreign lines and the outlines of frames, which it keeps as far from as
  * from a line, and the texts placed before it, else takes the clear spot beside or on its line that comes least near
- * the texts of other lines, the longest piece first and nearest its middle, wrapped where that helps. An
+ * the texts of other lines, the longest piece first and nearest its middle, or along the line from its start for a
+ * text that belongs there (`EdgeText.at`), wrapped where that helps. An
  * edge with a text that runs through no gap (`chained` names those that do), such as one drawn beside its layer,
  * starts beside the middle of its longest horizontal piece. `crowded` names the routes whose texts found no clear
  * spot. A picture whose lines come nearer to 0 than its widest text, as rails may before it is moved inside, is
@@ -137,8 +138,12 @@ export function spotLabels(
     width: drawn.width,
     bottom: drawn.bottom,
   };
-  const byEdge = new Map(labelled.map((e): [string, EdgeText] => [e.id, { edge: e.id, name: e.label?.text ?? '' }]));
-
+  const byEdge = new Map(
+    labelled.map((e): [string, EdgeText] => {
+      const at = e.label?.at;
+      return [e.id, { edge: e.id, name: e.label?.text ?? '', ...(at === undefined ? {} : { at }) }];
+    }),
+  );
   const seated = new Set(first.map((l) => l.route));
   const unseated = drawn.routes.flatMap((r, i) => {
     const e = labelled.find((k) => k.id === r.edge);

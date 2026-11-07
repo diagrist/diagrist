@@ -9,10 +9,7 @@ export interface Pads {
   readonly right: number;
 }
 
-/**
- * The measures a kind lays out with, in pixels. They come from the kind's style table; the grid knows no kind
- * and no look, so everything that differs between kinds arrives here or on the nodes.
- */
+/** The measures a kind lays out with, in pixels: knowing no kind or look, the grid reads here what differs. */
 export interface GridMetrics {
   /** Snapping unit: reserves for frame heads round up to it. */
   readonly grid: number;
@@ -165,6 +162,8 @@ export interface GridEdge {
    */
   readonly route?: { readonly points: readonly Point[]; readonly fromSide: Side; readonly toSide: Side };
   readonly source?: Placed['span'];
+  /** In a channel grid, the least distance of its ends from a neighbour's on a side that asks it too (`apartOf`). */
+  readonly apart?: number;
 }
 
 /**
