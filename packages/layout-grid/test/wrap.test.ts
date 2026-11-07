@@ -35,4 +35,9 @@ describe('wrapTwo', () => {
     expect(wrapTwo('Fehler behoben, sofort')).toEqual(['Fehler behoben,', 'sofort']);
     expect(wrapTwo('liest die Daten aus')).toEqual(['liest die', 'Daten aus']);
   });
+
+  it('keeps a guard in brackets whole and breaks before it, or inside it before a join', () => {
+    expect(wrapTwo('stornieren [noch nicht versandt]')).toEqual(['stornieren', '[noch nicht versandt]']);
+    expect(wrapTwo('[Betrag > 100 und Kunde neu]')).toEqual(['[Betrag > 100', 'und Kunde neu]']);
+  });
 });

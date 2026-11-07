@@ -611,7 +611,8 @@ it is laid out to took a place in the order of that box's side, so the line out 
 and slanted by a pixel; such an end now stands in an order of its own (`portsOf`, `loose`; `framedEnd`), as
 `acrossFrames` moves it across the frame anyway. And `scoreOf` counted `abbrechen`, a rail from the side of `Störung`
 round the frame into the side of `Bereit`, as `Störung` 389 px off its one parent; a line that leaves one box by a side
-and enters another, above or below it, by a side no longer counts for centring (`around` in `score.ts`).
+and enters another, above or below it, by a side no longer counts for centring (`around` in `score.ts`; since moved
+into `lineCentring` in `core` as `takenRound`, so the budgets count centring as `scoreOf` does).
 
 `gedaechtnis`: 2,317 to 1,772 px of line, 6 to 2 bends, 765 to 726 px wide, `Programm läuft` 477 to 358 px wide,
 `Störung` beside H* with both lines across, `Pausiert` below with both lines straight. Side effects: `pakete` 14 px
@@ -647,3 +648,12 @@ borders are not drawn when the rails are; a text at the start now tries the piec
 their triggers in the middle for now: set
 for them, a text of `verschachtelt` landed where `holdTexts` later grows a frame (G400), and the branches of the
 fans in `auswahl-vier` read less clearly.
+
+**State machines seat triggers from the start of their line** (07.11.2026, round 3). The two faults are settled. Where
+`holdTexts` grows a frame for a text inside it, the texts are sought once more with the grown frames
+(`layered/finish.ts`), so no text keeps a spot the frame later covers. A guard out of a choice or another small vertex,
+whose lines share a trunk, stays `middle`: its line starts on the trunk, which says nothing about its branch, and set
+to `start` the four guards of the first fan in `auswahl-vier` stood side by side on the trunk. And a spot that reaches
+beyond the left edge of the picture comes after the spots within it (`SearchOptions.floor`), so `freigeben` in
+`verschachtelt` stands beside its rail above `Wartung` instead of left of it, which made the picture 62 px wider. 17
+state pictures change their texts, no measure of any picture changes.

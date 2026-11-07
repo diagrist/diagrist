@@ -85,7 +85,8 @@ const shifted = (d: Drawn, dx: number): Drawn => ({
  * edge with a text that runs through no gap (`chained` names those that do), such as one drawn beside its layer,
  * starts beside the middle of its longest horizontal piece. `crowded` names the routes whose texts found no clear
  * spot. A picture whose lines come nearer to 0 than its widest text, as rails may before it is moved inside, is
- * searched moved right, so a text may stand left of its line where the picture then grows.
+ * searched moved right, so a text may stand left of its line where the picture then grows, though only where no
+ * spot within the picture is clear (`SearchOptions.floor`).
  */
 export function spotLabels(
   spec: LayeredSpec,
@@ -162,6 +163,10 @@ export function spotLabels(
     return { edge: `frame:${id}`, points, shape: 'orthogonal', fromSide: 'top', toSide: 'top' };
   });
   const lines = [...drawn.routes, ...outlines];
-  const found = signEdges(grid, layout, lines, texts, [], { placed: [...first, ...unseated] });
+  const floor = Math.min(
+    ...drawn.routes.flatMap((r) => r.points.map((p) => p[0])),
+    ...[...drawn.rects.values(), ...drawn.frames.map((f) => f.rect)].map((r) => r.x),
+  );
+  const found = signEdges(grid, layout, lines, texts, [], { placed: [...first, ...unseated], floor });
   return { labels: found.labels, crowded: found.crowded };
 }

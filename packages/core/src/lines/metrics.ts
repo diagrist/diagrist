@@ -93,14 +93,29 @@ export interface LineCentring {
 }
 
 /**
+ * Whether a line is taken round the boxes between its ends: it leaves one box by a side and enters the other by a
+ * side, while one box stands above the other. Such a line makes neither box the parent of the other, so it sets off
+ * no box from the middle of the other, nor does it stand beside it.
+ */
+function takenRound(r: LineInput['routes'][number], rects: ReadonlyMap<string, Rect>): boolean {
+  const [a, b, c, d] = [r.points[0], r.points[1], r.points.at(-2), r.points.at(-1)];
+  const [p, q] = [rects.get(r.from), rects.get(r.to)];
+  if (a === undefined || b === undefined || c === undefined || d === undefined || p === undefined || q === undefined)
+    return false;
+  return a[1] === b[1] && c[1] === d[1] && (p.y + p.h <= q.y || q.y + q.h <= p.y);
+}
+
+/**
  * How far boxes stand from the middle of their neighbours below (Q11) and single children from their parent (Q12),
- * as `lineMetrics` counts them; a layout may hand only the lines it wants centred, such as those of a hierarchy.
+ * as `lineMetrics` counts them, by the lines that are not taken round the boxes between their ends (`takenRound`); a
+ * layout may hand only the lines it wants centred, such as those of a hierarchy.
  */
 export function lineCentring(input: LineInput): LineCentring {
+  const all = new Map(input.nodes.map((n) => [n.id, n.rect]));
   const rects = new Map(input.nodes.filter((n) => n.owner === undefined).map((n) => [n.id, n.rect]));
   const neighbours = new Map<string, Set<string>>();
   for (const r of input.routes) {
-    if (r.from === r.to || !rects.has(r.from) || !rects.has(r.to)) continue;
+    if (r.from === r.to || !rects.has(r.from) || !rects.has(r.to) || takenRound(r, all)) continue;
     neighbours.set(r.from, (neighbours.get(r.from) ?? new Set()).add(r.to));
     neighbours.set(r.to, (neighbours.get(r.to) ?? new Set()).add(r.from));
   }

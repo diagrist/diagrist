@@ -151,19 +151,11 @@ export function finish(spec: LayeredSpec, arrangement: Arrangement): LayeredLayo
     const outer = (spec.frames ?? []).filter((f) => f.parent === undefined).map((f) => f.pad);
     const edge = railed.routes.size > 0 ? m.left + (spec.lanes?.[0]?.pad ?? 0) : 0;
     const floor = outer.length > 0 ? m.left - Math.max(...outer) : edge;
-    const laid = assemble(spec, {
-      ranked,
-      layers,
-      rects,
-      routes,
-      seats,
-      ports,
-      groups,
-      core,
-      loose,
-      ...(frames ? { frames: clearHeads(frames, spec, routes, real) } : {}),
-    });
-    return ln.around({ ...keptInside(holdTexts(spec, laid), floor), crowded: laid.crowded }, x, width, m.top);
+    const parts = { ranked, layers, rects, routes, seats, ports, groups, core, loose };
+    const laid = assemble(spec, { ...parts, ...(frames ? { frames: clearHeads(frames, spec, routes, real) } : {}) });
+    const held = holdTexts(spec, laid);
+    const final = held === laid ? laid : holdTexts(spec, assemble(spec, { ...parts, frames: held.frames ?? [] }));
+    return ln.around({ ...keptInside(final, floor), crowded: laid.crowded }, x, width, m.top);
   };
   let placement = place();
   const around = below.around.flatMap((id): Around[] => {

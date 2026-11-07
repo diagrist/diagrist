@@ -64,4 +64,13 @@ describe('the lines of C4 pictures', () => {
     const { svg } = compile(readFileSync(stress, 'utf8'), { plugins });
     expect(svg).toContain('>meldet Gewerbe an<');
   });
+
+  it('point a finding about a line at the line of the source that declares it', () => {
+    const text = readFileSync(new URL('stress/c4/bloecke.dgr', import.meta.url), 'utf8');
+    const crossings = compile(text, { plugins }).diagnostics.filter((d) => d.code === 'G410');
+    const declared = text.split('\n').findIndex((l) => l.startsWith('edge wiedergabe -> abo')) + 1;
+    expect(crossings.length).toBeGreaterThan(0);
+    expect(crossings.map((d) => d.span?.line)).toContain(declared);
+    expect(crossings.every((d) => (d.span?.line ?? 1) > 1)).toBe(true);
+  });
 });
