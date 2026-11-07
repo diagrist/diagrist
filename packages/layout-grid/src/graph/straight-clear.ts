@@ -13,8 +13,6 @@ const STEPS = [8, 16, 24, 32, 48, 64, 80, 96, 128].flatMap((s) => [s, -s]);
 const ASIDE = [16, 32, 48, 64, 96].flatMap((s) => [s, -s]);
 /** Rounds of moves; each moves one box. */
 const ROUNDS = 8;
-/** A line that only grazes the corner of a frame holding neither of its ends, by less than this, does not pass it. */
-const GRAZE = 8;
 /** A line through a box weighs as ten crossings, as in `scoreOf`. */
 const THROUGH = 10;
 
@@ -43,7 +41,8 @@ function endsOf(e: GraphEdge, nodes: ReadonlyMap<string, GraphNode>, rects: Move
 
 /**
  * Lines through boxes they do not join or through the heads of frames, ten each, crossings of lines that share no
- * end, and lines through frames that hold neither of their ends, by more than `GRAZE`.
+ * end, and lines through frames that hold neither of their ends or closer past them than `CLEAR`, as the line check
+ * keeps lines from boxes.
  */
 function costOf(
   edges: readonly GraphEdge[],
@@ -61,7 +60,7 @@ function costOf(
     for (const [id, r] of rects)
       if (id !== l.e.from && id !== l.e.to && segmentMeetsRect(l.p, l.q, r, CLEAR)) cost += THROUGH;
   for (const l of lines) cost += THROUGH * heads.filter((h) => segmentMeetsRect(l.p, l.q, h, CLEAR)).length;
-  for (const l of lines) cost += foreign(l.e).filter((f) => segmentMeetsRect(l.p, l.q, f)).length;
+  for (const l of lines) cost += foreign(l.e).filter((f) => segmentMeetsRect(l.p, l.q, f, CLEAR)).length;
   lines.forEach((l, i) => {
     for (const k of lines.slice(i + 1)) {
       const shared = [l.e.from, l.e.to].some((n) => n === k.e.from || n === k.e.to);
@@ -98,8 +97,8 @@ const inside = (r: Rect, f: Rect, pad: number, top: number) =>
   r.x >= f.x + pad && r.y >= f.y + top && r.x + r.w <= f.x + f.w - pad && r.y + r.h <= f.y + f.h - pad;
 
 /**
- * Boxes moved where a straight line runs through a box it does not join, through the head of a frame or through a
- * frame holding neither of its ends: of the moves of a box a line passes or of an
+ * Boxes moved where a straight line runs through a box it does not join, through the head of a frame or through or
+ * close past a frame holding neither of its ends: of the moves of a box a line passes or of an
  * end of such a line, along its layer by up to 128 pixels, just off a line that runs through it, or into the gaps
  * beside it by up to 96, that keep it `ROOM`
  * from every other box, inside the picture as it stands, inside its frames by their pads and their top and outside the
@@ -128,9 +127,7 @@ export function clearStraight(
   });
   const passed = (e: GraphEdge) => {
     const held = new Set([...frameOf(e.from).own, ...frameOf(e.to).own].map((f) => f.id));
-    return frames
-      .filter((f) => !held.has(f.id))
-      .map(({ rect: r }) => ({ x: r.x + GRAZE, y: r.y + GRAZE, w: r.w - 2 * GRAZE, h: r.h - 2 * GRAZE }));
+    return frames.filter((f) => !held.has(f.id)).map((f) => f.rect);
   };
   let cost = costOf(straight, nodes, best, heads, passed);
   for (let round = 0; round < ROUNDS && cost > 0; round++) {

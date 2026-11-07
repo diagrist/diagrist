@@ -36,16 +36,34 @@ export const isLinked = (id: string, p: Parts): boolean =>
 
 /**
  * A use case without include, extend and generalization hangs on actors only. When most of them stand right, it
- * moves to the last column, so their lines do not run through the inner columns.
+ * moves to the last column of its own subject, so their lines do not run through the inner columns; never past it,
+ * since a subject that shares its columns with a deeper one would grow as wide as that one and leave its middle empty.
  */
 export function towardActors(p: Parts, depth: Map<string, number>, side: ReadonlyMap<string, Side>): void {
-  const last = Math.max(0, ...depth.values());
-  if (!last) return;
+  const last = new Map<string | undefined, number>();
+  for (const c of p.cases) last.set(c.subject, Math.max(last.get(c.subject) ?? 0, depth.get(c.id) ?? 0));
   for (const c of p.cases) {
-    if (isLinked(c.id, p)) continue;
+    const own = last.get(c.subject) ?? 0;
+    if (!own || isLinked(c.id, p)) continue;
     const actors = casesOf(c.id, p);
     const right = actors.filter((a) => side.get(a) === 'right').length;
-    if (right > actors.length - right) depth.set(c.id, last);
+    if (right > actors.length - right) depth.set(c.id, own);
+  }
+}
+
+/**
+ * A subject narrower than the columns it shares with a deeper one stands in the columns next to the lane most of its
+ * lines run to: right where more of its actors' lines lead right than left. So its frame keeps the width of its own
+ * cases and its lines do not cross the empty columns beside it.
+ */
+export function slide(p: Parts, depth: Map<string, number>, side: ReadonlyMap<string, Side>, width: number): void {
+  const groups = new Map<string | undefined, string[]>();
+  for (const c of p.cases) groups.set(c.subject, [...(groups.get(c.subject) ?? []), c.id]);
+  for (const ids of groups.values()) {
+    const slack = width - 1 - Math.max(0, ...ids.map((id) => depth.get(id) ?? 0));
+    const ends = ids.flatMap((id) => casesOf(id, p).map((a) => side.get(a)));
+    const right = ends.filter((s) => s === 'right').length;
+    if (slack > 0 && right > ends.length - right) for (const id of ids) depth.set(id, (depth.get(id) ?? 0) + slack);
   }
 }
 

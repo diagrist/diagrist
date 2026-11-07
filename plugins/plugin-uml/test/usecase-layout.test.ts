@@ -160,10 +160,10 @@ describe('notes on a use case diagram', () => {
 describe('several subjects', () => {
   it('stand side by side with a shared actor between them', () => {
     const p = picture('zwei-systeme');
-    const [shop, erp] = [p.frame('shop'), p.frame('erp')];
+    const [left, right] = [p.frame('shop'), p.frame('erp')].sort((a, b) => a.x - b.x) as [Rect, Rect];
     for (const id of ['sb', 'versand']) {
-      expect(cx(p.node(id))).toBeGreaterThan(shop.x + shop.w);
-      expect(cx(p.node(id))).toBeLessThan(erp.x);
+      expect(cx(p.node(id))).toBeGreaterThan(left.x + left.w);
+      expect(cx(p.node(id))).toBeLessThan(right.x);
     }
   });
 
