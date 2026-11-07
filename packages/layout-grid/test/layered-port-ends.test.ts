@@ -23,7 +23,7 @@ describe('the ends of a side', () => {
 
   it('take a trunk on a diamond to its tip when no member stands within its reach', () => {
     const { groups, rects, x, trunk } = fanned();
-    const tip = (box: string) => box === 'z';
+    const tip = (box: string) => (box === 'z' ? { shape: 'diamond' as const } : undefined);
     const ports = portsOf(groups, NONE, rects, x, 16, undefined, undefined, undefined, [], [], undefined, tip);
     expect(ports.bottom.get(trunk)).toBe(200);
   });
@@ -34,4 +34,29 @@ describe('the ends of a side', () => {
     expect(ports.bottom.get(trunk)).toBe(212);
   });
 
+  /** Three ends on the top of a box 200 wide: the first wants past its left inset, the last its right one. */
+  const shifted = (corner?: number) => {
+    const uppers = { u: -100, v: 0, w: 300 };
+    const links = Object.keys(uppers).map((u) => link(u, 'b'));
+    const x = new Map([['b', 100], ...Object.entries(uppers)]);
+    const rects = new Map([
+      ['b', rect(100, 200)],
+      ...Object.entries(uppers).map(([id, cx]) => [id, rect(cx, 100)] as const),
+    ]);
+    const node = (box: string) => (box === 'b' && corner !== undefined ? { corner } : undefined);
+    const singles = links.map((l): Group => ({ kind: 'single', links: [l] }));
+    const ports = portsOf(singles, NONE, rects, x, 16, undefined, undefined, undefined, [], [], undefined, node);
+    return links.map((l) => ports.top.get(l) ?? 0);
+  };
+
+  it('stay off a rounded corner when the row is shifted back off the other one', () => {
+    for (const at of [shifted(), shifted(16)]) {
+      expect(Math.min(...at)).toBeGreaterThanOrEqual(16);
+      expect(Math.max(...at)).toBeLessThanOrEqual(184);
+    }
+  });
+
+  it('may come nearer a square corner, where no rounding is in the way', () => {
+    expect(Math.max(...shifted(0))).toBe(192);
+  });
 });

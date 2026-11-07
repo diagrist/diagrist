@@ -10,6 +10,8 @@ export interface LayeredNode {
   readonly cluster?: string;
   /** `bar`: grows over the ends of its lines, each straight below its other end; `diamond`: trunks leave its tip. */
   readonly shape?: 'box' | 'ellipse' | 'bar' | 'diamond';
+  /** The radius of its corners, which ends shifted back into a side stay off (`layered/port-row.ts`). */
+  readonly corner?: number;
   /** The sides ends may take, each at the middle of its side, as at the corners of a diamond. */
   readonly sides?: readonly ('top' | 'bottom' | 'left' | 'right')[];
   /** How far texts the kind sets beside the node reach out of it; no other box comes nearer. */
@@ -167,9 +169,7 @@ export interface LayeredSpec {
    * edges are ordered in between. Without it, the edges decide both.
    */
   readonly layers?: readonly (readonly string[])[];
-  /**
-   * With `layers`, take from them only the layer of every box and order each layer anew, as without them.
-   */
+  /** With `layers`, take from them only the layer of every box and order each layer anew, as without them. */
   readonly reorder?: boolean;
   /**
    * The graph the boxes are layered by, instead of `layers`, as the kind gives its ranks (`layerGraph`): `free`

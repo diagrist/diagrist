@@ -15,6 +15,11 @@ export interface GraphNode {
    */
   readonly shape?: 'box' | 'ellipse' | 'bar' | 'diamond';
   /**
+   * The radius of its corners as the kind draws them, 0 for square ones: an end the port stage shifts toward a corner
+   * stays off its rounding (`layered/port-row.ts`). Without it, ends keep the inset of 16 px from every corner.
+   */
+  readonly corner?: number;
+  /**
    * The frame or node whose outline the node sits on, such as a point of a box that holds others: a line through it
    * runs straight across the outline, the node centred where it crosses (`graph/docks.ts`).
    */
