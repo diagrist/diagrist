@@ -32,6 +32,12 @@ describe('tracks in a gap', () => {
     expect(assignTracks(Object.values(p), 12)).toBe(3);
     expect([p.right.track, p.middle.track, p.left.track]).toEqual([0, 1, 2]);
   });
+
+  it('with `apart`, takes a crossing rather than two verticals on one another, which hide where each line goes', () => {
+    const p = { down: piece(152, 328, [152], [328]), up: piece(168, 328, [328], [168]) };
+    expect(assignTracks(Object.values(p), 36)).toBe(2);
+    expect(p.up.track).toBeLessThan(p.down.track);
+  });
 });
 
 /** Spans spread along a gap, many alike so ties happen, the same for the same seed. */

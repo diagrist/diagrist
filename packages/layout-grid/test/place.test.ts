@@ -17,6 +17,25 @@ describe('placing a fixed grid', () => {
     expect(layout.gutters.cols[0]).toBe((48 + 192 + 376) / 2);
   });
 
+  it('stands the tracks of a gap in the middle of what the room kept at its borders leaves, else in its middle', () => {
+    const s = spec('a b', 'r s', ['x@a/r', 'y@b/s']);
+    const kept = (keep: readonly [number, number]) =>
+      placeGrid({
+        ...s,
+        cols: [{ name: 'a', gap: 200, keep }, { name: 'b' }],
+        rows: [{ name: 'r', keep }, { name: 's' }],
+      });
+    const plain = kept([0, 0]);
+    const [lo, hi] = [48 + 192, 48 + 192 + 200];
+    expect(plain.gutters.cols[0]).toBe((lo + hi) / 2);
+    expect(kept([120, 0]).gutters.cols[0]).toBe((lo + 120 + hi) / 2);
+    expect(kept([0, 40]).gutters.cols[0]).toBe((lo + hi - 40) / 2);
+    expect(kept([150, 60]).gutters.cols[0]).toBe((lo + hi) / 2);
+    const row = plain.rows[0];
+    if (!row) throw new Error('missing');
+    expect(kept([0, 40]).gutters.rows[0]).toBe(row.y + row.h + (METRICS.rowGap - 40) / 2);
+  });
+
   it('stands a node with its own size in the middle of its cell and leaves out nodes in unknown places', () => {
     const layout = placeGrid(spec('a', 'r', [{ id: 'p', col: 'a', row: 'r', width: 40, height: 30 }, 'lost@b/r']));
     expect(rectOf(layout, 'p')).toEqual({ x: 48 + 96 - 20, y: 128 + 13, w: 40, h: 30 });

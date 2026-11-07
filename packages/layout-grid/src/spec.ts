@@ -37,10 +37,7 @@ export interface GridMetrics {
   readonly portSpread: number;
   /** How far a loop reaches out right of and below its node. */
   readonly loopReach: number;
-  /**
-   * The usual pads of a frame. `top` is also the head strip edges must not run through, `x` and `bottom` the room
-   * frames keep when they grow around routes.
-   */
+  /** Pads of a frame; `top` also the head strip edges keep out of, `x` and `bottom` pad frames grown round routes. */
   readonly framePad: { readonly top: number; readonly bottom: number; readonly x: number };
   /** Font of edge labels, their line height and the distance between label and line. */
   readonly labelFont: Font;
@@ -56,17 +53,19 @@ export interface GridMetrics {
   readonly lead?: number;
 }
 
-/** A column of the grid, `nodeW` wide without a width; `gap` is the least gap right of it, as `GridRow.gap`. */
-export interface GridColumn {
-  readonly name: string;
+/** A column of the grid, `nodeW` wide without a width; `gap` and `keep` concern the gap right of it (`GridRow`). */
+export interface GridColumn extends GridRow {
   readonly width?: number;
-  readonly gap?: number;
 }
 
-/** A row of the grid; `gap` is the least gap below it, for kinds that need more room than the grid gives. */
+/**
+ * A row of the grid. `gap` is the least gap below it, for kinds that need more room than the grid gives; `keep` the
+ * room at the near and the far border of that gap which its row of tracks leaves free, for a text along the border.
+ */
 export interface GridRow {
   readonly name: string;
   readonly gap?: number;
+  readonly keep?: readonly [number, number];
 }
 
 /**

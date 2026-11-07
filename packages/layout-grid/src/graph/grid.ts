@@ -1,5 +1,6 @@
 import { apartOf } from '../label/apart.js';
-import { gutterRoom, leavesGap, widen } from '../label/gutters.js';
+import { leavesGap } from '../label/gaps.js';
+import { gutterRoom, widen } from '../label/gutters.js';
 import type { GridLayout, Route } from '../layout.js';
 import { placeGrid } from '../place/index.js';
 import { routeEdges } from '../route/index.js';
@@ -90,7 +91,8 @@ function laid(cells: Cells, run: (spec: GridSpec) => Round, first: Round): CellL
   const apart = (r: Round) => apartOf(r.routes, r.signs.labels, r.spec.metrics, cells.onLine);
   let done = first;
   for (let round = 0; round < ROUNDS; round++) {
-    const room = gutterRoom(done.spec, done.grid, done.routes, cells.texts, done.signs.crowded, cells.onLine);
+    const { crowded, labels } = done.signs;
+    const room = gutterRoom(done.spec, done.grid, done.routes, cells.texts, crowded, cells.onLine, labels);
     const asked = apart(done);
     const wider = spaced(done.spec, asked);
     if (!asks(room) && wider === done.spec) break;
