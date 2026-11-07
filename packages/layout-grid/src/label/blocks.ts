@@ -35,7 +35,7 @@ export function stacks(text: EdgeText, upright: boolean, m: GridMetrics): Line[]
     ? []
     : (fits([detail], 'detail') ? [detail] : within(detail, 'detail')).map(lineOf('detail'));
   if (!name) return tail.length > 0 ? [tail] : [];
-  const two = wrapTwo(name);
+  const two = wrapTwo(name, (l) => textWidth(l, partFont('name', m)) <= max);
   const ways = [[name], two, within(name, 'name')].filter((w, i) => fits(w, 'name') || i === 2);
   const unique = ways.filter((w, i) => ways.findIndex((v) => v.join('\n') === w.join('\n')) === i);
   const [first, second] = unique.map((w) => [...w.map(lineOf('name')), ...tail]);

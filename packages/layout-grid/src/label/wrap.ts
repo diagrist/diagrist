@@ -1,19 +1,23 @@
 /**
  * Splits a text into two lines at ` · `, else at `, `, else between the chunks of `chunksOf` at the last space before
- * the middle, so a number keeps its unit and no line starts with a closing token.
+ * the middle, so a number keeps its unit and no line starts with a closing token. A break outside brackets whose
+ * lines both `fit` comes first, so a guard in brackets stays whole where it fits on a line of its own.
  */
-export function wrapTwo(text: string): [string] | [string, string] {
+export function wrapTwo(text: string, fit: (line: string) => boolean = () => true): [string] | [string, string] {
   const separator = text.indexOf(' · ');
   if (separator > 0) return [text.slice(0, separator), text.slice(separator + 3)];
   const comma = text.indexOf(', ');
   if (comma > 0) return [text.slice(0, comma + 1), text.slice(comma + 2)];
   const mid = Math.floor(text.length / 2);
-  const cuts: number[] = [];
+  const chunks = chunksOf(text);
+  const all: { at: number; outside: boolean }[] = [];
   let at = -1;
-  for (const c of chunksOf(text).slice(0, -1)) {
+  for (const [i, c] of chunks.slice(0, -1).entries()) {
     at += 1 + c.text.length;
-    cuts.push(at);
+    all.push({ at, outside: (chunks[i + 1] as { cost: number }).cost === 0 });
   }
+  const whole = all.filter((c) => c.outside && fit(text.slice(0, c.at)) && fit(text.slice(c.at + 1)));
+  const cuts = (whole.length > 0 ? whole : all).map((c) => c.at);
   const before = cuts.filter((c) => c <= mid).at(-1);
   const cut = before ?? cuts.find((c) => c > mid) ?? -1;
   if (cut <= 0) return [text];
