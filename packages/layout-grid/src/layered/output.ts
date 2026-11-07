@@ -11,6 +11,7 @@ import type { Ports } from './ports.js';
 import type { Ranked } from './rank.js';
 import type { LayeredSpec } from './spec.js';
 import { spotLabels } from './spots.js';
+import { hungLines, tetherRoutes } from './tethers.js';
 import { textBlocks } from './text-blocks.js';
 
 /** The weight of a soft line in the measure: its bends count half, and it does not count for centring. */
@@ -95,12 +96,16 @@ export function spot(
 }
 
 /**
- * Seats the labels and lets the spot search keep them there or move them clear (`spotLabels`), then gathers boxes,
- * labels, the frame of a hub and the frames, and measures the picture.
+ * Draws the lines of boxes hanging from lines (`tetherRoutes`), seats the labels and lets the spot search keep them
+ * there or move them clear (`spotLabels`), then gathers boxes, labels, the frame of a hub and the frames, and measures
+ * the picture.
  */
-export function assemble(spec: LayeredSpec, laid: Laid): Assembled {
+export function assemble(spec: LayeredSpec, unhung: Laid): Assembled {
   const m = spec.metrics;
-  const { ranked, layers, rects, routes, groups, core } = laid;
+  const { ranked, layers, rects, groups, core } = unhung;
+  const real = new Map([...rects].filter(([n]) => !ranked.dummies.has(n)));
+  const laid = { ...unhung, routes: [...unhung.routes, ...tetherRoutes(spec, real, unhung.routes)] };
+  const routes = laid.routes;
   const size = new Map(spec.nodes.map((n) => [n.id, n]));
   const trunks = new Map(
     groups.flatMap((g, i) => (g.kind === 'single' ? [] : g.links.map((l) => [l.edge, `${g.kind}-${i}`] as const))),
@@ -169,20 +174,25 @@ export function assemble(spec: LayeredSpec, laid: Laid): Assembled {
 
 /**
  * The lines of a laid out picture as the line check reads them, with the frames and the head of its core, each
- * weighted as the measure weighs it: a main path more, a soft line less, and every text as one block (`textBlocks`).
+ * weighted as the measure weighs it: a main path more, a soft line less, and every text as one block (`textBlocks`);
+ * a line hanging from a line reads as `hungLines` says.
  */
 export function layeredLines(spec: LayeredSpec, layout: LayeredLayout): LineInput {
   const ends = new Map(spec.edges.map((e) => [e.id, [e.from, e.to] as const]));
   const weight = new Map(spec.edges.map((e) => [e.id, e.strength === 'soft' ? SOFT : Math.max(1, e.weight ?? 1)]));
   const core = layout.frame === undefined ? [] : [{ id: 'core', rect: layout.frame.rect, head: layout.frame.head.box }];
-  return linesOfLaid({
-    nodes: layout.nodes,
-    routes: layout.routes,
-    ends: layout.routes.map((r) => ends.get(r.edge) ?? ['', '']),
-    weights: layout.routes.map((r) => weight.get(r.edge) ?? 1),
-    labels: textBlocks(layout.labels),
-    frames: [...core, ...(layout.frames ?? [])],
-    width: layout.width,
-    height: layout.bottom,
-  });
+  return hungLines(
+    spec,
+    SOFT,
+    linesOfLaid({
+      nodes: layout.nodes,
+      routes: layout.routes,
+      ends: layout.routes.map((r) => ends.get(r.edge) ?? ['', '']),
+      weights: layout.routes.map((r) => weight.get(r.edge) ?? 1),
+      labels: textBlocks(layout.labels),
+      frames: [...core, ...(layout.frames ?? [])],
+      width: layout.width,
+      height: layout.bottom,
+    }),
+  );
 }

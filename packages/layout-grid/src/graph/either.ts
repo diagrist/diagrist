@@ -9,6 +9,12 @@ const CONVENTION = 1_000;
 /** The most targets the search turns, those with the most edges first; every set of them is laid out once. */
 const TARGETS = 4;
 
+/**
+ * What a box turned to hang above its line costs instead of `CONVENTION`: a fifth of a crossing, since either side
+ * reads, but below comes first.
+ */
+const HANG = 200;
+
 /** The targets of `either` edges, those with the most such edges first, then in edge order. */
 function targetsOf(edges: readonly GraphEdge[]): string[] {
   const count = new Map<string, number>();
@@ -54,7 +60,8 @@ export function eitherWay(
   for (const set of subsets(targets)) {
     const turned = turn(graph, new Set(set));
     const laid = lay(turned);
-    const cost = scoreOf(layeredLines(specOf(turned), laid)).cost + CONVENTION * set.length;
+    const turns = set.map((t) => (graph.edges.some((e) => e.hang === true && e.to === t) ? HANG : CONVENTION));
+    const cost = scoreOf(layeredLines(specOf(turned), laid)).cost + turns.reduce((a, b) => a + b, 0);
     if (cost < best.cost) best = { graph: turned, layout: laid, cost };
   }
   return { graph: best.graph, layout: best.layout };

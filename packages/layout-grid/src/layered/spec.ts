@@ -60,11 +60,13 @@ export interface LayeredEdge {
     /** Where along its line the label belongs, as `GraphLabel.at`. */
     readonly at?: 'start' | 'middle';
   };
-  /**
-   * The edge is not drawn: it only holds its ends near each other in layers and places, such as a box hung below
-   * the line it belongs to. It takes no port and no track and gets no route.
-   */
+  /** The edge is not drawn: it only holds its ends near each other in layers and places; no port, track or route. */
   readonly hidden?: boolean;
+  /**
+   * A hidden edge between a box hanging from a line (`GraphEdge.hang`) and one end of that line: `id` of the line
+   * drawn from the line to the `box` once the routes stand, `line` the edge hung from (`layered/tethers.ts`).
+   */
+  readonly hang?: { readonly id: string; readonly line: string; readonly box: string };
   /**
    * The least straight run out of `from` and into `to`, where the kind draws symbols and texts at the ends of the
    * line; never less than `tail` and `lead` of the metrics.
@@ -149,10 +151,7 @@ export interface LayeredFrame {
   readonly top: number;
   /** The head at the top left corner, inside the room `top`, and the room a line passing it keeps beside it. */
   readonly head: { readonly width: number; readonly height: number; readonly air?: number };
-  /**
-   * The head stands on the frame as a tab, so its outline runs `head.height` below the top of its rectangle, where a
-   * line ending at the frame from above ends.
-   */
+  /** The head stands on the frame as a tab: its outline runs `head.height` below the top, where lines from above end. */
   readonly tab?: boolean;
   /** No line that neither starts nor ends in the frame runs through it (`GraphContainer.opaque`). */
   readonly opaque?: boolean;
