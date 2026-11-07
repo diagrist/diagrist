@@ -228,7 +228,12 @@ order that stays is laid out in full (`laidOut`). The order alone would not do: 
 refinement trusted on its own gave pictures new crossings and lines through texts. Placeholders between two boxes
 drawn beside each other share the room the line between them asks, so a line that crosses there passes clear of the
 texts at its ends. `scoreOf` keeps length at 0.1 a pixel: its searches move boxes, where a few pixels of line must not
-buy a bend. `beobachter` now crosses `Kursquelle → PreisBeobachter` once instead of running `PushAlarm → AlarmRegel`
+buy a bend. A third order is built rather than searched (`hangingOrder`, 07.11.2026): the placeholders of a row of
+boxes held by long edges and nothing else take gaps of their own, in the order of their lower ends, each into the gap
+nearest where its lower end is estimated, the other nodes kept in their order. Two placeholders in one gap stand
+closer than the boxes below them can, and their lines then jog round each other, but no single move parts them. It
+is drawn and weighed as the shorter order is, after it: `vererbung-acht` keeps its first row in the declared order
+and hangs its second row straight (20 to 14 bends, 2,975 to 2,871 px). `beobachter` now crosses `Kursquelle → PreisBeobachter` once instead of running `PushAlarm → AlarmRegel`
 round the top, 768 px shorter, a trade its budget names (a crossing and a bend a straight line could spare).
 
 ## Amendment: every state machine on the layout graph (plan P8)

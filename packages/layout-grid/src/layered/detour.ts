@@ -26,10 +26,11 @@ function traded(a: LineInput, b: LineInput): boolean {
 }
 
 /**
- * A picture laid out in the order of fewest crossings and, where the order stage found one, also in the order of
- * shorter lines (`Arrangement.shorter`); the shorter one stays where its drawing trades better (`traded`). The order
- * stage only estimates where boxes will stand, so the drawing decides: both orders are drawn without the passes that
- * move boxes to straighten lines, and only the one that stays is laid out in full.
+ * A picture laid out in the order of fewest crossings and, where the order stage found them, also in the order of
+ * shorter lines (`Arrangement.shorter`) and the order of hanging rows (`Arrangement.hanging`); each in turn stays
+ * where its drawing trades better than the one kept so far (`traded`). The order stage only estimates where boxes
+ * will stand, so the drawing decides: the orders are drawn without the passes that move boxes to straighten lines, and
+ * only the one that stays is laid out in full.
  */
 function laidFrom(
   spec: LayeredSpec,
@@ -37,12 +38,16 @@ function laidFrom(
   release: (layout: LayeredLayout) => LayeredLayout,
   outer: LayeredSpec,
 ): LayeredLayout {
-  const { shorter } = arranged;
-  if (shorter === undefined) return release(finish(spec, arranged));
+  const others = [arranged.shorter, arranged.hanging].filter((l) => l !== undefined);
+  if (others.length === 0) return release(finish(spec, arranged));
   const rough = (layers: string[][]) =>
     layeredLines(outer, release(finish(spec, { ...arranged, layers, rough: true })));
-  const better = traded(rough(arranged.layers), rough(shorter));
-  return release(finish(spec, better ? { ...arranged, layers: shorter } : arranged));
+  let kept = { layers: arranged.layers, lines: rough(arranged.layers) };
+  for (const layers of others) {
+    const lines = rough(layers);
+    if (traded(kept.lines, lines)) kept = { layers, lines };
+  }
+  return release(finish(spec, { ...arranged, layers: kept.layers }));
 }
 
 /**
