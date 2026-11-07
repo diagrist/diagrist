@@ -15,19 +15,21 @@ const pathOf = (points: readonly (readonly [number, number])[]): string =>
   points.map(([x, y], k) => `${k === 0 ? 'M' : 'L'}${x} ${y}`).join(' ');
 
 /**
- * A relation in its group `edge-<k>`: first a halo in the colour of the canvas that cuts lines crossing below it,
+ * A relation in its group `edge-<k>`: first its halo (`haloOf`) that cuts lines crossing below it,
  * then the line with its head at the target.
  */
-export function edgeShape(d: Drawn, points: readonly (readonly [number, number])[], id: string): Shape {
+export function edgeShape(
+  d: Drawn,
+  points: readonly (readonly [number, number])[],
+  id: string,
+  halo: readonly Shape[],
+): Shape {
   const role = `${ROLE[d.relation.kind]}${d.relation.emph ? '-emph' : ''}`;
   const path = pathOf(points);
   return {
     kind: 'group',
     id,
-    children: [
-      { kind: 'path', d: path, role: 'halo' },
-      { kind: 'path', d: path, role },
-    ],
+    children: [...halo, { kind: 'path', d: path, role }],
   };
 }
 

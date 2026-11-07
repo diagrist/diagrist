@@ -1,6 +1,6 @@
 import { dock, type Extension, extensions, firstSides, type Side } from './hub.js';
 import { lanesOf } from './lanes.js';
-import { type Neighbours, neighboursOf, orderRanked, shortened } from './order.js';
+import { hung, type Neighbours, neighboursOf, orderRanked, shortened } from './order.js';
 import { arrangeRails, type RailSide } from './rail-order.js';
 import { type Ranked, rank } from './rank.js';
 import type { LayeredEdge, LayeredSpec } from './spec.js';
@@ -18,6 +18,8 @@ export interface Arrangement {
   readonly failed?: readonly LayeredEdge[];
   /** An order of shorter lines that may cost crossings, to be laid out beside `layers` and weighed (`laidOut`). */
   readonly shorter?: string[][];
+  /** An order with the placeholders of hanging rows in gaps of their own, weighed as `shorter` is (`hung`). */
+  readonly hanging?: string[][];
   /** Laid out without the passes that move boxes to straighten lines, for a quick comparison of two orders. */
   readonly rough?: boolean;
 }
@@ -33,7 +35,14 @@ export function arrange(spec: LayeredSpec): Arrangement {
   const lanes = lanesOf(spec, ranked);
   const layers = lanes.sort(orderRanked(spec, ranked, neighbours, new Map(), places));
   const shorter = shortened(spec, ranked, neighbours, layers, new Map(), places);
-  return { ranked, neighbours, layers, ...(shorter === undefined ? {} : { shorter: lanes.sort(shorter) }) };
+  const hanging = hung(spec, ranked, neighbours, layers, places);
+  return {
+    ranked,
+    neighbours,
+    layers,
+    ...(shorter === undefined ? {} : { shorter: lanes.sort(shorter) }),
+    ...(hanging === undefined ? {} : { hanging: lanes.sort(hanging) }),
+  };
 }
 
 /** A hub picture before its extensions dock: the layers of its core alone, its extensions, the first guess of sides. */

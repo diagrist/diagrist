@@ -1,6 +1,7 @@
 import { type Anchors, domId, markAreas, type Point, type Scene, type Shape } from '@diagrist/core';
 import { headerShapes, markShapes, stripShapes, type Words, withAreaLegend } from '@diagrist/parts';
 import { noteShapes } from '../../shared/note-shapes.js';
+import { haloOf } from '../../shared/trunk-halos.js';
 import type { PictureTexts, StateLayout } from '../layout/index.js';
 import { borderOf, hostOf } from '../layout/points/geometry.js';
 import type { StateModel } from '../model.js';
@@ -22,6 +23,7 @@ export function stateScene(l: StateLayout, m: StateModel, words: Words & Picture
   const cards = m.diagram.look === 'cards';
   const points = l.grid.nodes.filter((n) => borderOf(m, n.id) || hostOf(m, n.id)).map((n) => n.rect);
   const edges = drawn(l);
+  const paths = edges.map((e) => e.route.points);
   const children: Shape[] = [
     ...headerShapes(l.header, words.title, m.diagram.subtitle),
     ...l.grid.groups.map((g) => frameShape(g, m, l)),
@@ -35,7 +37,7 @@ export function stateScene(l: StateLayout, m: StateModel, words: Words & Picture
         kind: 'group',
         id: domId.edge(k),
         children: [
-          { kind: 'path', d: pathOf(e.route.points), role: 'halo' },
+          ...haloOf(paths, k),
           { kind: 'path', d: pathOf(e.route.points), role: e.emph ? 'transitionEmph' : 'transition' },
         ],
       }),

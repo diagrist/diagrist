@@ -6,6 +6,7 @@ import { clustered, framesBroken } from './clusters.js';
 import { lanesOf } from './lanes.js';
 import { PINNED, rankedCost } from './order-cost.js';
 import { firstBroken, firstPairs } from './order-first.js';
+import { hangingOrder } from './order-hanging.js';
 import { lengthOf } from './order-length.js';
 import { spanPricing } from './order-span.js';
 import { inversions } from './order-terms.js';
@@ -110,13 +111,34 @@ export function shortened(
   return moved.every((l, i) => l.every((n, k) => layers[i]?.[k] === n)) ? undefined : moved;
 }
 
+/**
+ * The order `layers` with the placeholders of hanging rows in gaps of their own (`hangingOrder`), where that breaks
+ * no frame, lane or pair more than `layers` does. Undefined where nothing moves; the caller lays it out beside the
+ * others and keeps it where its drawing trades better (`laidOut`).
+ */
+export function hung(
+  spec: LayeredSpec,
+  ranked: Ranked,
+  links: Neighbours,
+  layers: readonly (readonly string[])[],
+  given: ReadonlyMap<string, number> = new Map(),
+): string[][] | undefined {
+  const widths = new Map(spec.nodes.map((n) => [n.id, n.width] as const));
+  const width = (n: string) => widths.get(n) ?? 0;
+  const order = hangingOrder({ ranked, links, width, gap: spec.metrics.colGap }, layers);
+  if (order === undefined) return undefined;
+  const { broken } = costsOf(spec, ranked, links, new Map(), given);
+  return broken(order) > broken(layers.map((l) => [...l])) ? undefined : order;
+}
+
 /** Pairs of nodes, in any layer, whose lanes stand in the wrong order. */
 const lanesBroken = (layers: readonly string[][], lane: ReadonlyMap<string, number>): number =>
   layers.reduce((n, layer) => n + inversions(layer, lane), 0);
 
 /**
- * The cost of an order by crossings and the rest, the same with its length (`long`), and the estimated length; a
- * frame broken, a lane out of its order or a pair of an edge beside out of the order it asks costs `PINNED`.
+ * The cost of an order by crossings and the rest, the same with its length (`long`), the estimated length, and how
+ * often an order breaks a frame, puts a lane out of its order or a pair of an edge beside out of the order it asks
+ * (`broken`); each of those costs `PINNED`.
  */
 function costsOf(
   spec: LayeredSpec,
@@ -138,11 +160,11 @@ function costsOf(
   const lane = new Map([...ranked.layerOf.keys()].map((n) => [n, lanes.of(n) ?? -1] as const));
   const laned = (spec.lanes ?? []).length > 0;
   const firsts = firstPairs(spec);
+  const out = (layers: string[][]) =>
+    (fp ? framesBroken(layers, fp) : 0) + (laned ? lanesBroken(layers, lane) : 0) + firstBroken(layers, firsts);
   const framed = (c: OrderCost): OrderCost => {
     if (fp === undefined && !laned && firsts.length === 0) return c;
     const near = c.near as NonNullable<OrderCost['near']>;
-    const out = (layers: string[][]) =>
-      (fp ? framesBroken(layers, fp) : 0) + (laned ? lanesBroken(layers, lane) : 0) + firstBroken(layers, firsts);
     const broken = (layers: string[][]) => PINNED * out(layers);
     return Object.assign((layers: string[][]) => c(layers, links.adj, ranked.layerOf) + broken(layers), {
       near: (layers: string[][], l: number) => near(layers, l) + broken(layers),
@@ -150,6 +172,7 @@ function costsOf(
   };
   const lengths = { links, layerOf: ranked.layerOf, width, gap, counts: () => 1 };
   return {
+    broken: out,
     cost: framed(rankedCost(base)),
     long: framed(rankedCost({ ...base, span: { pricing, perPixel: PER_PIXEL } })),
     length: (layers: string[][]) => lengthOf(layers, lengths),

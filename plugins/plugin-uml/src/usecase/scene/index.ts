@@ -1,5 +1,6 @@
 import { type Anchors, domId, markAreas, type Scene, type Shape } from '@diagrist/core';
 import { headerShapes, markShapes, stripShapes, type Words, withAreaLegend } from '@diagrist/parts';
+import { haloOf } from '../../shared/trunk-halos.js';
 import { actorArt } from '../layout/actor.js';
 import { anchorsOf } from '../layout/anchors.js';
 import { useCaseArt } from '../layout/ellipse.js';
@@ -49,11 +50,12 @@ export function useCaseScene(l: UseCaseLayout, m: UseCaseModel, words: Words & P
     const own = l.labels.filter((x) => x.route === d.route);
     return own.length ? [labelShape(own, d.relation.emph === true, domId.label(k))] : [];
   });
+  const paths = l.drawn.map((d) => l.routes[d.route]?.points ?? []);
   const children: Shape[] = [
     ...headerShapes(l.header, words.title, m.diagram.subtitle),
     ...subjectShapes(l, m),
     ...nodeShapes(l, m),
-    ...l.drawn.map((d, k) => edgeShape(d, l.routes[d.route]?.points ?? [], domId.edge(k))),
+    ...l.drawn.map((d, k) => edgeShape(d, paths[k] ?? [], domId.edge(k), haloOf(paths, k))),
     ...l.comments.map((c) => markExtendNote(m, l, c.route, commentShape(c, cards))),
     ...labelled,
     ...l.marks.map((x): Shape => ({ kind: 'group', children: markShapes(x.id, x.x, x.y) })),
