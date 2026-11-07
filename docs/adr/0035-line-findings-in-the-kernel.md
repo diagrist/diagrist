@@ -22,7 +22,9 @@ anchors and the placed rectangles, so it is no layout matter.
    through, G412 bends, G413 lead, G414 tail, G415 jog, G416 parallel, G417 ports, G418 label. The message names
    the lines by their ends (`` `a` → `b` ``), the measure and the limit a presentable picture allows, and what an
    author can change: another order of the declarations, a split picture, a shorter text. They are warnings, so
-   the picture is still drawn and the overlap can be seen, as with G400.
+   the picture is still drawn and the overlap can be seen, as with G400. A crossing is a finding only in a picture
+   of at most `crossingsUpTo` lines (15, rule Q1 of the layout plan: hard up to 15 edges, soft beyond); in a denser
+   one it is a measure, which `--metrics`, the stress budgets and the price of the searches count.
 3. **A finding points at the line that declares the edge.** `EdgeAnchor.span` is optional and additive; concept,
    class, state, activity, use case and code fill it. Without it the finding stands at the first line.
 4. **A kind takes part unless it says otherwise.** `Kind.lineCheck` is `false` for a kind whose layout does not meet
