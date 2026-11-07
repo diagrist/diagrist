@@ -797,3 +797,20 @@ picture cheaper, and pictures whose frames do not move pay nothing. `auftrag-par
 their bars, for 34 px more line (the line from `Storniert` to the final state runs that much further), the same size
 and bends. The stress picture `parallel-drei` gains the same: `Beauftragt` and the initial state move 28 px left onto
 the middle of the fork, with the same length, size and bends. No other picture changes.
+
+## Amendment: line ends carry their width into the port stage (07.11.2026, round 6, owner decision E2)
+
+The port stage knew nothing of what a kind draws at an end. In `zahlung-ausnahme` it set the three ends on the top of
+`Lastschrift einziehen` 16 px apart, as for any lines; the pins there need a square, a name and air each, so
+`arrivals` found no room, `docks` spread the pins evenly, and `followPin` dragged the other end of the line from
+`Kundenkonten` along to 7 px from that box's corner. An edge may now name the room each end takes along its side to
+its right (`GraphEdge.slot`), which `linksOf` hands to the pieces at real ends (`Link.slot`) and the port stage to the
+ends of a side (`End.slot`): two neighbouring ends that both carry a slot stand at least the left one's slot apart, in
+`isotoneApart`, in the shift back between the insets and in the room the later passes may slide an end in
+(`layered/port-row.ts`, `layered/ports.ts`). Beside an end without a slot the gap stays 16 px, since a name there may
+turn to the other side (`clearName`); a version that always reserved lengthened `objektfluss` by 74 px for nothing.
+Where the slots do not fit between the insets, the gap stays everywhere, so no end leaves its box. Activity diagrams
+set a slot on each end of an object flow on a named pin, the measure `arrivals` asks (`pinSlots`). `zahlung-ausnahme`
+leaves `Kundenkonten` through its middle and its pins stand at their arrivals: 1,472.5 to 1,410.5 px of line, 6 bends
+as before, 1,195 to 1,224 px wide, since `Betrag` now reaches past `Bestellung abschließen` and `laidWithPins` widens
+the lane; the owner accepted the 29 px for the centred port (E2). No other picture changes.

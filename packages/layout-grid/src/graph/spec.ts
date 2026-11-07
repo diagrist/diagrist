@@ -19,10 +19,7 @@ export interface GraphNode {
    * stays off its rounding (`layered/port-row.ts`). Without it, ends keep the inset of 16 px from every corner.
    */
   readonly corner?: number;
-  /**
-   * The frame or node whose outline the node sits on, such as a point of a box that holds others: a line through it
-   * runs straight across the outline, the node centred where it crosses (`graph/docks.ts`).
-   */
+  /** The frame or node whose outline the node sits on, centred where a line through it crosses (`graph/docks.ts`). */
   readonly dock?: string;
   /**
    * The sides ends may take, each at the middle of its side, as at the corners of a diamond: ends on the top and
@@ -114,6 +111,8 @@ export interface GraphEdge {
   readonly either?: boolean;
   /** The least straight run out of `from` and into `to`, for symbols and texts at the ends. */
   readonly run?: { readonly from?: number; readonly to?: number };
+  /** The room an end takes along its side to its right, such as a pin with its name (`layered/port-row.ts`). */
+  readonly slot?: { readonly from?: number; readonly to?: number };
   /** The least distance between the ends when the edge is drawn beside, between neighbours of one layer. */
   readonly room?: number;
   readonly source?: Placed['span'];

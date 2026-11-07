@@ -8,6 +8,8 @@ export interface Link {
   readonly lower: string;
   /** The layer of the upper end; the piece runs in the gap below it. */
   readonly gap: number;
+  /** The room its ends take along their sides to the right (`LayeredEdge.slot`), 0 at a placeholder. */
+  readonly slot?: { readonly upper: number; readonly lower: number };
 }
 
 /**
@@ -25,9 +27,11 @@ export interface Group {
 export const linksOf = (spec: LayeredSpec, ranked: Ranked): Link[] =>
   spec.edges.flatMap((e) => {
     const chain = ranked.chains.get(e.id) ?? [];
+    const room = (box: string) => (box === e.from ? e.slot?.from : box === e.to ? e.slot?.to : 0) ?? 0;
     return chain.slice(1).map((lower, i) => {
       const upper = chain[i] as string;
-      return { edge: e.id, upper, lower, gap: ranked.layerOf.get(upper) ?? 0 };
+      const slot = e.slot && { upper: room(upper), lower: room(lower) };
+      return { edge: e.id, upper, lower, gap: ranked.layerOf.get(upper) ?? 0, ...(slot ? { slot } : {}) };
     });
   });
 

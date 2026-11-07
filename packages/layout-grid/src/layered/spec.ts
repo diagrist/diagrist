@@ -67,11 +67,10 @@ export interface LayeredEdge {
    * drawn from the line to the `box` once the routes stand, `line` the edge hung from (`layered/tethers.ts`).
    */
   readonly hang?: { readonly id: string; readonly line: string; readonly box: string };
-  /**
-   * The least straight run out of `from` and into `to`, where the kind draws symbols and texts at the ends of the
-   * line; never less than `tail` and `lead` of the metrics.
-   */
+  /** The least straight run out of `from` and into `to` for symbols and texts at the ends, at least `tail`/`lead`. */
   readonly run?: { readonly from?: number; readonly to?: number };
+  /** The room an end takes along its side to its right (`GraphEdge.slot`). */
+  readonly slot?: { readonly from?: number; readonly to?: number };
   /** The least distance between `from` and `to` when the edge is drawn beside, between neighbours of one layer. */
   readonly room?: number;
   /** With rank 0, the end that stands first in the layer, left of the other. */

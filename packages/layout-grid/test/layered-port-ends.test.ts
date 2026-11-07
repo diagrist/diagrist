@@ -78,4 +78,36 @@ describe('the ends of a side', () => {
     expect(row(170, 443, 567)).toEqual([152, 168, 184]);
     expect(row(-200, -100, 30)).toEqual([16, 32, 48]);
   });
+
+  /** Three lines from boxes over the middle into the top of a box 200 wide, with the room `slots` at their lower ends. */
+  const slotted = (...slots: number[]) => {
+    const links = slots.map((s, i): Link => ({ ...link(`u${i}`, 'b'), slot: { upper: 0, lower: s } }));
+    const x = new Map([['b', 100], ...links.map((l, i) => [l.upper, 96 + 4 * i] as const)]);
+    const rects = new Map([
+      ['b', rect(100, 200)],
+      ...links.map((l) => [l.upper, rect(x.get(l.upper) ?? 0, 40)] as const),
+    ]);
+    const ports = portsOf(
+      links.map((l): Group => ({ kind: 'single', links: [l] })),
+      NONE,
+      rects,
+      x,
+      16,
+    );
+    return links.map((l) => ports.top.get(l) ?? 0);
+  };
+  const gaps = (at: number[]) => at.slice(1).map((v, i) => v - (at[i] ?? 0));
+
+  it('stand two ends that both take room along the side at least the room of the left one apart', () => {
+    const at = slotted(60, 40, 30);
+    expect(gaps(at)[0]).toBeGreaterThanOrEqual(60);
+    expect(gaps(at)[1]).toBeGreaterThanOrEqual(40);
+    expect(Math.min(...at)).toBeGreaterThanOrEqual(16);
+    expect(Math.max(...at)).toBeLessThanOrEqual(184);
+  });
+
+  it('keep the gap beside an end that takes no room, and where the rooms do not fit on the side', () => {
+    expect(gaps(slotted(60, 0, 30))).toEqual([16, 16]);
+    expect(gaps(slotted(120, 120, 30))).toEqual([16, 16]);
+  });
 });

@@ -34,15 +34,31 @@ function nodeOf(g: Graph, id: string): GraphNode | undefined {
   };
 }
 
+/** A measure per end of an edge, for the ends that have one; undefined where neither has. */
+const perEnd = (from: number | undefined, to: number | undefined): GraphEdge['run'] =>
+  from === undefined && to === undefined
+    ? undefined
+    : { ...(from === undefined ? {} : { from }), ...(to === undefined ? {} : { to }) };
+
 /** The ends of a flow that sit on pins: the straight run they need out of or into their node. */
 function pinRuns(g: Graph, f: GraphFlow): GraphEdge['run'] {
   if (f.kind !== 'object') return undefined;
   const [a, b] = [g.byId.get(f.from), g.byId.get(f.to)];
   const from = a?.outputs.length ? ACT.pin + ACT.layerGap / 3 : undefined;
   const to = b?.inputs.length ? ACT.pin + ACT.layerGap / 2 : undefined;
-  return from === undefined && to === undefined
-    ? undefined
-    : { ...(from === undefined ? {} : { from }), ...(to === undefined ? {} : { to }) };
+  return perEnd(from, to);
+}
+
+/**
+ * The room each end of an object flow on a named pin takes along its side: the square, air, the name and air, the
+ * measure `arrivals` in `pin-docks.ts` asks between neighbouring pins (`GraphEdge.slot`).
+ */
+function pinSlots(g: Graph, f: GraphFlow): GraphEdge['slot'] {
+  if (f.kind !== 'object') return undefined;
+  const pin = g.pins[f.index] ?? {};
+  const room = (name: string | undefined) =>
+    name === undefined ? undefined : ACT.pin + ACT.pinGap + widthOf.label(name) + ACT.pinGap;
+  return perEnd(room(pin.from), room(pin.to));
 }
 
 /**
@@ -84,7 +100,7 @@ export function activityGraph(g: Graph): LayoutGraph {
     const guard = guardLabel(f);
     const first = isHandlerFlow(f) && !bolted.has(f.to);
     if (isHandlerFlow(f)) bolted.add(f.to);
-    const runs = pinRuns(g, f);
+    const [runs, slots] = [pinRuns(g, f), pinSlots(g, f)];
     return {
       id: flowId(f.index),
       from: f.from,
@@ -94,6 +110,7 @@ export function activityGraph(g: Graph): LayoutGraph {
       ...(f.held ? { hidden: true } : first ? {} : { profile: 'back' as const }),
       ...(guard ? { label: { text: guard, width: widthOf.label(guard), size: SIZE.label, at: 'start' as const } } : {}),
       ...(runs ? { run: runs } : {}),
+      ...(slots ? { slot: slots } : {}),
       source: f.span,
     };
   });
