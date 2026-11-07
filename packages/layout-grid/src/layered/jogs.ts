@@ -30,7 +30,7 @@ export interface Unjogging {
   readonly spines: readonly (readonly [string, string])[];
   /** How many drawings the removal may price, the start included (`jogPrices`); none leaves the start as it is. */
   readonly prices?: number;
-  /** The move that centres the shared box of a fan or join with its column (`symmetryOf`), if any. */
+  /** The move that centres the shared box of a fan or join, or a box hanging from a bar, with its column (`symmetryOf`). */
   readonly centred?: (g: Group, x: Xs) => readonly [readonly string[], number] | undefined;
 }
 
@@ -50,8 +50,9 @@ const ROUNDS = 3;
  * (`shoved`), a placeholder among them with its whole chain, so a chain a shove meets stays straight; that is tried
  * in pictures of up to `SHOVE_PIECES` pieces, since every such try draws the whole picture. Once `prices` drawings
  * are priced, no further move is tried. A fan or join tries the one move `centred` offers instead, its shared box
- * with its column to the middle of its members. A move that the clearing of lanes and frames undoes, so the boxes it
- * moves do not stand where it put them, is no move and is not priced: what it would cost is that of another picture.
+ * with its column to the middle of its members; a straight piece out of or into a bar tries the move it offers for
+ * the box at its other end. A move that the clearing of lanes and frames undoes, so the boxes it moves do not stand
+ * where it put them, is no move and is not priced: what it would cost is that of another picture.
  */
 export function unjog(u: Unjogging, start: Placement): Placement {
   if (u.prices === 0) return start;
@@ -128,13 +129,11 @@ export function unjog(u: Unjogging, start: Placement): Placement {
   }
 
   function triesOf(g: Group): (readonly [readonly string[], number])[] {
-    if (g.kind !== 'single') {
-      const centre = u.centred?.(g, best.x);
-      return centre ? [centre] : [];
-    }
+    const centre = u.centred?.(g, best.x);
+    if (g.kind !== 'single') return centre ? [centre] : [];
     const l = g.links[0] as Link;
     const off = (best.ports.top.get(l) ?? 0) - (best.ports.bottom.get(l) ?? 0);
-    if (Math.abs(off) < 0.5) return [];
+    if (Math.abs(off) < 0.5) return centre ? [centre] : [];
     const frame = (n: string) => {
       const block = u.blockOf(n);
       return block.length > 1 && !block.includes(n === l.lower ? l.upper : l.lower) ? block : [];

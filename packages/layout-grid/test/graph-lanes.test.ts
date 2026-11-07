@@ -67,3 +67,35 @@ describe('lanes of the layout graph', () => {
     expect(route?.points.every((p) => p[1] === route.points[0]?.[1])).toBe(true);
   });
 });
+
+describe('a join over several lanes', () => {
+  const box = (id: string, width = 120) => ({ id, width, height: 44 });
+  const l = layoutGraph({
+    nodes: [
+      box('s'),
+      { id: 'fork', width: 40, height: 6, shape: 'bar' },
+      ...['a1', 'a2', 'b1', 'b2', 'c1', 'c2', 'd1', 'd2'].map((id) => box(id)),
+      { id: 'join', width: 40, height: 6, shape: 'bar' },
+      box('z', 160),
+    ],
+    edges: [
+      edge('s', 'fork'),
+      ...['a', 'b', 'c', 'd'].flatMap((k) => [edge('fork', `${k}1`), edge(`${k}1`, `${k}2`), edge(`${k}2`, 'join')]),
+      edge('join', 'z'),
+    ],
+    containers: [
+      lane('left', ['s', 'fork', 'a1', 'a2', 'join']),
+      lane('right', ['b1', 'b2', 'c1', 'c2', 'd1', 'd2', 'z']),
+    ],
+    metrics: METRICS,
+  });
+  const centre = (id: string) => {
+    const r = l.nodes.find((n) => n.id === id)?.rect ?? { x: 0, y: 0, w: 0, h: 0 };
+    return r.x + r.w / 2;
+  };
+
+  it('hangs the one line out of it under the middle of the branches of its own lane, the bar having none', () => {
+    const branches = ['b2', 'c2', 'd2'].map(centre);
+    expect(centre('z')).toBe((Math.min(...branches) + Math.max(...branches)) / 2);
+  });
+});
