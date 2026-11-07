@@ -74,7 +74,7 @@ function* chain<T>(...parts: readonly Iterable<T>[]): Generator<T> {
 /**
  * Every way the texts of a route may stand, in tiers tried in order, a later one only where the one before held no
  * clear spot: texts on their line stand within the lead of their piece's ends first, then nearer them, and with
- * `beside` at the spots beside its vertical pieces; texts beside their line have one tier.
+ * `beside` at the spots beside its pieces; texts beside their line have one tier.
  */
 export function tiers(
   route: Route,
@@ -104,7 +104,6 @@ function* waysOf(
   const straight = route.points.length === 2;
   const fromStart = text.at === 'start';
   for (const piece of piecesOf(route.points, o.preferFlat, fromStart)) {
-    if (o.onLine && !on && piece.horizontal) continue;
     const places: Place[] = on
       ? ['on']
       : piece.horizontal

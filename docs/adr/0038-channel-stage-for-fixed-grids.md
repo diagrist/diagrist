@@ -132,3 +132,13 @@ The order of the tracks in a gap (`assignTracks`) counted a pair of verticals si
 16 px apart or on one another. Two lines on one another hide where each goes, which two lines merely close do not,
 so such a pair (closer than 8 px) now weighs twice. In `kontext-stern` in `look=blocks` the X of `crm → sap` and
 `msb → portal` drew as one stretch both shared (G416); it now draws as the crossing it is, as in the other looks.
+
+## Amendment (07.11.2026): texts on their line may stand beside it (owner decision E1)
+
+A look whose texts stand on their line (`OnLine`, paper) needs a stretch of the line where the block keeps the
+clearance from parallel foreign lines; a port row gives 16 px between two arms, a block of two lines takes 28 px plus
+the clearance on each side. Where no stretch of any piece of the line is clear of parallel foreign pieces
+(`hasStretch`), the text may now stand beside its line, as texts of the other looks do, after the spots on the line
+found none clear: the search offers the spots beside every piece, not only beside the upright pieces of twins. The
+look cuts the line only behind a block that stands on it. Of the 13 stress pictures in paper, five lost every hard
+finding (kontext-stern, komponenten-zehn, spalten-look, karten-icons, diff-entfernt#ziel); no example changed.

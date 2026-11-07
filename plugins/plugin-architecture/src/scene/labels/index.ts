@@ -42,7 +42,9 @@ export function labelShapes(
   const accent = (route: number) => model.edges[Number(routes[route]?.edge)]?.step?.accent === true;
   const badge = NUMBERS[options.numbers.form];
   const texts = (i: number, own: readonly EdgeLabel[]) =>
-    options.edgeText.ground === 'gap' ? gapShapes(own, under) : own.flatMap((l) => haloShapes(l, accent(i), under));
+    options.edgeText.ground === 'gap'
+      ? gapShapes(own, under, routes[i]?.points ?? [])
+      : own.flatMap((l) => haloShapes(l, accent(i), under));
   const groups = labelledRoutes(layout).map(
     (i): Shape => ({
       kind: 'group',
