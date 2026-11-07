@@ -34,19 +34,19 @@ describe('areas in the SVG', () => {
   it('tint: the outline in the ink, the fill in the tint, the name left in black', () => {
     const svg = svgOf('tint', body);
     expect(svg).toContain('<g class="area-green">');
-    expect(svg).toContain('.dia .area-green .shape { fill: #dcfce7; stroke: #15803d; }');
-    expect(svg).toContain('.dia .area-green .label-bold { fill: #18181b; }');
+    expect(svg).toContain('.diagrist .area-green .shape { fill: #dcfce7; stroke: #15803d; }');
+    expect(svg).toContain('.diagrist .area-green .label-bold { fill: #18181b; }');
   });
 
   it('outline: the outline and the name in the ink, the fill left white', () => {
     const svg = svgOf('outline', body);
-    expect(svg).toContain('.dia .area-green .shape { fill: #ffffff; stroke: #15803d; }');
-    expect(svg).toContain('.dia .area-green .label-bold { fill: #15803d; }');
+    expect(svg).toContain('.diagrist .area-green .shape { fill: #ffffff; stroke: #15803d; }');
+    expect(svg).toContain('.diagrist .area-green .label-bold { fill: #15803d; }');
   });
 
   it('stripe: a filter that keeps the band inside the outline, so the edge and the arrowheads on it stay put', () => {
     const svg = svgOf('stripe', body);
-    expect(svg).toContain('.dia .area-green .shape { filter: url(#area-green); }');
+    expect(svg).toContain('.diagrist .area-green .shape { filter: url(#area-green); }');
     expect(svg).toContain('<filter id="area-green"');
     expect(svg).toContain('operator="out"');
     expect(svg).not.toContain('feDropShadow');
@@ -58,8 +58,8 @@ describe('areas in the SVG', () => {
       const svg = svgOf(paint, line);
       expect(svg).toContain('<path d="M 0 0 L 9 9" class="line" marker-end="url(#m-filled-orange)"/>');
       expect(svg).toContain('<marker id="m-filled-orange" class="area-orange-line"');
-      expect(svg).toContain('.dia .area-orange-line .line { fill: none; stroke: #c2410c; }');
-      expect(svg).toContain('.dia .area-orange-line .arrow-filled { fill: #c2410c; stroke: none; }');
+      expect(svg).toContain('.diagrist .area-orange-line .line { fill: none; stroke: #c2410c; }');
+      expect(svg).toContain('.diagrist .area-orange-line .arrow-filled { fill: #c2410c; stroke: none; }');
     }
   });
 
@@ -67,8 +67,8 @@ describe('areas in the SVG', () => {
     const usedOnly = { ...styles, rules: styles.rules.map(({ name, declarations }) => ({ name, declarations })) };
     const scene: Scene = { width: 100, height: 50, title: 'T', children: [line] };
     const svg = toSvg(scene, usedOnly);
-    expect(svg).toContain('.dia .arrow-filled { fill: #18181b; stroke: none; }');
-    expect(svg).toContain('.dia .area-orange-line .arrow-filled { fill: #c2410c; stroke: none; }');
+    expect(svg).toContain('.diagrist .arrow-filled { fill: #18181b; stroke: none; }');
+    expect(svg).toContain('.diagrist .area-orange-line .arrow-filled { fill: #c2410c; stroke: none; }');
     expect(svg).toContain('<marker id="m-filled-orange"');
     expect(svg).not.toContain('<marker id="m-filled"');
   });
@@ -77,8 +77,8 @@ describe('areas in the SVG', () => {
     const haloed: Shape = { ...line, children: [{ kind: 'path', d: 'M 0 0 L 9 9', role: 'haloed' }] };
     const withHalo = { ...styles, roles: { ...styles.roles, haloed: { classes: ['line', 'halo'] } } };
     const svg = toSvg({ width: 100, height: 50, title: 'T', children: [haloed] }, withHalo);
-    const inked = svg.indexOf('.dia .area-orange-line .line {');
-    const halo = svg.indexOf('.dia .area-orange-line .halo { stroke: #fafafa; }');
+    const inked = svg.indexOf('.diagrist .area-orange-line .line {');
+    const halo = svg.indexOf('.diagrist .area-orange-line .halo { stroke: #fafafa; }');
     expect(inked).toBeGreaterThan(0);
     expect(halo).toBeGreaterThan(inked);
   });
@@ -117,7 +117,7 @@ describe('areas in the SVG', () => {
       children: [{ kind: 'circle', cx: 5, cy: 5, r: 4, role: 'dot' }],
     };
     expect(toSvg({ width: 9, height: 9, title: 'T', children: [drawn] }, dot)).toContain(
-      '.dia .area-green .dot { fill: #15803d; }',
+      '.diagrist .area-green .dot { fill: #15803d; }',
     );
   });
 

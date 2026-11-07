@@ -1,25 +1,25 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 741 1050" width="741" height="1050" class="dia" role="img" aria-label="Auftragspositionen prüfen"><title>Auftragspositionen prüfen</title><style>
-  .dia { font-family: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 11px; }
-  .dia .shape { fill: #ffffff; stroke: #18181b; stroke-width: 1.5; }
-  .dia .line { fill: none; stroke: #18181b; stroke-width: 1.5; }
-  .dia .label { fill: #18181b; font-size: 10px; }
-  .dia .label-title { fill: #18181b; font-weight: 600; font-size: 14px; }
-  .dia .label-note { fill: #52525b; font-size: 10px; }
-  .dia .arrow-open { fill: none; stroke: #18181b; stroke-width: 1.5; }
-  .dia .halo { paint-order: stroke; stroke: #fafafa; stroke-width: 4px; stroke-linejoin: round; }
-  .dia .card { fill: #ffffff; stroke: #e4e4e7; stroke-width: 1; }
-  .dia .card-shadow { fill: #e4e4e7; stroke: none; }
-  .dia .tone-blue { fill: #2b7de9; }
-  .dia .tone-teal { fill: #0b5d4b; }
-  .dia .uml-filled { fill: #18181b; stroke: #18181b; stroke-width: 1.5; stroke-linejoin: miter; }
-  .dia .act-text { fill: #18181b; font-size: 12px; }
-  .dia .act-region { fill: none; stroke: #18181b; stroke-width: 1; stroke-dasharray: 6 4; }
-  .dia .card-head-text { fill: #ffffff; font-weight: 600; font-size: 12px; }
-  .dia .card-lane { fill: none; stroke: #e4e4e7; stroke-width: 1; }
-  .dia .outline-blue { fill: #ffffff; stroke: #2b7de9; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
-  .dia .outline-green { fill: #ffffff; stroke: #1db954; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
-  .dia .outline-teal { fill: #ffffff; stroke: #0b5d4b; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
-  .dia .outline-orange { fill: #ffffff; stroke: #f39222; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 741 1050" width="741" height="1050" class="diagrist" role="img" aria-label="Auftragspositionen prüfen"><title>Auftragspositionen prüfen</title><style>
+  .diagrist { font-family: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 11px; }
+  .diagrist .shape { fill: #ffffff; stroke: #18181b; stroke-width: 1.5; }
+  .diagrist .line { fill: none; stroke: #18181b; stroke-width: 1.5; }
+  .diagrist .label { fill: #18181b; font-size: 10px; }
+  .diagrist .label-title { fill: #18181b; font-weight: 600; font-size: 14px; }
+  .diagrist .label-note { fill: #52525b; font-size: 10px; }
+  .diagrist .arrow-open { fill: none; stroke: #18181b; stroke-width: 1.5; }
+  .diagrist .halo { paint-order: stroke; stroke: #fafafa; stroke-width: 4px; stroke-linejoin: round; }
+  .diagrist .card { fill: #ffffff; stroke: #e4e4e7; stroke-width: 1; }
+  .diagrist .card-shadow { fill: #e4e4e7; stroke: none; }
+  .diagrist .tone-blue { fill: #2b7de9; }
+  .diagrist .tone-teal { fill: #0b5d4b; }
+  .diagrist .uml-filled { fill: #18181b; stroke: #18181b; stroke-width: 1.5; stroke-linejoin: miter; }
+  .diagrist .act-text { fill: #18181b; font-size: 12px; }
+  .diagrist .act-region { fill: none; stroke: #18181b; stroke-width: 1; stroke-dasharray: 6 4; }
+  .diagrist .card-head-text { fill: #ffffff; font-weight: 600; font-size: 12px; }
+  .diagrist .card-lane { fill: none; stroke: #e4e4e7; stroke-width: 1; }
+  .diagrist .outline-blue { fill: #ffffff; stroke: #2b7de9; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+  .diagrist .outline-green { fill: #ffffff; stroke: #1db954; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+  .diagrist .outline-teal { fill: #ffffff; stroke: #0b5d4b; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+  .diagrist .outline-orange { fill: #ffffff; stroke: #f39222; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
 </style><rect width="741" height="1050" fill="#fafafa"/><defs><marker id="m-open" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto"><path d="M1 1 L11 6 L1 11" class="arrow-open" stroke-linecap="round"/></marker></defs>
 <text x="32" y="36" class="label-title">Aktivitätsdiagramm (UML) · Auftragspositionen prüfen</text>
 <text x="32" y="52" class="label-note">Expansionsbereich: jede Position eines Auftrags wird parallel geprüft</text>

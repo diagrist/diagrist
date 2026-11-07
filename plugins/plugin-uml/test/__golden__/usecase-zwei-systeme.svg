@@ -1,19 +1,19 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1736 608" width="1736" height="608" class="dia" role="img" aria-label="Webshop und ERP"><title>Webshop und ERP</title><style>
-  .dia { font-family: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 11px; }
-  .dia .shape { fill: #ffffff; stroke: #18181b; stroke-width: 1.5; }
-  .dia .line { fill: none; stroke: #18181b; stroke-width: 1.5; }
-  .dia .dashed { stroke-dasharray: 6 4; }
-  .dia .label { fill: #18181b; font-size: 10px; }
-  .dia .label-bold { fill: #18181b; font-weight: 600; font-size: 12px; }
-  .dia .label-title { fill: #18181b; font-weight: 600; font-size: 14px; }
-  .dia .label-note { fill: #52525b; font-size: 10px; }
-  .dia .arrow-open { fill: none; stroke: #18181b; stroke-width: 1.5; }
-  .dia .halo { paint-order: stroke; stroke: #fafafa; stroke-width: 4px; stroke-linejoin: round; }
-  .dia .note-tail { fill: none; stroke: #52525b; stroke-width: 1; stroke-dasharray: 4 3; }
-  .dia .uml-stereo { fill: #18181b; font-size: 10px; }
-  .dia .uc-name { fill: #18181b; font-size: 12px; }
-  .dia .uc-boundary { fill: none; stroke: #18181b; stroke-width: 1.5; }
-  .dia .uc-note { fill: #ffffff; stroke: #18181b; stroke-width: 1; }
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1736 608" width="1736" height="608" class="diagrist" role="img" aria-label="Webshop und ERP"><title>Webshop und ERP</title><style>
+  .diagrist { font-family: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 11px; }
+  .diagrist .shape { fill: #ffffff; stroke: #18181b; stroke-width: 1.5; }
+  .diagrist .line { fill: none; stroke: #18181b; stroke-width: 1.5; }
+  .diagrist .dashed { stroke-dasharray: 6 4; }
+  .diagrist .label { fill: #18181b; font-size: 10px; }
+  .diagrist .label-bold { fill: #18181b; font-weight: 600; font-size: 12px; }
+  .diagrist .label-title { fill: #18181b; font-weight: 600; font-size: 14px; }
+  .diagrist .label-note { fill: #52525b; font-size: 10px; }
+  .diagrist .arrow-open { fill: none; stroke: #18181b; stroke-width: 1.5; }
+  .diagrist .halo { paint-order: stroke; stroke: #fafafa; stroke-width: 4px; stroke-linejoin: round; }
+  .diagrist .note-tail { fill: none; stroke: #52525b; stroke-width: 1; stroke-dasharray: 4 3; }
+  .diagrist .uml-stereo { fill: #18181b; font-size: 10px; }
+  .diagrist .uc-name { fill: #18181b; font-size: 12px; }
+  .diagrist .uc-boundary { fill: none; stroke: #18181b; stroke-width: 1.5; }
+  .diagrist .uc-note { fill: #ffffff; stroke: #18181b; stroke-width: 1; }
 </style><rect width="1736" height="608" fill="#fafafa"/><defs><marker id="m-open" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto"><path d="M1 1 L11 6 L1 11" class="arrow-open" stroke-linecap="round"/></marker></defs>
 <text x="32" y="36" class="label-title">Use-Case-Diagramm (UML) · Webshop und ERP</text>
 <text x="32" y="52" class="label-note">Zwei Systemgrenzen, Akteure an beiden Systemen</text>

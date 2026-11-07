@@ -29,7 +29,7 @@ describe('looks', () => {
   it('draw blocks larger, with the variant’s measures in the stylesheet', () => {
     const svg = compile(source('patterns/layered.dgr'), { plugins }).svg ?? '';
     expect(svg).toContain(
-      '.dia { font-family: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 16px; }',
+      '.diagrist { font-family: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 16px; }',
     );
     expect(svg).toContain('class="block-title">Presentation Layer</text>');
     expect(compile(source('patterns/mediator.dgr'), { plugins }).svg).toContain('markerWidth="18"');
@@ -43,7 +43,7 @@ describe('looks', () => {
         'container db "Orders" tech="PostgreSQL" shape=db at c/main',
         'edge shop -> db "writes" via=SQL',
       ).svg ?? '';
-    expect(svg).toMatch(/\.dia \{ font-family: Inter, [^;]+; font-size: 11px; font-kerning: none; \}/);
+    expect(svg).toMatch(/\.diagrist \{ font-family: Inter, [^;]+; font-size: 11px; font-kerning: none; \}/);
     expect(svg).toMatch(/\.label-tech \{ fill: #6f6d68; font-family: "JetBrains Mono"[^;]*; font-size: 9\.5px; \}/);
     expect(svg).toMatch(
       /\.label-bold \{ fill: #222220; font-family: Inter[^;]*; font-weight: 600; font-size: 13px; \}/,

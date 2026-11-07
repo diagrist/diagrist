@@ -80,7 +80,7 @@ export interface KindStyles {
  */
 export function standardStyles(kind: KindStyles): Styles {
   return {
-    root: 'dia',
+    root: 'diagrist',
     fontFamily: FONT_FAMILY,
     fontSize: f.group,
     canvas: c.canvas,

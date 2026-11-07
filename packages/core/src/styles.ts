@@ -83,7 +83,11 @@ export interface Icon {
  * writes it into the SVG; a look or a corporate theme is another table.
  */
 export interface Styles {
-  /** Class of the `<svg>` element; every rule is scoped below it. */
+  /**
+   * Class of the `<svg>` element, `diagrist` in every plugin so far. Every rule is scoped below it, so an SVG set
+   * inline into a page, whose stylesheet then applies to the whole page, paints only itself; a host that inlines
+   * several renames it per picture, as the website does.
+   */
   readonly root: string;
   readonly fontFamily: string;
   /**

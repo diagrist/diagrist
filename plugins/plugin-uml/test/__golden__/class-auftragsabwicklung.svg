@@ -1,21 +1,21 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1492 671" width="1492" height="671" class="dia" role="img" aria-label="Auftragsabwicklung"><title>Auftragsabwicklung</title><style>
-  .dia { font-family: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 11px; }
-  .dia .shape { fill: #ffffff; stroke: #18181b; stroke-width: 1.5; }
-  .dia .line { fill: none; stroke: #18181b; stroke-width: 1.5; }
-  .dia .dashed { stroke-dasharray: 6 4; }
-  .dia .label { fill: #18181b; font-size: 10px; }
-  .dia .label-bold { fill: #18181b; font-weight: 600; font-size: 12px; }
-  .dia .label-title { fill: #18181b; font-weight: 600; font-size: 14px; }
-  .dia .label-note { fill: #52525b; font-size: 10px; }
-  .dia .arrow-open { fill: none; stroke: #18181b; stroke-width: 1.5; }
-  .dia .halo { paint-order: stroke; stroke: #fafafa; stroke-width: 4px; stroke-linejoin: round; }
-  .dia .uml-stereo { fill: #18181b; font-size: 10px; }
-  .dia .uml-member { fill: #18181b; font-size: 11px; }
-  .dia .uml-italic { font-style: italic; }
-  .dia .uml-rule { stroke: #18181b; stroke-width: 1; }
-  .dia .uml-hollow { fill: #fafafa; stroke: #18181b; stroke-width: 1.5; stroke-linejoin: miter; }
-  .dia .uml-filled { fill: #18181b; stroke: #18181b; stroke-width: 1.5; stroke-linejoin: miter; }
-  .dia .uml-stub { fill: none; stroke: #18181b; stroke-opacity: 0; }
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1492 671" width="1492" height="671" class="diagrist" role="img" aria-label="Auftragsabwicklung"><title>Auftragsabwicklung</title><style>
+  .diagrist { font-family: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 11px; }
+  .diagrist .shape { fill: #ffffff; stroke: #18181b; stroke-width: 1.5; }
+  .diagrist .line { fill: none; stroke: #18181b; stroke-width: 1.5; }
+  .diagrist .dashed { stroke-dasharray: 6 4; }
+  .diagrist .label { fill: #18181b; font-size: 10px; }
+  .diagrist .label-bold { fill: #18181b; font-weight: 600; font-size: 12px; }
+  .diagrist .label-title { fill: #18181b; font-weight: 600; font-size: 14px; }
+  .diagrist .label-note { fill: #52525b; font-size: 10px; }
+  .diagrist .arrow-open { fill: none; stroke: #18181b; stroke-width: 1.5; }
+  .diagrist .halo { paint-order: stroke; stroke: #fafafa; stroke-width: 4px; stroke-linejoin: round; }
+  .diagrist .uml-stereo { fill: #18181b; font-size: 10px; }
+  .diagrist .uml-member { fill: #18181b; font-size: 11px; }
+  .diagrist .uml-italic { font-style: italic; }
+  .diagrist .uml-rule { stroke: #18181b; stroke-width: 1; }
+  .diagrist .uml-hollow { fill: #fafafa; stroke: #18181b; stroke-width: 1.5; stroke-linejoin: miter; }
+  .diagrist .uml-filled { fill: #18181b; stroke: #18181b; stroke-width: 1.5; stroke-linejoin: miter; }
+  .diagrist .uml-stub { fill: none; stroke: #18181b; stroke-opacity: 0; }
 </style><rect width="1492" height="671" fill="#fafafa"/><defs><marker id="m-uml-open" markerUnits="userSpaceOnUse" markerWidth="18" markerHeight="18" refX="16.5" refY="9" orient="auto"><path d="M6.5 4 L16.5 9 L6.5 14" class="arrow-open" stroke-linecap="round"/></marker><marker id="m-hollow" markerUnits="userSpaceOnUse" markerWidth="18" markerHeight="18" refX="16.5" refY="9" orient="auto"><path d="M2.5 2 L16.5 9 L2.5 16 Z" class="uml-hollow" stroke-linecap="round"/></marker><marker id="m-diamond-filled" markerUnits="userSpaceOnUse" markerWidth="18" markerHeight="18" refX="16.5" refY="9" orient="auto"><path d="M0.5 9 L8.5 4 L16.5 9 L8.5 14 Z" class="uml-filled" stroke-linecap="round"/></marker></defs>
 <text x="32" y="36" class="label-title">Klassendiagramm (UML) · Auftragsabwicklung</text>
 <text x="32" y="52" class="label-note">Domänenmodell mit Diensten</text>

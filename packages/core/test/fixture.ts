@@ -10,7 +10,7 @@ const line = statement('line', {
 const spec = kind('lines', { doc: 'Lines of text.', header: { locale: localeAttribute }, statements: [line] });
 
 const styles: Styles = {
-  root: 'dia',
+  root: 'diagrist',
   fontFamily: 'monospace',
   fontSize: 11,
   canvas: '#fafafa',

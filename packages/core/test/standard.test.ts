@@ -29,11 +29,13 @@ const source = 'diagram lines "x"\nline "a"';
 describe('the standard look', () => {
   it('writes the base rules a picture uses, then the rules of the kind, and no arrowhead without a line', () => {
     const svg = compile(source, { plugins: [standard] }).svg ?? '';
-    expect(svg).toContain(`.dia .label { fill: ${COLORS.stroke}; font-size: 10px; }`);
-    expect(svg).not.toContain('.dia .line {');
+    expect(svg).toContain(`.diagrist .label { fill: ${COLORS.stroke}; font-size: 10px; }`);
+    expect(svg).not.toContain('.diagrist .line {');
     expect(svg).not.toContain('<marker');
     expect(svg).toContain(`fill="${COLORS.canvas}"`);
-    expect(svg.indexOf('.dia .label {')).toBeLessThan(svg.indexOf('.dia .text { fill: #000; font-size: 9px; }'));
+    expect(svg.indexOf('.diagrist .label {')).toBeLessThan(
+      svg.indexOf('.diagrist .text { fill: #000; font-size: 9px; }'),
+    );
   });
 
   it('is what a theme overlays: a base rule is repainted in place, for every kind that uses the look', () => {
@@ -42,8 +44,8 @@ describe('the standard look', () => {
         plugins: [standard],
         theme: { rules: [{ name: 'label', declarations: 'fill: #c00;' }], canvas: '#000' },
       }).svg ?? '';
-    expect(svg).toContain('.dia .label { fill: #c00; }');
-    expect(svg.indexOf('.dia .label {')).toBeLessThan(svg.indexOf('.dia .text {'));
+    expect(svg).toContain('.diagrist .label { fill: #c00; }');
+    expect(svg.indexOf('.diagrist .label {')).toBeLessThan(svg.indexOf('.diagrist .text {'));
     expect(svg).toContain('fill="#000"');
   });
 });

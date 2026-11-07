@@ -1,33 +1,33 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1611 1824" width="1611" height="1824" class="dia" role="img" aria-label="Bestellung anlegen"><title>Bestellung anlegen</title><style>
-  .dia { font-family: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 11px; }
-  .dia .shape { fill: #ffffff; stroke: #18181b; stroke-width: 1.5; }
-  .dia .line { fill: none; stroke: #18181b; stroke-width: 1.5; }
-  .dia .line-accent { fill: none; stroke: #1d4ed8; stroke-width: 1.8; }
-  .dia .dashed { stroke-dasharray: 6 4; }
-  .dia .label-bold { fill: #18181b; font-weight: 600; font-size: 12px; }
-  .dia .label-title { fill: #18181b; font-weight: 600; font-size: 14px; }
-  .dia .label-group { fill: #18181b; font-weight: 600; font-size: 11px; }
-  .dia .label-note { fill: #52525b; font-size: 10px; }
-  .dia .arrow-open { fill: none; stroke: #18181b; stroke-width: 1.5; }
-  .dia .arrow-filled { fill: #18181b; stroke: none; }
-  .dia .arrow-open-accent { fill: none; stroke: #1d4ed8; stroke-width: 1.8; }
-  .dia .arrow-filled-accent { fill: #1d4ed8; stroke: none; }
-  .dia .mark { fill: #dbeafe; stroke: #1d4ed8; stroke-width: 1; }
-  .dia .mark-text { fill: #1d4ed8; font-weight: 700; font-size: 9px; }
-  .dia .label-back { fill: #fafafa; stroke: none; }
-  .dia .uml-stereo { fill: #18181b; font-size: 10px; }
-  .dia .seq-lifeline { fill: none; stroke: #52525b; stroke-width: 1; stroke-dasharray: 4 3; }
-  .dia .seq-activation { fill: #ffffff; stroke: #18181b; stroke-width: 1; }
-  .dia .seq-external { fill: #ffffff; stroke: #18181b; stroke-width: 1.5; stroke-dasharray: 6 4; }
-  .dia .seq-figure { fill: #fafafa; stroke: #18181b; stroke-width: 1.5; stroke-linecap: round; }
-  .dia .seq-frame { fill: none; stroke: #18181b; stroke-width: 1; }
-  .dia .seq-tag { fill: #f4f4f5; stroke: #18181b; stroke-width: 1; }
-  .dia .seq-tag-text { fill: #18181b; font-weight: 700; font-size: 11px; }
-  .dia .seq-guard { fill: #18181b; font-size: 11px; }
-  .dia .seq-separator { fill: none; stroke: #18181b; stroke-width: 1; stroke-dasharray: 6 4; }
-  .dia .seq-message { fill: #18181b; font-size: 11px; }
-  .dia .seq-message-accent { fill: #1d4ed8; font-size: 11px; }
-  .dia .seq-note { fill: #ffffff; stroke: #52525b; stroke-width: 1; }
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1611 1824" width="1611" height="1824" class="diagrist" role="img" aria-label="Bestellung anlegen"><title>Bestellung anlegen</title><style>
+  .diagrist { font-family: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 11px; }
+  .diagrist .shape { fill: #ffffff; stroke: #18181b; stroke-width: 1.5; }
+  .diagrist .line { fill: none; stroke: #18181b; stroke-width: 1.5; }
+  .diagrist .line-accent { fill: none; stroke: #1d4ed8; stroke-width: 1.8; }
+  .diagrist .dashed { stroke-dasharray: 6 4; }
+  .diagrist .label-bold { fill: #18181b; font-weight: 600; font-size: 12px; }
+  .diagrist .label-title { fill: #18181b; font-weight: 600; font-size: 14px; }
+  .diagrist .label-group { fill: #18181b; font-weight: 600; font-size: 11px; }
+  .diagrist .label-note { fill: #52525b; font-size: 10px; }
+  .diagrist .arrow-open { fill: none; stroke: #18181b; stroke-width: 1.5; }
+  .diagrist .arrow-filled { fill: #18181b; stroke: none; }
+  .diagrist .arrow-open-accent { fill: none; stroke: #1d4ed8; stroke-width: 1.8; }
+  .diagrist .arrow-filled-accent { fill: #1d4ed8; stroke: none; }
+  .diagrist .mark { fill: #dbeafe; stroke: #1d4ed8; stroke-width: 1; }
+  .diagrist .mark-text { fill: #1d4ed8; font-weight: 700; font-size: 9px; }
+  .diagrist .label-back { fill: #fafafa; stroke: none; }
+  .diagrist .uml-stereo { fill: #18181b; font-size: 10px; }
+  .diagrist .seq-lifeline { fill: none; stroke: #52525b; stroke-width: 1; stroke-dasharray: 4 3; }
+  .diagrist .seq-activation { fill: #ffffff; stroke: #18181b; stroke-width: 1; }
+  .diagrist .seq-external { fill: #ffffff; stroke: #18181b; stroke-width: 1.5; stroke-dasharray: 6 4; }
+  .diagrist .seq-figure { fill: #fafafa; stroke: #18181b; stroke-width: 1.5; stroke-linecap: round; }
+  .diagrist .seq-frame { fill: none; stroke: #18181b; stroke-width: 1; }
+  .diagrist .seq-tag { fill: #f4f4f5; stroke: #18181b; stroke-width: 1; }
+  .diagrist .seq-tag-text { fill: #18181b; font-weight: 700; font-size: 11px; }
+  .diagrist .seq-guard { fill: #18181b; font-size: 11px; }
+  .diagrist .seq-separator { fill: none; stroke: #18181b; stroke-width: 1; stroke-dasharray: 6 4; }
+  .diagrist .seq-message { fill: #18181b; font-size: 11px; }
+  .diagrist .seq-message-accent { fill: #1d4ed8; font-size: 11px; }
+  .diagrist .seq-note { fill: #ffffff; stroke: #52525b; stroke-width: 1; }
 </style><rect width="1611" height="1824" fill="#fafafa"/><defs><marker id="m-open" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto"><path d="M1 1 L11 6 L1 11" class="arrow-open" stroke-linecap="round"/></marker><marker id="m-filled" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto"><path d="M1 1 L11 6 L1 11 Z" class="arrow-filled" stroke-linecap="round"/></marker><marker id="m-open-accent" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto"><path d="M1 1 L11 6 L1 11" class="arrow-open-accent" stroke-linecap="round"/></marker><marker id="m-filled-accent" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto"><path d="M1 1 L11 6 L1 11 Z" class="arrow-filled-accent" stroke-linecap="round"/></marker></defs>
 <text x="32" y="36" class="label-title">Sequenzdiagramm (UML) · Bestellung anlegen</text>
 <text x="32" y="52" class="label-note">Saga mit Kompensation über Kafka, Timeout und Retry beim Payment-Provider</text>
