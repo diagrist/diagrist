@@ -3,6 +3,7 @@ import type { Route } from '../layout.js';
 import { insideFrame } from './inside.js';
 import { at, clearance, type Line, lineOf } from './line.js';
 import { cheapest, type Occupancy } from './occupancy.js';
+import { type Job, leastCrowded, type Seated, type Spot, seatedAlong, seatTogether } from './seated.js';
 import type { EdgeLabel } from './types.js';
 
 /** Places along the line where a text may stand, the middle first. */
@@ -54,12 +55,19 @@ const nearTo =
     (foreign.filter((l) => segmentMeetsRect(l.a, l.b, c.box, DEFAULT_THRESHOLDS.labelClear)).length +
       (segmentMeetsRect(own.a, own.b, c.box, DEFAULT_THRESHOLDS.labelNear) ? 0 : 1));
 
-/** The first free candidate, else the one with the fewest conflicts; its box is taken. */
-function first(candidates: readonly EdgeLabel[], room: Occupancy, extra: (c: EdgeLabel) => number): EdgeLabel[] {
-  const pick = cheapest(candidates, (c) => c.box, room, extra);
-  if (!pick) return [];
-  room.take(pick.box);
-  return [pick];
+/**
+ * The free candidate that comes least near the texts of other lines, else the one with the fewest conflicts, with
+ * what it meets.
+ */
+function pick(
+  candidates: readonly EdgeLabel[],
+  room: Occupancy,
+  extra: (c: EdgeLabel) => number,
+  seated: Seated,
+): Spot | undefined {
+  const free = leastCrowded(candidates, (c) => room.cost(c.box) + extra(c) === 0, seated);
+  const seat = free ?? cheapest(candidates, (c) => c.box, room, extra);
+  return seat && { seat, cost: free ? 0 : room.cost(seat.box) + extra(seat) };
 }
 
 /** The text beside the middle, first above or left of the line, then further along it. */
@@ -69,7 +77,8 @@ function middleText(
   at0: { readonly route: number; readonly size: number; readonly gap: number },
   room: Occupancy,
   foreign: readonly Line[],
-): EdgeLabel[] {
+  seated: Seated,
+): Job {
   const { route, size, gap } = at0;
   const off = clearance(l.n, t.width, size + 2, gap / 2);
   const candidates = [1, -1].flatMap((side) =>
@@ -78,7 +87,8 @@ function middleText(
       return textAt(t, size, [p[0] + l.n[0] * off * side, p[1] + l.n[1] * off * side], route, 'name');
     }),
   );
-  return first(candidates, room, nearTo(l, foreign));
+  const extra = nearTo(l, foreign);
+  return { seek: () => pick(candidates, room, extra, seated), extra, candidates };
 }
 
 /** A text at an end, on the free side of the line, inside `frame` where one is given and it finds room there. */
@@ -91,7 +101,8 @@ function endText(
   room: Occupancy,
   others: readonly Line[],
   foreign: readonly Line[],
-): EdgeLabel[] {
+  seated: Seated,
+): Job {
   const { tip, dir } = end;
   const near = nearTo(l, foreign);
   const back = END_BACK + clearance(dir, t.width, size + 2, 0);
@@ -108,21 +119,22 @@ function endText(
     [-1, 1].flatMap((side) => steps.map((more) => put(back + more, aside * side))),
   );
   const clear = (c: EdgeLabel) => near(c) === 0;
-  const inner = end.frame
-    ? insideFrame(candidates, end.frame, room, put, { back, aside }, l, others, clear)
-    : undefined;
-  if (inner) {
-    room.take(inner.box);
-    return [inner];
-  }
-  return first(candidates, room, near);
+  const inner = (frame: Rect) => {
+    const seat = insideFrame(candidates, frame, { room, seated }, put, { back, aside }, l, others, clear);
+    return seat && { seat, cost: 0 };
+  };
+  const seek = () => (end.frame && inner(end.frame)) || pick(candidates, room, near, seated);
+  return { seek, extra: near, candidates };
 }
 
 /**
- * Texts of straight lines, each at the first spot clear of what `room` holds and of lines `apart` from its own
- * (meeting it at no end, as the line check reads a bundle) by the clearance the line check asks, else the one with the fewest conflicts, and taken: the middle text beside the middle and then further along, first on the side of the normal (up, or left
- * of a steep line); an end text a little back from its end on the freer side, further back where lines part, and
- * inside the frame `inside` names for that end where it finds room there nearer to its own line than to any other.
+ * Texts of straight lines, each at the spot clear of what `room` holds and of lines `apart` from its own (meeting it
+ * at no end, as the line check reads a bundle) by the clearance the line check asks that comes least near the texts
+ * of other lines seated before it, the first on a tie, else the one with the fewest conflicts, and taken: the middle
+ * text beside the middle and then further along, first on the side of the normal (up, or left of a steep line); an
+ * end text a little back from its end on the freer side, further back where lines part, and inside the frame `inside`
+ * names for that end where it finds room there nearer to its own line than to any other. A text seated earlier gives
+ * way where a later one came near it (`seatTogether`).
  */
 export function textsAlong(
   routes: readonly Route[],
@@ -133,18 +145,20 @@ export function textsAlong(
 ): EdgeLabel[] {
   const lines = routes.map(lineOf);
   const { size, gap } = measure;
-  return texts.flatMap((t) => {
+  const seated = seatedAlong();
+  const jobs = texts.flatMap((t): Job[] => {
     const l = lines[t.route];
     if (l === undefined) return [];
     const others = lines.filter((_, i) => i !== t.route);
     const foreign = lines.filter((_, i) => i !== t.route && apart(t.route, i));
-    const middle = t.middle ? middleText(t.middle, l, { route: t.route, size, gap }, room, foreign) : [];
+    const middle = t.middle ? [middleText(t.middle, l, { route: t.route, size, gap }, room, foreign, seated)] : [];
     const end = (text: AlongText, tip: Point, dir: Point, inside: Rect | undefined) =>
-      endText(text, { tip, dir, ...frame(inside) }, l, t.route, size, room, others, foreign);
-    const from = t.from ? end(t.from, l.a, l.d, t.inside?.from) : [];
-    const to = t.to ? end(t.to, l.b, [-l.d[0], -l.d[1]], t.inside?.to) : [];
+      endText(text, { tip, dir, ...frame(inside) }, l, t.route, size, room, others, foreign, seated);
+    const from = t.from ? [end(t.from, l.a, l.d, t.inside?.from)] : [];
+    const to = t.to ? [end(t.to, l.b, [-l.d[0], -l.d[1]], t.inside?.to)] : [];
     return [...middle, ...from, ...to];
   });
+  return seatTogether(jobs, room, seated);
 }
 
 const frame = (r: Rect | undefined) => (r === undefined ? {} : { frame: r });

@@ -3,6 +3,7 @@ import { overlaps, segmentHitsRect } from '../geometry.js';
 import type { Route } from '../layout.js';
 import { framesAround } from '../placed.js';
 import { type Board, headOf } from '../route/boxes.js';
+import { besideShared, sharedOf } from './shared.js';
 
 /** Room a text or mark keeps from boxes and heads, and from what was placed before it. */
 const PAD = 4;
@@ -14,10 +15,11 @@ const NEAR = DEFAULT_THRESHOLDS.labelClear;
 export interface Clear {
   /**
    * The number of things a rectangle on route `route` meets: boxes, their captions, heads, frames that hold neither end
-   * of its edge, what was taken, lines that share no end with its own nearer than `lineGap`, and its own line unless
-   * `onLine`. A frame that holds an end is met where the rectangle comes nearer to its outline than `lineGap`, inside
-   * or out, as a foreign line would be; a text on its line keeps only the pad of boxes, since its rectangle brings
-   * its own. A free spot meets nothing. Counting stops at `limit`.
+   * of its edge, what was taken, lines that share no end with its own nearer than `lineGap`, the stretches its line
+   * shares with a line it meets at an end nearer than `lineGap` on a side its line does not go on to (`sharedOf`),
+   * and its own line unless `onLine`. A frame that holds an end is met where the rectangle comes nearer to its outline
+   * than `lineGap`, inside or out, as a foreign line would be; a text on its line keeps only the pad of boxes, since
+   * its rectangle brings its own. A free spot meets nothing. Counting stops at `limit`.
    */
   readonly cost: (rect: Rect, route: number, lineGap: number, onLine: boolean, limit?: number) => number;
   /**
@@ -26,7 +28,7 @@ export interface Clear {
    * clearly as its own line's, since texts of two lines close together read as one.
    */
   readonly crowding: (rect: Rect, route: number) => number;
-  /** Marks a placed rectangle as taken, as a text of route `route` where given, and frees it again. */
+  /** Marks a placed rectangle as taken, as a text of route `route` where given, and frees one of its place again. */
   readonly take: (rect: Rect, route?: number) => void;
   readonly drop: (rect: Rect) => void;
 }
@@ -73,6 +75,10 @@ export function clearOf(board: Board, routes: readonly Route[], taken: readonly 
   const segments = routes.map((r) => segmentsOf(r.points));
   const solid = [...board.layout.nodes.map((node) => node.rect), ...heads, ...captions];
   const foreign = routes.map((own) => routes.map((r) => r !== own && !bundled(own, r)));
+  const shared = sharedOf(
+    routes.map((r) => r.points),
+    (a, b) => foreign[a]?.[b] === false,
+  );
   const cost = (rect: Rect, route: number, lineGap: number, onLine: boolean, limit = Infinity): number => {
     let n = rect.x < 0 || rect.y < 0 || rect.x + rect.w > board.layout.width ? 1 : 0;
     for (const r of solid) if (n < limit && overlaps(rect, r, PAD)) n++;
@@ -87,6 +93,7 @@ export function clearOf(board: Board, routes: readonly Route[], taken: readonly 
       const gap = i === route ? 1 : lineGap;
       if (near) for (const [p, q] of list) if (n < limit && segmentHitsRect(p, q, rect, gap)) n++;
     }
+    for (const piece of shared[route] ?? []) if (n < limit && besideShared(piece, rect, lineGap)) n++;
     return n;
   };
   const texts = new Map<Rect, number>();
@@ -99,10 +106,12 @@ export function clearOf(board: Board, routes: readonly Route[], taken: readonly 
     placed.push(rect);
     if (route !== undefined) texts.set(rect, route);
   };
+  const same = (a: Rect, b: Rect) => a.x === b.x && a.y === b.y && a.w === b.w && a.h === b.h;
   const drop = (rect: Rect) => {
-    const i = placed.indexOf(rect);
-    if (i >= 0) placed.splice(i, 1);
-    texts.delete(rect);
+    const i = placed.findIndex((r) => same(r, rect));
+    if (i < 0) return;
+    texts.delete(placed[i] as Rect);
+    placed.splice(i, 1);
   };
   return { cost, crowding, take, drop };
 }

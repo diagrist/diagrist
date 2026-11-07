@@ -64,7 +64,7 @@
 <g id="edge-14"><path d="M673 845.5 L697 845.5 L697 1078 L296 1078" class="line halo"/><path d="M673 845.5 L697 845.5 L697 1078 L296 1078" class="line" marker-end="url(#m-uml-open)"/></g>
 <g id="label-1"><text x="435" y="308" text-anchor="start" class="label halo">bestätigen</text></g>
 <g id="label-4"><text x="477" y="540" text-anchor="end" class="label halo">Zahlung</text><text x="477" y="552" text-anchor="end" class="label halo">autorisiert</text></g>
-<g id="label-5"><text x="449" y="666" text-anchor="start" class="label halo">Ware versandt</text></g>
+<g id="label-5"><text x="433" y="666" text-anchor="end" class="label halo">Ware versandt</text></g>
 <g id="label-6"><text x="213" y="546" text-anchor="start" class="label halo">übergeben</text></g>
 <g id="label-7"><text x="213" y="666" text-anchor="start" class="label halo">zugestellt</text></g>
 <g id="label-12"><text x="543" y="640" text-anchor="end" class="label halo">Zahlung</text><text x="543" y="652" text-anchor="end" class="label halo">abgelehnt</text></g>

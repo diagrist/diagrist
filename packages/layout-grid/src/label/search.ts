@@ -37,6 +37,15 @@ const piecesOf = (points: readonly Point[], flatFirst: boolean): Piece[] =>
     })
     .sort((p, q) => (flatFirst ? Number(q.horizontal) - Number(p.horizontal) : 0) || q.len - p.len);
 
+/** How many times its height a piece runs where a long name beside it wraps first, so it stands among air. */
+const AIR = 3;
+
+/** Whether an upright piece is long enough for the wrapped stack of `text` to stand beside it among air. */
+function roomy(piece: Piece, text: EdgeText, m: GridMetrics): boolean {
+  const [wrapped] = stacks(text, true, m);
+  return piece.len >= AIR * (wrapped?.length ?? 0) * m.labelLineH;
+}
+
 /** The rectangles a block of texts takes: their boxes, grown by the pad of texts on a line. */
 export const rectsOf = (block: readonly EdgeLabel[], o: SearchOptions): Rect[] =>
   block.map((l) => {
@@ -87,7 +96,7 @@ function* waysOf(
         : text.accent
           ? ['right', 'left']
           : ['left', 'right'];
-    for (const lines of stacks(text, !piece.horizontal, m)) {
+    for (const lines of stacks(text, !piece.horizontal && roomy(piece, text, m), m)) {
       const along = piece.horizontal ? widthOf(lines, m) : lines.length * m.labelLineH;
       for (const d of offsets(piece.len, on ? along + 2 * END : 0)) {
         const t = 0.5 + d / Math.max(1, piece.len);
@@ -109,6 +118,18 @@ export function blockCost(
   let n = 0;
   for (const r of rectsOf(block, o)) if (n < limit) n += clear.cost(r, i, LINE_GAP, o.onLine !== undefined, limit - n);
   return n;
+}
+
+/** The ways of route `i`'s texts that meet nothing, in the order `searchBlock` tries them. */
+export function* clearWays(
+  route: Route,
+  i: number,
+  text: EdgeText,
+  clear: Clear,
+  m: GridMetrics,
+  o: SearchOptions,
+): Generator<EdgeLabel[]> {
+  for (const block of candidates(route, i, text, m, o)) if (blockCost(block, i, clear, o, 1) === 0) yield block;
 }
 
 /** Whether a line of `block` runs wider than `wrapWidth` though it could wrap. */

@@ -17,12 +17,14 @@ const COST = { node: 100, text: 20, line: 10, frame: 5 } as const;
 /**
  * Taken room for free placements, such as labels and notes on straight lines: nodes, an ellipse by its rectangle as
  * the line check reads it, lines, frame lines and texts already set. `cost` is 0 for a free box, else the weighted number of conflicts. `link` weighs a connector line
- * from `a` to `b` (nodes except `skip`, routes except index `own`, texts, frame lines it crosses). `take` adds a box.
+ * from `a` to `b` (nodes except `skip`, routes except index `own`, texts, frame lines it crosses). `take` adds a box, `drop` frees it.
  */
 export interface Occupancy {
   cost(box: Rect): number;
   link(a: Point, b: Point, own: number, skip?: string): number;
   take(box: Rect): void;
+  /** Frees a box taken before, found by its place. */
+  drop(box: Rect): void;
 }
 
 /** Does the box cut the line of a frame, instead of lying well inside or outside? */
@@ -77,6 +79,10 @@ export function occupancy(
       COST.frame * frames.filter((f) => within(a, f) !== within(b, f)).length,
     take: (box) => {
       taken.push(box);
+    },
+    drop: (box) => {
+      const i = taken.findIndex((t) => t.x === box.x && t.y === box.y && t.w === box.w && t.h === box.h);
+      if (i >= 0) taken.splice(i, 1);
     },
   };
 }

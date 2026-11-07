@@ -61,8 +61,12 @@ describe('the lines of state machines', () => {
     expect(findingsOf(stateSource(name)).map(key)).toEqual([]);
   });
 
-  it('keeps the text of a bent line away from the text of its neighbour where a spot further off is free', () => {
-    findingsOf(readFileSync(new URL('stress/state/protokoll.dgr', import.meta.url), 'utf8'));
+  it.each([
+    ['a bent line from its neighbour where a spot further off is free', 'protokoll'],
+    ['two lines apart where the text seated first gives way', 'auftrag-parallel'],
+  ])('keeps the texts of %s (%s)', (_, name) => {
+    const stress = new URL(`stress/state/${name}.dgr`, import.meta.url);
+    findingsOf(stateNames.includes(`${name}.dgr`) ? stateSource(`${name}.dgr`) : readFileSync(stress, 'utf8'));
     const texts = (drawings[0]?.placed ?? []).filter((p) => p.kind === 'text' && p.key.includes('.label.'));
     const edge = (k: string) => k.slice(0, k.indexOf('.label.'));
     const gaps = texts.flatMap((a, i) =>
