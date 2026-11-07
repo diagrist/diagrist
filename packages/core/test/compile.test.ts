@@ -99,9 +99,32 @@ describe('toSvg', () => {
       '<path d="M0 0 L1 1" class="stroke thin" marker-end="url(#m-open)" transform="translate(0 3)"/>',
     );
     expect(svg).toContain('<g id="edge-0"><rect x="1.3" y="2" width="3" height="4" class="text"/></g>');
-    expect(svg).toContain('.dia .base {');
-    expect(svg).toContain('.dia .stroke {');
+    expect(svg).not.toContain('.diagrist .base {');
+    expect(svg).toContain('.diagrist .stroke {');
     expect(svg).toContain('<marker id="m-open"');
+  });
+
+  it('writes every number with at most one decimal, path data, radii and offsets too, and no negative zero', () => {
+    const svg = toSvg(
+      {
+        ...scene,
+        children: [
+          {
+            kind: 'path',
+            d: 'M47.696969696969695 -0.04 H1e-7 A2.25 2.25 0 0 1 .35 9',
+            role: 'rule',
+            offset: [0.125, 3],
+          },
+          { kind: 'circle', cx: 4, cy: 4, r: 5.151515151515151, role: 'line' },
+          { kind: 'rect', x: 0, y: 0, w: 8, h: 8, rx: 2.6666666666666665, role: 'line' },
+        ],
+      },
+      styles,
+    );
+    expect(svg).toContain('<path d="M47.7 0 H0 A2.3 2.3 0 0 1 0.3 9" class="stroke thin"');
+    expect(svg).toContain('transform="translate(0.1 3)"');
+    expect(svg).toContain('r="5.2"');
+    expect(svg).toContain('rx="2.7"');
   });
 
   it('replaces what XML cannot hold, so a text that reaches it another way still gives a parsable SVG', () => {

@@ -35,7 +35,7 @@ describe('text runs', () => {
   it('are written as tspans in the classes of their role, a run without role as plain text', () => {
     const svg = svgOf(line('if (a < b)', [{ text: 'if', role: 'keyword' }, { text: ' (a < b)' }]));
     expect(svg).toContain('<text x="2" y="10" class="text"><tspan class="kw">if</tspan> (a &lt; b)</text>');
-    expect(svg).toContain('.dia .kw { fill: #a00; }');
+    expect(svg).toContain('.diagrist .kw { fill: #a00; }');
   });
 
   it('keep their spaces only where SVG would strip or collapse them', () => {

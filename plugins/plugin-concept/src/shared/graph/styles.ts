@@ -77,7 +77,7 @@ export const GRAPH_STYLES: Styles = (() => {
     roles: ROLES,
     rules: [
       rule('dotted', 'stroke-dasharray: 1.5 3; stroke-linecap: round;'),
-      rule('arrow-hollow', `fill: ${c.canvas}; stroke: ${c.stroke}; stroke-width: ${STROKES.line};`, true),
+      rule('arrow-hollow', `fill: ${c.canvas}; stroke: ${c.stroke}; stroke-width: ${STROKES.line};`),
       rule('item-detail', `fill: none; stroke: ${c.stroke}; stroke-width: ${STROKES.shape};`),
       rule('item-rule', `fill: none; stroke: ${c.grid}; stroke-width: 1; stroke-dasharray: ${DASH.frame};`),
       rule('item-entry', textRule(`fill: ${c.note};`, F.entry)),

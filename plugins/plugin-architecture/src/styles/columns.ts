@@ -150,7 +150,6 @@ export const COLUMNS_PAINT: Paint = {
   fontKerning: 'none',
   canvas: INK.ground,
   markers: COLUMNS_MARKERS,
-  usedOnly: true,
   sights: {
     en: {
       roles: { own: 'Dashed frame', shared: 'Dashed frame', external: 'Dashed frame' },

@@ -1,39 +1,23 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 976 667" width="976" height="667" class="dia" role="img" aria-label="Onlineshop"><title>Onlineshop</title><style>
-  .dia { font-family: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 11px; }
-  .dia .shape { fill: #ffffff; stroke: #18181b; stroke-width: 1.5; }
-  .dia .shape-muted { fill: #f4f4f5; stroke: #18181b; stroke-width: 1.5; }
-  .dia .shape-emph { fill: #ffffff; stroke: #18181b; stroke-width: 2.5; }
-  .dia .frame { fill: none; stroke: #a1a1aa; stroke-width: 1; stroke-dasharray: 4 3; }
-  .dia .frame-own { fill: #f4f4f5; fill-opacity: 0.55; stroke: #18181b; stroke-width: 2; }
-  .dia .line { fill: none; stroke: #18181b; stroke-width: 1.5; }
-  .dia .line-accent { fill: none; stroke: #1d4ed8; stroke-width: 1.8; }
-  .dia .dashed { stroke-dasharray: 6 4; }
-  .dia .label { fill: #18181b; font-size: 10px; }
-  .dia .label-accent { fill: #1d4ed8; font-size: 10px; }
-  .dia .label-bold { fill: #18181b; font-weight: 600; font-size: 12px; }
-  .dia .label-title { fill: #18181b; font-weight: 600; font-size: 14px; }
-  .dia .label-group { fill: #18181b; font-weight: 600; font-size: 11px; }
-  .dia .label-note { fill: #52525b; font-size: 10px; }
-  .dia .arrow-open { fill: none; stroke: #18181b; stroke-width: 1.5; }
-  .dia .arrow-filled { fill: #18181b; stroke: none; }
-  .dia .arrow-open-accent { fill: none; stroke: #1d4ed8; stroke-width: 1.8; }
-  .dia .arrow-filled-accent { fill: #1d4ed8; stroke: none; }
-  .dia .halo { paint-order: stroke; stroke: #fafafa; stroke-width: 4px; stroke-linejoin: round; }
-  .dia .badge { fill: #18181b; }
-  .dia .badge-accent { fill: #1d4ed8; }
-  .dia .badge-text { fill: #ffffff; font-weight: 700; font-size: 10px; }
-  .dia .mark { fill: #dbeafe; stroke: #1d4ed8; stroke-width: 1; }
-  .dia .mark-text { fill: #1d4ed8; font-weight: 700; font-size: 9px; }
-  .dia .note-tail { fill: none; stroke: #52525b; stroke-width: 1; stroke-dasharray: 4 3; }
-  .dia .uml-stereo { fill: #18181b; font-size: 10px; }
-  .dia .uml-member { fill: #18181b; font-size: 11px; }
-  .dia .uml-rule { stroke: #18181b; stroke-width: 1; }
-  .dia .uml-hollow { fill: #fafafa; stroke: #18181b; stroke-width: 1.5; stroke-linejoin: miter; }
-  .dia .uml-hollow-accent { fill: #fafafa; stroke: #1d4ed8; stroke-width: 1.8; }
-  .dia .uc-name { fill: #18181b; font-size: 12px; }
-  .dia .uc-boundary { fill: none; stroke: #18181b; stroke-width: 1.5; }
-  .dia .uc-note { fill: #ffffff; stroke: #18181b; stroke-width: 1; }
-</style><rect width="976" height="667" fill="#fafafa"/><defs><marker id="m-open" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto"><path d="M1 1 L11 6 L1 11" class="arrow-open" stroke-linecap="round"/></marker><marker id="m-filled" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto"><path d="M1 1 L11 6 L1 11 Z" class="arrow-filled" stroke-linecap="round"/></marker><marker id="m-open-accent" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto"><path d="M1 1 L11 6 L1 11" class="arrow-open-accent" stroke-linecap="round"/></marker><marker id="m-filled-accent" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto"><path d="M1 1 L11 6 L1 11 Z" class="arrow-filled-accent" stroke-linecap="round"/></marker><marker id="m-hollow" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto"><path d="M1 1 L11 6 L1 11 Z" class="uml-hollow" stroke-linecap="round"/></marker><marker id="m-hollow-accent" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto"><path d="M1 1 L11 6 L1 11 Z" class="uml-hollow-accent" stroke-linecap="round"/></marker></defs>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 976 667" width="976" height="667" class="diagrist" role="img" aria-label="Onlineshop"><title>Onlineshop</title><style>
+  .diagrist { font-family: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 11px; }
+  .diagrist .shape { fill: #ffffff; stroke: #18181b; stroke-width: 1.5; }
+  .diagrist .line { fill: none; stroke: #18181b; stroke-width: 1.5; }
+  .diagrist .dashed { stroke-dasharray: 6 4; }
+  .diagrist .label { fill: #18181b; font-size: 10px; }
+  .diagrist .label-bold { fill: #18181b; font-weight: 600; font-size: 12px; }
+  .diagrist .label-title { fill: #18181b; font-weight: 600; font-size: 14px; }
+  .diagrist .label-note { fill: #52525b; font-size: 10px; }
+  .diagrist .arrow-open { fill: none; stroke: #18181b; stroke-width: 1.5; }
+  .diagrist .halo { paint-order: stroke; stroke: #fafafa; stroke-width: 4px; stroke-linejoin: round; }
+  .diagrist .note-tail { fill: none; stroke: #52525b; stroke-width: 1; stroke-dasharray: 4 3; }
+  .diagrist .uml-stereo { fill: #18181b; font-size: 10px; }
+  .diagrist .uml-member { fill: #18181b; font-size: 11px; }
+  .diagrist .uml-rule { stroke: #18181b; stroke-width: 1; }
+  .diagrist .uml-hollow { fill: #fafafa; stroke: #18181b; stroke-width: 1.5; stroke-linejoin: miter; }
+  .diagrist .uc-name { fill: #18181b; font-size: 12px; }
+  .diagrist .uc-boundary { fill: none; stroke: #18181b; stroke-width: 1.5; }
+  .diagrist .uc-note { fill: #ffffff; stroke: #18181b; stroke-width: 1; }
+</style><rect width="976" height="667" fill="#fafafa"/><defs><marker id="m-open" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto"><path d="M1 1 L11 6 L1 11" class="arrow-open" stroke-linecap="round"/></marker><marker id="m-hollow" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto"><path d="M1 1 L11 6 L1 11 Z" class="uml-hollow" stroke-linecap="round"/></marker></defs>
 <text x="32" y="36" class="label-title">Use-Case-Diagramm (UML) · Onlineshop</text>
 <text x="32" y="52" class="label-note">Rollen, Systemakteur, include, extend und Generalisierung</text>
 <g id="group-shop"><rect x="192" y="72" width="536" height="531" class="uc-boundary"/><text x="204" y="92" class="label-bold">Onlineshop</text></g>
@@ -45,11 +29,11 @@
 <g id="node-express"><path d="M232 476 A84 24 0 1 0 400 476 A84 24 0 1 0 232 476 Z" class="shape"/><text x="316" y="480" text-anchor="middle" class="uc-name">Express bestellen</text></g>
 <g id="node-bestellen"><path d="M232 360 A84 52 0 1 0 400 360 A84 52 0 1 0 232 360 Z" class="shape"/><text x="316" y="337.5" text-anchor="middle" class="uc-name">Bestellung</text><text x="316" y="352.5" text-anchor="middle" class="uc-name">aufgeben</text><line x1="232" y1="361" x2="400" y2="361" class="uml-rule"/><text x="316" y="377" text-anchor="middle" class="uml-stereo">extension points</text><text x="316" y="391" text-anchor="middle" class="uml-member">vor Abschluss</text></g>
 <g id="node-suchen"><path d="M240 140 A76 24 0 1 0 392 140 A76 24 0 1 0 240 140 Z" class="shape"/><text x="316" y="144" text-anchor="middle" class="uc-name">Produkte suchen</text></g>
-<g id="node-support"><circle cx="864" cy="494.5" r="8.99" class="shape"/><line x1="864" y1="503.5" x2="864" y2="525.5" class="line"/><line x1="849" y1="511.6" x2="879" y2="511.6" class="line"/><line x1="864" y1="525.5" x2="852" y2="543.5" class="line"/><line x1="864" y1="525.5" x2="876" y2="543.5" class="line"/><text x="864" y="559.5" text-anchor="middle" class="uc-name">Support</text></g>
+<g id="node-support"><circle cx="864" cy="494.5" r="9" class="shape"/><line x1="864" y1="503.5" x2="864" y2="525.5" class="line"/><line x1="849" y1="511.6" x2="879" y2="511.6" class="line"/><line x1="864" y1="525.5" x2="852" y2="543.5" class="line"/><line x1="864" y1="525.5" x2="876" y2="543.5" class="line"/><text x="864" y="559.5" text-anchor="middle" class="uc-name">Support</text></g>
 <g id="node-psp"><rect x="800" y="317" width="128" height="56" class="shape"/><text x="864" y="339" text-anchor="middle" class="uml-stereo">«actor»</text><text x="864" y="354" text-anchor="middle" class="uc-name">Zahlungsdienst</text></g>
-<g id="node-stamm"><circle cx="84" cy="431.5" r="8.99" class="shape"/><line x1="84" y1="440.5" x2="84" y2="462.5" class="line"/><line x1="69" y1="448.6" x2="99" y2="448.6" class="line"/><line x1="84" y1="462.5" x2="72" y2="480.5" class="line"/><line x1="84" y1="462.5" x2="96" y2="480.5" class="line"/><text x="84" y="496.5" text-anchor="middle" class="uc-name">Stammkunde</text></g>
-<g id="node-kunde"><circle cx="84" cy="258.5" r="8.99" class="shape"/><line x1="84" y1="267.5" x2="84" y2="289.5" class="line"/><line x1="69" y1="275.6" x2="99" y2="275.6" class="line"/><line x1="84" y1="289.5" x2="72" y2="307.5" class="line"/><line x1="84" y1="289.5" x2="96" y2="307.5" class="line"/><text x="84" y="323.5" text-anchor="middle" class="uc-name">Kunde</text></g>
-<g id="node-gast"><circle cx="84" cy="95.5" r="8.99" class="shape"/><line x1="84" y1="104.5" x2="84" y2="126.5" class="line"/><line x1="69" y1="112.6" x2="99" y2="112.6" class="line"/><line x1="84" y1="126.5" x2="72" y2="144.5" class="line"/><line x1="84" y1="126.5" x2="96" y2="144.5" class="line"/><text x="84" y="160.5" text-anchor="middle" class="uc-name">Gast</text></g>
+<g id="node-stamm"><circle cx="84" cy="431.5" r="9" class="shape"/><line x1="84" y1="440.5" x2="84" y2="462.5" class="line"/><line x1="69" y1="448.6" x2="99" y2="448.6" class="line"/><line x1="84" y1="462.5" x2="72" y2="480.5" class="line"/><line x1="84" y1="462.5" x2="96" y2="480.5" class="line"/><text x="84" y="496.5" text-anchor="middle" class="uc-name">Stammkunde</text></g>
+<g id="node-kunde"><circle cx="84" cy="258.5" r="9" class="shape"/><line x1="84" y1="267.5" x2="84" y2="289.5" class="line"/><line x1="69" y1="275.6" x2="99" y2="275.6" class="line"/><line x1="84" y1="289.5" x2="72" y2="307.5" class="line"/><line x1="84" y1="289.5" x2="96" y2="307.5" class="line"/><text x="84" y="323.5" text-anchor="middle" class="uc-name">Kunde</text></g>
+<g id="node-gast"><circle cx="84" cy="95.5" r="9" class="shape"/><line x1="84" y1="104.5" x2="84" y2="126.5" class="line"/><line x1="69" y1="112.6" x2="99" y2="112.6" class="line"/><line x1="84" y1="126.5" x2="72" y2="144.5" class="line"/><line x1="84" y1="126.5" x2="96" y2="144.5" class="line"/><text x="84" y="160.5" text-anchor="middle" class="uc-name">Gast</text></g>
 <g id="edge-0"><path d="M84 246.5 L84 166.5" class="line halo"/><path d="M84 246.5 L84 166.5" class="line" marker-end="url(#m-hollow)"/></g>
 <g id="edge-1"><path d="M84 419.5 L84 329.5" class="line halo"/><path d="M84 419.5 L84 329.5" class="line" marker-end="url(#m-hollow)"/></g>
 <g id="edge-2"><path d="M107 117.9 L243.9 132.4" class="line halo"/><path d="M107 117.9 L243.9 132.4" class="line"/></g>

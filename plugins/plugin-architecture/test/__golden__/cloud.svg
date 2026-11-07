@@ -1,38 +1,26 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1230 1024" width="1230" height="1024" class="dia" role="img" aria-label="Cloud-Anwendung"><title>Cloud-Anwendung</title><style>
-  .dia { font-family: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 11px; }
-  .dia .shape { fill: #ffffff; stroke: #18181b; stroke-width: 1.5; }
-  .dia .shape-muted { fill: #f4f4f5; stroke: #18181b; stroke-width: 1.5; }
-  .dia .shape-emph { fill: #ffffff; stroke: #18181b; stroke-width: 2.5; }
-  .dia .frame { fill: none; stroke: #a1a1aa; stroke-width: 1; stroke-dasharray: 4 3; }
-  .dia .frame-own { fill: #f4f4f5; fill-opacity: 0.55; stroke: #18181b; stroke-width: 2; }
-  .dia .line { fill: none; stroke: #18181b; stroke-width: 1.5; }
-  .dia .line-accent { fill: none; stroke: #1d4ed8; stroke-width: 1.8; }
-  .dia .dashed { stroke-dasharray: 6 4; }
-  .dia .label { fill: #18181b; font-size: 10px; }
-  .dia .label-accent { fill: #1d4ed8; font-size: 10px; }
-  .dia .label-bold { fill: #18181b; font-weight: 600; font-size: 12px; }
-  .dia .label-title { fill: #18181b; font-weight: 600; font-size: 14px; }
-  .dia .label-group { fill: #18181b; font-weight: 600; font-size: 11px; }
-  .dia .label-note { fill: #52525b; font-size: 10px; }
-  .dia .arrow-open { fill: none; stroke: #18181b; stroke-width: 1.5; }
-  .dia .arrow-filled { fill: #18181b; stroke: none; }
-  .dia .arrow-open-accent { fill: none; stroke: #1d4ed8; stroke-width: 1.8; }
-  .dia .arrow-filled-accent { fill: #1d4ed8; stroke: none; }
-  .dia .halo { paint-order: stroke; stroke: #fafafa; stroke-width: 4px; stroke-linejoin: round; }
-  .dia .badge { fill: #18181b; }
-  .dia .badge-accent { fill: #1d4ed8; }
-  .dia .badge-text { fill: #ffffff; font-weight: 700; font-size: 10px; }
-  .dia .mark { fill: #dbeafe; stroke: #1d4ed8; stroke-width: 1; }
-  .dia .mark-text { fill: #1d4ed8; font-weight: 700; font-size: 9px; }
-  .dia .annotation-box { fill: #f4f4f5; stroke: #a1a1aa; stroke-width: 1; }
-  .dia .annotation-line { fill: none; stroke: #a1a1aa; stroke-width: 1; }
-  .dia .annotation-arrow { fill: #a1a1aa; stroke: none; }
-  .dia .legend-rule { fill: none; stroke: #e4e4e7; stroke-width: 1; }
-  .dia .icon-fill-ink { overflow: visible; fill: #18181b; }
-  .dia .icon-line-ink { overflow: visible; fill: none; stroke: #18181b; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
-  .dia .replica { fill: #f4f4f5; stroke: #a1a1aa; stroke-width: 1; }
-  .dia .replica-text { fill: #52525b; font-weight: 700; font-size: 9px; }
-</style><rect width="1230" height="1024" fill="#fafafa"/><defs><marker id="m-open" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto"><path d="M1 1 L11 6 L1 11" class="arrow-open" stroke-linecap="round"/></marker><marker id="m-filled" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto"><path d="M1 1 L11 6 L1 11 Z" class="arrow-filled" stroke-linecap="round"/></marker><marker id="m-open-accent" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto"><path d="M1 1 L11 6 L1 11" class="arrow-open-accent" stroke-linecap="round"/></marker><marker id="m-filled-accent" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto"><path d="M1 1 L11 6 L1 11 Z" class="arrow-filled-accent" stroke-linecap="round"/></marker></defs>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1230 1024" width="1230" height="1024" class="diagrist" role="img" aria-label="Cloud-Anwendung"><title>Cloud-Anwendung</title><style>
+  .diagrist { font-family: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 11px; }
+  .diagrist .shape { fill: #ffffff; stroke: #18181b; stroke-width: 1.5; }
+  .diagrist .frame-own { fill: #f4f4f5; fill-opacity: 0.55; stroke: #18181b; stroke-width: 2; }
+  .diagrist .line { fill: none; stroke: #18181b; stroke-width: 1.5; }
+  .diagrist .dashed { stroke-dasharray: 6 4; }
+  .diagrist .label { fill: #18181b; font-size: 10px; }
+  .diagrist .label-bold { fill: #18181b; font-weight: 600; font-size: 12px; }
+  .diagrist .label-title { fill: #18181b; font-weight: 600; font-size: 14px; }
+  .diagrist .label-group { fill: #18181b; font-weight: 600; font-size: 11px; }
+  .diagrist .label-note { fill: #52525b; font-size: 10px; }
+  .diagrist .arrow-open { fill: none; stroke: #18181b; stroke-width: 1.5; }
+  .diagrist .arrow-filled { fill: #18181b; stroke: none; }
+  .diagrist .halo { paint-order: stroke; stroke: #fafafa; stroke-width: 4px; stroke-linejoin: round; }
+  .diagrist .annotation-box { fill: #f4f4f5; stroke: #a1a1aa; stroke-width: 1; }
+  .diagrist .annotation-line { fill: none; stroke: #a1a1aa; stroke-width: 1; }
+  .diagrist .annotation-arrow { fill: #a1a1aa; stroke: none; }
+  .diagrist .legend-rule { fill: none; stroke: #e4e4e7; stroke-width: 1; }
+  .diagrist .icon-fill-ink { overflow: visible; fill: #18181b; }
+  .diagrist .icon-line-ink { overflow: visible; fill: none; stroke: #18181b; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  .diagrist .replica { fill: #f4f4f5; stroke: #a1a1aa; stroke-width: 1; }
+  .diagrist .replica-text { fill: #52525b; font-weight: 700; font-size: 9px; }
+</style><rect width="1230" height="1024" fill="#fafafa"/><defs><marker id="m-open" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto"><path d="M1 1 L11 6 L1 11" class="arrow-open" stroke-linecap="round"/></marker><marker id="m-filled" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto"><path d="M1 1 L11 6 L1 11 Z" class="arrow-filled" stroke-linecap="round"/></marker></defs>
 <text x="32" y="36" class="label-title">Containerdiagramm (C4 L2) · Cloud-Anwendung</text>
 <text x="32" y="52" class="label-note">Drei Dienste, getrennte Datenhaltung und gemeinsame Ereignis-Queue</text>
 <g id="layer-clients"><line x1="948" y1="156" x2="948" y2="844" class="annotation-line"/><line x1="920" y1="588" x2="948" y2="588" class="annotation-line"/><rect x="990" y="137" width="192" height="38" rx="2" class="annotation-box"/><line x1="948" y1="156" x2="983" y2="156" class="annotation-line"/><path d="M983 156 L977 153 L977 159 Z" class="annotation-arrow"/><text x="1086" y="159.5" text-anchor="middle" class="label-note">Clients</text></g>

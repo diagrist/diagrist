@@ -24,7 +24,7 @@ describe('areas in code diagrams', () => {
     expect(codes(result)).toEqual([]);
     expect(result.svg).toContain('<g id="node-publish"><g class="area-green"><rect');
     expect(result.svg).toContain('<g id="node-submit"><rect');
-    expect(result.svg).toContain('.dia .area-green .card-title { fill: #15803d; }');
+    expect(result.svg).toContain('.diagrist .area-green .card-title { fill: #15803d; }');
   });
 
   it('keep the code, its marks and its notes out of the area, so no run of code is repainted', () => {
@@ -36,7 +36,7 @@ describe('areas in code diagrams', () => {
 
   it('give a link from the core into an extension, with its label, the tone of the extension', () => {
     expect(result.svg).toContain('<g id="edge-0" class="area-green-line">');
-    expect(result.svg).toContain('.dia .area-green-line .link-label { fill: #15803d; }');
+    expect(result.svg).toContain('.diagrist .area-green-line .link-label { fill: #15803d; }');
     expect(result.svg).toContain('marker-end="url(#m-open-green)"');
   });
 

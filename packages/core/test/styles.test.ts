@@ -34,7 +34,7 @@ describe('icons', () => {
     expect(svg).toContain(
       '<svg x="4" y="5.3" width="16" height="16" viewBox="0 0 24 24" class="stroke"><path d="M2 2h20v8H2z"/><path d="M2 14h20v8H2z"/></svg>',
     );
-    expect(svg).toContain('.dia .stroke {');
+    expect(svg).toContain('.diagrist .stroke {');
   });
 
   it('that the style table lacks stop the picture with K102 instead of vanishing', () => {
@@ -77,21 +77,43 @@ describe('a theme', () => {
     }).svg;
     expect(branded).toContain('fill="#002b5c"');
     expect(branded).toContain('class="brand">a</text>');
-    expect(branded).toContain('.dia .brand { fill: #ffcc00; }');
-    expect(branded).not.toContain('.dia .text {');
+    expect(branded).toContain('.diagrist .brand { fill: #ffcc00; }');
+    expect(branded).not.toContain('.diagrist .text {');
     const geometry = (svg: string) => svg.match(/ (x|y|width|height)="[^"]*"/g);
     expect(geometry(branded ?? '')).toEqual(geometry(plain));
   });
 
   it('replaces a rule of the same name in place and adds new markers after the old ones', () => {
+    const [kind] = linesPlugin.kinds;
+    if (kind === undefined) return;
+    const ruled = definePlugin({
+      ...linesPlugin,
+      kinds: [
+        {
+          ...kind,
+          layout: (m, c) => ({ ...kind.layout(m, c), scene: scene({ kind: 'path', d: 'M0 0 L9 9', role: 'rule' }) }),
+        },
+      ],
+    });
     const svg = compile(source, {
-      plugins: [linesPlugin],
+      plugins: [ruled],
       theme: {
-        rules: [{ name: 'base', declarations: 'fill: red;' }],
+        rules: [{ name: 'stroke', declarations: 'stroke: red;' }],
         markers: [{ id: 'whole', shape: MARKER_SHAPES.diamond, name: 'diamond' }],
+        roles: { rule: { classes: ['stroke'], marker: 'open', markerStart: 'whole' } },
       },
     }).svg;
-    expect(svg).toContain('.dia .base { fill: red; }');
+    expect(svg).toContain('.diagrist .stroke { stroke: red; }');
     expect(svg).toMatch(/<marker id="m-open".*<marker id="m-whole"/);
+  });
+
+  it('writes only the markers a path references, and the rules of their outlines', () => {
+    const svg = toSvg(scene({ kind: 'path', d: 'M0 0 L9 9', role: 'rule' }), {
+      ...styles,
+      rules: [...styles.rules, { name: 'arrow', declarations: 'fill: none;' }],
+    });
+    expect(svg).toContain('<marker id="m-open"');
+    expect(svg).toContain('.diagrist .arrow { fill: none; }');
+    expect(compile(source, { plugins: [linesPlugin] }).svg).not.toContain('<marker');
   });
 });

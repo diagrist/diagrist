@@ -35,9 +35,13 @@ export function shape(s: SeqShape): Shape {
 
 const KIND = { sync: 'call', async: 'signal', reply: 'reply', create: 'create' } as const;
 
-/** A message: its group `edge-<k>` holds the line first, then open ends and label (SVG contract). */
-export function messageShape(art: SeqMessageArt, id: string): Shape {
+/**
+ * A message: its group `edge-<k>` holds the line first, then open ends, then its texts with their grounds in a group
+ * `label-<k>` of their own (SVG contract), last, so they are drawn as before over the line.
+ */
+export function messageShape(art: SeqMessageArt, id: string, labelId: string): Shape {
   const role = `${KIND[art.kind]}${art.emph ? '-emph' : ''}`;
   const d = art.points.map(([x, y], i) => `${i === 0 ? 'M' : 'L'}${x} ${y}`).join(' ');
-  return { kind: 'group', id, children: [{ kind: 'path', d, role }, ...art.ends.map(shape), ...art.label.map(shape)] };
+  const label: Shape[] = art.label.length > 0 ? [{ kind: 'group', id: labelId, children: art.label.map(shape) }] : [];
+  return { kind: 'group', id, children: [{ kind: 'path', d, role }, ...art.ends.map(shape), ...label] };
 }

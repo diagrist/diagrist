@@ -29,7 +29,7 @@ describe('areas of a concept picture', () => {
     expect(result.svg).toContain('<g id="node-tarif" class="area-green">');
     expect(result.svg).toContain('<g id="node-api">');
     expect(result.svg).toContain('<g id="edge-0" class="area-green-line">');
-    expect(result.svg).toContain('.dia .area-green .label-bold { fill: #15803d; }');
+    expect(result.svg).toContain('.diagrist .area-green .label-bold { fill: #15803d; }');
   });
 
   it('name each area in the legend and in the description', () => {

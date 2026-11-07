@@ -38,12 +38,12 @@ export function renderDgr(source: string, where: string): Rendered {
 
 /**
  * An inline SVG's stylesheet applies to the whole page, and its marker ids are global. Renaming the root class
- * `dia` and the markers `m-…` after the source keeps two pictures of different kinds apart.
+ * `diagrist` and the markers `m-…` after the source keeps two pictures of different kinds apart.
  */
 export function scoped(svg: string, name: string): string {
   return svg
-    .replace('class="dia"', `class="dia ${name}"`)
-    .replace(/<style>[\s\S]*?<\/style>/, (style) => style.replace(/\.dia\b/g, `.${name}`))
+    .replace('class="diagrist"', `class="diagrist ${name}"`)
+    .replace(/<style>[\s\S]*?<\/style>/, (style) => style.replace(/\.diagrist\b/g, `.${name}`))
     .replace(/id="m-/g, `id="${name}-m-`)
     .replace(/url\(#m-/g, `url(#${name}-m-`);
 }

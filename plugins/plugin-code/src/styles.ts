@@ -76,7 +76,7 @@ const f = FONTS;
  * rule above the legend of the areas.
  */
 export const CODE_STYLES: Styles = {
-  root: 'dia',
+  root: 'diagrist',
   fontFamily: FONT_STACKS.inter,
   fontKerning: 'none',
   fontSize: f.note.size,

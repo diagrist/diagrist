@@ -1,8 +1,7 @@
 # Burn-down
 
 Debt we accept on purpose. Each entry gives the reason and what removes it. An entry is deleted in the change that
-settles it, and that change says so in its description. The entries are sorted by the package that holds the debt;
-the crutches that keep the predecessor's bytes are numbered, since they go together in one clean-up.
+settles it, and that change says so in its description. The entries are sorted by the package that holds the debt.
 
 ## Language and kernel (`lang`, `core`)
 
@@ -16,11 +15,10 @@ the crutches that keep the predecessor's bytes are numbered, since they go toget
 | **Value descriptions are English in every locale.** The `expected` text of a value type (`a text in double quotes like ...`) is not translated in German messages. | Phrase value descriptions through the catalogue (ADR 0004). |
 | **No JSON schema of a kind's statements as data.** No command reads or writes statements as JSON, so a schema of the typed values (`Infer`) would have no user. | Derive it from the tables when such a command arrives (ADR 0004). |
 | **Spec references are plugin-internal** (ADR 0017). `implementing` in `plugins/plugin-uml/src/spec` keeps its marks as extra properties of the tables, which `lang` passes along without knowing them; the grammar JSON has no field for them. | When a second plugin cites a standard (BPMN, ArchiMate): a typed field in `lang`, emitted by `grammarOf`, with the walker of `src/spec/coverage.ts`. |
-| **Classes of markers count as unused.** The kernel writes a rule only when a shape uses its class, and a marker in `<defs>` is no shape, so marker rules (`uml-hollow`, the symbols of class diagrams) are marked `always` and written into every picture of their kind, and C4 marks the rules of its looks' markers `always` so that `look=paper`, which writes only used rules, draws open heads. | The kernel counts the classes of referenced markers. |
 | **One marker size per style table.** The kernel's markers share `markerSize`; class diagrams and state machines set 18 (`MARKER_SIZE` in `plugins/plugin-uml/src/shared/box-styles.ts`) for the diamond of 16 pixels and draw each symbol in pixels of that size, while use case diagrams draw the triangle 10 long where the predecessor drew 14. | A size per marker. |
 | **Pictures of one file do not share their sizes** (ADR 0021). Cells are inherited, but the fixed grid measures column widths and row heights per picture, so a variant with a wider label widens its column and the pictures of one file do not overlay pixel for pixel. | An optional `Kind.measure?(models)` the kernel calls once with every model of a source, its result handed to each `layout`; C4 returns the largest widths and heights. |
 | **`set` and `drop` reach the top level only** (ADR 0021). A class inside a package or a nested fragment is changed by restating its block. | Address nested lines when a kind needs it, by a path such as `set pkg.order ...`. |
-| **Ligatures of JetBrains Mono.** Browsers join texts such as `->` in labels, while the layout measured single glyphs. Fixing it changes the bytes of every picture. | `font-variant-ligatures: none` on the root rule, with the second baseline of sequence diagrams. |
+| **Ligatures of JetBrains Mono.** Browsers join texts such as `->` or `>=` in labels, while the layout measured single glyphs. The PNGs of resvg stay the same with or without the switch (tried on all 180 pictures with the second baseline), so only what browsers draw would change, visibly; that pass changed no picture on purpose and left it out. | `font-variant-ligatures: none` on the root rule, once the owner wants the glyphs in browsers as measured. |
 | **Contextual alternates of Inter** (ADR 0022). resvg and browsers turn `->` and `=>` into an arrow glyph, narrower than the advances the table sums, and resvg has no switch for `calt`. Such texts take a little less room than measured, never more. | Read those substitutions from `GSUB` into the packed table, or switch `calt` off once resvg honours `font-feature-settings`. |
 
 ## Layout library (`layout-grid`)
@@ -56,33 +54,11 @@ spec and is compared number for number, as the path finding of state machines wa
 
 ## UML (`plugin-uml`)
 
-### Sequence diagrams keep the predecessor's bytes (ADR 0008 Nr. 5)
-
-The 15 examples render the predecessor's SVG byte for byte, but for the name of a `ref`, which is measured in the
-font it is drawn in and so stands 6 px further right in `bestellung-bestaetigen` and `reservierung-halten`. These
-crutches keep the rest so; they go in one clean-up with a second baseline.
-
-1. **Base stylesheet always written.** 24 rules marked `always` in `packages/core/src/standard/styles.ts`, also
-   in pictures that use none of them. Clean-up: drop `always`, the kernel writes only used rules.
-2. **All four arrowheads in every `<defs>`** (`MARKERS`). Clean-up: write only referenced markers.
-3. **Root class `dia`** (`standardStyles`). The target is `diagrist`, and `--dgr-` for CSS variables.
-4. **Unrounded path numbers and circle radii** (`r="5.151515151515151"`), while rectangles, lines and texts are
-   rounded to one decimal in `packages/core/src/svg.ts`. Clean-up: one rounding for all numbers.
-5. **Arithmetic order of the layout.** `src/sequence/layout` keeps the predecessor's order of floating point steps
-   (the right edge of a note is passed on, not recomputed as `x + w`). Refactors there must keep the bytes; the
-   module TSDoc of `src/sequence/layout/index.ts` and of `packages/layout-grid/src/layout.ts` says so where the code is.
-   It goes with Nr. 4: while path numbers are written unrounded, a different last bit shows in the bytes.
-6. **Card look in code.** `look=cards` changes shapes in `scene/cards.ts`, not only the style table. That is no
-   question of bytes: rounded frames, shadows and the light cards of area heads are geometry, which a style table
-   cannot give. Clean-up: a look as data that changes shapes, as the C4 looks do (ADR 0023), once a second sequence
-   look needs one.
-
-Waiting for the same clean-up, because it changes the bytes: `label-<i>` is never written, although the SVG
-contract names it and `EdgeAnchor.labelId` exists (message labels need a group with the id). The placement check
-and the line check already read the label as `label-<i>` (`layout/placed.ts`).
+### Sequence diagrams
 
 | Debt | Clean-up |
 |---|---|
+| **Card look in code.** `look=cards` changes shapes in `scene/cards.ts`, not only the style table: rounded frames, shadows and the light cards of area heads are geometry, which a style table cannot give. | A look as data that changes shapes, as the C4 looks do (ADR 0023), once a second sequence look needs one. |
 | **Areas show weakly in `look=cards` and between lanes** (ADR 0033). Card heads keep their `tone=`, so lane heads and state cards show their area only in the outline or the stripe; sequence heads without `tone=` are light cards their area paints, as its legend shows. Neighbouring activity lanes share a border, which takes the tone of the lane drawn later; interruptible and expansion regions and sequence fragments take no `area=`. | Let lane heads and state cards without `tone=` be painted by their area, as sequence heads are; draw shared lane borders once, in ink. |
 
 ### Activity, class and state machine diagrams
@@ -98,17 +74,6 @@ and the line check already read the label as `label-<i>` (`layout/placed.ts`).
 | state | **Lines leave a composite state only through its top or bottom.** In `gedaechtnis` H* stands at the right edge of `Programm läuft`, which is empty beside it, so `Wasser fehlt` can drop straight onto `Störung`. Since the text of a rail stands on an end piece where that piece holds it (`layered/rail-texts.ts`), the picture is 765 px wide instead of 919, set by the last layer (`Fertig`, `Pausiert`, `Störung`) and the two rails, no longer by their texts. Exits through the side, with the ends of a side in one order with the rails and one move that narrows the frame and moves the other end out, gave a clean picture only with H* 60 px off its neighbour, and that picture cost more when it was measured (493.9 against 465.7): 107 px more line and the frame off the middle of its children. The experiment is kept in the report `feat/frame-side-exits`. | A layering that puts `Störung` beside the frame's last layer; then side exits as in the experiment. |
 
 ## C4 (`plugin-architecture`)
-
-### C4 crutches left from the predecessor's bytes (ADR 0016)
-
-Every C4 picture took a second baseline when fixed grids moved onto the channel stage (ADR 0038); the inline paint of
-the legend separator, `abgeloest`, the predecessor's arithmetic and paper's old test of a seated number went with it.
-Icons went the same way: they are path data drawn by the kernel as a nested `<svg>` and painted by class in every
-look, so `Icon.markup` and `RoleStyle.paint` are gone, and they are drawn at the size the look measures instead of
-the predecessor's scale rounded to a tenth. One crutch remains.
-
-**Blocks restate base rules** (`blockBase` in `src/looks/blocks.ts`): 13 base rules again with larger fonts and
-strokes. Clean-up: the kernel builds the standard look from measures.
 
 | Debt | Clean-up |
 |---|---|

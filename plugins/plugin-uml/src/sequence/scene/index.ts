@@ -28,7 +28,7 @@ export function sequenceScene(l: SequenceLayout, m: SequenceModel, words: Words 
     ...l.activations.flatMap((s) => inArea(area([s]), barMark(m, l, s))),
     ...area(l.frames),
     ...area(l.boxes),
-    ...l.messages.map((art, k) => messageShape(art, domId.edge(k))),
+    ...l.messages.map((art, k) => messageShape(art, domId.edge(k), domId.label(k))),
     ...heads,
     ...l.marks.map(shape),
     ...l.annotations.map(shape),
@@ -44,7 +44,10 @@ export function sequenceScene(l: SequenceLayout, m: SequenceModel, words: Words 
   return withAreaLegend(scene, d.areas, usedAreas(m), cards ? 'cardBox' : 'head');
 }
 
-/** Heads as nodes, messages as edges in drawing order with the line that writes them; a sequence diagram has no groups. */
+/**
+ * Heads as nodes, messages as edges in drawing order with the line that writes them and the group of their texts;
+ * a sequence diagram has no groups.
+ */
 export function sequenceAnchors(l: SequenceLayout, m: SequenceModel): Anchors {
   return {
     width: l.width,
@@ -56,6 +59,7 @@ export function sequenceAnchors(l: SequenceLayout, m: SequenceModel): Anchors {
       from: art.from,
       to: art.to,
       domId: domId.edge(k),
+      ...(art.label.length > 0 ? { labelId: domId.label(k) } : {}),
       points: art.points,
       ...spanOf(m, art.index),
     })),

@@ -89,8 +89,6 @@ export interface Paint {
   readonly fontKerning?: 'none';
   readonly canvas?: string;
   readonly markers?: readonly Marker[];
-  /** Only rules a picture uses reach its stylesheet, also those the standard look writes always (ADR 0008 Nr. 5). */
-  readonly usedOnly?: boolean;
   /** How the sentence legend names what this paint shows differently, such as the colour of emphasis, by locale. */
   readonly sights?: Readonly<Record<Locale, Partial<SentenceWords>>>;
   /** The inks and the fill of an element that areas replace (ADR 0033), where the look paints other ones. */

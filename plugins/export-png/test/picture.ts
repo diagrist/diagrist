@@ -74,7 +74,7 @@ export function differing(a: Picture, b: Picture, from: number, to: number): num
 }
 
 const styles = (italic: boolean): Styles => ({
-  root: 'dia',
+  root: 'diagrist',
   fontFamily: '"JetBrains Mono", monospace',
   fontSize: 20,
   canvas: '#fafafa',

@@ -18,7 +18,7 @@ describe('a diagram that shows a file through a file() value', () => {
     expect(svg).toContain(
       '<text x="0" y="42" xml:space="preserve" class="code">        <tspan class="keyword">return</tspan>  sum;</text>',
     );
-    expect(svg).toContain('.dia .keyword { fill: #a00; }');
+    expect(svg).toContain('.diagrist .keyword { fill: #a00; }');
   });
 
   it('refuses when the file cannot be read (C018), naming the line, as for a used file', async () => {

@@ -46,10 +46,7 @@ interface ClosedRef {
   readonly boxH: number;
 }
 
-/**
- * The row of one event below the cursor. The sums keep the predecessor's order of floating point steps, which the
- * byte-identical pictures depend on: a height is passed on as computed, never recomputed from its parts.
- */
+/** The row of one event below the cursor. */
 export function rowOf(e: SequenceEvent, i: number, cursor: Cursor, scope: RowScope): Row {
   const t = scope.tokens;
   const at = cursor.at;

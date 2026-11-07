@@ -15,10 +15,7 @@ import { PART_ROLES } from '@diagrist/parts';
 import { CARD_RULES, OUTLINE_RULES, TINT_RULES } from '../shared/card-rules.js';
 import { UC_FONTS as F } from './layout/metrics.js';
 
-/**
- * Rules of use case diagrams. The hollow triangles paint markers, which the kernel does not count as used, so they
- * are always written.
- */
+/** Rules of use case diagrams; the hollow triangles paint the markers of generalizations. */
 const RULES: readonly StyleRule[] = [
   CARD_RULES.noteTail,
   CARD_RULES.shadow,
@@ -27,8 +24,8 @@ const RULES: readonly StyleRule[] = [
   rule('uml-member', textRule(`fill: ${c.stroke};`, F.member)),
   rule('uml-rule', `stroke: ${c.stroke}; stroke-width: ${w.frame};`),
   rule('uml-emph', `fill: ${c.fill}; stroke: ${c.accent}; stroke-width: ${w.emph};`),
-  rule('uml-hollow', `fill: ${c.canvas}; stroke: ${c.stroke}; stroke-width: ${w.line}; stroke-linejoin: miter;`, true),
-  rule('uml-hollow-accent', `fill: ${c.canvas}; stroke: ${c.accent}; stroke-width: ${w.accent};`, true),
+  rule('uml-hollow', `fill: ${c.canvas}; stroke: ${c.stroke}; stroke-width: ${w.line}; stroke-linejoin: miter;`),
+  rule('uml-hollow-accent', `fill: ${c.canvas}; stroke: ${c.accent}; stroke-width: ${w.accent};`),
   rule('uc-name', textRule(`fill: ${c.stroke};`, F.ucName)),
   rule('uc-boundary', `fill: none; stroke: ${c.stroke}; stroke-width: ${w.shape};`),
   rule('uc-note', `fill: ${c.fill}; stroke: ${c.stroke}; stroke-width: ${w.frame};`),

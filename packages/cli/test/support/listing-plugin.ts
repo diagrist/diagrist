@@ -11,7 +11,7 @@ const excerpt = statement('excerpt', {
 const KEYWORDS = new Set(['class', 'return']);
 
 const styles: Styles = {
-  root: 'dia',
+  root: 'diagrist',
   fontFamily: 'monospace',
   fontSize: 11,
   canvas: '#fff',

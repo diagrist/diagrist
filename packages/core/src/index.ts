@@ -37,7 +37,7 @@ export type { Scene, Shape, TextRun } from './scene.js';
 export { segmentMeetsEllipse, segmentMeetsRect, segmentsIntersect } from './segment.js';
 export type { Tone } from './standard/palette.js';
 export { COLORS, DASH, FONT_SIZE, STROKES, TONE_NAMES, TONES } from './standard/palette.js';
-export type { KindStyles } from './standard/styles.js';
+export type { KindStyles, StandardMeasures } from './standard/styles.js';
 export { rule, STANDARD_FONTS, standardStyles, textRule } from './standard/styles.js';
 export type { Icon, Marker, MarkerShape, RoleStyle, StyleRule, Styles } from './styles.js';
 export { MARKER_SHAPES } from './styles.js';

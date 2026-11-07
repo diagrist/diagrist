@@ -6,7 +6,7 @@ import { CODE_PALETTE, CODE_ROLES, codeRules, highlight, outline, sceneRole, TOK
 const JAVA = readFileSync(new URL('fixtures/TransferService.java', import.meta.url), 'utf8');
 
 const styles: Styles = {
-  root: 'dia',
+  root: 'diagrist',
   fontFamily: 'monospace',
   fontSize: 11,
   canvas: '#fff',

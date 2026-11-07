@@ -10,7 +10,7 @@ const line = statement('line', {
 const spec = kind('lines', { doc: 'Lines of text.', header: { locale: localeAttribute }, statements: [line] });
 
 const styles: Styles = {
-  root: 'dia',
+  root: 'diagrist',
   fontFamily: 'monospace',
   fontSize: 11,
   canvas: '#fafafa',
@@ -18,7 +18,7 @@ const styles: Styles = {
   markers: [{ id: 'open', shape: MARKER_SHAPES.hook, name: 'arrow' }],
   roles: { line: { classes: ['text'] }, rule: { classes: ['stroke', 'thin'], marker: 'open' } },
   rules: [
-    { name: 'base', declarations: 'fill: none;', always: true },
+    { name: 'base', declarations: 'fill: none;' },
     { name: 'text', declarations: 'fill: #000;' },
     { name: 'stroke', declarations: 'stroke: #000;' },
   ],

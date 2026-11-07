@@ -27,3 +27,15 @@ diagram kind in many places, kept colours in five places and wrote diagnostics a
 
 The kernel stays small and knows no diagram kind. The 17 sequence examples change syntax for fragments; their
 rendered output must not.
+
+## Amendment: the second baseline (2026-11-07)
+
+Nr. 5 is done for every plugin. A picture's stylesheet holds only the rules of the classes its shapes, texts and
+markers use, and `<defs>` only the markers its lines end in; the classes of markers count as used, so no rule is
+written `always` any more. The root class is `diagrist`, which an inline SVG needs to paint only itself. Every
+number of the SVG, path data and radii included, is rounded to one decimal, so the layouts no longer keep the
+predecessor's order of floating point steps. The texts of a sequence message stand in `label-<k>`, and the base
+rules of the standard look are built from the measures of a variant, which retired the restated rules of C4 blocks.
+Of 180 pictures (every example and stress picture, C4 also in `look=cards`) 143 stayed pixel for pixel; 36 differ
+by anti-aliasing within one pixel, from the rounding; the arrowheads of code diagrams, whose rule had never been
+written, are drawn as the thin open hooks they were meant to be. The SVGs are 18 % smaller.

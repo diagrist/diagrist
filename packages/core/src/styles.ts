@@ -10,12 +10,13 @@ export interface RoleStyle {
   readonly markerStart?: string;
 }
 
-/** One CSS rule for a class, as declarations like `fill: none; stroke: #18181b;`. */
+/**
+ * One CSS rule for a class, as declarations like `fill: none; stroke: #18181b;`. A picture's stylesheet holds only
+ * the rules of the classes its shapes, texts and markers use.
+ */
 export interface StyleRule {
   readonly name: string;
   readonly declarations: string;
-  /** Written even when no shape uses the class; otherwise only used classes reach the stylesheet. */
-  readonly always?: boolean;
 }
 
 /**
@@ -82,7 +83,11 @@ export interface Icon {
  * writes it into the SVG; a look or a corporate theme is another table.
  */
 export interface Styles {
-  /** Class of the `<svg>` element; every rule is scoped below it. */
+  /**
+   * Class of the `<svg>` element, `diagrist` in every plugin so far. Every rule is scoped below it, so an SVG set
+   * inline into a page, whose stylesheet then applies to the whole page, paints only itself; a host that inlines
+   * several renames it per picture, as the website does.
+   */
   readonly root: string;
   readonly fontFamily: string;
   /**

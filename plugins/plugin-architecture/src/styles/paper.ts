@@ -159,5 +159,4 @@ export const PAPER_PAINT: Paint = {
   fontKerning: 'none',
   canvas: PAPER.paper,
   markers: PAPER_MARKERS,
-  usedOnly: true,
 };

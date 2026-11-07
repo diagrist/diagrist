@@ -25,7 +25,7 @@ describe('areas in a matrix', () => {
     expect(result.svg).toContain('<g id="node-reparatur"><g class="area-orange"><rect');
     expect(result.svg).toContain('<g id="node-station"><text');
     expect(result.svg).toContain('<g id="node-ausleihen"><text');
-    expect(result.svg).toContain('.dia .area-orange .head-side { fill: #c2410c; }');
+    expect(result.svg).toContain('.diagrist .area-orange .head-side { fill: #c2410c; }');
   });
 
   it('keep the cells of a row out of its area, so a value is never painted in a tone', () => {
