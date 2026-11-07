@@ -2,18 +2,29 @@ import { compile } from '@diagrist/core';
 import { compareGolden } from '@diagrist/testkit';
 import { describe, expect, it } from 'vitest';
 import { umlPlugin } from '../src/index.js';
-import { activityNames, activitySource, examplePictures, golden } from './compile.js';
+import { activityNames, activitySource, compiledOnce, examplePictures, golden } from './compile.js';
 
 const plugins = [umlPlugin];
 const pictures = examplePictures('activity');
 
+/**
+ * The examples whose layout takes a second or more. Each example is compiled once in this file: every test below reads
+ * that compilation, and the SHA-256 golden keeps it the same from run to run instead of a second compilation.
+ */
+const HEAVY = new Set(['auftragsabwicklung.dgr', 'auftragsabwicklung-cards.dgr']);
+
 describe('activity examples', () => {
-  it.each(activityNames)('%s compiles without findings, twice to the same bytes', (name) => {
-    const first = compile(activitySource(name), { plugins });
+  const compiled = compiledOnce(activitySource);
+
+  it.each(activityNames)('%s compiles without findings', (name) => {
+    const first = compiled(name);
     expect(first.diagnostics).toEqual([]);
     expect(first.svg).toBeDefined();
-    expect(compile(activitySource(name), { plugins }).svg).toBe(first.svg);
     pictures.keep(name, first.svg ?? '');
+  });
+
+  it.each(activityNames.filter((name) => !HEAVY.has(name)))('%s compiles twice to the same bytes', (name) => {
+    expect(compile(activitySource(name), { plugins }).svg).toBe(compiled(name).svg);
   });
 
   it('all keep their pictures, checked by a SHA-256 per example', () => {
@@ -23,13 +34,13 @@ describe('activity examples', () => {
   it.each(['auftragsabwicklung', 'karten-belasten', 'positionen-pruefen-cards'])(
     '%s renders the reviewed picture',
     (name) => {
-      const svg = compile(activitySource(`${name}.dgr`), { plugins }).svg ?? '';
+      const svg = compiled(`${name}.dgr`).svg ?? '';
       expect(compareGolden(golden(`activity-${name}.svg`), svg)).toEqual({ status: 'match' });
     },
   );
 
   it('describes a diagram in German as the predecessor did', () => {
-    const text = compile(activitySource('zahlung-ausnahme.dgr'), { plugins }).description ?? '';
+    const text = compiled('zahlung-ausnahme.dgr').description ?? '';
     expect(compareGolden(golden('activity-zahlung-ausnahme.de.txt'), `${text}\n`)).toEqual({ status: 'match' });
   });
 

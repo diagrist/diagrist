@@ -1,6 +1,14 @@
 import { createHash } from 'node:crypto';
 import { readdirSync, readFileSync } from 'node:fs';
-import { type Compilation, compile, type Rect, segmentMeetsRect } from '@diagrist/core';
+import {
+  type Compilation,
+  compile,
+  type Drawing,
+  linesOfDrawing,
+  type Plugin,
+  type Rect,
+  segmentMeetsRect,
+} from '@diagrist/core';
 import { umlPlugin } from '../src/index.js';
 
 export const golden = (name: string): string => new URL(`__golden__/${name}`, import.meta.url).pathname;
@@ -36,6 +44,56 @@ export function examplePictures(kind: string): { keep: (name: string, svg: strin
         })
         .join(''),
   };
+}
+
+/** What the layouts of the compilation running now returned, one drawing per picture. */
+const handed: Drawing[] = [];
+
+/** The UML plugin with every kind's layout recorded into `handed`; its pictures are the plugin's, byte for byte. */
+const recorder: Plugin = {
+  ...umlPlugin,
+  kinds: umlPlugin.kinds.map((k) => ({
+    ...k,
+    layout: (m, c) => handed[handed.push(k.layout(m, c)) - 1] as Drawing,
+  })),
+};
+
+/** A compilation with the UML plugin and the drawing each picture's layout handed the kernel, in picture order. */
+export interface Drawn extends Compilation {
+  readonly drawings: readonly Drawing[];
+}
+
+/** Compiles a source with the UML plugin and keeps the drawings, so a test reads what the kernel was handed. */
+export function drawn(source: string): Drawn {
+  handed.length = 0;
+  const result = compile(source, { plugins: [recorder] });
+  return { ...result, drawings: [...handed] };
+}
+
+/**
+ * A reader of compiled examples for one test file: the first call for a name compiles its source, every later call
+ * returns that compilation, so a heavy picture is laid out once however many tests of the file read it.
+ */
+export function compiledOnce(source: (name: string) => string): (name: string) => Drawn {
+  const kept = new Map<string, Drawn>();
+  return (name) => {
+    const got = kept.get(name) ?? drawn(source(name));
+    kept.set(name, got);
+    return got;
+  };
+}
+
+/** The distance between two rectangles, 0 where they meet. */
+const apart = (a: Rect, b: Rect) =>
+  Math.hypot(Math.max(0, b.x - a.x - a.w, a.x - b.x - b.w), Math.max(0, b.y - a.y - a.h, a.y - b.y - b.h));
+
+/** The least distance between texts of two different lines in the first picture of a compilation. */
+export function closestTexts(result: Drawn): number {
+  const labels = linesOfDrawing(result.drawings[0] as Drawing).labels ?? [];
+  const gaps = labels.flatMap((a, i) =>
+    labels.slice(i + 1).flatMap((b) => (a.edge === b.edge ? [] : [apart(a.box, b.box)])),
+  );
+  return Math.min(...gaps);
 }
 
 /** Room a line keeps from the frame of a subject it does not end in, as the price of the layout asks. */
