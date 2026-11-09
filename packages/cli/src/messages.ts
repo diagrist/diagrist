@@ -21,7 +21,8 @@ export type ProblemName =
   | 'unrenderable'
   | 'unknownVariant'
   | 'outWithPictures'
-  | 'unreadableNeed';
+  | 'unreadableNeed'
+  | 'unknownTarget';
 
 /**
  * Why a call cannot be carried out (exit code 2). Each message says what was found, what is allowed and gives
@@ -128,6 +129,11 @@ const PROBLEMS: Readonly<Record<ProblemName, Texts & { readonly code: string }>>
     code: 'C018',
     en: (v) => `Cannot read \`${v.file}\`, named in line ${v.line} of \`${v.source}\`: ${v.reason}.`,
     de: (v) => `\`${v.file}\`, genannt in Zeile ${v.line} von \`${v.source}\`, lässt sich nicht lesen: ${v.reason}.`,
+  },
+  unknownTarget: {
+    code: 'C019',
+    en: (v) => `\`${v.found}\` is no export target. Targets: ${v.allowed}. Example: \`${v.example}\``,
+    de: (v) => `\`${v.found}\` ist kein Exportziel. Ziele: ${v.allowed}. Beispiel: \`${v.example}\``,
   },
 };
 

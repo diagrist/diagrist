@@ -16,6 +16,8 @@ export type TextName =
   | 'changed'
   | 'error'
   | 'warning'
+  | 'figjamLost'
+  | 'figjamNext'
   | FileProblem;
 
 /** Status lines of the human output. They carry no code: `--json` reports the same facts as fields. */
@@ -40,6 +42,18 @@ const TEXTS: Readonly<Record<TextName, Texts>> = {
   },
   watching: { en: (v) => `watching ${v.file}, Ctrl+C ends`, de: (v) => `beobachte ${v.file}, Strg+C beendet` },
   changed: { en: (v) => `changed ${v.file}`, de: (v) => `geändert: ${v.file}` },
+  figjamLost: {
+    en: (v) =>
+      `${v.file}: FigJam's import drops ${v.filters} filters (the stripes of areas=stripe) and ${v.spacing} letter spacings`,
+    de: (v) =>
+      `${v.file}: der Import von FigJam verwirft ${v.filters} Filter (die Streifen von areas=stripe) und ${v.spacing} Zeichenabstände`,
+  },
+  figjamNext: {
+    en: (v) =>
+      `next: upload the pictures with upload_assets (multipart, so the file name names the layer), then run ${v.file} with use_figma`,
+    de: (v) =>
+      `weiter: die Bilder mit upload_assets hochladen (multipart, damit der Dateiname die Ebene benennt), dann ${v.file} mit use_figma ausführen`,
+  },
   error: { en: () => 'error', de: () => 'Fehler' },
   warning: { en: () => 'warning', de: () => 'Warnung' },
   missing: { en: () => 'no such file', de: () => 'Datei nicht gefunden' },

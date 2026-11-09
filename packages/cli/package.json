@@ -57,6 +57,7 @@
   },
   "dependencies": {
     "@diagrist/core": "workspace:*",
+    "@diagrist/export-figjam": "workspace:*",
     "@diagrist/export-png": "workspace:*",
     "@diagrist/lang": "workspace:*",
     "@diagrist/plugin-architecture": "workspace:*",

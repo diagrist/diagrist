@@ -1,12 +1,13 @@
 # @diagrist/export-figjam
 
 Brings Diagrist pictures into FigJam. The first piece is `flattenSvg`, which rewrites the kernel's SVG so that
-Figma's SVG import shows it as drawn.
+Figma's SVG import shows it as drawn. The command line uses it in `dgr export figjam`, which also writes the
+script that lays the uploaded pictures into sections (see `docs/cli.md`).
 
 ```ts
 import { flattenSvg } from '@diagrist/export-figjam';
 
-const { svg, report } = flattenSvg(picture.svg);
+const { svg, report } = flattenSvg(picture.svg, { scale: 1.5 });
 ```
 
 Figma's import ignores `<style>`, inherits no font from the root, drops `marker-end` and `marker-start` and knows no
@@ -29,3 +30,7 @@ What the import still changes, measured: `font-weight` 600 becomes Bold, also in
 `font-kerning: none` has no effect, so Inter runs slightly tighter than in the PNG. A nested `<svg viewBox>`,
 `fill-opacity`, `stroke-dasharray`, coloured `<tspan>`, `text-anchor` and `<g transform>` arrive as drawn, and `id`
 attributes become layer names.
+
+`scale` multiplies `width` and `height` and keeps the view box: FigJam sizes an upload by them and scales the
+content to the view box. The flattened SVG renders like the original: `packages/cli/test/figjam-flatten.test.ts`
+renders both with `@diagrist/export-png` and allows at most 0.01 % differing pixels per picture.

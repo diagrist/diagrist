@@ -118,6 +118,9 @@ importers:
       '@diagrist/core':
         specifier: workspace:*
         version: link:../core
+      '@diagrist/export-figjam':
+        specifier: workspace:*
+        version: link:../../plugins/export-figjam
       '@diagrist/export-png':
         specifier: workspace:*
         version: link:../../plugins/export-png
