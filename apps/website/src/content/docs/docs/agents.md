@@ -46,6 +46,17 @@ so a tool does not have to parse text:
 }
 ```
 
+## Into FigJam
+
+`dgr export figjam` brings pictures onto a FigJam board through Figma's agent tools. It writes each picture as an
+SVG rewritten for Figma's import, `order.figjam.svg`, and a `board.js`. The agent uploads the SVGs with
+`upload_assets`, posting each as multipart so its file name names the layer, and runs `board.js` with `use_figma`,
+which lays every picture into a section of its own and replaces those of an earlier export in place.
+
+```sh
+dgr export figjam order.dgr --json     # order.figjam.svg, one per variant, and board.js
+```
+
 ## The agent skill
 
 The skill is a folder. `SKILL.md` tells an agent how to work with Diagrist and what to read when. Guides written

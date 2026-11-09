@@ -62,6 +62,18 @@ codes its rules report. Open only the one you need:
 The `reference` folder is generated from the same tables that check the diagrams, so it cannot drift from what
 `dgr` accepts. The other files are written by hand.
 
+## Into FigJam
+
+When the picture is wanted on a FigJam board and the Figma tools are connected, `dgr export figjam <file> --json`
+writes each picture as `<file>.figjam.svg`, an SVG rewritten for Figma's import, and a `board.js` beside it.
+Call `upload_assets` with the board's `fileKey` and one upload per picture, and post each file as multipart, such
+as `curl -F "file=@order.figjam.svg;type=image/svg+xml" <submitUrl>`, because the file name becomes the name of
+the layer. Then run the text of `board.js` as the code of `use_figma`. It lays each picture into a section of its
+own, several side by side in one board, and replaces the sections of an earlier export in place. It returns the
+ids it made and, in `missing`, the uploads it did not find by name. Look at the board with a screenshot before you
+hand it over. The SVG import drops the stripes of `areas=stripe`; the text output says so, and
+`dgr export figjam <file> --as png` sends pictures instead.
+
 ## Rules that hold everywhere
 
 - Write the language the reader speaks. `locale=de` in the header sets the words Diagrist adds itself, such as

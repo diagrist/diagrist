@@ -11,6 +11,7 @@ Installed as `dgr` and `diagrist`. Usage: `dgr <command> [arguments] [options]`;
 | [`fmt`](#dgr-fmt) | Formats .dgr files in place. |
 | [`check`](#dgr-check) | Checks a diagram against the grammar, the rules of its kind, the placement and the lines of its pictures and prints every finding, those about one picture of a file with variants marked with the variant. |
 | [`build`](#dgr-build) | Renders a diagram as SVG, and with `--png` also as PNG: the base picture as `<file>.svg` and each variant as `<file>.<variant>.svg`. |
+| [`export`](#dgr-export) | Exports diagrams for another tool. |
 | [`grammar`](#dgr-grammar) | Shows what a diagram kind allows. |
 | [`help`](#dgr-help) | Explains the commands. |
 
@@ -150,6 +151,48 @@ With `--json`, besides the fields of every document:
 | `description` | The picture of `output` in words, in the language of the `locale=` header, so an agent can read what it drew; `null` when nothing was written. |
 | `pictures` | Every picture asked for: `{ variant, output, png, description }`, `variant` `null` for the base, the paths and the description `null` when nothing was written. |
 | `diagnostics` | All findings, see "Diagnostics". |
+
+## dgr export
+
+```sh
+dgr export <target> <files...> [options]
+```
+
+Exports diagrams for another tool. `figjam` writes, per picture, an SVG rewritten for Figma's SVG import as `<file>.figjam.svg` and `<file>.<variant>.figjam.svg` (or a PNG with `--as png`), and one `board.js`. An agent uploads the pictures with the Figma tool `upload_assets`, posting each file as multipart so its name names the layer, then runs `board.js` with `use_figma`: it lays every picture into a section of its own, several side by side in one board, and replaces the sections of an earlier export in place. Nothing is written when a diagram has an error.
+
+| Argument | Meaning |
+|---|---|
+| `<target>` | What to export for. So far only `figjam`. |
+| `<files...>` | The .dgr files to export, each with all its pictures. |
+
+| Option | Meaning |
+|---|---|
+| `--as <svg\|png>` | `svg` (default) arrives in FigJam as vectors and text that stay sharp and searchable. `png` is a picture as `dgr build --png` draws it, for when the SVG import loses too much, such as the stripes of `areas=stripe`. |
+| `--scale <factor>` | Size in FigJam per unit of the SVG, from 1 to 3. Default: 1.5, which puts text, lines and boxes at the size of FigJam's own. Scales the width and height of the SVG, keeping its view box, or the pixels of the PNG, and the sections. |
+| `--variant <id>` | Export only the picture of this variant of each file. |
+| `--board <name>` | Name of the section that holds the pictures when there is more than one, shown as `diagrist · <name>`. Default: the name of the first file without `.dgr`. |
+| `-o, --out <dir>` | An existing folder for the pictures and `board.js`. Default: each picture beside its source, `board.js` beside the first. |
+
+Examples:
+
+```sh
+# Write diagrams/order.figjam.svg, one per variant beside it, and diagrams/board.js.
+dgr export figjam diagrams/order.dgr
+# All pictures into one board.
+dgr export figjam diagrams/*.dgr -o figjam --board Architecture
+# PNGs at twice the size of the SVG.
+dgr export figjam diagrams/order.dgr --as png --scale 2
+# Only diagrams/order.next.figjam.svg.
+dgr export figjam diagrams/order.dgr --variant next
+```
+
+With `--json`, besides the fields of every document:
+
+| Field | Meaning |
+|---|---|
+| `pictures` | Every picture asked for: `{ file, variant, output, layer, section, width, height, lost }`. `layer` is the name FigJam gives the upload, `section` the title of its section, `width` and `height` its size in FigJam. `lost` counts what the SVG import still drops, `{ filters, letterSpacing }`, `null` for a PNG. `output` is `null` when nothing was written. |
+| `board` | Path of `board.js`, `null` when nothing was written. |
+| `diagnostics` | All findings of all files, see "Diagnostics". |
 
 ## dgr grammar
 
