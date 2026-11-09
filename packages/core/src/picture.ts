@@ -15,6 +15,8 @@ import { linesOfDrawing } from './lines/drawing.js';
 import { type LineMetrics, lineMetrics } from './lines/metrics.js';
 import { KERNEL_CODES } from './messages.js';
 import type { Kind } from './plugin.js';
+import type { Scene } from './scene.js';
+import type { Styles } from './styles.js';
 import { toSvg } from './svg.js';
 import { applyTheme } from './theme.js';
 
@@ -27,6 +29,16 @@ export interface DrawnPicture {
   readonly description?: string;
   /** The soft measures of its lines, such as crossings, bends and length, so a host can compare layouts (ADR 0035). */
   readonly metrics?: LineMetrics;
+  /**
+   * The scene the SVG was written from, present exactly with `svg`, so an exporter that builds native objects of
+   * another tool (such as FigJam shapes and connectors) reads geometry and texts as data instead of parsing the SVG.
+   */
+  readonly scene?: Scene;
+  /**
+   * The style table the SVG was written with, the theme of the compile options already laid over it; present
+   * exactly with `svg`. Exporters read colours, strokes, fonts and arrowheads of the scene's roles from it.
+   */
+  readonly styles?: Styles;
 }
 
 /** What a picture is drawn with besides its reading. */
@@ -67,6 +79,8 @@ export function drawPicture(
     diagnostics: drawn,
     svg: toSvg(drawing.scene, styles, context.options.inline === true ? { inline: true } : {}),
     anchors: drawing.anchors,
+    scene: drawing.scene,
+    styles,
     metrics: lineMetrics(linesOfDrawing(drawing)),
     description: kind.describe(model, { locale: context.locale }),
   };

@@ -1,11 +1,23 @@
 import type { Span } from '@diagrist/lang';
 import type { Point, Rect } from './geometry.js';
 
+/**
+ * The geometric form of a node's body: a plain or rounded rectangle, an ellipse, a diamond, a cylinder lying upright
+ * (`cylinder`) or on its side (`queue`), a sheet with a folded corner (`file`), a circle, or a `symbol`, a figure
+ * no plain outline describes, such as a stick figure or a bar.
+ */
+export type NodeForm = 'box' | 'rounded' | 'ellipse' | 'diamond' | 'cylinder' | 'queue' | 'file' | 'circle' | 'symbol';
+
 /** Where a node or group sits, and the DOM id of its `<g>` in the SVG. */
 export interface NodeAnchor {
   readonly id: string;
   readonly domId: string;
   readonly rect: Rect;
+  /**
+   * The geometric form of the node's body, for exporters that draw native shapes; a kind that leaves it out gets its
+   * form read from the scene. Groups leave it out.
+   */
+  readonly form?: NodeForm;
 }
 
 /** An edge as drawn: its polyline and the DOM ids of its `<g>` and of its label, if the label has its own. */

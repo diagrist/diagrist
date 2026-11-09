@@ -1,4 +1,4 @@
-export type { Anchors, EdgeAnchor, NodeAnchor } from './anchors.js';
+export type { Anchors, EdgeAnchor, NodeAnchor, NodeForm } from './anchors.js';
 export { domId } from './anchors.js';
 export type { AreaStatementSpec } from './areas/grammar.js';
 export { AREA_STATEMENT, areaAttribute, areasAttribute, lineAreaAttribute } from './areas/grammar.js';
