@@ -1,5 +1,5 @@
 export type { Anchors, EdgeAnchor, NodeAnchor, NodeForm } from './anchors.js';
-export { domId } from './anchors.js';
+export { domId, rectForm } from './anchors.js';
 export type { AreaStatementSpec } from './areas/grammar.js';
 export { AREA_STATEMENT, areaAttribute, areasAttribute, lineAreaAttribute } from './areas/grammar.js';
 export { markAreas } from './areas/mark.js';

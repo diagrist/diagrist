@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { compile, toSvg } from '../src/index.js';
+import { compile, rectForm, toSvg } from '../src/index.js';
 import { linesPlugin } from './fixture.js';
 
 describe('a drawn picture', () => {
@@ -26,5 +26,17 @@ describe('a drawn picture', () => {
     const [picture] = compile('diagram lines "x"\nline "a"', { plugins: [linesPlugin], theme }).pictures;
     expect(picture?.styles?.canvas).toBe('#002b5c');
     expect(picture?.styles?.rules.find((rule) => rule.name === 'text')?.declarations).toBe('fill: #ffffff;');
+  });
+});
+
+describe('the form of a rectangular body', () => {
+  it('is rounded from a corner radius of 8, a box below and without one', () => {
+    expect([rectForm(), rectForm(0), rectForm(6), rectForm(8), rectForm(12)]).toEqual([
+      'box',
+      'box',
+      'box',
+      'rounded',
+      'rounded',
+    ]);
   });
 });
