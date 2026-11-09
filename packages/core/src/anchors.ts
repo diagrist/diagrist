@@ -8,6 +8,15 @@ import type { Point, Rect } from './geometry.js';
  */
 export type NodeForm = 'box' | 'rounded' | 'ellipse' | 'diamond' | 'cylinder' | 'queue' | 'file' | 'circle' | 'symbol';
 
+/** The least corner radius at which a rectangular body reads as `rounded` rather than as a `box`. */
+const ROUNDED_FROM = 8;
+
+/**
+ * The form of a rectangular body by the corner radius it is drawn with: `rounded` from 8 px, below that a `box`, so
+ * every kind draws the line between both at the same radius.
+ */
+export const rectForm = (rx = 0): 'box' | 'rounded' => (rx >= ROUNDED_FROM ? 'rounded' : 'box');
+
 /** Where a node or group sits, and the DOM id of its `<g>` in the SVG. */
 export interface NodeAnchor {
   readonly id: string;

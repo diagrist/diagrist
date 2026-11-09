@@ -7,6 +7,7 @@ import { inAreas } from './areas.js';
 import { bandShapes } from './bands.js';
 import { edgeShapes } from './edges.js';
 import { dimmed } from './focus.js';
+import { elementForm } from './forms.js';
 import { frameShapes } from './groups/index.js';
 import { HEADERS } from './header.js';
 import { labelledRoutes, labelShapes } from './labels/index.js';
@@ -57,7 +58,10 @@ export function architectureAnchors(model: ArchitectureModel, layout: Architectu
   return {
     width: layout.width,
     height: layout.height,
-    nodes: layout.nodes.map((p) => ({ id: p.node.id, domId: domId.node(p.node.id), rect: p.rect })),
+    nodes: layout.nodes.map((p) => {
+      const form = elementForm(p, layout.look);
+      return { id: p.node.id, domId: domId.node(p.node.id), rect: p.rect, ...(form === undefined ? {} : { form }) };
+    }),
     groups: layout.frames.map((f) => ({ id: f.group.id, domId: domId.group(f.group.id), rect: f.rect })),
     edges: layout.routes.map((r, index) => {
       const e = model.edges[Number(r.edge)];

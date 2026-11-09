@@ -1,5 +1,6 @@
-import type { Rect, Shape, Tone } from '@diagrist/core';
+import { type NodeForm, type Rect, rectForm, type Shape, type Tone } from '@diagrist/core';
 import type { ActorArt, Oval, UcText, UseCaseArt } from '../layout/art.js';
+import type { UseCaseModel } from '../model.js';
 
 /** Offset of the soft shadow below shapes in the card look, and the corner radius of cards. */
 const CARD = { shadow: 3, radius: 8 } as const;
@@ -72,4 +73,15 @@ export function actorShapes(a: ActorArt, p: Paint): Shape[] {
     ...(p.cards ? [...limbs, head] : [head, ...limbs]),
     ...(p.cards ? texts(a.name, 'boldName', 'name') : texts(a.name, 'name', 'ucName')),
   ];
+}
+
+/**
+ * The form of a node's body as these shapes draw it: a system actor and a use case drawn as a classifier are boxes,
+ * rounded as cards; a stick figure is a symbol, a use case an ellipse.
+ */
+export function useCaseForm(m: UseCaseModel, id: string, cards: boolean): NodeForm | undefined {
+  const boxed = m.actors.get(id)?.system ?? m.cases.get(id)?.classifier;
+  if (boxed === undefined) return undefined;
+  if (boxed) return rectForm(cards ? CARD.radius : 0);
+  return m.actors.has(id) ? 'symbol' : 'ellipse';
 }

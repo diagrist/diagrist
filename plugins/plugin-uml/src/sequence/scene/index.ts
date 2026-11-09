@@ -4,7 +4,7 @@ import type { PictureTexts } from '../layout/index.js';
 import type { SeqShape, SequenceLayout } from '../layout/types.js';
 import type { SequenceModel } from '../model/types.js';
 import { barMark, inArea, lifelineMark, sequenceAreaMarks, usedAreas } from './areas.js';
-import { cardHeads, cardShapes } from './cards.js';
+import { cardHeads, cardShapes, headForm } from './cards.js';
 import { messageShape, shape } from './shapes.js';
 
 /**
@@ -52,7 +52,11 @@ export function sequenceAnchors(l: SequenceLayout, m: SequenceModel): Anchors {
   return {
     width: l.width,
     height: l.height,
-    nodes: l.heads.map((h) => ({ id: h.id, domId: domId.node(h.id), rect: h.rect })),
+    nodes: l.heads.map((h) => {
+      const p = m.participants.get(h.id);
+      const form = p && headForm(p, m.diagram.look === 'cards');
+      return { id: h.id, domId: domId.node(h.id), rect: h.rect, ...(form === undefined ? {} : { form }) };
+    }),
     groups: [],
     edges: l.messages.map((art, k) => ({
       index: k,

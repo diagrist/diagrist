@@ -4,7 +4,7 @@ import type { CodeLayout } from '../layout/index.js';
 import type { CodeModel } from '../model.js';
 import type { Header } from '../texts.js';
 import { cardMark, linkMarks, usedAreas } from './areas.js';
-import { cardShapes } from './card.js';
+import { CARD_FORM, cardShapes } from './card.js';
 
 const path = (points: readonly (readonly [number, number])[]): string =>
   points.map(([x, y], i) => `${i === 0 ? 'M' : 'L'}${x} ${y}`).join(' ');
@@ -51,7 +51,7 @@ export function codeAnchors(layout: CodeLayout): Anchors {
   return {
     width: layout.width,
     height: layout.height,
-    nodes: layout.cards.map(({ card, rect }) => ({ id: card.id, domId: domId.node(card.id), rect })),
+    nodes: layout.cards.map(({ card, rect }) => ({ id: card.id, domId: domId.node(card.id), rect, form: CARD_FORM })),
     groups: [],
     edges: layout.links.map(({ link, index, points }) => ({
       index,

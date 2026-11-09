@@ -1,5 +1,5 @@
 import { compile } from '@diagrist/core';
-import { compareGolden } from '@diagrist/testkit';
+import { compareGolden, formCounts } from '@diagrist/testkit';
 import { describe, expect, it } from 'vitest';
 import { umlPlugin } from '../src/index.js';
 import {
@@ -14,6 +14,11 @@ import {
 } from './compile.js';
 
 const plugins = [umlPlugin];
+/** Forms of the nodes of two examples: use cases ellipses, figures symbols, system actors boxes, rounded as cards. */
+const FORMS: readonly (readonly [string, Record<string, number>])[] = [
+  ['auftragsabwicklung.dgr', { box: 2, ellipse: 9, symbol: 2 }],
+  ['auftragsabwicklung-cards.dgr', { ellipse: 9, rounded: 2, symbol: 2 }],
+];
 const pictures = examplePictures('usecase');
 
 /**
@@ -34,6 +39,14 @@ describe('use case examples', () => {
 
   it.each(usecaseNames.filter((name) => !HEAVY.has(name)))('%s compiles twice to the same bytes', (name) => {
     expect(compile(usecaseSource(name), { plugins }).svg).toBe(compiled(name).svg);
+  });
+
+  it.each(usecaseNames)('%s gives every node the form of its body', (name) => {
+    expect(formCounts(compiled(name).pictures)).not.toHaveProperty('none');
+  });
+
+  it.each(FORMS)('%s draws its nodes in these forms', (name, counts) => {
+    expect(formCounts(compiled(name).pictures)).toEqual(counts);
   });
 
   it('all keep their pictures, checked by a SHA-256 per example', () => {

@@ -1,4 +1,4 @@
-import type { Rect, Shape } from '@diagrist/core';
+import { type NodeForm, type Rect, rectForm, type Shape } from '@diagrist/core';
 import { cx, cy } from '@diagrist/layout-grid';
 import { EXPANSION_SLOTS } from '../layout/expansion.js';
 import { ACT } from '../layout/metrics.js';
@@ -78,6 +78,32 @@ function body(art: ActivityArt, r: Rect): Shape[] {
       return expansionSlots(r);
   }
 }
+
+/**
+ * The form of each node's body as `body` draws it, the same in `look=cards`, whose cards keep the outline: start and
+ * ends are circles, diamonds diamonds, an action a rounded box, object nodes and the row of an expansion node boxes.
+ * Bars, hourglass and the pentagon and notched box of signals have no plain outline and are symbols.
+ */
+const FORMS: Readonly<Record<ActivityArt['node'], NodeForm>> = {
+  initial: 'circle',
+  final: 'circle',
+  flowfinal: 'circle',
+  decision: 'diamond',
+  merge: 'diamond',
+  fork: 'symbol',
+  join: 'symbol',
+  wait: 'symbol',
+  send: 'symbol',
+  accept: 'symbol',
+  object: 'box',
+  datastore: 'box',
+  buffer: 'box',
+  action: rectForm(ACT.actionRx),
+  expansion: 'box',
+};
+
+/** The form of a node's body, for exporters that draw native shapes. */
+export const activityForm = (art: ActivityArt): NodeForm => FORMS[art.node];
 
 /** Nodes that become cards in `look=cards`; start, ends, diamonds, bars and hourglass stay UML symbols. */
 const CARDS = new Set<ActivityArt['node']>(['action', 'object', 'datastore', 'buffer', 'send', 'accept']);

@@ -1,5 +1,6 @@
 import { defineKind } from '@diagrist/core';
 import { imageTitle, WORDS } from '@diagrist/parts';
+import { withForms } from '../shared/forms.js';
 import { describeState } from './describe/index.js';
 import { STATE_NAME } from './describe/texts.js';
 import { stateSpec } from './grammar/spec.js';
@@ -7,6 +8,7 @@ import { layoutState } from './layout/index.js';
 import { stateModel } from './model.js';
 import { STATE_RULES } from './rules/index.js';
 import { stateAnchors, stateScene } from './scene/index.js';
+import { vertexForm } from './scene/nodes.js';
 import { stateDiagram } from './source.js';
 import { STATE_STYLES } from './styles.js';
 
@@ -21,7 +23,10 @@ export const stateKind = defineKind({
     return {
       scene: stateScene(layout, model, words),
       styles: STATE_STYLES,
-      anchors: stateAnchors(layout),
+      anchors: withForms(stateAnchors(layout), (id) => {
+        const v = model.vertices.get(id);
+        return v && vertexForm(v);
+      }),
       placed: layout.placed,
     };
   },
