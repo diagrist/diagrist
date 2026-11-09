@@ -30,6 +30,15 @@ export interface Flattened {
   readonly report: FlattenReport;
 }
 
+/** How `flattenSvg` writes the document. */
+export interface FlattenOptions {
+  /**
+   * Multiplies `width` and `height` and keeps the view box, so an importer that sizes the picture by them, as FigJam
+   * does, places it this much larger, sharp because it stays vectors. Default 1.
+   */
+  readonly scale?: number;
+}
+
 type Count = { -readonly [K in keyof FlattenReport]: number };
 
 const zero = (): Count => ({
@@ -51,7 +60,7 @@ const zero = (): Count => ({
  * ends of their paths; icons become groups; spaces in preserved texts become no-break spaces; filters go.
  * An SVG without a stylesheet comes back unchanged.
  */
-export function flattenSvg(svg: string): Flattened {
+export function flattenSvg(svg: string, options: FlattenOptions = {}): Flattened {
   const nodes = parseXml(svg);
   const root = elementsOf(nodes).find((element) => element.tag === 'svg');
   const style = root === undefined ? undefined : elementsOf(root.children).find((element) => element.tag === 'style');
@@ -69,6 +78,7 @@ export function flattenSvg(svg: string): Flattened {
   count.markersExpanded = markers.expanded;
   count.markersKept = markers.kept;
   count.filters = dropFilters(root);
+  if (options.scale !== undefined) scaleRoot(root, options.scale);
   return { svg: writeXml(nodes), report: count };
 }
 
@@ -116,6 +126,17 @@ function resolve(element: Element, ancestors: readonly string[][], sheet: Sheet,
   textAttributes(original, sheet.root);
   count.halos++;
   return [haloBehind(element, original), element];
+}
+
+/** Sets width and height times `scale`; a root without a view box gets the one its size implied. */
+function scaleRoot(root: Element, scale: number): void {
+  const width = Number(root.attrs.get('width'));
+  const height = Number(root.attrs.get('height'));
+  if (!(Number.isFinite(width) && Number.isFinite(height) && scale > 0)) return;
+  if (!root.attrs.has('viewBox')) root.attrs.set('viewBox', `0 0 ${width} ${height}`);
+  const size = (n: number) => String(Math.round(n * scale * 1000) / 1000);
+  root.attrs.set('width', size(width));
+  root.attrs.set('height', size(height));
 }
 
 /** Removes every `filter` attribute and the `<filter>` definitions, and says how many attributes went. */

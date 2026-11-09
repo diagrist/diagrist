@@ -126,6 +126,11 @@ describe('flattenSvg rewrites what the import loses', () => {
     expect(report.filters).toBe(1);
   });
 
+  it('multiplies width and height by the scale and keeps the view box', () => {
+    const { svg } = flattenSvg(picture('', '<rect/>'), { scale: 1.5 });
+    expect(svg).toMatch(/^<svg xmlns="http:\/\/www.w3.org\/2000\/svg" viewBox="0 0 200 100" width="300" height="150" /);
+  });
+
   it('leaves an SVG without a stylesheet as it is', () => {
     const inline =
       '<svg xmlns="http://www.w3.org/2000/svg" class="dg"><text xml:space="preserve" class="a">  x</text></svg>\n';
