@@ -31,6 +31,8 @@ if (result.svg !== undefined) await writeFile('order.svg', result.svg);
 `compile` returns the picture only when no diagnostic is an error. Diagnostics are data with a code, a severity, a
 position and the values their message is built from; `formatMessage` phrases them in English or, with `'de'`, in
 German. Besides the SVG the result holds a plain-text description of the diagram and the anchors of its elements.
+Each drawn picture in `pictures` also carries the `scene` and the `styles` its SVG was written from, so an exporter
+that builds the native objects of another tool reads them as data instead of parsing the SVG.
 `inline: true` leaves stylesheet and background out of the SVG for hosts that style the classes themselves, and
 `theme` repaints roles, CSS rules, markers, icons and the canvas over the kind's style table, such as for a
 corporate design.
