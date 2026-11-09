@@ -31,7 +31,7 @@ export interface DrawnPicture {
   readonly metrics?: LineMetrics;
   /**
    * The scene the SVG was written from, present exactly with `svg`, so an exporter that builds native objects of
-   * another tool (such as FigJam shapes and connectors) reads geometry and texts as data instead of parsing the SVG.
+   * another tool reads geometry and texts as data instead of parsing the SVG.
    */
   readonly scene?: Scene;
   /**
