@@ -1,0 +1,47 @@
+{
+  "name": "@diagrist/export-figjam",
+  "version": "0.0.0",
+  "description": "FigJam export for Diagrist: rewrites the kernel's SVG so Figma's SVG import reads it as drawn.",
+  "keywords": [
+    "diagrist",
+    "diagrams-as-code",
+    "diagram",
+    "figjam",
+    "figma",
+    "export"
+  ],
+  "homepage": "https://github.com/diagrist/diagrist/tree/main/plugins/export-figjam#readme",
+  "bugs": "https://github.com/diagrist/diagrist/issues",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/diagrist/diagrist.git",
+    "directory": "plugins/export-figjam"
+  },
+  "license": "Apache-2.0",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "@diagrist/source": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "NOTICE"
+  ],
+  "engines": {
+    "node": ">=22.11"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "scripts": {
+    "build": "tsdown"
+  },
+  "devDependencies": {
+    "@diagrist/testkit": "workspace:*"
+  }
+}

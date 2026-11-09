@@ -27,6 +27,8 @@
     { "path": "plugins/plugin-concept/test" },
     { "path": "plugins/export-png" },
     { "path": "plugins/export-png/test" },
+    { "path": "plugins/export-figjam" },
+    { "path": "plugins/export-figjam/test" },
     { "path": "tools/docs" },
     { "path": "tools/docs/test" },
     { "path": "test" }

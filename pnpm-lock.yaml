@@ -195,6 +195,12 @@ importers:
 
   packages/testkit: {}
 
+  plugins/export-figjam:
+    devDependencies:
+      '@diagrist/testkit':
+        specifier: workspace:*
+        version: link:../../packages/testkit
+
   plugins/export-png:
     dependencies:
       '@diagrist/core':
