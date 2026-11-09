@@ -1,5 +1,11 @@
-import { type AreaMark, domId, type Shape } from '@diagrist/core';
+import { type AreaMark, domId, type NodeForm, rectForm, type Shape } from '@diagrist/core';
 import { CARD, NOTE, type PlacedCard } from '../layout/card.js';
+
+/** Corner radius of a card's sheet. */
+const CARD_RX = 4;
+
+/** The form of a card's body, its sheet, for exporters that draw native shapes. */
+export const CARD_FORM: NodeForm = rectForm(CARD_RX);
 
 /** A numbered badge: a small circle on paper with its number in it. */
 function badge(x: number, y: number, n: number): Shape[] {
@@ -19,7 +25,7 @@ export function cardShapes(placed: PlacedCard, area?: AreaMark): Shape {
   const { x, y, w } = rect;
   const head = y + CARD.headBaseline;
   const frame: Shape[] = [
-    { kind: 'rect', ...rect, rx: 4, role: 'card' },
+    { kind: 'rect', ...rect, rx: CARD_RX, role: 'card' },
     { kind: 'text', x: x + CARD.padX, y: head, text: card.title, role: 'cardTitle', font: 'cardTitle' },
   ];
   const children: Shape[] = [

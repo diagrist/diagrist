@@ -5,7 +5,7 @@ import { ITEM } from '../layout/metrics.js';
 import type { Graph } from '../model.js';
 import { lineRole } from '../styles.js';
 import { inArea, markOf, relationArea } from './areas.js';
-import { outline, outlineRole } from './shapes.js';
+import { outline, outlineForm, outlineRole } from './shapes.js';
 
 const pathOf = (points: readonly Point[]): string =>
   points.map(([x, y], i) => `${i === 0 ? 'M' : 'L'} ${x} ${y}`).join(' ');
@@ -133,12 +133,17 @@ export function graphScene(layout: GraphLayout, model: Graph, title: string): Sc
   };
 }
 
-/** Items as nodes and relations as edges, by the DOM ids of their groups. */
+/** Items as nodes with the form of their outline, and relations as edges, by the DOM ids of their groups. */
 export function graphAnchors(layout: GraphLayout): Anchors {
   return {
     width: layout.width,
     height: layout.height,
-    nodes: layout.items.map((p) => ({ id: p.item.id, domId: domId.node(p.item.id), rect: p.rect })),
+    nodes: layout.items.map((p) => ({
+      id: p.item.id,
+      domId: domId.node(p.item.id),
+      rect: p.rect,
+      form: outlineForm(p.type?.shape ?? 'box', p.rect),
+    })),
     groups: [],
     edges: layout.lines.map((l) => ({
       index: l.index,
