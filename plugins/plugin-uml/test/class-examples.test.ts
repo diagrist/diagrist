@@ -1,19 +1,34 @@
 import { compile } from '@diagrist/core';
-import { compareGolden } from '@diagrist/testkit';
+import { compareGolden, formCounts } from '@diagrist/testkit';
 import { describe, expect, it } from 'vitest';
 import { umlPlugin } from '../src/index.js';
-import { classNames, classSource, examplePictures, golden } from './compile.js';
+import { classNames, classSource, compiledOnce, examplePictures, golden } from './compile.js';
 
 const plugins = [umlPlugin];
+/** Forms of the nodes of two examples: classes boxes, rounded as cards, an n-ary association a diamond. */
+const FORMS: readonly (readonly [string, Record<string, number>])[] = [
+  ['stundenplan.dgr', { box: 5, diamond: 1 }],
+  ['auftragsabwicklung-cards.dgr', { rounded: 10 }],
+];
 const pictures = examplePictures('class');
 
 describe('class examples', () => {
+  const compiled = compiledOnce(classSource);
+
   it.each(classNames)('%s compiles without findings, twice to the same bytes', (name) => {
-    const first = compile(classSource(name), { plugins });
+    const first = compiled(name);
     expect(first.diagnostics).toEqual([]);
     expect(first.svg).toBeDefined();
     expect(compile(classSource(name), { plugins }).svg).toBe(first.svg);
     pictures.keep(name, first.svg ?? '');
+  });
+
+  it.each(classNames)('%s gives every node the form of its body', (name) => {
+    expect(formCounts(compiled(name).pictures)).not.toHaveProperty('none');
+  });
+
+  it.each(FORMS)('%s draws its nodes in these forms', (name, counts) => {
+    expect(formCounts(compiled(name).pictures)).toEqual(counts);
   });
 
   it('all keep their pictures, checked by a SHA-256 per example', () => {

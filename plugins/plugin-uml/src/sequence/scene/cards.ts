@@ -1,4 +1,4 @@
-import type { Rect, Shape, Tone } from '@diagrist/core';
+import { type NodeForm, type Rect, rectForm, type Shape, type Tone } from '@diagrist/core';
 import type { Participant } from '../diagram.js';
 import { isFigure } from '../layout/text.js';
 import type { SeqHeadArt, SeqShape } from '../layout/types.js';
@@ -74,6 +74,17 @@ function headShape(s: SeqShape, p: Participant): Shape[] {
       },
     ];
   return [shape(s)];
+}
+
+/**
+ * The form of a head's body, plain or as a card: a figure or robustness symbol is a symbol, a database a cylinder, a
+ * queue a lying tube, any other a box, rounded as a card.
+ */
+export function headForm(p: Participant, cards: boolean): NodeForm {
+  if (isFigure(p)) return 'symbol';
+  if (p.kind === 'database') return 'cylinder';
+  if (p.kind === 'queue') return 'queue';
+  return rectForm(cards ? RADIUS : 0);
 }
 
 /** Heads as cards, each in its group `node-<id>`. */

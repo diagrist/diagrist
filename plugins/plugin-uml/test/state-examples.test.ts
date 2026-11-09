@@ -1,10 +1,15 @@
 import { compile } from '@diagrist/core';
-import { compareGolden } from '@diagrist/testkit';
+import { compareGolden, formCounts } from '@diagrist/testkit';
 import { describe, expect, it } from 'vitest';
 import { umlPlugin } from '../src/index.js';
 import { compiledOnce, examplePictures, golden, stateNames, stateSource } from './compile.js';
 
 const plugins = [umlPlugin];
+/** Forms of the nodes of two examples: states rounded, round pseudostates circles, a choice a diamond, bars symbols. */
+const FORMS: readonly (readonly [string, Record<string, number>])[] = [
+  ['auftrag-parallel.dgr', { circle: 3, rounded: 9, symbol: 2 }],
+  ['auftragsabwicklung-cards.dgr', { circle: 3, diamond: 1, rounded: 6 }],
+];
 const pictures = examplePictures('state');
 
 /**
@@ -25,6 +30,14 @@ describe('state machine examples', () => {
 
   it.each(stateNames.filter((name) => !HEAVY.has(name)))('%s compiles twice to the same bytes', (name) => {
     expect(compile(stateSource(name), { plugins }).svg).toBe(compiled(name).svg);
+  });
+
+  it.each(stateNames)('%s gives every node the form of its body', (name) => {
+    expect(formCounts(compiled(name).pictures)).not.toHaveProperty('none');
+  });
+
+  it.each(FORMS)('%s draws its nodes in these forms', (name, counts) => {
+    expect(formCounts(compiled(name).pictures)).toEqual(counts);
   });
 
   it('all keep their pictures, checked by a SHA-256 per example', () => {

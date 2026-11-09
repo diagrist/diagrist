@@ -1,6 +1,6 @@
-import { domId, type Rect, type Shape } from '@diagrist/core';
+import { domId, type NodeForm, type Rect, rectForm, type Shape } from '@diagrist/core';
 import { cardBody, headPath } from '../../shared/cards.js';
-import type { Vertex } from '../diagram.js';
+import type { Vertex, VertexKind } from '../diagram.js';
 import { stateArt } from '../layout/box.js';
 import { STATE as S } from '../layout/metrics.js';
 import type { PointName } from '../layout/points/names.js';
@@ -47,6 +47,28 @@ function pseudoShapes(v: Vertex, r: Rect): Shape[] {
       return [];
   }
 }
+
+/**
+ * The form of each vertex's body as `vertexShape` draws it, plain or as a card: a state is a rounded box, the round
+ * pseudostates circles, a choice a diamond; bars and the cross of a terminate are symbols. A region draws no body.
+ */
+const FORMS: Readonly<Record<VertexKind, NodeForm | undefined>> = {
+  state: rectForm(S.radius),
+  initial: 'circle',
+  final: 'circle',
+  choice: 'diamond',
+  junction: 'circle',
+  history: 'circle',
+  fork: 'symbol',
+  join: 'symbol',
+  terminate: 'symbol',
+  entrypoint: 'circle',
+  exitpoint: 'circle',
+  region: undefined,
+};
+
+/** The form of a vertex's body, for exporters that draw native shapes. */
+export const vertexForm = (v: Vertex): NodeForm | undefined => FORMS[v.kind];
 
 /** The submachine symbol: two small states joined by a line. */
 function submachineIcon(r: Rect): Shape[] {

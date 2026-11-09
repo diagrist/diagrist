@@ -7,7 +7,7 @@ import type { LaneArt } from '../layout/lanes.js';
 import type { ActivityModel } from '../model/index.js';
 import { activityAreaMarks, usedAreas } from './areas.js';
 import { edgePath, headPath } from './edges.js';
-import { nodeShapes } from './nodes.js';
+import { activityForm, nodeShapes } from './nodes.js';
 
 /** Inset of a lane head card and its corner radius in the card look. */
 const HEAD = { inset: 2, radius: 8 } as const;
@@ -91,7 +91,7 @@ export function activityAnchors(l: ActivityLayout): Anchors {
   return {
     width: l.width,
     height: l.height,
-    nodes: l.nodes.map((n) => ({ id: n.id, domId: domId.node(n.id), rect: n.rect })),
+    nodes: l.nodes.map((n) => ({ id: n.id, domId: domId.node(n.id), rect: n.rect, form: activityForm(n.art) })),
     groups: [
       ...l.lanes.map((g) => ({ id: g.id, domId: domId.group(g.id), rect: g.rect })),
       ...l.regions.map((g) => ({ id: g.id, domId: domId.group(g.id), rect: g.rect })),

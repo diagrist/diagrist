@@ -1,5 +1,6 @@
 import { defineKind } from '@diagrist/core';
 import { imageTitle, WORDS } from '@diagrist/parts';
+import { withForms } from '../shared/forms.js';
 import { describeUseCase } from './describe/index.js';
 import { USECASE_NAME } from './describe/texts.js';
 import { usecaseSpec } from './grammar/spec.js';
@@ -7,6 +8,7 @@ import { layoutUseCase } from './layout/index.js';
 import { useCaseModel } from './model.js';
 import { USECASE_RULES } from './rules/index.js';
 import { useCaseAnchors, useCaseScene } from './scene/index.js';
+import { useCaseForm } from './scene/nodes.js';
 import { useCaseDiagram } from './source.js';
 import { USECASE_STYLES } from './styles.js';
 
@@ -21,7 +23,7 @@ export const usecaseKind = defineKind({
     return {
       scene: useCaseScene(layout, model, words),
       styles: USECASE_STYLES,
-      anchors: useCaseAnchors(layout),
+      anchors: withForms(useCaseAnchors(layout), (id) => useCaseForm(model, id, model.diagram.look === 'cards')),
       placed: layout.placed,
     };
   },

@@ -1,5 +1,6 @@
 import { defineKind } from '@diagrist/core';
 import { imageTitle, WORDS } from '@diagrist/parts';
+import { withForms } from '../shared/forms.js';
 import { describeClass } from './describe/index.js';
 import { CLASS_NAME } from './describe/texts.js';
 import { classSpec } from './grammar/spec.js';
@@ -7,6 +8,7 @@ import { layoutClass } from './layout/index.js';
 import { classModel } from './model.js';
 import { CLASS_RULES } from './rules/index.js';
 import { classAnchors, classScene } from './scene/index.js';
+import { classForm } from './scene/nodes.js';
 import { classDiagram } from './source.js';
 import { CLASS_STYLES } from './styles.js';
 
@@ -21,7 +23,7 @@ export const classKind = defineKind({
     return {
       scene: classScene(layout, model, words),
       styles: CLASS_STYLES,
-      anchors: classAnchors(layout),
+      anchors: withForms(classAnchors(layout), (id) => classForm(model, id, model.diagram.look === 'cards')),
       placed: layout.placed,
     };
   },

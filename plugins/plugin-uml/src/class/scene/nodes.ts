@@ -1,8 +1,9 @@
-import { domId, type Rect, type Shape, type Tone } from '@diagrist/core';
+import { domId, type NodeForm, type Rect, rectForm, type Shape, type Tone } from '@diagrist/core';
 import { CARD, cardBody, headPath, tabbedFrame } from '../../shared/cards.js';
 import type { Classifier, NaryAssociation } from '../diagram.js';
 import { type ClassArt, type ClassText, classArt } from '../layout/box.js';
 import { CLASS, tabWidth } from '../layout/metrics.js';
+import type { ClassModel } from '../model.js';
 
 function text(t: ClassText, role: string, font: string, anchor: 'start' | 'middle'): Shape[] {
   const line = t.underline;
@@ -61,6 +62,15 @@ export function diamondShape(a: NaryAssociation, r: Rect, cards: boolean): Shape
         : []),
     ],
   };
+}
+
+/**
+ * The form of a node's body as these shapes draw it: a classifier is a box, rounded as a card, the node of an n-ary
+ * association a diamond.
+ */
+export function classForm(m: ClassModel, id: string, cards: boolean): NodeForm | undefined {
+  if (m.classifiers.has(id)) return rectForm(cards ? CARD.radius : 0);
+  return m.associations.has(id) ? 'diamond' : undefined;
 }
 
 /** A package: the tab with its name at the top left, below it the body; in the card look a toned area. */
