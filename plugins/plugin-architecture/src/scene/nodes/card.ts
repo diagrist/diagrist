@@ -4,7 +4,8 @@ import type { PlacedElement } from '../../layout/index.js';
 import type { Texts } from '../../texts/index.js';
 import { iconRole, iconShape } from '../icons.js';
 
-const CARD_RX = 6;
+/** Corner radius of cards. */
+export const CARD_RX = 6;
 const SHADOW_DY = 2;
 const CIRCLE_ICON = 0.9;
 
