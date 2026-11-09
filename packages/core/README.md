@@ -41,9 +41,11 @@ corporate design.
 
 A plugin is a value made with `definePlugin`, holding kinds made with `defineKind`. A kind is a set of statement
 tables, a model built from what was read, rules that report diagnostics with the plugin's own codes, and a layout
-that returns a scene of shapes with roles; the kernel turns roles into styles and the scene into SVG.
-`checkPlugin` returns one message per problem, such as a statement without an example or a rule without a message
-in every locale. The UML and C4 plugins in the repository are built this way and are the best place to start.
+that returns a scene of shapes with roles; the kernel turns roles into styles and the scene into SVG. The layout's
+anchors give each node the geometric form of its body (`NodeForm`, with `rectForm` for a rectangle by its corner
+radius), so exporters can draw native shapes. `checkPlugin` returns one message per problem, such as a statement
+without an example or a rule without a message in every locale. The UML and C4 plugins in the repository are built
+this way and are the best place to start.
 
 ## Fonts
 
