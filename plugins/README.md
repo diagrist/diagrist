@@ -7,7 +7,7 @@ So far there are `plugin-uml` (UML sequence, use case, activity, class and state
 `plugin-architecture` (C4 context, container and component diagrams), `plugin-code` (excerpts of source files as
 highlighted cards), `plugin-concept` (matrices of two sets and a scale with its rules) and `export-png` (PNG from
 the kernel's SVG).
-Planned are, among others, `look-sketch`, `export-figjam` and `export-mermaid`.
+Planned are, among others, `look-sketch` and `export-mermaid`.
 
 The two diagram plugins are built alike: statement tables in `grammar`, checks in `rules` with their texts in
 `messages`, then `layout`, `scene` and `describe`, with the words of picture and description in `texts`. They differ
