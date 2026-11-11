@@ -36,6 +36,9 @@ export function iconRules(
   ]);
 }
 
+/** The grey of what exists already (`status=existing`), darker than the muted fill of deprecated boxes. */
+const EXISTING = '#e8e8e8';
+
 /** Fill and border opacity of toned frames, and of the halo a label keeps on them. */
 const TINT = { fill: 0.07, stroke: 0.45 } as const;
 
@@ -61,12 +64,14 @@ export function architectureRules(fonts: LookFonts, w: Strokes, changes: readonl
       `fill: ${c.fill}; stroke: ${c.stroke}; stroke-width: ${w.shape}; stroke-dasharray: ${DASH.line};`,
     ),
     rule('shape-deprecated', `fill: ${c.fillMuted}; stroke: ${c.border}; stroke-width: ${w.shape};`),
+    rule('shape-existing', `fill: ${EXISTING}; stroke: ${c.stroke}; stroke-width: ${w.shape};`),
     rule('line-data', `fill: none; stroke: ${c.stroke}; stroke-width: ${w.data};`),
     rule('line-data-accent', `fill: none; stroke: ${c.accent}; stroke-width: ${w.data};`),
     rule('line-deprecated', `fill: none; stroke: ${c.border}; stroke-width: ${w.line};`),
     ...changes,
     rule('label-deprecated', textRule(`fill: ${c.border};`, bold(f.node))),
     rule('label-status', `fill: ${c.note}; font-size: ${f.note}px; font-style: italic;`),
+    rule('label-entry', textRule(`fill: ${c.stroke};`, fonts.description)),
     rule('replica', `fill: ${c.fillMuted}; stroke: ${c.border}; stroke-width: ${w.frame};`),
     rule('replica-text', textRule(`fill: ${c.note};`, { size: f.badge - 1, weight: 700 })),
     shared.card,
@@ -97,6 +102,17 @@ export function architectureRules(fonts: LookFonts, w: Strokes, changes: readonl
         `fill: ${color}; fill-opacity: ${TINT.fill}; stroke: ${color}; stroke-opacity: ${TINT.stroke}; stroke-width: ${w.frame};`,
       ),
     ),
+    ...tones.flatMap(([t, color]) => [
+      rule(
+        `note-box-${t}`,
+        `fill: ${c.canvas}; stroke: ${color}; stroke-width: ${w.frame}; stroke-dasharray: ${DASH.frame};`,
+      ),
+      rule(
+        `note-tail-${t}`,
+        `fill: none; stroke: ${color}; stroke-width: ${w.frame}; stroke-dasharray: ${DASH.frame};`,
+      ),
+      rule(`note-text-${t}`, textRule(`fill: ${color};`, fonts.note)),
+    ]),
     ...tones.map(([t, color]) =>
       rule(
         `halo-${t}`,

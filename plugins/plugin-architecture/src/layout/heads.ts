@@ -1,7 +1,7 @@
 import { type Point, type Rect, textWidth } from '@diagrist/core';
 import type { Look } from '../looks/look.js';
 import type { ArchGroup } from '../model/types.js';
-import type { Spot } from './art.js';
+import type { Spot } from './art-types.js';
 import { tagWidth } from './frame-cell.js';
 import { linesHit } from './geometry.js';
 import { BLOCK_DY, headRect, TITLE_INSET, TITLE_PAD } from './head-rect.js';

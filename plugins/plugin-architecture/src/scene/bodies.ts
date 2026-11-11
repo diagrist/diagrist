@@ -1,5 +1,5 @@
 import type { Rect, Shape } from '@diagrist/core';
-import type { Spot } from '../layout/art.js';
+import type { Spot } from '../layout/art-types.js';
 import { CYLINDER_RY } from '../layout/cylinder.js';
 import { NUMBER_SIZE } from '../layout/marks.js';
 import type { NodeShape } from '../model/types.js';

@@ -13,8 +13,8 @@ export interface Line {
 /** Names longer than this wrap beside a vertical piece, as `routeTexts` wraps them. */
 const UPRIGHT = 14;
 
-/** The widest a line of an edge's text may run, `WRAP_EM` sizes of the label font. */
-export const wrapWidth = (m: GridMetrics): number => WRAP_EM * m.labelFont.size;
+/** The widest a line of an edge's text may run, `labelWrap` or else `WRAP_EM` sizes of the label font. */
+export const wrapWidth = (m: GridMetrics): number => (m.labelWrap ?? WRAP_EM) * m.labelFont.size;
 
 const lineOf =
   (part: Line['part']) =>

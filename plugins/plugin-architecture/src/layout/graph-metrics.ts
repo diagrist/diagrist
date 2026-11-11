@@ -39,6 +39,7 @@ export function metricsOf(
       framePad: { top: m.groupPadTop, bottom: m.groupPadBottom, x: m.groupPadX },
       labelFont: fonts.label,
       labelLineH: m.labelLineH,
+      ...(m.labelWrap === undefined ? {} : { labelWrap: m.labelWrap }),
       rowOverhang: options.nodes === 'card' ? m.cardIconR : 0,
     },
   };

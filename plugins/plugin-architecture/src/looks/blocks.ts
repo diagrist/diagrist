@@ -32,6 +32,7 @@ export const BLOCKS: Look = {
     header: 'inline',
     nodes: 'block',
     nodeName: 'inside',
+    nodeAlign: 'start',
     person: 'figure',
     status: 'word',
     replicas: 'tag',

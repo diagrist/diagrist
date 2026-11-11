@@ -1,0 +1,24 @@
+# A stored planner as a concept report sketches it, in look=lowfi: grey what exists, white what is new, the trigger
+# beside the usual way dashed as optional, lines inside the boxes and a warning below the picture.
+diagram component "Gespeicherter Planer" subtitle="Aufgaben bleiben fällig, bis sie erfolgreich liefen" look=lowfi layout=adaptive locale=de
+grid cols ablauf,tabelle,lauf,runner
+grid rows oben,mitte
+
+component sofort "RunBillingTask (fällig sofort)" status=optional at tabelle/oben
+component ablauf "Ablauf" tech="Scheduler->at()" status=existing at ablauf/mitte
+  "Widerruf, Webhook"
+component tasks "billing_tasks" tech="bleibt fällig bis Erfolg" status=new at tabelle/mitte
+  "fällig ab, Versuche,"
+  "letzter Fehler, erledigt"
+component rundue "billing:run-due" tech="Lease je Aufgabe" status=new at lauf/mitte
+  "jede Minute, Sperre"
+  "--now: alles sofort"
+component runner "TaskRunner" tech="→ Ablauf" status=existing at runner/mitte
+
+edge ablauf -> tasks "plant"
+edge tasks -> rundue "fällige"
+edge rundue -> runner "startet"
+edge runner -> ablauf "Fehler im Ablauf: RetryPolicy plant die nächste Aufgabe, keine mehr: Alarm"
+edge sofort --> tasks "legt an"
+edge sofort --> rundue "stößt an"
+note "überfällig > Frist: billing:reconcile meldet task_overdue" tone=red

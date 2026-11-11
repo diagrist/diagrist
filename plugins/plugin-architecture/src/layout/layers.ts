@@ -2,7 +2,7 @@ import { type Rect, textWidth } from '@diagrist/core';
 import type { Row } from '@diagrist/layout-grid';
 import { cased, type Look } from '../looks/look.js';
 import type { Layer } from '../model/types.js';
-import type { Segment, Spot } from './art.js';
+import type { Segment, Spot } from './art-types.js';
 
 /** A layer named right of the picture: box, text, leader with arrow, and for the first the shared bracket. */
 export interface LayerArt {

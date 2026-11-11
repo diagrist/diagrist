@@ -2,7 +2,7 @@ import { type Font, type Rect, textWidth } from '@diagrist/core';
 import type { Stretch } from '@diagrist/layout-grid';
 import type { Look } from '../looks/look.js';
 import type { ArchNode } from '../model/types.js';
-import type { Spot } from './art.js';
+import type { Spot } from './art-types.js';
 
 /**
  * The tab of `nodeName: tab`: how far the gap in the top edge starts from the left corner, the room beside the name
@@ -52,31 +52,36 @@ export function tabWidth(n: ArchNode, look: Look, tech: number): number {
 
 /**
  * The parts of a box with `nodeName: tab`: the name in a gap of the top edge, icon and second line centred one above
- * the other below it, the second line measured in `second`. A box without a tab writes its name, else its second
- * line, in the middle.
+ * the other below it, the second line measured in `second`, the indented lines between icon and second line. A box
+ * without a tab writes its name, else its second line, in the middle, and its indented lines below.
  */
 export function tabParts(
   n: ArchNode,
   rect: Rect,
   look: Look,
   second: Font,
-): { tab: TabArt; label: Spot; tech: Spot; icon: Spot } {
+): { tab: TabArt; label: Spot; lines: readonly Spot[]; tech: Spot; icon: Spot } {
   const m = look.metrics;
   const cx = rect.x + rect.w / 2;
   const icon = tabIcon(n);
   const stretch = tabStretch(n, look);
+  const k = n.lines.length;
+  const step = m.nodeLineH;
   if (!stretch) {
-    const middle = { x: cx, y: rect.y + rect.h / 2 + m.labelDy };
-    return { tab: {}, label: middle, tech: middle, icon: middle };
+    const middle = { x: cx, y: rect.y + rect.h / 2 + m.labelDy - (k * step) / 2 };
+    const lines = Array.from({ length: k }, (_, i) => ({ x: cx, y: middle.y + (i + 1) * step }));
+    return { tab: {}, label: middle, lines, tech: middle, icon: middle };
   }
   const cap = n.tech !== undefined ? second.size * CAP : 0;
-  const block = (icon ? m.iconSize : 0) + (icon && cap ? INSIDE.gap : 0) + cap;
+  const block = (icon ? m.iconSize : 0) + (icon && cap ? INSIDE.gap : 0) + cap + k * step;
   const top = rect.y + INSIDE.top + (rect.h - INSIDE.top - block) / 2;
   const gap = { x: rect.x + stretch.from, y: rect.y - TAB.cut, w: stretch.to - stretch.from, h: 2 * TAB.cut };
+  const tech = { x: cx, y: top + block };
   return {
     tab: { gap, ...(icon ? { icon } : {}) },
     label: { x: gap.x + TAB.pad, y: rect.y + TAB.rise },
-    tech: { x: cx, y: top + block },
+    lines: Array.from({ length: k }, (_, i) => ({ x: cx, y: tech.y - (k - i - (cap ? 0 : 1)) * step })),
+    tech,
     icon: { x: cx - m.iconSize / 2, y: top },
   };
 }

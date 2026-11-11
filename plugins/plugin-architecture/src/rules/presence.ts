@@ -4,13 +4,6 @@ import type { ArchitectureModel } from '../model/types.js';
 /** A rule on the model of a C4 diagram. */
 export type ArchitectureRule = Rule<ArchitectureModel>;
 
-export const noteTarget: ArchitectureRule = {
-  code: 'A001',
-  severity: 'error',
-  doc: 'A note names the element it points at with `on`.',
-  check: (m) => m.notes.filter((n) => n.on === undefined).map((n) => ({ span: n.source })),
-};
-
 export const groupRole: ArchitectureRule = {
   code: 'A007',
   severity: 'error',

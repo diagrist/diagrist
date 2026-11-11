@@ -16,6 +16,8 @@ const PAPER = {
   core: '#f6eb6a',
   planned: '#136c4d',
   deprecated: '#e55547',
+  optional: '#8e8c8d',
+  new: '#2b6cb0',
 } as const;
 
 const r = (...classes: string[]): RoleStyle => ({ classes });
@@ -45,6 +47,9 @@ const PAPER_ROLES: Readonly<Record<string, RoleStyle>> = {
   frameExternal: r('zone-open'),
   statusPlanned: r('dot-planned'),
   statusDeprecated: r('dot-deprecated'),
+  statusOptional: r('dot-optional'),
+  statusExisting: r('dot-existing'),
+  statusNew: r('dot-new'),
   kicker: r('label-group'),
   badgeAccent: r('badge'),
   edgeLabel: r('label'),
@@ -105,6 +110,9 @@ function paperRules(f: LookFonts): StyleRule[] {
     rule('label-tech', textRule(`fill: ${c.ink2};`, f.tech)),
     rule('dot-planned', `fill: ${c.planned};`),
     rule('dot-deprecated', `fill: ${c.deprecated};`),
+    rule('dot-optional', `fill: ${c.optional};`),
+    rule('dot-existing', `fill: ${c.ink};`),
+    rule('dot-new', `fill: ${c.new};`),
     rule('badge', `fill: ${c.paper}; stroke: ${c.ink}; stroke-width: 1;`),
     rule('badge-text', textRule(`fill: ${c.ink};`, f.badge)),
     rule('mark', `fill: ${c.node}; stroke: ${c.ink}; stroke-width: 1;`),

@@ -16,6 +16,7 @@ export const PLAIN: Look = {
     header: 'inline',
     nodes: 'box',
     nodeName: 'inside',
+    nodeAlign: 'start',
     person: 'figure',
     status: 'word',
     replicas: 'tag',

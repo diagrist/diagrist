@@ -1,11 +1,12 @@
 import { type Shape, textWidth } from '@diagrist/core';
-import type { BoxArt } from '../../layout/art.js';
+import type { BoxArt } from '../../layout/art-types.js';
 import type { PlacedElement } from '../../layout/index.js';
 import { secondLineRole } from '../../layout/measure.js';
 import { type TabArt, tabName } from '../../layout/tab.js';
 import type { Look } from '../../looks/look.js';
 import type { Role } from '../../model/types.js';
 import { iconRole, iconShape } from '../icons.js';
+import { lineShapes } from '../lines.js';
 import { bodyOf, STATUS_DOT } from './box.js';
 
 /** The status dot after the name in the tab: its radius, its distance from the name and how far it rises. */
@@ -30,6 +31,7 @@ export function tabShapes(p: PlacedElement, art: BoxArt, tab: TabArt, role: Role
     const text = n.label || n.tech;
     const [r, font] = n.label ? (['name', 'name'] as const) : ([second, second] as const);
     if (text) out.push({ kind: 'text', ...art.label, text, role: r, font, anchor: 'middle' });
+    out.push(...lineShapes(n, art.lines, true));
     return out;
   }
   out.push({ kind: 'rect', ...tab.gap, role: 'tabGap' });
@@ -40,6 +42,7 @@ export function tabShapes(p: PlacedElement, art: BoxArt, tab: TabArt, role: Role
     out.push({ kind: 'circle', cx, cy: art.label.y - DOT.rise, r: DOT.r, role: STATUS_DOT[n.status] });
   }
   if (tab.icon) out.push(iconShape(tab.icon, art.icon, iconRole(tab.icon, 'ink')));
+  out.push(...lineShapes(n, art.lines, true));
   if (n.tech) out.push({ kind: 'text', ...art.tech, text: n.tech, role: second, font: second, anchor: 'middle' });
   return out;
 }

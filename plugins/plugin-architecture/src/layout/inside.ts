@@ -1,7 +1,7 @@
 import { type Font, type Placed, type Rect, textWidth } from '@diagrist/core';
 import type { Look } from '../looks/look.js';
 import type { Texts } from '../texts/index.js';
-import type { Spot } from './art.js';
+import type { Spot } from './art-types.js';
 import type { Head } from './frame-cell.js';
 import type { PlacedElement, PlacedFrame } from './index.js';
 import { isCircle, secondLine } from './measure.js';
@@ -22,7 +22,7 @@ export function insideTexts(nodes: readonly PlacedElement[], look: Look, texts: 
   if (o.nodes === 'block' || o.nodeName === 'tab') return [];
   return nodes.flatMap(({ node: n, art }): Placed[] => {
     if (art.kind !== 'box' || isCircle(n, look)) return [];
-    const middle = o.nodes === 'card';
+    const middle = o.nodes === 'card' || art.middle === true;
     const own = { kind: 'text', within: n.id, ...(n.source ? { span: n.source } : {}) } as const;
     const name = line(art.label, textWidth(n.label, fonts.name), fonts.name, middle);
     const tech =
@@ -33,8 +33,15 @@ export function insideTexts(nodes: readonly PlacedElement[], look: Look, texts: 
         ? undefined
         : line(art.status, textWidth(word, fonts.note), fonts.note, middle && n.tech === undefined);
     const second = tech && status ? { ...tech, w: status.x + status.w - tech.x } : (tech ?? status);
+    const lines = n.lines.flatMap((text, i): Placed[] => {
+      const at = art.lines[i];
+      if (!at) return [];
+      const rect = line(at, textWidth(text, fonts.description), fonts.description, middle);
+      return [{ key: `${n.id}.line${i + 1}`, rect, ...own }];
+    });
     return [
       ...(n.label ? [{ key: `${n.id}.name`, rect: name, ...own }] : []),
+      ...lines,
       ...(second ? [{ key: `${n.id}.tech`, rect: second, ...own }] : []),
     ];
   });

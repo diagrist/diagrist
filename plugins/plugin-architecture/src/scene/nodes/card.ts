@@ -1,8 +1,10 @@
 import type { Shape } from '@diagrist/core';
-import type { BoxArt, CardArt } from '../../layout/art.js';
+import type { BoxArt, CardArt } from '../../layout/art-types.js';
 import type { PlacedElement } from '../../layout/index.js';
 import type { Texts } from '../../texts/index.js';
 import { iconRole, iconShape } from '../icons.js';
+import { lineShapes } from '../lines.js';
+import { STATUS_BODY } from './box.js';
 
 /** Corner radius of cards. */
 export const CARD_RX = 6;
@@ -15,7 +17,7 @@ const CIRCLE_ICON = 0.9;
  */
 export function cardShapes(p: PlacedElement, art: BoxArt, card: CardArt, texts: Texts): Shape[] {
   const n = p.node;
-  const body = n.status === 'planned' ? 'boxPlanned' : n.status === 'deprecated' ? 'boxDeprecated' : 'card';
+  const body = n.status === undefined || n.status === 'new' ? 'card' : STATUS_BODY[n.status];
   const out: Shape[] =
     card.form === 'card'
       ? [...card.stack, p.rect].flatMap((r): Shape[] => [
@@ -33,6 +35,7 @@ export function cardShapes(p: PlacedElement, art: BoxArt, card: CardArt, texts: 
   }
   const name = n.status === 'deprecated' ? 'nameDeprecated' : 'name';
   out.push({ kind: 'text', ...art.label, text: n.label, role: name, font: 'name', anchor: 'middle' });
+  out.push(...lineShapes(n, art.lines, true));
   if (n.tech) out.push({ kind: 'text', ...art.tech, text: n.tech, role: 'tech', font: 'note', anchor: 'middle' });
   if (n.status)
     out.push({

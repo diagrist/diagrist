@@ -7,7 +7,7 @@ import { compileExample, exampleNames, golden, plugins, source } from './compile
 const sha256 = (text: string) => createHash('sha256').update(text).digest('hex');
 const svgOf = (text: string) => compile(text, { plugins }).svg ?? '';
 /** The examples drawn in a look without predecessor, which keep their own hashes. */
-const OWN_LOOKS = ['paper', 'columns'] as const;
+const OWN_LOOKS = ['paper', 'columns', 'lowfi'] as const;
 const inLook = (look: string) => (name: string) => source(name).includes(`look=${look}`);
 const ownLook = (name: string) => OWN_LOOKS.some((look) => inLook(look)(name));
 

@@ -118,6 +118,7 @@ describe('a box is measured by the options that draw it', () => {
     label: 'Dokumenten-Service',
     tech: 'Spring Boot',
     emph: false,
+    lines: [],
     source: { line: 1, column: 1, length: 4 },
     ...extra,
   });

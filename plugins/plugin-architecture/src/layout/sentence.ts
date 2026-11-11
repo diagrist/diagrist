@@ -58,5 +58,25 @@ export function legendSentences(
     ...(shown.marked ? [shown.below ? words.markBelow : words.mark] : []),
     ...(nodes.some((n) => n.icon || (tab && n.shape)) ? [words.icon] : []),
   ];
-  return sentences.map((s) => `${s}.`);
+  return sameSights(sentences).map((s) => `${s}.`);
+}
+
+/**
+ * Sentences whose sights are the same said once, their meanings joined in order, such as a dashed dependency and a
+ * dashed optional box: `Dashed: dependency / optional`. A sentence without a sight stays as it is.
+ */
+function sameSights(sentences: readonly string[]): string[] {
+  const out: string[] = [];
+  const at = new Map<string, number>();
+  for (const s of sentences) {
+    const colon = s.indexOf(': ');
+    const sight = colon < 0 ? undefined : s.slice(0, colon);
+    const before = sight === undefined ? undefined : at.get(sight);
+    if (sight !== undefined && before !== undefined) out[before] = `${out[before]} / ${s.slice(colon + 2)}`;
+    else {
+      if (sight !== undefined) at.set(sight, out.length);
+      out.push(s);
+    }
+  }
+  return out;
 }

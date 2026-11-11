@@ -3,6 +3,7 @@ import { BLOCKS } from './blocks.js';
 import { CARDS } from './cards.js';
 import { COLUMNS } from './columns.js';
 import type { Look } from './look.js';
+import { LOWFI } from './lowfi.js';
 import { PAPER } from './paper.js';
 import { PLAIN } from './plain.js';
 
@@ -13,6 +14,7 @@ export const LOOKS = {
   blocks: BLOCKS,
   paper: PAPER,
   columns: COLUMNS,
+  lowfi: LOWFI,
 } as const satisfies Record<string, Look>;
 
 /** The name of a look, as `look=` takes it. */

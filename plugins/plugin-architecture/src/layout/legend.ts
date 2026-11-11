@@ -5,12 +5,12 @@ import type { EdgeKind } from '../grammar/edges.js';
 import { SHAPES, STATUSES } from '../grammar/elements.js';
 import type { LookFont } from '../looks/look.js';
 import { areaMembers } from '../model/areas.js';
-import type { ArchitectureModel, NodeShape, Role } from '../model/types.js';
+import type { ArchitectureModel, NodeShape, NodeStatus, Role } from '../model/types.js';
 import type { Texts } from '../texts/index.js';
 import { CHANGES, type Change } from './diff.js';
 
 /** A swatch stands for a role of frames, a core decision or a life cycle. */
-export type SwatchRole = Role | 'emph' | 'planned' | 'deprecated';
+export type SwatchRole = Role | 'emph' | NodeStatus;
 
 /** What a legend entry shows before its text; the scene draws it. */
 export type Sample =

@@ -17,8 +17,11 @@ export type LookFonts = Readonly<Record<FontRole, LookFont>>;
  * shares; the layout and the scene read these, never the name of a look.
  */
 export interface LookOptions {
-  /** `Kind · Title` in one line, or the kind as a kicker in capitals above the title. */
-  readonly header: 'inline' | 'kicker';
+  /**
+   * `Kind · Title` in one line, the kind as a kicker in capitals above the title, or the title alone, with `label=` in
+   * front of it as `inline` writes the kind.
+   */
+  readonly header: 'inline' | 'kicker' | 'title';
   /** The family of node art: outlined boxes, cards with an icon circle on the top edge, filled blocks. */
   readonly nodes: 'box' | 'card' | 'block';
   /**
@@ -26,10 +29,15 @@ export interface LookOptions {
    * reserves its stretch of the edge, and shapes become their icon in a square box.
    */
   readonly nodeName: 'inside' | 'tab';
+  /** Texts of a box with its name inside from the left after the icon, or centred in the room right of the icon. */
+  readonly nodeAlign: 'start' | 'middle';
   /** A stick figure, head and shoulders, or a box like every other element. */
   readonly person: 'figure' | 'bust' | 'box';
-  /** Status as an italic word after the second line and a dashed or grey box, or as a dot after the name. */
-  readonly status: 'word' | 'dot';
+  /**
+   * Status as an italic word after the second line and a dashed or grey box, as a dot after the name, or by the body
+   * alone: dashed, grey or white, which the sentence legend explains.
+   */
+  readonly status: 'word' | 'dot' | 'fill';
   /** Replicas of a box or card as a tag such as `x3` in the corner, or as outlines stacked behind it. */
   readonly replicas: 'tag' | 'stack';
   readonly groups: {

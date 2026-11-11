@@ -13,7 +13,16 @@ import type { ArchitectureModel, ArchNode } from '../model/types.js';
 import type { Texts } from '../texts/index.js';
 import { frameOf, type Head } from './frame-cell.js';
 import { type GridStart, metricsOf } from './graph-metrics.js';
-import { fixedWidth, isCircle, isFigure, nodeHeight, nodeWidth, secondLine } from './measure.js';
+import {
+  fixedWidth,
+  isCircle,
+  isFigure,
+  linesHeight,
+  linesWidth,
+  nodeHeight,
+  nodeWidth,
+  secondLine,
+} from './measure.js';
 import { tabStretch } from './tab.js';
 
 const PERSON_W = 40;
@@ -72,7 +81,8 @@ function cellOf(n: ArchNode, at: NonNullable<ArchNode['at']>, adaptive: boolean,
   const { metrics: m, fonts } = look;
   const reserve = reserveOf(n, look);
   const circle = isCircle(n, look);
-  const own = look.options.nodes === 'block' || n.height !== undefined ? nodeHeight(n, look) : undefined;
+  const height = nodeHeight(n, look);
+  const own = look.options.nodes === 'block' || n.height !== undefined || height !== m.nodeH ? height : undefined;
   const fixed = adaptive ? fixedWidth(n, look) : undefined;
   const width = isFigure(n, look) ? PERSON_W : circle ? 2 * m.circleR : fixed;
   const measured = nodeWidth(n, look);
@@ -83,11 +93,14 @@ function cellOf(n: ArchNode, at: NonNullable<ArchNode['at']>, adaptive: boolean,
         ? { width: measured, exact: true }
         : { width: Math.max(m.nodeW, measured), exact: false };
   const tech = n.tech ? textWidth(n.tech, secondLine(n, fonts)) : 0;
-  const caption = { w: Math.max(textWidth(n.label, fonts.name), tech), below: fonts.name.size + 10 };
+  const caption = {
+    w: Math.max(textWidth(n.label, fonts.name), tech, linesWidth(n, fonts)),
+    below: fonts.name.size + 10,
+  };
   const node: GraphNode = {
     id: n.id,
     width: demand.width,
-    height: nodeHeight(n, look),
+    height,
     shape: circle ? 'ellipse' : 'box',
     ...(n.source ? { source: n.source } : {}),
   };
@@ -101,7 +114,7 @@ function cellOf(n: ArchNode, at: NonNullable<ArchNode['at']>, adaptive: boolean,
     ...(own !== undefined && !circle ? { height: own } : {}),
     ...(demand.exact ? { exact: true } : {}),
     ...(circle || isFigure(n, look)
-      ? { caption: { ...caption, below: caption.below + (n.tech ? m.nodeLineH : 0) } }
+      ? { caption: { ...caption, below: caption.below + (n.tech ? m.nodeLineH : 0) + linesHeight(n, look) } }
       : {}),
     ...(reserve ? { reserve } : {}),
   };

@@ -3,6 +3,7 @@ import { type LegendEntry, markShapes } from '@diagrist/parts';
 import { type Sample, SHAPE_SAMPLE, type SwatchRole } from '../layout/legend.js';
 import { badgeShapes, bodyShapes, clockShapes, replicaShapes } from './bodies.js';
 import { changeTagShapes } from './diff.js';
+import { STATUS_BODY } from './nodes/box.js';
 
 const SWATCH = { w: 40, h: 14, rx: 4 } as const;
 const SWATCH_ROLE: Readonly<Record<SwatchRole, string>> = {
@@ -10,8 +11,7 @@ const SWATCH_ROLE: Readonly<Record<SwatchRole, string>> = {
   shared: 'boxMuted',
   external: 'frame',
   emph: 'boxEmph',
-  planned: 'boxPlanned',
-  deprecated: 'boxDeprecated',
+  ...STATUS_BODY,
 };
 
 /** The sample of a legend entry at its place: line, swatch, shape, replica tag, flow number or mark. */

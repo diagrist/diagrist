@@ -19,10 +19,17 @@ function kickerOf(model: ArchitectureModel, texts: Texts, look: Look): Shape[] {
   return kickerShapes({ kicker: kind && cased(kind, look.fonts.group), title: model.title, subtitle: model.subtitle });
 }
 
+/** The title and the subtitle below it, with `label=` in front as the inline header writes the kind. */
+function titleShapes(model: ArchitectureModel): Shape[] {
+  const title = model.label ? imageTitle(model.label, model.title) : model.title;
+  return headerShapes(HEADER, title, model.subtitle);
+}
+
 /** How each value of `header` draws the head of the sheet. */
 export const HEADERS: Readonly<
   Record<LookOptions['header'], (model: ArchitectureModel, texts: Texts, look: Look) => Shape[]>
 > = {
   inline: inlineShapes,
   kicker: kickerOf,
+  title: titleShapes,
 };

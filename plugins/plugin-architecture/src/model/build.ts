@@ -27,6 +27,7 @@ function nodeOf(s: Element, styles: ReadonlyMap<string, Style>): ArchNode {
     keyword: s.keyword,
     label: s.label,
     emph: s.flags.emph,
+    lines: s.lines.map((l) => l.text),
     source: s.span,
     ...compact({
       tech: a.tech,
@@ -94,7 +95,11 @@ export function architectureModel(level: Level, reading: KindReading<Architectur
     edges,
     flows,
     layers: only(all, 'layer').map((l) => ({ row: l.row, label: l.label, source: l.span })),
-    notes: only(all, 'note').map((n) => ({ text: n.text, source: n.span, ...compact({ on: n.clauses.on }) })),
+    notes: only(all, 'note').map((n) => ({
+      text: n.text,
+      source: n.span,
+      ...compact({ on: n.clauses.on, tone: n.attributes.tone }),
+    })),
     decisions: only(all, 'adr').map(decisionOf),
     areas: readAreas(all, header),
     ...compact({ subtitle: header.subtitle as string | undefined, label: header.label as string | undefined }),

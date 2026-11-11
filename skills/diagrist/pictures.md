@@ -81,8 +81,8 @@ Group with what the kind offers: packages in `class`, partitions in `activity`, 
   reader can learn one colour code per picture, not two.
 - Emphasise one thing at most, such as the step being discussed, with `emph` where the kind has it. If everything
   stands out, nothing does.
-- Use `status=planned` and `status=deprecated` (in `concept`) or a `variant` for change over time, rather than
-  colours you would have to explain.
+- Use `status=planned` and `status=deprecated` (in `concept` and C4), `status=existing` and `status=new` (in C4)
+  or a `variant` for change over time, rather than colours you would have to explain.
 
 ## Habits that spoil a picture
 
