@@ -14,7 +14,7 @@ import { labelledRoutes, labelShapes } from './labels/index.js';
 import { layerShapes } from './layers.js';
 import { sampleShapes } from './legend.js';
 import { nodeShapes } from './nodes/index.js';
-import { noteShapes } from './notes.js';
+import { noteShapes, remarkShapes } from './notes.js';
 import { surfacesOf } from './surfaces.js';
 
 /**
@@ -37,6 +37,7 @@ export function architectureScene(
     ...frameShapes(layout.frames, look, texts),
     ...nodeShapes(model, layout, texts),
     ...noteShapes(layout.notes),
+    ...remarkShapes(layout.remarks),
     ...edgeShapes(model, layout.routes, under, look.metrics.markerSize),
     ...labelShapes(model, layout.routes, layout, under),
     ...stripShapes(layout.strip, words),

@@ -46,6 +46,8 @@ export interface Prose {
   readonly ungrouped: string;
   readonly layer: string;
   readonly note: string;
+  /** A note without `on`, below the picture. */
+  readonly remark: string;
   readonly edge: string;
   readonly markOf: string;
   /** A frame without title, named after what it holds. */

@@ -47,6 +47,7 @@ export const PAPER: Look = {
     header: 'kicker',
     nodes: 'box',
     nodeName: 'inside',
+    nodeAlign: 'start',
     person: 'bust',
     status: 'dot',
     replicas: 'tag',

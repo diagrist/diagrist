@@ -1,7 +1,7 @@
 import type { Rect } from '@diagrist/core';
 import type { BandWords } from '../../texts/bands.js';
 import type { Texts } from '../../texts/index.js';
-import type { Segment } from '../art.js';
+import type { Segment } from '../art-types.js';
 import type { Band } from './detect.js';
 
 /** How far a separator keeps from what it breaks for. */

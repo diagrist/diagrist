@@ -1,8 +1,9 @@
 import type { Shape } from '@diagrist/core';
-import type { PersonArt } from '../layout/art.js';
+import type { PersonArt } from '../layout/art-types.js';
 import { secondLineRole } from '../layout/measure.js';
 import type { LookOptions } from '../looks/look.js';
 import type { ArchNode } from '../model/types.js';
+import { lineShapes } from './lines.js';
 
 /** Head radius, and from the top of the bust the head's centre, the shoulders' width, their crown and their base. */
 const BUST = { head: 10, headY: 13, shoulder: 21, top: 32, base: 53 } as const;
@@ -15,6 +16,7 @@ function figureShapes(n: ArchNode, art: PersonArt): Shape[] {
     { kind: 'line', ...art.arms, role: 'limb' },
     ...art.legs.map((leg): Shape => ({ kind: 'line', ...leg, role: 'limb' })),
     { kind: 'text', ...art.label, text: n.label, role: 'name', font: 'name', anchor: 'middle' },
+    ...lineShapes(n, art.lines, true),
     ...(n.tech
       ? [{ kind: 'text', ...art.tech, text: n.tech, role: 'tech', font: 'note', anchor: 'middle' } as const]
       : []),
@@ -32,6 +34,7 @@ function bustShapes(n: ArchNode, art: PersonArt): Shape[] {
     { kind: 'path', d, role: 'limb' },
     { kind: 'circle', cx, cy: top + BUST.headY, r: BUST.head, role: 'head' },
     { kind: 'text', ...art.label, text: n.label, role: 'name', font: 'name', anchor: 'middle' },
+    ...lineShapes(n, art.lines, true),
     ...(n.tech ? [{ kind: 'text', ...art.tech, text: n.tech, role, font: role, anchor: 'middle' } as const] : []),
   ];
 }

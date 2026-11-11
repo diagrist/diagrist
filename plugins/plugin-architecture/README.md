@@ -37,6 +37,7 @@ has (`grammar`, `model`, `rules`, `messages`, `layout`, `scene`, `describe`, `te
 | `blocks` | Filled blocks with shadows and large text, as pattern books draw them: tubes, cylinders, layer bands with side titles and tags. A variant with its own measures (ADR 0010), no legend. |
 | `paper` | A quiet print look with its own fonts and measures (ADR 0022): names and texts in Inter, technologies of containers and components in JetBrains Mono, warm paper, the own system's zone as an area without border, the `emph` element in yellow, status as a dot, open arrowheads, texts standing on their line, decisions as notes in the right margin and the legend as one sentence below a hairline. |
 | `columns` | A technical sheet in the fonts of `paper` on white: grid columns grouped into bands under grey heads that name the frame, the people, the focus or the neighbours in them, layers as grey bands at the left, square boxes with the name cut into the top edge and icon and second line centred inside, people as boxes, the `emph` element in a blue frame, the accent flow heavy with filled numbers, and with an accent flow whatever no flow touches greyed. |
+| `lowfi` | A low-fi sketch as concept reports draw their flows (ADR 0041): Inter at the size of body text, the title without the name of the kind, white boxes with rounded corners and centred texts, status by the fill alone (grey `existing`, dashed `optional` and `planned`), small heads, texts on their line, a compact grid that starts higher when no frame needs room, decisions in the margin and the legend as sentences. |
 
 Each look is one value in `src/looks/` (ADR 0023): measures, fonts by role, paint, and a few named options such as
 `nodes`, `groups`, `edgeText` or `legend`, whose values are drawn by one piece of code each. Layout and scene read
@@ -69,7 +70,8 @@ channel stage of `layout-grid` (ADR 0038), which took a second baseline. The exa
 bike rental with its context, its components, an as-is and a target picture and a decision paper, were written for
 Diagrist. Two more files each (`*-paper.dgr`, `*-columns.dgr`) draw `radverleih/kontext`, `radverleih/komponenten`
 and `architecture/cloud` in `look=paper` and `look=columns`, and their hashes are in `test/__golden__/paper.sha256`
-and `columns.sha256`. `test/__golden__/examples.sha256` holds the SHA-256 of every reviewed picture, and three of
+and `columns.sha256`. `look=lowfi` draws `radverleih/komponenten`, `architecture/cloud` and `architecture/planer`,
+a flow sketched as a concept report does, with its hashes in `lowfi.sha256`. `test/__golden__/examples.sha256` holds the SHA-256 of every reviewed picture, and three of
 them are golden files; `look=cards` variants of the plain examples are kept the same way
 (`test/__golden__/cards.sha256`). The crutches left from the predecessor's bytes are listed in `docs/burn-down.md`.
 
@@ -90,7 +92,6 @@ Errors keep the predecessor's number with the prefix `A`; warnings keep theirs p
 
 | Code | Severity | Before | What it checks |
 |---|---|---|---|
-| A001 | error | E001 | A note names the element it points at with `on`. |
 | A007 | error | E007 | A group has exactly one role: `own`, `shared` or `external`. The role draws its frame and mutes shared elements. |
 | A008 | error | E008 | Every element has a place in the grid with `at column/row`. |
 | A103 | error | E103 | Column and row of `at` are names of the grid. |

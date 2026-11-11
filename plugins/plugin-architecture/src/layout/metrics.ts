@@ -54,6 +54,10 @@ export interface Metrics {
   readonly nodeRx: number;
   /** Corner radius of a frame and of a panel. */
   readonly frameRx: number;
+  /** The widest a line of an edge's text runs before it wraps, in sizes of the label font; the grid's own if absent. */
+  readonly labelWrap?: number;
+  /** The top of the first row in a picture without frames, whose heads need no room above it; `firstRowY` if absent. */
+  readonly bareRowY?: number;
 }
 
 /**

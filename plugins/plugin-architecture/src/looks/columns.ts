@@ -53,6 +53,7 @@ export const COLUMNS: Look = {
     header: 'kicker',
     nodes: 'box',
     nodeName: 'tab',
+    nodeAlign: 'start',
     person: 'box',
     status: 'dot',
     replicas: 'stack',

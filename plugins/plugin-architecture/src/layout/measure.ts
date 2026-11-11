@@ -52,6 +52,13 @@ export const secondLineRole = (n: ArchNode): 'tech' | 'description' =>
 /** The font of the second line of a node; the standard look sets technology and description alike. */
 export const secondLine = (n: ArchNode, fonts: LookFonts): LookFont => fonts[secondLineRole(n)];
 
+/** The width of the widest indented line of a node in the `description` font that sets them, or 0. */
+export const linesWidth = (n: ArchNode, fonts: LookFonts): number =>
+  Math.max(0, ...n.lines.map((line) => textWidth(line, fonts.description)));
+
+/** The height the indented lines of a node add to its box: a line each. */
+export const linesHeight = (n: ArchNode, look: Look): number => n.lines.length * look.metrics.nodeLineH;
+
 const roundUp = (value: number, grid: number): number => Math.ceil(value / grid) * grid;
 
 /**
@@ -63,27 +70,38 @@ export function nodeWidth(n: ArchNode, look: Look, status?: Readonly<Record<Node
   const { metrics: m, fonts, options: o } = look;
   const label = textWidth(n.label, fonts.name);
   const tech = textWidth(n.tech ?? '', secondLine(n, fonts));
+  const lines = linesWidth(n, fonts);
   const word =
     !n.status || o.status !== 'word' ? 0 : status ? textWidth(status[n.status], fonts.note) + STATUS_GAP : STATUS_ROOM;
-  if (o.nodes === 'block') return roundUp(Math.max(label, tech, 0) + 2 * (m.nodePad + BLOCK_PAD), m.grid);
+  if (o.nodes === 'block') return roundUp(Math.max(label, tech, lines) + 2 * (m.nodePad + BLOCK_PAD), m.grid);
   if (o.nodes === 'card') {
-    if (isCircle(n, look)) return roundUp(Math.max(label, tech, 2 * m.circleR), m.grid);
-    return roundUp(Math.max(label, tech + 2 * word, 0) + 2 * m.nodePad, m.grid);
+    if (isCircle(n, look)) return roundUp(Math.max(label, tech, lines, 2 * m.circleR), m.grid);
+    return roundUp(Math.max(label, tech + 2 * word, lines) + 2 * m.nodePad, m.grid);
   }
-  if (o.nodeName === 'tab') return roundUp(tabWidth(n, look, tech), m.grid);
+  if (o.nodeName === 'tab') return roundUp(tabWidth(n, look, Math.max(tech, lines)), m.grid);
   const icon = n.icon ? m.iconSize + m.iconGap : 0;
   const corner = (n.replicas && o.replicas === 'tag') || n.shape === 'job' ? MARKER_ROOM : 0;
   const marker = corner + (o.marks === 'inside' && n.mark ? MARKER_ROOM : 0);
   const dot = o.status === 'dot' && n.status ? DOT_ROOM : 0;
-  const detail = tech + word;
+  const detail = Math.max(tech + word, lines);
   return roundUp(Math.max(label + marker + dot, detail, 0 - icon) + icon + 2 * m.nodePad, m.grid);
 }
 
-/** The height of a node: `height`, else the row height; in blocks tubes and cylinders are higher, texts lower. */
+/**
+ * The height of a node: `height`, else the row height and a line for each indented line; in blocks tubes and
+ * cylinders are higher, texts lower.
+ */
 export function nodeHeight(n: ArchNode, look: Look): number {
-  const m = look.metrics;
   if (n.height !== undefined) return n.height;
-  if (look.options.nodes !== 'block') return m.nodeH;
+  return ownHeight(n, look) + linesHeight(n, look);
+}
+
+/** The least height of a box drawn as a cylinder, whose lid and two lines of text need it in every look. */
+const CYLINDER_H = 56;
+
+function ownHeight(n: ArchNode, look: Look): number {
+  const m = look.metrics;
+  if (look.options.nodes !== 'block') return n.shape === 'db' ? Math.max(m.nodeH, CYLINDER_H) : m.nodeH;
   const form = blockForm(n);
   const lines = n.tech !== undefined ? 2 : 1;
   if (form === 'pipe')

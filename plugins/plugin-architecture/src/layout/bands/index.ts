@@ -5,7 +5,7 @@ import type { Look } from '../../looks/look.js';
 import type { ArchitectureModel, Layer } from '../../model/types.js';
 import type { BandWords } from '../../texts/bands.js';
 import type { Texts } from '../../texts/index.js';
-import type { Segment } from '../art.js';
+import type { Segment } from '../art-types.js';
 import { type Band, bandsOf, withoutBandFrames } from './detect.js';
 import { dotted, headOf } from './heads.js';
 
@@ -58,7 +58,8 @@ export function bandFrameOf(model: ArchitectureModel, look: Look): BandFrame {
     model: grid,
     bands,
     rows,
-    firstRowY: bands.length > 0 ? BAND.top + BAND.h + BAND.gap + framed : m.firstRowY,
+    firstRowY:
+      bands.length > 0 ? BAND.top + BAND.h + BAND.gap + framed : framed > 0 ? m.firstRowY : (m.bareRowY ?? m.firstRowY),
     indent: rows.length > 0 ? ROW.x + rowWidth(rows, look) + ROW.gap - m.marginX : 0,
   };
 }

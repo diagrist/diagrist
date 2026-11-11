@@ -7,7 +7,6 @@ const B = 'system b1 "B" at b/main';
 
 describe('rules of C4 diagrams', () => {
   it.each([
-    ['A001', [A, 'note "replaced soon"']],
     ['A007', [A, 'group g "G"']],
     ['A007', [A, 'group g "G" own shared']],
     ['A008', ['system s "S"']],

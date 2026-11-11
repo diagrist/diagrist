@@ -28,6 +28,7 @@ export const CARDS: Look = {
     header: 'inline',
     nodes: 'card',
     nodeName: 'inside',
+    nodeAlign: 'start',
     person: 'figure',
     status: 'word',
     replicas: 'stack',

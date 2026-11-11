@@ -51,9 +51,15 @@ export const style = statement('style', {
 /** `note` of a level; it points at an element the level allows. */
 export function noteTable(level: Level) {
   return statement('note', {
-    doc: 'A dashed note above an element, with a tip pointing at it. It is no element and no edge.',
-    examples: ['note "replaced in Q3" on portal'],
+    doc: 'A dashed note above an element, with a tip pointing at it; without `on` a remark below the picture. It is no element and no edge.',
+    examples: ['note "replaced in Q3" on portal', 'note "overdue: the check reports it" tone=red'],
     arguments: [arg('text', text(), 'What the note says.')],
-    clauses: { on: attr(ref(...LEVEL_ELEMENTS[level]), 'The element it points at. Required.') },
+    clauses: {
+      on: attr(
+        ref(...LEVEL_ELEMENTS[level]),
+        'The element it points at; without it the note stands below the picture.',
+      ),
+    },
+    attributes: { tone: attr(oneOf(TONE_NAMES), 'Colour of its text and frame, such as `red` for a warning.') },
   });
 }

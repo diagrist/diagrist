@@ -17,6 +17,7 @@ const INK = {
   accent: '#1d4ed8',
   planned: '#1a7f37',
   deprecated: '#cf222e',
+  optional: '#8a8a8a',
 } as const;
 
 const r = (...classes: string[]): RoleStyle => ({ classes });
@@ -42,6 +43,9 @@ const COLUMNS_ROLES: Readonly<Record<string, RoleStyle>> = {
   frameExternal: r('zone'),
   statusPlanned: r('dot-planned'),
   statusDeprecated: r('dot-deprecated'),
+  statusOptional: r('dot-optional'),
+  statusExisting: r('dot-existing'),
+  statusNew: r('dot-new'),
   kicker: r('label-group'),
   badgeAccent: r('badge-accent'),
   badgeTextAccent: r('badge-text-accent'),
@@ -97,6 +101,9 @@ function columnsRules(f: LookFonts, w: Strokes): StyleRule[] {
     rule('label-tech', text(c.ink2, f.tech)),
     rule('dot-planned', `fill: ${c.planned};`),
     rule('dot-deprecated', `fill: ${c.deprecated};`),
+    rule('dot-optional', `fill: ${c.optional};`),
+    rule('dot-existing', `fill: ${c.ink};`),
+    rule('dot-new', `fill: ${c.accent};`),
     rule('badge', `fill: ${c.ground}; stroke: ${c.ink}; stroke-width: 1.25;`),
     rule('badge-text', text(c.ink, f.badge)),
     rule('badge-accent', `fill: ${c.ink}; stroke: none;`),

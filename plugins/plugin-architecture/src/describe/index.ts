@@ -11,7 +11,8 @@ function nodeText(n: ArchNode, t: Texts): string {
     n.status && t.status[n.status],
     n.replicas !== undefined && t.prose.instances(n.replicas),
   ].filter(Boolean);
-  return `${n.label}${traits.length ? ` (${traits.join(', ')})` : ''}`;
+  const lines = n.lines.length > 0 ? `: ${n.lines.join(' ')}` : '';
+  return `${n.label}${traits.length ? ` (${traits.join(', ')})` : ''}${lines}`;
 }
 
 const edgeText = (e: ArchEdge): string => [e.label, e.via, e.schedule, e.volume, e.sla].filter(Boolean).join(', ');
@@ -74,7 +75,8 @@ export function describeArchitecture(model: ArchitectureModel, t: Texts, words: 
       lines.push(`  ${step}${mark}`);
     }
   }
-  for (const n of model.notes) lines.push(`${p.note} ${name(n.on ?? '')}: ${n.text}.`);
+  for (const n of model.notes)
+    lines.push(n.on === undefined ? `${p.remark}: ${n.text}.` : `${p.note} ${name(n.on)}: ${n.text}.`);
   for (const e of model.edges.filter((x) => x.step === undefined && x.origin !== 'removed')) {
     const text = edgeText(e);
     lines.push(`${p.edge}: ${name(e.from)} ${arrowOf(e)} ${name(e.to)}${text ? `: ${text}` : ''}.`);

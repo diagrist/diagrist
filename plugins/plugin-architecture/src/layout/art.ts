@@ -1,86 +1,25 @@
 import { type Rect, type Tone, textWidth } from '@diagrist/core';
 import type { Look } from '../looks/look.js';
 import type { ArchNode } from '../model/types.js';
+import type { BoxArt, NodeArt, PersonArt, Spot } from './art-types.js';
 import { textArea } from './cylinder.js';
-import {
-  type BlockForm,
-  blockForm,
-  isCircle,
-  isFigure,
-  STATUS_GAP,
-  secondLine,
-  TUBE_MEASURES as TUBE,
-} from './measure.js';
-import { type TabArt, tabParts } from './tab.js';
-
-/** A point where a text or a mark is anchored. */
-export interface Spot {
-  readonly x: number;
-  readonly y: number;
-}
-
-/** A segment from (x1, y1) to (x2, y2). */
-export interface Segment {
-  readonly x1: number;
-  readonly y1: number;
-  readonly x2: number;
-  readonly y2: number;
-}
-
-/** A stick figure: head, body, arms, legs and the anchors of name and role below. */
-export interface PersonArt {
-  readonly kind: 'person';
-  readonly head: { readonly cx: number; readonly cy: number; readonly r: number };
-  readonly body: Segment;
-  readonly arms: Segment;
-  readonly legs: readonly [Segment, Segment];
-  readonly label: Spot;
-  readonly tech: Spot;
-}
-
-/** The parts of a node of the `card` family: the toned circle, its icon, and cards stacked behind for replicas. */
-export interface CardArt {
-  readonly form: 'card' | 'circle';
-  readonly circle?: { readonly cx: number; readonly cy: number; readonly r: number };
-  readonly icon?: string;
-  readonly stack: readonly Rect[];
-}
-
-/** A node of the `block` family: its form and tone, white text on dark tones, and for a tube its arrow and body. */
-export interface BlockArt {
-  readonly form: BlockForm;
-  readonly tone: Tone;
-  readonly dark: boolean;
-  readonly flow?: Segment;
-  readonly pipe?: Rect;
-}
-
-/** A box: where icon, name, second line, status, clock and replica tag stand, and what its node family adds. */
-export interface BoxArt {
-  readonly kind: 'box';
-  readonly icon: Spot & { readonly size: number };
-  readonly label: Spot;
-  readonly tech: Spot;
-  readonly status: Spot;
-  readonly clock: Spot;
-  readonly replicas: Spot;
-  readonly card?: CardArt;
-  readonly block?: BlockArt;
-  /** With `nodeName: tab`: the name cut into the top edge, icon and second line centred below. */
-  readonly tab?: TabArt;
-}
-
-/** Where everything inside a node stands; the scene only draws it. */
-export type NodeArt = PersonArt | BoxArt;
+import { blockForm, isCircle, isFigure, STATUS_GAP, secondLine, TUBE_MEASURES as TUBE } from './measure.js';
+import { tabParts } from './tab.js';
 
 const HEAD_R = 9;
+/** The step between the lines below a stick figure. */
+const PERSON_LINE = 14;
 const CORNER = 15;
 const REPLICA_SHIFT = 26;
 const LIGHT_TONES: ReadonlySet<Tone> = new Set(['peach', 'sky']);
 /** Icons a circle of the `card` family without own icon takes from its shape. */
 const SHAPE_ICON = { db: 'database', queue: 'layers', store: 'archive', job: 'cpu', app: 'monitor' } as const;
 
-function personArt(rect: Rect): PersonArt {
+/** `count` spots one line apart, the first a line below `from`. */
+export const linesBelow = (from: Spot, count: number, step: number): Spot[] =>
+  Array.from({ length: count }, (_, i) => ({ x: from.x, y: from.y + (i + 1) * step }));
+
+function personArt(n: ArchNode, rect: Rect): PersonArt {
   const x = rect.x + rect.w / 2;
   const y = rect.y - 4;
   return {
@@ -93,52 +32,67 @@ function personArt(rect: Rect): PersonArt {
       { x1: x, y1: y + 42, x2: x + 12, y2: y + 58 },
     ],
     label: { x, y: y + 74 },
-    tech: { x, y: y + 88 },
+    lines: linesBelow({ x, y: y + 74 }, n.lines.length, PERSON_LINE),
+    tech: { x, y: y + 88 + n.lines.length * PERSON_LINE },
   };
 }
 
-function cardParts(n: ArchNode, rect: Rect, look: Look): Pick<BoxArt, 'card' | 'label' | 'tech'> {
+function cardParts(n: ArchNode, rect: Rect, look: Look): Pick<BoxArt, 'card' | 'label' | 'lines' | 'tech'> {
   const m = look.metrics;
   const cx = rect.x + rect.w / 2;
   if (isCircle(n, look)) {
     const label = { x: cx, y: rect.y + rect.h + look.fonts.name.size + 6 };
     const icon = n.icon ?? (n.shape ? SHAPE_ICON[n.shape] : undefined);
     const circle = { cx, cy: rect.y + rect.h / 2, r: rect.w / 2 };
+    const k = n.lines.length;
     return {
       card: { form: 'circle', circle, stack: [], ...(icon ? { icon } : {}) },
       label,
-      tech: { x: cx, y: label.y + m.nodeLineH },
+      lines: linesBelow(label, k, m.nodeLineH),
+      tech: { x: cx, y: label.y + (k + 1) * m.nodeLineH },
     };
   }
   const top = n.icon !== undefined ? m.cardIconR : 0;
   const lines = n.tech !== undefined || n.status !== undefined ? m.nodeLineH : 0;
-  const labelY = rect.y + top + (rect.h - top - lines) / 2 + m.labelDy;
+  const extra = n.lines.length * m.nodeLineH;
+  const labelY = rect.y + top + (rect.h - top - lines - extra) / 2 + m.labelDy;
   const layers = n.replicas !== undefined && look.options.replicas === 'stack' ? Math.min(n.replicas - 1, 2) : 0;
   const stack = Array.from({ length: layers }, (_, i) => {
     const k = (layers - i) * m.stackOffset;
     return { ...rect, x: rect.x + k, y: rect.y + k };
   });
   const circle = n.icon !== undefined ? { circle: { cx, cy: rect.y, r: m.cardIconR }, icon: n.icon } : {};
-  return { card: { form: 'card', stack, ...circle }, label: { x: cx, y: labelY }, tech: { x: cx, y: labelY + lines } };
+  const label = { x: cx, y: labelY };
+  const entries = linesBelow(label, n.lines.length, m.nodeLineH);
+  return {
+    card: { form: 'card', stack, ...circle },
+    label,
+    lines: entries,
+    tech: { x: cx, y: labelY + extra + lines },
+  };
 }
 
-function blockParts(n: ArchNode, rect: Rect, look: Look): Pick<BoxArt, 'block' | 'label' | 'tech'> {
+function blockParts(n: ArchNode, rect: Rect, look: Look): Pick<BoxArt, 'block' | 'label' | 'lines' | 'tech'> {
   const m = look.metrics;
   const form = blockForm(n);
   const tone = n.tone ?? (form === 'box' ? 'sky' : 'blue');
   const cx = rect.x + rect.w / 2;
+  const k = n.lines.length;
   if (form === 'pipe') {
     const flowY = rect.y + TUBE.top + TUBE.arrow / 2;
     const pipe = { x: rect.x, y: rect.y + TUBE.top + TUBE.arrow + TUBE.gap, w: rect.w, h: TUBE.body };
     const label = { x: cx, y: pipe.y + pipe.h + TUBE.gap + look.fonts.name.size };
     const flow = { x1: rect.x, y1: flowY, x2: rect.x + rect.w, y2: flowY };
-    return { block: { form, tone, dark: false, flow, pipe }, label, tech: { x: cx, y: label.y + m.nodeLineH } };
+    const tech = { x: cx, y: label.y + (k + 1) * m.nodeLineH };
+    return { block: { form, tone, dark: false, flow, pipe }, label, lines: linesBelow(label, k, m.nodeLineH), tech };
   }
   const lines = n.tech !== undefined ? m.nodeLineH : 0;
+  const extra = k * m.nodeLineH;
   const area = textArea(rect, form, 'block');
-  const labelY = area.y + area.h / 2 - lines / 2 + m.labelDy;
+  const labelY = area.y + area.h / 2 - (lines + extra) / 2 + m.labelDy;
   const block = { form, tone, dark: form !== 'text' && !LIGHT_TONES.has(tone) };
-  return { block, label: { x: cx, y: labelY }, tech: { x: cx, y: labelY + lines } };
+  const label = { x: cx, y: labelY };
+  return { block, label, lines: linesBelow(label, k, m.nodeLineH), tech: { x: cx, y: labelY + extra + lines } };
 }
 
 /**
@@ -146,7 +100,7 @@ function blockParts(n: ArchNode, rect: Rect, look: Look): Pick<BoxArt, 'block' |
  * middle of its `textArea`, which for a cylinder is the body below the front of its lid.
  */
 export function nodeArt(n: ArchNode, rect: Rect, look: Look): NodeArt {
-  if (isFigure(n, look)) return personArt(rect);
+  if (isFigure(n, look)) return personArt(n, rect);
   const m = look.metrics;
   const family = look.options.nodes;
   const techWidth = n.tech !== undefined ? textWidth(n.tech, secondLine(n, look.fonts)) : 0;
@@ -161,22 +115,30 @@ export function nodeArt(n: ArchNode, rect: Rect, look: Look): NodeArt {
     return { kind: 'box', icon: noIcon, status, clock, replicas: clock, ...parts };
   }
   if (look.options.nodeName === 'tab') {
-    const { tab, label, tech, icon } = tabParts(n, rect, look, secondLine(n, look.fonts));
+    const { tab, label, lines, tech, icon } = tabParts(n, rect, look, secondLine(n, look.fonts));
     const status = { x: label.x, y: label.y };
-    return { kind: 'box', tab, label, tech, icon: { ...icon, size: m.iconSize }, status, clock, replicas: clock };
+    const replicas = clock;
+    return { kind: 'box', tab, label, lines, tech, icon: { ...icon, size: m.iconSize }, status, clock, replicas };
   }
   const area = textArea(rect, n.shape, 'box');
   const middle = area.y + area.h / 2;
   const ix = rect.x + m.nodePad;
-  const tx = n.icon !== undefined ? ix + m.iconSize + m.iconGap : ix;
-  const ty = middle + (n.tech !== undefined ? m.labelDyTech : m.labelDy);
+  const start = n.icon !== undefined ? ix + m.iconSize + m.iconGap : ix;
+  const centred = look.options.nodeAlign === 'middle';
+  const tx = centred ? (start + rect.x + rect.w - m.nodePad) / 2 : start;
+  const below = n.lines.length + (n.tech !== undefined ? 1 : 0);
+  const ty = middle + (below > 0 ? m.labelDyTech : m.labelDy) - (Math.max(below, 1) - 1) * (m.nodeLineH / 2);
+  const techY = ty + (n.lines.length + 1) * m.nodeLineH;
+  const statusX = centred ? tx + techWidth / 2 + STATUS_GAP : tx + techWidth + STATUS_GAP;
   return {
     kind: 'box',
     icon: { x: ix, y: middle - m.iconSize / 2, size: m.iconSize },
     label: { x: tx, y: ty },
-    tech: { x: tx, y: ty + m.nodeLineH },
-    status: { x: tx + techWidth + STATUS_GAP, y: ty + m.nodeLineH },
+    lines: linesBelow({ x: tx, y: ty }, n.lines.length, m.nodeLineH),
+    tech: { x: tx, y: techY },
+    status: { x: statusX, y: techY },
     clock,
     replicas: n.shape === 'job' ? { x: clock.x - REPLICA_SHIFT, y: clock.y } : clock,
+    ...(centred ? { middle: true } : {}),
   };
 }

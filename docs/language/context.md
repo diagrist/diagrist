@@ -9,7 +9,7 @@ This page lists everything a `context` diagram may contain. The same grammar is 
 ## The first line
 
 ```text
-diagram context "Title" [subtitle=<text>] [label=<text>] [look=<plain|cards|blocks|paper|columns>] [decisions=<right|below|auto>] [layout=<adaptive>] [areas=<tint|outline|stripe>] [locale=<en|de>]
+diagram context "Title" [subtitle=<text>] [label=<text>] [look=<plain|cards|blocks|paper|columns|lowfi>] [decisions=<right|below|auto>] [layout=<adaptive>] [areas=<tint|outline|stripe>] [locale=<en|de>]
 ```
 
 Every context diagram starts with this line.
@@ -18,7 +18,7 @@ Every context diagram starts with this line.
 |---|---|---|---|
 | `subtitle=` | attribute | a text in double quotes like `"Order service"` | Second line below the title. |
 | `label=` | attribute | a text in double quotes like `"Order service"` | Name before the title instead of the kind; an empty `label=""` leaves only the title. |
-| `look=` | attribute | one of `plain`, `cards`, `blocks`, `paper`, `columns` | `plain` (default) boxes with a legend, `cards` toned icon cards, `blocks` filled blocks as in pattern books, `paper` a quiet print look: Inter on paper, zones as areas, the core in yellow, decisions in the margin, `columns` a technical sheet: columns in bands under grey heads, names in the top edge of square boxes, the focus flow heavy. |
+| `look=` | attribute | one of `plain`, `cards`, `blocks`, `paper`, `columns`, `lowfi` | `plain` (default) boxes with a legend, `cards` toned icon cards, `blocks` filled blocks as in pattern books, `paper` a quiet print look: Inter on paper, zones as areas, the core in yellow, decisions in the margin, `columns` a technical sheet: columns in bands under grey heads, names in the top edge of square boxes, the focus flow heavy, `lowfi` a low-fi sketch: centred texts in white boxes, grey for what exists, dashed for what is optional, compact. |
 | `decisions=` | attribute | one of `right`, `below`, `auto` | Where a look that writes decisions as notes sets them: `right` (default) in a column beside the picture, `below` side by side under it, `auto` below once the picture is wider than 1,100 pixels, as a printed page needs. |
 | `layout=` | attribute | one of `adaptive` | Columns grow to their content and edges find their own way around obstacles; without it the grid is fixed. |
 | `areas=` | attribute | one of `tint`, `outline`, `stripe` | How elements of a coloured area are painted: `tint` (default) a light fill and the outline in its tone, `outline` the outline and the name in its tone, `stripe` a stripe of its tone at the left edge. Lines and frames of an area are drawn in its tone in each. |
@@ -45,7 +45,7 @@ Each statement is one line that starts with its keyword. Statements inside block
 | [`node`](#node) | top level | A neutral element for any level, such as a queue, a job or a layer of a pattern. |
 | [`edge`](#edge) | top level | An edge outside of flows, without number. |
 | [`flow`](#flow) | top level | A numbered path: its steps are indented below it. |
-| [`note`](#note) | top level | A dashed note above an element, with a tip pointing at it. |
+| [`note`](#note) | top level | A dashed note above an element, with a tip pointing at it; without `on` a remark below the picture. |
 | [`adr`](#adr) | top level | An architecture decision in the bar below the picture: question, the chosen option after `=`, and the consequence after `=>`. |
 | [`area`](#area) | top level | A named area of the picture, such as the core or one extension of an extensible architecture. |
 
@@ -154,10 +154,10 @@ style store shape=db height=96
 ### `person`
 
 ```text
-person <id> <label> [at <place>] [in <ref>] [tech=<text>] [icon=<choice>] [shape=<db|queue|store|job|app>] [width=<integer>] [height=<integer>] [tone=<choice>] [form=<card|circle|text>] [status=<planned|deprecated>] [replicas=<integer>] [span=<span>] [slot=<slot>] [style=<ref>] [mark=<ref>] [area=<ref>] [emph]
+person <id> <label> [at <place>] [in <ref>] [tech=<text>] [icon=<choice>] [shape=<db|queue|store|job|app>] [width=<integer>] [height=<integer>] [tone=<choice>] [form=<card|circle|text>] [status=<planned|deprecated|optional|existing|new>] [replicas=<integer>] [span=<span>] [slot=<slot>] [style=<ref>] [mark=<ref>] [area=<ref>] [emph]
 ```
 
-A person who uses the system, drawn as a stick figure with name and role below it. `at` places it in the grid, `in` puts it into a group. `emph` marks a core decision with a thick border.
+A person who uses the system, drawn as a stick figure with name and role below it. `at` places it in the grid, `in` puts it into a group. `emph` marks a core decision with a thick border. Indented texts are further lines in the box.
 
 Written at the top level.
 
@@ -167,14 +167,14 @@ Written at the top level.
 | `<label>` | argument | a text in double quotes like `"Order service"` | Name in the picture. |
 | `at <place>` | clause | a place `column/row` like `backend.1/main` | Place in the grid as `column/row`. Required. |
 | `in <ref>` | clause | the id of a `group` declared in this diagram | The group whose frame holds the element. |
-| `tech=` | attribute | a text in double quotes like `"Order service"` | Second line: technology or role, such as `"PostgreSQL"`. |
+| `tech=` | attribute | a text in double quotes like `"Order service"` | Second line: technology or role, such as `"PostgreSQL"`; below the indented lines, if any. |
 | `icon=` | attribute | one of `apachekafka`, `archive`, `boxes`, `brick-wall`, `building-2`, `chart-line`, `cloud`, `container`, `copy`, `cpu`, `database`, `earth`, `file-cog`, `file-text`, `files`, `flame`, `folder`, `gauge`, `globe`, `hard-drive`, `hexagon`, `key-round`, `keycloak`, `kubernetes`, `layers`, `layout-dashboard`, `lock`, `map-pin`, `minio`, `monitor`, `network`, `package`, `postgresql`, `puzzle`, `receipt`, `route`, `router`, `server`, `server-cog`, `settings`, `shield`, `shield-check`, `smartphone`, `split`, `springboot`, `terminal`, `user-cog`, `user-round`, `users`, `vuedotjs`, `warehouse`, `waypoints`, `workflow` | Pictogram before the name: the technology or the role of the element. |
 | `shape=` | attribute | one of `db`, `queue`, `store`, `job`, `app` | Form of the box: `db` cylinder, `queue` tube, `store` folded sheet, `job`, `app`. |
 | `width=` | attribute | a whole number from 48 to 960 | Width of the box in pixels; needs `layout=adaptive`. |
 | `height=` | attribute | a whole number from 24 to 480 | Height of the box in pixels; needs `layout=adaptive`. |
 | `tone=` | attribute | one of `blue`, `indigo`, `purple`, `maroon`, `green`, `teal`, `slate`, `red`, `orange`, `peach`, `sky` | Colour of the icon circle in `look=cards` and of the block in `look=blocks`. |
 | `form=` | attribute | one of `card`, `circle`, `text` | `card` or `circle` in `look=cards`; `text` draws only the name in `look=blocks`. |
-| `status=` | attribute | one of `planned`, `deprecated` | `planned` draws the box dashed, `deprecated` grey; both name it beside `tech`. |
+| `status=` | attribute | one of `planned`, `deprecated`, `optional`, `existing`, `new` | `planned` and `optional` draw the box dashed, `deprecated` grey, `existing` and `new` mark what is there and what a concept adds; the look names it beside `tech`, as a dot, or by the fill alone. |
 | `replicas=` | attribute | a whole number from 2 to 99 | Number of instances from 2, shown as `x3` in the corner. |
 | `span=` | attribute | the last column like `mobile`, or `column/row` like `edge/data` | Last column, or `column/row`, of the area the element covers; needs `layout=adaptive`. |
 | `slot=` | attribute | `i/n` with 1 ≤ i ≤ n ≤ 64, like `2/3` | Takes place `i` of `n` equal places in its area, like `2/3`; needs `layout=adaptive`. |
@@ -189,13 +189,31 @@ Example:
 person customer "Customer" tech="account holder" at user/main
 ```
 
+Indented lines that start without one of these keywords have this form:
+
+```text
+<text>
+```
+
+A line of text in the box, between the name and the `tech` line; the box grows by a line for each.
+
+| Part | Kind | Value | Meaning |
+|---|---|---|---|
+| `<text>` | argument | a text in double quotes like `"Order service"` | What the line says. |
+
+Example:
+
+```dgr
+"due from, attempts, last error"
+```
+
 ### `system`
 
 ```text
-system <id> <label> [at <place>] [in <ref>] [tech=<text>] [icon=<choice>] [shape=<db|queue|store|job|app>] [width=<integer>] [height=<integer>] [tone=<choice>] [form=<card|circle|text>] [status=<planned|deprecated>] [replicas=<integer>] [span=<span>] [slot=<slot>] [style=<ref>] [mark=<ref>] [area=<ref>] [emph]
+system <id> <label> [at <place>] [in <ref>] [tech=<text>] [icon=<choice>] [shape=<db|queue|store|job|app>] [width=<integer>] [height=<integer>] [tone=<choice>] [form=<card|circle|text>] [status=<planned|deprecated|optional|existing|new>] [replicas=<integer>] [span=<span>] [slot=<slot>] [style=<ref>] [mark=<ref>] [area=<ref>] [emph]
 ```
 
-A software system, as a box with name and a second line. `at` places it in the grid, `in` puts it into a group. `emph` marks a core decision with a thick border.
+A software system, as a box with name and a second line. `at` places it in the grid, `in` puts it into a group. `emph` marks a core decision with a thick border. Indented texts are further lines in the box.
 
 Written at the top level.
 
@@ -205,14 +223,14 @@ Written at the top level.
 | `<label>` | argument | a text in double quotes like `"Order service"` | Name in the picture. |
 | `at <place>` | clause | a place `column/row` like `backend.1/main` | Place in the grid as `column/row`. Required. |
 | `in <ref>` | clause | the id of a `group` declared in this diagram | The group whose frame holds the element. |
-| `tech=` | attribute | a text in double quotes like `"Order service"` | Second line: technology or role, such as `"PostgreSQL"`. |
+| `tech=` | attribute | a text in double quotes like `"Order service"` | Second line: technology or role, such as `"PostgreSQL"`; below the indented lines, if any. |
 | `icon=` | attribute | one of `apachekafka`, `archive`, `boxes`, `brick-wall`, `building-2`, `chart-line`, `cloud`, `container`, `copy`, `cpu`, `database`, `earth`, `file-cog`, `file-text`, `files`, `flame`, `folder`, `gauge`, `globe`, `hard-drive`, `hexagon`, `key-round`, `keycloak`, `kubernetes`, `layers`, `layout-dashboard`, `lock`, `map-pin`, `minio`, `monitor`, `network`, `package`, `postgresql`, `puzzle`, `receipt`, `route`, `router`, `server`, `server-cog`, `settings`, `shield`, `shield-check`, `smartphone`, `split`, `springboot`, `terminal`, `user-cog`, `user-round`, `users`, `vuedotjs`, `warehouse`, `waypoints`, `workflow` | Pictogram before the name: the technology or the role of the element. |
 | `shape=` | attribute | one of `db`, `queue`, `store`, `job`, `app` | Form of the box: `db` cylinder, `queue` tube, `store` folded sheet, `job`, `app`. |
 | `width=` | attribute | a whole number from 48 to 960 | Width of the box in pixels; needs `layout=adaptive`. |
 | `height=` | attribute | a whole number from 24 to 480 | Height of the box in pixels; needs `layout=adaptive`. |
 | `tone=` | attribute | one of `blue`, `indigo`, `purple`, `maroon`, `green`, `teal`, `slate`, `red`, `orange`, `peach`, `sky` | Colour of the icon circle in `look=cards` and of the block in `look=blocks`. |
 | `form=` | attribute | one of `card`, `circle`, `text` | `card` or `circle` in `look=cards`; `text` draws only the name in `look=blocks`. |
-| `status=` | attribute | one of `planned`, `deprecated` | `planned` draws the box dashed, `deprecated` grey; both name it beside `tech`. |
+| `status=` | attribute | one of `planned`, `deprecated`, `optional`, `existing`, `new` | `planned` and `optional` draw the box dashed, `deprecated` grey, `existing` and `new` mark what is there and what a concept adds; the look names it beside `tech`, as a dot, or by the fill alone. |
 | `replicas=` | attribute | a whole number from 2 to 99 | Number of instances from 2, shown as `x3` in the corner. |
 | `span=` | attribute | the last column like `mobile`, or `column/row` like `edge/data` | Last column, or `column/row`, of the area the element covers; needs `layout=adaptive`. |
 | `slot=` | attribute | `i/n` with 1 ≤ i ≤ n ≤ 64, like `2/3` | Takes place `i` of `n` equal places in its area, like `2/3`; needs `layout=adaptive`. |
@@ -227,13 +245,31 @@ Example:
 system shop "Web shop" tech="sells online" at core/main emph mark=E1
 ```
 
+Indented lines that start without one of these keywords have this form:
+
+```text
+<text>
+```
+
+A line of text in the box, between the name and the `tech` line; the box grows by a line for each.
+
+| Part | Kind | Value | Meaning |
+|---|---|---|---|
+| `<text>` | argument | a text in double quotes like `"Order service"` | What the line says. |
+
+Example:
+
+```dgr
+"due from, attempts, last error"
+```
+
 ### `node`
 
 ```text
-node <id> <label> [at <place>] [in <ref>] [tech=<text>] [icon=<choice>] [shape=<db|queue|store|job|app>] [width=<integer>] [height=<integer>] [tone=<choice>] [form=<card|circle|text>] [status=<planned|deprecated>] [replicas=<integer>] [span=<span>] [slot=<slot>] [style=<ref>] [mark=<ref>] [area=<ref>] [emph]
+node <id> <label> [at <place>] [in <ref>] [tech=<text>] [icon=<choice>] [shape=<db|queue|store|job|app>] [width=<integer>] [height=<integer>] [tone=<choice>] [form=<card|circle|text>] [status=<planned|deprecated|optional|existing|new>] [replicas=<integer>] [span=<span>] [slot=<slot>] [style=<ref>] [mark=<ref>] [area=<ref>] [emph]
 ```
 
-A neutral element for any level, such as a queue, a job or a layer of a pattern. `at` places it in the grid, `in` puts it into a group. `emph` marks a core decision with a thick border.
+A neutral element for any level, such as a queue, a job or a layer of a pattern. `at` places it in the grid, `in` puts it into a group. `emph` marks a core decision with a thick border. Indented texts are further lines in the box.
 
 Written at the top level.
 
@@ -243,14 +279,14 @@ Written at the top level.
 | `<label>` | argument | a text in double quotes like `"Order service"` | Name in the picture. |
 | `at <place>` | clause | a place `column/row` like `backend.1/main` | Place in the grid as `column/row`. Required. |
 | `in <ref>` | clause | the id of a `group` declared in this diagram | The group whose frame holds the element. |
-| `tech=` | attribute | a text in double quotes like `"Order service"` | Second line: technology or role, such as `"PostgreSQL"`. |
+| `tech=` | attribute | a text in double quotes like `"Order service"` | Second line: technology or role, such as `"PostgreSQL"`; below the indented lines, if any. |
 | `icon=` | attribute | one of `apachekafka`, `archive`, `boxes`, `brick-wall`, `building-2`, `chart-line`, `cloud`, `container`, `copy`, `cpu`, `database`, `earth`, `file-cog`, `file-text`, `files`, `flame`, `folder`, `gauge`, `globe`, `hard-drive`, `hexagon`, `key-round`, `keycloak`, `kubernetes`, `layers`, `layout-dashboard`, `lock`, `map-pin`, `minio`, `monitor`, `network`, `package`, `postgresql`, `puzzle`, `receipt`, `route`, `router`, `server`, `server-cog`, `settings`, `shield`, `shield-check`, `smartphone`, `split`, `springboot`, `terminal`, `user-cog`, `user-round`, `users`, `vuedotjs`, `warehouse`, `waypoints`, `workflow` | Pictogram before the name: the technology or the role of the element. |
 | `shape=` | attribute | one of `db`, `queue`, `store`, `job`, `app` | Form of the box: `db` cylinder, `queue` tube, `store` folded sheet, `job`, `app`. |
 | `width=` | attribute | a whole number from 48 to 960 | Width of the box in pixels; needs `layout=adaptive`. |
 | `height=` | attribute | a whole number from 24 to 480 | Height of the box in pixels; needs `layout=adaptive`. |
 | `tone=` | attribute | one of `blue`, `indigo`, `purple`, `maroon`, `green`, `teal`, `slate`, `red`, `orange`, `peach`, `sky` | Colour of the icon circle in `look=cards` and of the block in `look=blocks`. |
 | `form=` | attribute | one of `card`, `circle`, `text` | `card` or `circle` in `look=cards`; `text` draws only the name in `look=blocks`. |
-| `status=` | attribute | one of `planned`, `deprecated` | `planned` draws the box dashed, `deprecated` grey; both name it beside `tech`. |
+| `status=` | attribute | one of `planned`, `deprecated`, `optional`, `existing`, `new` | `planned` and `optional` draw the box dashed, `deprecated` grey, `existing` and `new` mark what is there and what a concept adds; the look names it beside `tech`, as a dot, or by the fill alone. |
 | `replicas=` | attribute | a whole number from 2 to 99 | Number of instances from 2, shown as `x3` in the corner. |
 | `span=` | attribute | the last column like `mobile`, or `column/row` like `edge/data` | Last column, or `column/row`, of the area the element covers; needs `layout=adaptive`. |
 | `slot=` | attribute | `i/n` with 1 ≤ i ≤ n ≤ 64, like `2/3` | Takes place `i` of `n` equal places in its area, like `2/3`; needs `layout=adaptive`. |
@@ -263,6 +299,24 @@ Example:
 
 ```dgr
 node orders "Orders" tech="business logic" replicas=3 at web/business in cloud
+```
+
+Indented lines that start without one of these keywords have this form:
+
+```text
+<text>
+```
+
+A line of text in the box, between the name and the `tech` line; the box grows by a line for each.
+
+| Part | Kind | Value | Meaning |
+|---|---|---|---|
+| `<text>` | argument | a text in double quotes like `"Order service"` | What the line says. |
+
+Example:
+
+```dgr
+"due from, attempts, last error"
 ```
 
 ### `edge`
@@ -378,22 +432,24 @@ storage -> bucket "read object" via="S3 HEAD"
 ### `note`
 
 ```text
-note <text> [on <ref>]
+note <text> [on <ref>] [tone=<choice>]
 ```
 
-A dashed note above an element, with a tip pointing at it. It is no element and no edge.
+A dashed note above an element, with a tip pointing at it; without `on` a remark below the picture. It is no element and no edge.
 
 Written at the top level.
 
 | Part | Kind | Value | Meaning |
 |---|---|---|---|
 | `<text>` | argument | a text in double quotes like `"Order service"` | What the note says. |
-| `on <ref>` | clause | the id of a `person`, `system` or `node` declared in this diagram | The element it points at. Required. |
+| `on <ref>` | clause | the id of a `person`, `system` or `node` declared in this diagram | The element it points at; without it the note stands below the picture. |
+| `tone=` | attribute | one of `blue`, `indigo`, `purple`, `maroon`, `green`, `teal`, `slate`, `red`, `orange`, `peach`, `sky` | Colour of its text and frame, such as `red` for a warning. |
 
-Example:
+Examples:
 
 ```dgr
 note "replaced in Q3" on portal
+note "overdue: the check reports it" tone=red
 ```
 
 ### `adr`
@@ -453,7 +509,6 @@ Besides the codes of the language and the kernel, listed in [the overview](READM
 
 | Code | Severity | What it checks |
 |---|---|---|
-| `A001` | error | A note names the element it points at with `on`. |
 | `A007` | error | A group has exactly one role: `own`, `shared` or `external`. The role draws its frame and mutes shared elements. |
 | `A008` | error | Every element has a place in the grid with `at column/row`. |
 | `A103` | error | Column and row of `at` are names of the grid. |

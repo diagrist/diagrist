@@ -1,7 +1,8 @@
 import type { Rect, Shape, Tone } from '@diagrist/core';
-import type { BlockArt, BoxArt } from '../../layout/art.js';
+import type { BlockArt, BoxArt } from '../../layout/art-types.js';
 import { CYLINDER_RY } from '../../layout/cylinder.js';
 import type { PlacedElement } from '../../layout/index.js';
+import { lineShapes } from '../lines.js';
 
 /** Corner radius of blocks. */
 export const BLOCK_RX = 10;
@@ -67,6 +68,7 @@ export function blockShapes(p: PlacedElement, art: BoxArt, block: BlockArt): Sha
   const out: Shape[] = [...body];
   const text = block.dark ? 'blockLight' : 'blockDark';
   if (n.label) out.push({ kind: 'text', ...art.label, text: n.label, role: text, font: 'block', anchor: 'middle' });
+  out.push(...lineShapes(n, art.lines, true));
   if (n.tech) out.push({ kind: 'text', ...art.tech, text: n.tech, role: 'tech', font: 'note', anchor: 'middle' });
   return out;
 }

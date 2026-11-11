@@ -7,7 +7,8 @@ import type { Look } from '../looks/look.js';
 import type { ArchGroup, ArchitectureModel, ArchNode } from '../model/types.js';
 import { BAND_WORDS } from '../texts/bands.js';
 import type { Texts } from '../texts/index.js';
-import { type NodeArt, nodeArt } from './art.js';
+import { nodeArt } from './art.js';
+import type { NodeArt } from './art-types.js';
 import { type BandSheet, bandFrameOf, bandSheetOf } from './bands/index.js';
 import { type Context, contextOf } from './focus.js';
 import { type FrameHead, frameHead } from './heads.js';
@@ -16,7 +17,7 @@ import { type LayerArt, layerArts } from './layers.js';
 import { legendItems, type Sample } from './legend.js';
 import { type Badge, type Mark, markRect } from './marks.js';
 import { nodeMarkTexts } from './node-marks.js';
-import { type NoteArt, noteArts } from './notes.js';
+import { type NoteArt, noteArts, type RemarkLine, remarkArts } from './notes.js';
 import { sheetFor } from './sheet.js';
 import { signsFrom, signsOf } from './signs.js';
 import { crestOf, graphOf } from './spec.js';
@@ -52,6 +53,8 @@ export interface ArchitectureLayout {
   /** What `focus: dim` greys; empty in every other look. */
   readonly context: Context;
   readonly notes: readonly NoteArt[];
+  /** Notes without `on`, line by line below the picture and above decision bar and legend. */
+  readonly remarks: readonly RemarkLine[];
   readonly strip: Strip;
   /** Only with `legend: strip`; other looks explain themselves through icons and colours, or in sentences. */
   readonly legend?: Legend<Sample>;
@@ -114,7 +117,14 @@ export function layoutArchitecture(model: ArchitectureModel, texts: Texts, local
     return node ? crestOf(node, look) : 0;
   };
   const notes = noteArts(model.notes, rects, crest, look.fonts.note);
-  const strip = decisionStrip(o.decisions === 'bar' ? model.decisions : [], pl.bottom, pl.width, {
+  const noteBottom = Math.max(0, ...notes.map((n) => bottom(n.rect) + m.groupPadBottom));
+  const remarks = remarkArts(
+    model.notes,
+    Math.max(pl.bottom, ...notes.map((n) => bottom(n.rect))),
+    pl.width,
+    look.fonts.note,
+  );
+  const strip = decisionStrip(o.decisions === 'bar' ? model.decisions : [], remarks.bottom, pl.width, {
     open: WORDS[locale].open,
     font: look.fonts.note,
   });
@@ -122,8 +132,8 @@ export function layoutArchitecture(model: ArchitectureModel, texts: Texts, local
     o.legend === 'strip'
       ? legendLayout(legendItems(model, routes, marks.length > 0, texts, look.fonts.note), strip.bottom, pl.width)
       : undefined;
-  const noteBottom = Math.max(0, ...notes.map((n) => bottom(n.rect) + m.groupPadBottom));
-  const body = strip.cards.length > 0 ? strip.bottom : Math.max(pl.bottom, noteBottom);
+  const remarkBottom = remarks.lines.length > 0 ? remarks.bottom : 0;
+  const body = strip.cards.length > 0 ? strip.bottom : Math.max(pl.bottom, noteBottom, remarkBottom);
   const beside = [
     ...(model.adaptive ? [routeRight, ...layers.map((l) => right(l.rect))] : []),
     ...notes.map((n) => right(n.rect)),
@@ -144,6 +154,7 @@ export function layoutArchitecture(model: ArchitectureModel, texts: Texts, local
     bands,
     context,
     notes,
+    remarks: remarks.lines,
     strip,
     ...(legend ? { legend } : {}),
     ...(sheet ? { sheet } : {}),

@@ -2,10 +2,6 @@ import { type Catalogue, pick } from '@diagrist/core';
 
 /** Messages of the model errors, in English and German. A109 has its own catalogue entry in `layout-errors.ts`. */
 export const ERRORS: Catalogue = {
-  A001: {
-    en: () => 'A note needs the element it points at: `note "Text" on <id>`.',
-    de: () => 'Eine Notiz braucht das Element, auf das sie zeigt: `note "Text" on <id>`.',
-  },
   A007: {
     en: (v) =>
       `The group \`${v.id}\` ${pick(v, { none: 'has no role', several: `has several roles (${v.roles})` })}. Give it exactly one of \`own\`, \`shared\`, \`external\`, e.g. \`group ${v.id} "Title" own\`.`,

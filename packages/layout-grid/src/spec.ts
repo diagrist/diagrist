@@ -43,6 +43,8 @@ export interface GridMetrics {
   readonly labelFont: Font;
   readonly labelLineH: number;
   readonly labelGap: number;
+  /** The widest a line of an edge's text runs before it wraps, in sizes of `labelFont`; `WRAP_EM` when left out. */
+  readonly labelWrap?: number;
   /** Font of the detail line of an edge, such as a protocol in a monospace face; `labelFont` when left out. */
   readonly detailFont?: Font;
   /** Straight lines stop this far outside a box. */
@@ -78,10 +80,7 @@ export interface Stretch {
   readonly origin?: 'middle';
 }
 
-/**
- * A node with the measures its kind has already taken. Without own width or height it fills its place; with them
- * it stands in the middle of it.
- */
+/** A node with the measures its kind has already taken: without own width or height it fills its place, else centred. */
 export interface GridNode {
   readonly id: string;
   readonly col: string;

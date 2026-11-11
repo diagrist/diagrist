@@ -1,5 +1,5 @@
 import { areaAttribute, TONE_NAMES } from '@diagrist/core';
-import { arg, attr, id, oneOf, ref, statement, text } from '@diagrist/lang';
+import { arg, attr, id, lines, oneOf, ref, statement, text } from '@diagrist/lang';
 import { ICON_NAMES } from '../icons/index.js';
 import { place, slot, spanEnd, whole } from './values.js';
 
@@ -46,8 +46,11 @@ export const LEVEL_ELEMENTS: Readonly<Record<Level, readonly ElementKeyword[]>> 
 /** Forms a node takes: `db` cylinder, `queue` tube, `store` folded sheet, `job` clock, `app` window. */
 export const SHAPES = ['db', 'queue', 'store', 'job', 'app'] as const;
 
-/** Life cycle marks: planned parts are dashed, deprecated ones grey. */
-export const STATUSES = ['planned', 'deprecated'] as const;
+/**
+ * Life cycle marks: planned parts are dashed, deprecated ones grey; optional parts, such as a trigger beside the usual
+ * way, are dashed too, and parts that exist already or are new tell a concept apart from what is there.
+ */
+export const STATUSES = ['planned', 'deprecated', 'optional', 'existing', 'new'] as const;
 
 /** Forms of a node in the looks: `card` and `circle` in `look=cards`, `text` without a box in `look=blocks`. */
 export const FORMS = ['card', 'circle', 'text'] as const;
@@ -62,10 +65,17 @@ export const LOOK_ATTRIBUTES = {
   form: attr(oneOf(FORMS), '`card` or `circle` in `look=cards`; `text` draws only the name in `look=blocks`.'),
 };
 
+/** An indented text line below an element: a line of its own between the name and `tech`. */
+const entry = lines({
+  doc: 'A line of text in the box, between the name and the `tech` line; the box grows by a line for each.',
+  examples: ['"due from, attempts, last error"'],
+  arguments: [arg('text', text(), 'What the line says.')],
+});
+
 /** The statement of one element keyword; every level that allows it shares this table. */
 function element<const K extends ElementKeyword>(keyword: K) {
   return statement(keyword, {
-    doc: `${ELEMENTS[keyword].what} \`at\` places it in the grid, \`in\` puts it into a group. \`emph\` marks a core decision with a thick border.`,
+    doc: `${ELEMENTS[keyword].what} \`at\` places it in the grid, \`in\` puts it into a group. \`emph\` marks a core decision with a thick border. Indented texts are further lines in the box.`,
     examples: [ELEMENTS[keyword].example],
     arguments: [
       arg('id', id(), 'Id that edges, flows, notes and `in` use for this element.'),
@@ -76,9 +86,12 @@ function element<const K extends ElementKeyword>(keyword: K) {
       in: attr(ref('group'), 'The group whose frame holds the element.'),
     },
     attributes: {
-      tech: attr(text(), 'Second line: technology or role, such as `"PostgreSQL"`.'),
+      tech: attr(text(), 'Second line: technology or role, such as `"PostgreSQL"`; below the indented lines, if any.'),
       ...LOOK_ATTRIBUTES,
-      status: attr(oneOf(STATUSES), '`planned` draws the box dashed, `deprecated` grey; both name it beside `tech`.'),
+      status: attr(
+        oneOf(STATUSES),
+        '`planned` and `optional` draw the box dashed, `deprecated` grey, `existing` and `new` mark what is there and what a concept adds; the look names it beside `tech`, as a dot, or by the fill alone.',
+      ),
       replicas: attr(whole(2, 99), 'Number of instances from 2, shown as `x3` in the corner.'),
       span: attr(spanEnd(), 'Last column, or `column/row`, of the area the element covers; needs `layout=adaptive`.'),
       slot: attr(slot(), 'Takes place `i` of `n` equal places in its area, like `2/3`; needs `layout=adaptive`.'),
@@ -87,6 +100,7 @@ function element<const K extends ElementKeyword>(keyword: K) {
       area: areaAttribute,
     },
     flags: { emph: 'Draws the border thick: the core decision of the picture.' },
+    lines: entry,
   });
 }
 

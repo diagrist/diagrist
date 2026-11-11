@@ -19,6 +19,8 @@ export interface ArchNode {
   readonly keyword: ElementKeyword;
   readonly label: string;
   readonly tech?: string;
+  /** The indented text lines of the element, drawn between its name and `tech`. */
+  readonly lines: readonly string[];
   readonly icon?: string;
   readonly at?: Place;
   readonly span?: SpanEnd;
@@ -106,9 +108,11 @@ export interface Layer {
   readonly source: Span;
 }
 
+/** A note on an element, or without `on` a remark below the picture. */
 export interface Note {
   readonly text: string;
   readonly on?: string;
+  readonly tone?: Tone;
   readonly source: Span;
 }
 

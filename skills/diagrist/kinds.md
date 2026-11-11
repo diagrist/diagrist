@@ -53,7 +53,23 @@ stands `at column/row`. Here you do the placing, so place for reading.
   sign that two elements should swap.
 - Give every edge a label or a protocol (`via=`); the kind warns otherwise (A710).
 - `look=` changes the look. `cards` and `blocks` suit slides, `paper` a printed document with decisions in the
-  margin (`adr`), and `columns` a technical sheet.
+  margin (`adr`), `columns` a technical sheet, and `lowfi` a small sketch of a flow in a concept, next to text.
+- For a concept, say what exists and what is new with `status=existing` and `status=new`, and mark a way beside
+  the usual one `status=optional`; `lowfi` draws them grey, white and dashed and explains them in its legend.
+- Indented texts below an element are further lines in its box, between the name and `tech=`:
+
+  ```dgr
+  diagram component "Planner" look=lowfi layout=adaptive
+  grid cols flow,store
+  grid rows main
+  component flow "Flow" tech="Scheduler" status=existing at flow/main
+    "cancellation, webhook"
+  component store "tasks" tech="stays due until done" status=new at store/main
+  edge flow -> store "plans"
+  note "overdue: the check reports it" tone=red
+  ```
+
+- A `note` without `on` is a remark below the picture; `tone=red` makes a note a warning.
 - `layout=adaptive` lets columns grow to their content and edges find their own way. Use it when the fixed grid
   crowds.
 
