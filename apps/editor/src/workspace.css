@@ -50,8 +50,15 @@
   overflow: hidden;
   cursor: grab;
   touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
 }
 .right .preview.dragging {
+  cursor: grabbing;
+}
+body.panning {
+  user-select: none;
+  -webkit-user-select: none;
   cursor: grabbing;
 }
 .stage {
@@ -90,24 +97,6 @@
   text-align: center;
   font-variant-numeric: tabular-nums;
   color: #495057;
-}
-
-@media (max-width: 760px) {
-  .brand {
-    display: none;
-  }
-  .switch {
-    display: inline-flex;
-    gap: 4px;
-  }
-  .split {
-    grid-template-columns: 1fr;
-  }
-  .divider,
-  .split[data-show="source"] .right,
-  .split[data-show="picture"] .left {
-    display: none;
-  }
 }
 
 @media (max-width: 760px) {

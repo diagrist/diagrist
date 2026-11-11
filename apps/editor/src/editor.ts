@@ -3,7 +3,7 @@ import './style.css';
 import './workspace.css';
 import { setDiagnostics } from '@codemirror/lint';
 import { basicSetup, EditorView } from 'codemirror';
-import { copy, download, fileName, openEmbedDialog } from './actions.js';
+import { copy, copyPng, copySvg, download, fileName, flash, openEmbedDialog } from './actions.js';
 import { DEFAULT_SOURCE } from './examples.js';
 import { showFindings, toDiagnostics } from './findings.js';
 import { dgrLanguage } from './highlight.js';
@@ -99,13 +99,28 @@ byId('dgr').addEventListener('click', () =>
 byId('svg').addEventListener('click', () => {
   if (last?.svg) download(new Blob([last.svg], { type: 'image/svg+xml' }), `${fileName(last.title)}.svg`);
 });
+const pngOf = async (svg: string) => (await import('./png.js')).svgToPng(svg, 2);
+const menu = byId<HTMLDetailsElement>('download');
+const menuLabel = menu.querySelector('summary') as HTMLElement;
+
+/** Runs a copy from the menu, which closes on the click, and reports the outcome on the menu's own label. */
+async function copyFromMenu(run: (svg: string) => Promise<void>, what: string): Promise<void> {
+  if (!last?.svg) return;
+  try {
+    await run(last.svg);
+    flash(menuLabel, `${what} copied`);
+  } catch (error) {
+    alert(`Could not copy the ${what}: ${error instanceof Error ? error.message : String(error)}`);
+  }
+}
+byId('copy-svg').addEventListener('click', () => void copyFromMenu(copySvg, 'SVG'));
+byId('copy-png').addEventListener('click', () => void copyFromMenu((svg) => copyPng(pngOf(svg)), 'PNG'));
 byId<HTMLButtonElement>('png').addEventListener('click', async (e) => {
   const button = e.currentTarget as HTMLButtonElement;
   if (!last?.svg) return;
   button.disabled = true;
   try {
-    const { svgToPng } = await import('./png.js');
-    download(await svgToPng(last.svg, 2), `${fileName(last.title)}.png`);
+    download(await pngOf(last.svg), `${fileName(last.title)}.png`);
   } catch (error) {
     alert(`No PNG: ${error instanceof Error ? error.message : String(error)}`);
   } finally {
@@ -113,7 +128,6 @@ byId<HTMLButtonElement>('png').addEventListener('click', async (e) => {
   }
 });
 
-const menu = byId<HTMLDetailsElement>('download');
 menu.addEventListener('click', (event) => {
   if ((event.target as HTMLElement).closest('.menu-items button')) menu.open = false;
 });

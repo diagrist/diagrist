@@ -23,7 +23,7 @@ referrer, so the diagram stays on your machine. Nothing is stored but the width 
 The address is the document. Bookmark it, put it in a ticket or send it to a colleague, and the diagram opens as
 you left it. The PNG and SVG the editor downloads are the same bytes the command line writes.
 
-## Share and download
+## Share, copy and download
 
 The bar above the editor has these buttons:
 
@@ -31,7 +31,7 @@ The bar above the editor has these buttons:
 |---|---|
 | Copy link | Copies the address with the source, to share the diagram. |
 | Embed | Opens the address and the HTML for an iframe, see below. |
-| Download | The picture as SVG or PNG, or the source as `.dgr`, to keep it next to your code and build it with `dgr`. |
+| Export | Copies the picture as SVG or PNG, to paste it into a chat, a slide or a design tool, or downloads it as SVG or PNG, or the source as `.dgr`, to keep it next to your code and build it with `dgr`. |
 
 ## Embed a diagram
 

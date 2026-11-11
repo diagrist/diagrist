@@ -21,14 +21,47 @@ export function fileName(title: string | undefined): string {
   return base || 'diagram';
 }
 
+/** Shows `text` on an element for a moment, e.g. a confirmation on the button that copied something. */
+export function flash(element: HTMLElement, text: string): void {
+  const label = element.dataset.label ?? element.textContent ?? '';
+  element.dataset.label = label;
+  element.textContent = text;
+  clearTimeout(Number(element.dataset.timer));
+  element.dataset.timer = String(
+    setTimeout(() => {
+      element.textContent = label;
+      delete element.dataset.label;
+    }, 1200),
+  );
+}
+
 /** Copies a text and confirms on the button for a moment. */
-export async function copy(text: string, button: HTMLButtonElement): Promise<void> {
+export async function copy(text: string, button: HTMLElement): Promise<void> {
   await navigator.clipboard.writeText(text);
-  const label = button.textContent;
-  button.textContent = 'Copied';
-  setTimeout(() => {
-    button.textContent = label;
-  }, 1200);
+  flash(button, 'Copied');
+}
+
+/**
+ * Copies the SVG as a picture where the browser can (`image/svg+xml`) and always as text, so that design tools,
+ * editors and chats can all paste it.
+ */
+export async function copySvg(svg: string): Promise<void> {
+  const asPicture = typeof ClipboardItem !== 'undefined' && ClipboardItem.supports?.('image/svg+xml') === true;
+  if (!asPicture) return navigator.clipboard.writeText(svg);
+  await navigator.clipboard.write([
+    new ClipboardItem({
+      'image/svg+xml': new Blob([svg], { type: 'image/svg+xml' }),
+      'text/plain': new Blob([svg], { type: 'text/plain' }),
+    }),
+  ]);
+}
+
+/**
+ * Copies a PNG that is still being drawn. The clipboard gets the promise at once: Safari allows writing only within
+ * the click, not after the picture is ready.
+ */
+export async function copyPng(png: Promise<Blob>): Promise<void> {
+  await navigator.clipboard.write([new ClipboardItem({ 'image/png': png })]);
 }
 
 /** Fills and opens the embed dialog for the current fragment. */
