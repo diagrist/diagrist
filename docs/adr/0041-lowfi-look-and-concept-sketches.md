@@ -7,7 +7,7 @@ Date: 2026-11-11. Status: proposed, decided by Claude for Noel, reversible. Buil
 Concept reports draw small flows by hand: a handful of boxes, 12 px text in a system face, ink #222, lines of
 1.5 px, grey for what exists, white for what is new, dashed for what is optional, a title in bold over one to three
 lines with a grey last line, and a warning in red below the picture. One such flow, a stored task planner, measured
-760 × 250 by hand. Written as a C4 component diagram it came out at about 1,500 × 430 in `look=plain` and `paper`,
+760 × 250 by hand. Written as a C4 component diagram it came out at 1,542 × 540 in `look=plain` and about 1,500 × 430 in `paper`,
 and four things could not be said: an optional trigger beside the usual way (`status=planned` writes "planned",
 which is a statement about time, not about the way), grey and white as existing and new, more than one line in a
 box (only `tech=`, so lines grew wide), and a coloured note or one without an element to point at.
@@ -40,7 +40,8 @@ box (only `tech=`, so lines grew wide), and a coloured note or one without an el
 ## Consequences
 
 The planner of the report is `examples/architecture/planer.dgr`: 944 × 448 with title, remark and legend, checked
-clean, against 760 × 250 for the hand drawing without them and about 1,500 × 430 in `look=plain` before. Every example of the other looks keeps its bytes.
+clean, against 760 × 250 for the hand drawing without them and 1,542 × 540 in `look=plain` before.
+Every example of the other looks keeps its bytes.
 
 What we learned building it, for the next look:
 
