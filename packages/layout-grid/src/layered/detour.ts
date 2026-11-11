@@ -2,6 +2,7 @@ import { type LineInput, type LineMetrics, type LineThresholds, lineFindings, li
 import { DETOUR, scoreOf } from '../score.js';
 import { type Arrangement, arrange } from './arrange.js';
 import { finish, type LayeredLayout } from './finish.js';
+import { firstBroken, firstPairs } from './order-first.js';
 import { layeredLines } from './output.js';
 import { railChoices } from './rail-search.js';
 import { sideChoices } from './rail-sides.js';
@@ -67,7 +68,8 @@ export function trades(a: Trade, b: Trade, even: 'length' | 'score' = 'length'):
 
 /**
  * A picture laid out in the order of fewest crossings and, where the order stage found them, also in the order of
- * shorter lines (`Arrangement.shorter`) and the order of hanging rows (`Arrangement.hanging`); each in turn stays
+ * shorter lines (`Arrangement.shorter`) and the order of hanging rows (`Arrangement.hanging`), where they put no more
+ * pairs of an edge beside out of their order (`LayeredEdge.first`); each in turn stays
  * where its drawing trades better than the one kept so far (`trades`). The order stage only estimates where boxes
  * will stand, so the drawing decides: the orders are drawn without the passes that move boxes to straighten lines, and
  * only the one that stays is laid out in full.
@@ -78,7 +80,10 @@ function laidFrom(
   release: (layout: LayeredLayout) => LayeredLayout,
   outer: LayeredSpec,
 ): LayeredLayout {
-  const others = [arranged.shorter, arranged.hanging].filter((l) => l !== undefined);
+  const pairs = firstPairs(spec);
+  const others = [arranged.shorter, arranged.hanging].filter(
+    (l): l is string[][] => l !== undefined && firstBroken(l, pairs) <= firstBroken(arranged.layers, pairs),
+  );
   if (others.length === 0) return release(finish(spec, arranged));
   const rough = (layers: string[][]) =>
     layeredLines(outer, release(finish(spec, { ...arranged, layers, rough: true })));
@@ -93,7 +98,10 @@ function laidFrom(
 /**
  * A picture laid out as `laidFrom` lays out its arrangement. Where rails stood inside its first order, it is laid
  * out with every other choice of their sides as well (`railChoices`), and where rails may take either side, with
- * each of them fixed to one (`sideChoices`); the cheapest picture by `scoreOf` stays, the first on a tie. `release` turns a layout into the one drawn, and `outer` is the spec it is read by.
+ * each of them fixed to one (`sideChoices`); of the arrangements that put the fewest pairs of an edge beside out of
+ * the order they ask (`LayeredEdge.first`), the cheapest picture by `scoreOf` stays, the first on a tie, so no search
+ * of rails turns an order an author asked for. `release` turns a layout into the one drawn, and `outer` is the spec
+ * it is read by.
  */
 export function laidOut(
   spec: LayeredSpec,
@@ -103,10 +111,14 @@ export function laidOut(
   const first = arrange(spec);
   const laid = laidFrom(spec, first, release, outer);
   const taken = (id: string) => SIDE_OF.get(laid.routes.find((r) => r.edge === id)?.fromSide ?? 'top');
-  const choices = [...railChoices(spec, first), ...sideChoices(spec, first, taken)];
-  if (choices.length === 0) return laid;
+  const pairs = firstPairs(spec);
+  const broken = (a: Arrangement) => firstBroken(a.layers, pairs);
+  const all = [...railChoices(spec, first), ...sideChoices(spec, first, taken)];
+  const least = Math.min(broken(first), ...all.map(broken));
+  const choices = all.filter((a) => broken(a) === least);
   const price = (layout: LayeredLayout) => ({ layout, cost: scoreOf(layeredLines(outer, layout)).cost });
-  return choices
-    .map((a) => price(laidFrom(spec, a, release, outer)))
-    .reduce((a, b) => (b.cost < a.cost ? b : a), price(laid)).layout;
+  const priced = choices.map((a) => price(laidFrom(spec, a, release, outer)));
+  if (broken(first) === least) priced.unshift(price(laid));
+  if (priced.length <= 1) return priced[0]?.layout ?? laid;
+  return priced.reduce((a, b) => (b.cost < a.cost ? b : a)).layout;
 }

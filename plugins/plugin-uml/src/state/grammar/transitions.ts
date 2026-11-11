@@ -1,5 +1,5 @@
 import { lineAreaAttribute } from '@diagrist/core';
-import { arg, arrow, attr, ref, statement, text } from '@diagrist/lang';
+import { arg, arrow, attr, oneOf, ref, statement, text } from '@diagrist/lang';
 import { implementing } from '../../spec/catalog.js';
 import { STATE_MACHINES as S } from '../../spec/state-machines.js';
 
@@ -36,6 +36,7 @@ export const go = statement(
         'go open -> paid on="pay" when="amount covered" do="send receipt"',
         'go choice -> open when=else',
         'go open -> cancelled on="after(14 days)"',
+        'go waiting -> declined on="customer declines" side=right',
       ],
       arguments: [
         arg('from', end(), 'The vertex the transition leaves.'),
@@ -54,6 +55,10 @@ export const go = statement(
           attr(text(), 'Postcondition of a protocol transition, written without brackets.'),
         ),
         area: lineAreaAttribute,
+        side: attr(
+          oneOf(['left', 'right', 'above', 'below']),
+          'Side of `from` the transition leaves at, in the middle, running straight across into `to`, which then stands beside `from` instead of below it: `left` or `right` in a flow down, `above` or `below` with `direction=right`. For a side exit such as a state that only leads to the end. `to` stays where the flow puts it where another transition into it comes from the row of `from` or after it. Without it Diagrist chooses.',
+        ),
       },
       flags: { emph: 'Highlights the line in the accent colour.' },
     },

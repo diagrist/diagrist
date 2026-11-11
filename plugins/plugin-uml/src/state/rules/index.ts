@@ -10,6 +10,7 @@ import { postcondition, protocol, timeChangeEvent } from './events.js';
 import { compositeWithoutInitial, pointUnused, regionWithoutInitial } from './frames.js';
 import { deadEnd, initialRequired, unreachable } from './reach.js';
 import type { StateRule } from './shared.js';
+import { sideAlongFlow } from './sides.js';
 import {
   connectionPoint,
   invalidNesting,
@@ -58,4 +59,5 @@ export const STATE_RULES: readonly StateRule[] = [
   pointUnused,
   deferOverridden,
   deferNeverConsumed,
+  sideAlongFlow,
 ];

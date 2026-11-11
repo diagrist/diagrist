@@ -72,8 +72,13 @@ export interface Transition extends Behaviour {
   readonly emph?: boolean;
   /** The area the transition names itself; the scene falls back to the areas of its ends. */
   readonly area?: string;
+  /** The side of `from` the transition leaves straight across, `to` standing beside `from` (ADR 0040). */
+  readonly side?: Side;
   readonly span: Span;
 }
+
+/** A side of a state: `left` and `right` across a flow down, `above` and `below` across a flow to the right. */
+export type Side = 'left' | 'right' | 'above' | 'below';
 
 export interface Internal extends Behaviour {
   readonly state: string;

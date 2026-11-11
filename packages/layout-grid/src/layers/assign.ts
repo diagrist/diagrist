@@ -62,8 +62,24 @@ function longestPath(nodes: readonly string[], ranked: readonly LayerEdge[]): Ma
 }
 
 /**
- * Layer per node. Nodes without ranked edges join the layer of their first neighbour already placed, so the line
- * can run horizontally; nodes without one go on top.
+ * The lower end of every edge of rank 0 whose ends the ranked edges both placed, moved up into the layer of the upper
+ * end where every ranked edge into it comes from above that layer, so the two stand side by side; its ranked edges
+ * out still point down, since they did from its own layer. Where an edge into it comes from that layer or below, it
+ * stays.
+ */
+function joinBeside(layer: Map<string, number>, ranked: readonly LayerEdge[], side: readonly LayerEdge[]): void {
+  for (const e of side) {
+    const [a, b] = [layer.get(e.from), layer.get(e.to)];
+    if (a === undefined || b === undefined || a === b) continue;
+    const [lower, at] = a < b ? [e.to, a] : [e.from, b];
+    if (ranked.every((r) => r.to !== lower || (layer.get(r.from) ?? 0) < at)) layer.set(lower, at);
+  }
+}
+
+/**
+ * Layer per node. Two nodes the ranked edges placed and an edge of rank 0 joins stand in one layer where the edges
+ * into the lower one allow it (`joinBeside`). Nodes without ranked edges join the layer of their first neighbour
+ * already placed, so the line can run horizontally; nodes without one go on top.
  */
 export function assignLayers(
   nodes: readonly string[],
@@ -75,6 +91,7 @@ export function assignLayers(
     nodes.filter((n) => touched.has(n)),
     ranked,
   );
+  joinBeside(layer, ranked, side);
   for (let changed = true; changed; ) {
     changed = false;
     for (const n of nodes) {

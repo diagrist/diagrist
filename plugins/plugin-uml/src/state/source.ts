@@ -89,6 +89,7 @@ export function stateDiagram(reading: KindReading<StateStatement>): StateDiagram
       ...behaviour(t.attributes),
       ...some('emph', t.flags.emph),
       ...some('area', t.attributes.area),
+      ...some('side', t.attributes.side),
       span: t.span,
     })),
     internals: of('internal').map((i) => ({ state: i.state, ...behaviour(i.attributes), span: i.span })),

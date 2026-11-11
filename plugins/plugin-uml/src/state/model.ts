@@ -1,4 +1,4 @@
-import type { StateDiagram, Transition, Vertex, VertexKind } from './diagram.js';
+import type { Side, StateDiagram, Transition, Vertex, VertexKind } from './diagram.js';
 
 /** The diagram with its vertices by id and the structure rules, layout and description look up. */
 export interface StateModel {
@@ -10,6 +10,19 @@ export interface StateModel {
   into(id: string): readonly Transition[];
   kind(id: string): VertexKind | undefined;
 }
+
+/** Per direction of the flow, the sides across it and which end of the transition stands first in the row. */
+const ACROSS: Readonly<Record<StateDiagram['direction'], Partial<Record<Side, 'from' | 'to'>>>> = {
+  down: { left: 'to', right: 'from' },
+  right: { above: 'to', below: 'from' },
+};
+
+/**
+ * The end of a transition with `side=` that stands first in the row it shares with the other end, left or above;
+ * undefined without `side=` or with a side along the flow, which has no effect (ADR 0040).
+ */
+export const firstOfSide = (t: Transition, direction: StateDiagram['direction']): 'from' | 'to' | undefined =>
+  t.side === undefined ? undefined : ACROSS[direction][t.side];
 
 /** Entry and exit points sit on the border of their state, not in a layer. */
 export const isBorderPoint = (kind: VertexKind | undefined): boolean => kind === 'entrypoint' || kind === 'exitpoint';

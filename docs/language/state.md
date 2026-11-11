@@ -342,7 +342,7 @@ region payment "Payment" in processing
 ### `go`
 
 ```text
-go <from> <arrow> <to> [on=<text>] [when=<text>] [do=<text>] [post=<text>] [area=<ref>] [emph]
+go <from> <arrow> <to> [on=<text>] [when=<text>] [do=<text>] [post=<text>] [area=<ref>] [side=<left|right|above|below>] [emph]
 ```
 
 A transition from `from` to `to`, labelled `trigger [guard] / effect`; without all three it is a completion transition. `when=else` is the else branch of a choice. A transition of a state to itself is a loop at its freest corner. In a protocol state machine (`{protocol}` in the title) it reads `[precondition] operation / [postcondition]`. UML 2.5.1: 14.2.3.8 Transition with trigger, guard and effect, 14.2.3.8 Completion transition without trigger.
@@ -359,6 +359,7 @@ Written at the top level.
 | `do=` | attribute | a text in double quotes like `"Order service"` | Effect: the behaviour the transition runs, shown after `/`. |
 | `post=` | attribute | a text in double quotes like `"Order service"` | Postcondition of a protocol transition, written without brackets. UML 2.5.1: 14.4.3 Protocol transition with precondition and postcondition. |
 | `area=` | attribute | the id of an `area` declared in this diagram | The area the line belongs to, declared with `area`. Without it the line takes the coloured area of its first end, else that of its second, so a line between an extension and the core belongs to the extension. |
+| `side=` | attribute | one of `left`, `right`, `above`, `below` | Side of `from` the transition leaves at, in the middle, running straight across into `to`, which then stands beside `from` instead of below it: `left` or `right` in a flow down, `above` or `below` with `direction=right`. For a side exit such as a state that only leads to the end. `to` stays where the flow puts it where another transition into it comes from the row of `from` or after it. Without it Diagrist chooses. |
 | `emph` | flag |  | Highlights the line in the accent colour. |
 
 The values of `arrow` and what they mean:
@@ -373,6 +374,7 @@ Examples:
 go open -> paid on="pay" when="amount covered" do="send receipt"
 go choice -> open when=else
 go open -> cancelled on="after(14 days)"
+go waiting -> declined on="customer declines" side=right
 ```
 
 ### `internal`
@@ -504,3 +506,4 @@ Besides the codes of the language and the kernel, listed in [the overview](READM
 | `U949` | warning | An entry or exit point has a way in and a way out. On a submachine state only the outside counts, and on the frame of a machine drawn with its own points the outside lies with the caller. UML 2.5.1: 14.2.3 Entry point on the border of a state, 14.2.3 Exit point on the border of a state. |
 | `U960` | warning | A state that defers an event and fires a transition on it in the same state: the transition wins and the deferral says nothing. UML 2.5.1: 14.2.4 Deferred event in the compartment of a state. |
 | `U961` | warning | A deferred event waits for a later state that fires a transition on it; without one it waits forever. UML 2.5.1: 14.2.4 Deferred event in the compartment of a state. |
+| `U962` | warning | `side=` puts the target beside the source, across the flow: `left` or `right` in a flow down, `above` or `below` with `direction=right`. A side along the flow has no effect (ADR 0040). |
