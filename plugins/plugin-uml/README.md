@@ -239,7 +239,8 @@ points of neighbouring submachines.
 Errors keep their number with the prefix `U`; warnings, which shared numbers with errors before, keep their
 number plus 500 (ADR 0011). Checks that the language, the tables or the kernel's placement check now do have
 their codes. The use case kind adds U428, the class kind U471 and the state kind U465, a note without the element it belongs to,
-and the activity kind U958, an order of the partitions that forces crossings another order would spare.
+the activity kind U958, an order of the partitions that forces crossings another order would spare, and the state
+kind U962, a `side=` along the flow, which has no effect.
 
 <!-- Generated from the rules in src/*/rules by `pnpm docs:uml`. Do not edit. -->
 
@@ -421,6 +422,7 @@ Checks of the predecessor that the language, the tables or the kernel do now:
 | U949 | warning | W449 | An entry or exit point has a way in and a way out. On a submachine state only the outside counts, and on the frame of a machine drawn with its own points the outside lies with the caller. UML 2.5.1: 14.2.3 Entry point on the border of a state, 14.2.3 Exit point on the border of a state. |
 | U960 | warning | W460 | A state that defers an event and fires a transition on it in the same state: the transition wins and the deferral says nothing. UML 2.5.1: 14.2.4 Deferred event in the compartment of a state. |
 | U961 | warning | W461 | A deferred event waits for a later state that fires a transition on it; without one it waits forever. UML 2.5.1: 14.2.4 Deferred event in the compartment of a state. |
+| U962 | warning | – | `side=` puts the target beside the source, across the flow: `left` or `right` in a flow down, `above` or `below` with `direction=right`. A side along the flow has no effect (ADR 0040). |
 
 Checks of the predecessor that the language, the tables or the kernel do now:
 

@@ -1,6 +1,6 @@
 import { STANDARD_FONTS, textWidth } from '@diagrist/core';
 import { type GraphEdge, type GraphNode, type LayoutGraph, WRAP_EM, wrapWithin } from '@diagrist/layout-grid';
-import { isBorderPoint, type StateModel } from '../model.js';
+import { firstOfSide, isBorderPoint, type StateModel } from '../model.js';
 import { stateHeight, stateWidth } from './box.js';
 import { stateContainers } from './containers.js';
 import { edgeId } from './ids.js';
@@ -80,11 +80,13 @@ export function stateGraph(m: StateModel): LayoutGraph {
         .flatMap((l) => (measure(l) <= WRAP_EM * font.size ? [l] : wrapWithin(l, WRAP_EM * font.size, measure)))
         .map((text) => ({ text, width: measure(text) }));
       const width = Math.max(0, ...lines.map((l) => l.width));
+      const first = firstOfSide(t, m.diagram.direction);
       return {
         id: edgeId(i),
         from: t.from,
         to: t.to,
-        rank: 'down',
+        rank: first === undefined ? 'down' : 'beside',
+        ...(first === undefined ? {} : { first, ...(lines.length ? { room: width + 2 * S.labelGap + S.lead } : {}) }),
         profile: bar(t.from) || bar(t.to) ? 'orthogonal' : 'rail',
         ...trunk(t.from, t.to),
         ...(lines.length

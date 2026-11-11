@@ -30,6 +30,11 @@ const CASES: readonly (readonly [string, string, string])[] = [
   ['U440', 'go open -> start', 'go open -> end'],
   ['U441', 'fork f\ngo open -> f on="s"\ngo f -> pack', 'fork f\ngo open -> f on="s"\ngo f -> pack\ngo f -> ship'],
   ['U442', 'go paid -> end on="x" when="y"', 'go paid -> end when="y"'],
+  [
+    'U962',
+    'state no "No"\ngo open -> no on="decline" side=above\ngo no -> end',
+    'state no "No"\ngo open -> no on="decline" side=right\ngo no -> end',
+  ],
   ['U443', 'initial second\ngo second -> open', 'history h in active'],
   ['U444', 'history h', 'history h in active'],
   ['U445', 'internal open do="x"', 'internal open on="y" do="x"'],

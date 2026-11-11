@@ -1,7 +1,10 @@
 import { type Catalogue, pick } from '@diagrist/core';
 import { capital, deName, enName } from './nouns.js';
 
-/** Messages of the state warnings U940 to U949, U960 and U961 (the predecessor's W440 to W461), in English and German. */
+/**
+ * Messages of the state warnings U940 to U949, U960 and U961 (the predecessor's W440 to W461) and U962, in English and
+ * German.
+ */
 export const STATE_WARNINGS: Catalogue = {
   U940: {
     en: (v) =>
@@ -80,5 +83,11 @@ export const STATE_WARNINGS: Catalogue = {
       `${capital(enName(v))} defers "${v.event}", but no transition fires on it. Add one in a later state: \`go ... on="${v.event}"\`.`,
     de: (v) =>
       `${capital(deName(v))} stellt „${v.event}“ zurück, aber keine Transition verarbeitet es. In einem späteren Zustand ergänzen: \`go ... on="${v.event}"\`.`,
+  },
+  U962: {
+    en: (v) =>
+      `\`${v.transition}\`: \`side=${v.side}\` runs along the flow of \`direction=${v.direction}\` and has no effect. Write \`side=${v.one}\` or \`side=${v.other}\`.`,
+    de: (v) =>
+      `\`${v.transition}\`: \`side=${v.side}\` liegt in Flussrichtung von \`direction=${v.direction}\` und wirkt nicht. \`side=${v.one}\` oder \`side=${v.other}\` schreiben.`,
   },
 };

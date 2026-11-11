@@ -17,6 +17,18 @@ describe('layering a graph', () => {
     expect(layerGraph(graph).layers).toEqual([['a'], ['b'], ['c', 'd']]);
   });
 
+  it('moves the lower end of a side edge up beside the upper one, unless an edge into it comes from that layer', () => {
+    const side = { from: 'b', to: 'x', rank: 0 } as const;
+    const beside: LayerGraph = {
+      nodes: ['a', 'b', 'c', 'x', 'e'],
+      edges: [...ranked('a>b b>c c>e x>e'), side],
+      maxPerLayer: 5,
+    };
+    expect(layerGraph(beside).layers).toEqual([['a'], ['b', 'x'], ['c'], ['e']]);
+    const held: LayerGraph = { ...beside, edges: [...ranked('a>b b>c c>e x>e c>x'), side] };
+    expect(layerGraph(held).layers.findIndex((l) => l.includes('x'))).toBe(3);
+  });
+
   it('breaks a cycle by turning the edge that closes it, in declaration order', () => {
     const graph: LayerGraph = { nodes: ['a', 'b', 'c'], edges: ranked('a>b b>c c>a'), maxPerLayer: 5 };
     expect(layerGraph(graph).layers).toEqual([['a'], ['b'], ['c']]);
