@@ -26,7 +26,6 @@ export const PAPER: Look = {
     groupTitleY: 24,
     groupSubtitleY: 40,
     nodeRx: 2,
-    dbTextShift: 6,
   },
   fonts: {
     title: inter(15, 600),

@@ -1,11 +1,12 @@
 import type { Rect, Shape, Tone } from '@diagrist/core';
 import type { BlockArt, BoxArt } from '../../layout/art.js';
+import { CYLINDER_RY } from '../../layout/cylinder.js';
 import type { PlacedElement } from '../../layout/index.js';
 
 /** Corner radius of blocks. */
 export const BLOCK_RX = 10;
 const SHADOW = 5;
-const DB_RY = 12;
+const DB_RY = CYLINDER_RY.block;
 const HEAD = 10;
 
 /** A filled area with a strong border and a shadow behind it. */
