@@ -54,8 +54,6 @@ export interface Metrics {
   readonly nodeRx: number;
   /** Corner radius of a frame and of a panel. */
   readonly frameRx: number;
-  /** How far icon and texts in a cylinder move down, below the front of its lid. */
-  readonly dbTextShift: number;
 }
 
 /**
@@ -134,5 +132,4 @@ export const STANDARD: Metrics = {
   shadowDy: 2,
   nodeRx: 8,
   frameRx: 10,
-  dbTextShift: 0,
 };

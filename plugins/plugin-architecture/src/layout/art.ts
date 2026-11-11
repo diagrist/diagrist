@@ -1,6 +1,7 @@
 import { type Rect, type Tone, textWidth } from '@diagrist/core';
 import type { Look } from '../looks/look.js';
 import type { ArchNode } from '../model/types.js';
+import { textArea } from './cylinder.js';
 import {
   type BlockForm,
   blockForm,
@@ -134,14 +135,15 @@ function blockParts(n: ArchNode, rect: Rect, look: Look): Pick<BoxArt, 'block' |
     return { block: { form, tone, dark: false, flow, pipe }, label, tech: { x: cx, y: label.y + m.nodeLineH } };
   }
   const lines = n.tech !== undefined ? m.nodeLineH : 0;
-  const labelY = rect.y + rect.h / 2 - lines / 2 + m.labelDy;
+  const area = textArea(rect, form, 'block');
+  const labelY = area.y + area.h / 2 - lines / 2 + m.labelDy;
   const block = { form, tone, dark: form !== 'text' && !LIGHT_TONES.has(tone) };
   return { block, label: { x: cx, y: labelY }, tech: { x: cx, y: labelY + lines } };
 }
 
 /**
- * The art of a node in its rectangle, by the node family of the look. Icon and texts of a cylinder box move down by
- * `dbTextShift`, below the front of its lid.
+ * The art of a node in its rectangle, by the node family of the look. Icon and texts of a box or block stand in the
+ * middle of its `textArea`, which for a cylinder is the body below the front of its lid.
  */
 export function nodeArt(n: ArchNode, rect: Rect, look: Look): NodeArt {
   if (isFigure(n, look)) return personArt(rect);
@@ -163,15 +165,16 @@ export function nodeArt(n: ArchNode, rect: Rect, look: Look): NodeArt {
     const status = { x: label.x, y: label.y };
     return { kind: 'box', tab, label, tech, icon: { ...icon, size: m.iconSize }, status, clock, replicas: clock };
   }
-  const shift = n.shape === 'db' ? m.dbTextShift : 0;
+  const area = textArea(rect, n.shape, 'box');
+  const middle = area.y + area.h / 2;
   const ix = rect.x + m.nodePad;
   const tx = n.icon !== undefined ? ix + m.iconSize + m.iconGap : ix;
-  const ty = rect.y + rect.h / 2 + (n.tech !== undefined ? m.labelDyTech : m.labelDy);
+  const ty = middle + (n.tech !== undefined ? m.labelDyTech : m.labelDy);
   return {
     kind: 'box',
-    icon: { x: ix, y: rect.y + rect.h / 2 - m.iconSize / 2 + shift, size: m.iconSize },
-    label: { x: tx, y: ty + shift },
-    tech: { x: tx, y: ty + m.nodeLineH + shift },
+    icon: { x: ix, y: middle - m.iconSize / 2, size: m.iconSize },
+    label: { x: tx, y: ty },
+    tech: { x: tx, y: ty + m.nodeLineH },
     status: { x: tx + techWidth + STATUS_GAP, y: ty + m.nodeLineH },
     clock,
     replicas: n.shape === 'job' ? { x: clock.x - REPLICA_SHIFT, y: clock.y } : clock,

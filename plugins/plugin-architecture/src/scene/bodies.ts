@@ -1,5 +1,6 @@
 import type { Rect, Shape } from '@diagrist/core';
 import type { Spot } from '../layout/art.js';
+import { CYLINDER_RY } from '../layout/cylinder.js';
 import { NUMBER_SIZE } from '../layout/marks.js';
 import type { NodeShape } from '../model/types.js';
 
@@ -8,7 +9,7 @@ const REPLICA = { w: 24, h: 13, rx: 3 } as const;
 const TEXT_DY = 3.5;
 /** Corner radius of a body without its own, such as the shape samples of the legend. */
 export const BODY_RX = 8;
-const DB_RY = 9;
+const DB_RY = CYLINDER_RY.box;
 const QUEUE_INSET = 8;
 const STORE_FOLD = 14;
 const APP = { bar: 12, dot: 1.5, x: 8, gap: 7 } as const;
