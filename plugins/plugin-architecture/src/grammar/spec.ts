@@ -19,8 +19,8 @@ const header = {
     'Where a look that writes decisions as notes sets them: `right` (default) in a column beside the picture, `below` side by side under it, `auto` below once the picture is wider than 1,100 pixels, as a printed page needs.',
   ),
   layout: attr(
-    oneOf(['adaptive']),
-    'Columns grow to their content and edges find their own way around obstacles; without it the grid is fixed.',
+    oneOf(['adaptive', 'ranks']),
+    '`adaptive`: columns grow to their content and edges find their own way around obstacles; without it the grid is fixed. `ranks`: no grid or places needed, the system with `emph` (else the one with the most edges) stands alone in the middle, what calls it in a row above, what it calls in a row below, each edge to it one straight vertical line.',
   ),
   areas: areasAttribute,
   locale: localeAttribute,

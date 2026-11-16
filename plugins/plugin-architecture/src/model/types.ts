@@ -134,6 +134,8 @@ export interface ArchitectureModel {
   /** Where decision notes stand (`decisions=`): beside the picture, below it, or below once it is wide. */
   readonly decisionsAt: 'right' | 'below' | 'auto';
   readonly adaptive: boolean;
+  /** Laid out as a star of ranks (`layout=ranks`): places are the layout's, not the author's. */
+  readonly ranks?: boolean;
   readonly cols: readonly string[];
   readonly rows: readonly string[];
   readonly grids: readonly GridLine[];

@@ -5,7 +5,7 @@
 A C4 component diagram (level 3): the components inside a container and what they depend on, placed in a named grid. Full reference with every argument: `dgr grammar component --json`.
 
 ```text
-diagram component "Title" [subtitle=<text>] [label=<text>] [look=<plain|cards|blocks|paper|columns|lowfi>] [decisions=<right|below|auto>] [layout=<adaptive>] [areas=<tint|outline|stripe>] [locale=<en|de>]
+diagram component "Title" [subtitle=<text>] [label=<text>] [look=<plain|cards|blocks|paper|columns|lowfi>] [decisions=<right|below|auto>] [layout=<adaptive|ranks>] [areas=<tint|outline|stripe>] [locale=<en|de>]
 ```
 
 | Line | Where | What it does | Example |
