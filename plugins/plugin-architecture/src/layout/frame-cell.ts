@@ -4,6 +4,7 @@ import type { Look } from '../looks/look.js';
 import type { ArchGroup, ArchitectureModel } from '../model/types.js';
 import type { Texts } from '../texts/index.js';
 import { headRect } from './head-rect.js';
+import { nodeWidth } from './measure.js';
 
 const TAG_MIN_W = 120;
 
@@ -35,6 +36,20 @@ function pads(g: ArchGroup, model: ArchitectureModel, look: Look): Pads {
   };
 }
 
+/**
+ * The left pad of a frame in a star of ranks (`layout=ranks`), where lines come straight down into the middle of its
+ * members: wide enough that the line into the leftmost member, and a parallel beside it, pass right of the head.
+ */
+function clearOfHead(g: ArchGroup, model: ArchitectureModel, look: Look, head: Framed['head'], left: number): number {
+  const first = model.nodes
+    .filter((n) => g.members.includes(n.id))
+    .sort((a, b) => model.cols.indexOf(a.at?.col ?? '') - model.cols.indexOf(b.at?.col ?? ''))[0];
+  if (!model.ranks || !head || head.origin === 'middle' || !first) return left;
+  const m = look.metrics;
+  const half = Math.max(m.nodeW, nodeWidth(first, look)) / 2;
+  return Math.max(left, Math.ceil(head.x + head.w + 2 * m.portSpread + m.labelGap - half));
+}
+
 /** A frame of the model as a container of the layout graph, with its sides, column and head in the grid. */
 export function frameOf(g: ArchGroup, model: ArchitectureModel, look: Look, texts: Texts): Framed {
   const head = headRect(g, look, g.team ?? (g.role ? texts.roles[g.role] : ''));
@@ -51,7 +66,7 @@ export function frameOf(g: ArchGroup, model: ArchitectureModel, look: Look, text
   const at = head ? { x: head.x, y: head.y, ...(head.origin ? { origin: head.origin } : {}) } : undefined;
   const frame: GraphFrameCell = {
     frame: g.id,
-    left: p.left,
+    left: clearOfHead(g, model, look, head, p.left),
     right: p.right,
     ...(g.cover ? { cover: g.cover } : {}),
     ...(at ? { head: at } : {}),

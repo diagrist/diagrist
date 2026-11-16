@@ -144,6 +144,8 @@ export interface GridEdge {
   readonly bundle?: string;
   /** A column the edge runs in: vertical edges attach in its middle and reach into frames at their ends. */
   readonly lane?: string;
+  /** The last column of a lane over several columns: the edge runs in the middle of all of them. */
+  readonly laneTo?: string;
   /** How far a loop reaches out; default `loopReach`. */
   readonly loopReach?: number;
   /**

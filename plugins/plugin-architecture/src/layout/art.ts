@@ -7,6 +7,8 @@ import { blockForm, isCircle, isFigure, STATUS_GAP, secondLine, TUBE_MEASURES as
 import { tabParts } from './tab.js';
 
 const HEAD_R = 9;
+/** How far the head of a stick figure reaches above the figure's box. */
+export const FIGURE_RISE = 4;
 /** The step between the lines below a stick figure. */
 const PERSON_LINE = 14;
 const CORNER = 15;
@@ -21,7 +23,7 @@ export const linesBelow = (from: Spot, count: number, step: number): Spot[] =>
 
 function personArt(n: ArchNode, rect: Rect): PersonArt {
   const x = rect.x + rect.w / 2;
-  const y = rect.y - 4;
+  const y = rect.y - FIGURE_RISE;
   return {
     kind: 'person',
     head: { cx: x, cy: y + 9, r: HEAD_R },

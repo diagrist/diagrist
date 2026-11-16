@@ -84,6 +84,8 @@ export interface ArchEdge {
   readonly mark?: string;
   readonly bundle?: string;
   readonly lane?: string;
+  /** The last column of a lane over several columns, set by a star of ranks (`layout=ranks`). */
+  readonly laneTo?: string;
   readonly tone?: Tone;
   /** The area the edge names itself (ADR 0033); the scene falls back to the areas of its ends. */
   readonly area?: string;
@@ -134,6 +136,10 @@ export interface ArchitectureModel {
   /** Where decision notes stand (`decisions=`): beside the picture, below it, or below once it is wide. */
   readonly decisionsAt: 'right' | 'below' | 'auto';
   readonly adaptive: boolean;
+  /** Laid out as a star of ranks (`layout=ranks`): places are the layout's, not the author's. */
+  readonly ranks?: boolean;
+  /** Columns that are halves, each neighbour spanning two, so a shorter band stands centred over a longer one. */
+  readonly halfCols?: readonly string[];
   readonly cols: readonly string[];
   readonly rows: readonly string[];
   readonly grids: readonly GridLine[];

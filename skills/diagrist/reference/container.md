@@ -5,7 +5,7 @@
 A C4 container diagram (level 2): the applications and data stores of a system, grouped by responsibility, placed in a named grid. Full reference with every argument: `dgr grammar container --json`.
 
 ```text
-diagram container "Title" [subtitle=<text>] [label=<text>] [look=<plain|cards|blocks|paper|columns|lowfi>] [decisions=<right|below|auto>] [layout=<adaptive>] [areas=<tint|outline|stripe>] [locale=<en|de>]
+diagram container "Title" [subtitle=<text>] [label=<text>] [look=<plain|cards|blocks|paper|columns|lowfi>] [decisions=<right|below|auto>] [layout=<adaptive|ranks>] [areas=<tint|outline|stripe>] [locale=<en|de>]
 ```
 
 | Line | Where | What it does | Example |

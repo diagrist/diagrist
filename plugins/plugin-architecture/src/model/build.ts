@@ -6,6 +6,7 @@ import type { ArchitectureStatement } from '../grammar/spec.js';
 import { DEFAULT_LOOK, type LookName } from '../looks/index.js';
 import { compact } from './compact.js';
 import { edgesOf } from './edges.js';
+import { ranked } from './ranks.js';
 import type { ArchGroup, ArchitectureModel, ArchNode, Role } from './types.js';
 
 type Of<K extends ArchitectureStatement['keyword']> = Extract<ArchitectureStatement, { keyword: K }>;
@@ -81,7 +82,7 @@ export function architectureModel(level: Level, reading: KindReading<Architectur
   const grids = only(all, 'grid').map((g) => ({ axis: g.axis, names: g.names, source: g.span }));
   const names = (axis: 'cols' | 'rows') => grids.filter((g) => g.axis === axis).flatMap((g) => g.names);
   const { edges, flows } = edgesOf(only(all, 'flow'), only(all, 'edge'), styles);
-  return {
+  const model: ArchitectureModel = {
     level,
     title: reading.header?.title ?? '',
     look: (header.look as LookName | undefined) ?? DEFAULT_LOOK,
@@ -104,4 +105,5 @@ export function architectureModel(level: Level, reading: KindReading<Architectur
     areas: readAreas(all, header),
     ...compact({ subtitle: header.subtitle as string | undefined, label: header.label as string | undefined }),
   };
+  return header.layout === 'ranks' ? ranked(model) : model;
 }
