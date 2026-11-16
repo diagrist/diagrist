@@ -1,0 +1,21 @@
+# Lab: seven neighbours, inbound and outbound, plus two edges between neighbours.
+diagram context "Stadtwerke-Portal im Systemkontext" subtitle="Wer und was um das Portal herum" locale=de
+person kunde "Privatkunde" tech="Strom und Gas"
+person gewerbe "Gewerbekunde" tech="mehrere Lieferstellen"
+person service "Kundenservice" tech="bearbeitet Anliegen"
+system portal "Kundenportal" tech="Verträge, Zählerstände, Rechnungen" emph
+system sap "SAP IS-U" tech="Abrechnung"
+system msb "Messstellenbetreiber" tech="Smart-Meter-Daten"
+system zahlung "Zahlungsanbieter" tech="Lastschrift und Karte"
+system crm "CRM" tech="Kundenhistorie"
+system mail "Versanddienst" tech="E-Mail und Brief"
+edge kunde -> portal "meldet Zählerstand" via=HTTPS
+edge gewerbe -> portal "lädt Rechnungen" via=HTTPS
+edge service -> portal "sieht Anliegen"
+edge portal -> sap "liest Verträge" via=RFC
+edge msb ~> portal "liefert Messwerte" via=AS4
+edge portal -> zahlung "bucht ab" via=HTTPS
+edge portal -> crm "schreibt Kontakte" via=REST
+edge portal -> mail "verschickt Bescheide" via=SMTP
+edge sap -> zahlung "Mandate" via=SEPA
+edge crm -> sap "Kundendaten" via=RFC

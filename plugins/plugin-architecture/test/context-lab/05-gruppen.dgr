@@ -1,0 +1,18 @@
+# Lab: neighbours in frames, one group of partners and one of shared infrastructure.
+diagram context "Onlineshop im Systemkontext" locale=de
+group partner "Partner" external
+group infra "Plattform-Team" shared
+person kundin "Kundin" tech="kauft ein"
+person lager "Lagerteam" tech="packt Pakete"
+system shop "Onlineshop" tech="Katalog, Warenkorb, Bestellungen" emph
+system dhl "Paketdienst" tech="Sendungen" in partner
+system psp "Zahlungsdienst" tech="Karte, PayPal" in partner
+system erp "ERP" tech="Bestand und Buchhaltung" in infra
+system idp "Login-Dienst" tech="Konten" in infra
+edge kundin -> shop "bestellt" via=HTTPS
+edge shop -> psp "bucht" via=HTTPS
+edge shop -> dhl "meldet Sendung an" via=REST
+edge dhl ~> shop "meldet Zustellung" via=Webhook
+edge shop -> erp "bucht Bestellung" via=SOAP
+edge shop -> idp "prüft Anmeldung" via=OIDC
+edge erp -> lager "erzeugt Packliste"

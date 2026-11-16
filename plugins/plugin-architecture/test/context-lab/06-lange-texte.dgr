@@ -1,0 +1,11 @@
+# Lab: long names and long labels around a small system.
+diagram context "Fördermittelantrag im Systemkontext" locale=de
+person antragsteller "Antragstellende Organisation" tech="Vereine, Kommunen und gemeinnützige Träger"
+person sachbearbeitung "Sachbearbeitung im Förderreferat" tech="prüft, fordert nach, bewilligt"
+system antrag "Antragsportal" tech="Formulare, Nachweise, Bescheide" emph
+system eakte "Elektronische Akte des Landes" tech="revisionssichere Ablage"
+system haushalt "Haushaltsmanagementsystem" tech="Mittelbindung und Auszahlung"
+edge antragsteller -> antrag "reicht Antrag mit allen Nachweisen ein" via=HTTPS
+edge sachbearbeitung -> antrag "prüft Vollständigkeit und entscheidet" via=HTTPS
+edge antrag -> eakte "legt Vorgang und Bescheid revisionssicher ab" via=XTA
+edge antrag -> haushalt "bindet bewilligte Mittel" via=REST

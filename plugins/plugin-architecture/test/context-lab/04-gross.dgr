@@ -1,0 +1,28 @@
+# Lab: twelve neighbours around one system, four people and eight systems, both directions.
+diagram context "Lernplattform im Systemkontext" subtitle="Alle Beteiligten, Stand November" locale=de
+person azubi "Auszubildende" tech="lernt und übt"
+person ausbilder "Ausbilder" tech="verfolgt Fortschritt"
+person autor "Autorin" tech="schreibt Kurse"
+person support "Support" tech="hilft bei Fragen"
+system plattform "Lernplattform" tech="Kurse, Übungen, Prüfungsvorbereitung" emph
+system stripe "Stripe" tech="Abos und Rechnungen"
+system mail "Mailversand" tech="SES"
+system labs "Lab-Server" tech="Übungsumgebungen"
+system ihk "IHK-Portal" tech="Prüfungstermine"
+system sso "Firmen-SSO" tech="SAML und OIDC"
+system analytics "Analytics" tech="Nutzungsdaten"
+system crisp "Crisp" tech="Chat"
+system cdn "Video-CDN" tech="Lernvideos"
+edge azubi -> plattform "lernt" via=HTTPS
+edge ausbilder -> plattform "sieht Berichte" via=HTTPS
+edge autor -> plattform "pflegt Kurse" via=HTTPS
+edge support -> crisp "antwortet"
+edge plattform -> stripe "rechnet ab" via=HTTPS
+edge stripe ~> plattform "meldet Zahlungen" via=Webhook
+edge plattform -> mail "verschickt Mails" via=SMTP
+edge plattform -> labs "startet Umgebungen" via=gRPC
+edge plattform -> ihk "liest Termine" via=HTTPS
+edge sso -> plattform "meldet an" via=SAML
+edge plattform ~> analytics "sendet Ereignisse"
+edge plattform -> crisp "öffnet Chat" via=JS
+edge plattform -> cdn "lädt Videos" via=HLS

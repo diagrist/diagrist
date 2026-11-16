@@ -41,3 +41,4 @@ Thumbs.db
 .claude/worktrees/
 .claude/settings.local.json
 .tsbuild/
+_shots/
