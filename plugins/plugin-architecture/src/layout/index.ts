@@ -21,6 +21,7 @@ import { type NoteArt, noteArts, type RemarkLine, remarkArts } from './notes.js'
 import { sheetFor } from './sheet.js';
 import { signsFrom, signsOf } from './signs.js';
 import { crestOf, graphOf } from './spec.js';
+import { starCells } from './star/index.js';
 
 /** An element in the picture with everything inside it. */
 export interface PlacedElement {
@@ -75,7 +76,8 @@ export function layoutArchitecture(model: ArchitectureModel, texts: Texts, local
   const { metrics: m, options: o } = look;
   const frame = bandFrameOf(model, look);
   const { graph, cells, heads } = graphOf(frame.model, look, texts, frame);
-  const laid = layoutGraph({ ...graph, given: { cells: { ...cells, ...signsOf(model, look) } } });
+  const star = model.star ? starCells(model, look, texts, heads, frame.firstRowY) : undefined;
+  const laid = star ?? layoutGraph({ ...graph, given: { cells: { ...cells, ...signsOf(model, look) } } });
   const { grid: pl, routes, labels } = laid;
   const { badges, numbered, marks } = signsFrom(model, laid, look);
   const lines: readonly (readonly Point[])[] = model.adaptive ? routes.map((r) => r.points) : [];

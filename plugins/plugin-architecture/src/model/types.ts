@@ -134,6 +134,8 @@ export interface ArchitectureModel {
   /** Where decision notes stand (`decisions=`): beside the picture, below it, or below once it is wide. */
   readonly decisionsAt: 'right' | 'below' | 'auto';
   readonly adaptive: boolean;
+  /** `layout=star`: the system in the middle, its neighbours on a ring, straight lines; grid and places unused. */
+  readonly star: boolean;
   readonly cols: readonly string[];
   readonly rows: readonly string[];
   readonly grids: readonly GridLine[];

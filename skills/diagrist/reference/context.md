@@ -5,7 +5,7 @@
 A C4 system context diagram (level 1): the system as one box, the people who use it and the systems around it, placed in a named grid. Full reference with every argument: `dgr grammar context --json`.
 
 ```text
-diagram context "Title" [subtitle=<text>] [label=<text>] [look=<plain|cards|blocks|paper|columns|lowfi>] [decisions=<right|below|auto>] [layout=<adaptive>] [areas=<tint|outline|stripe>] [locale=<en|de>]
+diagram context "Title" [subtitle=<text>] [label=<text>] [look=<plain|cards|blocks|paper|columns|lowfi>] [decisions=<right|below|auto>] [layout=<adaptive|star>] [areas=<tint|outline|stripe>] [locale=<en|de>]
 ```
 
 | Line | Where | What it does | Example |
@@ -32,8 +32,8 @@ The rules of `context` report these codes:
 | Code | Severity | What it checks |
 |---|---|---|
 | `A007` | error | A group has exactly one role: `own`, `shared` or `external`. The role draws its frame and mutes shared elements. |
-| `A008` | error | Every element has a place in the grid with `at column/row`. |
-| `A103` | error | Column and row of `at` are names of the grid. |
+| `A008` | error | Every element has a place in the grid with `at column/row`, unless `layout=star` places them. |
+| `A103` | error | Column and row of `at` are names of the grid; `layout=star` ignores places. |
 | `A105` | error | An edge connects two different elements or groups. |
 | `A106` | error | Every column and every row is named once. |
 | `A107` | error | An edge does not lead from an element to the group that holds it, or back. |

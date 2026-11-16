@@ -10,7 +10,8 @@ import { grid, group, layer, noteTable, style } from './frames.js';
 const lookEntry = (name: LookName): string =>
   `\`${name}\`${name === DEFAULT_LOOK ? ' (default)' : ''} ${LOOKS[name].doc}`;
 
-const header = {
+/** The header of a level: only a context diagram can lay out its neighbours as a star around its system. */
+const headerOf = (level: Level) => ({
   subtitle: attr(text(), 'Second line below the title.'),
   label: attr(text(), 'Name before the title instead of the kind; an empty `label=""` leaves only the title.'),
   look: attr(oneOf(LOOK_NAMES), `${LOOK_NAMES.map(lookEntry).join(', ')}.`),
@@ -18,13 +19,19 @@ const header = {
     oneOf(['right', 'below', 'auto']),
     'Where a look that writes decisions as notes sets them: `right` (default) in a column beside the picture, `below` side by side under it, `auto` below once the picture is wider than 1,100 pixels, as a printed page needs.',
   ),
-  layout: attr(
-    oneOf(['adaptive']),
-    'Columns grow to their content and edges find their own way around obstacles; without it the grid is fixed.',
-  ),
+  layout:
+    level === 'context'
+      ? attr(
+          oneOf(['adaptive', 'star']),
+          '`adaptive`: columns grow to their content and edges find their own way around obstacles; `star`: the system in the middle, its neighbours on a ring around it, every edge a straight line, no grid and no `at` needed. Without it the grid is fixed.',
+        )
+      : attr(
+          oneOf(['adaptive']),
+          'Columns grow to their content and edges find their own way around obstacles; without it the grid is fixed.',
+        ),
   areas: areasAttribute,
   locale: localeAttribute,
-};
+});
 
 const DOCS: Readonly<Record<Level, string>> = {
   context:
@@ -47,7 +54,7 @@ function statementsOf(level: Level) {
 
 /** The statement tables of one C4 level: the same tables for all levels, the elements as the level allows. */
 export const architectureSpec = (level: Level) =>
-  kind(level, { doc: DOCS[level], header, statements: statementsOf(level) });
+  kind(level, { doc: DOCS[level], header: headerOf(level), statements: statementsOf(level) });
 
 /** Typed value of a top-level statement of any level, derived from the tables (ADR 0004). */
 export type ArchitectureStatement = Infer<ReturnType<typeof statementsOf>[number]>;

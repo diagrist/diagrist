@@ -9,7 +9,7 @@ This page lists everything a `context` diagram may contain. The same grammar is 
 ## The first line
 
 ```text
-diagram context "Title" [subtitle=<text>] [label=<text>] [look=<plain|cards|blocks|paper|columns|lowfi>] [decisions=<right|below|auto>] [layout=<adaptive>] [areas=<tint|outline|stripe>] [locale=<en|de>]
+diagram context "Title" [subtitle=<text>] [label=<text>] [look=<plain|cards|blocks|paper|columns|lowfi>] [decisions=<right|below|auto>] [layout=<adaptive|star>] [areas=<tint|outline|stripe>] [locale=<en|de>]
 ```
 
 Every context diagram starts with this line.
@@ -20,7 +20,7 @@ Every context diagram starts with this line.
 | `label=` | attribute | a text in double quotes like `"Order service"` | Name before the title instead of the kind; an empty `label=""` leaves only the title. |
 | `look=` | attribute | one of `plain`, `cards`, `blocks`, `paper`, `columns`, `lowfi` | `plain` (default) boxes with a legend, `cards` toned icon cards, `blocks` filled blocks as in pattern books, `paper` a quiet print look: Inter on paper, zones as areas, the core in yellow, decisions in the margin, `columns` a technical sheet: columns in bands under grey heads, names in the top edge of square boxes, the focus flow heavy, `lowfi` a low-fi sketch: centred texts in white boxes, grey for what exists, dashed for what is optional, compact. |
 | `decisions=` | attribute | one of `right`, `below`, `auto` | Where a look that writes decisions as notes sets them: `right` (default) in a column beside the picture, `below` side by side under it, `auto` below once the picture is wider than 1,100 pixels, as a printed page needs. |
-| `layout=` | attribute | one of `adaptive` | Columns grow to their content and edges find their own way around obstacles; without it the grid is fixed. |
+| `layout=` | attribute | one of `adaptive`, `star` | `adaptive`: columns grow to their content and edges find their own way around obstacles; `star`: the system in the middle, its neighbours on a ring around it, every edge a straight line, no grid and no `at` needed. Without it the grid is fixed. |
 | `areas=` | attribute | one of `tint`, `outline`, `stripe` | How elements of a coloured area are painted: `tint` (default) a light fill and the outline in its tone, `outline` the outline and the name in its tone, `stripe` a stripe of its tone at the left edge. Lines and frames of an area are drawn in its tone in each. |
 | `locale=` | attribute | one of `en`, `de` | Language of the texts Diagrist adds to the picture and of the description: `en` (default) or `de`. |
 
@@ -510,8 +510,8 @@ Besides the codes of the language and the kernel, listed in [the overview](READM
 | Code | Severity | What it checks |
 |---|---|---|
 | `A007` | error | A group has exactly one role: `own`, `shared` or `external`. The role draws its frame and mutes shared elements. |
-| `A008` | error | Every element has a place in the grid with `at column/row`. |
-| `A103` | error | Column and row of `at` are names of the grid. |
+| `A008` | error | Every element has a place in the grid with `at column/row`, unless `layout=star` places them. |
+| `A103` | error | Column and row of `at` are names of the grid; `layout=star` ignores places. |
 | `A105` | error | An edge connects two different elements or groups. |
 | `A106` | error | Every column and every row is named once. |
 | `A107` | error | An edge does not lead from an element to the group that holds it, or back. |

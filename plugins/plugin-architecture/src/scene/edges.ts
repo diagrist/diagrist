@@ -7,10 +7,15 @@ import { haloPieces, type Surface } from './surfaces.js';
 const pathOf = (points: readonly Point[]): string =>
   points.map(([x, y], k) => `${k === 0 ? 'M' : 'L'}${x} ${y}`).join(' ');
 
+/** The unit vector from `b` to `a`, along slanted lines too. */
+function unit(a: Point, b: Point): Point {
+  const len = Math.hypot(a[0] - b[0], a[1] - b[1]) || 1;
+  return [(a[0] - b[0]) / len, (a[1] - b[1]) / len];
+}
+
 /** A filled head at `tip`, coming from `from`: `size` long, half as wide. */
 function head(tip: Point, from: Point, size: number, tone: Tone): Shape {
-  const dx = Math.sign(tip[0] - from[0]);
-  const dy = Math.sign(tip[1] - from[1]);
+  const [dx, dy] = unit(tip, from);
   const back: Point = [tip[0] - dx * size, tip[1] - dy * size];
   const w = size * 0.5;
   const d = `M${tip[0]} ${tip[1]} L${back[0] - dy * w} ${back[1] + dx * w} L${back[0] + dy * w} ${back[1] - dx * w} Z`;
@@ -23,7 +28,8 @@ function trim(points: readonly Point[], end: boolean, by: number): Point[] {
   const [i, j] = end ? [out.length - 1, out.length - 2] : [0, 1];
   const a = out[i] as Point;
   const b = out[j] as Point;
-  out[i] = [a[0] - Math.sign(a[0] - b[0]) * by, a[1] - Math.sign(a[1] - b[1]) * by];
+  const [dx, dy] = unit(a, b);
+  out[i] = [a[0] - dx * by, a[1] - dy * by];
   return out;
 }
 
