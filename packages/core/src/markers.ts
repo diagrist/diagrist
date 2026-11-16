@@ -1,3 +1,4 @@
+import { lineEndOf, unitOf } from './ends/heads.js';
 import type { Shape } from './scene.js';
 import type { Marker, Styles } from './styles.js';
 
@@ -17,17 +18,20 @@ const PATH_NUMBER = /-?(?:\d+\.?\d*|\.\d+)(?:e[-+]?\d+)?/gi;
 export const pathData = (d: string): string => d.replace(PATH_NUMBER, (n) => num(Number(n)));
 
 /**
- * A marker drawn in a grid of 12 units, scaled to `size`, as `<marker id="m-<id>">`. `suffix` and `cls` write a copy
- * for one area, `m-<id>-<suffix>` in a `<marker>` of that class, so the area's rules paint its outline.
+ * A marker drawn in a grid of 12 units, scaled to `size`, as `<marker id="m-<id>">`. Its reference point is where
+ * the fitted line ends inside the head (`lineEndOf`), and it may draw past its box, so the miter of a stroked tip is
+ * not cut off. `suffix` and `cls` write a copy for one area, `m-<id>-<suffix>` in a `<marker>` of that class, so the
+ * area's rules paint its outline.
  */
 export function markerElement(m: Marker, size: number, suffix?: string, cls?: string): string {
-  const unit = (n: number) => num((n * size) / 12);
+  const unit = (n: number) => num(n * unitOf(m, size));
+  const box = num(size * (m.scale ?? 1));
   const outline =
     m.shape.points.map(([x, y], i) => `${i === 0 ? 'M' : 'L'}${unit(x)} ${unit(y)}`).join(' ') +
     (m.shape.closed === true ? ' Z' : '');
   const id = suffix === undefined ? m.id : `${m.id}-${suffix}`;
   const of = cls === undefined ? '' : ` class="${cls}"`;
-  return `<marker id="m-${id}"${of} markerUnits="userSpaceOnUse" markerWidth="${size}" markerHeight="${size}" refX="${unit(11)}" refY="${unit(6)}" orient="${m.orient ?? 'auto'}"><path d="${outline}" class="${m.name}" stroke-linecap="round"/></marker>`;
+  return `<marker id="m-${id}"${of} markerUnits="userSpaceOnUse" markerWidth="${box}" markerHeight="${box}" refX="${unit(lineEndOf(m, size))}" refY="${unit(6)}" orient="${m.orient ?? 'auto'}" overflow="visible"><path d="${outline}" class="${m.name}" stroke-linecap="round"/></marker>`;
 }
 
 /** The markers a scene's paths end in: those `<defs>` holds, and the classes that paint any of them. */

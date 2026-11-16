@@ -24,7 +24,7 @@
   .diagrist .outline-blue { fill: #ffffff; stroke: #2b7de9; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
   .diagrist .outline-teal { fill: #ffffff; stroke: #0b5d4b; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
   .diagrist .outline-slate { fill: #ffffff; stroke: #37474f; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
-</style><rect width="1048" height="786" fill="#fafafa"/><defs><marker id="m-open" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto"><path d="M1 1 L11 6 L1 11" class="arrow-open" stroke-linecap="round"/></marker></defs>
+</style><rect width="1048" height="786" fill="#fafafa"/><defs><marker id="m-open" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto" overflow="visible"><path d="M1 1 L11 6 L1 11" class="arrow-open" stroke-linecap="round"/></marker></defs>
 <text x="32" y="36" class="label-title">Use-Case-Diagramm (UML) · Auftragsabwicklung</text>
 <text x="32" y="52" class="label-note">Anwendungsfälle mit Fremdsystemen</text>
 <g id="group-system"><rect x="224" y="72" width="560" height="650" rx="12" class="tint-blue"/><text x="236" y="92" class="label-bold">Auftragsabwicklung</text></g>
@@ -45,11 +45,11 @@
 <g id="edge-1"><path d="M123 597.8 L286.1 579" class="line halo"/><path d="M123 597.8 L286.1 579" class="line"/></g>
 <g id="edge-2"><path d="M122.9 349.2 L280.8 395.6" class="line halo"/><path d="M122.9 349.2 L280.8 395.6" class="line"/></g>
 <g id="edge-3"><path d="M122.9 605.5 L295.2 643" class="line halo"/><path d="M122.9 605.5 L295.2 643" class="line"/></g>
-<g id="edge-4"><path d="M449.5 308.2 L597.4 336.2" class="line halo"/><path d="M449.5 308.2 L597.4 336.2" class="line dashed" marker-end="url(#m-open)"/></g>
-<g id="edge-5"><path d="M452.5 280 L594.6 260.8" class="line halo"/><path d="M452.5 280 L594.6 260.8" class="line dashed" marker-end="url(#m-open)"/></g>
-<g id="edge-6"><path d="M463.3 425.4 L577.5 431.5" class="line halo"/><path d="M463.3 425.4 L577.5 431.5" class="line dashed" marker-end="url(#m-open)"/></g>
-<g id="edge-7"><path d="M612.7 171 L428.5 260.6" class="line halo"/><path d="M612.7 171 L428.5 260.6" class="line dashed" marker-end="url(#m-open)"/></g>
-<g id="edge-8"><path d="M608.5 519.1 L437.5 449.8" class="line halo"/><path d="M608.5 519.1 L437.5 449.8" class="line dashed" marker-end="url(#m-open)"/></g>
+<g id="edge-4"><path d="M449.5 308.2 L594.6 335.7" class="line halo"/><path d="M449.5 308.2 L594.6 335.7" class="line dashed" marker-end="url(#m-open)"/></g>
+<g id="edge-5"><path d="M452.5 280 L592.2 261.1" class="line halo"/><path d="M452.5 280 L592.2 261.1" class="line dashed" marker-end="url(#m-open)"/></g>
+<g id="edge-6"><path d="M463.3 425.4 L575 431.4" class="line halo"/><path d="M463.3 425.4 L575 431.4" class="line dashed" marker-end="url(#m-open)"/></g>
+<g id="edge-7"><path d="M612.7 171 L430.8 259.5" class="line halo"/><path d="M612.7 171 L430.8 259.5" class="line dashed" marker-end="url(#m-open)"/></g>
+<g id="edge-8"><path d="M608.5 519.1 L440 450.8" class="line halo"/><path d="M608.5 519.1 L440 450.8" class="line dashed" marker-end="url(#m-open)"/></g>
 <g id="edge-9"><path d="M728 251 L885 248.6" class="line halo"/><path d="M728 251 L885 248.6" class="line"/></g>
 <g id="edge-10"><path d="M687.8 458.6 L891.3 624.1" class="line halo"/><path d="M687.8 458.6 L891.3 624.1" class="line"/></g>
 <g id="edge-11"><path d="M452 657.4 L853 654.5" class="line halo"/><path d="M452 657.4 L853 654.5" class="line"/></g>

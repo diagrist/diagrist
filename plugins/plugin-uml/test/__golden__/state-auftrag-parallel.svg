@@ -11,7 +11,7 @@
   .diagrist .halo { paint-order: stroke; stroke: #fafafa; stroke-width: 4px; stroke-linejoin: round; }
   .diagrist .uml-member { fill: #18181b; font-size: 11px; }
   .diagrist .uml-filled { fill: #18181b; stroke: #18181b; stroke-width: 1.5; stroke-linejoin: miter; }
-</style><rect width="745" height="1147" fill="#fafafa"/><defs><marker id="m-uml-open" markerUnits="userSpaceOnUse" markerWidth="18" markerHeight="18" refX="16.5" refY="9" orient="auto"><path d="M6.5 4 L16.5 9 L6.5 14" class="arrow-open" stroke-linecap="round"/></marker></defs>
+</style><rect width="745" height="1147" fill="#fafafa"/><defs><marker id="m-uml-open" markerUnits="userSpaceOnUse" markerWidth="18" markerHeight="18" refX="16.5" refY="9" orient="auto" overflow="visible"><path d="M6.5 4 L16.5 9 L6.5 14" class="arrow-open" stroke-linecap="round"/></marker></defs>
 <text x="32" y="36" class="label-title">Zustandsdiagramm (UML) · Auftrag</text>
 <text x="32" y="52" class="label-note">Zahlung und Versand parallel</text>
 <g id="group-bearbeitung"><path d="M56 416 L601 416 Q613 416 613 428 L613 758 Q613 770 601 770 L68 770 Q56 770 56 758 Z" class="shape"/><path d="M56 392 Q56 386 62 386 L175 386 Q181 386 181 392 L181 416 L56 416 Z" class="shape"/><text x="68" y="405" text-anchor="start" class="label-bold">In Bearbeitung</text><line x1="325" y1="416" x2="325" y2="770" class="line dashed"/><text x="68" y="430" text-anchor="start" class="label">Versand</text><text x="337" y="430" text-anchor="start" class="label">Zahlung</text></g>
@@ -29,21 +29,21 @@
 <g id="node-storniert"><rect x="489" y="818" width="184" height="55" rx="12" class="shape"/><text x="581" y="837" text-anchor="middle" class="label-bold">Storniert</text><line x1="489" y1="848" x2="673" y2="848" class="line"/><text x="501" y="865" text-anchor="start" class="uml-member">entry / Ware zurückholen</text></g>
 <g id="node-ende"><circle cx="323" cy="1078" r="13" class="shape"/><circle cx="323" cy="1078" r="7" class="uml-filled"/></g>
 <g id="node-storno"><circle cx="551" cy="770" r="8" class="shape"/><line x1="545.3" y1="764.3" x2="556.7" y2="775.7" class="line"/><line x1="545.3" y1="775.7" x2="556.7" y2="764.3" class="line"/><text x="565" y="788" text-anchor="start" class="label-note">Storno</text></g>
-<g id="edge-0"><path d="M367 148 L367 220" class="line halo"/><path d="M367 148 L367 220" class="line" marker-end="url(#m-uml-open)"/></g>
-<g id="edge-1"><path d="M367 268 L367 340" class="line halo"/><path d="M367 268 L367 340" class="line" marker-end="url(#m-uml-open)"/></g>
-<g id="edge-2"><path d="M529 346 L529 458" class="line halo"/><path d="M529 346 L529 458" class="line" marker-end="url(#m-uml-open)"/></g>
-<g id="edge-3"><path d="M205 346 L205 458" class="line halo"/><path d="M205 346 L205 458" class="line" marker-end="url(#m-uml-open)"/></g>
-<g id="edge-4"><path d="M485 506 L485 578" class="line halo"/><path d="M485 506 L485 578" class="line" marker-end="url(#m-uml-open)"/></g>
-<g id="edge-5"><path d="M441 626 L441 698" class="line halo"/><path d="M441 626 L441 698" class="line" marker-end="url(#m-uml-open)"/></g>
-<g id="edge-6"><path d="M205 506 L205 578" class="line halo"/><path d="M205 506 L205 578" class="line" marker-end="url(#m-uml-open)"/></g>
-<g id="edge-7"><path d="M205 626 L205 698" class="line halo"/><path d="M205 626 L205 698" class="line" marker-end="url(#m-uml-open)"/></g>
-<g id="edge-8"><path d="M441 746 L441 842.5" class="line halo"/><path d="M441 746 L441 842.5" class="line" marker-end="url(#m-uml-open)"/></g>
-<g id="edge-9"><path d="M205 746 L205 842.5" class="line halo"/><path d="M205 746 L205 842.5" class="line" marker-end="url(#m-uml-open)"/></g>
-<g id="edge-10"><path d="M323 848.5 L323 945" class="line halo"/><path d="M323 848.5 L323 945" class="line" marker-end="url(#m-uml-open)"/></g>
-<g id="edge-11"><path d="M323 993 L323 1065" class="line halo"/><path d="M323 993 L323 1065" class="line" marker-end="url(#m-uml-open)"/></g>
-<g id="edge-12"><path d="M551 506 L551 762" class="line halo"/><path d="M551 506 L551 762" class="line" marker-end="url(#m-uml-open)"/></g>
-<g id="edge-13"><path d="M551 778 L551 818" class="line halo"/><path d="M551 778 L551 818" class="line" marker-end="url(#m-uml-open)"/></g>
-<g id="edge-14"><path d="M673 845.5 L697 845.5 L697 1078 L336 1078" class="line halo"/><path d="M673 845.5 L697 845.5 L697 1078 L336 1078" class="line" marker-end="url(#m-uml-open)"/></g>
+<g id="edge-0"><path d="M367 148 L367 217.6" class="line halo"/><path d="M367 148 L367 217.6" class="line" marker-end="url(#m-uml-open)"/></g>
+<g id="edge-1"><path d="M367 268 L367 337.6" class="line halo"/><path d="M367 268 L367 337.6" class="line" marker-end="url(#m-uml-open)"/></g>
+<g id="edge-2"><path d="M529 346 L529 455.6" class="line halo"/><path d="M529 346 L529 455.6" class="line" marker-end="url(#m-uml-open)"/></g>
+<g id="edge-3"><path d="M205 346 L205 455.6" class="line halo"/><path d="M205 346 L205 455.6" class="line" marker-end="url(#m-uml-open)"/></g>
+<g id="edge-4"><path d="M485 506 L485 575.6" class="line halo"/><path d="M485 506 L485 575.6" class="line" marker-end="url(#m-uml-open)"/></g>
+<g id="edge-5"><path d="M441 626 L441 695.6" class="line halo"/><path d="M441 626 L441 695.6" class="line" marker-end="url(#m-uml-open)"/></g>
+<g id="edge-6"><path d="M205 506 L205 575.6" class="line halo"/><path d="M205 506 L205 575.6" class="line" marker-end="url(#m-uml-open)"/></g>
+<g id="edge-7"><path d="M205 626 L205 695.6" class="line halo"/><path d="M205 626 L205 695.6" class="line" marker-end="url(#m-uml-open)"/></g>
+<g id="edge-8"><path d="M441 746 L441 840.1" class="line halo"/><path d="M441 746 L441 840.1" class="line" marker-end="url(#m-uml-open)"/></g>
+<g id="edge-9"><path d="M205 746 L205 840.1" class="line halo"/><path d="M205 746 L205 840.1" class="line" marker-end="url(#m-uml-open)"/></g>
+<g id="edge-10"><path d="M323 848.5 L323 942.6" class="line halo"/><path d="M323 848.5 L323 942.6" class="line" marker-end="url(#m-uml-open)"/></g>
+<g id="edge-11"><path d="M323 993 L323 1062.6" class="line halo"/><path d="M323 993 L323 1062.6" class="line" marker-end="url(#m-uml-open)"/></g>
+<g id="edge-12"><path d="M551 506 L551 759.6" class="line halo"/><path d="M551 506 L551 759.6" class="line" marker-end="url(#m-uml-open)"/></g>
+<g id="edge-13"><path d="M551 778 L551 815.6" class="line halo"/><path d="M551 778 L551 815.6" class="line" marker-end="url(#m-uml-open)"/></g>
+<g id="edge-14"><path d="M673 845.5 L697 845.5 L697 1078 L338.4 1078" class="line halo"/><path d="M673 845.5 L697 845.5 L697 1078 L338.4 1078" class="line" marker-end="url(#m-uml-open)"/></g>
 <g id="label-1"><text x="375" y="308" text-anchor="start" class="label halo">bestätigen</text></g>
 <g id="label-4"><text x="477" y="520" text-anchor="end" class="label halo">Zahlung</text><text x="477" y="532" text-anchor="end" class="label halo">autorisiert</text></g>
 <g id="label-5"><text x="433" y="642" text-anchor="end" class="label halo">Ware versandt</text></g>

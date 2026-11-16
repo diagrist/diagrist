@@ -2,6 +2,7 @@ import { xmlSafe } from '@diagrist/lang';
 import { areaClass, areaDefs, areaRules } from './areas/paint.js';
 import type { AreaTone } from './areas/tones.js';
 import { areaUses } from './areas/uses.js';
+import { fitEnds } from './ends/fit.js';
 import { markerElement, markersInUse, num, pathData } from './markers.js';
 import type { Scene, Shape, TextRun } from './scene.js';
 import { classesOf, type Icon, type Styles } from './styles.js';
@@ -35,7 +36,9 @@ export function toSvg(scene: Scene, styles: Styles, options: SvgOptions = {}): s
     options.inline === true
       ? ''
       : `<style>${sheet()}</style><rect width="${width}" height="${height}" fill="${styles.canvas}"/>`;
-  const body = scene.children.map((shape) => element(shape, styles)).join('\n');
+  const body = fitEnds(scene.children, styles)
+    .map((shape) => element(shape, styles))
+    .join('\n');
   const defs = `<defs>${markers.plain.map((m) => markerElement(m, styles.markerSize)).join('')}${areaDefs(styles, areas, paint)}</defs>`;
   return `${head}<title>${title}</title>${style}${defs}\n${body}\n</svg>\n`;
 }

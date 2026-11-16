@@ -1,4 +1,12 @@
-import { FONT_STACKS, type StyleRule, type Styles, standardStyles } from '@diagrist/core';
+import {
+  FONT_STACKS,
+  MARKER_SHAPES,
+  type Marker,
+  type StyleRule,
+  type Styles,
+  standardStyles,
+  TONE_NAMES,
+} from '@diagrist/core';
 import { ICONS } from '../icons/index.js';
 import type { Look } from '../looks/look.js';
 import { compact } from '../model/compact.js';
@@ -17,6 +25,17 @@ function overlay(base: readonly StyleRule[], own: readonly StyleRule[]): StyleRu
 }
 
 /**
+ * Heads of lines in a tone, filled in the tone and 2.4 times the size of the others, so the triangle is twice as
+ * long as `markerSize`, in proportion to the thick toned line.
+ */
+const TONED_MARKERS: readonly Marker[] = TONE_NAMES.map((t) => ({
+  id: `toned-${t}`,
+  shape: MARKER_SHAPES.triangle,
+  name: `tone-${t}`,
+  scale: 2.4,
+}));
+
+/**
  * The style table of a look, one way for every look: the standard look with the C4 roles, rules and icons, the
  * look's roles and rules laid over them, the root in the font of `paint.root`, and canvas and arrowheads where the
  * look sets its own.
@@ -29,13 +48,14 @@ export function stylesOf(look: Look): Styles {
     fonts,
     measures: { fonts, strokes: paint.strokes },
   });
-  const { fontKerning, canvas, markers, areaColors } = paint;
+  const { fontKerning, canvas, areaColors } = paint;
   const root = fonts[paint.root];
   return {
     ...base,
     fontFamily: root.family === undefined ? base.fontFamily : FONT_STACKS[root.family],
     fontSize: root.size,
-    ...compact({ fontKerning, canvas, markers, areaColors }),
+    ...compact({ fontKerning, canvas, areaColors }),
+    markers: [...(paint.markers ?? base.markers), ...TONED_MARKERS],
     markerSize: look.metrics.markerSize,
     rules: overlay(base.rules, paint.rules(fonts, paint.strokes)),
     icons: ICONS,

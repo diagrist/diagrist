@@ -16,7 +16,10 @@ export type Shape =
     }
   | {
       readonly kind: 'path';
-      /** SVG path data, written out unchanged. */
+      /**
+       * SVG path data, written out unchanged, except that a polyline ending in a marker is shortened to fit its head
+       * (`fitEnds`).
+       */
       readonly d: string;
       readonly role: string;
       /** Moves the path by `[dx, dy]`, e.g. a shadow below the shape it copies. */
