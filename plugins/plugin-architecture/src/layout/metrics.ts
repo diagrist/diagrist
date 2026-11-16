@@ -77,7 +77,8 @@ export type FontRole =
   | 'replica'
   | 'block'
   | 'heading'
-  | 'large';
+  | 'large'
+  | 'via';
 
 /** The fonts of a look set in the standard face at sizes `f`, as plain, cards and blocks are. */
 export function standardFonts(f: FontSizes): Record<FontRole, Font> {
@@ -95,6 +96,7 @@ export function standardFonts(f: FontSizes): Record<FontRole, Font> {
     block: { size: f.node + 1, weight: 600 },
     heading: { size: f.group + 4, weight: 600 },
     large: { size: f.group + 4 },
+    via: { size: f.label - 1 },
   };
 }
 

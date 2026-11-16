@@ -1,0 +1,9 @@
+# Lab: the smallest useful context, one person and two systems.
+diagram context "Terminbuchung im Systemkontext" locale=de
+person patient "Patientin" tech="bucht online"
+system buchung "Terminbuchung" tech="Kalender und Erinnerungen" emph
+system praxis "Praxissoftware" tech="Stammdaten"
+system sms "SMS-Dienst" tech="Erinnerungen"
+edge patient -> buchung "bucht Termin" via=HTTPS
+edge buchung -> praxis "liest freie Zeiten" via=REST
+edge buchung -> sms "schickt Erinnerung" via=HTTPS

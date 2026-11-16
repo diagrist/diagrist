@@ -44,5 +44,6 @@ export const BLOCKS: Look = {
     layers: 'boxes',
     legend: 'none',
     decisions: 'bar',
+    via: 'same',
   },
 };

@@ -1,6 +1,7 @@
 import { type RoleStyle, TONE_NAMES } from '@diagrist/core';
 import { PART_ROLES } from '@diagrist/parts';
 import type { EdgeKind } from '../grammar/edges.js';
+import { VIA_ROLES } from './via.js';
 
 const r = (...classes: string[]): RoleStyle => ({ classes });
 const each = (make: (tone: string) => [string, RoleStyle]): Record<string, RoleStyle> =>
@@ -125,6 +126,7 @@ export const ARCHITECTURE_ROLES: Readonly<Record<string, RoleStyle>> = {
   layerArrow: r('annotation-arrow'),
   layerText: r('label-note'),
   legendRule: r('legend-rule'),
+  ...VIA_ROLES,
   ...edgeRoles(),
   ...iconRoles(),
   ...each((t) => [`tint-${t}`, r(`tint-${t}`)]),
@@ -132,6 +134,8 @@ export const ARCHITECTURE_ROLES: Readonly<Record<string, RoleStyle>> = {
   ...each((t) => [`block-${t}`, r(`tone-${t}`, 'block-edge')]),
   ...each((t) => [`toned-${t}`, r(`line-${t}`)]),
   ...each((t) => [`toned-${t}-dashed`, r(`line-${t}`, 'dashed')]),
+  ...each((t) => [`toned-${t}-head`, { classes: [`line-${t}`], marker: `toned-${t}` }]),
+  ...each((t) => [`toned-${t}-dashed-head`, { classes: [`line-${t}`, 'dashed'], marker: `toned-${t}` }]),
   ...each((t) => [`noteBox-${t}`, r(`note-box-${t}`)]),
   ...each((t) => [`noteTail-${t}`, r(`note-tail-${t}`)]),
   ...each((t) => [`noteText-${t}`, r(`note-text-${t}`)]),

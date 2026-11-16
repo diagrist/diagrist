@@ -1,0 +1,21 @@
+# Lab: the Radverleih example without grid or places; flows, an async edge and a decision.
+diagram context "Radverleih im Systemkontext" subtitle="Arbeitsstand 02.10.2026, Entwurf zur Diskussion" locale=de
+person fahrerin  "Fahrerin"         tech="leiht per App, zahlt pro Minute"
+person service   "Servicekraft"     tech="verteilt und repariert Räder"
+system verleih   "Radverleih"       tech="App, Ausleihe, Abrechnung" emph mark=E1
+system stationen "Stationen"        tech="Schlösser und Ladepunkte"
+system zahlung   "Zahlungsanbieter" tech="Karte und Lastschrift"
+system karten    "Kartendienst"     tech="Standorte und Routen"
+
+flow ausleihe accent
+  fahrerin -> verleih   "entsperrt ein Rad" via=App
+  verleih  -> stationen "öffnet das Schloss" via=MQTT
+  verleih  -> zahlung   "bucht die Fahrt ab" via=HTTPS
+
+flow wartung primary
+  stationen ~> verleih "meldet Akkustand" via=MQTT
+  verleih   -> service "plant Einsätze" via=App
+
+edge verleih -> karten "zeigt freie Räder" via=HTTPS
+
+adr E1 "Wer steuert die Schlösser?" = "Der Radverleih selbst" => "Sperrlogik und Firmware-Stand bleiben in einer Hand."

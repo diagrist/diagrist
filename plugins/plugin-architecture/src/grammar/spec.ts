@@ -2,15 +2,18 @@ import { AREA_STATEMENT, areasAttribute, localeAttribute } from '@diagrist/core'
 import { attr, type Infer, kind, oneOf, text } from '@diagrist/lang';
 import { adr } from '@diagrist/parts';
 import { DEFAULT_LOOK, LOOK_NAMES, LOOKS, type LookName } from '../looks/index.js';
+import { VIA_FORMS } from '../looks/look.js';
 import { edgeTables } from './edges.js';
 import { ELEMENT_TABLES, LEVEL_ELEMENTS, type Level } from './elements.js';
 import { grid, group, layer, noteTable, style } from './frames.js';
+import { spacing, spacingAttribute } from './spacing.js';
 
 /** A look in the doc of `look=`: its name, `(default)` after the default, and what it draws. */
 const lookEntry = (name: LookName): string =>
   `\`${name}\`${name === DEFAULT_LOOK ? ' (default)' : ''} ${LOOKS[name].doc}`;
 
-const header = {
+/** The header of a level: only a context diagram can lay out its neighbours as a star around its system. */
+const headerOf = (level: Level) => ({
   subtitle: attr(text(), 'Second line below the title.'),
   label: attr(text(), 'Name before the title instead of the kind; an empty `label=""` leaves only the title.'),
   look: attr(oneOf(LOOK_NAMES), `${LOOK_NAMES.map(lookEntry).join(', ')}.`),
@@ -18,13 +21,24 @@ const header = {
     oneOf(['right', 'below', 'auto']),
     'Where a look that writes decisions as notes sets them: `right` (default) in a column beside the picture, `below` side by side under it, `auto` below once the picture is wider than 1,100 pixels, as a printed page needs.',
   ),
-  layout: attr(
-    oneOf(['adaptive']),
-    'Columns grow to their content and edges find their own way around obstacles; without it the grid is fixed.',
+  layout:
+    level === 'context'
+      ? attr(
+          oneOf(['adaptive', 'star']),
+          '`adaptive`: columns grow to their content and edges find their own way around obstacles; `star`: the system in the middle, its neighbours on a ring around it, every edge a straight line, no grid and no `at` needed. Without it the grid is fixed.',
+        )
+      : attr(
+          oneOf(['adaptive']),
+          'Columns grow to their content and edges find their own way around obstacles; without it the grid is fixed.',
+        ),
+  protocols: attr(
+    oneOf(VIA_FORMS),
+    'How the protocol of an edge (`via=`, with schedule, volume and promise) stands apart from its sentence: `same` (default) in the same font on a line of its own or after ` · `, `brackets` smaller as `[HTTPS]`, `muted` smaller in grey, `chip` smaller in a thin rounded frame, `inline` after the sentence in grey italics.',
   ),
+  spacing: spacingAttribute,
   areas: areasAttribute,
   locale: localeAttribute,
-};
+});
 
 const DOCS: Readonly<Record<Level, string>> = {
   context:
@@ -42,12 +56,12 @@ const DOCS: Readonly<Record<Level, string>> = {
 function statementsOf(level: Level) {
   const { edge, flow } = edgeTables(level);
   const elements = LEVEL_ELEMENTS[level].map((keyword) => ELEMENT_TABLES[keyword]);
-  return [grid, layer, group, style, ...elements, edge, flow, noteTable(level), adr, AREA_STATEMENT] as const;
+  return [grid, layer, group, style, spacing, ...elements, edge, flow, noteTable(level), adr, AREA_STATEMENT] as const;
 }
 
 /** The statement tables of one C4 level: the same tables for all levels, the elements as the level allows. */
 export const architectureSpec = (level: Level) =>
-  kind(level, { doc: DOCS[level], header, statements: statementsOf(level) });
+  kind(level, { doc: DOCS[level], header: headerOf(level), statements: statementsOf(level) });
 
 /** Typed value of a top-level statement of any level, derived from the tables (ADR 0004). */
 export type ArchitectureStatement = Infer<ReturnType<typeof statementsOf>[number]>;

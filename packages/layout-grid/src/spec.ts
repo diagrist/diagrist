@@ -1,5 +1,6 @@
 import type { Font, Placed, Point, Rect } from '@diagrist/core';
 import type { Side } from './geometry.js';
+import type { DetailLine } from './label/types.js';
 
 /** Room between the line of a frame and what it holds, per side. */
 export interface Pads {
@@ -45,8 +46,8 @@ export interface GridMetrics {
   readonly labelGap: number;
   /** The widest a line of an edge's text runs before it wraps, in sizes of `labelFont`; `WRAP_EM` when left out. */
   readonly labelWrap?: number;
-  /** Font of the detail line of an edge, such as a protocol in a monospace face; `labelFont` when left out. */
-  readonly detailFont?: Font;
+  /** How the detail line of an edge is measured and joined; like the name when left out. */
+  readonly detail?: DetailLine;
   /** Straight lines stop this far outside a box. */
   readonly endGap?: number;
   /** Extra gap below every row of an adaptive grid, for parts sticking out of nodes such as icons on cards. */

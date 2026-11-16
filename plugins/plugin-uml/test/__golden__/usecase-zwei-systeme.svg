@@ -14,7 +14,7 @@
   .diagrist .uc-name { fill: #18181b; font-size: 12px; }
   .diagrist .uc-boundary { fill: none; stroke: #18181b; stroke-width: 1.5; }
   .diagrist .uc-note { fill: #ffffff; stroke: #18181b; stroke-width: 1; }
-</style><rect width="1736" height="608" fill="#fafafa"/><defs><marker id="m-open" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto"><path d="M1 1 L11 6 L1 11" class="arrow-open" stroke-linecap="round"/></marker></defs>
+</style><rect width="1736" height="608" fill="#fafafa"/><defs><marker id="m-open" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto" overflow="visible"><path d="M1 1 L11 6 L1 11" class="arrow-open" stroke-linecap="round"/></marker></defs>
 <text x="32" y="36" class="label-title">Use-Case-Diagramm (UML) · Webshop und ERP</text>
 <text x="32" y="52" class="label-note">Zwei Systemgrenzen, Akteure an beiden Systemen</text>
 <g id="group-shop"><rect x="1016" y="116" width="472" height="412" class="uc-boundary"/><text x="1028" y="136" class="label-bold">Webshop</text></g>
@@ -37,15 +37,15 @@
 <g id="edge-0"><path d="M883 356.5 L1080.2 365.3" class="line halo"/><path d="M883 356.5 L1080.2 365.3" class="line"/></g>
 <g id="edge-1"><path d="M882.8 364.3 L1090.2 444.7" class="line halo"/><path d="M882.8 364.3 L1090.2 444.7" class="line"/></g>
 <g id="edge-2"><path d="M882.9 348.7 L1083.3 288.9" class="line halo"/><path d="M882.9 348.7 L1083.3 288.9" class="line"/></g>
-<g id="edge-3"><path d="M1200 368 L1336 368" class="line halo"/><path d="M1200 368 L1336 368" class="line dashed" marker-end="url(#m-open)"/></g>
+<g id="edge-3"><path d="M1200 368 L1333.6 368" class="line halo"/><path d="M1200 368 L1333.6 368" class="line dashed" marker-end="url(#m-open)"/></g>
 <g id="edge-4"><path d="M1448 368 L1557 368" class="line halo"/><path d="M1448 368 L1557 368" class="line"/></g>
 <g id="edge-5"><path d="M1056.4 466.4 L947 469.5" class="line halo"/><path d="M1056.4 466.4 L947 469.5" class="line"/></g>
 <g id="edge-6"><path d="M883 175.3 L1068.4 181.6" class="line halo"/><path d="M883 175.3 L1068.4 181.6" class="line"/></g>
 <g id="edge-7"><path d="M837 171.7 L657.1 149.5" class="line halo"/><path d="M837 171.7 L657.1 149.5" class="line"/></g>
 <g id="edge-8"><path d="M837.1 178.9 L647.5 215.1" class="line halo"/><path d="M837.1 178.9 L647.5 215.1" class="line"/></g>
 <g id="edge-9"><path d="M103 415.5 L224.4 420.6" class="line halo"/><path d="M103 415.5 L224.4 420.6" class="line"/></g>
-<g id="edge-10"><path d="M377.4 411.2 L516.2 387.1" class="line halo"/><path d="M377.4 411.2 L516.2 387.1" class="line dashed" marker-end="url(#m-open)"/></g>
-<g id="edge-11"><path d="M377.4 436.8 L519.6 461.5" class="line halo"/><path d="M377.4 436.8 L519.6 461.5" class="line dashed" marker-end="url(#m-open)"/></g>
+<g id="edge-10"><path d="M377.4 411.2 L513.5 387.6" class="line halo"/><path d="M377.4 411.2 L513.5 387.6" class="line dashed" marker-end="url(#m-open)"/></g>
+<g id="edge-11"><path d="M377.4 436.8 L517.1 461.1" class="line halo"/><path d="M377.4 436.8 L517.1 461.1" class="line dashed" marker-end="url(#m-open)"/></g>
 <g id="edge-12"><path d="M644 472 L773 472" class="line halo"/><path d="M644 472 L773 472" class="line"/></g>
 <g><line x1="1190.9" y1="351" x2="1224" y2="340" class="note-tail"/><path d="M1205 300 L1355 300 L1363 308 L1363 340 L1205 340 Z" class="uc-note"/><path d="M1355 300 L1355 308 L1363 308" class="uc-note"/><text x="1211" y="316" text-anchor="start" class="label">Der Webshop meldet jede</text><text x="1211" y="330" text-anchor="start" class="label">Bestellung an das ERP.</text></g>
 <g><line x1="89.3" y1="465.5" x2="92.4" y2="483" class="note-tail"/><path d="M38 483 L146 483 L154 491 L154 523 L38 523 Z" class="uc-note"/><path d="M146 483 L146 491 L154 491" class="uc-note"/><text x="44" y="499" text-anchor="start" class="label">Rolle im Lager,</text><text x="44" y="513" text-anchor="start" class="label">nicht im Webshop</text></g>

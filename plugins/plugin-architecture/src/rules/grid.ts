@@ -5,10 +5,10 @@ import type { ArchitectureRule } from './presence.js';
 export const placeInGrid: ArchitectureRule = {
   code: 'A103',
   severity: 'error',
-  doc: 'Column and row of `at` are names of the grid.',
+  doc: 'Column and row of `at` are names of the grid; `layout=star` ignores places.',
   check: (m) =>
     m.nodes.flatMap((n): Finding[] => {
-      if (n.at === undefined) return [];
+      if (n.at === undefined || m.star) return [];
       const out: Finding[] = [];
       if (!m.cols.includes(n.at.col))
         out.push({ span: n.source, values: { case: 'column', id: n.id, found: n.at.col, known: list(m.cols) } });

@@ -20,7 +20,7 @@
   .diagrist .outline-green { fill: #ffffff; stroke: #1db954; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
   .diagrist .outline-teal { fill: #ffffff; stroke: #0b5d4b; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
   .diagrist .outline-orange { fill: #ffffff; stroke: #f39222; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
-</style><rect width="741" height="1050" fill="#fafafa"/><defs><marker id="m-open" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto"><path d="M1 1 L11 6 L1 11" class="arrow-open" stroke-linecap="round"/></marker></defs>
+</style><rect width="741" height="1050" fill="#fafafa"/><defs><marker id="m-open" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto" overflow="visible"><path d="M1 1 L11 6 L1 11" class="arrow-open" stroke-linecap="round"/></marker></defs>
 <text x="32" y="36" class="label-title">Aktivitätsdiagramm (UML) · Auftragspositionen prüfen</text>
 <text x="32" y="52" class="label-note">Expansionsbereich: jede Position eines Auftrags wird parallel geprüft</text>
 <g id="group-vertrieb"><rect x="48" y="80" width="269" height="938" class="card-lane"/><path d="M50 88 Q50 80 58 80 L307 80 Q315 80 315 88 L315 104 Q315 112 307 112 L58 112 Q50 112 50 104 Z" class="tone-blue"/><text x="182.5" y="100" text-anchor="middle" class="card-head-text">Vertrieb</text></g>
@@ -38,18 +38,18 @@
 <g id="node-pruefung~out"><rect x="489" y="820" width="48" height="12" class="shape"/><path d="M501 820 L501 832 M513 820 L513 832 M525 820 L525 832" class="line"/></g>
 <g id="node-bestaetigen"><rect x="72" y="885" width="168" height="40" rx="12" class="card-shadow"/><rect x="72" y="882" width="168" height="40" rx="12" class="card"/><text x="156" y="906" text-anchor="middle" class="act-text">Auftrag bestätigen</text><rect x="219" y="872" width="10" height="10" class="shape"/><text x="233" y="880" text-anchor="start" class="label">Ergebnisse</text></g>
 <g id="node-ende"><circle cx="156" cy="982" r="12" class="shape"/><circle cx="156" cy="982" r="7" class="uml-filled"/></g>
-<g id="edge-0"><path d="M156 156 L156 204" class="line" marker-end="url(#m-open)"/></g>
-<g id="edge-1"><path d="M216 254 L216 270 L501 270 L501 294" class="line" marker-end="url(#m-open)"/></g>
-<g id="edge-2"><path d="M513 306 L513 372" class="line" marker-end="url(#m-open)"/></g>
-<g id="edge-3"><path d="M513 422 L513 470" class="line" marker-end="url(#m-open)"/></g>
-<g id="edge-4"><path d="M497 486 L421 486 L421 550" class="line" marker-end="url(#m-open)"/></g>
-<g id="edge-5"><path d="M529 486 L605 486 L605 550" class="line" marker-end="url(#m-open)"/></g>
-<g id="edge-6"><path d="M421 590 L421 654 L497 654" class="line" marker-end="url(#m-open)"/></g>
-<g id="edge-7"><path d="M605 590 L605 654 L529 654" class="line" marker-end="url(#m-open)"/></g>
-<g id="edge-8"><path d="M513 670 L513 718" class="line" marker-end="url(#m-open)"/></g>
-<g id="edge-9"><path d="M513 768 L513 820" class="line" marker-end="url(#m-open)"/></g>
-<g id="edge-10"><path d="M501 832 L501 848 L224 848 L224 872" class="line" marker-end="url(#m-open)"/></g>
-<g id="edge-11"><path d="M156 922 L156 970" class="line" marker-end="url(#m-open)"/></g>
+<g id="edge-0"><path d="M156 156 L156 201.9" class="line" marker-end="url(#m-open)"/></g>
+<g id="edge-1"><path d="M216 254 L216 270 L501 270 L501 291.6" class="line" marker-end="url(#m-open)"/></g>
+<g id="edge-2"><path d="M513 306 L513 369.6" class="line" marker-end="url(#m-open)"/></g>
+<g id="edge-3"><path d="M513 422 L513 467.6" class="line" marker-end="url(#m-open)"/></g>
+<g id="edge-4"><path d="M497 486 L421 486 L421 547.6" class="line" marker-end="url(#m-open)"/></g>
+<g id="edge-5"><path d="M529 486 L605 486 L605 547.6" class="line" marker-end="url(#m-open)"/></g>
+<g id="edge-6"><path d="M421 590 L421 654 L494.6 654" class="line" marker-end="url(#m-open)"/></g>
+<g id="edge-7"><path d="M605 590 L605 654 L531.4 654" class="line" marker-end="url(#m-open)"/></g>
+<g id="edge-8"><path d="M513 670 L513 715.6" class="line" marker-end="url(#m-open)"/></g>
+<g id="edge-9"><path d="M513 768 L513 817.6" class="line" marker-end="url(#m-open)"/></g>
+<g id="edge-10"><path d="M501 832 L501 848 L224 848 L224 869.6" class="line" marker-end="url(#m-open)"/></g>
+<g id="edge-11"><path d="M156 922 L156 967.6" class="line" marker-end="url(#m-open)"/></g>
 <g id="label-4"><text x="467" y="478" text-anchor="start" class="label halo">[ja]</text></g>
 <g id="label-5"><text x="535" y="478" text-anchor="start" class="label halo">[else]</text></g>
 </svg>

@@ -5,6 +5,7 @@ import type { EdgeKind } from '../grammar/edges.js';
 import type { ElementKeyword, FORMS, Level, SHAPES, STATUSES } from '../grammar/elements.js';
 import type { Place, SpanEnd } from '../grammar/values.js';
 import type { LookName } from '../looks/index.js';
+import type { LookOptions } from '../looks/look.js';
 
 export type NodeShape = (typeof SHAPES)[number];
 export type NodeStatus = (typeof STATUSES)[number];
@@ -28,6 +29,8 @@ export interface ArchNode {
   /** Id of the group it lies in directly. */
   readonly group?: string;
   readonly mark?: string;
+  /** `distance=`: nearer to or further from the middle of a star than the ring. */
+  readonly distance?: 'near' | 'far';
   readonly emph: boolean;
   readonly shape?: NodeShape;
   readonly status?: NodeStatus;
@@ -123,6 +126,20 @@ export interface GridLine {
   readonly source: Span;
 }
 
+/**
+ * How roomy the picture is: the level of `spacing=` and the measures the statement `spacing` sets one by one, in
+ * pixels; the layout fills in the rest from the level.
+ */
+export interface Spacing {
+  readonly level: 'compact' | 'normal' | 'loose';
+  readonly ring?: number;
+  readonly gap?: number;
+  readonly label?: number;
+  readonly margin?: number;
+  readonly cols?: number;
+  readonly rows?: number;
+}
+
 /** A C4 diagram of one level as the layout and the rules see it. */
 export interface ArchitectureModel {
   readonly level: Level;
@@ -133,7 +150,12 @@ export interface ArchitectureModel {
   readonly look: LookName;
   /** Where decision notes stand (`decisions=`): beside the picture, below it, or below once it is wide. */
   readonly decisionsAt: 'right' | 'below' | 'auto';
+  /** How protocols stand apart from the sentence of their edge (`protocols=`); the look's choice when left out. */
+  readonly via?: LookOptions['via'];
   readonly adaptive: boolean;
+  /** `layout=star`: the system in the middle, its neighbours on a ring, straight lines; grid and places unused. */
+  readonly star: boolean;
+  readonly spacing: Spacing;
   readonly cols: readonly string[];
   readonly rows: readonly string[];
   readonly grids: readonly GridLine[];

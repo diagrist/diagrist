@@ -93,8 +93,8 @@ Errors keep the predecessor's number with the prefix `A`; warnings keep theirs p
 | Code | Severity | Before | What it checks |
 |---|---|---|---|
 | A007 | error | E007 | A group has exactly one role: `own`, `shared` or `external`. The role draws its frame and mutes shared elements. |
-| A008 | error | E008 | Every element has a place in the grid with `at column/row`. |
-| A103 | error | E103 | Column and row of `at` are names of the grid. |
+| A008 | error | E008 | Every element has a place in the grid with `at column/row`, unless `layout=star` places them. |
+| A103 | error | E103 | Column and row of `at` are names of the grid; `layout=star` ignores places. |
 | A105 | error | E105 | An edge connects two different elements or groups. |
 | A106 | error | E106 | Every column and every row is named once. |
 | A107 | error | E107 | An edge does not lead from an element to the group that holds it, or back. |

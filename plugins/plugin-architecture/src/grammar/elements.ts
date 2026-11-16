@@ -97,6 +97,10 @@ function element<const K extends ElementKeyword>(keyword: K) {
       slot: attr(slot(), 'Takes place `i` of `n` equal places in its area, like `2/3`; needs `layout=adaptive`.'),
       style: attr(ref('style'), 'A `style` whose values apply where the element sets none.'),
       mark: attr(ref('adr'), 'Id of a decision of the bar below, such as `E1`; the mark stands at the corner.'),
+      distance: attr(
+        oneOf(['near', 'far']),
+        'With `layout=star`: `near` stands closer to the element in the middle than the ring, `far` further out; a frame follows its first member that sets it. Other layouts ignore it.',
+      ),
       area: areaAttribute,
     },
     flags: { emph: 'Draws the border thick: the core decision of the picture.' },

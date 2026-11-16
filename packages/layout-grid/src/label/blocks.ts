@@ -1,6 +1,6 @@
-import { type Point, textWidth } from '@diagrist/core';
+import type { Point } from '@diagrist/core';
 import type { GridMetrics } from '../spec.js';
-import { labelLine, partFont } from './text.js';
+import { labelLine, partWidth } from './text.js';
 import type { EdgeLabel, EdgeText } from './types.js';
 import { WRAP_EM, wrapTwo, wrapWithin } from './wrap.js';
 
@@ -29,13 +29,13 @@ export function stacks(text: EdgeText, upright: boolean, m: GridMetrics): Line[]
   const { name, detail } = text;
   const max = wrapWidth(m);
   const fits = (lines: readonly string[], part: Line['part']) =>
-    lines.every((l) => textWidth(l, partFont(part, m)) <= max || !l.includes(' '));
-  const within = (s: string, part: Line['part']) => wrapWithin(s, max, (t) => textWidth(t, partFont(part, m)));
+    lines.every((l) => partWidth(l, part, m) <= max || !l.includes(' '));
+  const within = (s: string, part: Line['part']) => wrapWithin(s, max, (t) => partWidth(t, part, m));
   const tail: Line[] = !detail
     ? []
     : (fits([detail], 'detail') ? [detail] : within(detail, 'detail')).map(lineOf('detail'));
   if (!name) return tail.length > 0 ? [tail] : [];
-  const two = wrapTwo(name, (l) => textWidth(l, partFont('name', m)) <= max);
+  const two = wrapTwo(name, (l) => partWidth(l, 'name', m) <= max);
   const ways = [[name], two, within(name, 'name')].filter((w, i) => fits(w, 'name') || i === 2);
   const unique = ways.filter((w, i) => ways.findIndex((v) => v.join('\n') === w.join('\n')) === i);
   const [first, second] = unique.map((w) => [...w.map(lineOf('name')), ...tail]);
@@ -46,7 +46,7 @@ export function stacks(text: EdgeText, upright: boolean, m: GridMetrics): Line[]
 
 /** The width of the widest line of a stack. */
 export const widthOf = (lines: readonly Line[], m: GridMetrics): number =>
-  Math.max(0, ...lines.map((l) => textWidth(l.text, partFont(l.part, m))));
+  Math.max(0, ...lines.map((l) => partWidth(l.text, l.part, m)));
 
 /** Where a stack stands: beside a piece, on it, or split with the name above and the detail below. */
 export type Place = 'above' | 'below' | 'left' | 'right' | 'on' | 'split';

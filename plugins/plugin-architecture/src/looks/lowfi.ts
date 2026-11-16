@@ -58,6 +58,7 @@ export const LOWFI: Look = {
     block: inter(13, 600),
     heading: inter(13, 600),
     large: inter(13),
+    via: inter(10),
   },
   paint: LOWFI_PAINT,
   options: {
@@ -76,5 +77,6 @@ export const LOWFI: Look = {
     layers: 'bracket',
     legend: 'sentence',
     decisions: 'notes',
+    via: 'same',
   },
 };

@@ -6,7 +6,7 @@ import type { ArchitectureStatement } from '../grammar/spec.js';
 import { DEFAULT_LOOK, type LookName } from '../looks/index.js';
 import { compact } from './compact.js';
 import { edgesOf } from './edges.js';
-import type { ArchGroup, ArchitectureModel, ArchNode, Role } from './types.js';
+import type { ArchGroup, ArchitectureModel, ArchNode, Role, Spacing } from './types.js';
 
 type Of<K extends ArchitectureStatement['keyword']> = Extract<ArchitectureStatement, { keyword: K }>;
 type Element = Of<'person' | 'system' | 'container' | 'component' | 'node'>;
@@ -37,6 +37,7 @@ function nodeOf(s: Element, styles: ReadonlyMap<string, Style>): ArchNode {
       slot: a.slot,
       group: s.clauses.in,
       mark: a.mark,
+      distance: a.distance,
       shape: a.shape,
       status: a.status,
       replicas: a.replicas,
@@ -87,6 +88,11 @@ export function architectureModel(level: Level, reading: KindReading<Architectur
     look: (header.look as LookName | undefined) ?? DEFAULT_LOOK,
     decisionsAt: (header.decisions as ArchitectureModel['decisionsAt'] | undefined) ?? 'right',
     adaptive: header.layout === 'adaptive',
+    star: header.layout === 'star',
+    spacing: {
+      level: (header.spacing as Spacing['level'] | undefined) ?? 'normal',
+      ...Object.assign({}, ...only(all, 'spacing').map((s) => compact(s.attributes))),
+    },
     cols: names('cols'),
     rows: names('rows'),
     grids,
@@ -102,6 +108,10 @@ export function architectureModel(level: Level, reading: KindReading<Architectur
     })),
     decisions: only(all, 'adr').map(decisionOf),
     areas: readAreas(all, header),
-    ...compact({ subtitle: header.subtitle as string | undefined, label: header.label as string | undefined }),
+    ...compact({
+      subtitle: header.subtitle as string | undefined,
+      label: header.label as string | undefined,
+      via: header.protocols as ArchitectureModel['via'],
+    }),
   };
 }

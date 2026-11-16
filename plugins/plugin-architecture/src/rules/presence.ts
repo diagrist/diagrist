@@ -24,9 +24,14 @@ export const groupRole: ArchitectureRule = {
 export const elementPlace: ArchitectureRule = {
   code: 'A008',
   severity: 'error',
-  doc: 'Every element has a place in the grid with `at column/row`.',
+  doc: 'Every element has a place in the grid with `at column/row`, unless `layout=star` places them.',
   check: (m) =>
-    m.nodes
-      .filter((n) => n.at === undefined)
-      .map((n) => ({ span: n.source, values: { id: n.id, example: `${m.cols[0] ?? 'col'}/${m.rows[0] ?? 'row'}` } })),
+    m.star
+      ? []
+      : m.nodes
+          .filter((n) => n.at === undefined)
+          .map((n) => ({
+            span: n.source,
+            values: { id: n.id, example: `${m.cols[0] ?? 'col'}/${m.rows[0] ?? 'row'}` },
+          })),
 };

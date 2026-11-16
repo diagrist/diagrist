@@ -25,6 +25,7 @@ describe('the three C4 levels', () => {
       'layer',
       'group',
       'style',
+      'spacing',
       'person',
       'system',
       'node',

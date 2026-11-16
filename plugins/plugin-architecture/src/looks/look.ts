@@ -13,6 +13,13 @@ export interface LookFont extends Font {
 export type LookFonts = Readonly<Record<FontRole, LookFont>>;
 
 /**
+ * How the detail line of an edge, its protocol first, sets itself apart from the sentence: `same` in the label's
+ * font below it or after ` · `, `brackets` smaller in square brackets, `muted` smaller in grey, `chip` smaller in a
+ * thin rounded frame, `inline` after the sentence in the same line, in grey italics.
+ */
+export const VIA_FORMS = ['same', 'brackets', 'muted', 'chip', 'inline'] as const;
+
+/**
  * The named choices of a look (ADR 0023). Each value is drawn by one piece of code, which every look that picks it
  * shares; the layout and the scene read these, never the name of a look.
  */
@@ -78,6 +85,8 @@ export interface LookOptions {
   readonly legend: 'strip' | 'sentence' | 'none';
   /** Decisions as cards in a bar below the picture, or as notes in the right margin. */
   readonly decisions: 'bar' | 'notes';
+  /** How the protocol of an edge stands apart from its sentence, one of `VIA_FORMS`; `protocols=` overrides it. */
+  readonly via: (typeof VIA_FORMS)[number];
 }
 
 /** The paint of a look: strokes, and what it lays over the C4 roles and rules of the standard look. */
