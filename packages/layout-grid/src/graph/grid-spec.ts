@@ -25,7 +25,7 @@ export function gridSpecOf(graph: CellGraph): GridSpec {
   const given = graph.given.cells;
   const nodes = new Map(graph.nodes.map((n) => [n.id, n]));
   const frames = new Map((given.frames ?? []).map((f) => [f.frame, f]));
-  const lanes = new Map((given.lanes ?? []).map((l) => [l.edge, l.col]));
+  const lanes = new Map((given.lanes ?? []).map((l) => [l.edge, l]));
   const gridNodes = given.cells.flatMap(({ node, exact, ...cell }): GridNode[] => {
     const n = nodes.get(node);
     if (!n) return [];
@@ -60,7 +60,8 @@ export function gridSpecOf(graph: CellGraph): GridSpec {
       from: e.from,
       to: e.to,
       ...(e.bundle ? { bundle: e.bundle } : {}),
-      ...(lane ? { lane } : {}),
+      ...(lane ? { lane: lane.col } : {}),
+      ...(lane?.to ? { laneTo: lane.to } : {}),
       ...(e.source ? { source: e.source } : {}),
     };
   });

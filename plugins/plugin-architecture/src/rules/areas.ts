@@ -16,7 +16,7 @@ function area(m: ArchitectureModel, n: ArchNode): Finding[] {
     n.height !== undefined && 'height',
   ];
   if (!m.adaptive) for (const what of sized) if (what) at({ case: 'needsAdaptive', what });
-  if ((n.span || n.slot) && n.keyword === 'person') at({ case: 'personArea' });
+  if ((n.span || n.slot) && n.keyword === 'person' && !m.ranks) at({ case: 'personArea' });
   if (!n.span || !n.at) return out;
   const { col, row } = n.span;
   if (!m.cols.includes(col) || m.cols.indexOf(col) < m.cols.indexOf(n.at.col))

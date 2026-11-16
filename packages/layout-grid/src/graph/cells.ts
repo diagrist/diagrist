@@ -74,8 +74,8 @@ export interface GraphCells {
   readonly rows: readonly GridRow[];
   readonly cells: readonly GraphCell[];
   readonly frames?: readonly GraphFrameCell[];
-  /** A column an edge runs in: its vertical ends attach in the column's middle. */
-  readonly lanes?: readonly { readonly edge: string; readonly col: string }[];
+  /** A column an edge runs in, or columns up to `to`: its vertical ends attach in their middle. */
+  readonly lanes?: readonly { readonly edge: string; readonly col: string; readonly to?: string }[];
   readonly adaptive: boolean;
   readonly metrics: CellMetrics;
   readonly texts: readonly EdgeText[];

@@ -1,13 +1,6 @@
 import { type Band, loose, orderBand } from './ranks-order.js';
+import { besidePeople, outward, placeBands, type Side, type Spot } from './ranks-place.js';
 import type { ArchEdge, ArchitectureModel, ArchNode } from './types.js';
-
-type Side = 'top' | 'bottom';
-
-/** The columns a neighbour covers and its row. */
-interface Spot {
-  readonly cols: readonly string[];
-  readonly row: string;
-}
 
 /** More neighbours than this in one band move to the left and right of the hub, one each. */
 const WIDEST_BAND = 5;
@@ -78,11 +71,12 @@ function aside(model: ArchitectureModel, bands: Record<Side, Band>): { bands: Re
 }
 
 /**
- * The model laid out as a star of ranks (`layout=ranks`): the hub alone in the middle row, as wide as the wider band,
- * what calls it in the row above and what it calls in the row below, each neighbour in a column of its own whose
- * middle its edges to the hub run down (`lane`), so every such edge is one straight vertical line. Neighbours linked
- * to each other stand side by side, as do the members of a group; too many in a band move beside the hub. Places the
- * source gives are replaced; the grid is adaptive, so columns and gaps grow to their texts.
+ * The model laid out as a star of ranks (`layout=ranks`): the hub alone in the middle row, what calls it in the row
+ * above and what it calls in the row below, each neighbour in a column of its own whose middle its edges to the hub
+ * run down (`lane`), so every such edge is one straight vertical line. The hub is only as wide as the longer run of
+ * neighbours on it, the shorter run centred on it; people beyond the rows of systems stand beside the hub. Neighbours
+ * linked to each other stand side by side, as do the members of a group; too many in a band move beside the hub.
+ * Places the source gives are replaced; the grid is adaptive, so columns and gaps grow to their texts.
  */
 export function ranked(model: ArchitectureModel): ArchitectureModel {
   const hub = hubOf(model);
@@ -93,41 +87,48 @@ export function ranked(model: ArchitectureModel): ArchitectureModel {
       model,
       model.nodes.filter((n) => sides.get(n.id) === side).map((n) => n.id),
     );
-  const { bands, beside } = aside(model, { top: band('top'), bottom: band('bottom') });
   const hubEdges = (id: string) =>
     model.edges.filter((e) => (e.from === id && e.to === hub.id) || (e.to === id && e.from === hub.id));
-  const wide = (side: Side) => bands[side].length;
-  const width = Math.max(1, wide('top'), wide('bottom'));
-  const inner = Array.from({ length: width }, (_, i) => `c${i + 1}`);
-  const [left, right] = [beside[1], beside[0]];
-  const cols = [...(left ? ['left'] : []), ...inner, ...(right ? ['right'] : [])];
+  const linked = (id: string) => hubEdges(id).length > 0;
+  const crowded = aside(model, { top: band('top'), bottom: band('bottom') });
+  const { bands, left, right } = besidePeople(
+    model,
+    crowded.bands,
+    { left: crowded.beside[1], right: crowded.beside[0] },
+    linked,
+  );
+  const placed = placeBands(
+    { top: outward(model, bands.top, linked), bottom: outward(model, bands.bottom, linked) },
+    linked,
+  );
+  const cols = [...(left ? ['left'] : []), ...placed.cols, ...(right ? ['right'] : [])];
   const rows = [...(bands.top.length ? ['top'] : []), HUB_ROW, ...(bands.bottom.length ? ['bottom'] : [])];
-  const place = new Map<string, Spot>();
-  for (const side of ['top', 'bottom'] as const) {
-    let col = Math.floor((width - wide(side)) / 2);
-    for (const id of bands[side]) {
-      place.set(id, { cols: inner.slice(col, col + 1), row: side });
-      col += 1;
-    }
-  }
-  if (left) place.set(left, { cols: ['left'], row: HUB_ROW });
-  if (right) place.set(right, { cols: ['right'], row: HUB_ROW });
+  const rowOf = (id: string) => (bands.top.includes(id) ? 'top' : bands.bottom.includes(id) ? 'bottom' : HUB_ROW);
+  const spotOf = (id: string): Spot | undefined =>
+    id === hub.id
+      ? placed.hub
+      : id === left
+        ? { col: 'left', to: 'left' }
+        : id === right
+          ? { col: 'right', to: 'right' }
+          : placed.spots.get(id);
   const nodes = model.nodes.map((n): ArchNode => {
     const { at: _, span: __, slot: ___, ...rest } = n;
-    const spot = n.id === hub.id ? { cols: inner, row: HUB_ROW } : place.get(n.id);
+    const spot = spotOf(n.id);
     if (spot === undefined) return rest;
-    const [first = 'c1', last = first] = [spot.cols[0], spot.cols.at(-1)];
-    return { ...rest, at: { col: first, row: spot.row }, ...(last !== first ? { span: { col: last } } : {}) };
+    return {
+      ...rest,
+      at: { col: spot.col, row: rowOf(n.id) },
+      ...(spot.to !== spot.col ? { span: { col: spot.to } } : {}),
+    };
   });
-  const lanes = new Map(
-    [...place].flatMap(([id, spot]) =>
-      spot.row === HUB_ROW ? [] : hubEdges(id).map((e) => [e.index, spot.cols[0] ?? 'c1'] as const),
-    ),
-  );
+  const lanes = new Map([...placed.spots].flatMap(([id, spot]) => hubEdges(id).map((e) => [e.index, spot] as const)));
   const edges = model.edges.map((e): ArchEdge => {
-    const { lane: _, ...rest } = e;
+    const { lane: _, laneTo: __, ...rest } = e;
     const lane = lanes.get(e.index);
-    return lane ? { ...rest, lane } : rest;
+    if (!lane) return rest;
+    return { ...rest, lane: lane.col, ...(lane.to !== lane.col ? { laneTo: lane.to } : {}) };
   });
-  return { ...model, adaptive: true, ranks: true, cols, rows, nodes, edges };
+  const halves = placed.halves ? { halfCols: placed.cols } : {};
+  return { ...model, adaptive: true, ranks: true, cols, rows, nodes, edges, ...halves };
 }

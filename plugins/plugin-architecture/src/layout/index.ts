@@ -10,6 +10,7 @@ import type { Texts } from '../texts/index.js';
 import { nodeArt } from './art.js';
 import type { NodeArt } from './art-types.js';
 import { type BandSheet, bandFrameOf, bandSheetOf } from './bands/index.js';
+import { clearOfHeads } from './figure-clear.js';
 import { type Context, contextOf } from './focus.js';
 import { type FrameHead, frameHead } from './heads.js';
 import { headTexts, insideTexts } from './inside.js';
@@ -75,7 +76,9 @@ export function layoutArchitecture(model: ArchitectureModel, texts: Texts, local
   const { metrics: m, options: o } = look;
   const frame = bandFrameOf(model, look);
   const { graph, cells, heads } = graphOf(frame.model, look, texts, frame);
-  const laid = layoutGraph({ ...graph, given: { cells: { ...cells, ...signsOf(model, look) } } });
+  const raw = layoutGraph({ ...graph, given: { cells: { ...cells, ...signsOf(model, look) } } });
+  const rects = new Map(raw.grid.nodes.map((p) => [p.id, p.rect]));
+  const laid = { ...raw, routes: model.ranks ? clearOfHeads(raw.routes, model, rects, look) : raw.routes };
   const { grid: pl, routes, labels } = laid;
   const { badges, numbered, marks } = signsFrom(model, laid, look);
   const lines: readonly (readonly Point[])[] = model.adaptive ? routes.map((r) => r.points) : [];
@@ -102,7 +105,6 @@ export function layoutArchitecture(model: ArchitectureModel, texts: Texts, local
         ]
       : [];
   });
-  const rects = new Map(pl.nodes.map((p) => [p.id, p.rect]));
   const signs = [...numbered.map((b) => b.rect), ...marks.map(markRect)];
   const bands = bandSheetOf(frame, { grid: pl, routes, labels, signs }, texts, BAND_WORDS[locale], look);
   const routeRight = Math.max(0, ...routes.flatMap((r) => r.points.map((p) => p[0])));

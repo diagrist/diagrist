@@ -50,4 +50,41 @@ describe('layout=ranks', () => {
     expect(link?.points).toHaveLength(2);
     expect(link?.points[0]?.[1]).toBe(link?.points[1]?.[1]);
   });
+
+  it('keeps the hub as wide as its systems, the people of mixed rows beside it on one flat line each', () => {
+    const c = ranked('02-radverleih');
+    const hub = rectOf(c, 'verleih');
+    const below = ['zahlung', 'karten'].map((id) => rectOf(c, id));
+    expect(hub.x).toBe(Math.min(...below.map((r) => r.x)));
+    expect(hub.x + hub.w).toBe(Math.max(...below.map((r) => r.x + r.w)));
+    expect(rectOf(c, 'fahrerin').x + rectOf(c, 'fahrerin').w).toBeLessThan(hub.x);
+    expect(rectOf(c, 'service').x).toBeGreaterThan(hub.x + hub.w);
+    for (const id of ['fahrerin', 'service']) {
+      const e = c.anchors?.edges.find((x) => [x.from, x.to].includes(id));
+      expect(e?.points).toHaveLength(2);
+      expect(e?.points[0]?.[1]).toBe(e?.points[1]?.[1]);
+    }
+  });
+
+  it('centres a shorter band on the hub and leaves out who has no edge to the hub', () => {
+    const c = ranked('05-gruppen');
+    const hub = rectOf(c, 'shop');
+    const kundin = rectOf(c, 'kundin');
+    expect(kundin.x + kundin.w / 2).toBeCloseTo(hub.x + hub.w / 2, 0);
+    expect(rectOf(c, 'lager').x).toBeGreaterThan(hub.x + hub.w);
+  });
+
+  it('stops a line coming down onto a stick figure above its head', () => {
+    const source = [
+      'diagram context "Kopf" layout=ranks',
+      'person a "Servicekraft"',
+      'system s "Radverleih" emph',
+      'system q "Quelle"',
+      'edge q -> s "meldet"',
+      'edge s -> a "plant"',
+    ].join('\n');
+    const c = compile(source, { plugins });
+    const end = c.anchors?.edges.find((e) => e.to === 'a')?.points.at(-1);
+    expect(end?.[1]).toBeLessThan(rectOf(c, 'a').y - 4);
+  });
 });

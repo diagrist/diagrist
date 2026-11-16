@@ -45,6 +45,7 @@ export const headingSize = (look: Look): number => look.fonts.group.size + HEADI
  */
 function column(name: string, model: ArchitectureModel, look: Look, words: Texts): GridColumn {
   const { metrics: m, fonts } = look;
+  if (model.halfCols?.includes(name)) return halfColumn(name, model, look);
   const people = model.nodes.filter((n) => isFigure(n, look) && n.at?.col === name);
   const others = model.nodes.filter((n) => !isFigure(n, look) && n.at?.col === name);
   if (people.length === 0 || others.length > 0) {
@@ -60,6 +61,21 @@ function column(name: string, model: ArchitectureModel, look: Look, words: Texts
     n.tech ? textWidth(n.tech, secondLine(n, fonts)) : 0,
   ]);
   return { name, width: Math.max(m.personW, Math.ceil((Math.max(0, ...texts) + PERSON_TEXT_PAD) / m.grid) * m.grid) };
+}
+
+/**
+ * A half column of a star of ranks: half the least width of a box, or of the text of a person standing on it and the
+ * next half, so the two halves together are as wide as one column would be.
+ */
+function halfColumn(name: string, model: ArchitectureModel, look: Look): GridColumn {
+  const { metrics: m, fonts } = look;
+  const people = model.nodes.filter((n) => isFigure(n, look) && (n.at?.col === name || n.span?.col === name));
+  const texts = people.flatMap((n) => [
+    textWidth(n.label, fonts.name),
+    n.tech ? textWidth(n.tech, secondLine(n, fonts)) : 0,
+  ]);
+  const whole = Math.max(m.nodeW, Math.max(0, ...texts) + PERSON_TEXT_PAD);
+  return { name, width: Math.ceil((whole - m.subColGap) / 2) };
 }
 
 /** The radius of the icon circle a card wears on the middle of its top edge, or 0. */
@@ -83,11 +99,17 @@ const captionBelow = (n: ArchNode, look: Look): number =>
 
 /**
  * A row of the grid; in a star of ranks (`layout=ranks`) with the gap below it grown by the deepest caption hanging
- * into it where flow numbers stand on its lines, so number and text below a row of people get the room of a row of
+ * into it where flow numbers stand on its lines down to a lower row, so number and text below a row of people get the room of a row of
  * boxes; the grid already makes room for the texts alone.
  */
 function rowOf(name: string, model: ArchitectureModel, look: Look): GridRow {
-  const numbered = new Set(model.edges.flatMap((e) => (e.step ? [e.from, e.to] : [])));
+  const below = (id: string) => model.rows.indexOf(model.nodes.find((n) => n.id === id)?.at?.row ?? '');
+  const numbered = new Set(
+    model.edges
+      .flatMap((e) => (e.step ? [[e.from, e.to] as const, [e.to, e.from] as const] : []))
+      .filter(([a, b]) => below(b) > below(a))
+      .map(([a]) => a),
+  );
   const hung = model.nodes.filter(
     (n) => n.at?.row === name && numbered.has(n.id) && (isFigure(n, look) || isCircle(n, look)),
   );
@@ -167,7 +189,9 @@ export function graphOf(
     rows: model.rows.map((name) => rowOf(name, model, look)),
     cells: placed.map((p) => p.cell),
     frames: framed.map((f) => f.frame),
-    lanes: model.edges.flatMap((e) => (e.lane ? [{ edge: String(e.index), col: e.lane }] : [])),
+    lanes: model.edges.flatMap((e) =>
+      e.lane ? [{ edge: String(e.index), col: e.lane, ...(e.laneTo ? { to: e.laneTo } : {}) }] : [],
+    ),
     adaptive: model.adaptive,
     metrics: measures,
   };

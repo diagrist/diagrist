@@ -20,7 +20,7 @@ const header = {
   ),
   layout: attr(
     oneOf(['adaptive', 'ranks']),
-    '`adaptive`: columns grow to their content and edges find their own way around obstacles; without it the grid is fixed. `ranks`: no grid or places needed, the system with `emph` (else the one with the most edges) stands alone in the middle, what calls it in a row above, what it calls in a row below, each edge to it one straight vertical line.',
+    '`adaptive`: columns grow to their content and edges find their own way around obstacles; without it the grid is fixed. `ranks`: no grid or places needed, the system with `emph` (else the one with the most edges) stands alone in the middle, what calls it in a row above, what it calls in a row below, each edge to it one straight vertical line; the middle box is only as wide as the row of systems it joins, and people who would share a row with systems stand beside it on a straight flat line.',
   ),
   areas: areasAttribute,
   locale: localeAttribute,

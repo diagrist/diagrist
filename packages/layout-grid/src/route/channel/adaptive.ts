@@ -41,22 +41,25 @@ const siblings = (r: Routed, all: readonly Routed[]): readonly Routed[] =>
   all.filter(
     (o) =>
       o.edge.lane === r.edge.lane &&
+      o.edge.laneTo === r.edge.laneTo &&
       upright(o) &&
       ((o.from.id === r.from.id && o.to.id === r.to.id) || (o.from.id === r.to.id && o.to.id === r.from.id)),
   );
 
 /**
  * A straight upright route of an edge with a `lane` runs in the middle of that column, where both of its boxes reach
- * over it, as the adaptive router docks it, so a line through stacked frames keeps to its column. Several such routes
- * between the same two nodes run as parallels, twice the port spread apart, centred on the column's middle.
+ * over it, as the adaptive router docks it, so a line through stacked frames keeps to its column; a lane over several
+ * columns (`laneTo`) runs in the middle of all of them. Several such routes between the same two nodes run as
+ * parallels, twice the port spread apart, centred on the lane's middle.
  */
 function inLane(board: Board, r: Routed, all: readonly Routed[]): Routed {
   const col = r.edge.lane ? board.layout.cols.find((c) => c.name === r.edge.lane) : undefined;
+  const last = board.layout.cols.find((c) => c.name === (r.edge.laneTo ?? r.edge.lane));
   const [a, b] = r.points;
-  if (!col || !a || !b || !upright(r)) return r;
+  if (!col || !last || !a || !b || !upright(r)) return r;
   const pair = siblings(r, all);
   const step = 2 * board.tree.spec.metrics.portSpread;
-  const x = col.x + col.w / 2 + (pair.indexOf(r) - (pair.length - 1) / 2) * step;
+  const x = (col.x + last.x + last.w) / 2 + (pair.indexOf(r) - (pair.length - 1) / 2) * step;
   const fits = [r.from.rect, r.to.rect].every((rect) => x >= rect.x && x <= right(rect));
   return fits
     ? {
