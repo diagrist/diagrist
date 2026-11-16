@@ -38,7 +38,7 @@ export function architectureScene(
     ...nodeShapes(model, layout, texts),
     ...noteShapes(layout.notes),
     ...remarkShapes(layout.remarks),
-    ...edgeShapes(model, layout.routes, under, look.metrics.markerSize),
+    ...edgeShapes(model, layout.routes, under),
     ...labelShapes(model, layout.routes, layout, under),
     ...stripShapes(layout.strip, words),
     ...(layout.legend ? legendShapes(layout.legend, sampleShapes) : []),
