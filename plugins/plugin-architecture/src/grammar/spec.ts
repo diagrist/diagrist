@@ -2,6 +2,7 @@ import { AREA_STATEMENT, areasAttribute, localeAttribute } from '@diagrist/core'
 import { attr, type Infer, kind, oneOf, text } from '@diagrist/lang';
 import { adr } from '@diagrist/parts';
 import { DEFAULT_LOOK, LOOK_NAMES, LOOKS, type LookName } from '../looks/index.js';
+import { VIA_FORMS } from '../looks/look.js';
 import { edgeTables } from './edges.js';
 import { ELEMENT_TABLES, LEVEL_ELEMENTS, type Level } from './elements.js';
 import { grid, group, layer, noteTable, style } from './frames.js';
@@ -29,6 +30,10 @@ const headerOf = (level: Level) => ({
           oneOf(['adaptive']),
           'Columns grow to their content and edges find their own way around obstacles; without it the grid is fixed.',
         ),
+  protocols: attr(
+    oneOf(VIA_FORMS),
+    'How the protocol of an edge (`via=`, with schedule, volume and promise) stands apart from its sentence: `same` (default) in the same font on a line of its own or after ` · `, `brackets` smaller as `[HTTPS]`, `muted` smaller in grey, `chip` smaller in a thin rounded frame, `inline` after the sentence in grey italics.',
+  ),
   areas: areasAttribute,
   locale: localeAttribute,
 });

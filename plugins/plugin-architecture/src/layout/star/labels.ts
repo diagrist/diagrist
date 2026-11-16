@@ -1,8 +1,7 @@
 import { type Point, type Rect, textWidth } from '@diagrist/core';
 import { type EdgeLabel, pointAlong, polylineLength, WRAP_EM, wrapWithin } from '@diagrist/layout-grid';
 import type { Look } from '../../looks/look.js';
-import { signedLabel } from '../diff.js';
-import { detailLine } from '../signs.js';
+import { CHIP_DROP, CHIP_PAD, edgeWords, viaFont } from '../via.js';
 import { lineMeets, meets } from './geometry.js';
 import type { StarLine } from './lines.js';
 
@@ -26,17 +25,23 @@ export interface Obstacles {
   readonly lines: readonly (readonly Point[])[];
 }
 
-/** The lines of an edge's text: its name wrapped, then its detail. */
-function textLines(line: StarLine, look: Look): { text: string; part: 'name' | 'detail'; w: number }[] {
+/**
+ * The lines of an edge's text as its form of protocols writes them: its name wrapped, then its detail in the detail's
+ * font, a chip with its pad on both sides and `CHIP_DROP` lower, clear of the sentence above it; its box reaches up
+ * over the drop, so the block stays one.
+ */
+function textLines(line: StarLine, look: Look): { text: string; part: 'name' | 'detail'; w: number; drop: number }[] {
   const font = look.fonts.label;
   const wrapAt = (look.metrics.labelWrap ?? WRAP_EM) * font.size;
-  const name = signedLabel(line.edge.label, line.edge.origin);
-  const detail = detailLine(line.edge);
+  const { name, detail } = edgeWords(line.edge, look.options.via);
   const measure = (s: string) => textWidth(s, font);
+  const chip = look.options.via === 'chip';
+  const names = name ? wrapWithin(name, wrapAt, measure) : [];
+  const w = detail ? textWidth(detail, viaFont(look)) + (chip ? 2 * CHIP_PAD : 0) : 0;
   return [
-    ...(name ? wrapWithin(name, wrapAt, measure).map((text) => ({ text, part: 'name' as const })) : []),
-    ...(detail ? [{ text: detail, part: 'detail' as const }] : []),
-  ].map((l) => ({ ...l, w: measure(l.text) }));
+    ...names.map((text) => ({ text, part: 'name' as const, w: measure(text), drop: 0 })),
+    ...(detail ? [{ text: detail, part: 'detail' as const, w, drop: chip && names.length > 0 ? CHIP_DROP : 0 }] : []),
+  ];
 }
 
 /** Whether a rectangle crosses the line of a frame, standing partly inside and partly outside it. */
@@ -85,7 +90,8 @@ export function placeTexts(
     const texts = textLines(line, look);
     if (texts.length === 0) continue;
     const w = Math.max(...texts.map((t) => t.w));
-    const h = texts.length * lineH + (size - lineH) + 2;
+    const drop = texts.reduce((sum, t) => sum + t.drop, 0);
+    const h = texts.length * lineH + (size - lineH) + 2 + drop;
     const onLine = look.options.edgeText.place === 'onLine' && line.side === 0;
     const own = line.points;
     const fits = (r: Rect, room: number) =>
@@ -104,14 +110,14 @@ export function placeTexts(
     taken.push(spot);
     const route = routeOf.get(line.edge.index) ?? i;
     texts.forEach((t, k) => {
-      const y = spot.y + size + k * lineH;
+      const y = spot.y + size + k * lineH + texts.slice(0, k + 1).reduce((sum, u) => sum + u.drop, 0);
       const x = spot.x + w / 2;
       out.push({
         text: t.text,
         x,
         y,
         anchor: 'middle',
-        box: { x: x - t.w / 2, y: y - size, w: t.w, h: size + 2 },
+        box: { x: x - t.w / 2, y: y - size - t.drop, w: t.w, h: size + 2 + t.drop },
         route,
         part: t.part,
       });

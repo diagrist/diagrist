@@ -103,6 +103,10 @@ export function architectureModel(level: Level, reading: KindReading<Architectur
     })),
     decisions: only(all, 'adr').map(decisionOf),
     areas: readAreas(all, header),
-    ...compact({ subtitle: header.subtitle as string | undefined, label: header.label as string | undefined }),
+    ...compact({
+      subtitle: header.subtitle as string | undefined,
+      label: header.label as string | undefined,
+      via: header.protocols as ArchitectureModel['via'],
+    }),
   };
 }

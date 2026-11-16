@@ -12,33 +12,42 @@ function through(points: readonly Point[], x: number, y: number, w: number, h: n
   });
 }
 
+/** A text of a route on a gap: the name in ink, the detail in the second ink. */
+const gapText = (l: EdgeLabel): Shape => ({
+  kind: 'text',
+  x: l.x,
+  y: l.y,
+  text: l.text,
+  role: l.part === 'detail' ? 'edgeDetail' : 'edgeLabel',
+  font: 'label',
+  anchor: l.anchor,
+});
+
 /**
- * The texts of one route on a gap (`edgeText.ground: gap`): first a rectangle in the colour of the ground, which
- * cuts the line behind them, then name in ink and detail in the second ink. Texts that stand beside their line, as
- * where it had no stretch for them (`points` the route's line), cut nothing.
+ * The rectangle in the colour of the ground that cuts the line behind the texts of one route, where they stand on
+ * it (`points` the route's line); none for texts that stand beside their line, as where it had no stretch for them.
  */
-export function gapShapes(labels: readonly EdgeLabel[], under: readonly Surface[], points: readonly Point[]): Shape[] {
+function gapCut(labels: readonly EdgeLabel[], under: readonly Surface[], points: readonly Point[]): Shape[] {
   if (labels.length === 0) return [];
   const left = Math.min(...labels.map((l) => l.box.x)) - GAP.x;
   const top = Math.min(...labels.map((l) => l.box.y)) - GAP.y;
   const w = Math.max(...labels.map((l) => l.box.x + l.box.w)) + GAP.x - left;
   const h = Math.max(...labels.map((l) => l.box.y + l.box.h)) + GAP.y - top;
   const zone = surfacesAt(under, left + w / 2, top + h / 2).some((s) => s.tone === 'zone');
-  const cut: Shape[] = through(points, left, top, w, h)
+  return through(points, left, top, w, h)
     ? [{ kind: 'rect', x: left, y: top, w, h, role: zone ? 'labelGapZone' : 'labelGap' }]
     : [];
-  return [
-    ...cut,
-    ...labels.map(
-      (l): Shape => ({
-        kind: 'text',
-        x: l.x,
-        y: l.y,
-        text: l.text,
-        role: l.part === 'detail' ? 'edgeDetail' : 'edgeLabel',
-        font: 'label',
-        anchor: l.anchor,
-      }),
-    ),
-  ];
+}
+
+/**
+ * The texts of one route on a gap (`edgeText.ground: gap`): first the rectangle of `gapCut`, then the texts
+ * (`drawn`, by default all of `labels`) with name in ink and detail in the second ink.
+ */
+export function gapShapes(
+  labels: readonly EdgeLabel[],
+  under: readonly Surface[],
+  points: readonly Point[],
+  drawn: readonly EdgeLabel[] = labels,
+): Shape[] {
+  return [...gapCut(labels, under, points), ...drawn.map(gapText)];
 }

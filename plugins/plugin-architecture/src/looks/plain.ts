@@ -28,5 +28,6 @@ export const PLAIN: Look = {
     layers: 'boxes',
     legend: 'strip',
     decisions: 'bar',
+    via: 'same',
   },
 };

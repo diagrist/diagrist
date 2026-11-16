@@ -41,6 +41,7 @@ export const PAPER: Look = {
     block: inter(14, 600),
     heading: inter(13, 600),
     large: inter(13),
+    via: { size: 9.5, family: 'jetbrains-mono' },
   },
   paint: PAPER_PAINT,
   options: {
@@ -59,5 +60,6 @@ export const PAPER: Look = {
     layers: 'bracket',
     legend: 'sentence',
     decisions: 'notes',
+    via: 'same',
   },
 };

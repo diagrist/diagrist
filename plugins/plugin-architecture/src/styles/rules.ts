@@ -1,6 +1,7 @@
 import { COLORS as c, DASH, rule, STROKES, type StyleRule, TONE_NAMES, TONES, textRule } from '@diagrist/core';
 import { sharedRules } from '@diagrist/parts';
 import type { LookFonts } from '../looks/look.js';
+import { viaRules } from './via.js';
 
 /** Stroke widths by what is drawn; `blocks` draws lines, accents and emphasis thicker. */
 export interface Strokes {
@@ -119,6 +120,7 @@ export function architectureRules(fonts: LookFonts, w: Strokes, changes: readonl
         `fill: none; stroke: ${color}; stroke-opacity: ${TINT.fill}; stroke-width: ${w.halo}px; stroke-linejoin: round;`,
       ),
     ),
+    ...viaRules(fonts, w),
   ];
 }
 

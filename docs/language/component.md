@@ -9,7 +9,7 @@ This page lists everything a `component` diagram may contain. The same grammar i
 ## The first line
 
 ```text
-diagram component "Title" [subtitle=<text>] [label=<text>] [look=<plain|cards|blocks|paper|columns|lowfi>] [decisions=<right|below|auto>] [layout=<adaptive>] [areas=<tint|outline|stripe>] [locale=<en|de>]
+diagram component "Title" [subtitle=<text>] [label=<text>] [look=<plain|cards|blocks|paper|columns|lowfi>] [decisions=<right|below|auto>] [layout=<adaptive>] [protocols=<same|brackets|muted|chip|inline>] [areas=<tint|outline|stripe>] [locale=<en|de>]
 ```
 
 Every component diagram starts with this line.
@@ -21,6 +21,7 @@ Every component diagram starts with this line.
 | `look=` | attribute | one of `plain`, `cards`, `blocks`, `paper`, `columns`, `lowfi` | `plain` (default) boxes with a legend, `cards` toned icon cards, `blocks` filled blocks as in pattern books, `paper` a quiet print look: Inter on paper, zones as areas, the core in yellow, decisions in the margin, `columns` a technical sheet: columns in bands under grey heads, names in the top edge of square boxes, the focus flow heavy, `lowfi` a low-fi sketch: centred texts in white boxes, grey for what exists, dashed for what is optional, compact. |
 | `decisions=` | attribute | one of `right`, `below`, `auto` | Where a look that writes decisions as notes sets them: `right` (default) in a column beside the picture, `below` side by side under it, `auto` below once the picture is wider than 1,100 pixels, as a printed page needs. |
 | `layout=` | attribute | one of `adaptive` | Columns grow to their content and edges find their own way around obstacles; without it the grid is fixed. |
+| `protocols=` | attribute | one of `same`, `brackets`, `muted`, `chip`, `inline` | How the protocol of an edge (`via=`, with schedule, volume and promise) stands apart from its sentence: `same` (default) in the same font on a line of its own or after ` · `, `brackets` smaller as `[HTTPS]`, `muted` smaller in grey, `chip` smaller in a thin rounded frame, `inline` after the sentence in grey italics. |
 | `areas=` | attribute | one of `tint`, `outline`, `stripe` | How elements of a coloured area are painted: `tint` (default) a light fill and the outline in its tone, `outline` the outline and the name in its tone, `stripe` a stripe of its tone at the left edge. Lines and frames of an area are drawn in its tone in each. |
 | `locale=` | attribute | one of `en`, `de` | Language of the texts Diagrist adds to the picture and of the description: `en` (default) or `de`. |
 

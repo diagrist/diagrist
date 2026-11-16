@@ -1,9 +1,9 @@
 import type { Rect } from '@diagrist/core';
 import type { CellLayout, EdgeText, GraphCells } from '@diagrist/layout-grid';
 import type { Look } from '../looks/look.js';
-import type { ArchEdge, ArchitectureModel } from '../model/types.js';
-import { signedLabel } from './diff.js';
+import type { ArchitectureModel } from '../model/types.js';
 import { type Badge, MARK, type Mark, NUMBER_SIZE, TEXT_GAP } from './marks.js';
+import { edgeWords } from './via.js';
 
 /** The flow numbers with the rectangles they cover, and the decision marks of a picture. */
 export interface Signs {
@@ -18,9 +18,6 @@ const SIGN_ROOM = 2;
 /** Where a decision mark stands inside the top right corner of its node, left of a replica tag. */
 const CORNER = { dx: 20, dy: 13, replicas: 30 } as const;
 
-/** Second line of an edge label: protocol, schedule, volume and promise, in this order, where given. */
-export const detailLine = (e: ArchEdge): string => [e.via, e.schedule, e.volume, e.sla].filter(Boolean).join(' · ');
-
 /**
  * The texts and signs of a picture's lines as the grid sets them: names with their diff sign and details, flow
  * numbers on their edges, decision marks beside the head of their edge and at the corner of their node, inside the
@@ -32,8 +29,7 @@ export function signsOf(
 ): Omit<GraphCells, 'cols' | 'rows' | 'cells' | 'adaptive' | 'metrics'> {
   const { metrics: m, options: o } = look;
   const texts = model.edges.map((e): EdgeText => {
-    const detail = detailLine(e);
-    const name = signedLabel(e.label, e.origin);
+    const { name, detail } = edgeWords(e, o.via);
     return {
       edge: String(e.index),
       ...(name ? { name } : {}),

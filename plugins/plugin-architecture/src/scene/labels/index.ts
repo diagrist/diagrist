@@ -9,6 +9,7 @@ import type { Surface } from '../surfaces.js';
 import { discShapes } from './disc.js';
 import { gapShapes } from './gap.js';
 import { haloShapes } from './halo.js';
+import { viaCuts } from './via.js';
 
 /** How each value of `numbers.form` draws a flow number. */
 const NUMBERS: Readonly<
@@ -41,10 +42,15 @@ export function labelShapes(
   const { options } = layout.look;
   const accent = (route: number) => model.edges[Number(routes[route]?.edge)]?.step?.accent === true;
   const badge = NUMBERS[options.numbers.form];
-  const texts = (i: number, own: readonly EdgeLabel[]) =>
-    options.edgeText.ground === 'gap'
-      ? gapShapes(own, under, routes[i]?.points ?? [])
-      : own.flatMap((l) => haloShapes(l, accent(i), under));
+  const texts = (i: number, own: readonly EdgeLabel[]) => {
+    const cuts =
+      options.via === 'same' ? [] : viaCuts(own, model.edges[Number(routes[i]?.edge)], layout.look, accent(i));
+    const names = options.via === 'same' ? own : cuts.flatMap((c) => (c.name ? [c.name] : []));
+    const via = cuts.flatMap((c) => c.via);
+    return options.edgeText.ground === 'gap'
+      ? [...gapShapes(own, under, routes[i]?.points ?? [], names), ...via]
+      : [...names.flatMap((l) => haloShapes(l, accent(i), under)), ...via];
+  };
   const groups = labelledRoutes(layout).map(
     (i): Shape => ({
       kind: 'group',
