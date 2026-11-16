@@ -6,7 +6,12 @@ export interface Unit {
   readonly group?: string;
   /** Whether the unit holds people only, which the ring prefers at the top and on the left. */
   readonly people: boolean;
+  /** How far from the hub the unit stands, in shares of the ring, when its members set `distance=`. */
+  readonly reach?: number;
 }
+
+/** What `distance=` makes of the way from the hub to the ring. */
+const REACH = { near: 0.72, far: 1.4 } as const;
 
 /** The hub of the star: the emphasised element, else the one with the most edges, the first of equals. */
 export function hubOf(model: ArchitectureModel): ArchNode | undefined {
@@ -47,8 +52,15 @@ export function unitsOf(model: ArchitectureModel, hub: ArchNode): Unit[] {
     if (g !== undefined) byGroup.set(g, ids);
     units.push({ ids, ...(g === undefined ? {} : { group: g }), people: false });
   }
-  const kind = new Map(others.map((n) => [n.id, n.keyword]));
-  return units.map((u) => ({ ...u, people: u.ids.every((id) => kind.get(id) === 'person') }));
+  const byId = new Map(others.map((n) => [n.id, n]));
+  return units.map((u) => {
+    const distance = u.ids.map((id) => byId.get(id)?.distance).find((d) => d !== undefined);
+    return {
+      ...u,
+      people: u.ids.every((id) => byId.get(id)?.keyword === 'person'),
+      ...(distance ? { reach: REACH[distance] } : {}),
+    };
+  });
 }
 
 /** How far apart two places of a ring of `n` are, the shorter way round. */

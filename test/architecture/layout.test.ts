@@ -21,7 +21,8 @@ const ELEMENTS = ['lifeline', 'swimlane', 'transition', 'pseudostate', 'generali
  * bar that `parts` draws for every kind with its `adr` table and its marks, the CSS class, the alt text of a picture, a
  * package of npm, the queue of a path search, the `and` and `else` of a sentence, the code of a diagnostic, the source
  * a picture is compiled from, a link in a document, the columns and rows of a grid or a table, the areas every kind
- * shares and the kernel paints (ADR 0033), and the like.
+ * shares and the kernel paints (ADR 0033), the spacing of ports and letters that the statement `spacing` shares as a
+ * word, and the like.
  */
 const GENERAL = new Set([
   'adr',
@@ -58,6 +59,7 @@ const GENERAL = new Set([
   'ref',
   'row',
   'source',
+  'spacing',
   'style',
   'system',
   'time',

@@ -6,6 +6,7 @@ import { VIA_FORMS } from '../looks/look.js';
 import { edgeTables } from './edges.js';
 import { ELEMENT_TABLES, LEVEL_ELEMENTS, type Level } from './elements.js';
 import { grid, group, layer, noteTable, style } from './frames.js';
+import { spacing, spacingAttribute } from './spacing.js';
 
 /** A look in the doc of `look=`: its name, `(default)` after the default, and what it draws. */
 const lookEntry = (name: LookName): string =>
@@ -34,6 +35,7 @@ const headerOf = (level: Level) => ({
     oneOf(VIA_FORMS),
     'How the protocol of an edge (`via=`, with schedule, volume and promise) stands apart from its sentence: `same` (default) in the same font on a line of its own or after ` · `, `brackets` smaller as `[HTTPS]`, `muted` smaller in grey, `chip` smaller in a thin rounded frame, `inline` after the sentence in grey italics.',
   ),
+  spacing: spacingAttribute,
   areas: areasAttribute,
   locale: localeAttribute,
 });
@@ -54,7 +56,7 @@ const DOCS: Readonly<Record<Level, string>> = {
 function statementsOf(level: Level) {
   const { edge, flow } = edgeTables(level);
   const elements = LEVEL_ELEMENTS[level].map((keyword) => ELEMENT_TABLES[keyword]);
-  return [grid, layer, group, style, ...elements, edge, flow, noteTable(level), adr, AREA_STATEMENT] as const;
+  return [grid, layer, group, style, spacing, ...elements, edge, flow, noteTable(level), adr, AREA_STATEMENT] as const;
 }
 
 /** The statement tables of one C4 level: the same tables for all levels, the elements as the level allows. */

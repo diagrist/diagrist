@@ -3,25 +3,26 @@ import type { EdgeLabel } from '@diagrist/layout-grid';
 import type { Look } from '../../looks/look.js';
 import type { ArchitectureModel } from '../../model/types.js';
 import type { Head } from '../frame-cell.js';
+import type { StarRoom } from '../spacing.js';
 import { hull, meets } from './geometry.js';
 import { placeTexts } from './labels.js';
 import { coveredBy, linesOf, type StarLine } from './lines.js';
-import { coverOf, type Placement, placeRing, type Ring, type UnitShapes } from './place.js';
+import { coverOf, type Placement, placeRing, type Ring, type Spot, type UnitShapes } from './place.js';
 import type { Shape } from './shapes.js';
 import { type StarSigns, signsOfStar } from './signs.js';
 
-/** The room between nodes of different units, and between a frame and what is not in it. */
-const GAP = { node: 40, frame: 24 } as const;
+/** The room between a frame and what is not in it, in shares of the room between neighbours. */
+const FRAME_GAP = 0.6;
 /** Width to height of the ring, tried in this order. */
 const ASPECTS = [1.4, 1.8, 2.3, 1.1, 2.9];
 /** How many sizes a ring tries once one fits, for texts that find a clearer spot on a larger ring. */
-const BEYOND = 3;
+const BEYOND = 6;
 /** How much larger the next size of the ring is. */
 const GROW = 1.06;
 /** What it costs a unit of people to stand on the right or at the bottom, in shares of the picture's area. */
-const PEOPLE_AWAY = 0.2;
+const PEOPLE_AWAY = 0.6;
 /** What a step of strain on a text costs, in shares of the picture's area. */
-const STRAIN = 0.04;
+const STRAIN = 0.1;
 
 /** A laid out star: placement, lines, texts and signs, and the rectangle all of it covers. */
 export interface Star {
@@ -34,20 +35,24 @@ export interface Star {
   readonly strain: number;
 }
 
-/** Whether nodes of different units and frames keep their room from each other. */
-function roomy(placed: Placement): boolean {
+/** Whether nodes of different units and frames keep their room from each other, and all of them from the hub. */
+function roomy(placed: Placement, hub: string, room: StarRoom): boolean {
   const spots = [...placed.spots.entries()];
+  const middle = coverOf(placed.spots.get(hub) as Spot);
+  const frameGap = room.gap * FRAME_GAP;
+  if (spots.some(([id, s]) => id !== hub && coverOf(s).some((r) => middle.some((q) => meets(r, q, room.ring)))))
+    return false;
   for (let i = 0; i < spots.length; i++)
     for (let k = i + 1; k < spots.length; k++) {
       const [, a] = spots[i] as (typeof spots)[number];
       const [, b] = spots[k] as (typeof spots)[number];
       if (a.unit !== undefined && a.unit === b.unit) continue;
-      if (coverOf(a).some((r) => coverOf(b).some((q) => meets(r, q, GAP.node)))) return false;
+      if (coverOf(a).some((r) => coverOf(b).some((q) => meets(r, q, room.gap)))) return false;
     }
   return placed.frames.every(
     (f) =>
-      placed.frames.every((g) => g === f || !meets(f.rect, g.rect, GAP.frame)) &&
-      spots.every(([id, s]) => f.members.includes(id) || !coverOf(s).some((r) => meets(r, f.rect, GAP.frame))),
+      placed.frames.every((g) => g === f || !meets(f.rect, g.rect, frameGap)) &&
+      spots.every(([id, s]) => f.members.includes(id) || !coverOf(s).some((r) => meets(r, f.rect, frameGap))),
   );
 }
 
@@ -59,9 +64,10 @@ function tryRing(
   ring: Ring,
   look: Look,
   heads: ReadonlyMap<string, Head>,
+  room: StarRoom,
 ): Star | undefined {
-  const placed = placeRing(hub, units, ring, look, heads);
-  if (!roomy(placed)) return undefined;
+  const placed = placeRing(hub, units, ring, look, heads, room);
+  if (!roomy(placed, hub.node.id, room)) return undefined;
   const lines = linesOf(model.edges, placed, hub.node.id);
   if (lines.some((l) => !l.clear)) return undefined;
   const rects = new Map([...placed.spots].map(([id, s]) => [id, { x: s.x, y: s.y, w: s.shape.w, h: s.shape.h }]));
@@ -73,11 +79,36 @@ function tryRing(
     frames: placed.frames.map((f) => f.rect),
     lines: lines.map((l) => l.points),
   };
-  const texts = placeTexts(lines, look, routeOf, around);
+  const texts = placeTexts(lines, look, routeOf, around, room, ring.turn);
   if (!texts) return undefined;
   const { labels, strain } = texts;
   const bounds = hull([...boxes, ...placed.frames.map((f) => f.rect), ...labels.map((l) => l.box), ...signs.rects]);
   return { placed, lines, labels, signs, bounds, strain };
+}
+
+/** How far a unit is tried closer to the hub, in shares of its way there, nearest first. */
+const PULL = [0.7, 0.78, 0.86, 0.94];
+
+type Tried = { readonly star: Star; readonly ring: Ring; readonly cost: number };
+
+/**
+ * The star with each unit drawn as close to the hub as nodes, lines and texts allow without costing more, so a ring
+ * that had to grow for one tight spot leaves no hole elsewhere; units that set `distance=` keep their place.
+ */
+function drawnIn(best: Tried, units: readonly UnitShapes[], fit: (ring: Ring) => Tried | undefined): Tried {
+  let now = best;
+  units.forEach((u, i) => {
+    if (u.unit.reach !== undefined) return;
+    for (const pull of PULL) {
+      const reach = (now.ring.reach ?? []).map((r, k) => (k === i ? r * pull : r));
+      const tried = fit({ ...now.ring, reach });
+      if (tried && tried.cost <= now.cost) {
+        now = tried;
+        return;
+      }
+    }
+  });
+  return now;
 }
 
 /** What a star costs: the area it covers, more where people stand on the right or at the bottom and texts crowd lines. */
@@ -99,9 +130,11 @@ export function bestStar(
   units: readonly UnitShapes[],
   look: Look,
   heads: ReadonlyMap<string, Head>,
+  room: StarRoom,
 ): Star | undefined {
   const n = Math.max(1, units.length);
-  let best: { star: Star; cost: number } | undefined;
+  const reach = units.map((u) => u.unit.reach ?? 1);
+  let best: { star: Star; ring: Ring; cost: number } | undefined;
   const start = hub.h / 2 + look.metrics.nodeH;
   for (const aspect of ASPECTS)
     for (let k = 0; k < 2 * n; k++)
@@ -111,12 +144,18 @@ export function bestStar(
         for (let scale = start; scale < 4000 && more > 0; scale *= GROW) {
           const floor = scale * aspect * scale;
           if (best && floor > best.cost) break;
-          const star = tryRing(model, hub, units, { theta, turn, aspect, scale }, look, heads);
+          const ring = { theta, turn, aspect, scale, reach };
+          const star = tryRing(model, hub, units, ring, look, heads, room);
           if (!star) continue;
           more -= 1;
           const cost = costOf(star, units);
-          if (!best || cost < best.cost) best = { star, cost };
+          if (!best || cost < best.cost) best = { star, ring, cost };
         }
       }
-  return best?.star;
+  if (!best) return undefined;
+  const fit = (ring: Ring) => {
+    const star = tryRing(model, hub, units, ring, look, heads, room);
+    return star ? { star, ring, cost: costOf(star, units) } : undefined;
+  };
+  return drawnIn(best, units, fit).star;
 }

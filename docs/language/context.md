@@ -9,7 +9,7 @@ This page lists everything a `context` diagram may contain. The same grammar is 
 ## The first line
 
 ```text
-diagram context "Title" [subtitle=<text>] [label=<text>] [look=<plain|cards|blocks|paper|columns|lowfi>] [decisions=<right|below|auto>] [layout=<adaptive|star>] [protocols=<same|brackets|muted|chip|inline>] [areas=<tint|outline|stripe>] [locale=<en|de>]
+diagram context "Title" [subtitle=<text>] [label=<text>] [look=<plain|cards|blocks|paper|columns|lowfi>] [decisions=<right|below|auto>] [layout=<adaptive|star>] [protocols=<same|brackets|muted|chip|inline>] [spacing=<compact|normal|loose>] [areas=<tint|outline|stripe>] [locale=<en|de>]
 ```
 
 Every context diagram starts with this line.
@@ -22,6 +22,7 @@ Every context diagram starts with this line.
 | `decisions=` | attribute | one of `right`, `below`, `auto` | Where a look that writes decisions as notes sets them: `right` (default) in a column beside the picture, `below` side by side under it, `auto` below once the picture is wider than 1,100 pixels, as a printed page needs. |
 | `layout=` | attribute | one of `adaptive`, `star` | `adaptive`: columns grow to their content and edges find their own way around obstacles; `star`: the system in the middle, its neighbours on a ring around it, every edge a straight line, no grid and no `at` needed. Without it the grid is fixed. |
 | `protocols=` | attribute | one of `same`, `brackets`, `muted`, `chip`, `inline` | How the protocol of an edge (`via=`, with schedule, volume and promise) stands apart from its sentence: `same` (default) in the same font on a line of its own or after ` · `, `brackets` smaller as `[HTTPS]`, `muted` smaller in grey, `chip` smaller in a thin rounded frame, `inline` after the sentence in grey italics. |
+| `spacing=` | attribute | one of `compact`, `normal`, `loose` | How close everything stands: `compact` with about 0.7 of the usual room, `normal` (default), `loose` with about 1.4 times. The statement `spacing` sets single measures on top of it. |
 | `areas=` | attribute | one of `tint`, `outline`, `stripe` | How elements of a coloured area are painted: `tint` (default) a light fill and the outline in its tone, `outline` the outline and the name in its tone, `stripe` a stripe of its tone at the left edge. Lines and frames of an area are drawn in its tone in each. |
 | `locale=` | attribute | one of `en`, `de` | Language of the texts Diagrist adds to the picture and of the description: `en` (default) or `de`. |
 
@@ -41,6 +42,7 @@ Each statement is one line that starts with its keyword. Statements inside block
 | [`layer`](#layer) | top level | Names a row in a box right of the picture, joined by one bracket for all layers; needs `layout=adaptive`. |
 | [`group`](#group) | top level | A frame around elements by responsibility; it grows from its members. |
 | [`style`](#style) | top level | Named values for elements, and a tone for edges, so sizes and colours stand in one place. |
+| [`spacing`](#spacing) | top level | Sets single measures of room in pixels, over what `spacing=` in the header gives. |
 | [`person`](#person) | top level | A person who uses the system, drawn as a stick figure with name and role below it. |
 | [`system`](#system) | top level | A software system, as a box with name and a second line. |
 | [`node`](#node) | top level | A neutral element for any level, such as a queue, a job or a layer of a pattern. |
@@ -152,10 +154,37 @@ style component height=80
 style store shape=db height=96
 ```
 
+### `spacing`
+
+```text
+spacing [ring=<integer>] [gap=<integer>] [label=<integer>] [margin=<integer>] [cols=<integer>] [rows=<integer>]
+```
+
+Sets single measures of room in pixels, over what `spacing=` in the header gives. `ring`, `gap` and `label` shape `layout=star`; `cols` and `rows` the grid; `margin` both.
+
+Written at the top level.
+
+| Part | Kind | Value | Meaning |
+|---|---|---|---|
+| `ring=` | attribute | a whole number from 16 to 960 | With `layout=star`: the shortest way from the outline of the middle element to its neighbours, so every line is at least this long. |
+| `gap=` | attribute | a whole number from 8 to 480 | With `layout=star`: the least room between two neighbours on the ring. |
+| `label=` | attribute | a whole number from 2 to 64 | With `layout=star`: how far the text of an edge stands from its line. |
+| `margin=` | attribute | a whole number from 0 to 480 | The room left and right of the picture. |
+| `cols=` | attribute | a whole number from 16 to 960 | In the grid: the room between two columns. |
+| `rows=` | attribute | a whole number from 16 to 960 | In the grid: the room between two rows. |
+
+Examples:
+
+```dgr
+spacing ring=120 gap=56
+spacing label=10 margin=64
+spacing cols=96 rows=80
+```
+
 ### `person`
 
 ```text
-person <id> <label> [at <place>] [in <ref>] [tech=<text>] [icon=<choice>] [shape=<db|queue|store|job|app>] [width=<integer>] [height=<integer>] [tone=<choice>] [form=<card|circle|text>] [status=<planned|deprecated|optional|existing|new>] [replicas=<integer>] [span=<span>] [slot=<slot>] [style=<ref>] [mark=<ref>] [area=<ref>] [emph]
+person <id> <label> [at <place>] [in <ref>] [tech=<text>] [icon=<choice>] [shape=<db|queue|store|job|app>] [width=<integer>] [height=<integer>] [tone=<choice>] [form=<card|circle|text>] [status=<planned|deprecated|optional|existing|new>] [replicas=<integer>] [span=<span>] [slot=<slot>] [style=<ref>] [mark=<ref>] [distance=<near|far>] [area=<ref>] [emph]
 ```
 
 A person who uses the system, drawn as a stick figure with name and role below it. `at` places it in the grid, `in` puts it into a group. `emph` marks a core decision with a thick border. Indented texts are further lines in the box.
@@ -181,6 +210,7 @@ Written at the top level.
 | `slot=` | attribute | `i/n` with 1 ≤ i ≤ n ≤ 64, like `2/3` | Takes place `i` of `n` equal places in its area, like `2/3`; needs `layout=adaptive`. |
 | `style=` | attribute | the id of a `style` declared in this diagram | A `style` whose values apply where the element sets none. |
 | `mark=` | attribute | the id of an `adr` declared in this diagram | Id of a decision of the bar below, such as `E1`; the mark stands at the corner. |
+| `distance=` | attribute | one of `near`, `far` | With `layout=star`: `near` stands closer to the element in the middle than the ring, `far` further out; a frame follows its first member that sets it. Other layouts ignore it. |
 | `area=` | attribute | the id of an `area` declared in this diagram | The area it belongs to, declared with `area`, whose tone paints it. Members of a frame take the area of the frame unless they name their own. |
 | `emph` | flag |  | Draws the border thick: the core decision of the picture. |
 
@@ -211,7 +241,7 @@ Example:
 ### `system`
 
 ```text
-system <id> <label> [at <place>] [in <ref>] [tech=<text>] [icon=<choice>] [shape=<db|queue|store|job|app>] [width=<integer>] [height=<integer>] [tone=<choice>] [form=<card|circle|text>] [status=<planned|deprecated|optional|existing|new>] [replicas=<integer>] [span=<span>] [slot=<slot>] [style=<ref>] [mark=<ref>] [area=<ref>] [emph]
+system <id> <label> [at <place>] [in <ref>] [tech=<text>] [icon=<choice>] [shape=<db|queue|store|job|app>] [width=<integer>] [height=<integer>] [tone=<choice>] [form=<card|circle|text>] [status=<planned|deprecated|optional|existing|new>] [replicas=<integer>] [span=<span>] [slot=<slot>] [style=<ref>] [mark=<ref>] [distance=<near|far>] [area=<ref>] [emph]
 ```
 
 A software system, as a box with name and a second line. `at` places it in the grid, `in` puts it into a group. `emph` marks a core decision with a thick border. Indented texts are further lines in the box.
@@ -237,6 +267,7 @@ Written at the top level.
 | `slot=` | attribute | `i/n` with 1 ≤ i ≤ n ≤ 64, like `2/3` | Takes place `i` of `n` equal places in its area, like `2/3`; needs `layout=adaptive`. |
 | `style=` | attribute | the id of a `style` declared in this diagram | A `style` whose values apply where the element sets none. |
 | `mark=` | attribute | the id of an `adr` declared in this diagram | Id of a decision of the bar below, such as `E1`; the mark stands at the corner. |
+| `distance=` | attribute | one of `near`, `far` | With `layout=star`: `near` stands closer to the element in the middle than the ring, `far` further out; a frame follows its first member that sets it. Other layouts ignore it. |
 | `area=` | attribute | the id of an `area` declared in this diagram | The area it belongs to, declared with `area`, whose tone paints it. Members of a frame take the area of the frame unless they name their own. |
 | `emph` | flag |  | Draws the border thick: the core decision of the picture. |
 
@@ -267,7 +298,7 @@ Example:
 ### `node`
 
 ```text
-node <id> <label> [at <place>] [in <ref>] [tech=<text>] [icon=<choice>] [shape=<db|queue|store|job|app>] [width=<integer>] [height=<integer>] [tone=<choice>] [form=<card|circle|text>] [status=<planned|deprecated|optional|existing|new>] [replicas=<integer>] [span=<span>] [slot=<slot>] [style=<ref>] [mark=<ref>] [area=<ref>] [emph]
+node <id> <label> [at <place>] [in <ref>] [tech=<text>] [icon=<choice>] [shape=<db|queue|store|job|app>] [width=<integer>] [height=<integer>] [tone=<choice>] [form=<card|circle|text>] [status=<planned|deprecated|optional|existing|new>] [replicas=<integer>] [span=<span>] [slot=<slot>] [style=<ref>] [mark=<ref>] [distance=<near|far>] [area=<ref>] [emph]
 ```
 
 A neutral element for any level, such as a queue, a job or a layer of a pattern. `at` places it in the grid, `in` puts it into a group. `emph` marks a core decision with a thick border. Indented texts are further lines in the box.
@@ -293,6 +324,7 @@ Written at the top level.
 | `slot=` | attribute | `i/n` with 1 ≤ i ≤ n ≤ 64, like `2/3` | Takes place `i` of `n` equal places in its area, like `2/3`; needs `layout=adaptive`. |
 | `style=` | attribute | the id of a `style` declared in this diagram | A `style` whose values apply where the element sets none. |
 | `mark=` | attribute | the id of an `adr` declared in this diagram | Id of a decision of the bar below, such as `E1`; the mark stands at the corner. |
+| `distance=` | attribute | one of `near`, `far` | With `layout=star`: `near` stands closer to the element in the middle than the ring, `far` further out; a frame follows its first member that sets it. Other layouts ignore it. |
 | `area=` | attribute | the id of an `area` declared in this diagram | The area it belongs to, declared with `area`, whose tone paints it. Members of a frame take the area of the frame unless they name their own. |
 | `emph` | flag |  | Draws the border thick: the core decision of the picture. |
 
