@@ -20,6 +20,7 @@ import { nodeMarkTexts } from './node-marks.js';
 import { type NoteArt, noteArts, type RemarkLine, remarkArts } from './notes.js';
 import { sheetFor } from './sheet.js';
 import { signsFrom, signsOf } from './signs.js';
+import { spacedLook } from './spacing.js';
 import { crestOf, graphOf } from './spec.js';
 import { starCells } from './star/index.js';
 
@@ -72,7 +73,7 @@ export interface ArchitectureLayout {
  * bar and the legend.
  */
 export function layoutArchitecture(model: ArchitectureModel, texts: Texts, locale: Locale): ArchitectureLayout {
-  const look = lookOf(model);
+  const look = spacedLook(lookOf(model), model.spacing);
   const { metrics: m, options: o } = look;
   const frame = bandFrameOf(model, look);
   const { graph, cells, heads } = graphOf(frame.model, look, texts, frame);

@@ -2,9 +2,10 @@ import type { Point, Rect } from '@diagrist/core';
 import type { ArchEdge } from '../../model/types.js';
 import { bowed, clipped, lineMeets, linesCross } from './geometry.js';
 import { coverOf, middleOf, type Placement, type Spot } from './place.js';
+import { hubPorts, type Port, spokeWay } from './ports.js';
 
 /** How far apart the lines of edges between the same two nodes run. */
-const PAIR_GAP = 18;
+const PAIR_GAP = 24;
 /** How far a line keeps from boxes it does not end at. */
 const CLEAR = 10;
 /** How far a line between neighbours keeps from the hub. */
@@ -19,6 +20,8 @@ export interface StarLine {
   /** The side of its straight way the line was moved to, beside another edge between the same nodes, or 0. */
   readonly side: number;
   readonly clear: boolean;
+  /** For a line at the hub: whether it starts there, else it ends there. */
+  readonly fromHub?: boolean;
 }
 
 /** The shift of each edge to the left of the way between its pair, so edges between the same nodes run apart. */
@@ -81,14 +84,32 @@ export function linesOf(edges: readonly ArchEdge[], placed: Placement, hub: stri
     const pts = clipped(way, coverOf(a), coverOf(b));
     return forward ? pts : [...pts].reverse();
   };
+  const hubSpot = placed.spots.get(hub) as Spot;
+  const keyOf = (s: { a: string; b: string }) => `${s.a}\u0000${s.b}`;
+  const farOf = (s: { a: string; b: string }) => middleOf(placed.spots.get(s.a === hub ? s.b : s.a) as Spot);
+  const ports =
+    hubSpot.shape.parts.length === 1
+      ? hubPorts(
+          coverOf(hubSpot)[0] as Rect,
+          new Map(
+            drawn.filter(spoke).map((e) => {
+              const s = shift.get(e.index) ?? { a: e.from, b: e.to, by: 0 };
+              const lines = drawn.filter((x) => keyOf(shift.get(x.index) ?? s) === keyOf(s)).length;
+              return [keyOf(s), { far: farOf(s), lines }] as const;
+            }),
+          ),
+        )
+      : new Map<string, Port>();
   const spokes = drawn.filter(spoke).map((e): StarLine => {
-    const { s, a, b, way } = ends(e);
+    const { s, a, b } = ends(e);
+    const way = spokeWay(ports.get(keyOf(s)), middleOf(hubSpot), farOf(s), s.by, s.a === hub);
     const points = cut(way, a, b, s.a === e.from);
     return {
       edge: e,
       points,
       side: Math.sign(s.by) * (s.a === e.from ? 1 : -1),
       clear: !hits(points, [e.from, e.to], placed, hub),
+      fromHub: e.from === hub,
     };
   });
   const hubAt = middleOf(placed.spots.get(hub) as Spot);

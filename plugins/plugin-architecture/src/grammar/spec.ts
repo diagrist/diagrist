@@ -5,6 +5,7 @@ import { DEFAULT_LOOK, LOOK_NAMES, LOOKS, type LookName } from '../looks/index.j
 import { edgeTables } from './edges.js';
 import { ELEMENT_TABLES, LEVEL_ELEMENTS, type Level } from './elements.js';
 import { grid, group, layer, noteTable, style } from './frames.js';
+import { spacing, spacingAttribute } from './spacing.js';
 
 /** A look in the doc of `look=`: its name, `(default)` after the default, and what it draws. */
 const lookEntry = (name: LookName): string =>
@@ -29,6 +30,7 @@ const headerOf = (level: Level) => ({
           oneOf(['adaptive']),
           'Columns grow to their content and edges find their own way around obstacles; without it the grid is fixed.',
         ),
+  spacing: spacingAttribute,
   areas: areasAttribute,
   locale: localeAttribute,
 });
@@ -49,7 +51,7 @@ const DOCS: Readonly<Record<Level, string>> = {
 function statementsOf(level: Level) {
   const { edge, flow } = edgeTables(level);
   const elements = LEVEL_ELEMENTS[level].map((keyword) => ELEMENT_TABLES[keyword]);
-  return [grid, layer, group, style, ...elements, edge, flow, noteTable(level), adr, AREA_STATEMENT] as const;
+  return [grid, layer, group, style, spacing, ...elements, edge, flow, noteTable(level), adr, AREA_STATEMENT] as const;
 }
 
 /** The statement tables of one C4 level: the same tables for all levels, the elements as the level allows. */

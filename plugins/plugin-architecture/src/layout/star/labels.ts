@@ -3,20 +3,26 @@ import { type EdgeLabel, pointAlong, polylineLength, WRAP_EM, wrapWithin } from 
 import type { Look } from '../../looks/look.js';
 import { signedLabel } from '../diff.js';
 import { detailLine } from '../signs.js';
+import type { StarRoom } from '../spacing.js';
 import { lineMeets, meets } from './geometry.js';
 import type { StarLine } from './lines.js';
 
-/** How far a text beside its line keeps from it. */
-const BESIDE = 6;
-/** How far texts keep from boxes and other texts. */
-const ROOM = { box: 6, text: 6 } as const;
+/** How far texts keep from boxes and, at `spacing=normal`, from other texts. */
+const ROOM = { box: 6, text: 14 } as const;
 /**
- * How far a text keeps from lines it does not belong to: far enough to be read as its own line's first, close
- * where nothing else is free.
+ * How far a text keeps from lines it does not belong to at `spacing=normal`: far enough to be read as its own line's
+ * first, close where nothing else is free.
  */
 const LINE_ROOM = [44, 30, 20, 12, 4];
-/** Where along its line a text is tried, in shares of the line, best first. */
+/** What a text at the hub costs that stands against the turn of the others, in steps of `LINE_ROOM`. */
+const OTHER_SIDE = 2;
+/** Where along a line between neighbours a text is tried, in shares of the line, best first. */
 const ALONG = [0.5, 0.42, 0.58, 0.34, 0.66, 0.26, 0.74, 0.18, 0.82];
+/**
+ * Where along a line at the hub a text is tried, in shares of the line from the hub, best first: further out, where
+ * the lines round the hub stand further apart.
+ */
+const OUTWARD = [0.6, 0.68, 0.52, 0.76, 0.44, 0.84, 0.36, 0.28];
 
 /** What texts keep out of: rectangles of boxes, frames and signs, and the lines with the index of their route. */
 export interface Obstacles {
@@ -39,25 +45,54 @@ function textLines(line: StarLine, look: Look): { text: string; part: 'name' | '
   ].map((l) => ({ ...l, w: measure(l.text) }));
 }
 
-/** Whether a rectangle crosses the line of a frame, standing partly inside and partly outside it. */
+/** Whether a rectangle crosses the line of a frame or comes close to it, from inside or outside. */
 const across = (r: Rect, f: Rect): boolean =>
-  meets(r, f) && !(r.x >= f.x && r.y >= f.y && r.x + r.w <= f.x + f.w && r.y + r.h <= f.y + f.h);
+  meets(r, f, ROOM.box) &&
+  !(
+    r.x >= f.x + ROOM.box &&
+    r.y >= f.y + ROOM.box &&
+    r.x + r.w <= f.x + f.w - ROOM.box &&
+    r.y + r.h <= f.y + f.h - ROOM.box
+  );
 
-/** The middles a block of `w` by `h` may take at a line: beside it on the sides `sides`, else on it. */
-function middles(points: readonly Point[], w: number, h: number, sides: readonly number[], onLine: boolean): Point[] {
+/**
+ * The middles a block of `w` by `h` may take at a line: beside it on the sides `sides`, else on it. At a line of the
+ * hub every spot on the first side comes before any on the second, so the texts of the hub keep one turn.
+ */
+function middles(
+  points: readonly Point[],
+  w: number,
+  h: number,
+  sides: readonly number[],
+  onLine: boolean,
+  beside: number,
+  fromHub: boolean | undefined,
+): Point[] {
   const length = polylineLength(points);
-  return ALONG.flatMap((t) => {
-    const { p, dir } = pointAlong(points, length * t);
+  const shares = fromHub === undefined ? ALONG : OUTWARD.map((t) => (fromHub ? t : 1 - t));
+  const at = shares.map((t) => pointAlong(points, length * t));
+  const besideAt = ({ p, dir }: (typeof at)[number], s: number): Point => {
     const n: Point = [dir[1], -dir[0]];
-    const reach = BESIDE + (Math.abs(n[0]) * w) / 2 + (Math.abs(n[1]) * h) / 2;
-    const beside = sides.map((s): Point => [p[0] + n[0] * reach * s, p[1] + n[1] * reach * s]);
-    return onLine ? [p, ...beside] : [...beside, p];
+    const reach = beside + (Math.abs(n[0]) * w) / 2 + (Math.abs(n[1]) * h) / 2;
+    return [p[0] + n[0] * reach * s, p[1] + n[1] * reach * s];
+  };
+  if (fromHub !== undefined && !onLine) return sides.flatMap((s) => at.map((a) => besideAt(a, s)));
+  return at.flatMap((a) => {
+    const out = sides.map((s) => besideAt(a, s));
+    return onLine ? [a.p, ...out] : [...out, a.p];
   });
 }
 
-/** The sides of its line a text may stand on, the upper one or the left one first; one beside a pair keeps outside. */
-function sidesOf(line: StarLine): number[] {
+/**
+ * The sides of its line a text may stand on: one beside a pair keeps outside; one at the hub stands first on the side
+ * the ring turns to, so each gap between two lines of the hub holds the text of one; else the upper or left one first.
+ */
+function sidesOf(line: StarLine, turn: 1 | -1): number[] {
   if (line.side !== 0) return [line.side];
+  if (line.fromHub !== undefined) {
+    const s = line.fromHub ? turn : -turn;
+    return [s, -s];
+  }
   const { dir } = pointAlong(line.points, polylineLength(line.points) / 2);
   const n: Point = [dir[1], -dir[0]];
   const up = Math.abs(n[1]) > 0.3 ? n[1] < 0 : n[0] < 0;
@@ -75,10 +110,14 @@ export function placeTexts(
   look: Look,
   routeOf: ReadonlyMap<number, number>,
   around: Obstacles,
+  spacing: StarRoom,
+  turn: 1 | -1,
 ): { labels: EdgeLabel[]; strain: number } | undefined {
   const size = look.fonts.label.size;
   const lineH = look.metrics.labelLineH;
   const taken: Rect[] = [];
+  const beside = spacing.label;
+  const lineRoom = LINE_ROOM.map((r) => r * spacing.factor);
   const out: EdgeLabel[] = [];
   let strain = 0;
   for (const [i, line] of lines.entries()) {
@@ -91,16 +130,24 @@ export function placeTexts(
     const fits = (r: Rect, room: number) =>
       !around.boxes.some((b) => meets(r, b, ROOM.box)) &&
       !around.frames.some((f) => across(r, f)) &&
-      !taken.some((t) => meets(r, t, ROOM.text)) &&
+      !taken.some((t) => meets(r, t, ROOM.text * spacing.factor)) &&
       !around.lines.some((l, k) => k !== i && lineMeets(l, r, room));
-    const spots = middles(own, w, h, sidesOf(line), onLine).map(
+    const spots = middles(own, w, h, sidesOf(line, turn), onLine, beside, line.fromHub).map(
       ([x, y]): Rect => ({ x: x - w / 2, y: y - h / 2, w, h }),
     );
-    const level = LINE_ROOM.findIndex((room) => spots.some((r) => fits(r, room) && (onLine || !lineMeets(own, r, 1))));
-    const room = LINE_ROOM[level];
-    const spot = room === undefined ? undefined : spots.find((r) => fits(r, room) && (onLine || !lineMeets(own, r, 1)));
-    strain += level;
-    if (!spot) return undefined;
+    const ok = (r: Rect, room: number) => fits(r, room) && (onLine || !lineMeets(own, r, 1));
+    const sides = line.fromHub !== undefined && !onLine && line.side === 0 ? 2 : 1;
+    const per = spots.length / sides;
+    const best = Array.from({ length: sides }, (_, k) => {
+      const part = spots.slice(k * per, (k + 1) * per);
+      const level = lineRoom.findIndex((room) => part.some((r) => ok(r, room)));
+      const room = lineRoom[level];
+      const spot = room === undefined ? undefined : part.find((r) => ok(r, room));
+      return spot ? { spot, cost: level + k * OTHER_SIDE } : undefined;
+    }).reduce((a, b) => (b && (!a || b.cost < a.cost) ? b : a), undefined);
+    if (!best) return undefined;
+    const { spot } = best;
+    strain += best.cost;
     taken.push(spot);
     const route = routeOf.get(line.edge.index) ?? i;
     texts.forEach((t, k) => {

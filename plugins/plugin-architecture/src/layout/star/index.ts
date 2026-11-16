@@ -5,6 +5,7 @@ import type { ArchitectureModel } from '../../model/types.js';
 import type { Texts } from '../../texts/index.js';
 import type { Head } from '../frame-cell.js';
 import { MARK, NUMBER_SIZE } from '../marks.js';
+import { starRoom } from '../spacing.js';
 import { rounded } from './geometry.js';
 import { hubOf, ringOrder, unitsOf } from './order.js';
 import { bestStar, type Star } from './search.js';
@@ -109,6 +110,7 @@ export function starCells(
       return s ? [s] : [];
     }),
   }));
-  const star = bestStar(model, shapes.get(hub.id) as NonNullable<ReturnType<typeof shapes.get>>, units, look, heads);
+  const hubShape = shapes.get(hub.id) as NonNullable<ReturnType<typeof shapes.get>>;
+  const star = bestStar(model, hubShape, units, look, heads, starRoom(model.spacing));
   return star ? asCells(model, star, look, firstRowY - RISE) : undefined;
 }
