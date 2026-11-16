@@ -47,6 +47,7 @@ export const COLUMNS: Look = {
     block: inter(14, 600),
     heading: inter(13, 600),
     large: inter(13),
+    via: { size: 9.5, family: 'jetbrains-mono' },
   },
   paint: COLUMNS_PAINT,
   options: {
@@ -65,5 +66,6 @@ export const COLUMNS: Look = {
     layers: 'bands',
     legend: 'sentence',
     decisions: 'notes',
+    via: 'same',
   },
 };

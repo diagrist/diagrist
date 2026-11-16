@@ -40,5 +40,6 @@ export const CARDS: Look = {
     layers: 'boxes',
     legend: 'none',
     decisions: 'bar',
+    via: 'same',
   },
 };

@@ -5,6 +5,7 @@ import type { EdgeKind } from '../grammar/edges.js';
 import type { ElementKeyword, FORMS, Level, SHAPES, STATUSES } from '../grammar/elements.js';
 import type { Place, SpanEnd } from '../grammar/values.js';
 import type { LookName } from '../looks/index.js';
+import type { LookOptions } from '../looks/look.js';
 
 export type NodeShape = (typeof SHAPES)[number];
 export type NodeStatus = (typeof STATUSES)[number];
@@ -133,6 +134,8 @@ export interface ArchitectureModel {
   readonly look: LookName;
   /** Where decision notes stand (`decisions=`): beside the picture, below it, or below once it is wide. */
   readonly decisionsAt: 'right' | 'below' | 'auto';
+  /** How protocols stand apart from the sentence of their edge (`protocols=`); the look's choice when left out. */
+  readonly via?: LookOptions['via'];
   readonly adaptive: boolean;
   /** `layout=star`: the system in the middle, its neighbours on a ring, straight lines; grid and places unused. */
   readonly star: boolean;

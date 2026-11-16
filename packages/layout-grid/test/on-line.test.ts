@@ -39,10 +39,21 @@ describe('texts on a line', () => {
 
   it('measure the detail line in its own font', () => {
     const detailFont = { size: 14 };
-    const t = spec('a b', 'r', ['x@a/r', 'y@b/r'], { edges: [edge('x', 'y')], metrics: { ...METRICS, detailFont } });
+    const t = spec('a b', 'r', ['x@a/r', 'y@b/r'], {
+      edges: [edge('x', 'y')],
+      metrics: { ...METRICS, detail: { font: detailFont } },
+    });
     const layout = placeGrid(t);
     const labels = labelEdges(t, layout, routeEdges(t, layout), [{ edge: 'x-y', name: 'reads', detail: 'HTTPS' }]);
     expect(labels.map((l) => l.box.w)).toEqual([textWidth('reads', METRICS.labelFont), textWidth('HTTPS', detailFont)]);
+  });
+
+  it('measure a detail line with the pad of a frame on both sides', () => {
+    const detail = { font: { size: 9 }, pad: 5 };
+    const t = spec('a b', 'r', ['x@a/r', 'y@b/r'], { edges: [edge('x', 'y')], metrics: { ...METRICS, detail } });
+    const layout = placeGrid(t);
+    const labels = labelEdges(t, layout, routeEdges(t, layout), [{ edge: 'x-y', name: 'reads', detail: 'HTTPS' }]);
+    expect(labels.find((l) => l.part === 'detail')?.box.w).toBe(textWidth('HTTPS', detail.font) + 10);
   });
 });
 

@@ -7,13 +7,17 @@ import { wrapTwo } from './wrap.js';
 
 type Anchor = EdgeLabel['anchor'];
 
-/** The font a part of an edge text is measured in: `detailFont` for the detail line when given, else the label font. */
+/** The font a part of an edge text is measured in: `detail.font` for the detail line when given, else the label font. */
 export const partFont = (part: EdgeLabel['part'], metrics: GridMetrics): Font =>
-  part === 'detail' ? (metrics.detailFont ?? metrics.labelFont) : metrics.labelFont;
+  part === 'detail' ? (metrics.detail?.font ?? metrics.labelFont) : metrics.labelFont;
+
+/** The width of a line of an edge text in the font of its part, a detail line with its pad on both sides. */
+export const partWidth = (text: string, part: EdgeLabel['part'], metrics: GridMetrics): number =>
+  textWidth(text, partFont(part, metrics)) + (part === 'detail' ? 2 * (metrics.detail?.pad ?? 0) : 0);
 
 /**
  * A label line with the box it covers: as wide as the text in the font of its part, from the cap height of the label
- * font to just below the baseline.
+ * font to just below the baseline; a detail line's box takes in its pad.
  */
 export function labelLine(
   text: string,
@@ -23,7 +27,7 @@ export function labelLine(
   metrics: GridMetrics,
 ): EdgeLabel {
   const size = metrics.labelFont.size;
-  const w = textWidth(text, partFont(part, metrics));
+  const w = partWidth(text, part, metrics);
   const left = at.anchor === 'start' ? at.x : at.anchor === 'end' ? at.x - w : at.x - w / 2;
   return { text, ...at, box: { x: left, y: at.y - size, w, h: size + 2 }, route, part };
 }
@@ -80,7 +84,7 @@ export function routeTexts(
       out.push(item(detail, mx, name ? (labelY === above ? below : above) : freeSlot(detail), 'middle', 'detail'));
     return out;
   }
-  const full = [name, detail].filter(Boolean).join(' · ');
+  const full = [name, detail].filter(Boolean).join(metrics.detail?.join ?? ' · ');
   if (!full) return out;
   if (horizontal) {
     stacked(full, len - 16, freeSlot(full), 'name');

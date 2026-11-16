@@ -26,5 +26,11 @@ export const LOOK_NAMES = Object.keys(LOOKS) as readonly LookName[];
 /** The look of a picture without `look=`. */
 export const DEFAULT_LOOK: LookName = 'plain';
 
-/** The look a model is drawn in: the only place that reads its name (ADR 0023, enforced by a test). */
-export const lookOf = (model: Pick<ArchitectureModel, 'look'>): Look => LOOKS[model.look];
+/**
+ * The look a model is drawn in: the only place that reads its name (ADR 0023, enforced by a test), with the form of
+ * protocols the header asks for.
+ */
+export function lookOf(model: Pick<ArchitectureModel, 'look' | 'via'>): Look {
+  const look = LOOKS[model.look];
+  return model.via === undefined ? look : { ...look, options: { ...look.options, via: model.via } };
+}
