@@ -46,8 +46,10 @@ describe('class layout', () => {
     const p = picture('hotel');
     const [hotel, room] = [p.node('hotel'), p.node('zimmer')];
     expect(hotel.y + hotel.h).toBeLessThan(room.y);
-    const tip = `L${cx(hotel)} ${hotel.y + hotel.h}" class="uml-stub" marker-end="url(#m-diamond-filled)"`;
-    expect(p.svg).toContain(tip);
+    const stub = /L([\d.]+) ([\d.]+)" class="uml-stub" marker-end="url\(#m-diamond-filled\)"/.exec(p.svg);
+    expect(Number(stub?.[1])).toBe(cx(hotel));
+    const diamond = 15.5 + 0.75 / Math.sin(Math.atan(5 / 8));
+    expect(Number(stub?.[2]) - diamond - 1.5 / 2).toBeCloseTo(hotel.y + hotel.h, 0);
   });
 
   it('draws the end symbols in the sizes of the predecessor', () => {

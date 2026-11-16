@@ -20,8 +20,9 @@ export interface StyleRule {
 }
 
 /**
- * The outline of a marker in a grid of 12 by 12 units, scaled to `Styles.markerSize`. The point (11, 6) sits on the
- * end of the line, and the line arrives from the left. `closed` closes the outline, so its class can fill it.
+ * The outline of a marker in a grid of 12 by 12 units, scaled to `Styles.markerSize`. The point (11, 6) is the tip,
+ * the line arrives from the left. `closed` closes the outline, so its class can fill it. The SVG writer ends the line
+ * inside the head and lets the tip touch the outer edge of what the line ends on (`fitEnds`).
  */
 export interface MarkerShape {
   readonly points: readonly Point[];
@@ -71,6 +72,8 @@ export interface Marker {
   readonly name: string;
   /** `auto-start-reverse` turns the marker around at the start of a path, as an arrowhead there needs. */
   readonly orient?: 'auto' | 'auto-start-reverse';
+  /** Size relative to `Styles.markerSize`, for a head drawn larger than the others, such as on a thick line. */
+  readonly scale?: number;
 }
 
 /** A pictogram as path data in a square of `size` units, drawn with the class of the shape's role. */
